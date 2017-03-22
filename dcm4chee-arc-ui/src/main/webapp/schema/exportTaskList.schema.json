@@ -1,0 +1,117 @@
+{
+  "title": "ExportTaskList",
+  "type": "array",
+  "items": {
+    "required": [
+      "id",
+      "status",
+      "createdTime",
+      "updatedTime",
+      "scheduledTime"
+    ],
+    "properties": {
+      "id": {
+        "title": "Export Task ID",
+        "description": "Export Task ID",
+        "type": "string"
+      },
+      "queue": {
+        "title": "Queue Name",
+        "description": "name of queue of associated task",
+        "type": "string"
+      },
+      "taskId": {
+        "title": "Task ID",
+        "description": "id of associated task in queue",
+        "type": "string"
+      },
+      "status": {
+        "title": "Task Status",
+        "description": "status of task",
+        "type": "string",
+        "enum": [
+            "TO_SCHEDULE",
+            "SCHEDULED",
+            "IN PROCESS",
+            "COMPLETED",
+            "WARNING",
+            "FAILED",
+            "CANCELED"
+        ]
+      },
+      "studyUID": {
+        "title": "Study Instance UID",
+        "description": "Unique Identifier of the Study",
+        "type": "string"
+      },
+      "seriesUID": {
+        "title": "Series Instance UID",
+        "description": "Unique Identifier of the Series",
+        "type": "string"
+      },
+      "objectUID": {
+        "title": "SOP Instance UID",
+        "description": "Unique Identifier of the Object",
+        "type": "string"
+      },
+      "modality": {
+        "title": "Modality",
+        "description": "Modality",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "numberOfInstances": {
+        "title": "Number of Instances ",
+        "description": "Number of Instances",
+        "type": "number"
+      },
+      "failures": {
+        "title": "Failures",
+        "description": "number of failed attempts to process this message",
+        "type": "integer"
+      },
+      "createdTime": {
+        "title": "Created Time",
+        "description": "time when this messages was created",
+        "type": "string",
+        "format": "date-time"
+      },
+      "updatedTime": {
+        "title": "Updated Time",
+        "description": "time when this messages was last updated",
+        "type": "string",
+        "format": "date-time"
+      },
+      "scheduledTime": {
+        "title": "Scheduled Time",
+        "description": "time when next attempt to process this messages is scheduled",
+        "type": "string",
+        "format": "date-time"
+      },
+      "processingStartTime": {
+        "title": "Processing Start Time",
+        "description": "time when last attempt to process this messages started",
+        "type": "string",
+        "format": "date-time"
+      },
+      "processingEndTime": {
+        "title": "Processing End Time",
+        "description": "time when last attempt to process this messages finished",
+        "type": "string",
+        "format": "date-time"
+      },
+      "errorMessage": {
+        "title": "Error Message",
+        "description": "error message of last failed attempt to process this message",
+        "type": "string"
+      },
+      "outcomeMessage": {
+        "title": "Outcome Message",
+        "description": "outcome message of process this message",
+        "type": "string"
+      }
+    }
+  }
+}

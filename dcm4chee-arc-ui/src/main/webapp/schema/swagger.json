@@ -723,6 +723,78 @@
         }
       }
     },
+    "/monitor/export": {
+      "get": {
+        "tags": [
+          "MONITOR-RS",
+          "EXPORT-RS"
+        ],
+        "summary": "List Export Tasks",
+        "operationId": "listExportTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "studyUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "exporterID",
+            "in": "query",
+            "description": "Exporter ID to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "TO_SCHEDULE",
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "updatedBefore",
+            "in": "query",
+            "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped tasks before first task in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of tasks in returned list",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "exportTaskList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/queue": {
       "get": {
         "tags": [
