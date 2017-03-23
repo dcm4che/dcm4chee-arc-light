@@ -1,10 +1,16 @@
 package org.dcm4chee.arc.export.mgt.impl;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.ExportTask;
+import org.dcm4chee.arc.entity.QExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.QueueManager;
@@ -23,6 +29,7 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import org.hibernate.Session;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +37,7 @@ import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2015
  */
 @Stateless
@@ -48,6 +56,25 @@ public class ExportManagerEJB implements ExportManager {
 
     @Inject
     private QueueManager queueManager;
+
+    private static final Expression<?>[] SELECT = {
+            QExportTask.exportTask.exporterID,
+            QExportTask.exportTask.status,
+            QExportTask.exportTask.messageID,
+            QExportTask.exportTask.createdTime,
+            QExportTask.exportTask.updatedTime,
+            QExportTask.exportTask.scheduledTime,
+            QExportTask.exportTask.studyInstanceUID,
+            QExportTask.exportTask.seriesInstanceUID,
+            QExportTask.exportTask.sopInstanceUID,
+            QExportTask.exportTask.modalities,
+            QExportTask.exportTask.numberOfInstances,
+            QExportTask.exportTask.numberOfFailures,
+            QExportTask.exportTask.processingStartTime,
+            QExportTask.exportTask.processingEndTime,
+            QExportTask.exportTask.errorMessage,
+            QExportTask.exportTask.outcomeMessage
+    };
 
     @Override
     public void onStore(@Observes StoreContext ctx) {
@@ -223,6 +250,30 @@ public class ExportManagerEJB implements ExportManager {
         exportTask.setOutcomeMessage(queueMessage.getOutcomeMessage());
         exportTask.setErrorMessage(queueMessage.getErrorMessage());
         exportTask.setStatus(queueMessage.getStatus());
+    }
+
+    @Override
+    public List<Tuple> search(String exporterID, String studyUID, QueueMessage.Status status, int offset, int limit) {
+        HibernateQuery<Tuple> query = new HibernateQuery<Void>(em.unwrap(Session.class))
+                .select(SELECT)
+                .from(QExportTask.exportTask)
+                .where(createPredicate(exporterID, studyUID, status));
+        if (limit > 0)
+            query.setFetchSize(limit);
+        if (offset > 0)
+            query.offset(offset);
+        return query.fetch();
+    }
+
+    private Predicate createPredicate(String exporterID, String studyUID, QueueMessage.Status status) {
+        BooleanBuilder builder = new BooleanBuilder();
+        if (exporterID != null)
+            builder.and(QExportTask.exportTask.exporterID.eq(exporterID));
+        if (studyUID != null)
+            builder.and(QExportTask.exportTask.studyInstanceUID.eq(studyUID));
+        if (status != null)
+            builder.and(QExportTask.exportTask.status.eq(status));
+        return builder;
     }
 
 }

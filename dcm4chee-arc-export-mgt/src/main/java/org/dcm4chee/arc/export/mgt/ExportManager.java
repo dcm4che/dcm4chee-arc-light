@@ -40,14 +40,17 @@
 
 package org.dcm4chee.arc.export.mgt;
 
+import com.querydsl.core.Tuple;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.store.StoreContext;
 
 import javax.enterprise.event.Observes;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Feb 2016
  */
 public interface ExportManager {
@@ -58,4 +61,6 @@ public interface ExportManager {
     void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter);
 
     void updateExportTask(QueueMessage queueMessage);
+
+    List<Tuple> search(String exporterID, String studyUID, QueueMessage.Status status, int offset, int limit);
 }

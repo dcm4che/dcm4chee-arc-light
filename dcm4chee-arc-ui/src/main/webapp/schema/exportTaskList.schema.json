@@ -65,7 +65,7 @@
       "numberOfInstances": {
         "title": "Number of Instances ",
         "description": "Number of Instances",
-        "type": "number"
+        "type": "integer"
       },
       "failures": {
         "title": "Failures",
