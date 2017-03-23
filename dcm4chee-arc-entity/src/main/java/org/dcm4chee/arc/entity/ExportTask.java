@@ -7,6 +7,7 @@ import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2015
  */
 @Entity
@@ -33,7 +34,10 @@ import java.util.Date;
         @NamedQuery(name = ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID,
                 query = "select o from ExportTask o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
                         "and o.seriesInstanceUID in ('*',?3) and o.sopInstanceUID in ('*',?4) " +
-                        "and o.status = org.dcm4chee.arc.entity.QueueMessage$Status.TO_SCHEDULE")
+                        "and o.status = org.dcm4chee.arc.entity.QueueMessage$Status.TO_SCHEDULE"),
+        @NamedQuery(name = ExportTask.FIND_BY_TASK_ID,
+                query = "select o from ExportTask o " +
+                        "where o.messageID=?1")
 })
 public class ExportTask {
 
@@ -45,6 +49,7 @@ public class ExportTask {
             "ExportTask.FindByExporterIDAndStudyIUIDAndSeriesIUID";
     public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID =
             "ExportTask.FindByExporterIDAndStudyIUIDAndSeriesIUIDAndSopInstanceUID";
+    public static final String FIND_BY_TASK_ID = "ExportTask.findByTaskID";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

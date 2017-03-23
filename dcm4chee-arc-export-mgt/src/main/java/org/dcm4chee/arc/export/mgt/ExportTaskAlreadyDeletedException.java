@@ -38,14 +38,14 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.qmgt;
+package org.dcm4chee.arc.export.mgt;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Oct 2015
+ * @author Vrinda Nayak <vrinda.nayak@gmail.com>
+ * @since Mar 2017
  */
-public class MessageAlreadyDeletedException extends Exception {
-    public MessageAlreadyDeletedException(String message) {
+public class ExportTaskAlreadyDeletedException extends Exception {
+    public ExportTaskAlreadyDeletedException(String message) {
         super(message);
     }
 }

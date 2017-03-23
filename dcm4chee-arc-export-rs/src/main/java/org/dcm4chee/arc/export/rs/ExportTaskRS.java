@@ -53,11 +53,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
@@ -65,7 +64,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -105,13 +106,32 @@ public class ExportTaskRS {
     @Pattern(regexp = "[1-9]\\d{0,4}")
     private String limit;
 
+    @Context
+    private HttpServletRequest request;
 
     @GET
     @NoCache
     @Produces("application/json")
     public Response search() throws Exception {
-        return Response.ok(toEntity(mgr.search(exporterID, studyUID, parseStatus(status), parseInt(offset), parseInt(limit))))
+        return Response.ok(toEntity(mgr.search(exporterID, studyUID, parseDate(updatedBefore), parseStatus(status),
+                parseInt(offset), parseInt(limit))))
                 .build();
+    }
+
+    @DELETE
+    @Path("/{taskID}")
+    public void deleteTask(@PathParam("taskID") String taskID) throws Exception {
+        logRequest();
+        mgr.deleteExportTask(taskID);
+    }
+
+    @DELETE
+    @Produces("application/json")
+    public String deleteTasks() {
+        logRequest();
+        return "{\"deleted\":"
+                + mgr.deleteExportTasks(exporterID, parseStatus(status), parseDate(updatedBefore))
+                + '}';
     }
 
     private Object toEntity(final List<Tuple> tasks) {
@@ -215,4 +235,23 @@ public class ExportTaskRS {
         out.write('}');
     }
 
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
+                request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response getResponse(String errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
+    }
+
+    private static Date parseDate(String s) {
+        try {
+            return s != null
+                    ? new SimpleDateFormat("yyyy-MM-dd").parse(s)
+                    : null;
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

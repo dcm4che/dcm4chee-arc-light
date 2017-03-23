@@ -43,9 +43,11 @@ package org.dcm4chee.arc.export.mgt;
 import com.querydsl.core.Tuple;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.MessageAlreadyDeletedException;
 import org.dcm4chee.arc.store.StoreContext;
 
 import javax.enterprise.event.Observes;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -62,5 +64,10 @@ public interface ExportManager {
 
     void updateExportTask(QueueMessage queueMessage);
 
-    List<Tuple> search(String exporterID, String studyUID, QueueMessage.Status status, int offset, int limit);
+    List<Tuple> search(String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status,
+                       int offset, int limit);
+
+    void deleteExportTask(String taskID) throws ExportTaskAlreadyDeletedException, MessageAlreadyDeletedException;
+
+    int deleteExportTasks(String exporterID, QueueMessage.Status status, Date updatedBefore);
 }
