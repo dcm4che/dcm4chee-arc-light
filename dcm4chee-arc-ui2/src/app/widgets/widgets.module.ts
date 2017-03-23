@@ -14,6 +14,8 @@ import { DeleteRejectedInstancesComponent } from './dialogs/delete-rejected-inst
 import {CalendarModule} from "primeng/components/calendar/calendar";
 import { CreateAeComponent } from './dialogs/create-ae/create-ae.component';
 import { ProductLabellingComponent } from './dialogs/product-labelling/product-labelling.component';
+import {DynamicFormElementComponent} from "./dynamicform/dynamic-form-element.component";
+import {DynamicFormComponent} from "./dynamicform/dynamic-form.component";
 
 
 @NgModule({

@@ -1,0 +1,39 @@
+<div [formGroup]="form">
+    <label [attr.for]="formelement.key">{{formelement.label}}</label><br>
+    <!--form:{{form.controls.arraytest.controls | json}}-->
+    <div [ngSwitch]="formelement.controlType">
+        <!--<br> in ngswitch {{formelement |json}}<br>-->
+        <input *ngSwitchCase="'text'" [formControlName]="formelement.key" [id]="formelement.key" [type]="formelement.type" />
+        <select *ngSwitchCase="'dropdown'" [id]="formelement.key" [formControlName]="formelement.key">
+            <option *ngFor="let opt of formelement.options" [value]="opt.key">{{opt.value}}</option>
+        </select>
+        <div *ngSwitchCase="'radio'">
+            <ng-container *ngFor="let opt of formelement.options">
+                <input  [id]="formelement.key" [formControlName]="formelement.key" [value]="opt.value" type="radio">{{opt.key}}<br>
+            </ng-container>
+        </div>
+        <div *ngSwitchCase="'checkbox'" [formArrayName]="formelement.key">
+            <ng-container *ngFor="let opt of formelement.options;let checkindex=index" >
+                <input  [id]="formelement.key" [name]="opt.value" [value]="opt.value" (change)="checkboxChange($event,form, formelement)" [checked]="opt.active" type="checkbox">{{opt.key}}<br>
+            </ng-container>
+        </div>
+        <div *ngSwitchCase="'arrayobject'"  [formArrayName]="formelement.key">
+            <div *ngFor="let item of formelement.options; let i=index" name="" [formGroupName]="i" >
+                <div *ngFor="let element of item.element">
+                    <df-element [formelement]="element" [form]="form.controls[formelement.key].controls[i]" [formelements]="formelements"></df-element>
+                </div>
+            </div>
+            <div (click)="addElement(formelement.options, formelement, form.controls[formelement.key].controls)">add</div>
+        </div>
+        <div *ngSwitchCase="'arrayelement'"  [formArrayName]="formelement.key">
+            <div *ngFor="let item of formelement.value; let i=index">
+                <input *ngIf="formelement.type === 'number'" formControlName="{{i}}" type="number">
+                <input *ngIf="formelement.type != 'number'" formControlName="{{i}}" [type]="formelement.type">
+                <span (click)="removeArrayElement(formelement, i, form)">x</span>
+            </div>
+            <div (click)="addArrayElement(formelement.value, form.controls[formelement.key].controls, form)">add</div>
+        </div>
+        <span class="description">{{formelement.description}}</span>
+    </div>
+    <!--<div class="errorMessage" *ngIf="formelement.controlType != 'array' && !isValid">{{formelement.label}} is required</div>-->
+</div>

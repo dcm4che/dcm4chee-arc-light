@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {FormsModule, FormGroup, FormGroupName, ReactiveFormsModule} from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule }   from '@angular/router';
 import {AppComponent} from './app.component';
@@ -38,6 +38,16 @@ import { PlaceholderchangerDirective } from './helpers/placeholderchanger.direct
 import {QueuesService} from "./queues/queues.service";
 import { DevicesComponent } from './devices/devices.component';
 import {DevicesService} from "./devices/devices.service";
+import { DeviceConfiguratorComponent } from './device-configurator/device-configurator.component';
+import {FormElement} from "./helpers/form/form-element";
+import {FormService} from "./helpers/form/form.service";
+import {ArrayElement} from "./helpers/form/array-element";
+import {ArrayObject} from "./helpers/form/array-object";
+import {DropdownList} from "./helpers/form/dropdown-list";
+import {InputText} from "./helpers/form/input-text";
+import {REACTIVE_FORM_DIRECTIVES} from "@angular/forms/src/directives";
+import {DynamicFormElementComponent} from "./widgets/dynamicform/dynamic-form-element.component";
+import {DynamicFormComponent} from "./widgets/dynamicform/dynamic-form.component";
 
 @NgModule({
     declarations: [
@@ -65,7 +75,10 @@ import {DevicesService} from "./devices/devices.service";
         TooltipDirective,
         ComparewithiodPipe,
         PlaceholderchangerDirective,
-        DevicesComponent
+        DevicesComponent,
+        DeviceConfiguratorComponent,
+        DynamicFormElementComponent,
+        DynamicFormComponent
     ],
     imports: [
         BrowserModule,
@@ -77,6 +90,7 @@ import {DevicesService} from "./devices/devices.service";
         CommonModule,
         CalendarModule,
         DropdownModule,
+        ReactiveFormsModule,
         RouterModule.forRoot([
             {
               path: '',
@@ -87,6 +101,7 @@ import {DevicesService} from "./devices/devices.service";
             { path: 'control', component: ControlComponent },
             { path: 'queues', component: QueuesComponent },
             { path: 'devicelist', component: DevicesComponent },
+            { path: 'devicelist/:device', component: DeviceConfiguratorComponent },
             { path: '**', component: PageNotFoundComponent }
       ],
             { useHash: true })

@@ -97,7 +97,7 @@ export class MessagingComponent implements OnDestroy{
                 });
                 buffer--;
             }
-            if (buffer === 0 && isAvailable === true) {
+            if (buffer === 0 && isAvailable && isAvailable === true) {
                 return 999;
             } else {
                 return id;
