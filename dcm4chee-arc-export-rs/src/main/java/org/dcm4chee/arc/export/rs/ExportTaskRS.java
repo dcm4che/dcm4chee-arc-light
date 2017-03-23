@@ -74,8 +74,8 @@ import java.util.List;
  */
 @RequestScoped
 @Path("monitor/export")
-public class ExportTaskListRS {
-    private static final Logger LOG = LoggerFactory.getLogger(ExportTaskListRS.class);
+public class ExportTaskRS {
+    private static final Logger LOG = LoggerFactory.getLogger(ExportTaskRS.class);
 
     @Inject
     private ExportManager mgr;
