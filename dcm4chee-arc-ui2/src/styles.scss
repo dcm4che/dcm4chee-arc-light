@@ -401,6 +401,23 @@ p-calendar select{
   position: fixed !important;
 }
 
+md-dialog-container{
+  border-top: 20px solid $lightBlue;
+  border-radius: 5px;
+  &.mat-dialog-container{
+    max-width:100% !important;
+  }
+}
+/*.cdk-overlay-container{
+  .cdk-global-overlay-wrapper{
+    top: 5% !important;
+    transform: translateX(-50%) translateX(0px) translateY(0px) !important;
+    md-dialog-container{
+      border-top: 20px solid $lightBlue;
+      border-radius: 5px;
+    }
+  }
+}*/
 .md-overlay-container{
   .md-overlay-pane{
     top: 5% !important;

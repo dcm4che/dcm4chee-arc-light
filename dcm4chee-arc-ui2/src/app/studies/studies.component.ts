@@ -1120,7 +1120,11 @@ export class StudiesComponent implements OnDestroy{
 
             $this.service.initEmptyValue(patient.attrs);
             $this.scrollToDialog();
-            $this.dialogRef = $this.dialog.open(EditPatientComponent, $this.config);
+            $this.dialogRef = $this.dialog.open(EditPatientComponent, {
+                height:'auto',
+                width:'90%'
+            });
+
             $this.dialogRef.componentInstance.mode = mode;
             $this.dialogRef.componentInstance.patient = patient;
             $this.dialogRef.componentInstance.patientkey = patientkey;

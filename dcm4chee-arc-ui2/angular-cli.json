@@ -36,8 +36,8 @@
         "../src/app/constants/dcm4che-dict-names.js",
         "../src/app/constants/dcm4chee-arc-dict-names.js"
       ],
+      "environmentSource": "environments/environment.ts",
       "environments": {
-        "source": "environments/environment.ts",
         "dev": "environments/environment.ts",
         "prod": "environments/environment.prod.ts"
       }

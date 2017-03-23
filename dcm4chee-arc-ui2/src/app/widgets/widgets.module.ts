@@ -30,4 +30,14 @@ import {DynamicFormComponent} from "./dynamicform/dynamic-form.component";
     providers: [MdDialogConfig]
 })
 export class WidgetsModule { }
-export const WidgetsComponents = [ MessagingComponent,EditPatientComponent, EditMwlComponent, EditStudyComponent, CreateAeComponent, CopyMoveObjectsComponent, ConfirmComponent, DeleteRejectedInstancesComponent, ProductLabellingComponent];
+export const WidgetsComponents = [
+    MessagingComponent,
+    EditPatientComponent,
+    EditMwlComponent,
+    EditStudyComponent,
+    CreateAeComponent,
+    CopyMoveObjectsComponent,
+    ConfirmComponent,
+    DeleteRejectedInstancesComponent,
+    ProductLabellingComponent
+];

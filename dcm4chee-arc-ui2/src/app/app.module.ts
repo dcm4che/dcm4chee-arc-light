@@ -45,7 +45,7 @@ import {ArrayElement} from "./helpers/form/array-element";
 import {ArrayObject} from "./helpers/form/array-object";
 import {DropdownList} from "./helpers/form/dropdown-list";
 import {InputText} from "./helpers/form/input-text";
-import {REACTIVE_FORM_DIRECTIVES} from "@angular/forms/src/directives";
+// import {REACTIVE_FORM_DIRECTIVES} from "@angular/forms/src/directives";
 import {DynamicFormElementComponent} from "./widgets/dynamicform/dynamic-form-element.component";
 import {DynamicFormComponent} from "./widgets/dynamicform/dynamic-form.component";
 
