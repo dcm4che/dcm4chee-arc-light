@@ -1122,7 +1122,6 @@ public class StoreServiceEJB {
                 .build();
         location.setInstance(instance);
         em.persist(location);
-        ctx.getLocations().add(location);
         result.getLocations().add(location);
         result.getWriteContexts().add(writeContext);
         if (objectType == Location.ObjectType.DICOM_FILE)
