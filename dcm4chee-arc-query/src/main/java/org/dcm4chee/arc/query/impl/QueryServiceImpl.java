@@ -240,8 +240,11 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public Attributes queryExportTaskInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae) {
-        //TODO
-        return null;
+        if (seriesIUID == null || seriesIUID.equals("*"))
+            return ejb.queryStudyExportTaskInfo(studyIUID, initCodeEntities(new QueryParam(ae)));
+        if (sopIUID == null || sopIUID.equals("*"))
+            return ejb.querySeriesExportTaskInfo(studyIUID, seriesIUID, initCodeEntities(new QueryParam(ae)));
+        return ejb.queryObjectExportTaskInfo(studyIUID, seriesIUID, sopIUID);
     }
 
     @Override

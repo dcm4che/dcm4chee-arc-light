@@ -52,6 +52,7 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.Availability;
@@ -141,6 +142,18 @@ public class QueryServiceEJB {
     static final Expression<?>[] PATIENT_STUDY_ATTRS = {
             QueryBuilder.studyAttributesBlob.encodedAttributes,
             QueryBuilder.patientAttributesBlob.encodedAttributes
+    };
+
+    static final Expression<?>[] EXPORT_STUDY_INFO = {
+            QStudy.study.pk,
+            QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
+            QStudyQueryAttributes.studyQueryAttributes.modalitiesInStudy
+    };
+
+    static final Expression<?>[] EXPORT_SERIES_INFO = {
+            QSeries.series.pk,
+            QSeries.series.modality,
+            QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances
     };
 
     @PersistenceContext(unitName = "dcm4chee-arc")
@@ -270,6 +283,75 @@ public class QueryServiceEJB {
                 attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectDigest, VR.LO,
                         result.get(QMetadata.metadata.digest));
         }
+        return attrs;
+    }
+
+    public Attributes queryStudyExportTaskInfo(String studyIUID, QueryParam queryParam) {
+        String viewID = queryParam.getViewID();
+        Tuple result = new HibernateQuery<Void>(em.unwrap(Session.class))
+                .select(EXPORT_STUDY_INFO)
+                .from(QStudy.study)
+                .leftJoin(QStudy.study.queryAttributes, QStudyQueryAttributes.studyQueryAttributes)
+                .on(QStudyQueryAttributes.studyQueryAttributes.viewID.eq(viewID))
+                .where(QStudy.study.studyInstanceUID.eq(studyIUID))
+                .fetchOne();
+        String modalitiesInStudy;
+        Integer numberOfStudyRelatedInstances =
+                result.get(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances);
+        if (numberOfStudyRelatedInstances == null) {
+            StudyQueryAttributes studyQueryAttributes =
+                    calculateStudyQueryAttributes(result.get(QStudy.study.pk), queryParam);
+            numberOfStudyRelatedInstances = studyQueryAttributes.getNumberOfInstances();
+            modalitiesInStudy = studyQueryAttributes.getModalitiesInStudy();
+        } else {
+            modalitiesInStudy =
+                    result.get(QStudyQueryAttributes.studyQueryAttributes.modalitiesInStudy);
+        }
+        Attributes attrs = new Attributes(2);
+        attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, numberOfStudyRelatedInstances);
+        attrs.setString(Tag.ModalitiesInStudy, VR.CS, modalitiesInStudy);
+        return attrs;
+    }
+
+    public Attributes querySeriesExportTaskInfo(String studyIUID, String seriesIUID, QueryParam queryParam) {
+        String viewID = queryParam.getViewID();
+        Tuple result = new HibernateQuery<Void>(em.unwrap(Session.class))
+                .select(EXPORT_SERIES_INFO)
+                .from(QSeries.series)
+                .leftJoin(QSeries.series.queryAttributes, QSeriesQueryAttributes.seriesQueryAttributes)
+                .on(QSeriesQueryAttributes.seriesQueryAttributes.viewID.eq(viewID))
+                .join(QSeries.series.study, QStudy.study)
+                .where(QStudy.study.studyInstanceUID.eq(studyIUID), QSeries.series.seriesInstanceUID.eq(seriesIUID))
+                .fetchOne();
+
+        Integer numberOfSeriesRelatedInstances =
+                result.get(QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances);
+        if (numberOfSeriesRelatedInstances == null) {
+            Long seriesPk = result.get(QSeries.series.pk);
+            SeriesQueryAttributes seriesQueryAttributes =
+                    calculateSeriesQueryAttributes(seriesPk, queryParam);
+            numberOfSeriesRelatedInstances = seriesQueryAttributes.getNumberOfInstances();
+        }
+        Attributes attrs = new Attributes(2);
+        attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, numberOfSeriesRelatedInstances);
+        attrs.setString(Tag.ModalitiesInStudy, VR.CS, result.get(QSeries.series.modality));
+        return attrs;
+    }
+
+    public Attributes queryObjectExportTaskInfo(String studyIUID, String seriesIUID, String sopIUID) {
+        String modality = new HibernateQuery<Void>(em.unwrap(Session.class))
+                .select(QSeries.series.modality)
+                .from(QInstance.instance)
+                .join(QInstance.instance.series, QSeries.series)
+                .join(QSeries.series.study, QStudy.study)
+                .where(QStudy.study.studyInstanceUID.eq(studyIUID),
+                        QSeries.series.seriesInstanceUID.eq(seriesIUID),
+                        QInstance.instance.sopInstanceUID.eq(sopIUID))
+                .fetchOne();
+
+        Attributes attrs = new Attributes(2);
+        attrs.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, 1);
+        attrs.setString(Tag.ModalitiesInStudy, VR.CS, modality);
         return attrs;
     }
 
