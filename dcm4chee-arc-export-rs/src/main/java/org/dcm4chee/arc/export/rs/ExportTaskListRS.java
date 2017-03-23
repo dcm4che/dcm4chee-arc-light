@@ -45,6 +45,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.QExportTask;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
