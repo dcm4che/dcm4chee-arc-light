@@ -793,6 +793,148 @@
             "description": "unexpected error"
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "MONITOR-RS",
+          "EXPORT-RS"
+        ],
+        "summary": "Delete Export Tasks",
+        "operationId": "deleteExportTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "exporterID",
+            "in": "query",
+            "description": "Exporter ID to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "TO_SCHEDULE",
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "updatedBefore",
+            "in": "query",
+            "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",
+            "type": "string",
+            "format": "date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Deleted"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/export/{taskID}": {
+      "delete": {
+        "tags": [
+          "MONITOR-RS",
+          "EXPORT-RS"
+        ],
+        "summary": "Delete Export Task",
+        "operationId": "deleteExportTask",
+        "parameters": [
+          {
+            "name": "taskID",
+            "in": "path",
+            "description": "id of task",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/export/{taskID}/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "EXPORT-RS"
+        ],
+        "summary": "Cancel Export Task",
+        "operationId": "cancelExportTask",
+        "parameters": [
+          {
+            "name": "taskID",
+            "in": "path",
+            "description": "id of task",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/export/{taskID}/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "EXPORT-RS"
+        ],
+        "summary": "Reschedule Export Task",
+        "operationId": "rescheduleExportTask",
+        "parameters": [
+          {
+            "name": "taskID",
+            "in": "path",
+            "description": "id of task",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
       }
     },
     "/queue": {
