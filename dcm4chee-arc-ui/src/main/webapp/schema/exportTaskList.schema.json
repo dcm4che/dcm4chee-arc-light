@@ -15,7 +15,7 @@
       "pk": {
         "title": "Export Task PK",
         "description": "Export Task PK",
-        "type": "string"
+        "type": "integer"
       },
       "status": {
         "title": "Task Status",
