@@ -48,6 +48,8 @@ import {InputText} from "./helpers/form/input-text";
 // import {REACTIVE_FORM_DIRECTIVES} from "@angular/forms/src/directives";
 import {DynamicFormElementComponent} from "./widgets/dynamicform/dynamic-form-element.component";
 import {DynamicFormComponent} from "./widgets/dynamicform/dynamic-form.component";
+import { MonitoringComponent } from './monitoring/monitoring.component';
+import {MonitoringService} from "./monitoring/monitoring.service";
 
 @NgModule({
     declarations: [
@@ -78,7 +80,8 @@ import {DynamicFormComponent} from "./widgets/dynamicform/dynamic-form.component
         DevicesComponent,
         DeviceConfiguratorComponent,
         DynamicFormElementComponent,
-        DynamicFormComponent
+        DynamicFormComponent,
+        MonitoringComponent
     ],
     imports: [
         BrowserModule,
@@ -99,6 +102,7 @@ import {DynamicFormComponent} from "./widgets/dynamicform/dynamic-form.component
             },
             { path: 'studies', component: StudiesComponent },
             { path: 'control', component: ControlComponent },
+            { path: 'monitoring', component: MonitoringComponent },
             { path: 'queues', component: QueuesComponent },
             { path: 'devicelist', component: DevicesComponent },
             { path: 'devicelist/:device', component: DeviceConfiguratorComponent },
@@ -107,7 +111,7 @@ import {DynamicFormComponent} from "./widgets/dynamicform/dynamic-form.component
             { useHash: true })
     ],
     entryComponents:[WidgetsComponents],
-    providers: [MdDialogConfig, WidgetsComponents, AppService, StudiesService, QueuesService, DevicesService, DatePipe, CalendarModule, DropdownModule],
+    providers: [MdDialogConfig, WidgetsComponents, AppService, StudiesService, QueuesService, DevicesService, MonitoringService, DatePipe, CalendarModule, DropdownModule],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

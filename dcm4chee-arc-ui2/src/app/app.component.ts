@@ -15,8 +15,7 @@ import {ProductLabellingComponent} from "./widgets/dialogs/product-labelling/pro
 declare var DCM4CHE: any;
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  templateUrl: './app.component.html'
 })
 export class AppComponent {
     progressValue = 30;
