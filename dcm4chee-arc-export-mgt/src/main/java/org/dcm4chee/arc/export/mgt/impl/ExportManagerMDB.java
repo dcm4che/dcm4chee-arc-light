@@ -57,9 +57,10 @@ public class ExportManagerMDB implements MessageListener {
         if (queueMessage == null)
             return;
 
+        Long exportTaskPk = (Long) queueMessage.getMessageBody();
         Outcome outcome;
         try {
-            ejb.updateExportTask(queueMessage);
+            ejb.updateExportTask(exportTaskPk);
             Exporter exporter = exporterFactory.getExporter(getExporterDescriptor(msg.getStringProperty("ExporterID")));
             ExportContext exportContext = exporter.createExportContext();
             exportContext.setMessageID(msgID);
@@ -72,12 +73,12 @@ public class ExportManagerMDB implements MessageListener {
             exportEvent.fire(exportContext);
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
-            queueMessage = queueManager.onProcessingFailed(msgID, e);
-            ejb.updateExportTask(queueMessage);
+            queueManager.onProcessingFailed(msgID, e);
+            ejb.updateExportTask(exportTaskPk);
             return;
         }
-        queueMessage = queueManager.onProcessingSuccessful(msgID, outcome);
-        ejb.updateExportTask(queueMessage);
+        queueManager.onProcessingSuccessful(msgID, outcome);
+        ejb.updateExportTask(exportTaskPk);
     }
 
     private ExporterDescriptor getExporterDescriptor(String exporterID) {

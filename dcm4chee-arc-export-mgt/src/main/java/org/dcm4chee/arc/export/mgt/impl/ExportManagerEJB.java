@@ -51,6 +51,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QExportTask;
+import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.export.mgt.ExportTaskAlreadyDeletedException;
@@ -105,8 +106,6 @@ public class ExportManagerEJB implements ExportManager {
 
     private static final Expression<?>[] SELECT = {
             QExportTask.exportTask.exporterID,
-            QExportTask.exportTask.status,
-            QExportTask.exportTask.messageID,
             QExportTask.exportTask.createdTime,
             QExportTask.exportTask.updatedTime,
             QExportTask.exportTask.scheduledTime,
@@ -115,11 +114,12 @@ public class ExportManagerEJB implements ExportManager {
             QExportTask.exportTask.sopInstanceUID,
             QExportTask.exportTask.modalities,
             QExportTask.exportTask.numberOfInstances,
-            QExportTask.exportTask.numberOfFailures,
-            QExportTask.exportTask.processingStartTime,
-            QExportTask.exportTask.processingEndTime,
-            QExportTask.exportTask.errorMessage,
-            QExportTask.exportTask.outcomeMessage
+            QQueueMessage.queueMessage.status,
+            QQueueMessage.queueMessage.numberOfFailures,
+            QQueueMessage.queueMessage.processingStartTime,
+            QQueueMessage.queueMessage.processingEndTime,
+            QQueueMessage.queueMessage.errorMessage,
+            QQueueMessage.queueMessage.outcomeMessage
     };
 
     @Override
@@ -219,7 +219,6 @@ public class ExportManagerEJB implements ExportManager {
         task.setSeriesInstanceUID(seriesIUID);
         task.setSopInstanceUID(sopIUID);
         task.setScheduledTime(scheduledTime);
-        task.setStatus(QueueMessage.Status.TO_SCHEDULE);
         em.persist(task);
         return task;
     }
@@ -257,18 +256,18 @@ public class ExportManagerEJB implements ExportManager {
     private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter) {
         QueueMessage queueMessage = queueManager.scheduleMessage(exporter.getQueueName(),
                 createMessage(exportTask, exporter.getAETitle()));
-        exportTask.setMessageID(queueMessage.getMessageID());
-        exportTask.setScheduledTime(queueMessage.getScheduledTime());
-        exportTask.setStatus(queueMessage.getStatus());
-        Attributes attrs = queryService.queryExportTaskInfo(
-                exportTask.getStudyInstanceUID(),
-                exportTask.getSeriesInstanceUID(),
-                exportTask.getSopInstanceUID(),
-                device.getApplicationEntity(exporter.getAETitle(), true));
-        if (attrs != null) {
+        exportTask.setQueueMessage(queueMessage);
+        try {
+            Attributes attrs = queryService.queryExportTaskInfo(
+                    exportTask.getStudyInstanceUID(),
+                    exportTask.getSeriesInstanceUID(),
+                    exportTask.getSopInstanceUID(),
+                    device.getApplicationEntity(exporter.getAETitle(), true));
             exportTask.setModalities(attrs.getStrings(Tag.ModalitiesInStudy));
             exportTask.setNumberOfInstances(
                     Integer.valueOf(attrs.getInt(Tag.NumberOfStudyRelatedInstances, -1)));
+        } catch (Exception e) {
+            LOG.warn("Failed to query Export Task Info for {} - ", exportTask, e);
         }
     }
 
@@ -287,66 +286,46 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public void updateExportTask(QueueMessage queueMessage) {
-        ExportTask exportTask = em.find(ExportTask.class, queueMessage.getMessageBody());
-        exportTask.setScheduledTime(queueMessage.getScheduledTime());
-        exportTask.setProcessingStartTime(queueMessage.getProcessingStartTime());
-        exportTask.setProcessingEndTime(queueMessage.getProcessingEndTime());
-        exportTask.setNumberOfFailures(queueMessage.getNumberOfFailures());
-        exportTask.setOutcomeMessage(queueMessage.getOutcomeMessage());
-        exportTask.setErrorMessage(queueMessage.getErrorMessage());
-        exportTask.setStatus(queueMessage.getStatus());
+    public void updateExportTask(Long pk) {
+        em.find(ExportTask.class, pk).setUpdatedTime();
     }
 
     @Override
-    public List<Tuple> search(String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status,
-                              int offset, int limit) {
-        HibernateQuery<Tuple> query = new HibernateQuery<Void>(em.unwrap(Session.class))
-                .select(SELECT)
-                .from(QExportTask.exportTask)
-                .where(createPredicate(exporterID, studyUID, status, updatedBefore));
-        if (limit > 0)
-            query.setFetchSize(limit);
-        if (offset > 0)
-            query.offset(offset);
-        return query.fetch();
+    public void deleteExportTask(Long pk) {
+        em.remove(em.find(ExportTask.class, pk));
     }
 
-    private Predicate createPredicate(String exporterID, String studyUID, QueueMessage.Status status, Date updatedBefore) {
+    @Override
+    public int deleteExportTasks(String exporterID, QueueMessage.Status status, Date updatedBefore) {
+        return 0;
+    }
+
+    @Override
+    public List<ExportTask> search(
+            String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status, int offset, int limit) {
         BooleanBuilder builder = new BooleanBuilder();
+        if (deviceName != null)
+            builder.and(QExportTask.exportTask.deviceName.eq(deviceName));
         if (exporterID != null)
             builder.and(QExportTask.exportTask.exporterID.eq(exporterID));
         if (studyUID != null)
             builder.and(QExportTask.exportTask.studyInstanceUID.eq(studyUID));
         if (status != null)
-            builder.and(QExportTask.exportTask.status.eq(status));
+            builder.and(status == QueueMessage.Status.TO_SCHEDULE
+                    ? QExportTask.exportTask.queueMessage.isNull()
+                    : QQueueMessage.queueMessage.status.eq(status));
         if (updatedBefore != null)
             builder.and(QExportTask.exportTask.updatedTime.lt(updatedBefore));
-        return builder;
-    }
 
-    @Override
-    public void deleteExportTask(String taskID) throws ExportTaskAlreadyDeletedException, MessageAlreadyDeletedException {
-        ExportTask et = getExportTask(taskID);
-        em.remove(et);
-        LOG.info("Delete Export Task[id={}] from Export Task.", taskID);
-        mgr.deleteMessage(taskID);
-        LOG.info("Delete Queue Message[id={}] from Queue Message.", taskID);
-    }
-
-    @Override
-    public int deleteExportTasks(String exporterId, QueueMessage.Status status, Date updatedBefore) {
-        //TODO
-        return 0;
-    }
-
-    private ExportTask getExportTask(String taskId) throws ExportTaskAlreadyDeletedException {
-        try {
-            return em.createNamedQuery(ExportTask.FIND_BY_TASK_ID, ExportTask.class)
-                    .setParameter(1, taskId).getSingleResult();
-        } catch (NoResultException e) {
-            throw new ExportTaskAlreadyDeletedException("Export Task[id=" + taskId + "] already deleted");
-        }
+        HibernateQuery<ExportTask> query = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
+                .from(QExportTask.exportTask)
+                .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
+                .where(builder);
+        if (limit > 0)
+            query.setFetchSize(limit);
+        if (offset > 0)
+            query.offset(offset);
+        return query.fetch();
     }
 
 }

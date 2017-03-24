@@ -143,11 +143,7 @@ public class QueueManagerRS {
     }
 
     private static QueueMessage.Status parseStatus(String s) {
-        return s != null
-                ? s.equals("IN PROCESS")
-                    ? QueueMessage.Status.IN_PROCESS
-                    : QueueMessage.Status.valueOf(s)
-                : null;
+        return s != null ? QueueMessage.Status.fromString(s) : null;
     }
 
     private static int parseInt(String s) {

@@ -736,15 +736,21 @@
         ],
         "parameters": [
           {
-            "name": "studyUID",
+            "name": "dicomDeviceName",
             "in": "query",
-            "description": "Unique Identifier of the Study to filter by",
+            "description": "Device Name to filter by",
             "type": "string"
           },
           {
-            "name": "exporterID",
+            "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
             "type": "string"
           },
           {
@@ -753,7 +759,7 @@
             "description": "status of tasks to filter by",
             "type": "string",
             "enum": [
-              "TO_SCHEDULE",
+              "TO SCHEDULE",
               "SCHEDULED",
               "IN PROCESS",
               "COMPLETED",
@@ -806,6 +812,12 @@
         ],
         "parameters": [
           {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
             "name": "exporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
@@ -817,7 +829,7 @@
             "description": "status of tasks to filter by",
             "type": "string",
             "enum": [
-              "TO_SCHEDULE",
+              "TO SCHEDULE",
               "SCHEDULED",
               "IN PROCESS",
               "COMPLETED",
@@ -847,7 +859,7 @@
         }
       }
     },
-    "/monitor/export/{taskID}": {
+    "/monitor/export/{taskPK}": {
       "delete": {
         "tags": [
           "MONITOR-RS",
@@ -857,11 +869,11 @@
         "operationId": "deleteExportTask",
         "parameters": [
           {
-            "name": "taskID",
+            "name": "taskPK",
             "in": "path",
-            "description": "id of task",
+            "description": "pk of task",
             "required": true,
-            "type": "string"
+            "type": "integer"
           }
         ],
         "responses": {
@@ -877,7 +889,7 @@
         }
       }
     },
-    "/monitor/export/{taskID}/cancel": {
+    "/monitor/export/{taskPK}/cancel": {
       "post": {
         "tags": [
           "MONITOR-RS",
@@ -887,11 +899,11 @@
         "operationId": "cancelExportTask",
         "parameters": [
           {
-            "name": "taskID",
+            "name": "taskPK",
             "in": "path",
-            "description": "id of task",
+            "description": "pk of task",
             "required": true,
-            "type": "string"
+            "type": "integer"
           }
         ],
         "responses": {
@@ -907,19 +919,26 @@
         }
       }
     },
-    "/monitor/export/{taskID}/reschedule": {
+    "/monitor/export/{taskPK}/reschedule/{exporterID}": {
       "post": {
         "tags": [
           "MONITOR-RS",
           "EXPORT-RS"
         ],
-        "summary": "Reschedule Export Task",
+        "summary": "Reschedule Export Task to potential different Exporter",
         "operationId": "rescheduleExportTask",
         "parameters": [
           {
-            "name": "taskID",
+            "name": "taskPK",
             "in": "path",
-            "description": "id of task",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "exporterID",
+            "in": "path",
+            "description": "Exporter ID",
             "required": true,
             "type": "string"
           }

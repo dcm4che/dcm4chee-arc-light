@@ -39,12 +39,8 @@
  */
 package org.dcm4chee.arc.export.rs;
 
-import com.querydsl.core.Tuple;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.QExportTask;
+import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -53,6 +49,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
@@ -61,8 +59,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -71,6 +67,7 @@ import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Mar 2017
  */
 @RequestScoped
@@ -84,14 +81,17 @@ public class ExportTaskRS {
     @Inject
     private Device device;
 
-    @QueryParam("studyUID")
+    @QueryParam("StudyInstanceUID")
     private String studyUID;
 
-    @QueryParam("exporterID")
+    @QueryParam("dicomDeviceName")
+    private String deviceName;
+
+    @QueryParam("ExporterID")
     private String exporterID;
 
     @QueryParam("status")
-    @Pattern(regexp = "TO_SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("updatedBefore")
@@ -113,16 +113,17 @@ public class ExportTaskRS {
     @NoCache
     @Produces("application/json")
     public Response search() throws Exception {
-        return Response.ok(toEntity(mgr.search(exporterID, studyUID, parseDate(updatedBefore), parseStatus(status),
-                parseInt(offset), parseInt(limit))))
+        return Response.ok(toEntity(
+                mgr.search(deviceName, exporterID, studyUID, parseDate(updatedBefore), parseStatus(status),
+                    parseInt(offset), parseInt(limit))))
                 .build();
     }
 
     @DELETE
-    @Path("/{taskID}")
-    public void deleteTask(@PathParam("taskID") String taskID) throws Exception {
+    @Path("/{taskPK}")
+    public void deleteTask(@PathParam("taskPK") long pk) throws Exception {
         logRequest();
-        mgr.deleteExportTask(taskID);
+        mgr.deleteExportTask(pk);
     }
 
     @DELETE
@@ -134,116 +135,27 @@ public class ExportTaskRS {
                 + '}';
     }
 
-    private Object toEntity(final List<Tuple> tasks) {
+    private Object toEntity(final List<ExportTask> tasks) {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                Writer w = new OutputStreamWriter(out, "UTF-8");
-                int count = 0;
-                w.write('[');
-                for (Tuple task : tasks) {
-                    if (count++ > 0)
-                        w.write(',');
-                    writeAsJSON(w, task);
-                }
-                w.write(']');
-                w.flush();
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+                JsonGenerator gen = Json.createGenerator(out);
+                gen.writeStartArray();
+                for (ExportTask task : tasks)
+                    task.writeAsJSONTo(gen, df);
+                gen.writeEnd();
+                gen.flush();
             }
         };
     }
 
     private static QueueMessage.Status parseStatus(String s) {
-        return s != null
-                ? s.equals("IN PROCESS")
-                ? QueueMessage.Status.IN_PROCESS
-                : QueueMessage.Status.valueOf(s)
-                : null;
+        return s != null ? QueueMessage.Status.fromString(s) : null;
     }
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
-    }
-
-    public void writeAsJSON(Writer out, Tuple tuple) throws IOException {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        out.write("{\"id\":\"");
-        out.write(tuple.get(QExportTask.exportTask.exporterID));
-        ExporterDescriptor ed = device.getDeviceExtension(ArchiveDeviceExtension.class)
-                .getExporterDescriptor(tuple.get(QExportTask.exportTask.exporterID));
-        out.write("\",\"queue\":\"");
-        out.write(ed.getQueueName());
-        out.write("\",\"status\":\"");
-        out.write(tuple.get(QExportTask.exportTask.status).toString());
-        out.write("\",");
-        if (tuple.get(QExportTask.exportTask.messageID) != null) {
-            out.write("\"taskID\":\"");
-            out.write(tuple.get(QExportTask.exportTask.messageID));
-            out.write("\",");
-        }
-        out.write("\"studyUID\":\"");
-        out.write(tuple.get(QExportTask.exportTask.studyInstanceUID));
-        out.write("\",");
-        if (!tuple.get(QExportTask.exportTask.seriesInstanceUID).equals("*")) {
-            out.write("\"seriesUID\":\"");
-            out.write(tuple.get(QExportTask.exportTask.seriesInstanceUID));
-            out.write("\",");
-        }
-        if (!tuple.get(QExportTask.exportTask.sopInstanceUID).equals("*")) {
-            out.write("\"objectUID\":\"");
-            out.write(tuple.get(QExportTask.exportTask.sopInstanceUID));
-            out.write("\",");
-        }
-        if (tuple.get(QExportTask.exportTask.modalities) != null) {
-            out.write("\"modality\":[\"");
-            String[] modalities = StringUtils.split(tuple.get(QExportTask.exportTask.modalities), '\\');
-            out.write(modalities[0]);
-            out.write("\"");
-            for (int i = 1; i < modalities.length; i++) {
-                out.write(",\"");
-                out.write(modalities[i]);
-                out.write("\"");
-            }
-            out.write("],");
-        }
-        if (tuple.get(QExportTask.exportTask.numberOfInstances) != null
-                && tuple.get(QExportTask.exportTask.numberOfInstances) > 0) {
-            out.write("\"numberOfInstances\":\"");
-            out.write(String.valueOf(tuple.get(QExportTask.exportTask.numberOfInstances)));
-            out.write("\",");
-        }
-        if (tuple.get(QExportTask.exportTask.numberOfFailures) > 0) {
-            out.write("\"failures\":\"");
-            out.write(String.valueOf(tuple.get(QExportTask.exportTask.numberOfFailures)));
-            out.write("\",");
-        }
-        if (tuple.get(QExportTask.exportTask.processingStartTime) != null) {
-            out.write("\"processingStartTime\":\"");
-            out.write(df.format(tuple.get(QExportTask.exportTask.processingStartTime)));
-            out.write("\",");
-        }
-        if (tuple.get(QExportTask.exportTask.processingEndTime) != null) {
-            out.write("\"processingEndTime\":\"");
-            out.write(df.format(tuple.get(QExportTask.exportTask.processingEndTime)));
-            out.write("\",");
-        }
-        if (tuple.get(QExportTask.exportTask.errorMessage) != null) {
-            out.write("\"errorMessage\":\"");
-            out.write(tuple.get(QExportTask.exportTask.errorMessage).replace('"', '\''));
-            out.write("\",");
-        }
-        if (tuple.get(QExportTask.exportTask.outcomeMessage) != null) {
-            out.write("\"outcomeMessage\":\"");
-            out.write(tuple.get(QExportTask.exportTask.outcomeMessage).replace('"', '\''));
-            out.write("\",");
-        }
-        out.write("\"createdTime\":\"");
-        out.write(df.format(tuple.get(QExportTask.exportTask.createdTime)));
-        out.write("\",\"updatedTime\":\"");
-        out.write(df.format(tuple.get(QExportTask.exportTask.updatedTime)));
-        out.write("\",\"scheduledTime\":\"");
-        out.write(df.format(tuple.get(QExportTask.exportTask.scheduledTime)));
-        out.write("\"");
-        out.write('}');
     }
 
     private void logRequest() {

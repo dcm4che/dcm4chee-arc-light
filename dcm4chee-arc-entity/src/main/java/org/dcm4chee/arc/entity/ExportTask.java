@@ -1,8 +1,52 @@
+/*
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ *  The contents of this file are subject to the Mozilla Public License Version
+ *  1.1 (the "License"); you may not use this file except in compliance with
+ *  the License. You may obtain a copy of the License at
+ *  http://www.mozilla.org/MPL/
+ *
+ *  Software distributed under the License is distributed on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ *  for the specific language governing rights and limitations under the
+ *  License.
+ *
+ *  The Original Code is part of dcm4che, an implementation of DICOM(TM) in
+ *  Java(TM), hosted at https://github.com/gunterze/dcm4che.
+ *
+ *  The Initial Developer of the Original Code is
+ *  J4Care.
+ *  Portions created by the Initial Developer are Copyright (C) 2015-2017
+ *  the Initial Developer. All Rights Reserved.
+ *
+ *  Contributor(s):
+ *  See @authors listed below
+ *
+ *  Alternatively, the contents of this file may be used under the terms of
+ *  either the GNU General Public License Version 2 or later (the "GPL"), or
+ *  the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ *  in which case the provisions of the GPL or the LGPL are applicable instead
+ *  of those above. If you wish to allow use of your version of this file only
+ *  under the terms of either the GPL or the LGPL, and not to allow others to
+ *  use your version of this file under the terms of the MPL, indicate your
+ *  decision by deleting the provisions above and replace them with the notice
+ *  and other provisions required by the GPL or the LGPL. If you do not delete
+ *  the provisions above, a recipient may use your version of this file under
+ *  the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ */
+
 package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.util.StringUtils;
 
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
+import java.io.IOException;
+import java.io.Writer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -17,27 +61,23 @@ import java.util.Date;
         @Index(columnList = "updated_time"),
         @Index(columnList = "scheduled_time"),
         @Index(columnList = "exporter_id"),
-        @Index(columnList = "study_iuid, series_iuid, sop_iuid"),
-        @Index(columnList = "msg_status") }
+        @Index(columnList = "study_iuid, series_iuid, sop_iuid") }
 )
 @NamedQueries({
         @NamedQuery(name = ExportTask.FIND_SCHEDULED_BY_DEVICE_NAME,
                 query = "select o from ExportTask o where o.deviceName=?1 and o.scheduledTime < current_timestamp " +
-                        "and o.status = org.dcm4chee.arc.entity.QueueMessage$Status.TO_SCHEDULE"),
+                        "and o.queueMessage is null"),
         @NamedQuery(name = ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID,
                 query = "select o from ExportTask o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
-                        "and o.status = org.dcm4chee.arc.entity.QueueMessage$Status.TO_SCHEDULE"),
+                        "and o.queueMessage is null"),
         @NamedQuery(name = ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID,
                 query = "select o from ExportTask o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
                         "and o.seriesInstanceUID in ('*',?3) " +
-                        "and o.status = org.dcm4chee.arc.entity.QueueMessage$Status.TO_SCHEDULE"),
+                        "and o.queueMessage is null"),
         @NamedQuery(name = ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID,
                 query = "select o from ExportTask o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
                         "and o.seriesInstanceUID in ('*',?3) and o.sopInstanceUID in ('*',?4) " +
-                        "and o.status = org.dcm4chee.arc.entity.QueueMessage$Status.TO_SCHEDULE"),
-        @NamedQuery(name = ExportTask.FIND_BY_TASK_ID,
-                query = "select o from ExportTask o " +
-                        "where o.messageID=?1")
+                        "and o.queueMessage is null"),
 })
 public class ExportTask {
 
@@ -49,7 +89,6 @@ public class ExportTask {
             "ExportTask.FindByExporterIDAndStudyIUIDAndSeriesIUID";
     public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID =
             "ExportTask.FindByExporterIDAndStudyIUIDAndSeriesIUIDAndSopInstanceUID";
-    public static final String FIND_BY_TASK_ID = "ExportTask.findByTaskID";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -74,14 +113,6 @@ public class ExportTask {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "scheduled_time")
     private Date scheduledTime;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "proc_start_time")
-    private Date processingStartTime;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "proc_end_time")
-    private Date processingEndTime;
 
     @Basic(optional = false)
     @Column(name = "device_name")
@@ -109,22 +140,26 @@ public class ExportTask {
     @Column(name = "modalities")
     private String modalities;
 
-    @Column(name = "msg_id")
-    private String messageID;
+    @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "queue_msg_fk")
+    private QueueMessage queueMessage;
 
-    @Basic(optional = false)
-    @Column(name = "msg_status")
-    private QueueMessage.Status status;
 
-    @Basic(optional = false)
-    @Column(name = "num_failures")
-    private int numberOfFailures;
+    @PrePersist
+    public void onPrePersist() {
+        Date now = new Date();
+        createdTime = now;
+        updatedTime = now;
+    }
 
-    @Column(name = "error_msg")
-    private String errorMessage;
+    @PreUpdate
+    public void onPreUpdate() {
+        setUpdatedTime();
+    }
 
-    @Column(name = "outcome_msg")
-    private String outcomeMessage;
+    public void setUpdatedTime() {
+        updatedTime = new Date();
+    }
 
     public long getPk() {
         return pk;
@@ -144,22 +179,6 @@ public class ExportTask {
 
     public void setScheduledTime(Date scheduledTime) {
         this.scheduledTime = scheduledTime;
-    }
-
-    public Date getProcessingStartTime() {
-        return processingStartTime;
-    }
-
-    public void setProcessingStartTime(Date processingStartTime) {
-        this.processingStartTime = processingStartTime;
-    }
-
-    public Date getProcessingEndTime() {
-        return processingEndTime;
-    }
-
-    public void setProcessingEndTime(Date processingEndTime) {
-        this.processingEndTime = processingEndTime;
     }
 
     public String getDeviceName() {
@@ -218,55 +237,49 @@ public class ExportTask {
         this.modalities = StringUtils.concat(modalities, '\\');
     }
 
-    public QueueMessage.Status getStatus() {
-        return status;
+    public QueueMessage getQueueMessage() {
+        return queueMessage;
     }
 
-    public void setStatus(QueueMessage.Status status) {
-        this.status = status;
+    public void setQueueMessage(QueueMessage queueMessage) {
+        this.queueMessage = queueMessage;
     }
 
-    public int getNumberOfFailures() {
-        return numberOfFailures;
+    public void writeAsJSONTo(JsonGenerator gen, DateFormat df) throws IOException {
+        gen.writeStartObject();
+        gen.write("pk", pk);
+        gen.write("createdTime", df.format(createdTime));
+        gen.write("updatedTime", df.format(updatedTime));
+        gen.write("dicomDeviceName", deviceName);
+        gen.write("ExporterID", exporterID);
+        gen.write("StudyInstanceUID", studyInstanceUID);
+        if (!seriesInstanceUID.equals("*")) {
+            gen.write("SeriesInstanceUID", seriesInstanceUID);
+            if (!sopInstanceUID.equals("*")) {
+                gen.write("SOPInstanceUID", sopInstanceUID);
+            }
+        }
+        if (numberOfInstances != null)
+            gen.write("NumberOfInstances", numberOfInstances);
+        if (modalities != null) {
+            gen.writeStartArray("Modality");
+            for (String modality : getModalities()) {
+                gen.write(modality);
+            }
+            gen.writeEnd();
+        }
+        if (queueMessage == null) {
+            gen.write("status", QueueMessage.Status.TO_SCHEDULE.toString());
+            gen.write("scheduledTime", df.format(scheduledTime));
+        } else {
+            queueMessage.writeStatusAsJSONTo(gen, df);
+        }
+        gen.writeEnd();
+        gen.flush();
     }
 
-    public void setNumberOfFailures(int numberOfFailures) {
-        this.numberOfFailures = numberOfFailures;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    public String getOutcomeMessage() {
-        return outcomeMessage;
-    }
-
-    public void setOutcomeMessage(String outcomeMessage) {
-        this.outcomeMessage = outcomeMessage;
-    }
-
-    public String getMessageID() {
-        return messageID;
-    }
-
-    public void setMessageID(String messageID) {
-        this.messageID = messageID;
-    }
-
-    @PrePersist
-    public void onPrePersist() {
-        Date now = new Date();
-        createdTime = now;
-        updatedTime = now;
-    }
-
-    @PreUpdate
-    public void onPreUpdate() {
-        updatedTime = new Date();
+    @Override
+    public String toString() {
+        return "ExportTask[pk" + pk + ", ";
     }
 }

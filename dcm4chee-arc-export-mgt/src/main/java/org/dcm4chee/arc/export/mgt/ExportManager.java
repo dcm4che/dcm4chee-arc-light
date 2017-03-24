@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2016-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -40,10 +40,9 @@
 
 package org.dcm4chee.arc.export.mgt;
 
-import com.querydsl.core.Tuple;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.MessageAlreadyDeletedException;
 import org.dcm4chee.arc.store.StoreContext;
 
 import javax.enterprise.event.Observes;
@@ -62,12 +61,13 @@ public interface ExportManager {
 
     void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter);
 
-    void updateExportTask(QueueMessage queueMessage);
+    void updateExportTask(Long pk);
 
-    List<Tuple> search(String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status,
-                       int offset, int limit);
-
-    void deleteExportTask(String taskID) throws ExportTaskAlreadyDeletedException, MessageAlreadyDeletedException;
+    void deleteExportTask(Long pk);
 
     int deleteExportTasks(String exporterID, QueueMessage.Status status, Date updatedBefore);
+
+    List<ExportTask> search(
+            String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status,
+            int offset, int limit);
 }

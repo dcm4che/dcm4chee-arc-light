@@ -3,26 +3,18 @@
   "type": "array",
   "items": {
     "required": [
-      "id",
+      "pk",
       "status",
+      "dicomDeviceName",
+      "ExporterID",
       "createdTime",
       "updatedTime",
       "scheduledTime"
     ],
     "properties": {
-      "id": {
-        "title": "Export Task ID",
-        "description": "Export Task ID",
-        "type": "string"
-      },
-      "queue": {
-        "title": "Queue Name",
-        "description": "name of queue of associated task",
-        "type": "string"
-      },
-      "taskId": {
-        "title": "Task ID",
-        "description": "id of associated task in queue",
+      "pk": {
+        "title": "Export Task PK",
+        "description": "Export Task PK",
         "type": "string"
       },
       "status": {
@@ -30,7 +22,7 @@
         "description": "status of task",
         "type": "string",
         "enum": [
-            "TO_SCHEDULE",
+            "TO SCHEDULE",
             "SCHEDULED",
             "IN PROCESS",
             "COMPLETED",
@@ -39,22 +31,32 @@
             "CANCELED"
         ]
       },
-      "studyUID": {
+      "dicomDeviceName": {
+        "title": "Device Name",
+        "description": "Name of Device performing the Task ",
+        "type": "string"
+      },
+      "ExporterID": {
+        "title": "Exporter ID",
+        "description": "ID of exporter performing the Task ",
+        "type": "string"
+      },
+      "StudyInstanceUID": {
         "title": "Study Instance UID",
         "description": "Unique Identifier of the Study",
         "type": "string"
       },
-      "seriesUID": {
+      "SeriesInstanceUID": {
         "title": "Series Instance UID",
         "description": "Unique Identifier of the Series",
         "type": "string"
       },
-      "objectUID": {
+      "SOPInstanceUID": {
         "title": "SOP Instance UID",
         "description": "Unique Identifier of the Object",
         "type": "string"
       },
-      "modality": {
+      "Modality": {
         "title": "Modality",
         "description": "Modality",
         "type": "array",
@@ -62,7 +64,7 @@
           "type": "string"
         }
       },
-      "numberOfInstances": {
+      "NumberOfInstances": {
         "title": "Number of Instances ",
         "description": "Number of Instances",
         "type": "integer"

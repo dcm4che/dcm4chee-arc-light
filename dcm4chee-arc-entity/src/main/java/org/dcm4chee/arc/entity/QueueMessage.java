@@ -46,6 +46,7 @@ import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import javax.jms.ObjectMessage;
 import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
 import javax.persistence.*;
 import java.io.*;
@@ -93,7 +94,16 @@ public class QueueMessage {
             "QueueMessage.DeleteByQueueNameAndStatusAndUpdatedBefore";
 
     public enum Status {
-        SCHEDULED, IN_PROCESS, COMPLETED, WARNING, FAILED, CANCELED, TO_SCHEDULE
+        SCHEDULED, IN_PROCESS, COMPLETED, WARNING, FAILED, CANCELED, TO_SCHEDULE;
+
+        public static Status fromString(String s) {
+            return Status.valueOf(s.replace(' ', '_'));
+        }
+
+        @Override
+        public String toString() {
+            return name().replace('_', ' ');
+        }
     }
 
     @Id
@@ -256,40 +266,34 @@ public class QueueMessage {
     }
 
     public void writeAsJSON(Writer out) throws IOException {
+        JsonGenerator gen = Json.createGenerator(out);
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        out.write("{\"id\":\"");
-        out.write(messageID);
-        out.write("\",\"queue\":\"");
-        out.write(queueName);
-        out.write("\",\"status\":\"");
-        out.write(status.toString());
-        out.write("\",\"failures\":");
-        out.write(String.valueOf(numberOfFailures));
-        out.write(",\"createdTime\":\"");
-        out.write(df.format(createdTime));
-        out.write("\",\"updatedTime\":\"");
-        out.write(df.format(updatedTime));
-        out.write("\",\"scheduledTime\":\"");
-        out.write(df.format(scheduledTime));
-        if (processingStartTime != null) {
-            out.write("\",\"processingStartTime\":\"");
-            out.write(df.format(processingStartTime));
-        }
-        if (processingEndTime != null) {
-            out.write("\",\"processingEndTime\":\"");
-            out.write(df.format(processingEndTime));
-        }
-        if (errorMessage != null) {
-            out.write("\",\"errorMessage\":\"");
-            out.write(errorMessage.replace('"', '\''));
-        }
-        if (outcomeMessage != null) {
-            out.write("\",\"outcomeMessage\":\"");
-            out.write(outcomeMessage.replace('"', '\''));
-        }
-        out.write("\",");
+        gen.writeStartObject();
+        gen.write("id", messageID);
+        gen.write("queue", queueName);
+        gen.write("createdTime", df.format(createdTime));
+        gen.write("updatedTime", df.format(updatedTime));
+        writeStatusAsJSONTo(gen, df);
+        gen.flush();
+        out.write(',');
         out.write(messageProperties);
-        out.write('}');
+        gen.writeEnd();
+        gen.flush();
+    }
+
+    public void writeStatusAsJSONTo(JsonGenerator gen, DateFormat df) {
+        gen.write("status", status.toString());
+        if (numberOfFailures > 0)
+            gen.write("failures", numberOfFailures);
+        gen.write("scheduledTime", df.format(scheduledTime));
+        if (processingStartTime != null)
+            gen.write("processingStartTime", df.format(processingStartTime));
+        if (processingEndTime != null)
+            gen.write("processingEndTime", df.format(processingEndTime));
+        if (errorMessage != null)
+            gen.write("errorMessage", errorMessage);
+        if (outcomeMessage != null)
+            gen.write("outcomeMessage", outcomeMessage);
     }
 
 
