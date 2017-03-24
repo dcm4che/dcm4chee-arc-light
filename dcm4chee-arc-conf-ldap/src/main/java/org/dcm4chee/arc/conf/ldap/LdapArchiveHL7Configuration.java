@@ -46,6 +46,7 @@ import org.dcm4che3.conf.ldap.hl7.LdapHL7ConfigurationExtension;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.ScheduledProtocolCodeInOrder;
+import org.dcm4chee.arc.conf.ScheduledStationAETInOrder;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -73,6 +74,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern());
         LdapUtils.storeNotNull(attrs, "dicomAETitle", ext.getAETitle());
         LdapUtils.storeNotNull(attrs, "hl7ScheduledProtocolCodeInOrder", ext.getHl7ScheduledProtocolCodeInOrder());
+        LdapUtils.storeNotNull(attrs, "hl7ScheduledStationAETInOrder", ext.getHl7ScheduledStationAETInOrder());
     }
 
     @Override
@@ -103,6 +105,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         ext.setAETitle(LdapUtils.stringValue(attrs.get("dicomAETitle"), null));
         ext.setHl7ScheduledProtocolCodeInOrder(LdapUtils.enumValue(ScheduledProtocolCodeInOrder.class,
                 attrs.get("hl7ScheduledProtocolCodeInOrder"), null));
+        ext.setHl7ScheduledStationAETInOrder(LdapUtils.enumValue(ScheduledStationAETInOrder.class,
+                attrs.get("hl7ScheduledStationAETInOrder"), null));
     }
 
     @Override
@@ -139,6 +143,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeDiff(mods, "dicomAETitle", aa.getAETitle(), bb.getAETitle());
         LdapUtils.storeDiff(mods, "hl7ScheduledProtocolCodeInOrder", aa.getHl7ScheduledProtocolCodeInOrder(),
                 bb.getHl7ScheduledProtocolCodeInOrder());
+        LdapUtils.storeDiff(mods, "hl7ScheduledStationAETInOrder", aa.getHl7ScheduledStationAETInOrder(), bb.getHl7ScheduledStationAETInOrder());
     }
 
     @Override

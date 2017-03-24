@@ -105,7 +105,8 @@ public class ProcedureUpdateService extends AbstractHL7Service {
                     @Override
                     public void setup(Transformer tr) {
                         tr.setParameter("hl7ScheduledProtocolCodeInOrder", arcHL7App.hl7ScheduledProtocolCodeInOrder().toString());
-                        tr.setParameter("hl7MsgType", msh.getMessageType());
+                        if (arcHL7App.hl7ScheduledStationAETInOrder() != null)
+                            tr.setParameter("hl7ScheduledStationAETInOrder", arcHL7App.hl7ScheduledStationAETInOrder().toString());
                     }
                 });
         boolean result = adjust(attrs, arcHL7App, msh, s);

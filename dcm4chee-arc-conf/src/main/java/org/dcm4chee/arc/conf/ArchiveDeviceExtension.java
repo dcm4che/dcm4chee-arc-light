@@ -164,6 +164,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String[] hl7ADTReceivingApplication = {};
     private String hl7ADTSendingApplication;
     private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
+    private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private String auditUnknownStudyInstanceUID;
     private String auditUnknownPatientID;
 
@@ -1447,6 +1448,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7ScheduledProtocolCodeInOrder = hl7ScheduledProtocolCodeInOrder;
     }
 
+    public ScheduledStationAETInOrder getHl7ScheduledStationAETInOrder() {
+        return hl7ScheduledStationAETInOrder;
+    }
+
+    public void setHl7ScheduledStationAETInOrder(ScheduledStationAETInOrder hl7ScheduledStationAETInOrder) {
+        this.hl7ScheduledStationAETInOrder = hl7ScheduledStationAETInOrder;
+    }
+
     public String getAuditUnknownStudyInstanceUID() {
         return auditUnknownStudyInstanceUID != null
                 ? auditUnknownStudyInstanceUID : "unknownStudy";
@@ -1576,6 +1585,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7ADTReceivingApplication = arcdev.hl7ADTReceivingApplication;
         hl7ADTSendingApplication = arcdev.hl7ADTSendingApplication;
         hl7ScheduledProtocolCodeInOrder = arcdev.hl7ScheduledProtocolCodeInOrder;
+        hl7ScheduledStationAETInOrder = arcdev.hl7ScheduledStationAETInOrder;
         auditUnknownStudyInstanceUID = arcdev.auditUnknownStudyInstanceUID;
         auditUnknownPatientID = arcdev.auditUnknownPatientID;
         attributeFilters.clear();

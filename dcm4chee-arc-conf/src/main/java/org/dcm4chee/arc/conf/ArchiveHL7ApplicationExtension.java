@@ -62,6 +62,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private String hl7LogFilePattern;
     private String hl7ErrorLogFilePattern;
     private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
+    private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
@@ -80,6 +81,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7LogFilePattern = arcapp.hl7LogFilePattern;
         hl7ErrorLogFilePattern = arcapp.hl7ErrorLogFilePattern;
         hl7ScheduledProtocolCodeInOrder = arcapp.hl7ScheduledProtocolCodeInOrder;
+        hl7ScheduledStationAETInOrder = arcapp.hl7ScheduledStationAETInOrder;
         hl7ForwardRules.clear();
         hl7ForwardRules.addAll(arcapp.hl7ForwardRules);
         hl7OrderScheduledStations.clear();
@@ -257,5 +259,19 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
                 ? hl7ScheduledProtocolCodeInOrder
                 : StringUtils.maskNull(getArchiveDeviceExtension().getHl7ScheduledProtocolCodeInOrder(),
                     ScheduledProtocolCodeInOrder.OBR_4_4);
+    }
+
+    public ScheduledStationAETInOrder getHl7ScheduledStationAETInOrder() {
+        return hl7ScheduledStationAETInOrder;
+    }
+
+    public void setHl7ScheduledStationAETInOrder(ScheduledStationAETInOrder hl7ScheduledStationAETInOrder) {
+        this.hl7ScheduledStationAETInOrder = hl7ScheduledStationAETInOrder;
+    }
+
+    public ScheduledStationAETInOrder hl7ScheduledStationAETInOrder() {
+        return hl7ScheduledStationAETInOrder != null
+                ? hl7ScheduledStationAETInOrder
+                : getArchiveDeviceExtension().getHl7ScheduledStationAETInOrder();
     }
 }

@@ -27,6 +27,14 @@
         "OBR_4_4"
       ]
     },
+    "hl7ScheduledStationAETInOrder": {
+      "title": "HL7 Schedule Station AET in Order",
+      "description": "Specifies location of Scheduled Station AE Title in received HL7 Order message. Enumerated values: ORC_18. Not effective for HL7 v2.5.1 OMI^O23 with IPC segment. If absent or no value is provided in the configured field, the Scheduled Station AE Title is selected according configured rules.",
+      "type": "string",
+      "enum": [
+        "ORC_18"
+      ]
+    },
     "hl7LogFilePattern": {
       "title": "HL7 Log File Pattern",
       "description": "Path to HL7 messages which will be captured exactly as received. If absent, there is no logging.",
