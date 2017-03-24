@@ -174,22 +174,27 @@ public class ExportTaskRS {
         out.write(ed.getQueueName());
         out.write("\",\"status\":\"");
         out.write(tuple.get(QExportTask.exportTask.status).toString());
+        out.write("\",");
         if (tuple.get(QExportTask.exportTask.messageID) != null) {
-            out.write("\",\"taskID\":\"");
+            out.write("\"taskID\":\"");
             out.write(tuple.get(QExportTask.exportTask.messageID));
+            out.write("\",");
         }
-        out.write(",\"studyUID\":\"");
+        out.write("\"studyUID\":\"");
         out.write(tuple.get(QExportTask.exportTask.studyInstanceUID));
+        out.write("\",");
         if (!tuple.get(QExportTask.exportTask.seriesInstanceUID).equals("*")) {
-            out.write("\",\"seriesUID\":\"");
+            out.write("\"seriesUID\":\"");
             out.write(tuple.get(QExportTask.exportTask.seriesInstanceUID));
+            out.write("\",");
         }
         if (!tuple.get(QExportTask.exportTask.sopInstanceUID).equals("*")) {
-            out.write("\",\"objectUID\":\"");
+            out.write("\"objectUID\":\"");
             out.write(tuple.get(QExportTask.exportTask.sopInstanceUID));
+            out.write("\",");
         }
         if (tuple.get(QExportTask.exportTask.modalities) != null) {
-            out.write("\",\"modality\":[\"");
+            out.write("\"modality\":[\"");
             String[] modalities = StringUtils.split(tuple.get(QExportTask.exportTask.modalities), '\\');
             out.write(modalities[0]);
             out.write("\"");
@@ -198,39 +203,45 @@ public class ExportTaskRS {
                 out.write(modalities[i]);
                 out.write("\"");
             }
-            out.write("]");
+            out.write("],");
         }
         if (tuple.get(QExportTask.exportTask.numberOfInstances) != null
                 && tuple.get(QExportTask.exportTask.numberOfInstances) > 0) {
-            out.write("\",\"numberOfInstances\":");
+            out.write("\"numberOfInstances\":\"");
             out.write(String.valueOf(tuple.get(QExportTask.exportTask.numberOfInstances)));
+            out.write("\",");
         }
         if (tuple.get(QExportTask.exportTask.numberOfFailures) > 0) {
-            out.write("\",\"failures\":");
+            out.write("\"failures\":\"");
             out.write(String.valueOf(tuple.get(QExportTask.exportTask.numberOfFailures)));
+            out.write("\",");
         }
-        out.write("\",\"createdTime\":\"");
+        if (tuple.get(QExportTask.exportTask.processingStartTime) != null) {
+            out.write("\"processingStartTime\":\"");
+            out.write(df.format(tuple.get(QExportTask.exportTask.processingStartTime)));
+            out.write("\",");
+        }
+        if (tuple.get(QExportTask.exportTask.processingEndTime) != null) {
+            out.write("\"processingEndTime\":\"");
+            out.write(df.format(tuple.get(QExportTask.exportTask.processingEndTime)));
+            out.write("\",");
+        }
+        if (tuple.get(QExportTask.exportTask.errorMessage) != null) {
+            out.write("\"errorMessage\":\"");
+            out.write(tuple.get(QExportTask.exportTask.errorMessage).replace('"', '\''));
+            out.write("\",");
+        }
+        if (tuple.get(QExportTask.exportTask.outcomeMessage) != null) {
+            out.write("\"outcomeMessage\":\"");
+            out.write(tuple.get(QExportTask.exportTask.outcomeMessage).replace('"', '\''));
+            out.write("\",");
+        }
+        out.write("\"createdTime\":\"");
         out.write(df.format(tuple.get(QExportTask.exportTask.createdTime)));
         out.write("\",\"updatedTime\":\"");
         out.write(df.format(tuple.get(QExportTask.exportTask.updatedTime)));
         out.write("\",\"scheduledTime\":\"");
         out.write(df.format(tuple.get(QExportTask.exportTask.scheduledTime)));
-        if (tuple.get(QExportTask.exportTask.processingStartTime) != null) {
-            out.write("\",\"processingStartTime\":\"");
-            out.write(df.format(tuple.get(QExportTask.exportTask.processingStartTime)));
-        }
-        if (tuple.get(QExportTask.exportTask.processingEndTime) != null) {
-            out.write("\",\"processingEndTime\":\"");
-            out.write(df.format(tuple.get(QExportTask.exportTask.processingEndTime)));
-        }
-        if (tuple.get(QExportTask.exportTask.errorMessage) != null) {
-            out.write("\",\"errorMessage\":\"");
-            out.write(tuple.get(QExportTask.exportTask.errorMessage).replace('"', '\''));
-        }
-        if (tuple.get(QExportTask.exportTask.outcomeMessage) != null) {
-            out.write("\",\"outcomeMessage\":\"");
-            out.write(tuple.get(QExportTask.exportTask.outcomeMessage).replace('"', '\''));
-        }
         out.write("\"");
         out.write('}');
     }
