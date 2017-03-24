@@ -3,6 +3,7 @@
   <xsl:output method="xml"/>
   <xsl:include href="hl7-common.xsl"/>
   <xsl:param name="hl7ScheduledProtocolCodeInOrder"/>
+  <xsl:param name="hl7ScheduledStationAETInOrder"/>
 
   <xsl:template match="/hl7">
     <NativeDicomModel>
@@ -77,6 +78,17 @@
     <xsl:call-template name="procedurePriority">
       <xsl:with-param name="priority" select="string(field[7]/component[5]/text())"/>
     </xsl:call-template>
+    <xsl:choose>
+      <xsl:when test="$hl7ScheduledStationAETInOrder = 'ORC_18'">
+        <!-- Scheduled Station AE Title -->
+        <xsl:call-template name="attr">
+          <xsl:with-param name="tag" select="'00400001'"/>
+          <xsl:with-param name="vr" select="'AE'"/>
+          <xsl:with-param name="val" select="string(field[18]/text())"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise/>
+    </xsl:choose>
   </xsl:template>
   <xsl:template name="procedurePriority">
     <xsl:param name="priority"/>

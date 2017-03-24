@@ -131,7 +131,7 @@ public class ProcedureUpdateService extends AbstractHL7Service {
             if ("SCHEDULED".equals(sps.getString(Tag.ScheduledProcedureStepStatus))
                     && !sps.containsValue(Tag.ScheduledProcedureStepStartDate))
                 sps.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
-            if (sps.getString(Tag.ScheduledStationName) == null && sps.getString(Tag.ScheduledStationAETitle) == null) {
+            if (sps.getString(Tag.ScheduledStationAETitle) == null) {
                 List<String> ssAETs = new ArrayList<>();
                 List<String> ssNames = new ArrayList<>();
                 Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(socket.getLocalAddress().getHostName(), msh, attrs);
