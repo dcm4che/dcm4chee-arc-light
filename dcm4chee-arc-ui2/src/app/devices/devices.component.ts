@@ -459,7 +459,10 @@ export class DevicesComponent {
         });
         let $this = this;
         this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(CreateAeComponent, this.config);
+        this.dialogRef = this.dialog.open(CreateAeComponent, {
+            height:'auto',
+            width:'90%'
+        });
         this.dialogRef.componentInstance.dicomconn = dicomconn;
         this.dialogRef.componentInstance.newAetModel = newAetModel;
         this.dialogRef.componentInstance.netAEModel = netAEModel;
