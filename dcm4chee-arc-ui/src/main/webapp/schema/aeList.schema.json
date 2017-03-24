@@ -54,6 +54,50 @@
         "title": "installed",
         "description": "True if the AE is installed on network. If not present, information about the installed status of the AE is inherited from the device",
         "type": "boolean"
+      },
+      "dicomNetworkConnection": {
+        "title": "Network Connections",
+        "description": "network connections of the device",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "dicomHostname"
+          ],
+          "properties": {
+            "dicomHostname": {
+              "title": "Hostname",
+              "description": "DNS name for this particular connection",
+              "type": "string"
+            },
+            "dicomPort": {
+              "title": "Port",
+              "description": "TCP/UDP port that a service is listening on. May be missing if this network connection is only used for outbound connections",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 99999,
+              "exclusiveMinimum": true
+            },
+            "dicomTLSCipherSuite": {
+              "title": "TLS CipherSuites",
+              "description": "The TLS CipherSuites that are supported on this particular connection. If not present TLS is disabled",
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "SSL_RSA_WITH_NULL_SHA",
+                  "TLS_RSA_WITH_AES_128_CBC_SHA",
+                  "SSL_RSA_WITH_3DES_EDE_CBC_SHA"
+                ]
+              }
+            },
+            "dicomInstalled": {
+              "title": "installed",
+              "description": "True if the Network Connection is installed on the network. If not present, information about the installed status of the Network Connection is inherited from the device",
+              "type": "boolean"
+            }
+          }
+        }
       }
     }
   }

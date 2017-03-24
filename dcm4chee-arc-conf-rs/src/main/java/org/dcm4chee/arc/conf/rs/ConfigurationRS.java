@@ -45,7 +45,6 @@ import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfiguration;
-import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.ApplicationEntityInfo;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DeviceInfo;
@@ -333,7 +332,7 @@ public class ConfigurationRS {
                         aetInfo.setDeviceName(toString(entry));
                         break;
                     case "dicomAETitle":
-                        aetInfo.setAeTitle(toString(entry));
+                        aetInfo.setAETitle(toString(entry));
                         break;
                     case "dicomAssociationInitiator":
                         aetInfo.setAssociationInitiator(Boolean.parseBoolean(toString(entry)));
