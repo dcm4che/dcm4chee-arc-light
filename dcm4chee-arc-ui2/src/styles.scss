@@ -85,7 +85,7 @@ md-progress-circle, [_nghost-nyg-8]{
   }
 }
 
-.md-overlay-pane{
+.cdk-overlay-container{
   //width:90%;
   .addPatientAttribut{
     margin-bottom: 20px;
@@ -95,6 +95,9 @@ md-progress-circle, [_nghost-nyg-8]{
     overflow:visible;
     float: left;
     width: 100%;
+  }
+  .mat-dialog-content{
+    margin:15px 0;
   }
   .dropdown{
     max-height: 300px;
@@ -106,7 +109,7 @@ md-progress-circle, [_nghost-nyg-8]{
     z-index: 99999;
     position:absolute;
     background:white;
-    margin-top: -20px;
+    margin-top: 0px;
     .dropdown_element{
       padding-left:7px;
       display: inline-block;

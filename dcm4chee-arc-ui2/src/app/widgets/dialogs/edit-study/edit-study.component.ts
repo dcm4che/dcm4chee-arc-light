@@ -122,6 +122,14 @@ export class EditStudyComponent{
             return Object.keys(obj);
         }
     }
+    checkClick(e){
+        console.log("e",e);
+        var code = (e.keyCode ? e.keyCode : e.which);
+        console.log("code in checkclick");
+        if(!(e.target.id === "dropdown" || e.target.id === 'addPatientAttribut')){
+            this.opendropdown = false;
+        }
+    }
     dialogKeyHandler(e, dialogRef){
         let code = (e.keyCode ? e.keyCode : e.which);
         console.log("in modality keyhandler",code);
@@ -129,7 +137,11 @@ export class EditStudyComponent{
             dialogRef.close(this._study);
         }
         if(code === 27){
-            dialogRef.close(null);
+            if(this.opendropdown){
+                this.opendropdown = false;
+            }else{
+                dialogRef.close(null);
+            }
         }
     };
 
@@ -152,6 +164,7 @@ export class EditStudyComponent{
     };
 
     pressedKey(e){
+        console.log("in pressedkey");
         this.opendropdown = true;
         let code = (e.keyCode ? e.keyCode : e.which);
         this.lastPressedCode = code;
@@ -180,6 +193,7 @@ export class EditStudyComponent{
                 }
             }else{
                 this._study.attrs[attrcode]  = this._iod[attrcode];
+                this.opendropdown = false;
             }
             setTimeout(function(){
                 this.lastPressedCode = 0;
@@ -218,7 +232,7 @@ export class EditStudyComponent{
             }
             $('.dropdown').scrollTop($('.dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('.dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
         }
-        if(code === 27){
+        if(code === 27 || code === 9){
             this.opendropdown = false;
         }
     };

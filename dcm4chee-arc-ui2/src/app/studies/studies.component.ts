@@ -738,7 +738,10 @@ export class StudiesComponent implements OnDestroy{
             mwlFiltered.attrs = new ComparewithiodPipe().transform(mwl.attrs,iod);
             $this.service.initEmptyValue(mwlFiltered.attrs);
             $this.scrollToDialog();
-            $this.dialogRef = $this.dialog.open(EditMwlComponent, $this.config);
+            $this.dialogRef = $this.dialog.open(EditMwlComponent, {
+                height:'auto',
+                width:'90%'
+            });
             $this.dialogRef.componentInstance.iod = iod;
             $this.dialogRef.componentInstance.mode = mode;
             $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
@@ -862,7 +865,10 @@ export class StudiesComponent implements OnDestroy{
             $this.service.initEmptyValue(studyFiltered.attrs);
             console.log("afterinintemptyvalue");
             $this.scrollToDialog();
-            $this.dialogRef = $this.dialog.open(EditStudyComponent, $this.config);
+            $this.dialogRef = $this.dialog.open(EditStudyComponent, {
+                height:'auto',
+                width:'90%'
+            });
             console.log("afterinintemptyvalue2");
             $this.dialogRef.componentInstance.study = studyFiltered;
             $this.dialogRef.componentInstance.studykey = studykey;
@@ -2752,7 +2758,10 @@ export class StudiesComponent implements OnDestroy{
                 // } else {
 
                     this.config.viewContainerRef = this.viewContainerRef;
-                    this.dialogRef = this.dialog.open(CopyMoveObjectsComponent, this.config);
+                    this.dialogRef = this.dialog.open(CopyMoveObjectsComponent, {
+                        height:'auto',
+                        width:'90%'
+                    });
                     let action = this.clipboard["action"].toUpperCase();
                     this.dialogRef.componentInstance.clipboard = this.clipboard;
                     this.dialogRef.componentInstance.rjnotes = this.rjnotes;
@@ -3318,7 +3327,7 @@ export class StudiesComponent implements OnDestroy{
                     msgStatus = "Error";
                     this.mainservice.setMessage( {
                         "title": msgStatus,
-                        "text": "all "+ faild+ "faild!",
+                        "text": "all ("+ faild+ ") faild!",
                         "status": msgStatus.toLowerCase()
                     });
                     console.log("all "+ faild+ "faild!");

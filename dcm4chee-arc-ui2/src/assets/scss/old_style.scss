@@ -802,7 +802,8 @@ table{
             background: #666;
             overflow: hidden;
 		    .cellhover{
-	 			background: rgba(6, 29, 47, 0.84);
+	 			background: #3b6b8c;
+
 		    }
 		    .close_allpatients,.open_allpatients{
 		    	&:hover{
@@ -2218,7 +2219,7 @@ div[tooltip]{
 }
 
 .hover_cell:hover{
-	background: rgba(6, 29, 47, 0.84) !important;
+	background: #3b6b8c !important;
 	color:white !important;
 }
 #loading-bar-spinner {

@@ -41,6 +41,7 @@
                         </div>
                     </div>
                 </div>
+                <div md-dialog-content>
                 <div class="body">
                     <ng-container *ngIf="clipboard.action === 'merge'">
                         <div class="block" *ngFor="let value of clipboard.patients">
@@ -81,6 +82,7 @@
                     </ng-container>
                 </div>
             </div>
+        </div>
         </div>
         <div class="dialogbuttons">
             <button class="save" type="button" (click)="dialogRef.close(clipboard)">{{saveLabel}}</button>

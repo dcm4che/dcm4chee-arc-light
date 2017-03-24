@@ -104,7 +104,11 @@ export class EditMwlComponent {
             dialogRef.close(this._mwl);
         }
         if(code === 27){
-            dialogRef.close(null);
+            if(this.opendropdown){
+                this.opendropdown = false;
+            }else{
+                dialogRef.close(null);
+            }
         }
     }
     pressedKey(e){
@@ -144,6 +148,7 @@ export class EditMwlComponent {
                 }
             }else{
                 this._mwl.attrs[attrcode]  = this.iod[attrcode];
+                this.opendropdown = false;
             }
             setTimeout(function(){
                 this.lastPressedCode = 0;
@@ -182,7 +187,7 @@ export class EditMwlComponent {
             }
             $('.dropdown').scrollTop($('.dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('.dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
         }
-        if(code === 27){
+        if(code === 27 || code === 9){
             this.opendropdown = false;
         }
     }

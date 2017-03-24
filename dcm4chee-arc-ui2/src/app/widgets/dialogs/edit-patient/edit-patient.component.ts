@@ -106,7 +106,11 @@ export class EditPatientComponent {
             dialogRef.close(this._patient);
         }
         if(code === 27){
-            dialogRef.close(null);
+            if(this.opendropdown){
+                this.opendropdown = false;
+            }else{
+                dialogRef.close(null);
+            }
         }
     }
     getKeys(obj){
@@ -202,7 +206,7 @@ export class EditPatientComponent {
             }
             $('#dropdown').scrollTop($('#dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('#dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
         }
-        if(code === 27){
+        if(code === 27 || code === 9){
             this.opendropdown = false;
         }
     }
