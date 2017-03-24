@@ -818,7 +818,7 @@
             "type": "string"
           },
           {
-            "name": "exporterID",
+            "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
             "type": "string"
