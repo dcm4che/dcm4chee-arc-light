@@ -1,14 +1,5 @@
 <div class="main_content queues">
-    <!--<div class="form-inline">-->
-<!--        <div class="form-group">
-            <label for="queue">Queue:</label>
-            <select id="queue" [(ngModel)]="queueName">
-                &lt;!&ndash; <option ng-repeat="queue in queues" title="{{queue.description}}">{{queue.name}}</option> &ndash;&gt;
-                <option *ngFor="let queue of queues" title="{{queue.name}}" value="{{queue.name}}">{{queue.description}}</option>
-            </select>
-        </div>-->
-        <!--<div class="form-group">-->
-        <div class="row filter" (keyup)="search(0)">
+        <div class="row filter" (keyup)="filterKeyUp($event)">
             <div class="main_filter_block">
             <div class="col-md-3 block-1-1">
                 <div class="row">

@@ -68,7 +68,13 @@ export class MonitoringComponent implements OnInit {
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
         }
-    }
+    };
+    filterKeyUp(e){
+        let code = (e.keyCode ? e.keyCode : e.which);
+        if(code === 13){
+            this.search(0);
+        }
+    };
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
@@ -101,6 +107,7 @@ export class MonitoringComponent implements OnInit {
                 console.log("err",err);
             });
     };
+
     ngOnInit() {
     }
     hasOlder(objs) {

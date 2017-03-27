@@ -11,7 +11,6 @@ export class MonitoringService {
 
         return this.$http.get("../monitor/export" + '?' + this.mainservice.param(this.queryParams(filters, offset)));
     };
-
     queryParams(filters, offset) {
 /*        var params = {
             offset: (offset && offset != '') ? offset : 0,
@@ -22,8 +21,6 @@ export class MonitoringService {
         if (filters.status && filters.status === "*"){
             delete filters.status;
         }
-        console.log("filters",filters);
         return filters;
-        //rgba(45, 64, 79, 0.81)
     }
 }
