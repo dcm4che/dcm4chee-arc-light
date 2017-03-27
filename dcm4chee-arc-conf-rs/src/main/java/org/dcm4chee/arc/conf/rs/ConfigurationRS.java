@@ -141,6 +141,7 @@ public class ConfigurationRS {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
+                jsonConf.setExtended(false);
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (ApplicationEntityInfo aetInfo : aetInfos)
