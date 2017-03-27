@@ -328,7 +328,7 @@
     },
     "dcmAuditUnknownStudyInstanceUID": {
       "title": "Audit Unknown Study Instance UID",
-      "description": "Indicates study instance uid value to be sent in audit message when not known. If absent, 'unknownStudy' will be applied.",
+      "description": "Indicates study instance uid value to be sent in audit message when not known. If absent, '1.2.40.0.13.1.15.110.3.165.1' will be applied.",
       "type": "string"
     },
     "dcmAuditUnknownPatientID": {
