@@ -1457,8 +1457,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public String getAuditUnknownStudyInstanceUID() {
-        return auditUnknownStudyInstanceUID != null
-                ? auditUnknownStudyInstanceUID : "unknownStudy";
+        return StringUtils.maskNull(auditUnknownStudyInstanceUID, "1.2.40.0.13.1.15.110.3.165.1");
     }
 
     public void setAuditUnknownStudyInstanceUID(String auditUnknownStudyInstanceUID) {
@@ -1466,8 +1465,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public String getAuditUnknownPatientID() {
-        return auditUnknownPatientID != null
-                ? auditUnknownPatientID : "<none>";
+        return StringUtils.maskNull(auditUnknownPatientID, "<none>");
     }
 
     public void setAuditUnknownPatientID(String auditUnknownPatientID) {
