@@ -43,6 +43,7 @@ package org.dcm4chee.arc.qmgt.impl;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
+import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.*;
 import org.slf4j.Logger;
@@ -208,22 +209,44 @@ public class QueueManagerEJB implements QueueManager {
 
     @Override
     public int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore) {
-        Query query = status != null
-                ? updatedBefore != null
-                    ? em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE)
+        if (status != null) {
+            if (updatedBefore != null) {
+                em.createNamedQuery(ExportTask.DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE)
                         .setParameter(1, queueName)
                         .setParameter(2, status)
                         .setParameter(3, updatedBefore)
-                    : em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME_AND_STATUS)
+                        .executeUpdate();
+                return em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE)
                         .setParameter(1, queueName)
                         .setParameter(2, status)
-                : updatedBefore != null
-                    ? em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE)
-                        .setParameter(1, queueName)
-                        .setParameter(2, updatedBefore)
-                    : em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME)
-                        .setParameter(1, queueName);
-        return query.executeUpdate();
+                        .setParameter(3, updatedBefore)
+                        .executeUpdate();
+            }
+            em.createNamedQuery(ExportTask.DELETE_BY_QUEUE_NAME_AND_STATUS)
+                    .setParameter(1, queueName)
+                    .setParameter(2, status)
+                    .executeUpdate();
+            return em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME_AND_STATUS)
+                    .setParameter(1, queueName)
+                    .setParameter(2, status)
+                    .executeUpdate();
+        }
+        if (updatedBefore != null) {
+            em.createNamedQuery(ExportTask.DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE)
+                    .setParameter(1, queueName)
+                    .setParameter(2, updatedBefore)
+                    .executeUpdate();
+            return em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE)
+                    .setParameter(1, queueName)
+                    .setParameter(2, updatedBefore)
+                    .executeUpdate();
+        }
+        em.createNamedQuery(ExportTask.DELETE_BY_QUEUE_NAME)
+                .setParameter(1, queueName)
+                .executeUpdate();
+        return em.createNamedQuery(QueueMessage.DELETE_BY_QUEUE_NAME)
+                .setParameter(1, queueName)
+                .executeUpdate();
     }
 
     @Override
