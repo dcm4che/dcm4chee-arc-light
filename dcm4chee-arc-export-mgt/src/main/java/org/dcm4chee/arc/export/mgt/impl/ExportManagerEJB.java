@@ -322,7 +322,7 @@ public class ExportManagerEJB implements ExportManager {
                 .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
                 .where(builder);
         if (limit > 0)
-            query.setFetchSize(limit);
+            query.limit(limit);
         if (offset > 0)
             query.offset(offset);
         return query.fetch();
