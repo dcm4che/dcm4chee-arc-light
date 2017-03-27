@@ -10,7 +10,7 @@ export class QueuesService {
     constructor(public $http: Http,public mainservice:AppService) { }
 
     search(queueName, status, offset, limit) {
-        return this.$http.get(this.url(queueName), this.queryParams(status, offset, limit));
+        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit)));
     };
 
     cancel(queueName, msgId) {

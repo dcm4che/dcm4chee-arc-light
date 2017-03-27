@@ -12,8 +12,15 @@ import {MonitoringService} from "./monitoring.service";
 export class MonitoringComponent implements OnInit {
     matches = [];
     user:User;
-    limit = 20;
     exportTasks = [];
+    filters = {
+        ExporterID:undefined,
+        offset:undefined,
+        limit:20,
+        status:"*",
+        updatedBefore:undefined,
+        dicomDeviceName:undefined
+    };
     isRole:any;
     constructor(public $http: Http, public cfpLoadingBar:SlimLoadingBarService, public mainservice:AppService,public  service:MonitoringService) {
         // this.init();
@@ -65,7 +72,7 @@ export class MonitoringComponent implements OnInit {
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.search(offset, this.limit)
+        this.service.search(this.filters, offset)
             .map(res => res.json())
             .subscribe((res) => {
                 console.log("res2",res);
@@ -81,6 +88,7 @@ export class MonitoringComponent implements OnInit {
                     });
                 }else{
                     $this.cfpLoadingBar.complete();
+                    $this.matches = [];
                     $this.mainservice.setMessage({
                         "title": "Info",
                         "text": "No queues found!",
@@ -88,22 +96,24 @@ export class MonitoringComponent implements OnInit {
                     });
                 }
             }, (err) =>{
+                $this.cfpLoadingBar.complete();
+                $this.matches = [];
                 console.log("err",err);
             });
     };
     ngOnInit() {
     }
     hasOlder(objs) {
-        return objs && (objs.length === this.limit);
+        return objs && (objs.length === this.filters.limit);
     };
     hasNewer(objs) {
         return objs && objs.length && objs[0].offset;
     };
     newerOffset(objs) {
-        return Math.max(0, objs[0].offset - this.limit);
+        return Math.max(0, objs[0].offset - this.filters.limit);
     };
     olderOffset(objs) {
-        return objs[0].offset + this.limit;
+        return objs[0].offset + this.filters.limit;
     };
 
 /*    init() {

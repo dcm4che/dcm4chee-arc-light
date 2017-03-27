@@ -7,15 +7,23 @@ export class MonitoringService {
 
     constructor(public $http: Http,public mainservice:AppService) { }
 
-    search(offset, limit) {
-        return this.$http.get("../monitor/export", this.queryParams(offset, limit));
+    search(filters, offset) {
+
+        return this.$http.get("../monitor/export" + '?' + this.mainservice.param(this.queryParams(filters, offset)));
     };
 
-    queryParams(offset, limit) {
-        var params = {
-            offset: offset,
-            limit: limit
+    queryParams(filters, offset) {
+/*        var params = {
+            offset: (offset && offset != '') ? offset : 0,
+            limit: limit,
+            status:undefined
+        }*/
+        filters.offset = (offset && offset != '') ? offset : 0;
+        if (filters.status && filters.status === "*"){
+            delete filters.status;
         }
-        return params;
+        console.log("filters",filters);
+        return filters;
+        //rgba(45, 64, 79, 0.81)
     }
 }

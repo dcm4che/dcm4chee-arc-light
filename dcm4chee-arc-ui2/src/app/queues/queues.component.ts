@@ -89,6 +89,7 @@ export class QueuesComponent {
                         };
                     });
                 }else{
+                    $this.matches = [];
                     $this.cfpLoadingBar.complete();
                     $this.mainservice.setMessage({
                         "title": "Info",
@@ -98,6 +99,7 @@ export class QueuesComponent {
                 }
             }, (err) =>{
                 console.log("err",err);
+                $this.matches = [];
             });
     };
 

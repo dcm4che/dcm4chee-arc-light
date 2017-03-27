@@ -1727,7 +1727,7 @@ export class StudiesComponent implements OnDestroy{
                     (result)=>{
                         $this.mainservice.setMessage({
                             "title": "Info",
-                            "text": "Study exported successfully!",
+                            "text": "Command executed successfully!",
                             "status": "info"
                         });
                         $this.cfpLoadingBar.complete();

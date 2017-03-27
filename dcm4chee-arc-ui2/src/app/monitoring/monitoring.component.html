@@ -3,15 +3,16 @@
         <div class="main_filter_block">
             <div class="col-md-3 block-1-1">
                 <div class="row">
-                    <label for="exporterID" class="col-md-6 text-right control-label">Exporter PK:</label>
+                    <label for="exporterID" class="col-md-6 text-right control-label">Exporter ID:</label>
                     <div class="col-md-6">
-                        <input id="exporterID" type="number" [(ngModel)]="pk" class="col-md-12"/>
+                        <input id="exporterID" type="text" [(ngModel)]="filters.ExporterID" class="col-md-12"/>
                     </div>
                 </div>
                 <div class="row">
                     <label for="status" class="col-md-6 text-right control-label">Status:</label>
                     <div class="col-md-6">
-                        <select id="status" [(ngModel)]="status" class="col-md-12">
+                        <select id="status" [(ngModel)]="filters.status" class="col-md-12">
+                            <option>*</option>
                             <option>TO SCHEDULE</option>
                             <option>SCHEDULED</option>
                             <option>IN PROCESS</option>
@@ -25,7 +26,7 @@
                 <div class="row">
                     <label for="limit" class="col-md-6 text-right control-label">Page Size:</label>
                     <div class="col-md-6">
-                        <input id="limit" type="number" min="1" [(ngModel)]="limit" class="col-md-12" />
+                        <input id="limit" type="number" min="1" [(ngModel)]="filters.limit" class="col-md-12" />
                     </div>
                 </div>
             </div>
@@ -33,13 +34,13 @@
                 <div class="row">
                     <label class="col-md-6 text-right control-label">Updated before:</label>
                     <div class="col-md-6">
-                        <p-calendar  dataType="string" [(ngModel)]="updatedBefore" dateFormat="yy-mm-dd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Updated before"></p-calendar>
+                        <p-calendar  dataType="string" [(ngModel)]="filters.updatedBefore" dateFormat="yy-mm-dd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Updated before"></p-calendar>
                     </div>
                 </div>
                 <div class="row">
                     <label for="dicomDeviceName" class="col-md-6 text-right control-label">Device name:</label>
                     <div class="col-md-6">
-                        <input id="dicomDeviceName" type="text" min="1" [(ngModel)]="dicomDeviceName" class="col-md-12" />
+                        <input id="dicomDeviceName" type="text" min="1" [(ngModel)]="filters.dicomDeviceName" class="col-md-12" />
                     </div>
                 </div>
                 <div class="row">
@@ -74,13 +75,14 @@
                 </button>
             </th>
             <th>Modality</th>
-            <th title="Number of instances">Nr.Inst.</th>
-            <th title="Export Task ID">Id</th>
+            <th title="Number of instances">Nr.Inst. </th>
+            <th title="Export Task ID">Exporter ID</th>
             <th>Status</th>
             <th>Failures</th>
             <th title="Scheduled time">Scheduled</th>
             <th title="Processing start time">Started</th>
             <th title="Processing end time">Finished</th>
+            <th>Device name</th>
             <th>Study UID</th>
         </tr>
         </thead>
@@ -102,15 +104,16 @@
                         <span class="glyphicon glyphicon-remove-circle"></span>
                     </a>-->
                 </td>
-                <td [innerHtml]="match.properties.modality"></td>
-                <td [innerHtml]="match.properties.numberOfInstances" ></td>
-                <td [innerHtml]="match.properties.id"></td>
+                <td [innerHtml]="match.properties.Modality"></td>
+                <td [innerHtml]="match.properties.NumberOfInstances" ></td>
+                <td [innerHtml]="match.properties.ExporterID"></td>
                 <td [innerHtml]="match.properties.status" title="{{match.properties.outcomeMessage}}"></td>
                 <td [innerHtml]="match.properties.failures" title="{{match.properties.errorMessage}}"></td>
                 <td [innerHtml]="match.properties.scheduledTime| date:'yyyy-MM-dd HH:mm:ss'"></td>
                 <td [innerHtml]="match.properties.processingStartTime| date:'yyyy-MM-dd HH:mm:ss'"></td>
                 <td [innerHtml]="match.properties.processingEndTime| date:'yyyy-MM-dd HH:mm:ss'"></td>
-                <td [innerHtml]="match.properties.studyUID"></td>
+                <td [innerHtml]="match.properties.dicomDeviceName"></td>
+                <td [innerHtml]="match.properties.StudyInstanceUID"></td>
             </tr>
             <tr *ngIf="match.showProperties">
                 <td colspan="10">
