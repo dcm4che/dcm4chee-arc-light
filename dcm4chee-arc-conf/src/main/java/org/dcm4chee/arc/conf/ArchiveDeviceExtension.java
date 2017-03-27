@@ -1457,19 +1457,27 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public String getAuditUnknownStudyInstanceUID() {
-        return StringUtils.maskNull(auditUnknownStudyInstanceUID, "1.2.40.0.13.1.15.110.3.165.1");
+        return auditUnknownStudyInstanceUID;
     }
 
     public void setAuditUnknownStudyInstanceUID(String auditUnknownStudyInstanceUID) {
         this.auditUnknownStudyInstanceUID = auditUnknownStudyInstanceUID;
     }
 
+    public String auditUnknownStudyInstanceUID() {
+        return StringUtils.maskNull(auditUnknownStudyInstanceUID, "1.2.40.0.13.1.15.110.3.165.1");
+    }
+
     public String getAuditUnknownPatientID() {
-        return StringUtils.maskNull(auditUnknownPatientID, "<none>");
+        return auditUnknownPatientID;
     }
 
     public void setAuditUnknownPatientID(String auditUnknownPatientID) {
         this.auditUnknownPatientID = auditUnknownPatientID;
+    }
+
+    public String auditUnknownPatientID() {
+        return StringUtils.maskNull(auditUnknownPatientID, "<none>");
     }
 
     @Override
