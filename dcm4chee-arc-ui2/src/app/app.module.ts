@@ -50,6 +50,7 @@ import {DynamicFormElementComponent} from "./widgets/dynamicform/dynamic-form-el
 import {DynamicFormComponent} from "./widgets/dynamicform/dynamic-form.component";
 import { MonitoringComponent } from './monitoring/monitoring.component';
 import {MonitoringService} from "./monitoring/monitoring.service";
+import { DicomConnectionFormaterPipe } from './pipes/dicom-connection-formater.pipe';
 
 @NgModule({
     declarations: [
@@ -81,7 +82,8 @@ import {MonitoringService} from "./monitoring/monitoring.service";
         DeviceConfiguratorComponent,
         DynamicFormElementComponent,
         DynamicFormComponent,
-        MonitoringComponent
+        MonitoringComponent,
+        DicomConnectionFormaterPipe
     ],
     imports: [
         BrowserModule,

@@ -203,6 +203,7 @@
                         <th>Association Acceptor</th>
                         <th>Application Cluster</th>
                         <th>Installed</th>
+                        <th title="Dicom network connection">Net. Connection</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -236,6 +237,7 @@
                             <span *ngFor="let cluster of ae.dicomApplicationCluster">{{cluster}}<br></span>
                         </td>
                         <td [innerHtml]="ae.dicomInstalled || 'inherit'"></td>
+                        <td [innerHtml]="ae.dicomNetworkConnection | dicomConnectionFormater"></td>
                     </tr>
                     </tbody>
                 </table>
