@@ -182,6 +182,15 @@ public class QueueManagerEJB implements QueueManager {
         if (entity == null)
             return false;
 
+        switch (entity.getStatus()) {
+            case COMPLETED:
+            case CANCELED:
+            case WARNING:
+            case FAILED:
+                throw new java.lang.IllegalStateException(
+                        "Cannot cancel Task[id=" + msgId + "] with Status: " + entity.getStatus());
+        }
+
         entity.setStatus(QueueMessage.Status.CANCELED);
         if (entity.getExportTask() != null)
             entity.getExportTask().setUpdatedTime();

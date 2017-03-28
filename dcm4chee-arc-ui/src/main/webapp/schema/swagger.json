@@ -855,6 +855,9 @@
           "404": {
             "description": "task not found"
           },
+          "409": {
+            "description": "tasks with status TO SCHEDULE, CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
+          },
           "default": {
             "description": "unexpected error"
           }
@@ -891,6 +894,9 @@
           },
           "404": {
             "description": "task or exporter not found"
+          },
+          "409": {
+            "description": "tasks with status SCHEDULED or IN PROCESS cannot be rescheduled"
           },
           "default": {
             "description": "unexpected error"
@@ -1109,6 +1115,9 @@
           "404": {
             "description": "task not found"
           },
+          "409": {
+            "description": "tasks with status CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
+          },
           "default": {
             "description": "unexpected error"
           }
@@ -1144,6 +1153,9 @@
           },
           "404": {
             "description": "task not found"
+          },
+          "409": {
+            "description": "tasks with status SCHEDULED or IN PROCESS cannot be rescheduled"
           },
           "default": {
             "description": "unexpected error"
