@@ -97,7 +97,7 @@ export class MonitoringComponent implements OnInit {
                     $this.matches = [];
                     $this.mainservice.setMessage({
                         "title": "Info",
-                        "text": "No queues found!",
+                        "text": "No tasks found!",
                         "status":'info'
                     });
                 }

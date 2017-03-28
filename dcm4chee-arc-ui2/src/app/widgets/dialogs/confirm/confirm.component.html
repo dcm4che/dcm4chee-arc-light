@@ -1,5 +1,6 @@
 <div class="vex vex-theme-os confirm" [ngClass]="parameters.cssClass" xmlns="http://www.w3.org/1999/html" (keydown)="dialogKeyHandler($event,dialogRef)">
     <div class="vex-dialog-form">
+
         <h5 *ngIf="parameters.title">{{ parameters.title }}</h5>
         <div class="content">
             <h3 [innerHtml]="parameters.content">
@@ -15,6 +16,16 @@
                 <ng-container *ngIf="parameters.input && parameters.input.type && parameters.input.type == 'checkbox' && parameters.input.checkboxtext"><span [innerHtml]="parameters.input.checkboxtext">{{parameters.input.checkboxtext}}</span></ng-container>
             </div>
             <p class="bodytext" *ngIf="parameters.bodytext"  [innerHtml]="parameters.bodytext"></p>
+            <ng-container *ngIf="parameters.checkboxes">
+                <div *ngFor="let checkbox of parameters.checkboxes">
+                    <label title="{{ checkbox.title }}">
+                        <input type="checkbox" name="checkbox.name" [(ngModel)]="parameters.result['checkboxes'][checkbox.name]"> {{ checkbox.label }}
+                    </label>
+                </div>
+            </ng-container>
+            <div *ngIf="parameters.warningOn && parameters.warningOn.message">
+                <span class="text-danger" *ngIf="(_.hasIn(parameters,parameters.warningOn.conditions[0]) && _.get(parameters,parameters.warningOn.conditions[0]) === true) || _.hasIn(parameters,parameters.warningOn.conditions[1]) && _.get(parameters,parameters.warningOn.conditions[1]) === true">{{ parameters.warningOn.message }}</span>
+            </div>
         </div>
         <div class="dialogbuttons">
             <button *ngIf="!parameters.saveButton"  class="save" type="button" (click)="dialogRef.close('ok')">OK</button>

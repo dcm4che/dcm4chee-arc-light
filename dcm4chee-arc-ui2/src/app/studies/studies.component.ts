@@ -1709,18 +1709,40 @@ export class StudiesComponent implements OnDestroy{
         let parameters: any = {
             content: 'Select Exporter',
             select: select,
-            result: {select:this.exporters[0].id},
+            result: {
+                select:this.exporters[0].id,
+                checkboxes:{}
+            },
+            checkboxes:[
+                {
+                    name:'only-stgcmt',
+                    label:'Storage commitment without export',
+                    title:'If checked the study will not be sent'
+                },
+                {
+                    name:'only-ian',
+                    label:'IAN without export',
+                    title:'If checked the study will not be sent'
+                }
+            ],
+            warningOn:{
+                message:'Stud will not be sent!',
+                conditions:[
+                    '[result][checkboxes][only-stgcmt]',
+                    '[result][checkboxes][only-ian]'
+                ]
+            },
             saveButton: "EXPORT"
         };
-        console.log("parameters", parameters);
         let $this = this;
         this.confirm(parameters).subscribe(result => {
             if (result) {
                 $this.cfpLoadingBar.start();
-                console.log("result",result);
-                console.log("result",parameters.result.select);
+                console.log("result2",result);
+                console.log("result2",parameters.result.select);
+
                 $this.$http.post(
-                    $this.studyURL(study.attrs) + '/export/' + parameters.result.select,
+                    $this.studyURL(study.attrs) + '/export/' + parameters.result.select+'?'+this.mainservice.param(parameters.result.checkboxes),
                     {},
                     $this.jsonHeader
                 ).subscribe(
@@ -1758,7 +1780,29 @@ export class StudiesComponent implements OnDestroy{
         let parameters: any = {
             content: 'Select Exporter',
             select: select,
-            result: {select:this.exporters[0].id},
+            result: {
+                select:this.exporters[0].id,
+                checkboxes:{}
+            },
+            checkboxes:[
+                {
+                    name:'only-stgcmt',
+                    label:'Storage commitment without export',
+                    title:'If checked the series will not be sent'
+                },
+                {
+                    name:'only-ian',
+                    label:'IAN without export',
+                    title:'If checked the series will not be sent'
+                }
+            ],
+            warningOn:{
+                message:'Series will not be sent!',
+                conditions:[
+                    '[result][checkboxes][only-stgcmt]',
+                    '[result][checkboxes][only-ian]'
+                ]
+            },
             saveButton: "EXPORT"
         };
         console.log("parameters", parameters);
@@ -1769,7 +1813,7 @@ export class StudiesComponent implements OnDestroy{
                 console.log("result",result);
                 console.log("result",parameters.result.select);
                 $this.$http.post(
-                    $this.seriesURL(series.attrs) + '/export/' + parameters.result.select,
+                    $this.seriesURL(series.attrs) + '/export/' + parameters.result.select+'?'+this.mainservice.param(parameters.result.checkboxes),
                     {},
                     $this.jsonHeader
                 ).subscribe(
@@ -1782,6 +1826,7 @@ export class StudiesComponent implements OnDestroy{
                         $this.cfpLoadingBar.complete();
                     },
                     (err) => {
+                      console.log("err",err);
                         $this.mainservice.setMessage({
                             "title": "Error "+err.status,
                             "text": err.statusText,
@@ -1826,7 +1871,30 @@ export class StudiesComponent implements OnDestroy{
         let parameters: any = {
             content: 'Select Exporter',
             select: select,
-            result: {select:this.exporters[0].id},
+            result: {
+                select:this.exporters[0].id,
+                checkboxes:{}
+            },
+            checkboxes:[
+                {
+                    name:'only-stgcmt',
+                    label:'Storage commitment without export',
+                    title:'If checked the instance will not be sent'
+
+                },
+                {
+                    name:'only-ian',
+                    label:'IAN without export',
+                    title:'If checked the instance will not be sent'
+                }
+            ],
+            warningOn:{
+                message:'Instance will not be sent!',
+                conditions:[
+                    '[result][checkboxes][only-stgcmt]',
+                    '[result][checkboxes][only-ian]'
+                ]
+            },
             saveButton: "EXPORT"
         };
         console.log("parameters", parameters);
@@ -1837,7 +1905,7 @@ export class StudiesComponent implements OnDestroy{
                 console.log("result",result);
                 console.log("result",parameters.result.select);
                 $this.$http.post(
-                    $this.instanceURL(instance.attrs) + '/export/' + parameters.result.select,
+                    $this.instanceURL(instance.attrs) + '/export/' + parameters.result.select+'?'+this.mainservice.param(parameters.result.checkboxes),
                     {},
                     $this.jsonHeader
                 ).subscribe(
@@ -1850,6 +1918,7 @@ export class StudiesComponent implements OnDestroy{
                         $this.cfpLoadingBar.complete();
                     },
                     (err) => {
+                        console.log("err",err);
                         $this.mainservice.setMessage({
                             "title": "Error "+err.status,
                             "text": err.statusText,

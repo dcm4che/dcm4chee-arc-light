@@ -1,5 +1,6 @@
 import {Component, AfterViewChecked} from '@angular/core';
 import {MdDialogRef} from "@angular/material";
+import * as _ from "lodash";
 
 @Component({
     selector: 'app-confirm',
@@ -12,6 +13,7 @@ import {MdDialogRef} from "@angular/material";
     `]
 })
 export class ConfirmComponent{
+    _ = _;
 
     private _parameters;
     constructor(public dialogRef: MdDialogRef<ConfirmComponent>) {

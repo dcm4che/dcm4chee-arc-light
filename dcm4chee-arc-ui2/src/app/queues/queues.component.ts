@@ -99,7 +99,7 @@ export class QueuesComponent {
                     $this.cfpLoadingBar.complete();
                     $this.mainservice.setMessage({
                         "title": "Info",
-                        "text": "No queues found!",
+                        "text": "No tasks found!",
                         "status":'info'
                     });
                 }
