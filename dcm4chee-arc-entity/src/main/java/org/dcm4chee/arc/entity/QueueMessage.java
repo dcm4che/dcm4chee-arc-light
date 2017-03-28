@@ -125,7 +125,8 @@ public class QueueMessage {
     @Column(name = "updated_time")
     private Date updatedTime;
 
-    @Column(name = "queue_name", updatable = false)
+    @Basic(optional = false)
+    @Column(name = "queue_name")
     private String queueName;
 
     @Basic(optional = false)
@@ -167,6 +168,8 @@ public class QueueMessage {
     @Column(name = "outcome_msg")
     private String outcomeMessage;
 
+    @OneToOne(mappedBy = "queueMessage")
+    private ExportTask exportTask;
 
     public QueueMessage() {
     }
@@ -235,6 +238,10 @@ public class QueueMessage {
         return queueName;
     }
 
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
+
     public String getMessageID() {
         return messageID;
     }
@@ -253,6 +260,14 @@ public class QueueMessage {
 
     public void setOutcomeMessage(String outcomeMessage) {
         this.outcomeMessage = outcomeMessage != null ? StringUtils.truncate(outcomeMessage, 255) : null;
+    }
+
+    public ExportTask getExportTask() {
+        return exportTask;
+    }
+
+    public void setExportTask(ExportTask exportTask) {
+        this.exportTask = exportTask;
     }
 
     public void reschedule(ObjectMessage msg, Date date) {

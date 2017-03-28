@@ -62,12 +62,11 @@ public interface QueueManager {
 
     QueueMessage onProcessingFailed(String msgId, Throwable e);
 
-    void cancelProcessing(String msgId) throws MessageAlreadyDeletedException;
+    boolean cancelProcessing(String msgId);
 
-    void rescheduleMessage(String msgId)
-            throws MessageAlreadyDeletedException, IllegalMessageStatusException;
+    boolean rescheduleMessage(String msgId, String queueName);
 
-    void deleteMessage(String msgId) throws MessageAlreadyDeletedException;
+    boolean deleteMessage(String msgId);
 
     int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore);
 

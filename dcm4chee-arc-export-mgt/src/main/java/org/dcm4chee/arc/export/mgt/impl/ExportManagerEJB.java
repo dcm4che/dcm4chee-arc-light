@@ -41,9 +41,7 @@
 package org.dcm4chee.arc.export.mgt.impl;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -54,12 +52,11 @@ import org.dcm4chee.arc.entity.QExportTask;
 import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.export.mgt.ExportTaskAlreadyDeletedException;
-import org.dcm4chee.arc.qmgt.MessageAlreadyDeletedException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,10 +67,9 @@ import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-
-import org.hibernate.Session;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -291,16 +287,6 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public void deleteExportTask(Long pk) {
-        em.remove(em.find(ExportTask.class, pk));
-    }
-
-    @Override
-    public int deleteExportTasks(String exporterID, QueueMessage.Status status, Date updatedBefore) {
-        return 0;
-    }
-
-    @Override
     public List<ExportTask> search(
             String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status, int offset, int limit) {
         BooleanBuilder builder = new BooleanBuilder();
@@ -326,6 +312,47 @@ public class ExportManagerEJB implements ExportManager {
         if (offset > 0)
             query.offset(offset);
         return query.fetch();
+    }
+
+    @Override
+    public boolean deleteExportTask(Long pk) {
+        ExportTask task = em.find(ExportTask.class, pk);
+        if (task == null)
+            return false;
+
+        em.remove(task);
+        LOG.info("Delete {}", task);
+        return true;
+    }
+
+    @Override
+    public boolean cancelProcessing(Long pk) {
+        ExportTask task = em.find(ExportTask.class, pk);
+        if (task == null)
+            return false;
+
+        QueueMessage queueMessage = task.getQueueMessage();
+        if (queueMessage == null)
+            throw new IllegalStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
+
+        queueManager.cancelProcessing(queueMessage.getMessageID());
+        LOG.info("Cancel {}", task);
+        return true;
+    }
+
+    @Override
+    public boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) {
+        ExportTask task = em.find(ExportTask.class, pk);
+        if (task == null)
+            return false;
+
+        QueueMessage queueMessage = task.getQueueMessage();
+        if (queueMessage != null)
+            queueManager.rescheduleMessage(queueMessage.getMessageID(), exporter.getQueueName());
+
+        task.setExporterID(exporter.getExporterID());
+        LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
+        return true;
     }
 
 }

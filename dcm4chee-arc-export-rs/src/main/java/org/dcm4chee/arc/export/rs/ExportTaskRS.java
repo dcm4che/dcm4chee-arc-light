@@ -40,6 +40,8 @@
 package org.dcm4chee.arc.export.rs;
 
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
@@ -119,20 +121,47 @@ public class ExportTaskRS {
                 .build();
     }
 
-    @DELETE
-    @Path("/{taskPK}")
-    public void deleteTask(@PathParam("taskPK") long pk) throws Exception {
+    @POST
+    @Path("{taskPK}/cancel")
+    public Response cancelProcessing(@PathParam("taskPK") long pk) {
         logRequest();
-        mgr.deleteExportTask(pk);
+        try {
+            return Response.status(mgr.cancelProcessing(pk)
+                    ? Response.Status.NO_CONTENT
+                    : Response.Status.NOT_FOUND)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+        }
+    }
+
+    @POST
+    @Path("{taskPK}/reschedule/{ExporterID}")
+    public Response rescheduleTask(@PathParam("taskPK") long pk, @PathParam("ExporterID") String exporterID) {
+        logRequest();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
+        if (exporter == null)
+            return Response.status(Response.Status.NOT_FOUND).entity("No such exporter - " + exporterID).build();
+
+        try {
+            return Response.status(mgr.rescheduleExportTask(pk, exporter)
+                    ? Response.Status.NO_CONTENT
+                    : Response.Status.NOT_FOUND)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+        }
     }
 
     @DELETE
-    @Produces("application/json")
-    public String deleteTasks() {
+    @Path("/{taskPK}")
+    public Response deleteTask(@PathParam("taskPK") long pk) {
         logRequest();
-        return "{\"deleted\":"
-                + mgr.deleteExportTasks(exporterID, parseStatus(status), parseDate(updatedBefore))
-                + '}';
+        return Response.status(mgr.deleteExportTask(pk)
+                ? Response.Status.NO_CONTENT
+                : Response.Status.NOT_FOUND)
+                .build();
     }
 
     private Object toEntity(final List<ExportTask> tasks) {
@@ -161,11 +190,6 @@ public class ExportTaskRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
-    }
-
-    private Response getResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
     }
 
     private static Date parseDate(String s) {

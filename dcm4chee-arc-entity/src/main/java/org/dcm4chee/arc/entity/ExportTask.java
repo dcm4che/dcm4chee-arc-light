@@ -298,6 +298,6 @@ public class ExportTask {
 
     @Override
     public String toString() {
-        return "ExportTask[pk" + pk + ", ";
+        return "ExportTask[pk=" + pk + ", ExporterID=" + exporterID + "]"];
     }
 }

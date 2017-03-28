@@ -63,11 +63,13 @@ public interface ExportManager {
 
     void updateExportTask(Long pk);
 
-    void deleteExportTask(Long pk);
-
-    int deleteExportTasks(String exporterID, QueueMessage.Status status, Date updatedBefore);
-
     List<ExportTask> search(
             String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status,
             int offset, int limit);
+
+    boolean deleteExportTask(Long pk);
+
+    boolean cancelProcessing(Long pk);
+
+    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter);
 }

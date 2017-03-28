@@ -43,11 +43,15 @@ package org.dcm4chee.arc.qmgt.rs;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
@@ -67,9 +71,13 @@ import java.util.List;
 @RequestScoped
 @Path("queue/{queueName}")
 public class QueueManagerRS {
+    private static final Logger LOG = LoggerFactory.getLogger(QueueManagerRS.class);
 
     @Inject
     private QueueManager mgr;
+
+    @Context
+    private HttpServletRequest request;
 
     @PathParam("queueName")
     private String queueName;
@@ -100,20 +108,36 @@ public class QueueManagerRS {
 
     @POST
     @Path("{msgId}/cancel")
-    public void cancelProcessing(@PathParam("msgId") String msgId) throws Exception {
-        mgr.cancelProcessing(msgId);
+    public Response cancelProcessing(@PathParam("msgId") String msgId) {
+        logRequest();
+        return Response.status(mgr.cancelProcessing(msgId)
+                ? Response.Status.NO_CONTENT
+                : Response.Status.NOT_FOUND)
+                .build();
     }
 
     @POST
     @Path("{msgId}/reschedule")
-    public void rescheduleMessage(@PathParam("msgId") String msgId) throws Exception {
-        mgr.rescheduleMessage(msgId);
+    public Response rescheduleMessage(@PathParam("msgId") String msgId) {
+        logRequest();
+        try {
+            return Response.status(mgr.rescheduleMessage(msgId, null)
+                    ? Response.Status.NO_CONTENT
+                    : Response.Status.NOT_FOUND)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+        }
     }
 
     @DELETE
     @Path("{msgId}")
-    public void deleteMessage(@PathParam("msgId") String msgId) throws Exception {
-        mgr.deleteMessage(msgId);
+    public Response deleteMessage(@PathParam("msgId") String msgId) {
+        logRequest();
+        return Response.status(mgr.deleteMessage(msgId)
+                ? Response.Status.NO_CONTENT
+                : Response.Status.NOT_FOUND)
+                .build();
     }
 
     @DELETE
@@ -160,4 +184,8 @@ public class QueueManagerRS {
         }
     }
 
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
+                request.getRemoteUser(), request.getRemoteHost());
+    }
 }

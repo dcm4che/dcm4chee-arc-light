@@ -45,7 +45,9 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.qmgt.MessageCanceled;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.QueueManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,10 +56,15 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.jms.*;
+import javax.jms.JMSContext;
+import javax.jms.ObjectMessage;
+import javax.jms.Queue;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -69,7 +76,7 @@ import java.util.List;
 @Stateless
 public class QueueManagerEJB implements QueueManager {
 
-    static final Logger LOG = LoggerFactory.getLogger(QueueManagerEJB.class);
+    private static final Logger LOG = LoggerFactory.getLogger(QueueManagerEJB.class);
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
@@ -170,41 +177,61 @@ public class QueueManagerEJB implements QueueManager {
     }
 
     @Override
-    public void cancelProcessing(String msgId) throws MessageAlreadyDeletedException {
-        QueueMessage entity = getQueueMessage(msgId);
+    public boolean cancelProcessing(String msgId) {
+        QueueMessage entity = findQueueMessage(msgId);
+        if (entity == null)
+            return false;
+
         entity.setStatus(QueueMessage.Status.CANCELED);
+        if (entity.getExportTask() != null)
+            entity.getExportTask().setUpdatedTime();
         LOG.info("Cancel processing of Task[id={}] at Queue {}", msgId, entity.getQueueName());
         messageCanceledEvent.fire(new MessageCanceled(msgId));
+        return true;
     }
 
     @Override
-    public void rescheduleMessage(String msgId)
-            throws MessageAlreadyDeletedException, IllegalMessageStatusException {
-        QueueMessage entity = getQueueMessage(msgId);
+    public boolean rescheduleMessage(String msgId, String queueName) {
+        QueueMessage entity = findQueueMessage(msgId);
+        if (entity == null)
+            return false;
+
         switch (entity.getStatus()) {
             case SCHEDULED:
             case IN_PROCESS:
-                throw new IllegalMessageStatusException(
+                throw new java.lang.IllegalStateException(
                         "Cannot reschedule Task[id=" + msgId + "] with Status: " + entity.getStatus());
         }
+        if (queueName != null)
+            entity.setQueueName(queueName);
         entity.setNumberOfFailures(0);
         entity.setErrorMessage(null);
         entity.setOutcomeMessage(null);
         rescheduleMessage(entity, descriptorOf(entity.getQueueName()), 0L);
+        return true;
     }
 
     private void rescheduleMessage(QueueMessage entity, QueueDescriptor descriptor, long delay) {
         ObjectMessage msg = entity.initProperties(createObjectMessage(entity.getMessageBody()));
         sendMessage(descriptor, msg, delay);
         entity.reschedule(msg, new Date(System.currentTimeMillis() + delay));
+        if (entity.getExportTask() != null)
+            entity.getExportTask().setUpdatedTime();
         LOG.info("Reschedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
     }
 
     @Override
-    public void deleteMessage(String msgId) throws MessageAlreadyDeletedException {
-        QueueMessage entity = getQueueMessage(msgId);
-        em.remove(entity);
+    public boolean deleteMessage(String msgId) {
+        QueueMessage entity = findQueueMessage(msgId);
+        if (entity == null)
+            return false;
+
+        if (entity.getExportTask() != null)
+            em.remove(entity.getExportTask());
+        else
+            em.remove(entity);
         LOG.info("Delete Task[id={}] from Queue {}", entity.getMessageID(), entity.getQueueName());
+        return true;
     }
 
     @Override
@@ -282,24 +309,12 @@ public class QueueManagerEJB implements QueueManager {
 
     private QueueMessage findQueueMessage(String msgId) {
         try {
-            return queryQueueMessage(msgId);
+            return em.createNamedQuery(QueueMessage.FIND_BY_MSG_ID, QueueMessage.class)
+                    .setParameter(1, msgId)
+                    .getSingleResult();
         } catch (NoResultException e) {
             return null;
         }
-    }
-
-    private QueueMessage getQueueMessage(String msgId) throws MessageAlreadyDeletedException {
-        try {
-            return queryQueueMessage(msgId);
-        } catch (NoResultException e) {
-            throw new MessageAlreadyDeletedException("Message[id=" + msgId + "] already deleted");
-        }
-    }
-
-    private QueueMessage queryQueueMessage(String msgId) {
-        return em.createNamedQuery(QueueMessage.FIND_BY_MSG_ID, QueueMessage.class)
-                .setParameter(1, msgId)
-                .getSingleResult();
     }
 
 }
