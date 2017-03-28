@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 import {User} from "../models/user";
 import {Http} from "@angular/http";
 import {AppService} from "../app.service";
 import {MonitoringService} from "./monitoring.service";
+import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
+import {MdDialogConfig, MdDialog, MdDialogRef} from "@angular/material";
+import * as _ from "lodash";
 
 @Component({
   selector: 'app-monitoring',
@@ -12,6 +15,8 @@ import {MonitoringService} from "./monitoring.service";
 export class MonitoringComponent implements OnInit {
     matches = [];
     user:User;
+    exporters;
+    exporterID;
     exportTasks = [];
     filters = {
         ExporterID:undefined,
@@ -22,7 +27,11 @@ export class MonitoringComponent implements OnInit {
         dicomDeviceName:undefined
     };
     isRole:any;
-    constructor(public $http: Http, public cfpLoadingBar:SlimLoadingBarService, public mainservice:AppService,public  service:MonitoringService) {
+    dialogRef: MdDialogRef<any>;
+
+
+    constructor(public $http: Http, public cfpLoadingBar:SlimLoadingBarService, public mainservice:AppService,public  service:MonitoringService,public viewContainerRef: ViewContainerRef,public dialog: MdDialog, public config: MdDialogConfig) {
+        this.initExporters(1);
         // this.init();
         let $this = this;
         if(!this.mainservice.user){
@@ -75,6 +84,12 @@ export class MonitoringComponent implements OnInit {
             this.search(0);
         }
     };
+    confirm(confirmparameters){
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(ConfirmComponent, this.config);
+        this.dialogRef.componentInstance.parameters = confirmparameters;
+        return this.dialogRef.afterClosed();
+    };
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
@@ -86,6 +101,9 @@ export class MonitoringComponent implements OnInit {
                 if(res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
                         $this.cfpLoadingBar.complete();
+                        if(_.hasIn(properties,'Modality')){
+                            properties.Modality = properties.Modality.join(',');
+                        }
                         return {
                             offset: offset + index,
                             properties: properties,
@@ -107,7 +125,122 @@ export class MonitoringComponent implements OnInit {
                 console.log("err",err);
             });
     };
-
+    delete(match){
+        let $this = this;
+        let parameters: any = {
+            content: 'Are you sure you want to delete this task?',
+            result: {
+                select:this.exporters[0].id
+            },
+            saveButton: "DELETE"
+        };
+        this.confirm(parameters).subscribe(result => {
+            if(result){
+                $this.cfpLoadingBar.start();
+                this.service.delete(match.properties.pk)
+                    .subscribe(
+                        (res) => {
+                            // match.properties.status = 'CANCELED';
+                            $this.cfpLoadingBar.complete();
+                            $this.search(0);
+                            $this.mainservice.setMessage({
+                                "title": "Info",
+                                "text": "Task deleted successfully!",
+                                "status":'info'
+                            });
+                        },
+                        (err) => {
+                            $this.cfpLoadingBar.complete();
+                            console.log("cancleerr",err);
+                            $this.mainservice.setMessage({
+                                "title": "Error " + err.status,
+                                "text": err.statusText,
+                                "status": "error"
+                            });
+                        });
+                }
+        });
+    }
+    cancel(match) {
+        let $this = this;
+        let parameters: any = {
+            content: 'Are you sure you want to cancel this task?',
+            result: {
+                select:this.exporters[0].id
+            },
+            saveButton: "CANCEL"
+        };
+        this.confirm(parameters).subscribe(result => {
+            if(result){
+                $this.cfpLoadingBar.start();
+                this.service.cancel(match.properties.pk)
+                    .subscribe(
+                        (res) => {
+                            match.properties.status = 'CANCELED';
+                            $this.cfpLoadingBar.complete();
+                            $this.mainservice.setMessage({
+                                "title": "Info",
+                                "text": "Task canceled successfully!",
+                                "status":'info'
+                            });
+                        },
+                        (err) => {
+                            $this.cfpLoadingBar.complete();
+                            console.log("cancleerr",err);
+                            $this.mainservice.setMessage({
+                                "title": "Error " + err.status,
+                                "text": err.statusText,
+                                "status": "error"
+                            });
+                        });
+            }
+        });
+    };
+    reschedule(match) {
+        let $this = this;
+        let select:any = [];
+        _.forEach(this.exporters, (m,i)=>{
+            select.push({
+                title:m.description,
+                value:m.id,
+                label:m.id
+            });
+        });
+        let parameters: any = {
+            content: 'Are you sure you want to reschedule this task?',
+            select: select,
+            result: {
+                select:this.exporters[0].id
+            },
+            saveButton: "RESCHEDULE"
+        };
+        this.confirm(parameters).subscribe(result => {
+            if(result){
+                $this.cfpLoadingBar.start();
+                console.log("resultparam",parameters.result.select);
+                this.service.reschedule(match.properties.pk,parameters.result.select)
+                    .subscribe(
+                        (res) => {
+                            $this.search(0);
+                            $this.cfpLoadingBar.complete();
+                            $this.mainservice.setMessage({
+                                "title": "Info",
+                                "text": "Task rescheduled successfully!",
+                                "status":'info'
+                            });
+                        },
+                        (err) => {
+                            $this.cfpLoadingBar.complete();
+                            console.log("cancleerr",err);
+                            $this.mainservice.setMessage({
+                                "title": "Error " + err.status,
+                                "text": err.statusText,
+                                "status": "error"
+                            });
+                        });
+            }
+        });
+    };
     ngOnInit() {
     }
     hasOlder(objs) {
@@ -134,4 +267,24 @@ export class MonitoringComponent implements OnInit {
                 $this.cfpLoadingBar.complete();
             })
     }*/
+    initExporters(retries) {
+        let $this = this;
+        this.$http.get("../export")
+            .map(res => res.json())
+            .subscribe(
+                (res) => {
+                    console.log("res",res);
+                    console.log("exporters",$this.exporters);
+                    $this.exporters = res;
+                    console.log("exporters2",$this.exporters);
+                    if(res && res[0] && res[0].id){
+                        $this.exporterID = res[0].id;
+                    }
+                    // $this.mainservice.setGlobal({exporterID:$this.exporterID});
+                },
+                (res) => {
+                    if (retries)
+                        this.initExporters(retries-1);
+                });
+    }
 }

@@ -5,10 +5,11 @@ import {Http} from "@angular/http";
 @Injectable()
 export class MonitoringService {
 
-    constructor(public $http: Http,public mainservice:AppService) { }
+
+    constructor(public $http: Http,public mainservice:AppService) {
+    }
 
     search(filters, offset) {
-
         return this.$http.get("../monitor/export" + '?' + this.mainservice.param(this.queryParams(filters, offset)));
     };
     queryParams(filters, offset) {
@@ -21,6 +22,19 @@ export class MonitoringService {
         if (filters.status && filters.status === "*"){
             delete filters.status;
         }
+        if (filters.ExporterID && filters.ExporterID === "*"){
+            delete filters.ExporterID;
+        }
         return filters;
     }
+    cancel(pk){
+        return this.$http.post("../monitor/export/"+pk+"/cancel",{});
+    }
+    delete(pk){
+        return this.$http.delete("../monitor/export/"+pk);
+    }
+    reschedule(pk, exporterID){
+        return this.$http.post("../monitor/export/"+pk+"/reschedule/"+exporterID,{});
+    }
+
 }

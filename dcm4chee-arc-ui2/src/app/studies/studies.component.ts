@@ -1740,7 +1740,6 @@ export class StudiesComponent implements OnDestroy{
                 $this.cfpLoadingBar.start();
                 console.log("result2",result);
                 console.log("result2",parameters.result.select);
-
                 $this.$http.post(
                     $this.studyURL(study.attrs) + '/export/' + parameters.result.select+'?'+this.mainservice.param(parameters.result.checkboxes),
                     {},
