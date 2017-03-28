@@ -890,7 +890,7 @@
             "description": "successful operation"
           },
           "404": {
-            "description": "task not found"
+            "description": "task or exporter not found"
           },
           "default": {
             "description": "unexpected error"
