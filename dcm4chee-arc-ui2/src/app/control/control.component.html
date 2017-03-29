@@ -11,15 +11,15 @@
         <button type="button" class="btn btn-default" (click)="reload()" title="Reload Archive Configuration">Reload</button>
         <button type="button" class="btn btn-default" (click)="fetchStatus()" title="Fetch Archive Status">Status</button>
     </div>
-    <div class="monitor">
-        <!-- <code> -->
+<!--    <div class="monitor">
+        &lt;!&ndash; <code> &ndash;&gt;
         <h3>Open Associations</h3>
         <p>Press Start or Refresh to get associations</p>
         <button type="button" class="btn btn-default refresh" (click)="refresh()" title="Get associacions">Refresh</button>
         <span title="Set the refresh interval in sec or millisec (with .)">Timer (sec)</span> : <input title="With a dot '.' you can set milliseconds for example: '0.6' = 600 milliseconds" type="text" [(ngModel)]="updaterate" [disabled]="!stopLoop" class="no-close-button"/>
         <button *ngIf="stopLoop" type="button" class="btn btn-default" (click)="monitor()" title="Start getting associacions">Start</button>
         <button *ngIf="!stopLoop" type="button" class="btn btn-default" (click)="stopLoop=true" title="Stop auto refresh">Stop</button>
-         <!--<span *ngIf="!stopLoop" class="loader"></span>-->
+         &lt;!&ndash;<span *ngIf="!stopLoop" class="loader"></span>&ndash;&gt;
         <button type="button" class="btn btn-default" (click)="downloadAssocImmage()" title="Download copy of the table as csv-file">Download copy</button>
         <div *ngIf="!stopLoop" id="loading-bar-spinner">
             <div class="spinner-icon">
@@ -71,19 +71,19 @@
                     {{value.remoteAETitle}}
                 </td>
                 <td>
-                    <!--<pre>-->
-                        <!--invokedopsobj:{{value?.invokedOps|json}}-->
-                        <!--invokedops:{{toArray(value?.invokedOps|json)}}-->
-                    <!--</pre>-->
+                    &lt;!&ndash;<pre>&ndash;&gt;
+                        &lt;!&ndash;invokedopsobj:{{value?.invokedOps|json}}&ndash;&gt;
+                        &lt;!&ndash;invokedops:{{toArray(value?.invokedOps|json)}}&ndash;&gt;
+                    &lt;!&ndash;</pre>&ndash;&gt;
                     <div *ngFor="let m of value?.invokedOps | getKey">
-                        <!--m:{{m|json}}-->
-                        <!--k:{{k}}-->
-                        <!--key:{{m._KEY}}-->
-                        <!--value:{{m._VALUE|json}}-->
+                        &lt;!&ndash;m:{{m|json}}&ndash;&gt;
+                        &lt;!&ndash;k:{{k}}&ndash;&gt;
+                        &lt;!&ndash;key:{{m._KEY}}&ndash;&gt;
+                        &lt;!&ndash;value:{{m._VALUE|json}}&ndash;&gt;
                         {{m._KEY}}-RQ/RSP : {{m._VALUE.RQ}}/{{m._VALUE.RSP}}
                     </div>
-                    <!--<div *ngFor="let m of value?.invokedOps; let k = index;">-->
-                    <!--</div>-->
+                    &lt;!&ndash;<div *ngFor="let m of value?.invokedOps; let k = index;">&ndash;&gt;
+                    &lt;!&ndash;</div>&ndash;&gt;
                 </td>
                 <td>
                     <div *ngFor="let m of value?.performedOps | getKey">
@@ -103,6 +103,6 @@
                 <td colspan="5">No open associations found!</td>
             </tr>
         </table>
-        <!-- </code> -->
-    </div>
+        &lt;!&ndash; </code> &ndash;&gt;
+    </div>-->
 </div>

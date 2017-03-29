@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {Http, Headers} from "@angular/http";
 import {DatePipe} from "@angular/common";
-import {AppService} from "../app.service";
+import {AppService} from "../../app.service";
 
 @Injectable()
 export class QueuesService {

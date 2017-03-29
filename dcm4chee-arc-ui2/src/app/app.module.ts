@@ -8,7 +8,7 @@ import {MaterialModule, MdDialogConfig} from "@angular/material";
 import { StudiesComponent } from './studies/studies.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { ControlComponent } from './control/control.component';
-import { QueuesComponent } from './queues/queues.component';
+import { QueuesComponent } from './monitoring/queues/queues.component';
 import {SlimLoadingBarModule} from "ng2-slim-loading-bar";
 import { OrderByPipe } from './pipes/order-by.pipe';
 import { GetKeyPipe } from './pipes/get-key.pipe';
@@ -35,7 +35,7 @@ import { IodFormGeneratorComponent } from './helpers/iod-form-generator/iod-form
 import { TooltipDirective } from './helpers/tooltip/tooltip.directive';
 import { ComparewithiodPipe } from './pipes/comparewithiod.pipe';
 import { PlaceholderchangerDirective } from './helpers/placeholderchanger.directive';
-import {QueuesService} from "./queues/queues.service";
+import {QueuesService} from "./monitoring/queues/queues.service";
 import { DevicesComponent } from './devices/devices.component';
 import {DevicesService} from "./devices/devices.service";
 import { DeviceConfiguratorComponent } from './device-configurator/device-configurator.component';
@@ -48,9 +48,10 @@ import {InputText} from "./helpers/form/input-text";
 // import {REACTIVE_FORM_DIRECTIVES} from "@angular/forms/src/directives";
 import {DynamicFormElementComponent} from "./widgets/dynamicform/dynamic-form-element.component";
 import {DynamicFormComponent} from "./widgets/dynamicform/dynamic-form.component";
-import { MonitoringComponent } from './monitoring/monitoring.component';
-import {MonitoringService} from "./monitoring/monitoring.service";
+import { ExportComponent } from './monitoring/export/export.component';
+import {ExportService} from "./monitoring/export/export.service";
 import { DicomConnectionFormaterPipe } from './pipes/dicom-connection-formater.pipe';
+import { AssociationsComponent } from './monitoring/associations/associations.component';
 
 @NgModule({
     declarations: [
@@ -82,8 +83,9 @@ import { DicomConnectionFormaterPipe } from './pipes/dicom-connection-formater.p
         DeviceConfiguratorComponent,
         DynamicFormElementComponent,
         DynamicFormComponent,
-        MonitoringComponent,
-        DicomConnectionFormaterPipe
+        ExportComponent,
+        DicomConnectionFormaterPipe,
+        AssociationsComponent
     ],
     imports: [
         BrowserModule,
@@ -102,10 +104,16 @@ import { DicomConnectionFormaterPipe } from './pipes/dicom-connection-formater.p
               redirectTo: '/studies',
               pathMatch: 'full'
             },
+            {
+                path: 'monitoring',
+                redirectTo: '/monitoring/queues',
+                pathMatch: 'full'
+            },
             { path: 'studies', component: StudiesComponent },
             { path: 'control', component: ControlComponent },
-            { path: 'monitoring', component: MonitoringComponent },
-            { path: 'queues', component: QueuesComponent },
+            { path: 'monitoring/export', component: ExportComponent },
+            { path: 'monitoring/queues', component: QueuesComponent },
+            { path: 'monitoring/associations', component: AssociationsComponent },
             { path: 'devicelist', component: DevicesComponent },
             { path: 'devicelist/:device', component: DeviceConfiguratorComponent },
             { path: '**', component: PageNotFoundComponent }
@@ -113,7 +121,7 @@ import { DicomConnectionFormaterPipe } from './pipes/dicom-connection-formater.p
             { useHash: true })
     ],
     entryComponents:[WidgetsComponents],
-    providers: [MdDialogConfig, WidgetsComponents, AppService, StudiesService, QueuesService, DevicesService, MonitoringService, DatePipe, CalendarModule, DropdownModule],
+    providers: [MdDialogConfig, WidgetsComponents, AppService, StudiesService, QueuesService, DevicesService, ExportService, DatePipe, CalendarModule, DropdownModule],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

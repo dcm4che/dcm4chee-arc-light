@@ -2,12 +2,13 @@ import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {Http} from "@angular/http";
 import {QueuesService} from "./queues.service";
 import {map} from "rxjs/operator/map";
-import {AppService} from "../app.service";
-import {User} from "../models/user";
-import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
+import {AppService} from "../../app.service";
+import {User} from "../../models/user";
+import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 import {MdDialogRef, MdDialog, MdDialogConfig} from "@angular/material";
 import {DatePipe} from "@angular/common";
+import * as _ from "lodash";
 
 @Component({
   selector: 'app-queues',
@@ -24,6 +25,8 @@ export class QueuesComponent {
     isRole:any;
     user:User;
     dialogRef: MdDialogRef<any>;
+    _ = _;
+
     constructor(public $http: Http, public service:QueuesService,public mainservice:AppService,  public cfpLoadingBar:SlimLoadingBarService, public viewContainerRef: ViewContainerRef,public dialog: MdDialog, public config: MdDialogConfig) {
         this.init();
         let $this = this;

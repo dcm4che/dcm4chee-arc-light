@@ -1,18 +1,18 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
-import {User} from "../models/user";
+import {User} from "../../models/user";
 import {Http} from "@angular/http";
-import {AppService} from "../app.service";
-import {MonitoringService} from "./monitoring.service";
-import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
+import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {MdDialogConfig, MdDialog, MdDialogRef} from "@angular/material";
 import * as _ from "lodash";
+import {AppService} from "../../app.service";
+import {ExportService} from "./export.service";
 
 @Component({
-  selector: 'app-monitoring',
-  templateUrl: './monitoring.component.html'
+  selector: 'app-export',
+  templateUrl: './export.component.html'
 })
-export class MonitoringComponent implements OnInit {
+export class ExportComponent implements OnInit {
     matches = [];
     user:User;
     exporters;
@@ -28,9 +28,9 @@ export class MonitoringComponent implements OnInit {
     };
     isRole:any;
     dialogRef: MdDialogRef<any>;
+    _ = _;
 
-
-    constructor(public $http: Http, public cfpLoadingBar:SlimLoadingBarService, public mainservice:AppService,public  service:MonitoringService,public viewContainerRef: ViewContainerRef,public dialog: MdDialog, public config: MdDialogConfig) {
+    constructor(public $http: Http, public cfpLoadingBar:SlimLoadingBarService, public mainservice:AppService,public  service:ExportService,public viewContainerRef: ViewContainerRef,public dialog: MdDialog, public config: MdDialogConfig) {
         this.initExporters(1);
         // this.init();
         let $this = this;

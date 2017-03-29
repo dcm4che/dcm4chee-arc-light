@@ -1,6 +1,12 @@
 $hoverBlue:#5293C1;
 
 body{
+  a{
+    color:#333333;
+    &:hover{
+      color:black;
+    }
+  }
 	padding: 2px 40px;
 	.background{
 		//background: url("../img/bg.jpg");
