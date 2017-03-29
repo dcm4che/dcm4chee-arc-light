@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
+import org.dcm4chee.arc.entity.Completeness;
 import org.dcm4chee.arc.retrieve.SeriesInfo;
 
 import java.util.Date;
@@ -54,17 +55,17 @@ public class SeriesInfoImpl implements SeriesInfo {
     private final String studyInstanceUID;
     private final String seriesInstanceUID;
     private final int failedRetrieves;
-    private final String failedSOPInstanceUIDList;
+    private final Completeness completeness;
     private final Date updatedTime;
     private final String expirationDate;
     private final String sourceAET;
 
     public SeriesInfoImpl(String studyInstanceUID, String seriesInstanceUID, int failedRetrieves,
-            String failedSOPInstanceUIDList, Date updatedTime, String expirationDate, String sourceAET) {
+                          Completeness completeness, Date updatedTime, String expirationDate, String sourceAET) {
         this.studyInstanceUID = studyInstanceUID;
         this.seriesInstanceUID = seriesInstanceUID;
         this.failedRetrieves = failedRetrieves;
-        this.failedSOPInstanceUIDList = failedSOPInstanceUIDList;
+        this.completeness = completeness;
         this.updatedTime = updatedTime;
         this.expirationDate = expirationDate;
         this.sourceAET = sourceAET;
@@ -86,8 +87,8 @@ public class SeriesInfoImpl implements SeriesInfo {
     }
 
     @Override
-    public String getFailedSOPInstanceUIDList() {
-        return failedSOPInstanceUIDList;
+    public Completeness getCompleteness() {
+        return completeness;
     }
 
     @Override

@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
+import org.dcm4chee.arc.entity.Completeness;
 import org.dcm4chee.arc.retrieve.StudyInfo;
 
 import java.util.Date;
@@ -54,18 +55,18 @@ public class StudyInfoImpl implements StudyInfo {
     private final String studyInstanceUID;
     private final Date accessTime;
     private final int failedRetrieves;
-    private final String failedSOPInstanceUIDList;
+    private final Completeness completeness;
     private final Date modifiedTime;
     private final String expirationDate;
     private final String accessControlID;
 
     public StudyInfoImpl(Long studyPk, String studyInstanceUID, Date accessTime, int failedRetrieves,
-             String failedSOPInstanceUIDList, Date modifiedTime, String expirationDate, String accessControlID) {
+                         Completeness completeness, Date modifiedTime, String expirationDate, String accessControlID) {
         this.studyPk = studyPk;
         this.studyInstanceUID = studyInstanceUID;
         this.accessTime = accessTime;
         this.failedRetrieves = failedRetrieves;
-        this.failedSOPInstanceUIDList = failedSOPInstanceUIDList;
+        this.completeness = completeness;
         this.modifiedTime = modifiedTime;
         this.expirationDate = expirationDate;
         this.accessControlID = accessControlID;
@@ -92,8 +93,8 @@ public class StudyInfoImpl implements StudyInfo {
     }
 
     @Override
-    public String getFailedSOPInstanceUIDList() {
-        return failedSOPInstanceUIDList;
+    public Completeness getCompleteness() {
+        return completeness;
     }
 
     @Override

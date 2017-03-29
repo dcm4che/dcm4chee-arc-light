@@ -76,7 +76,7 @@ class StudyQuery extends AbstractQuery {
             QStudy.study.accessTime,
             QStudy.study.expirationDate,
             QStudy.study.rejectionState,
-            QStudy.study.failedSOPInstanceUIDList,
+            QStudy.study.completeness,
             QStudy.study.failedRetrieves,
             QStudy.study.accessControlID,
             QStudy.study.storageIDs,
@@ -183,9 +183,8 @@ class StudyQuery extends AbstractQuery {
                     results.get(QStudy.study.expirationDate));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyRejectionState, VR.CS,
                 results.get(QStudy.study.rejectionState).toString());
-        if (results.get(QStudy.study.failedSOPInstanceUIDList) != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfStudy, VR.UI,
-                    results.get(QStudy.study.failedSOPInstanceUIDList));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyCompleteness, VR.CS,
+                results.get(QStudy.study.completeness).toString());
         if (results.get(QStudy.study.failedRetrieves) != 0)
             attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
                     results.get(QStudy.study.failedRetrieves));

@@ -330,7 +330,7 @@ public class QueryBuilder {
             if (queryParam.isExpired())
                 builder.and(QStudy.study.expirationDate.loe(DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now())));
             if (queryParam.isIncomplete())
-                builder.and(QStudy.study.failedSOPInstanceUIDList.isNotNull());
+                builder.and(QStudy.study.completeness.ne(Completeness.COMPLETE));
             if (queryParam.isRetrieveFailed())
                 builder.and(QStudy.study.failedRetrieves.gt(0));
         }
@@ -398,7 +398,7 @@ public class QueryBuilder {
             if (queryParam.isExpired())
                 builder.and(QSeries.series.expirationDate.loe(DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now())));
             if (queryParam.isIncomplete())
-                builder.and(QSeries.series.failedSOPInstanceUIDList.isNotNull());
+                builder.and(QSeries.series.completeness.ne(Completeness.COMPLETE));
             if (queryParam.isRetrieveFailed())
                 builder.and(QSeries.series.failedRetrieves.gt(0));
             if (queryParam.getSendingApplicationEntityTitleOfSeries() != null)

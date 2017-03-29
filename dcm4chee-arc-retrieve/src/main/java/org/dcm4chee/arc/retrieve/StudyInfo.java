@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.retrieve;
 
+import org.dcm4chee.arc.entity.Completeness;
+
 import java.util.Date;
 
 /**
@@ -54,7 +56,7 @@ public interface StudyInfo {
 
     Date getAccessTime();
 
-    String getFailedSOPInstanceUIDList();
+    Completeness getCompleteness();
 
     int getFailedRetrieves();
 

@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
+import org.dcm4chee.arc.entity.Completeness;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -64,82 +65,50 @@ public class RetrieveServiceEJB {
                 .executeUpdate();
     }
 
-    public void updateFailedSOPInstanceUIDList(RetrieveContext ctx, String failedIUIDList) {
+    public void updateCompleteness(RetrieveContext ctx, Completeness completeness) {
         String[] studyIUIDs = ctx.getStudyInstanceUIDs();
         String[] seriesIUIDs = ctx.getSeriesInstanceUIDs();
         switch (ctx.getQueryRetrieveLevel()) {
             case STUDY:
                 for (String studyIUID : studyIUIDs) {
-                    if (failedIUIDList == null)
-                        clearFailedSOPInstanceUIDListOfStudy(studyIUID);
-                    else
-                        failedToRetrieveStudy(studyIUID, failedIUIDList);
+                    setCompletenessOfStudy(studyIUIDs[0], completeness);
                 }
                 break;
             case SERIES:
                 for (String seriesIUID : seriesIUIDs) {
-                    if (failedIUIDList == null)
-                        clearFailedSOPInstanceUIDListOfSeries(studyIUIDs[0], seriesIUID);
-                    else
-                        failedToRetrieveSeries(studyIUIDs[0], seriesIUID, failedIUIDList);
+                    setCompletenessOfSeries(studyIUIDs[0], seriesIUID, completeness);
                 }
-                setFailedSOPInstanceUIDListOfStudy(studyIUIDs[0], "*");
+                setCompletenessOfStudy(studyIUIDs[0], Completeness.UNKNOWN);
                 break;
             case IMAGE:
-                setFailedSOPInstanceUIDListOfSeries(studyIUIDs[0], seriesIUIDs[0], "*");
-                setFailedSOPInstanceUIDListOfStudy(studyIUIDs[0], "*");
+                setCompletenessOfSeries(studyIUIDs[0], seriesIUIDs[0], Completeness.UNKNOWN);
+                setCompletenessOfStudy(studyIUIDs[0], Completeness.UNKNOWN);
                 break;
         }
     }
 
-    private void failedToRetrieveStudy(String studyInstanceUID, String failedIUIDList) {
-        em.createNamedQuery(Study.INCREMENT_FAILED_RETRIEVES)
+    private void setCompletenessOfStudy(String studyInstanceUID, Completeness completeness) {
+        em.createNamedQuery(completeness == Completeness.PARTIAL
+                ? Study.INCREMENT_FAILED_RETRIEVES
+                : Study.SET_COMPLETENESS)
                 .setParameter(1, studyInstanceUID)
-                .setParameter(2, failedIUIDList)
+                .setParameter(2, completeness)
                 .executeUpdate();
-        em.createNamedQuery(Series.SET_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY)
-                .setParameter(1, studyInstanceUID)
-                .setParameter(2, failedIUIDList)
-                .executeUpdate();
+        if (completeness != Completeness.UNKNOWN)
+            em.createNamedQuery(Series.SET_COMPLETENESS_OF_STUDY)
+                    .setParameter(1, studyInstanceUID)
+                    .setParameter(2, Completeness.COMPLETE)
+                    .executeUpdate();
     }
 
-    private void clearFailedSOPInstanceUIDListOfStudy(String studyInstanceUID) {
-        em.createNamedQuery(Study.CLEAR_FAILED_SOP_INSTANCE_UID_LIST)
-                .setParameter(1, studyInstanceUID)
-                .executeUpdate();
-        em.createNamedQuery(Series.CLEAR_FAILED_SOP_INSTANCE_UID_LIST_OF_STUDY)
-                .setParameter(1, studyInstanceUID)
-                .executeUpdate();
-    }
-
-    private void setFailedSOPInstanceUIDListOfStudy(String studyInstanceUID, String failedIUIDList) {
-        em.createNamedQuery(Study.SET_FAILED_SOP_INSTANCE_UID_LIST)
-                .setParameter(1, studyInstanceUID)
-                .setParameter(2, failedIUIDList)
-                .executeUpdate();
-    }
-
-    private void failedToRetrieveSeries(String studyInstanceUID, String seriesInstanceUID, String failedIUIDList) {
-        em.createNamedQuery(Series.INCREMENT_FAILED_RETRIEVES)
+    private void setCompletenessOfSeries(String studyInstanceUID, String seriesInstanceUID,
+                                         Completeness completeness) {
+        em.createNamedQuery(completeness == Completeness.PARTIAL
+                ? Series.INCREMENT_FAILED_RETRIEVES
+                : Series.SET_COMPLETENESS)
                 .setParameter(1, studyInstanceUID)
                 .setParameter(2, seriesInstanceUID)
-                .setParameter(3, failedIUIDList)
-                .executeUpdate();
-    }
-
-    private void clearFailedSOPInstanceUIDListOfSeries(String studyInstanceUID, String seriesInstanceUID) {
-        em.createNamedQuery(Series.CLEAR_FAILED_SOP_INSTANCE_UID_LIST)
-                .setParameter(1, studyInstanceUID)
-                .setParameter(2, seriesInstanceUID)
-                .executeUpdate();
-    }
-
-    private void setFailedSOPInstanceUIDListOfSeries(String studyInstanceUID, String seriesInstanceUID,
-                                                     String failedIUIDList) {
-        em.createNamedQuery(Series.SET_FAILED_SOP_INSTANCE_UID_LIST)
-                .setParameter(1, studyInstanceUID)
-                .setParameter(2, seriesInstanceUID)
-                .setParameter(3, failedIUIDList)
+                .setParameter(3, completeness)
                 .executeUpdate();
     }
 }

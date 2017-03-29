@@ -899,6 +899,7 @@ public class StoreServiceEJB {
         study.addStorageID(arcAE.storageID());
         study.setAccessControlID(arcAE.storeAccessControlID(
                 session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), ctx.getAttributes()));
+        study.setCompleteness(Completeness.COMPLETE);
         study.setRejectionState(RejectionState.NONE);
         setStudyAttributes(ctx, study);
         study.setPatient(patient);
@@ -1029,11 +1030,17 @@ public class StoreServiceEJB {
         series.setStudy(study);
         series.setInstancePurgeState(Series.InstancePurgeState.NO);
         if (result.getRejectionNote() == null) {
-            markOldStudiesAsIncomplete(ctx, series);
+            if (markOldStudiesAsIncomplete(ctx, study)) {
+                series.setCompleteness(Completeness.UNKNOWN);
+                study.setCompleteness(Completeness.UNKNOWN);
+            } else {
+                series.setCompleteness(Completeness.COMPLETE);
+            }
             if (ctx.getExpirationDate() == null)
                 applyStudyRetentionPolicy(ctx, series);
             series.setRejectionState(RejectionState.NONE);
         } else {
+            series.setCompleteness(Completeness.COMPLETE);
             series.setRejectionState(RejectionState.COMPLETE);
         }
         em.persist(series);
@@ -1041,16 +1048,9 @@ public class StoreServiceEJB {
         return series;
     }
 
-    private void markOldStudiesAsIncomplete(StoreContext ctx, Series series) {
+    private boolean markOldStudiesAsIncomplete(StoreContext ctx, Study study) {
         String studyDateThreshold = ctx.getStoreSession().getArchiveAEExtension().fallbackCMoveSCPStudyOlderThan();
-        if (studyDateThreshold == null)
-            return;
-
-        Study study = series.getStudy();
-        if (study.getStudyDate().compareTo(studyDateThreshold) < 0) {
-            series.setFailedSOPInstanceUIDList("*");
-            study.setFailedSOPInstanceUIDList("*");
-        }
+        return studyDateThreshold != null && study.getStudyDate().compareTo(studyDateThreshold) < 0;
     }
 
     private void applyStudyRetentionPolicy(StoreContext ctx, Series series) {

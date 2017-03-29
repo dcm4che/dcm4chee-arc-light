@@ -41,6 +41,8 @@
 package org.dcm4chee.arc.retrieve;
 
 
+import org.dcm4chee.arc.entity.Completeness;
+
 import java.util.Date;
 
 /**
@@ -53,7 +55,7 @@ public interface SeriesInfo {
 
     String getSeriesInstanceUID();
 
-    String getFailedSOPInstanceUIDList();
+    Completeness getCompleteness();
 
     int getFailedRetrieves();
 

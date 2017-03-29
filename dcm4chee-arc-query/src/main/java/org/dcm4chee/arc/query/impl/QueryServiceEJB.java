@@ -86,7 +86,7 @@ public class QueryServiceEJB {
         QStudy.study.accessTime,
         QStudy.study.expirationDate,
         QStudy.study.rejectionState,
-        QStudy.study.failedSOPInstanceUIDList,
+        QStudy.study.completeness,
         QStudy.study.failedRetrieves,
         QStudy.study.accessControlID,
         QStudy.study.storageIDs,
@@ -94,7 +94,7 @@ public class QueryServiceEJB {
         QSeries.series.updatedTime,
         QSeries.series.expirationDate,
         QSeries.series.rejectionState,
-        QSeries.series.failedSOPInstanceUIDList,
+        QSeries.series.completeness,
         QSeries.series.failedRetrieves,
         QSeries.series.sourceAET,
         QSeries.series.metadataScheduledUpdateTime,
@@ -237,9 +237,8 @@ public class QueryServiceEJB {
                     result.get(QStudy.study.expirationDate));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyRejectionState, VR.CS,
                 result.get(QStudy.study.rejectionState).toString());
-        if (result.get(QStudy.study.failedSOPInstanceUIDList) != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfStudy, VR.UI,
-                    result.get(QStudy.study.failedSOPInstanceUIDList));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyCompleteness, VR.CS,
+                result.get(QStudy.study.completeness).toString());
         if (result.get(QStudy.study.failedRetrieves) != 0)
             attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
                     result.get(QStudy.study.failedRetrieves));
@@ -256,9 +255,8 @@ public class QueryServiceEJB {
                     result.get(QSeries.series.expirationDate));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesRejectionState, VR.CS,
                 result.get(QSeries.series.rejectionState).toString());
-        if (result.get(QSeries.series.failedSOPInstanceUIDList) != null)
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.MissingSOPInstanceUIDListOfSeries, VR.UI,
-                    result.get(QSeries.series.failedSOPInstanceUIDList));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesCompleteness, VR.CS,
+                result.get(QSeries.series.completeness).toString());
         if (result.get(QSeries.series.failedRetrieves) != 0)
             attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfSeries, VR.US,
                     result.get(QSeries.series.failedRetrieves));

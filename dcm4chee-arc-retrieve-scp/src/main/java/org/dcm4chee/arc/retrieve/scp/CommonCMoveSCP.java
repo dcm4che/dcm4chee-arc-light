@@ -177,7 +177,7 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             case STUDY:
                 uids.addAll(Arrays.asList(ctx.getStudyInstanceUIDs()));
                 for (StudyInfo studyInfo : ctx.getStudyInfos()) {
-                    if (studyInfo.getFailedSOPInstanceUIDList() != null) {
+                    if (studyInfo.getCompleteness() != null) {
                         if (maxRetrieveRetries == 0 || studyInfo.getFailedRetrieves() < maxRetrieveRetries)
                             return true;
                         LOG.warn("{}: Maximal number of retries[{}] to retrieve objects of study[{}] from {} exceeded",
@@ -189,7 +189,7 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             case SERIES:
                 uids.addAll(Arrays.asList(ctx.getSeriesInstanceUIDs()));
                 for (SeriesInfo seriesInfo : ctx.getSeriesInfos()) {
-                    if (seriesInfo.getFailedSOPInstanceUIDList() != null) {
+                    if (seriesInfo.getCompleteness() != null) {
                         if (maxRetrieveRetries == 0 || seriesInfo.getFailedRetrieves() < maxRetrieveRetries)
                             return true;
                         LOG.warn("{}: Maximal number of retries[{}] to retrieve objects of series[{}] from {} exceeded",

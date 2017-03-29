@@ -92,16 +92,13 @@ import java.util.*;
                 name=Study.UPDATE_ACCESS_TIME,
                 query="update Study st set st.accessTime = CURRENT_TIMESTAMP where st.pk = ?1"),
         @NamedQuery(
-                name=Study.SET_FAILED_SOP_INSTANCE_UID_LIST,
-                query="update Study st set st.failedSOPInstanceUIDList = ?2 " +
+                name=Study.SET_COMPLETENESS,
+                query="update Study st set st.completeness = ?2 " +
                         "where st.studyInstanceUID = ?1"),
         @NamedQuery(
                 name=Study.INCREMENT_FAILED_RETRIEVES,
-                query="update Study st set st.failedRetrieves = st.failedRetrieves + 1, st.failedSOPInstanceUIDList = ?2 " +
+                query="update Study st set st.failedRetrieves = st.failedRetrieves + 1, st.completeness = ?2 " +
                         "where st.studyInstanceUID = ?1"),
-        @NamedQuery(
-                name=Study.CLEAR_FAILED_SOP_INSTANCE_UID_LIST,
-                query="update Study st set st.failedSOPInstanceUIDList = NULL where st.studyInstanceUID = ?1"),
         @NamedQuery(
                 name=Study.COUNT_STUDIES_OF_PATIENT,
                 query="select count(st) from Study st " +
@@ -144,7 +141,7 @@ import java.util.*;
                 @Index(columnList = "study_custom3"),
                 @Index(columnList = "expiration_date"),
                 @Index(columnList = "failed_retrieves"),
-                @Index(columnList = "failed_iuids"),
+                @Index(columnList = "completeness"),
                 @Index(columnList = "ext_retrieve_aet")
         })
 public class Study {
@@ -155,9 +152,8 @@ public class Study {
     public static final String FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME = "Study.findPkByStorageIDOrderByAccessTime";
     public static final String FIND_PK_BY_STORAGE_ID_AND_EXT_RETR_AET = "Study.findPkByStorageIDAndExtRetrAET";
     public static final String UPDATE_ACCESS_TIME = "Study.UpdateAccessTime";
-    public static final String SET_FAILED_SOP_INSTANCE_UID_LIST = "Study.SetFailedSOPInstanceUIDList";
+    public static final String SET_COMPLETENESS = "Study.SetCompleteness";
     public static final String INCREMENT_FAILED_RETRIEVES = "Study.IncrementFailedRetrieves";
-    public static final String CLEAR_FAILED_SOP_INSTANCE_UID_LIST = "Study.ClearFailedSOPInstanceUIDList";
     public static final String COUNT_STUDIES_OF_PATIENT = "Study.CountStudiesOfPatient";
     public static final String GET_EXPIRED_STUDIES = "Study.GetExpiredStudies";
     public static final String FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID = "Study.FindByAccessTimeAndAccessControlID";
@@ -197,8 +193,9 @@ public class Study {
     @Column(name = "storage_ids")
     private String storageIDs;
 
-    @Column(name = "failed_iuids", length = 4000)
-    private String failedSOPInstanceUIDList;
+    @Basic(optional = false)
+    @Column(name = "completeness")
+    private Completeness completeness;
 
     @Basic(optional = false)
     @Column(name = "failed_retrieves")
@@ -452,12 +449,12 @@ public class Study {
             this.expirationDate = null;
     }
 
-    public String getFailedSOPInstanceUIDList() {
-        return failedSOPInstanceUIDList;
+    public Completeness getCompleteness() {
+        return completeness;
     }
 
-    public void setFailedSOPInstanceUIDList(String failedSOPInstanceUIDList) {
-        this.failedSOPInstanceUIDList = failedSOPInstanceUIDList;
+    public void setCompleteness(Completeness completeness) {
+        this.completeness = completeness;
     }
 
     public String getExternalRetrieveAET() {

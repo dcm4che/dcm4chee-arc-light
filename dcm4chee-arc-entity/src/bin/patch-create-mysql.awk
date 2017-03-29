@@ -18,6 +18,7 @@ BEGIN { FS = "[ )]" }
             && $6 != "(sps_status" \
             && $6 != "(num_studies" \
             && $6 != "(msg_status" \
+            && $6 != "(completeness" \
             && $6 != "(rejection_state" \
             && $6 != "(series_no" \
             && $6 != "(failed_retrieves" \

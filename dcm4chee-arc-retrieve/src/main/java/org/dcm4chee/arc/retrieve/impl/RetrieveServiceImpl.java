@@ -59,7 +59,6 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
@@ -133,13 +132,13 @@ public class RetrieveServiceImpl implements RetrieveService {
             QStudy.study.studyInstanceUID,
             QStudy.study.accessTime,
             QStudy.study.failedRetrieves,
-            QStudy.study.failedSOPInstanceUIDList,
+            QStudy.study.completeness,
             QStudy.study.modifiedTime,
             QStudy.study.expirationDate,
             QStudy.study.accessControlID,
             QSeries.series.seriesInstanceUID,
             QSeries.series.failedRetrieves,
-            QSeries.series.failedSOPInstanceUIDList,
+            QSeries.series.completeness,
             QSeries.series.updatedTime,
             QSeries.series.expirationDate,
             QSeries.series.sourceAET,
@@ -571,7 +570,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                 tuple.get(QStudy.study.studyInstanceUID),
                 tuple.get(QStudy.study.accessTime),
                 tuple.get(QStudy.study.failedRetrieves),
-                tuple.get(QStudy.study.failedSOPInstanceUIDList),
+                tuple.get(QStudy.study.completeness),
                 tuple.get(QStudy.study.modifiedTime),
                 tuple.get(QStudy.study.expirationDate),
                 tuple.get(QStudy.study.accessControlID));
@@ -579,7 +578,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                 studyInfo.getStudyInstanceUID(),
                 tuple.get(QSeries.series.seriesInstanceUID),
                 tuple.get(QSeries.series.failedRetrieves),
-                tuple.get(QSeries.series.failedSOPInstanceUIDList),
+                tuple.get(QSeries.series.completeness),
                 tuple.get(QSeries.series.updatedTime),
                 tuple.get(QSeries.series.expirationDate),
                 tuple.get(QSeries.series.sourceAET));
@@ -774,10 +773,10 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Override
     public void updateFailedSOPInstanceUIDList(RetrieveContext ctx) {
         if (ctx.isRetryFailedRetrieve())
-            ejb.updateFailedSOPInstanceUIDList(ctx, failedIUIDList(ctx));
+            ejb.updateCompleteness(ctx, completeness(ctx));
     }
 
-    private String failedIUIDList(RetrieveContext ctx) {
+    private Completeness completeness(RetrieveContext ctx) {
         Association as = ctx.getRequestAssociation();
         Association fwdas = ctx.getFallbackAssociation();
         String fallbackMoveSCP = fwdas.getRemoteAET();
@@ -789,12 +788,12 @@ public class RetrieveServiceImpl implements RetrieveService {
 
             LOG.warn("{}: Expected {} but actual retrieved {} objects of study{} from {}",
                     as, expected, retrieved, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackMoveSCP);
-            return "*";
+            return Completeness.PARTIAL;
         }
 
         int failed = ctx.getFallbackMoveRSPFailed();
         if (failed == 0)
-            return null;
+            return Completeness.COMPLETE;
 
         LOG.warn("{}: Failed to retrieve {} from {} objects of study{} from {}",
                 as, failed, ctx.getFallbackMoveRSPNumberOfMatches(),
@@ -803,20 +802,14 @@ public class RetrieveServiceImpl implements RetrieveService {
         String[] failedIUIDs = ctx.getFallbackMoveRSPFailedIUIDs();
         if (failedIUIDs.length == 0) {
             LOG.warn("{}: Missing Failed SOP Instance UID List in C-MOVE-RSP from {}", as, fallbackMoveSCP);
-            return "*";
+            return Completeness.PARTIAL;
         }
         if (failed != failedIUIDs.length) {
             LOG.warn("{}: Number Of Failed Suboperations [{}] does not match " +
                             "size of Failed SOP Instance UID List [{}] in C-MOVE-RSP from {}",
                     as, failed, failedIUIDs.length, fallbackMoveSCP);
         }
-        String concat = StringUtils.concat(failedIUIDs, '\\');
-        if (concat.length() > MAX_FAILED_IUIDS_LEN) {
-            LOG.warn("{}: Failed SOP Instance UID List [{}] in C-MOVE-RSP from {} too large to persist in DB",
-                    as, failed, fallbackMoveSCP);
-            return "*";
-        }
-        return concat;
+        return Completeness.PARTIAL;
     }
 
     private int queryFallbackCMoveSCPLeadingCFindSCP(RetrieveContext ctx) {
