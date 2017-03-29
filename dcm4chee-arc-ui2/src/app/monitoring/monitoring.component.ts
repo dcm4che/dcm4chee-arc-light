@@ -125,6 +125,42 @@ export class MonitoringComponent implements OnInit {
                 console.log("err",err);
             });
     };
+    getDifferenceTime(starttime,endtime){
+        let start = new Date(starttime).getTime();
+        let end = new Date(endtime).getTime();
+        if(!start || !end || end < start){
+            return null;
+        }else{
+            return this.msToTime(new Date(endtime).getTime() - new Date(starttime).getTime());
+        }
+    };
+    msToTime(duration) {
+
+        if(duration > 999){
+
+            let milliseconds:any = parseInt((((duration%1000))).toString())
+                , seconds:any = parseInt(((duration/1000)%60).toString())
+                , minutes:any = parseInt(((duration/(1000*60))%60).toString())
+                , hours:any = parseInt(((duration/(1000*60*60))).toString());
+            if(hours === 0){
+                if(minutes === 0){
+                    return seconds.toString() + "." + milliseconds.toString() + ' sec';
+                }else{
+                    seconds = (seconds < 10) ? "0" + seconds : seconds;
+                    return minutes.toString() + ":" + seconds.toString() + "." + milliseconds.toString() + ' min';
+                }
+            }else{
+
+                hours = (hours < 10) ? "0" + hours : hours;
+                minutes = (minutes < 10) ? "0" + minutes : minutes;
+                seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+                return hours.toString() + ":" + minutes.toString() + ":" + seconds.toString() + "." + milliseconds.toString() + ' h';
+            }
+        }else{
+            return duration.toString() + ' ms';
+        }
+    }
     delete(match){
         let $this = this;
         let parameters: any = {

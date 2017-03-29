@@ -1,3 +1,9 @@
+<!--<pre style="position: absolute;width:70%;top:0;z-index: 9999999;">-->
+    <!--<div *ngIf="matches">-->
+        <!--matches[9].processingStartTime: {{matches}}-->
+        <!--return diff: {{getDifferenceTime(matches[9].scheduledTime,matches[9].processingStartTime)}}-->
+    <!--</div>-->
+<!--</pre>-->
 <div class="main_content monitoring">
     <div class="row filter"  (keyup)="filterKeyUp($event)">
         <div class="main_filter_block">
@@ -85,9 +91,8 @@
             <th title="Export Task ID">Exporter ID</th>
             <th>Status</th>
             <th>Failures</th>
-            <th title="Scheduled time">Scheduled</th>
-            <th title="Processing start time">Started</th>
-            <th title="Processing end time">Finished</th>
+            <th title="Scheduled time">Queue time</th>
+            <th title="Processing start time">Export time</th>
             <th>Device name</th>
             <th>Study UID</th>
         </tr>
@@ -115,9 +120,8 @@
                 <td [innerHtml]="match.properties.ExporterID"></td>
                 <td [innerHtml]="match.properties.status" title="{{match.properties.outcomeMessage}}"></td>
                 <td [innerHtml]="match.properties.failures" title="{{match.properties.errorMessage}}"></td>
-                <td [innerHtml]="match.properties.scheduledTime| date:'yyyy-MM-dd HH:mm:ss'"></td>
-                <td [innerHtml]="match.properties.processingStartTime| date:'yyyy-MM-dd HH:mm:ss'"></td>
-                <td [innerHtml]="match.properties.processingEndTime| date:'yyyy-MM-dd HH:mm:ss'"></td>
+                <td class="text-right" [innerHtml]="getDifferenceTime(match.properties.scheduledTime,match.properties.processingStartTime)"></td>
+                <td class="text-right" [innerHtml]="getDifferenceTime(match.properties.processingStartTime,match.properties.processingEndTime)"></td>
                 <td [innerHtml]="match.properties.dicomDeviceName"></td>
                 <td [innerHtml]="match.properties.StudyInstanceUID"></td>
             </tr>
