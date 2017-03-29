@@ -47,7 +47,7 @@
     <properties>
       <property name="javax.persistence.database-product-name" value="${databaseProductName}"/>
       <property name="javax.persistence.database-major-version" value="${databaseMajorVersion}"/>
-      <property name="javax.persistence.database-minor-version" value="${databaseMinorVersion}"/>
+      <property name="${persistence-property-name}" value="${persistence-property-value}"/>
     </properties>
   </persistence-unit>
 </persistence>
