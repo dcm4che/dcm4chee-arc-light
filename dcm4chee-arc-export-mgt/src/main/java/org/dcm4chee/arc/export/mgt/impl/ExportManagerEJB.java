@@ -52,6 +52,7 @@ import org.dcm4chee.arc.entity.QExportTask;
 import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
@@ -326,14 +327,14 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public boolean cancelProcessing(Long pk) {
+    public boolean cancelProcessing(Long pk) throws IllegalTaskStateException {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
             return false;
 
         QueueMessage queueMessage = task.getQueueMessage();
         if (queueMessage == null)
-            throw new IllegalStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
+            throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
 
         queueManager.cancelProcessing(queueMessage.getMessageID());
         LOG.info("Cancel {}", task);
@@ -341,7 +342,7 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) {
+    public boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
             return false;

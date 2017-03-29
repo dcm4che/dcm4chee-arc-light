@@ -45,6 +45,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.MessageCanceled;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
@@ -177,7 +178,7 @@ public class QueueManagerEJB implements QueueManager {
     }
 
     @Override
-    public boolean cancelProcessing(String msgId) {
+    public boolean cancelProcessing(String msgId) throws IllegalTaskStateException {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
             return false;
@@ -187,7 +188,7 @@ public class QueueManagerEJB implements QueueManager {
             case CANCELED:
             case WARNING:
             case FAILED:
-                throw new java.lang.IllegalStateException(
+                throw new IllegalTaskStateException(
                         "Cannot cancel Task[id=" + msgId + "] with Status: " + entity.getStatus());
         }
 
@@ -200,7 +201,7 @@ public class QueueManagerEJB implements QueueManager {
     }
 
     @Override
-    public boolean rescheduleMessage(String msgId, String queueName) {
+    public boolean rescheduleMessage(String msgId, String queueName) throws IllegalTaskStateException {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
             return false;
@@ -208,7 +209,7 @@ public class QueueManagerEJB implements QueueManager {
         switch (entity.getStatus()) {
             case SCHEDULED:
             case IN_PROCESS:
-                throw new java.lang.IllegalStateException(
+                throw new IllegalTaskStateException(
                         "Cannot reschedule Task[id=" + msgId + "] with Status: " + entity.getStatus());
         }
         if (queueName != null)

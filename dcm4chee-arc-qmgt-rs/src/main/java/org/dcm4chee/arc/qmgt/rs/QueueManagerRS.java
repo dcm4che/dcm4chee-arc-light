@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.qmgt.rs;
 
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -110,10 +111,14 @@ public class QueueManagerRS {
     @Path("{msgId}/cancel")
     public Response cancelProcessing(@PathParam("msgId") String msgId) {
         logRequest();
-        return Response.status(mgr.cancelProcessing(msgId)
-                ? Response.Status.NO_CONTENT
-                : Response.Status.NOT_FOUND)
-                .build();
+        try {
+            return Response.status(mgr.cancelProcessing(msgId)
+                    ? Response.Status.NO_CONTENT
+                    : Response.Status.NOT_FOUND)
+                    .build();
+        } catch (IllegalTaskStateException e) {
+            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+        }
     }
 
     @POST
@@ -125,7 +130,7 @@ public class QueueManagerRS {
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalTaskStateException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
     }

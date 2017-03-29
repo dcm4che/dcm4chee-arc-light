@@ -43,6 +43,7 @@ package org.dcm4chee.arc.export.mgt;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.store.StoreContext;
 
 import javax.enterprise.event.Observes;
@@ -69,7 +70,7 @@ public interface ExportManager {
 
     boolean deleteExportTask(Long pk);
 
-    boolean cancelProcessing(Long pk);
+    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
 
-    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter);
+    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException;
 }

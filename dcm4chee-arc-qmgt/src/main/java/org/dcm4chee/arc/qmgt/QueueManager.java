@@ -62,9 +62,9 @@ public interface QueueManager {
 
     QueueMessage onProcessingFailed(String msgId, Throwable e);
 
-    boolean cancelProcessing(String msgId);
+    boolean cancelProcessing(String msgId) throws IllegalTaskStateException;
 
-    boolean rescheduleMessage(String msgId, String queueName);
+    boolean rescheduleMessage(String msgId, String queueName) throws IllegalTaskStateException;
 
     boolean deleteMessage(String msgId);
 
