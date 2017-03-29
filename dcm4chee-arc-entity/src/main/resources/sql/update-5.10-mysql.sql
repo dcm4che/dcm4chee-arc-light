@@ -1,5 +1,22 @@
 update study set ext_retrieve_aet = '*' where ext_retrieve_aet is null;
 alter TABLE study modify ext_retrieve_aet varchar(255) not null;
+
+alter table study add completeness integer;
+update study set completeness = 2;
+update study set completeness = 1 where failed_retrieves > 0 and failed_iuids is not null;
+update study set completeness = 0 where failed_retrieves = 0 and failed_iuids = '*';
+alter table study modify completeness integer not null;
+alter table study drop failed_iuids;
+create index UK_gl5rq54a0tr8nreu27c2t04rb on study (completeness);
+
+alter table series add completeness integer;
+update series set completeness = 2;
+update series set completeness = 1 where failed_retrieves > 0 and failed_iuids is not null;
+update series set completeness = 0 where failed_retrieves = 0 and failed_iuids = '*';
+alter table series modify completeness integer not null;
+alter table series drop failed_iuids;
+create index UK_4lnegvfs65fbkjn7nmg9s8usy on series (completeness);
+
 alter table queue_msg modify queue_name VARCHAR(255) not null;
 
 alter table export_task add created_time datetime not null, add updated_time datetime not null, add num_instances integer, add modalities varchar(255), add queue_msg_fk bigint;
