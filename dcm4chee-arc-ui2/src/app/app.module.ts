@@ -52,6 +52,8 @@ import { ExportComponent } from './monitoring/export/export.component';
 import {ExportService} from "./monitoring/export/export.service";
 import { DicomConnectionFormaterPipe } from './pipes/dicom-connection-formater.pipe';
 import { AssociationsComponent } from './monitoring/associations/associations.component';
+import { StorageCommitmentComponent } from './monitoring/storage-commitment/storage-commitment.component';
+import {StorageCommitmentService} from "./monitoring/storage-commitment/storage-commitment.service";
 
 @NgModule({
     declarations: [
@@ -85,7 +87,8 @@ import { AssociationsComponent } from './monitoring/associations/associations.co
         DynamicFormComponent,
         ExportComponent,
         DicomConnectionFormaterPipe,
-        AssociationsComponent
+        AssociationsComponent,
+        StorageCommitmentComponent
     ],
     imports: [
         BrowserModule,
@@ -114,6 +117,7 @@ import { AssociationsComponent } from './monitoring/associations/associations.co
             { path: 'monitoring/export', component: ExportComponent },
             { path: 'monitoring/queues', component: QueuesComponent },
             { path: 'monitoring/associations', component: AssociationsComponent },
+            { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent },
             { path: 'devicelist', component: DevicesComponent },
             { path: 'devicelist/:device', component: DeviceConfiguratorComponent },
             { path: '**', component: PageNotFoundComponent }
@@ -121,7 +125,7 @@ import { AssociationsComponent } from './monitoring/associations/associations.co
             { useHash: true })
     ],
     entryComponents:[WidgetsComponents],
-    providers: [MdDialogConfig, WidgetsComponents, AppService, StudiesService, QueuesService, DevicesService, ExportService, DatePipe, CalendarModule, DropdownModule],
+    providers: [MdDialogConfig, WidgetsComponents, AppService, StudiesService, QueuesService, DevicesService, ExportService, DatePipe, CalendarModule, DropdownModule, StorageCommitmentService],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

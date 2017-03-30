@@ -169,14 +169,30 @@ export class QueuesComponent {
             }
         });
     };
+    getQueueDescriptionFromName(queuename){
+        let description;
+        _.forEach(this.queues,(m,i)=>{
+            if(m.name == queuename){
+                description = m.description;
+            }
+        });
+        return description;
+    };
     flushBefore() {
         let $this = this;
         let datePipeEn = new DatePipe('us-US');
         let beforeDate = datePipeEn.transform(this.before,'yyyy-mm-dd');
         console.log("beforeDate",beforeDate);
-        this.confirm({
-            content:'Are you sure you want to flush before: ' + beforeDate + '?'
-        }).subscribe(result => {
+        console.log("this.status",this.status);
+        let parameters = {
+            content:'Flush with this configuration:<br>- Before: ' + beforeDate + '<br>- In queue:"' + this.getQueueDescriptionFromName(this.queueName) + '"<br>- With status:' + this.status,
+            result:"ok",
+            noForm:true,
+            saveButton:"Flush",
+            saveButtonClass:"btn-danger"
+        }
+        this.confirm(parameters).subscribe(result => {
+            console.log("result",result);
             if(result){
                 $this.cfpLoadingBar.start();
                 this.service.flush(this.queueName, this.status, this.before)

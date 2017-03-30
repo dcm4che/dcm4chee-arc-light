@@ -1,6 +1,5 @@
 <div class="vex vex-theme-os confirm" [ngClass]="parameters.cssClass" xmlns="http://www.w3.org/1999/html" (keydown)="dialogKeyHandler($event,dialogRef)">
     <div class="vex-dialog-form">
-
         <h5 *ngIf="parameters.title">{{ parameters.title }}</h5>
         <div class="content">
             <h3 [innerHtml]="parameters.content">
@@ -23,13 +22,16 @@
                     </label>
                 </div>
             </ng-container>
+            <div *ngIf="parameters.date" class="datepicker">
+                <p-calendar dataType="string" [(ngModel)]="parameters.result.date" dateFormat="{{ parameters.date.format }}" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{parameters.date.placeholder}}"></p-calendar>
+            </div>
             <div *ngIf="parameters.warningOn && parameters.warningOn.message">
                 <span class="text-danger" *ngIf="(_.hasIn(parameters,parameters.warningOn.conditions[0]) && _.get(parameters,parameters.warningOn.conditions[0]) === true) || _.hasIn(parameters,parameters.warningOn.conditions[1]) && _.get(parameters,parameters.warningOn.conditions[1]) === true">{{ parameters.warningOn.message }}</span>
             </div>
         </div>
         <div class="dialogbuttons">
             <button *ngIf="!parameters.saveButton"  class="save" type="button" (click)="dialogRef.close('ok')">OK</button>
-            <button *ngIf="parameters.saveButton" [disabled]="(parameters.result.input && parameters.result.input === '') || (parameters.result.select && parameters.result.select === '')" class="save" type="button" (click)="dialogRef.close(parameters.result)">{{ parameters.saveButton }}</button>
+            <button *ngIf="parameters.saveButton" [disabled]="!noForm && ((parameters.result && parameters.result.input && parameters.result.input === '') || (parameters.result && parameters.result.select && parameters.result.select === ''))" class="save {{parameters.saveButtonClass}}" type="button" (click)="dialogRef.close(parameters.result)">{{ parameters.saveButton }}</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCLE</button>
         </div>
     </div>

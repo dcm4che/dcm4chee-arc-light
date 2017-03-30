@@ -273,6 +273,12 @@ md-progress-circle, [_nghost-nyg-8]{
       &:hover{
         background:$blue;
       }
+      &.btn-danger{
+        background:#da3a36;
+        &:hover{
+          background: #b71511;
+        }
+      }
     }
     &.cancle{
       &:hover{
@@ -679,5 +685,12 @@ md-dialog-container{
     padding: 30px 10px 0px 10px;
     border: 1px solid #ccc;
     border-top: none;
+  }
+}
+.confirm{
+  .datepicker{
+    margin:20px 0;
+    float: left;
+    width: 100%;
   }
 }
