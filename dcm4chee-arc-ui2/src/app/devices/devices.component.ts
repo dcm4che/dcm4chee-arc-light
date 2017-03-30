@@ -254,7 +254,6 @@ export class DevicesComponent {
             saveButton: "ECHO",
             cssClass:'echodialog'
         };
-        console.log("parameters", parameters);
         let $this = this;
         this.confirm(parameters).subscribe(result => {
             if (result){
@@ -430,11 +429,6 @@ export class DevicesComponent {
             }
         });
     };
-/*
-    testCreateAe(){
-        console.log("in test create ae");
-        this.createAe();
-    }*/
     createAe(){
         let headers = new Headers({ 'Content-Type': 'application/json' });
             console.log("in create ae");
@@ -484,7 +478,11 @@ export class DevicesComponent {
                         if(re.newaetmodel.dicomInstalled === 'true'){
                             re.newaetmodel.dicomInstalled = true;
                         }else{
-                            re.newaetmodel.dicomInstalled = false;
+                            if(re.newaetmodel.dicomInstalled === 'false'){
+                                re.newaetmodel.dicomInstalled = false;
+                            }else{
+                                re.newaetmodel.dicomInstalled = true;
+                            }
                         }
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationInitiator = true;
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationAcceptor = true;

@@ -236,8 +236,14 @@
                         <td>
                             <span *ngFor="let cluster of ae.dicomApplicationCluster">{{cluster}}<br></span>
                         </td>
-                        <td [innerHtml]="ae.dicomInstalled || 'inherit'"></td>
-                        <td [innerHtml]="ae.dicomNetworkConnection | dicomConnectionFormater"></td>
+                        <td *ngIf="ae.dicomInstalled === false">false</td>
+                        <td *ngIf="ae.dicomInstalled != false" [innerHtml]="ae.dicomInstalled || 'inherit'"></td>
+                        <!--[innerHtml]="ae.dicomNetworkConnection | dicomConnectionFormater"-->
+                        <td [innerHtml]="ae.dicomNetworkConnection | dicomConnectionFormater">
+                        </td>
+<!--                        <td>
+                            <connection-formater [dicomNetworkConnection]="ae.dicomNetworkConnection"></connection-formater>
+                        </td>-->
                     </tr>
                     </tbody>
                 </table>

@@ -64,10 +64,6 @@ export class CreateAeComponent {
     checkClick(e){
         console.log("e",e);
         var code = (e.keyCode ? e.keyCode : e.which);
-/*        console.log("code in checkclick");
-        if(!(e.target.id === "dropdown" || e.target.id === 'addPatientAttribut')){
-            this.opendropdown = false;
-        }*/
     };
     getDevice(e){
         console.log("e3",e);
@@ -100,31 +96,10 @@ export class CreateAeComponent {
         }
     };
     setReferencesFromDevice(){
-/*        this.dicomconn = [];
-        let $this = this;
-        _.forEach(this.selctedDeviceObject.dicomNetworkConnection, function(l, i) {
-            $this.dicomconn.push({
-                "value":"/dicomNetworkConnection/" + i,
-                "name":l.cn
-            });
-        });*/
-        // this.newAetModel.dicomNetworkAE = this.selctedDeviceObject.dicomNetworkAE;
         this.newAetModel.dicomNetworkAE[0].dicomNetworkConnectionReference = [];
-        console.log("dicomNetworkConnectionReference",this.selctedDeviceObject);
-/*        _.forEach(this.selctedDeviceObject.dicomNetworkConnection,(m,i)=>{
-            console.log("m",m);
-            console.log("i",i);
-            if(!_.hasIn(this.newAetModel.dicomNetworkAE[0].dicomNetworkConnectionReference,'/dicomNetworkConnection/'+i )){
-                this.newAetModel.dicomNetworkAE[0].dicomNetworkConnectionReference.push('/dicomNetworkConnection/'+i);
-            }
-        });*/
-        console.log("this.newAetModel",this.newAetModel);
-
     };
 
     getNameOfRefference(reference){
-        console.log("reference",reference);
-        console.log("reference",this.selctedDeviceObject);
         let refIndex = _.parseInt(_.last(_.split(reference, '/')));
         console.log("refIndex",refIndex);
         if(this.selctedDeviceObject && _.hasIn(this.selctedDeviceObject,'dicomNetworkConnection['+refIndex+'].cn')){
@@ -217,8 +192,6 @@ export class CreateAeComponent {
         }
     }
     addNewConnectionToDevice(){
-        console.log("in addnewconnectiontodevice2",this.selctedDeviceObject);
-        console.log("dicomnetworkconnection",this.newAetModel.dicomNetworkConnection);
         if(!this.newAetModel.dicomNetworkConnection[0].cn || this.newAetModel.dicomNetworkConnection[0].cn === ''){
             this.mainservice.setMessage({
                 "title": "Error",
@@ -229,8 +202,6 @@ export class CreateAeComponent {
 
             let hasConnection:boolean = false;
             _.forEach(this.selctedDeviceObject.dicomNetworkConnection, (m, i) =>{
-                console.log("m",m);
-                console.log("i",i);
                     if(m.cn === this.newAetModel.dicomNetworkConnection[0].cn){
                         hasConnection = true;
                     }
@@ -244,14 +215,11 @@ export class CreateAeComponent {
             }else{
                 this.selctedDeviceObject.dicomNetworkConnection.push(_.cloneDeep(this.newAetModel.dicomNetworkConnection[0]));
             }
-            console.log("in addnewconnectiontodevice",this.selctedDeviceObject);
         }
     }
     removeNewConnectionFromDevice(){
         if(_.hasIn(this.newAetModel,'dicomNetworkConnection[0].cn')){
             _.forEach(this.selctedDeviceObject.dicomNetworkConnection, (m, i)=>{
-                console.log("m",m);
-                console.log("i",i);
                 if(_.hasIn(this.newAetModel,'dicomNetworkConnection[0].cn') && m.cn === this.newAetModel.dicomNetworkConnection[0].cn){
                     this.selctedDeviceObject.dicomNetworkConnection.splice(i, 1);
                 }

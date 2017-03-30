@@ -54,6 +54,7 @@ import { DicomConnectionFormaterPipe } from './pipes/dicom-connection-formater.p
 import { AssociationsComponent } from './monitoring/associations/associations.component';
 import { StorageCommitmentComponent } from './monitoring/storage-commitment/storage-commitment.component';
 import {StorageCommitmentService} from "./monitoring/storage-commitment/storage-commitment.service";
+import { ConnectionFormaterComponent } from './helpers/connection-formater/connection-formater.component';
 
 @NgModule({
     declarations: [
@@ -88,7 +89,8 @@ import {StorageCommitmentService} from "./monitoring/storage-commitment/storage-
         ExportComponent,
         DicomConnectionFormaterPipe,
         AssociationsComponent,
-        StorageCommitmentComponent
+        StorageCommitmentComponent,
+        ConnectionFormaterComponent
     ],
     imports: [
         BrowserModule,
