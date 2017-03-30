@@ -488,6 +488,9 @@ export class DevicesComponent {
                         }
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationInitiator = true;
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationAcceptor = true;
+                        if(!re.newaetmodel.dicomDeviceName || re.newaetmodel.dicomDeviceName === ''){
+                            re.newaetmodel.dicomDeviceName = re.newaetmodel.dicomNetworkAE[0].dicomAETitle.toLowerCase();
+                        }
                         $this.$http.post("../devices/" + re.newaetmodel.dicomDeviceName, re.newaetmodel, headers)
                             .subscribe( (devre) => {
                                 $this.mainservice.setMessage({

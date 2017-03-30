@@ -762,7 +762,7 @@
                           <a class="table_btn hiddenbuttons"  *ngIf="isRole('admin') && _.hasIn(patient._VALUE,'attrs.00201200.Value[0]') && _.isEqual(patient._VALUE.attrs['00201200'].Value[0], 0)" (click)="$event.preventDefault();deletePatient(patient._VALUE, patients, patient._KEY)" href="" title="Delete Patient">
                               <span class="glyphicon glyphicon-remove"></span>
                           </a>
-                          <a class="table_btn hiddenbuttons"  ng-show="isRole('admin') && aetmodel.dcmInvokeImageDisplayPatientURL"  (click)="$event.preventDefault();openViewer(patient._VALUE.attrs,'patient')" href="" title="Open patient in the viewer">
+                          <a class="table_btn hiddenbuttons"  *ngIf="isRole('admin') && aetmodel.dcmInvokeImageDisplayPatientURL"  (click)="$event.preventDefault();openViewer(patient._VALUE.attrs,'patient')" href="" title="Open patient in the viewer">
                               <span class="glyphicon glyphicon-eye-open"></span>
                           </a>
                       </div>

@@ -3429,10 +3429,12 @@ export class StudiesComponent implements OnDestroy{
             case 'patient':
                 configuredUrl = this.aetmodel.dcmInvokeImageDisplayPatientURL;
                 slash = (configuredUrl.substr(configuredUrl.length - 1) != '/')?'/':'';
+                console.log("configuredUrl",configuredUrl);
                 url = configuredUrl+slash+'IHEInvokeImageDisplay?requestType=PATIENT&patientID='+model['00100020'].Value[0];
                 break;
             case 'study':
                 configuredUrl = this.aetmodel.dcmInvokeImageDisplayStudyURL;
+                console.log("configuredUrl",configuredUrl);
                 slash = (configuredUrl.substr(configuredUrl.length - 1) != '/')?'/':'';
                 url = configuredUrl+slash+'IHEInvokeImageDisplay?requestType=STUDY&studyUID='+model['0020000D'].Value[0];
                 break;

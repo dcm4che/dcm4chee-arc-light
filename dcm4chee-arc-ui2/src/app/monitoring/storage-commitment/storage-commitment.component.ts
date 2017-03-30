@@ -205,8 +205,6 @@ export class StorageCommitmentComponent implements OnInit {
         // console.log("beforeDate",beforeDate);
         this.confirm(parameters).subscribe(result => {
             if(result){
-                console.log("result",result);
-                console.log("parameters",parameters);
                 // console.log("parametersdate",datePipeEn.transform(parameters.result.date,'yyyy-mm-dd'));
                 $this.cfpLoadingBar.start();
                 if(parameters.result.date === undefined){
