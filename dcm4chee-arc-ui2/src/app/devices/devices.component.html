@@ -116,7 +116,8 @@
                         <td><div *ngIf="device.dicomManufacturerModelName" >{{device.dicomManufacturerModelName}}</div></td>
                         <td><div *ngIf="_.hasIn(device,'dicomPrimaryDeviceType[0]')" >{{device.dicomPrimaryDeviceType[0]}}</div></td>
                         <td><div *ngIf="device.dicomStationName" >{{device.dicomStationName}}</div></td>
-                        <td><div *ngIf="device.dicomInstalled" >{{device.dicomInstalled}}</div></td>
+                        <td *ngIf="device.dicomInstalled === false">false</td>
+                        <td *ngIf="device.dicomInstalled != false">true</td>
                     </tr>
                     </tbody>
                 </table>
@@ -239,11 +240,11 @@
                         <td *ngIf="ae.dicomInstalled === false">false</td>
                         <td *ngIf="ae.dicomInstalled != false" [innerHtml]="ae.dicomInstalled || 'inherit'"></td>
                         <!--[innerHtml]="ae.dicomNetworkConnection | dicomConnectionFormater"-->
-                        <td [innerHtml]="ae.dicomNetworkConnection | dicomConnectionFormater">
-                        </td>
-<!--                        <td>
-                            <connection-formater [dicomNetworkConnection]="ae.dicomNetworkConnection"></connection-formater>
+<!--                        <td [innerHtml]="ae.dicomNetworkConnection | dicomConnectionFormater">
                         </td>-->
+                        <td>
+                            <connection-formater [dicomNetworkConnection]="ae.dicomNetworkConnection"></connection-formater>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
