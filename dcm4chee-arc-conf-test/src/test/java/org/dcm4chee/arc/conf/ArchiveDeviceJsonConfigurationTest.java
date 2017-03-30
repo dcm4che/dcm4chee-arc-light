@@ -87,7 +87,7 @@ public class ArchiveDeviceJsonConfigurationTest {
         Path path = Paths.get("target/device.json");
         try ( BufferedWriter w = Files.newBufferedWriter(path, Charset.forName("UTF-8"));
               JsonGenerator gen = Json.createGenerator(w)) {
-            jsonConfig.writeTo(arc, gen);
+            jsonConfig.writeTo(arc, gen, true);
         }
         Device arc2;
         try (BufferedReader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"))) {

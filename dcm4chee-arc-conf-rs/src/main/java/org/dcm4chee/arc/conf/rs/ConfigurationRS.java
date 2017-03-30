@@ -106,7 +106,7 @@ public class ConfigurationRS {
             @Override
             public void write(OutputStream out) throws IOException {
                 JsonGenerator w = Json.createGenerator(out);
-                jsonConf.writeTo(device, w);
+                jsonConf.writeTo(device, w, true);
                 w.flush();
             }
         };
@@ -148,11 +148,10 @@ public class ConfigurationRS {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                jsonConf.setExtended(false);
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (ApplicationEntityInfo aetInfo : aetInfos)
-                    jsonConf.writeTo(aetInfo, gen);
+                    jsonConf.writeTo(aetInfo, gen, false);
                 gen.writeEnd();
                 gen.flush();
             }
