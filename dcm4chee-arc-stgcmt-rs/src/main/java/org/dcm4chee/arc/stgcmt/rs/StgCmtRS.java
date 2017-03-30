@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -43,13 +43,17 @@ package org.dcm4chee.arc.stgcmt.rs;
 import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
@@ -67,9 +71,13 @@ import java.util.List;
 @RequestScoped
 @Path("stgcmt")
 public class StgCmtRS {
+    private static final Logger LOG = LoggerFactory.getLogger(StgCmtRS.class);
 
     @Inject
     private StgCmtManager mgr;
+
+    @Context
+    private HttpServletRequest request;
 
     @QueryParam("status")
     @Pattern(regexp = "PENDING|COMPLETED|WARNING|FAILED")
@@ -128,6 +136,7 @@ public class StgCmtRS {
     @DELETE
     @Path("{transactionUID}")
     public void deleteStgCmt(@PathParam("transactionUID") String transactionUID) {
+        logRequest();
         if (!mgr.deleteStgCmt(transactionUID))
             throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
@@ -135,6 +144,7 @@ public class StgCmtRS {
     @DELETE
     @Produces("application/json")
     public String deleteStgCmts() {
+        logRequest();
         return "{\"deleted\":"
                 + mgr.deleteStgCmts(statusOf(status), parseDate(updatedBefore))
                 + '}';
@@ -156,5 +166,10 @@ public class StgCmtRS {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
+                request.getRemoteUser(), request.getRemoteHost());
     }
 }

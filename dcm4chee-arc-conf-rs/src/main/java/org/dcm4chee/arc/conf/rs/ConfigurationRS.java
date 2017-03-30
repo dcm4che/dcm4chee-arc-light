@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -49,11 +49,14 @@ import org.dcm4che3.net.ApplicationEntityInfo;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DeviceInfo;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.IOException;
@@ -71,6 +74,7 @@ import java.util.Map;
 @Path("/")
 @RequestScoped
 public class ConfigurationRS {
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationRS.class);
 
     @Inject
     private DicomConfiguration conf;
@@ -80,6 +84,9 @@ public class ConfigurationRS {
 
     @Context
     private UriInfo uriInfo;
+
+    @Context
+    private HttpServletRequest request;
 
     private ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
         @Override
@@ -189,6 +196,7 @@ public class ConfigurationRS {
     @Path("/devices/{DeviceName}")
     @Consumes("application/json")
     public void createDevice(@PathParam("DeviceName") String deviceName, Reader content) throws Exception {
+        logRequest();
         Device device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
         if (!device.getDeviceName().equals(deviceName))
             throw new WebApplicationException(
@@ -201,6 +209,7 @@ public class ConfigurationRS {
     @Path("/devices/{DeviceName}")
     @Consumes("application/json")
     public void updateDevice(@PathParam("DeviceName") String deviceName, Reader content) throws Exception {
+        logRequest();
         Device device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
         if (!device.getDeviceName().equals(deviceName))
             throw new WebApplicationException(
@@ -213,6 +222,7 @@ public class ConfigurationRS {
     @Path("/unique/aets/{aet}")
     @Consumes("application/json")
     public void registerAET(@PathParam("aet") String aet) throws Exception {
+        logRequest();
         try {
             if (!conf.registerAETitle(aet))
                 throw new WebApplicationException(
@@ -225,6 +235,7 @@ public class ConfigurationRS {
     @DELETE
     @Path("/unique/aets/{aet}")
     public void unregisterAET(@PathParam("aet") String aet) throws Exception {
+        logRequest();
         List<String> aets = Arrays.asList(conf.listRegisteredAETitles());
         if (!aets.contains(aet))
             throw new WebApplicationException(
@@ -240,6 +251,7 @@ public class ConfigurationRS {
     @Path("/unique/hl7apps/{appName}")
     @Consumes("application/json")
     public void registerHL7App(@PathParam("appName") String appName) throws Exception {
+        logRequest();
         HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
         try {
             if (!hl7Conf.registerHL7Application(appName))
@@ -253,6 +265,7 @@ public class ConfigurationRS {
     @DELETE
     @Path("/unique/hl7apps/{appName}")
     public void unregisterHL7App(@PathParam("appName") String appName) throws Exception {
+        logRequest();
         HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
         List<String> hl7apps = Arrays.asList(hl7Conf.listRegisteredHL7ApplicationNames());
         if (!hl7apps.contains(appName))
@@ -268,6 +281,7 @@ public class ConfigurationRS {
     @DELETE
     @Path("/devices/{DeviceName}")
     public void deleteDevice(@PathParam("DeviceName") String deviceName) throws Exception {
+        logRequest();
         conf.removeDevice(deviceName);
     }
 
@@ -360,4 +374,8 @@ public class ConfigurationRS {
         }
     }
 
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
+                request.getRemoteUser(), request.getRemoteHost());
+    }
 }

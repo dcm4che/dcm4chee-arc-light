@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -42,6 +42,8 @@ package org.dcm4chee.arc.ctrl;
 
 import org.dcm4chee.arc.ArchiveService;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -61,6 +63,8 @@ import javax.ws.rs.core.Context;
 @RequestScoped
 public class ArchiveCtrl {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ArchiveCtrl.class);
+
     @Inject
     private ArchiveService service;
 
@@ -70,18 +74,21 @@ public class ArchiveCtrl {
     @POST
     @Path("start")
     public void start() throws Exception {
+        logRequest();
         service.start(request);
     }
 
     @POST
     @Path("stop")
     public void stop() {
+        logRequest();
         service.stop(request);
     }
 
     @POST
     @Path("reload")
     public void reload() throws Exception {
+        logRequest();
         service.reload(request);
     }
 
@@ -91,5 +98,10 @@ public class ArchiveCtrl {
     @Produces("application/json")
     public String status() {
         return "{\"status\":\"" + service.status(request) + "\"}";
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
+                request.getRemoteUser(), request.getRemoteHost());
     }
 }

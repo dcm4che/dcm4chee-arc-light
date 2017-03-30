@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -49,10 +49,14 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
@@ -66,9 +70,13 @@ import java.util.Date;
 @Path("/monitor")
 @RequestScoped
 public class ArchiveMonitor {
+    private static final Logger LOG = LoggerFactory.getLogger(ArchiveMonitor.class);
 
     @Inject
     private Device device;
+
+    @Context
+    private HttpServletRequest request;
 
     @GET
     @NoCache
@@ -112,6 +120,7 @@ public class ArchiveMonitor {
     @DELETE
     @Path("associations/{serialNo}")
     public void abortAssociation(@PathParam("serialNo") int serialNo) {
+        logRequest();
         for (Association as : device.listOpenAssociations()) {
             if (as.getSerialNo() == serialNo) {
                 as.abort();
@@ -220,5 +229,10 @@ public class ArchiveMonitor {
         w.write(String.valueOf(rsp));
         w.write('}');
         return true;
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
+                request.getRemoteUser(), request.getRemoteHost());
     }
 }
