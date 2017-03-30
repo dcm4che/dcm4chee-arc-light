@@ -416,6 +416,10 @@ public class StgCmtEJB implements StgCmtManager {
     public List<StgCmtResult> listStgCmts(
             StgCmtResult.Status status, String studyUID, String exporterID, int offset, int limit) {
         HibernateQuery<StgCmtResult> query = getStgCmtResults(status, studyUID, exporterID);
+        if (limit > 0)
+            query.limit(limit);
+        if (offset > 0)
+            query.offset(offset);
         List<StgCmtResult> results = query.fetch();
         if (results.isEmpty())
             return Collections.emptyList();
