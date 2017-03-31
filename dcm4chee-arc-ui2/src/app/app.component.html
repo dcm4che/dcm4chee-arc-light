@@ -35,3 +35,9 @@
 </ul>
 <img src="assets/img/logo.png" class="logo" title="Product labelling" (click)="productLabelling()" >
 <router-outlet></router-outlet>
+<div
+        class="scroll_up glyphicon glyphicon-menu-up animated"
+        *ngIf="showScrollButton"
+        [ngClass]="{fadeIn:showScrollButton, fadeOut:!showScrollButton}"
+        (click)="scrollUp()">
+</div>

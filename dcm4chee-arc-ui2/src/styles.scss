@@ -694,3 +694,28 @@ md-dialog-container{
     width: 100%;
   }
 }
+.load_more{
+  margin: 14px auto;
+  display: block;
+  background: white;
+  border: none;
+  -webkit-box-shadow: 2px 1px 4px #666666;
+  -moz-box-shadow: 2px 1px 4px #666666;
+  box-shadow: 2px 1px 4px #666666;
+  text-align: center;
+  height: 32px;
+  color: $blue;
+  position: relative;
+  width: 131px;
+  &:hover{
+    background:$lightBlue;
+    color:white;
+    border:none;
+  }
+  i{
+    font-size: 18px;
+    color: $blue;
+    position: absolute;
+    left: 15px;
+  }
+}

@@ -3,11 +3,11 @@
 # compiled output
 /dist
 /tmp
-
+/dummydata
 # dependencies
 /node_modules
 /bower_components
-
+/src/assets/dummydata
 # IDEs and editors
 /.idea
 /.vscode

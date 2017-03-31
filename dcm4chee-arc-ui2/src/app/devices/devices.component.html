@@ -208,7 +208,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr *ngFor="let ae of  aes | search:aesfilter; let i = index">
+                    <tr *ngFor="let ae of  aes | search:aesfilter | slice:moreAes.start:moreAes.limit; let i = index">
                         <td class="buttons_td">
                             <span class="numbers">{{i+1}}.</span>
                             <a class="table_btn" title="Echo" href="" (click)="$event.preventDefault();echoAe(ae.dicomAETitle)">
@@ -248,6 +248,7 @@
                     </tr>
                     </tbody>
                 </table>
+                <button class="load_more" *ngIf="moreAes.limit <= aes.length" (click)="loadMoreAes()"><i *ngIf="moreAes.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>More</button>
             </div>
         </div>
     </div>

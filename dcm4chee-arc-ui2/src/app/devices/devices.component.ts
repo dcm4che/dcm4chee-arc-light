@@ -8,6 +8,7 @@ import {MdDialog, MdDialogConfig, MdDialogRef} from "@angular/material";
 import {DevicesService} from "./devices.service";
 import {DeleteRejectedInstancesComponent} from "../widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component";
 import {CreateAeComponent} from "../widgets/dialogs/create-ae/create-ae.component";
+import {HostListener} from "@angular/core/src/metadata/directives";
 
 @Component({
   selector: 'app-devices',
@@ -38,6 +39,11 @@ export class DevicesComponent {
         dicomInstitutionDepartmentName:undefined,
         dicomInstalled:undefined
     };
+    moreAes = {
+        limit:30,
+        start:0,
+        loaderActive:false
+    };
     dialogRef: MdDialogRef<any>;
 
     constructor(public $http: Http, public cfpLoadingBar:SlimLoadingBarService, public mainservice:AppService,public viewContainerRef: ViewContainerRef ,public dialog: MdDialog, public config: MdDialogConfig,public service:DevicesService) {
@@ -58,6 +64,36 @@ export class DevicesComponent {
             return [];
         }
     }
+    loadMoreAes(){
+        this.moreAes.loaderActive = true;
+        this.moreAes.limit +=20;
+        if(this.moreAes.limit > 50){
+            // this.moreAes.start +=20;
+        }
+        this.moreAes.loaderActive = false;
+    }
+
+    @HostListener('window:scroll', ['$event'])
+    loadMoreAesOnScroll(event) {
+        // console.debug("Scroll Event", document.body.scrollTop);
+        // see András Szepesházi's comment below
+        // console.debug("Scroll Event", window.pageYOffset );
+        // console.log("scrollevent",event);
+        // $(window).scroll(function() {
+            var hT = ($('.load_more').offset()) ? $('.load_more').offset().top:0,
+                hH = $('.load_more').outerHeight(),
+                wH = $(window).height(),
+                wS = window.pageYOffset;
+            // console.log("hT",hT);
+            // console.log("hH",hH);
+            // console.log("wH",wH);
+            // console.log("wS",wS);
+            if (wS > (hT+hH-wH)){
+                this.loadMoreAes();
+            }
+        // });
+    }
+
     searchDevices(){
         this.cfpLoadingBar.start();
         let $this = this;
@@ -504,6 +540,7 @@ export class DevicesComponent {
                                     });
                                 });
                                 $this.searchAes();
+                                $this.searchDevices();
                             },
                             (err)=>{
                                 $this.cfpLoadingBar.complete();
@@ -607,6 +644,7 @@ export class DevicesComponent {
         let $this = this;
         this.$http.get(
             '../aes'
+            // './assets/dummydata/aes.json'
         )
         .map(res=>res.json())
         .subscribe((response) => {

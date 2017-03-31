@@ -1,5 +1,6 @@
 import {Directive, ElementRef} from '@angular/core';
 import {Input, HostListener} from "@angular/core/src/metadata/directives";
+import * as _ from "lodash";
 
 @Directive({
   selector: '[tooltip]'
@@ -25,19 +26,32 @@ export class TooltipDirective {
         this.hideTooltip();
     }
     @HostListener('onmouseup') onMouseUp() {
-        window.prompt("Copy to clipboard: Ctrl+C, Enter6", this.tooltip);
-
+        window.prompt("Copy to clipboard: Ctrl+C, Enter", this.tooltip);
     }
     createPlaceholder(){
         this.div =  document.createElement("div")
         this.div.className="tooltip_container";
         let div2 =  document.createElement("div")
         div2.className="dir-tooltip animated";
-        let text = document.createTextNode(this.tooltip);
+        console.log("this.tooltip",this.tooltip);
+        let br = document.createElement("br");
+
         this.div.addEventListener("mouseup",()=>{
             window.prompt("Copy to clipboard: Ctrl+C, Enter", this.tooltip);
         });
-        div2.appendChild(text);
+        let text;
+        if(_.includes(this.tooltip,'<br>')){
+            let textArray = this.tooltip.split('<br>');
+            _.forEach(textArray,(m,i)=>{
+                console.log("m",m);
+                div2.appendChild(br);
+                div2.appendChild(document.createTextNode(m));
+            });
+        }else{
+            text = document.createTextNode(this.tooltip);
+            div2.appendChild(text);
+        }
+
         this.div.appendChild(div2);
         // this.el.nativeElement.addEventListener("mouseup",()=>{
         //     window.prompt("Copy to clipboard: Ctrl+C, Enter4", this.tooltip);

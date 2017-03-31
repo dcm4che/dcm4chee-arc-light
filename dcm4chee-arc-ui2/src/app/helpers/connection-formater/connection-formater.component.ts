@@ -20,7 +20,6 @@ export class ConnectionFormaterComponent implements OnInit {
 
     constructor() { }
     ngOnInit() {
-        console.log("this.dicomNetworkConnection",this.dicomNetworkConnection);
        _.forEach(this.dicomNetworkConnection, (m, i)=>{
            if(m.dicomTLSCipherSuite){
                if(m.dicomTLSCipherSuite[0] && m.dicomTLSCipherSuite[1]){
@@ -28,7 +27,6 @@ export class ConnectionFormaterComponent implements OnInit {
                }
            }
        });
-        console.log("this.dicomNetworkConnection2",this.dicomNetworkConnection);
     }
 
 }

@@ -7,6 +7,7 @@ import {User} from "./models/user";
 import 'rxjs/add/operator/catch';
 import {Http} from "@angular/http";
 import {ProductLabellingComponent} from "./widgets/dialogs/product-labelling/product-labelling.component";
+import {HostListener} from "@angular/core/src/metadata/directives";
 // import {DCM4CHE} from "./constants/dcm4-che";
 // declare var $:JQueryStatic;
 // import * as vex from "vex-js";
@@ -27,7 +28,7 @@ export class AppComponent {
     logoutUrl = '';
     isRole:any;
     archive;
-
+    showScrollButton:boolean = false;
     @ViewChild(MessagingComponent) msg;
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
 
@@ -125,6 +126,20 @@ export class AppComponent {
             }
         }
     };
+    @HostListener('window:scroll', ['$event'])
+    onScroll(event) {
+        if (window.pageYOffset > 150 && !this.showScrollButton){
+            this.showScrollButton = true;
+        }
+        if(window.pageYOffset < 149 && this.showScrollButton){
+            this.showScrollButton = false;
+        }
+    }
+    scrollUp(){
+        $("html, body").animate({
+            scrollTop: 0
+        }, 300);
+    }
     createPatient(){
         this.mainservice.createPatient({});
     }
