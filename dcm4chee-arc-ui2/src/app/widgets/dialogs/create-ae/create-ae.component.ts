@@ -24,7 +24,9 @@ export class CreateAeComponent {
     netConnModelDevice;
     private _devices;
     _ = _;
-    constructor(public $http:Http, public dialogRef: MdDialogRef<CreateAeComponent>, public mainservice:AppService, public cfpLoadingBar:SlimLoadingBarService) { }
+    constructor(public $http:Http, public dialogRef: MdDialogRef<CreateAeComponent>, public mainservice:AppService, public cfpLoadingBar:SlimLoadingBarService) {
+        this.cfpLoadingBar.complete();
+    }
 
     get dicomconn() {
         return this._dicomconn;

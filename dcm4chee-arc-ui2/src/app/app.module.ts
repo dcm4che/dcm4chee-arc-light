@@ -55,6 +55,7 @@ import { AssociationsComponent } from './monitoring/associations/associations.co
 import { StorageCommitmentComponent } from './monitoring/storage-commitment/storage-commitment.component';
 import {StorageCommitmentService} from "./monitoring/storage-commitment/storage-commitment.service";
 import { ConnectionFormaterComponent } from './helpers/connection-formater/connection-formater.component';
+import { AeListComponent } from './ae-list/ae-list.component';
 
 @NgModule({
     declarations: [
@@ -90,7 +91,8 @@ import { ConnectionFormaterComponent } from './helpers/connection-formater/conne
         DicomConnectionFormaterPipe,
         AssociationsComponent,
         StorageCommitmentComponent,
-        ConnectionFormaterComponent
+        ConnectionFormaterComponent,
+        AeListComponent
     ],
     imports: [
         BrowserModule,
@@ -120,8 +122,9 @@ import { ConnectionFormaterComponent } from './helpers/connection-formater/conne
             { path: 'monitoring/queues', component: QueuesComponent },
             { path: 'monitoring/associations', component: AssociationsComponent },
             { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent },
-            { path: 'devicelist', component: DevicesComponent },
-            { path: 'devicelist/:device', component: DeviceConfiguratorComponent },
+            { path: 'device/devicelist', component: DevicesComponent },
+            { path: 'device/aelist', component: AeListComponent },
+            { path: 'device/edit/:device', component: DeviceConfiguratorComponent },
             { path: '**', component: PageNotFoundComponent }
       ],
             { useHash: true })

@@ -11,8 +11,8 @@
 <div class="main_content devicelist">
     <div class="devicelist_block">
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" [ngClass]="{'active':showDeviceList}"><a aria-controls="device_modus" (click)="$event.preventDefault();showAetList = false;showDeviceList = true"role="tab" data-toggle="tab">Device list</a></li>
-            <li role="presentation" [ngClass]="{'active':showAetList}"><a aria-controls="aet_modus" (click)="$event.preventDefault();showDeviceList = false;showAetList = true" role="tab" data-toggle="tab">AET list</a></li>
+            <li role="presentation" routerLinkActive="active"><a aria-controls="device_modus" routerLink="/device/devicelist" role="tab" routerLinkActive="active">Device list</a></li>
+            <li role="presentation" routerLinkActive="active"><a aria-controls="aet_modus" routerLink="/device/aelist" role="tab"  routerLinkActive="active">AE list</a></li>
         </ul>
         <div class="tab-content">
             <div role="tabpanel"  class="device_modus" id="device_modus" *ngIf="showDeviceList" >
@@ -33,7 +33,7 @@
                                     <input id="dicomDeviceDescription" type="text" [(ngModel)]="filter.dicomDeviceDescription" placeholder="Device description" title="Device description" class="col-md-12" />
                                 </div>
                                 <div class="col-md-6">
-                                    <input id="dicomDeviceDescription" type="text" [(ngModel)]="filter.dicomManufacturer" placeholder="Manufacturer" title="Manufacturer" class="col-md-12" />
+                                    <input id="dicomManufacturer" type="text" [(ngModel)]="filter.dicomManufacturer" placeholder="Manufacturer" title="Manufacturer" class="col-md-12" />
                                 </div>
                                 <div class="col-md-6">
                                     <input id="dicomManufacturerModelName" type="text" [(ngModel)]="filter.dicomManufacturerModelName" placeholder="Manufacturer model name" title="Manufacturer model name" class="col-md-12" />
@@ -96,7 +96,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr *ngFor="let device of devices | search:devicefilter; let i = index">
+                    <tr *ngFor="let device of devices | search:devicefilter | slice:moreDevices.start:moreDevices.limit; let i = index">
                         <td class="buttons_td">
                             <span class="numbers">{{i+1}}.</span>
 <!--                            <a class="table_btn" title="Edit device" href="" (click)="editDeviceList(devices[key].dicomDeviceName)">
@@ -121,134 +121,7 @@
                     </tr>
                     </tbody>
                 </table>
-            </div>
-            <div role="tabpanel" class="aet_modus" id="aet_modus" *ngIf="showAetList">
-                <h2>Application Entities list</h2>
-                <input autocomplete="off" id="aesfilter" class="aesfilter" [(ngModel)]="aesfilter" placeholder="Search AEs"/>
-                <button class="adddevice" (click)="createAe()" title="Register new application entity"><span class="glyphicon glyphicon-plus"></span></button>
-                <!--     <button class="adddevice" (click)="createDevice()" title="Extended filters"><span class="glyphicon glyphicon-cog"></span></button> -->
-                <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
-                <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
-                <div *ngIf="advancedConfig" class="ng-hide">
-                    <div class="row ng-hide filter hidden_filters" *ngIf="advancedConfig">
-                        <div class="col-md-3 block-2-1" >
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <input id="dDeviceName" type="text" [(ngModel)]="filter.dicomDeviceName" placeholder="Device name" title="Device name" class="col-md-12" />
-                                </div>
-                                <div class="col-md-6">
-                                    <input id="dicomDeviceDescription" type="text" [(ngModel)]="filter.dicomAETitle" placeholder="AE Title" title="AE Title" class="col-md-12" />
-                                </div>
-                                <div class="col-md-6">
-                                    <input id="dicomDeviceDescription" type="text" [(ngModel)]="filter.dicomDescription" placeholder="Description" title="Description" class="col-md-12" />
-                                </div>
-                                <div class="col-md-6">
-                                    <select id="dicomAssociationInitiator" [(ngModel)]="filter.dicomAssociationInitiator" class="col-md-12" title="Association Initiator" [ngClass]="{empty:filter.dicomAssociationInitiator === ''}">
-                                        <option value="">-- AssociationInitiator --</option>
-                                        <option value="true">True</option>
-                                        <option value="false">False</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <!--                     <div class="col-md-3 block-2-1">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <input id="dicomSoftwareVersion" type="text" [(ngModel)]="filter.dicomSoftwareVersion" placeholder="Software version" title="Software version" class="col-md-12 clearable" />
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <input id="dicomStationName" type="text" [(ngModel)]="filter.dicomStationName" placeholder="Station name" title="Station name" class="col-md-12 clearable" />
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <input id="dicomPrimaryDeviceType" type="text" [(ngModel)]="filter.dicomPrimaryDeviceType" placeholder="Primary device type" title="Primary device type" class="col-md-12 clearable" />
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <input id="dicomInstitutionName" type="text" [(ngModel)]="filter.dicomInstitutionName" placeholder="Institution name" title="Institution name" class="col-md-12 clearable" />
-                                                    </div>
-                                                </div>
-                                            </div> -->
-                        <div class="col-md-3 block-2-1">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <select id="dicomAssociationAcceptor" [(ngModel)]="filter.dicomAssociationAcceptor" class="col-md-12" title="Association Acceptor" [ngClass]="{empty:filter.dicomAssociationAcceptor === ''}">
-                                        <option value="">-- AssociationAcceptor --</option>
-                                        <option value="true">True</option>
-                                        <option value="false">False</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="dummyinput"></div>
-                                </div>
-                                <div class="col-md-6">
-                                    <input id="dicomApplicationCluster" type="text" [(ngModel)]="filter.dicomApplicationCluster" placeholder="Application Cluster" title="Application Cluster" class="col-md-12" />
-                                </div>
-                                <div class="col-md-6">
-                                    <button class="col-md-12" (click)="searchAes()">Search</button>
-                                </div>
-                            </div>
-                        </div>
-                        <a class="clearform_button" title="Clear all filters" href="" (click)="$event.preventDefault();clearForm()">
-                            Clear <span class="glyphicon glyphicon-remove"></span>
-                        </a>
-                    </div>
-                </div>
-                <table class="j4care-table">
-                    <thead>
-                    <tr>
-                        <th></th>
-                        <th>AETitle</th>
-                        <th>Device Name</th>
-                        <th>Other AETitle</th>
-                        <th>Description</th>
-                        <th>Association Initiator</th>
-                        <th>Association Acceptor</th>
-                        <th>Application Cluster</th>
-                        <th>Installed</th>
-                        <th title="Dicom network connection">Net. Connection</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr *ngFor="let ae of  aes | search:aesfilter | slice:moreAes.start:moreAes.limit; let i = index">
-                        <td class="buttons_td">
-                            <span class="numbers">{{i+1}}.</span>
-                            <a class="table_btn" title="Echo" href="" (click)="$event.preventDefault();echoAe(ae.dicomAETitle)">
-                                <span class="echo_icon"></span>
-                            </a>
-<!--                            <a class="table_btn" title="Edit AE" href="" (click)="$event.preventDefault();editAe(ae.dicomDeviceName, ae.dicomAETitle)">
-                                <span class="glyphicon glyphicon-pencil"></span>
-                            </a>-->
-                            <a class="table_btn" title="Unregister and delete from device the AE" href="" (click)="$event.preventDefault();deleteAE(ae.dicomDeviceName, ae.dicomAETitle)">
-                                <span class="glyphicon glyphicon-remove"></span>
-                            </a>
-                        </td>
-                        <!-- <td><a class="listlink" (click)="editDeviceList(ae.dicomDeviceName)"  title="Edit device">{{ae.dicomDeviceName}}</a></td> -->
-                        <td>{{ae.dicomAETitle}}</td>
-                        <td>
-                            <!--<a title="Edit device" href="" (click)="$event.preventDefault();editDeviceList(ae.dicomDeviceName)">-->
-                                {{ae.dicomDeviceName}}
-                            <!--</a>-->
-                        </td>
-                        <td>
-                            <span *ngFor="let otherae of ae.dcmOtherAETitle">{{otherae}}<br></span>
-                        </td>
-                        <td>{{ae.dicomDescription}}</td>
-                        <td>{{ae.dicomAssociationInitiator}}</td>
-                        <td>{{ae.dicomAssociationAcceptor}}</td>
-                        <td>
-                            <span *ngFor="let cluster of ae.dicomApplicationCluster">{{cluster}}<br></span>
-                        </td>
-                        <td *ngIf="ae.dicomInstalled === false">false</td>
-                        <td *ngIf="ae.dicomInstalled != false" [innerHtml]="ae.dicomInstalled || 'inherit'"></td>
-                        <!--[innerHtml]="ae.dicomNetworkConnection | dicomConnectionFormater"-->
-<!--                        <td [innerHtml]="ae.dicomNetworkConnection | dicomConnectionFormater">
-                        </td>-->
-                        <td>
-                            <connection-formater [dicomNetworkConnection]="ae.dicomNetworkConnection"></connection-formater>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                <button class="load_more" *ngIf="moreAes.limit <= aes.length" (click)="loadMoreAes()"><i *ngIf="moreAes.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>More</button>
+                <button class="load_more" *ngIf="devices && moreDevices.limit <= devices.length" (click)="loadMoreDevices()"><i *ngIf="moreDevices.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>More</button>
             </div>
         </div>
     </div>
