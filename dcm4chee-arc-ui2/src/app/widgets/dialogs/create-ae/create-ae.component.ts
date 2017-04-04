@@ -68,8 +68,6 @@ export class CreateAeComponent {
         var code = (e.keyCode ? e.keyCode : e.which);
     };
     getDevice(e){
-        console.log("e3",e);
-        console.log("selectedDevice",this.selectedDevice);
         this.selectedDevice = e;
         let $this = this;
         if(this.selectedDevice){

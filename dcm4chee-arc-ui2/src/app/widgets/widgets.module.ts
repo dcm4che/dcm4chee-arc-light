@@ -16,6 +16,7 @@ import { CreateAeComponent } from './dialogs/create-ae/create-ae.component';
 import { ProductLabellingComponent } from './dialogs/product-labelling/product-labelling.component';
 import {DynamicFormElementComponent} from "./dynamicform/dynamic-form-element.component";
 import {DynamicFormComponent} from "./dynamicform/dynamic-form.component";
+import { CreateExporterComponent } from './dialogs/create-exporter/create-exporter.component';
 
 
 @NgModule({
@@ -39,5 +40,6 @@ export const WidgetsComponents = [
     CopyMoveObjectsComponent,
     ConfirmComponent,
     DeleteRejectedInstancesComponent,
-    ProductLabellingComponent
+    ProductLabellingComponent,
+    CreateExporterComponent
 ];

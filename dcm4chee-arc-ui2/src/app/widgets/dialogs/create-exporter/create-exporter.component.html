@@ -1,0 +1,84 @@
+<div class="vex vex-theme-os registernewaet ">
+    <div class="vex-content">
+        <div class="vex-dialog-form" >
+            <div class="device">
+                <div class="vex-dialog-message">Create exporter description for external AE</div>
+                <div md-dialog-content>
+                    <div class="createdevice tabcontain exporter">
+                        <div class="tab_body">
+                            <h4 (click)="showselectdevice=!showselectdevice;showconnselecteddevice=false">Device <b *ngIf="!showselectdevice && selectedDeviceObject && selectedDeviceObject.dicomDeviceName">{{ selectedDeviceObject.dicomDeviceName }}</b></h4>
+                            <div class="content" *ngIf="showselectdevice===true">
+                                <div class="block">
+                                    <div class="label_part">
+                                        Select device to connect the exporter description to:
+                                    </div>
+                                    <div class="input_part">
+                                        <select [ngModel]="selectedDevice" (ngModelChange)="selectDevice($event)" name="dicomDeviceName">
+                                            <option [value]="obj.dicomDeviceName" *ngFor="let obj of devices">{{obj.dicomDeviceName}}</option>
+                                        </select>
+                                    </div>
+                                    <span class="description">Already existing devices</span>
+                                </div>
+                            </div>
+                            <h4 (click)="showexternalae=!showexternalae;showdevice=false">External AE <b *ngIf="!showexternalae && externalAe">{{externalAe}}</b></h4>
+                            <div class="content" *ngIf="showexternalae === true">
+                                <div class="block">
+                                    <div class="label_part">
+                                        Select external AE:
+                                    </div>
+                                    <div class="input_part">
+                                        <select [ngModel]="externalAeObject" (ngModelChange)="setExternalAe($event)" name="dicomAETitle">
+                                            <option [ngValue]="obj" *ngFor="let obj of aes">{{obj.dicomAETitle}}</option>
+                                        </select>
+                                    </div>
+                                    <span class="description">Already existing aes</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="exporter_block">
+
+                            <h4 (click)="showexporter = !showexporter">Exporter</h4>
+                            <div class="block" *ngIf="showexporter === true" >
+                            <div class="inputblock">
+                                <label class="title">Exporter ID</label>
+                                <input type="text" [(ngModel)]="dcmExporter.dcmExporterID">
+                                <span class="description">Exporter ID</span>
+                            </div>
+                            <div class="inputblock">
+                                <label class="title">URI</label>
+                                <select [ngModel]="dcmExporter.dcmURI" (ngModelChange)="setDcmUri($event)" name="dcmURI">
+                                    <option [value]="uri" *ngFor="let uri of externalAeConnections">{{uri}}</option>
+                                </select>
+                                <span class="description">RFC2079: Uniform Resource Identifier</span>
+                            </div>
+                            <div class="inputblock">
+                                <label class="title">Application Entity (AE) title</label>
+                                <select [ngModel]="dcmExporter.dicomAETitle" (ngModelChange)="setAe($event)" name="dcmURI">
+                                    <option [value]="ae.dicomAETitle" *ngFor="let ae of selectedDeviceObject?.dicomNetworkAE">{{ae.dicomAETitle}}</option>
+                                </select>
+                                <span class="description">Application Entity (AE) title</span>
+                            </div>
+                            <div class="inputblock">
+                                <label class="title">Queue Name</label>
+                                <select [ngModel]="dcmExporter.dcmQueueName" (ngModelChange)="setQueue($event)" name="dcmQueueName">
+                                    <option [value]="q.name" *ngFor="let q of queue">{{q.description}}</option>
+                                </select>
+                                <span class="description">JMS Queue Name</span>
+                            </div>
+                            <div class="inputblock">
+                                <label class="title">Exporter Description</label>
+                                <textarea type="text" [(ngModel)]="dcmExporter.dicomDescription"></textarea>
+                                <span class="description">Unconstrained text description of the exporter</span>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="dialogbuttons">
+                <button class="save" type="button" (click)="dialogRef.close({device:selectedDeviceObject,exporter:dcmExporter})" [disabled]="!validAeForm()">APPLY</button>
+                <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCEL</button>
+            </div>
+        </div>
+    </div>
+</div>

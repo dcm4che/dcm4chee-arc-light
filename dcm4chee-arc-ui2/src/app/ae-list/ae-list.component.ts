@@ -313,10 +313,8 @@ export class AeListComponent{
         });
     };
     createAe(){
-
         this.cfpLoadingBar.start();
         let headers = new Headers({ 'Content-Type': 'application/json' });
-        console.log("in create ae");
         let dicomconn = [];
         let newAetModel = {
             dicomNetworkConnection:[{
@@ -327,10 +325,8 @@ export class AeListComponent{
             dicomNetworkAE:[{
                 dicomNetworkConnectionReference:["/dicomNetworkConnection/0"]
             }]
-
         };
         let netAEModel;
-
         netAEModel = newAetModel.dicomNetworkAE[0];
         dicomconn.push({
             "value":"/dicomNetworkConnection/" + 0,
@@ -342,12 +338,10 @@ export class AeListComponent{
             height:'auto',
             width:'90%'
         });
-        console.log("this.devices",this.devices);
         this.dialogRef.componentInstance.dicomconn = dicomconn;
         this.dialogRef.componentInstance.newAetModel = newAetModel;
         this.dialogRef.componentInstance.netAEModel = netAEModel;
         this.dialogRef.componentInstance.devices = this.devices;
-
         this.dialogRef.afterClosed().subscribe(re => {
             if(re){
                 console.log("res",re);
@@ -479,34 +473,51 @@ export class AeListComponent{
     };
     getAes(){
         let $this = this;
-        this.$http.get(
-            '../aes'
-            // './assets/dummydata/aes.json'
-        )
-            .map(res=>res.json())
-            .subscribe((response) => {
-                $this.aes = response;
-            }, (response) => {
-                // vex.dialog.alert("Error loading aes, please reload the page and try again!");
-            });
+        if($this.mainservice.global && $this.mainservice.global.aes) {
+            this.aes = this.mainservice.global.aes;
+        }else{
+            this.$http.get(
+                '../aes'
+                // './assets/dummydata/aes.json'
+            )
+                .map(res=>res.json())
+                .subscribe((response) => {
+                    $this.aes = response;
+                    if($this.mainservice.global && !$this.mainservice.global.aes){
+                        let global = _.cloneDeep($this.mainservice.global);
+                        global.aes = response;
+                        $this.mainservice.setGlobal(global);
+                    }else{
+                        if($this.mainservice.global && $this.mainservice.global.aes){
+                            $this.mainservice.global.aes = response;
+                        }else{
+                            $this.mainservice.setGlobal({aes:response});
+                        }
+                    }
+                }, (response) => {
+                    // vex.dialog.alert("Error loading aes, please reload the page and try again!");
+                });
+        }
     }
     getAets(){
+
         let $this = this;
         this.$http.get(
             '../aets'
         ).map(res => res.json())
             .subscribe((response) => {
                 $this.aets = response;
+
             },(err) =>{
                 console.log("error getting aets",err);
             });
     }
 
     getDevices(){
+        let $this = this;
         if(this.mainservice.global && this.mainservice.global.devices){
             this.devices = this.mainservice.global.devices;
         }else{
-            let $this = this;
             this.$http.get(
                 // '../devices'
                 './assets/dummydata/devices.json'

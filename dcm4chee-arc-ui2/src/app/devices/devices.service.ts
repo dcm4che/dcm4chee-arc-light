@@ -6,6 +6,12 @@ export class DevicesService {
 
     constructor() { }
 
+    appendExporterToDevice(device, exporter){
+        device.dcmArchiveDevice = device.dcmArchiveDevice || {};
+        device.dcmArchiveDevice.dcmExporter = device.dcmArchiveDevice.dcmExporter || [];
+        device.dcmArchiveDevice.dcmExporter.push(exporter);
+        return device;
+    }
     changeAetOnClone(device){
         if(_.hasIn(device,'dicomNetworkAE') && _.size(device.dicomNetworkAE) > 0){
             _.forEach(device.dicomNetworkAE,(m,i)=>{

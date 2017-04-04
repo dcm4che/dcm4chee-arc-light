@@ -20,8 +20,7 @@
                 <input autocomplete="off" id="devicefilter" class="devicefilter" [(ngModel)]="devicefilter" placeholder="Search device"/>
                 <!--<button class="adddevice" (click)="createDevice()" title="Add new device"><span class="glyphicon glyphicon-plus"></span></button>-->
                 <!--     <button class="adddevice" (click)="createDevice()" title="Extended filters"><span class="glyphicon glyphicon-cog"></span></button> -->
-                <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
-                <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
+
                 <div *ngIf="advancedConfig" class="ng-hide">
                     <div class="row ng-hide filter hidden_filters" *ngIf="advancedConfig">
                         <div class="col-md-3 block-2-1" >
@@ -79,6 +78,19 @@
                         <a class="clearform_button" title="Clear all filters" href="" (click)="$event.preventDefault();clearForm()">
                             Clear <span class="glyphicon glyphicon-remove"></span>
                         </a>
+                    </div>
+                </div>
+                <div class="morefunctionblock">
+                    <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+                    <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
+                    <div class="more functions">
+                        <div class="mainbutton" (click)="moreFunctionsButtons = !moreFunctionsButtons">
+                            <span *ngIf="!moreFunctionsButtons" >More functions<i class="glyphicon glyphicon-triangle-bottom"></i></span>
+                            <span *ngIf="moreFunctionsButtons">Close more functions<i class="glyphicon glyphicon-triangle-top"></i></span>
+                        </div>
+                        <ul *ngIf="moreFunctionsButtons">
+                            <li (click)="moreFunctionsButtons = false;createExporter()" title="Create new exporter">Create exporter</li>
+                        </ul>
                     </div>
                 </div>
                 <table class="j4care-table">

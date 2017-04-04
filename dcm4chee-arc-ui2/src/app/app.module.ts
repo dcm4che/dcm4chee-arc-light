@@ -56,6 +56,7 @@ import { StorageCommitmentComponent } from './monitoring/storage-commitment/stor
 import {StorageCommitmentService} from "./monitoring/storage-commitment/storage-commitment.service";
 import { ConnectionFormaterComponent } from './helpers/connection-formater/connection-formater.component';
 import { AeListComponent } from './ae-list/ae-list.component';
+import {CreateExporterService} from "./widgets/dialogs/create-exporter/create-exporter.service";
 
 @NgModule({
     declarations: [
@@ -130,7 +131,20 @@ import { AeListComponent } from './ae-list/ae-list.component';
             { useHash: true })
     ],
     entryComponents:[WidgetsComponents],
-    providers: [MdDialogConfig, WidgetsComponents, AppService, StudiesService, QueuesService, DevicesService, ExportService, DatePipe, CalendarModule, DropdownModule, StorageCommitmentService],
+    providers: [
+        MdDialogConfig,
+        WidgetsComponents,
+        AppService,
+        StudiesService,
+        QueuesService,
+        DevicesService,
+        ExportService,
+        DatePipe,
+        CalendarModule,
+        DropdownModule,
+        StorageCommitmentService,
+        CreateExporterService
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

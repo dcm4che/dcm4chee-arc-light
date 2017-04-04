@@ -1774,6 +1774,7 @@ table{
         -moz-box-shadow: 2px 2px 7px #999999;
         box-shadow: 2px 2px 7px #999999;
         z-index: 9999;
+        width: 100%;
         li{
           display: block;
           float: left;
@@ -2531,15 +2532,26 @@ table.j4care-table{
 	    border-radius: 0;
 	    height: 27px;
 	    padding-left: 7px;
+        margin: 15px 90% 15px 0;
 	}
 	.more {
 	    float: left;
- 		margin: 15px 90% 15px 0;
+ 		//margin: 15px 90% 15px 0;
  	    color: black;
  	    i{
  	    	padding-left:7px;
  	    }
+        &a:hover{
+          text-decoration: none;
+        }
 	}
+}
+.aes{
+  .devicelist_block{
+    .more {
+      margin: 15px 90% 15px 0;
+    }
+  }
 }
 .vex.vex-theme-os.registernewaet .vex-content bootstrap-decorator > .schema-form-array > label{
 	width:23.4% !important;
@@ -3523,6 +3535,9 @@ color:white;*/
 		    padding: 15px;
 		    float: left;
 		    width:100%;
+          &.exporter{
+            border-top:1px solid #ddd;
+          }
 		    h4 {
 			    background: rgba(6, 29, 47, 0.84);
 			    -moz-box-shadow: 1px 6px 6px -3px #a3a1a1;
@@ -3575,6 +3590,10 @@ color:white;*/
 				    margin-left: 10px;
 				    padding: 0 7px;
 				    width: 96%;
+                    border-color: #ccc;
+                    border-style: solid;
+                    border-width: 1px;
+                    background: white;
 			    }
 			}
 			.description{

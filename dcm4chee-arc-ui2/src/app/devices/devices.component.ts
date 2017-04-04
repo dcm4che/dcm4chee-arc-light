@@ -9,6 +9,7 @@ import {DevicesService} from "./devices.service";
 import {DeleteRejectedInstancesComponent} from "../widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component";
 import {CreateAeComponent} from "../widgets/dialogs/create-ae/create-ae.component";
 import {HostListener} from "@angular/core/src/metadata/directives";
+import {CreateExporterComponent} from "../widgets/dialogs/create-exporter/create-exporter.component";
 
 @Component({
   selector: 'app-devices',
@@ -39,10 +40,12 @@ export class DevicesComponent {
         start:0,
         loaderActive:false
     };
+    aes;
     dialogRef: MdDialogRef<any>;
 
     constructor(public $http: Http, public cfpLoadingBar:SlimLoadingBarService, public mainservice:AppService,public viewContainerRef: ViewContainerRef ,public dialog: MdDialog, public config: MdDialogConfig,public service:DevicesService) {
         this.getDevices();
+        this.getAes();
   }
 
 
@@ -207,7 +210,6 @@ export class DevicesComponent {
                                     });
                         },
                         (err) => {
-                            console.log("err",err);
                             $this.mainservice.setMessage({
                                 "title": "Error " + err.status,
                                 "text": err.statusText,
@@ -220,31 +222,99 @@ export class DevicesComponent {
             }
         });
     };
-
+    createExporter(){
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(CreateExporterComponent, {
+            height:'auto',
+            width:'90%'
+        });
+        let $this = this;
+        this.dialogRef.componentInstance.devices = this.devices;
+        this.dialogRef.componentInstance.aes = this.aes;
+        this.dialogRef.afterClosed().subscribe(re => {
+            console.log("re",re);
+            if(re && re.device && re.device.dicomDeviceName && re.exporter){
+                let headers = new Headers({ 'Content-Type': 'application/json' });
+                // console.log("newdevice",$this.service.appendExporterToDevice(re.device,re.exporter));
+                $this.$http.put("../devices/" + re.device.dicomDeviceName, $this.service.appendExporterToDevice(re.device,re.exporter), headers).subscribe(res => {
+                    $this.mainservice.setMessage({
+                        "title": "Info",
+                        "text": "The new exporter description appended successfully to the device: " + re.device.dicomDeviceName,
+                        "status": "info"
+                    });
+                    $this.$http.post("../ctrl/reload",{},headers).subscribe((res) => {
+                        $this.mainservice.setMessage({
+                            "title": "Info",
+                            "text": "Archive reloaded successfully!",
+                            "status": "info"
+                        });
+                    });
+                }, (err)=>{
+                    $this.mainservice.setMessage({
+                        "title": "Error " + err.status,
+                        "text": err.statusText,
+                        "status": "error"
+                    });
+                });
+            }
+        });
+    }
+    getAes(){
+        let $this = this;
+        if($this.mainservice.global && $this.mainservice.global.aes) {
+            this.aes = this.mainservice.global.aes;
+        }else{
+            this.$http.get(
+                '../aes'
+                // './assets/dummydata/aes.json'
+            )
+                .map(res=>res.json())
+                .subscribe((response) => {
+                    $this.aes = response;
+                    if($this.mainservice.global && !$this.mainservice.global.aes){
+                        let global = _.cloneDeep($this.mainservice.global);
+                        global.aes = response;
+                        $this.mainservice.setGlobal(global);
+                    }else{
+                        if($this.mainservice.global && $this.mainservice.global.aes){
+                            $this.mainservice.global.aes = response;
+                        }else{
+                            $this.mainservice.setGlobal({aes:response});
+                        }
+                    }
+                }, (response) => {
+                    // vex.dialog.alert("Error loading aes, please reload the page and try again!");
+                });
+        }
+    }
     getDevices(){
         let $this = this;
-        this.$http.get(
-            '../devices'
-            // './assets/dummydata/devices.json'
-        ).map(res => res.json())
-            .subscribe((response) => {
-                console.log("getdevices response",response);
-                console.log("global",$this.mainservice.global);
-                $this.devices = response;
-                if($this.mainservice.global && !$this.mainservice.global.devices){
-                    let global = _.cloneDeep($this.mainservice.global);//,...[{devices:response}]];
-                    global.devices = response;
-                    $this.mainservice.setGlobal(global);
-                }else{
-                    if($this.mainservice.global && $this.mainservice.global.devices){
-                        $this.mainservice.global.devices = response;
+        if(this.mainservice.global && this.mainservice.global.devices){
+            this.devices = this.mainservice.global.devices;
+        }else{
+            this.$http.get(
+                '../devices'
+                // './assets/dummydata/devices.json'
+            ).map(res => res.json())
+                .subscribe((response) => {
+                    console.log("getdevices response",response);
+                    console.log("global",$this.mainservice.global);
+                    $this.devices = response;
+                    if($this.mainservice.global && !$this.mainservice.global.devices){
+                        let global = _.cloneDeep($this.mainservice.global);//,...[{devices:response}]];
+                        global.devices = response;
+                        $this.mainservice.setGlobal(global);
                     }else{
-                        $this.mainservice.setGlobal({devices:response});
+                        if($this.mainservice.global && $this.mainservice.global.devices){
+                            $this.mainservice.global.devices = response;
+                        }else{
+                            $this.mainservice.setGlobal({devices:response});
+                        }
                     }
-                }
-            }, (err) => {
-                // vex.dialog.alert("Error loading device names, please reload the page and try again!");
-            });
+                }, (err) => {
+                    // vex.dialog.alert("Error loading device names, please reload the page and try again!");
+                });
+        }
     };
 
 }

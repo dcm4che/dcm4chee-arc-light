@@ -535,6 +535,12 @@ md-dialog-container{
   padding: .75em 2em;
 }
 .vex.vex-theme-os.registernewaet{
+  .exporter_block{
+    .block{
+      margin-top: 20px;
+      padding: 15px 0;
+    }
+  }
   .inputblock{
     float:left;
     width:100%;
@@ -551,7 +557,7 @@ md-dialog-container{
       margin-bottom: 0;
       padding-bottom: 0;
     }
-    input[type=text],input[type=number],textarea{
+    input[type=text],input[type=number],textarea, select{
       border-color: #ccc;
       border-style: solid;
       border-width: 1px;
@@ -560,6 +566,7 @@ md-dialog-container{
       margin-top: 3px;
       float: left;
       width: 24.2%;
+      background: white;
     }
     label.checkbox, .radio{
       margin-left: 26.3%;
