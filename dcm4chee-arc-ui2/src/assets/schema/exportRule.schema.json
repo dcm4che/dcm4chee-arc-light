@@ -1,0 +1,62 @@
+{
+  "title": "Export Rule",
+  "description": "Export Rule",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmEntity",
+    "dcmExporterID"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name of the Export Rule",
+      "type": "string"
+    },
+    "dcmEntity": {
+      "title": "Attribute Entity",
+      "description": "Entity of the Attribute Filter or Export Rule ('Patient', 'Study', 'Series', 'Instance', 'MPPS', 'MWL').",
+      "type": "string",
+      "enum": [
+        "Patient",
+        "Study",
+        "Series",
+        "Instance",
+        "MPPS",
+        "MWL"
+      ]
+    },
+    "dcmExporterID": {
+      "title": "Exporter ID",
+      "description": "Exporter ID",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmExportPreviousEntity": {
+      "title": "Export Previous Entity",
+      "description": "Specifies if the previous Entity of a replaced Instance shall be also exported. Disabled if absent.",
+      "type": "boolean"
+    },
+    "dcmProperty": {
+      "title": "Property",
+      "description": "Property in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmSchedule": {
+      "title": "Schedule",
+      "description": "Schedule Expression in format 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmDuration": {
+      "title": "Duration",
+      "description": "Duration in ISO-8601 duration format PnDTnHnMn.nS",
+      "type": "string"
+    }
+  }
+}

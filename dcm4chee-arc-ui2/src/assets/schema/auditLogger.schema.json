@@ -1,0 +1,197 @@
+{
+  "title": "Audit Logger",
+  "description": "Audit Logger related information",
+  "type": "object",
+  "required": [
+    "cn",
+    "dicomNetworkConnectionReference",
+    "dcmAuditRecordRepositoryDeviceReference"
+  ],
+  "properties": {
+    "dicomNetworkConnectionReference": {
+      "title": "Network Connection Reference",
+      "description": "The JSON Pointers to the Network Connection objects used by this Audit Logger",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmAuditRecordRepositoryDeviceName": {
+      "title": "Audit Record Repository Device Name",
+      "description": "Device Name of Audit Record Repository to which Audit Messages are sent",
+      "type": "string"
+    },
+    "dcmAuditSourceID": {
+      "title": "Source ID",
+      "description": "RFC 3881 Audit Source ID; device name if absent",
+      "type": "string"
+    },
+    "dcmAuditEnterpriseSiteID": {
+      "title": "Enterprise Site ID",
+      "description": "RFC 3881 Audit Enterprise Site ID; value 'dicomInstitutionName' is replaced by the institution name of the DICOM device",
+      "type": "string"
+    },
+    "dcmAuditSourceTypeCode": {
+      "title": "Source Type Code",
+      "description": "RFC 3881 Audit Source Type Code; value 'dicomPrimaryDeviceType' is replaced by the primary type of the DICOM device",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmAuditFacility": {
+      "title": "Syslog Facility",
+      "description": "RFC 5424 Syslog Facility string value of audit message; 'authpriv' if absent",
+      "type": "string",
+      "enum": [
+        "kern",
+        "user",
+        "mail",
+        "daemon",
+        "auth",
+        "syslog",
+        "lpr",
+        "news",
+        "uucp",
+        "cron",
+        "authpriv",
+        "ftp",
+        "ntp",
+        "audit",
+        "console",
+        "cron2",
+        "local0",
+        "local1",
+        "local2",
+        "local3",
+        "local4",
+        "local5",
+        "local6",
+        "local7"
+      ]
+    },
+    "dcmAuditSuccessSeverity": {
+      "title": "Syslog Severity - Success",
+      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 0 (Success); 'notice' if absent",
+      "type": "string",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditMinorFailureSeverity": {
+      "title": "Syslog Severity - Failure",
+      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 4 (Minor failure); 'warning' if absent",
+      "type": "string",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditSeriousFailureSeverity": {
+      "title": "Syslog Severity - Failure",
+      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 8 (Serious failure); 'err' if absent",
+      "type": "string",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditMajorFailureSeverity": {
+      "title": "Syslog Severity - Major",
+      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 12 (Major failure); 'crit' if absent",
+      "type": "string",
+      "enum": [
+        "emerg",
+        "alert",
+        "crit",
+        "err",
+        "warning",
+        "notice",
+        "info",
+        "debug"
+      ]
+    },
+    "dcmAuditApplicationName": {
+      "title": "Syslog Application Name",
+      "description": "RFC 5424 Syslog APP-NAME of audit message; Audit Source ID if absent",
+      "type": "string"
+    },
+    "dcmAuditMessageID": {
+      "title": "Syslog Message ID",
+      "description": "RFC 5424 Syslog MSGID of audit message; DICOM+RFC3881 if absent",
+      "type": "string"
+    },
+    "dcmAuditMessageEncoding": {
+      "title": "Message Encoding",
+      "description": "Character encoding of RFC 5424 Syslog MSG part of audit message; UTF-8 if absent",
+      "type": "string"
+    },
+    "dcmAuditMessageBOM": {
+      "title": "Message BOM",
+      "description": "Enable/disable Unicode BOM prefix of RFC 5424 Syslog MSG part of audit message; include BOM if absent",
+      "type": "boolean"
+    },
+    "dcmAuditTimestampInUTC": {
+      "title": "Timestamp in UTC",
+      "description": "Specify if RFC 5424 Syslog TIMESTAMP and the Event Date/Time of the audit message are specified in Coordinated Universal Time or in Local Time; use Local Time zone if absent",
+      "type": "boolean"
+    },
+    "dcmAuditMessageFormatXML": {
+      "title": "Message Format XML",
+      "description": "Specify whether or not the XML audit message is formatted with linefeeds and indentation; disabled if absent",
+      "type": "boolean"
+    },
+    "dcmAuditMessageSchemaURI": {
+      "title": "Message Schema URI",
+      "description": "URI of DICOM Audit Message Schema referenced in audit message",
+      "type": "string"
+    },
+    "dcmAuditIncludeInstanceUID": {
+      "title": "Include Instance UIDs",
+      "description": "Indicates if Audit Log Message should contain optional Instance UIDs",
+      "type": "boolean"
+    },
+    "dcmAuditLoggerSpoolDirectoryURI": {
+      "title": "Spool Directory URI",
+      "description": "URI of spool directory used to store messages which could not delivered to the record repository; use system temporary directory if absent",
+      "type": "string"
+    },
+    "dcmAuditLoggerRetryInterval": {
+      "title": "Retry Interval",
+      "description": "Retry interval in s to re-sent messages which could not delivered to the record repository; do no retry to re-sent messages if absent",
+      "type": "string"
+    },
+    "dicomInstalled": {
+      "title": "installed",
+      "description": "True if the Audit Logger is installed on network. If not present, information about the installed status of the Audit Logger is inherited from the device",
+      "type": "boolean"
+    },
+    "dcmAuditSuppressCriteria": {
+      "title": "Audit Suppress Criteria",
+      "description": "Audit Suppress Criteria",
+      "type": "array",
+      "items": {
+        "$ref": "auditSuppressCriteria.schema.json"
+      }
+    }
+  }
+}

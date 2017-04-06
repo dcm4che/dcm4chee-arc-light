@@ -1,5 +1,7 @@
 <div class="main_content deviceconfig">
-    device-configurator works!
-
-    <dynamic-form [formelements]="formObj"></dynamic-form>
+    <button (click)="deleteForm()">deleteform</button>
+    <button (click)="addModel()">addmodel</button>
+    <div *ngIf="formObj && showform">
+        <dynamic-form [formelements]="formObj" [model]="model" (submitFunction)="submitFunction($event)"></dynamic-form>
+    </div>
 </div>

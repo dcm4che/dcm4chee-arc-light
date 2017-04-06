@@ -1,0 +1,32 @@
+{
+  "title": "HL7 Forward Rule",
+  "description": "HL7 Forward Rule",
+  "type": "object",
+  "required": [
+    "cn",
+    "hl7FwdApplicationName"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name of the HL7 Forward Rule",
+      "type": "string"
+    },
+    "hl7FwdApplicationName": {
+      "title": "HL7 Forward Application Name",
+      "description": "HL7 Forward Destination Application and Facility name (Application^Facility)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmProperty": {
+      "title": "Property",
+      "description": "Property in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

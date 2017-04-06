@@ -1,0 +1,40 @@
+{
+  "title": "Study Retention Policy",
+  "description": "Study Retention Policy",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmRetentionPeriod"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name of the Study Retention Policy",
+      "type": "string"
+    },
+    "dcmRetentionPeriod": {
+      "title": "Study Retention Period",
+      "description": "Study Retention Period in ISO-8601 period format PnYnMnD or PnW",
+      "type": "string"
+    },
+    "dcmRulePriority": {
+      "title": "Rule Priority",
+      "description": "Rule Priority. 0 if absent.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "dcmProperty": {
+      "title": "Property",
+      "description": "Property in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmExpireSeriesIndividually": {
+      "title": "Expire Series Individually",
+      "description": "Indicates if series should be expired individually or not. If absent, it is false.",
+      "type": "boolean"
+    }
+  }
+}

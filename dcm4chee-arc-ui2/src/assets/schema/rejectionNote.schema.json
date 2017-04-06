@@ -1,0 +1,61 @@
+{
+  "title": "Rejection Note",
+  "description": "Specifies behavior on Rejection Note Stored",
+  "type": "object",
+  "required": [
+    "dcmRejectionNoteLabel",
+    "dcmRejectionNoteCode"
+  ],
+  "properties": {
+    "dcmRejectionNoteLabel": {
+      "title": "Rejection Note Label",
+      "description": "Rejection Note Label",
+      "type": "string"
+    },
+    "dcmRejectionNoteType": {
+      "title": "Rejection Note Type",
+      "description": "Type of Rejection Note. Enumerated values: REJECTED_FOR_QUALITY_REASONS, REJECTED_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY, DATA_RETENTION_POLICY_EXPIRED, REVOKE_REJECTION.",
+      "type": "string",
+      "enum": [
+        "REJECTED_FOR_QUALITY_REASONS",
+        "REJECTED_FOR_PATIENT_SAFETY_REASONS",
+        "INCORRECT_MODALITY_WORKLIST_ENTRY",
+        "DATA_RETENTION_POLICY_EXPIRED",
+        "REVOKE_REJECTION"
+      ]
+    },
+    "dcmRejectionNoteCode": {
+      "title": "Rejection Note Code",
+      "description": "Specifies Document Title of Rejection Note in format (CV, CSD, 'CM')",
+      "type": "string"
+    },
+    "dcmAcceptPreviousRejectedInstance": {
+      "title": "Accept Previous Rejected Instance",
+      "description": "Specifies behavior on subsequent occurrence of instances rejected by a particular Rejection Note. Enumerated values: REJECT, RESTORE, IGNORE. REJECT if absent.",
+      "type": "string",
+      "enum": [
+        "REJECT",
+        "RESTORE",
+        "IGNORE"
+      ]
+    },
+    "dcmOverwritePreviousRejection": {
+      "title": "Overwrite Previous Rejection",
+      "description": "Specifies Document Title of previous Rejection Note in format (CV, CSD, 'CM') which may be overwritten by that Rejection Note",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmDeleteRejectedInstanceDelay": {
+      "title": "Delete Rejected Instance Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which instances rejected by a particular Rejection Note are deleted. Infinite if absent.",
+      "type": "string"
+    },
+    "dcmDeleteRejectionNoteDelay": {
+      "title": "Delete Rejection Note Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which particular Rejection Notes are deleted. Infinite if absent.",
+      "type": "string"
+    }
+  }
+}

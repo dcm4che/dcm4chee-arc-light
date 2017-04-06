@@ -1,0 +1,35 @@
+{
+  "title": "Scheduled Station for HL7 Order",
+  "description": "Scheduled Station selected on MWL HL7 Order Feed",
+  "type": "object",
+  "required": [
+    "cn",
+    "hl7OrderScheduledStationDeviceName"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name for the Scheduled Station Order Mapping",
+      "type": "string"
+    },
+    "hl7OrderScheduledStationDeviceName": {
+      "title": "Scheduled Station Device Name",
+      "description": "Device Name of Scheduled Station",
+      "type": "string"
+    },
+    "dcmRulePriority": {
+      "title": "Mapping Priority",
+      "description": "Mapping Priority. 0 if absent.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "dcmProperty": {
+      "title": "Conditions",
+      "description": "Conditions in format {attributeID}[!]={regEx} or MSH-#[!]={regEx}",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

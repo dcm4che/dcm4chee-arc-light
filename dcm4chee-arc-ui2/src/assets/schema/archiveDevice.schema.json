@@ -1,0 +1,790 @@
+{
+  "title": "Archive Device",
+  "description": "DICOM Archive Device related information",
+  "type": "object",
+  "required": [
+    "dcmFuzzyAlgorithmClass",
+    "dcmStorageID",
+    "dcmQueryRetrieveViewID"
+  ],
+  "properties": {
+    "dcmFuzzyAlgorithmClass": {
+      "title": "Fuzzy Algorithm Class",
+      "description": "Specifies Fuzzy Algorithm Implementation Class: 'org.dcm4che3.soundex.Soundex', 'org.dcm4che3.soundex.ESoundex', 'org.dcm4che3.soundex.ESoundex9', 'org.dcm4che3.soundex.Metaphone', 'org.dcm4che3.soundex.KPhonetik', 'org.dcm4che3.soundex.Phonem",
+      "type": "string",
+      "enum":[
+      "org.dcm4che3.soundex.Soundex",
+      "org.dcm4che3.soundex.ESoundex",
+      "org.dcm4che3.soundex.ESoundex9",
+      "org.dcm4che3.soundex.Metaphone",
+      "org.dcm4che3.soundex.KPhonetik",
+      "org.dcm4che3.soundex.Phonem"
+      ]
+    },
+    "dcmStorageID": {
+      "title": "Storage ID",
+      "description": "Storage ID",
+      "type": "string"
+    },
+    "dcmMetadataStorageID": {
+      "title": "Metadata Storage ID",
+      "description": "ID of Storage on which Metadata is stored in JSON format - additionally to the complete DICOM composite object. If absent, metadata is not stored additionally",
+      "type": "string"
+    },
+    "dcmSeriesMetadataStorageID": {
+      "title": "Series Metadata Storage ID",
+      "description": "ID of Storage on which ZIP archives with aggregated Metadata of all instances of a Series is stored. If absent, no aggregated Series Metadata will be stored.",
+      "type": "string"
+    },
+    "dcmSeriesMetadataDelay": {
+      "title": "Aggregate Series Metadata Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for storing aggregated Series Metadata on storage. If absent, no aggregated Series Metadata will be stored.",
+      "type": "string"
+    },
+    "dcmSeriesMetadataPollingInterval": {
+      "title": "Update Series Metadata Polling Interval",
+      "description": "Polling Interval for Series scheduled for Metadata update in ISO-8601 duration format PnDTnHnMn.nS. If absent, no aggregated Series Metadata will be stored.",
+      "type": "string"
+    },
+    "dcmSeriesMetadataFetchSize": {
+      "title": "Update Series Metadata Fetch Size",
+      "description": "Maximal number of Series scheduled for Metadata update fetched by one query; 100 if absent.",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmPurgeInstanceRecordsDelay": {
+      "title": "Remove Instance Records Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB. If absent, Instance Records will never be purged.",
+      "type": "string"
+    },
+    "dcmPurgeInstanceRecordsPollingInterval": {
+      "title": "Remove Instance Records Polling Interval",
+      "description": "Polling Interval for Series scheduled for purging Instance Records from the DB in ISO-8601 duration format PnDTnHnMn.nS. If absent, Instance Records will not be purged.",
+      "type": "string"
+    },
+    "dcmPurgeInstanceRecordsFetchSize": {
+      "title": "Remove Instance Records Fetch Size",
+      "description": "Maximal number of Series scheduled for purging Instance Records from the DB fetched by one query; 100 if absent.",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmQueryRetrieveViewID": {
+      "title": "Query/Retrieve View ID",
+      "description": "Query/Retrieve View Identifier",
+      "type": "string"
+    },
+    "dcmOverwritePolicy": {
+      "title": "Overwrite Policy",
+      "description": "Overwrite Policy: NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES or SAME_SOURCE_AND_SERIES. NEVER if absent.",
+      "type": "string",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "SAME_SOURCE",
+        "SAME_SERIES",
+        "SAME_SOURCE_AND_SERIES"
+      ]
+    },
+    "dcmAcceptMissingPatientID": {
+      "title": "Accept Missing Patient ID",
+      "description": "Indicates if objects without Patient IDs shall be accepted and if a Patient ID shall be created. Enumerated values: YES, NO, CREATE. If absent, CREATE will be applied.",
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "CREATE"
+      ]
+    },
+    "dcmAcceptConflictingPatientID": {
+      "title": "Accept Conflicting Patient ID",
+      "description": "Indicates if objects with a Patient IDs which differs from the Patient ID in previous received objects of the Study shall be accepted. Enumerated values: YES, NO, MERGED(= accept prior Patient IDs). If absent, MERGED will be applied.",
+      "type": "string",
+      "enum": [
+        "YES",
+        "NO",
+        "MERGED"
+      ]
+    },
+    "dcmBulkDataSpoolDirectory": {
+      "title": "Bulk Data Spool Directory",
+      "description": "Path to Bulk Data Spool Directory",
+      "type": "string"
+    },
+    "dcmHideSPSWithStatusFromMWL": {
+      "title": "Hide SPS with Status",
+      "description": "Scheduled Procedure Step Status codes of MWL items which shall not be returned by the MWL SCP",
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "SCHEDULED",
+          "ARRIVED",
+          "READY",
+          "STARTED",
+          "DEPARTED",
+          "CANCELLED",
+          "DISCONTINUED",
+          "COMPLETED"
+        ]
+      }
+    },
+    "dcmValidateCallingAEHostname": {
+      "title": "Validate Calling AE Hostname",
+      "description": "Validate Calling AE Hostname or IP Address of Association requestors; disabled if absent",
+      "type": "boolean"
+    },
+    "dcmPersonNameComponentOrderInsensitiveMatching": {
+      "title": "Person Name Component Order Insensitive Matching",
+      "description": "Indicates if name component order insensitive matching is performed on fuzzy semantic matching of person names; disabled if absent",
+      "type": "boolean"
+    },
+    "dcmSendPendingCGet": {
+      "title": "Send Pending C-Get",
+      "description": "Enables pending C-GET responses; disabled if absent",
+      "type": "boolean"
+    },
+    "dcmSendPendingCMoveInterval": {
+      "title": "Send Pending C-Move Interval",
+      "description": "Interval of pending C-MOVE responses in ISO-8601 duration format PnDTnHnMn.nS; disabled if absent",
+      "type": "string"
+    },
+    "dcmWadoSupportedSRClasses": {
+      "title": "Wado Supported SR Classes",
+      "description": "Supported SR SOP classes for WADO retrieval",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmWadoSR2HtmlTemplateURI": {
+      "title": "Wado SR2 Html Template URI",
+      "description": "Specifies URI for the style sheet used to render structured reports to html",
+      "type": "string"
+    },
+    "dcmWadoSR2TextTemplateURI": {
+      "title": "Wado SR2 Text Template URI",
+      "description": "Specifies URI for the style sheet used to render structured reports to plain text",
+      "type": "string"
+    },
+    "dcmQidoMaxNumberOfResults": {
+      "title": "Qido Max Number Of Results",
+      "description": "Maximal number of return results by QIDO-RS Service. 0 (=unlimited) if absent",
+      "type": "integer",
+      "minimum": 0
+    },
+    "dcmFwdMppsDestination": {
+      "title": "Mpps Forward Destination",
+      "description": "Destination to forward MPPS N-CREATE RQ and N-SET RQ",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmIanDestination": {
+      "title": "Ian Destination",
+      "description": "Destination to send IAN N-CREATE RQ",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmIanDelay": {
+      "title": "IAN Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an IAN for a received study is sent to configured IAN destinations. If absent, IANs are triggered by received MPPS",
+      "type": "string"
+    },
+    "dcmIanTimeout": {
+      "title": "IAN Timeout",
+      "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent",
+      "type": "string"
+    },
+    "dcmIanOnTimeout": {
+      "title": "IAN On Timeout",
+      "description": "Specifies if the IAN is sent if the timeout for waiting on receive of instances referenced is exceeded; just stop check for completeness on timeout if absent",
+      "type": "boolean"
+    },
+    "dcmIanTaskPollingInterval": {
+      "title": "IAN Task Polling Interval",
+      "description": "Polling Interval for IAN Tasks in ISO-8601 duration format PnDTnHnMn.nS. IAN disabled, if absent",
+      "type": "string"
+    },
+    "dcmIanTaskFetchSize": {
+      "title": "IAN Task Fetch Size",
+      "description": "Maximal number of IAN Tasks scheduled in one transaction; 100 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmFallbackCMoveSCP": {
+      "title": "Fallback C-Move SCP",
+      "description": "AE Title of external C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not managed by this archive",
+      "type": "string"
+    },
+    "dcmFallbackCMoveSCPDestination": {
+      "title": "Fallback C-Move SCP Destination",
+      "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP",
+      "type": "string"
+    },
+    "dcmFallbackCMoveSCPStudyOlderThan": {
+      "title": "Fallback C-Move SCP Study Older Than",
+      "description": "Specifies threshold for Study Date in format YYYYMMDD for marking received Studies as (potential) incomplete to enforce the retrieve from configured dcmFallbackCMoveSCP",
+      "type": "string"
+    },
+    "dcmFallbackCMoveSCPLeadingCFindSCP": {
+      "title": "Fallback C-Move SCP Leading C-Find SCP",
+      "description": "AE Title of external C-FIND SCP for Verification of Number of Instances retrieved from external C-MOVE SCP specified by dcmFallbackCMoveSCP.",
+      "type": "string"
+    },
+    "dcmFallbackCMoveSCPRetries": {
+      "title": "Fallback C-Move SCP Retries",
+      "description": "Maximal number of retries to retrieve not available objects from C-MOVE SCP configured by dcmFallbackCMoveSCP. -1 = forever. 0 if absent",
+      "type": "integer"
+    },
+    "dcmAltCMoveSCP": {
+      "title": "Alternative C-Move SCP",
+      "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage",
+      "type": "string"
+    },
+    "dcmExportTaskPollingInterval": {
+      "title": "Export Task Polling Interval",
+      "description": "Export Task Polling Interval in ISO-8601 duration format PnDTnHnMn.nS",
+      "type": "string"
+    },
+    "dcmExportTaskFetchSize": {
+      "title": "Export Task Fetch Size",
+      "description": "Maximal number of Export Tasks scheduled in one transaction; 5 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmPurgeStoragePollingInterval": {
+      "title": "Purge Storage Polling Interval",
+      "description": "Polling Interval for deleting objects in ISO-8601 duration format PnDTnHnMn.nS",
+      "type": "string"
+    },
+    "dcmPurgeStorageFetchSize": {
+      "title": "Purge Storage Fetch Size",
+      "description": "Maximal number of objects to delete in one task; 100 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmDeleteStudyBatchSize": {
+      "title": "Delete Study Batch Size",
+      "description": "number of studies to delete from the Storage System, if the usable space fall below configured Usable Space, before checking the usable space again; 10 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmDeletePatientOnDeleteLastStudy": {
+      "title": "Delete Patient On Delete Last Study",
+      "description": "Specifies if a Patient shall be deleted on deletion of its last study; disabled if absent.",
+      "type": "boolean"
+    },
+    "dcmDeleteRejectedPollingInterval": {
+      "title": "Delete Rejected Polling Interval",
+      "description": "Polling Interval for deleting rejected instances from the DB in ISO-8601 duration format PnDTnHnMn.nS",
+      "type": "string"
+    },
+    "dcmDeleteRejectedFetchSize": {
+      "title": "Delete Rejected Fetch Size",
+      "description": "Maximal number of rejected instances to delete from the DB in one task; 100 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmMaxAccessTimeStaleness": {
+      "title": "Maximum Access Time Staleness",
+      "description": "Maximal staleness of recorded study accession time in ISO-8601 duration format PnDTnHnMn.nS. update of the access time disabled, if absent.",
+      "type": "string"
+    },
+    "dcmAECacheStaleTimeout": {
+      "title": "AE Cache Stale Timeout",
+      "description": "Maximal staleness of cached AE in ISO-8601 duration format PnDTnHnMn.nS. If absent, cached AE entries will not be refetched from LDAP.",
+      "type": "string"
+    },
+    "dcmLeadingCFindSCPQueryCacheStaleTimeout": {
+      "title": "Leading C-Find SCP Query Cache Stale Timeout",
+      "description": "Maximal staleness of cached Patient and Study attributes fetched from leading C-Find SCP in ISO-8601 duration format PnDTnHnMn.nS. If absent, cache Study attributes are only removed on reaching the maximal cache size.",
+      "type": "string"
+    },
+    "dcmLeadingCFindSCPQueryCacheSize": {
+      "title": "Leading C-Find SCP Query Cache Size",
+      "description": "Maximum number of cached Patient and Study attributes fetched from leading C-Find SCP; 10 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmAuditSpoolDirectory": {
+      "title": "Audit Spool Directory",
+      "description": "Path to Audit Service Spool Directory used to aggregate Audit Messages. If absent, audit messages written to temporary location in server",
+      "type": "string"
+    },
+    "dcmAuditPollingInterval": {
+      "title": "Audit Polling Interval",
+      "description": "Polling Interval for aggregating Audit Messages in ISO-8601 duration format PnDTnHnMn.nS. Audit Message aggregation disabled, if absent.",
+      "type": "string"
+    },
+    "dcmAuditAggregateDuration": {
+      "title": "Audit Aggregate Duration",
+      "description": "Audit Message Aggregation Duration in ISO-8601 duration format PnDTnHnMn.nS. Audit Message aggregation disabled, if absent.",
+      "type": "string"
+    },
+    "dcmAuditUnknownStudyInstanceUID": {
+      "title": "Audit Unknown Study Instance UID",
+      "description": "Indicates study instance uid value to be sent in audit message when not known. If absent, '1.2.40.0.13.1.15.110.3.165.1' will be applied.",
+      "type": "string"
+    },
+    "dcmAuditUnknownPatientID": {
+      "title": "Audit Unknown Patient ID",
+      "description": "Indicates patient id value to be sent in audit message when not known. If absent, '<none>' will be applied.",
+      "type": "string"
+    },
+    "dcmShowPatientInfoInSystemLog": {
+      "title": "Show Patient Info In System Log",
+      "description": "Specifies if Patient Information is shown as plain text or hashed in system logs. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID. PLAIN_TEXT if absent.",
+      "type": "string",
+      "enum": [
+        "PLAIN_TEXT",
+        "HASH_NAME",
+        "HASH_NAME_AND_ID"
+      ]
+    },
+    "dcmShowPatientInfoInAuditLog": {
+      "title": "Show Patient Info In Audit Log",
+      "description": "Specifies if Patient Information is shown as plain text or hashed in emitted audit messages. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID. PLAIN_TEXT if absent.",
+      "type": "string",
+      "enum": [
+        "PLAIN_TEXT",
+        "HASH_NAME",
+        "HASH_NAME_AND_ID"
+      ]
+    },
+    "dcmStowSpoolDirectory": {
+      "title": "STOW-RS Spool Directory",
+      "description": "Path to Directory used by STOW-RS Service to spool Bulkdata of XML/JSON Metadata and Bulk Data Request Messages.",
+      "type": "string"
+    },
+    "hl7PatientUpdateTemplateURI": {
+      "title": "HL7 Patient Update Template URI",
+      "description": "Specifies URI for the style sheet used by HL7v2 Patient Update Service.",
+      "type": "string"
+    },
+    "hl7ImportReportTemplateURI": {
+      "title": "HL7 Import Report Template URI",
+      "description": "Specifies URI for the style sheet to transcode received HL7 ORU^R01 to DICOM SR.",
+      "type": "string"
+    },
+    "hl7ScheduleProcedureTemplateURI": {
+      "title": "HL7 Schedule Procedure Template URI",
+      "description": "Specifies URI for the style sheet to transcode received HL7 ORM^O01, OMI^O23, OMG^O19 to DICOM MWL items.",
+      "type": "string"
+    },
+    "hl7ScheduledProtocolCodeInOrder": {
+      "title": "HL7 Schedule Protocol Code in Order",
+      "description": "Specifies location of Scheduled Protocol Code in received HL7 Order message. Enumerated values: OBR_4_1, OBR_4_4. If absent, OBR_4_4 will be applied.",
+      "type": "string",
+      "enum": [
+        "OBR_4_1",
+        "OBR_4_4"
+      ]
+    },
+    "hl7ScheduledStationAETInOrder": {
+      "title": "HL7 Schedule Station AET in Order",
+      "description": "Specifies location of Scheduled Station AE Title in received HL7 Order message. Enumerated values: ORC_18. Not effective for HL7 v2.5.1 OMI^O23 with IPC segment. If absent or no value is provided in the configured field, the Scheduled Station AE Title is selected according configured rules.",
+      "type": "string",
+      "enum": [
+        "ORC_18"
+      ]
+    },
+    "hl7LogFilePattern": {
+      "title": "HL7 Log File Pattern",
+      "description": "Path to HL7 messages which will be captured exactly as received. If absent, there is no logging.",
+      "type": "string"
+    },
+    "hl7ErrorLogFilePattern": {
+      "title": "HL7 Error Log File Pattern",
+      "description": "Path to HL7 messages which will be captured exactly as received, when processing of HL7 messages fails. If absent, there is no logging.",
+      "type": "string"
+    },
+    "dcmUnzipVendorDataToURI": {
+      "title": "Unzip Vendor Data To URI",
+      "description": "Specifies URI of directory into which ZIP stream in Device Vendor Data attribute will be extracted",
+      "type": "string"
+    },
+    "dcmPurgeQueueMessagePollingInterval": {
+      "title": "Purge Queue Messages Polling Interval",
+      "description": "Polling Interval for purging queue messages in ISO-8601 duration format PnDTnHnMn.nS. If absent, there is no deletion",
+      "type": "string"
+    },
+    "dcmWadoSpoolDirectory": {
+      "title": "Wado-RS Spool Directory",
+      "description": "Path to Wado-RS spool directory used to aggregate uncompressed frames. If absent, aggregation done in temp directory.",
+      "type": "string"
+    },
+    "dcmRejectExpiredStudiesPollingInterval": {
+      "title": "Reject Expired Studies Polling Interval",
+      "description": "Polling Interval for rejecting expired Studies and Series in ISO-8601 duration format PnDTnHnMn.nS. If absent, neither expired Studies nor Series will be rejected automatically",
+      "type": "string"
+    },
+    "dcmRejectExpiredStudiesPollingStartTime": {
+      "title": "Reject Expired Studies Polling Start Time",
+      "description": "Time when the polling interval for rejecting expired Studies and Series starts in ISO-8601 time format [hh][mm][ss]. Archive start time if absent.",
+      "type": "string"
+    },
+    "dcmRejectExpiredStudiesFetchSize": {
+      "title": "Reject Expired Studies Fetch Size",
+      "description": "Maximal number of expired Studies fetched in one query; If absent, expired Studies will not be rejected automatically",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmRejectExpiredSeriesFetchSize": {
+      "title": "Reject Expired Series Fetch Size",
+      "description": "Maximal number of expired Series fetched in one query; If absent, expired Series will not be rejected automatically",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmRejectExpiredStudiesAETitle": {
+      "title": "Reject Expired Studies AE Title",
+      "description": "AE Title of Local Application Entity performing the automatic rejection of expired Studies and Series. If absent, neither expired Studies nor Series will be rejected automatically.",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceURL": {
+      "title": "Store Permission Service URL",
+      "description": "URL of Store Permission Service which will be invoked on receive of the first object of a study. {<dicomTag>} will be replaced by the value of the attribute in the object. E.g. http://host.name/storage-permission/study/{0020000D}?patientId={00100020}&patientIdIssuer={00100021}&studyDescription={00081030}",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceResponsePattern": {
+      "title": "Store Permission Service Response Pattern",
+      "description": "Regular Expression applied to responses from Store Permission Service to determine agreement for storage. E.g. \"validation\"\\s*:\\s*\"true\" . If absent, every success response will be treated as agreement for storage.",
+      "type": "string"
+    },
+    "dcmStorePermissionCacheStaleTimeout": {
+      "title": "Store Permission Cache Stale Timeout",
+      "description": "Maximal staleness of cached responses from Storage Permission Service in ISO-8601 duration format PnDTnHnMn.nS. If absent, cached responses are only removed on reaching the maximal cache size.",
+      "type": "string"
+    },
+    "dcmStorePermissionCacheSize": {
+      "title": "Store Permission Cache Size",
+      "description": "Maximum number of cached responses from Storage Permission Service; 10 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmMergeMWLCacheStaleTimeout": {
+      "title": "Merge MWL Cache Stale Timeout",
+      "description": "Maximal staleness of Request Attributes extracted from matching DICOM MWL items in ISO-8601 duration format PnDTnHnMn.nS. If absent, cached Request Attributes are only removed on reaching the maximal cache size.",
+      "type": "string"
+    },
+    "dcmMergeMWLCacheSize": {
+      "title": "Merge MWL Cache Size",
+      "description": "Maximum number of cached Request Attributes extracted from matching DICOM MWL items; 10 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "dcmStoreUpdateDBMaxRetries": {
+      "title": "Store Update DB Maximum Number of Retries",
+      "description": "Maximum number of retries to update the database on storage; 1 if absent",
+      "type": "integer",
+      "minimum": 0
+    },
+    "dcmStoreUpdateDBMaxRetryDelay": {
+      "title": "Store Update DB Maximum Delay of Retry",
+      "description": "Maximum delay in ms of retry to update the database on storage; 1000 if absent",
+      "type": "integer",
+      "minimum": 0
+    },
+    "dcmAllowRejectionForDataRetentionPolicyExpired": {
+      "title": "Allow Rejection For Data Retention Policy Expired",
+      "description": "Allow Rejection For Data Retention Policy Expired : NEVER, ALWAYS, STUDY_RETENTION_POLICY. If absent, STUDY_RETENTION_POLICY will be applied.",
+      "type": "string",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "STUDY_RETENTION_POLICY"
+      ]
+    },
+    "dcmAllowDeleteStudyPermanently": {
+      "title": "Allow Delete Study permanently",
+      "description": "Allow to delete Study permanently. Enumerated values: ALWAYS, REJECTED (= only already rejected Studies). If absent, REJECTED will be applied.",
+      "type": "string",
+      "enum": [
+        "ALWAYS",
+        "REJECTED"
+      ]
+    },
+    "dcmStorePermissionServiceExpirationDatePattern": {
+      "title": "Store Permission Service Expiration Date Pattern",
+      "description": "Regular Expression applied to responses from Store Permission Service to extract the initial Study Expiration Date. E.g. \"expirationdate\"\\s*:\\s*\"([0-9]{8})\". If absent, locally configured Study Retention Policy Rules will be applied.",
+      "type": "string"
+    },
+    "dcmPurgeStgCmtCompletedDelay": {
+      "title": "Purge Storage Commitment Completed Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which results of completed Storage Commitment requests are purged. If absent, there is no deletion.",
+      "type": "string"
+    },
+    "dcmPurgeStgCmtPollingInterval": {
+      "title": "Purge Storage Commitment Polling Interval",
+      "description": "Polling Interval for purging Storage Commitment Results in ISO-8601 duration format PnDTnHnMn.nS. If absent, there is no deletion",
+      "type": "string"
+    },
+    "dcmDefaultCharacterSet": {
+      "title": "Default Character Set",
+      "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by the Network AE.",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceErrorCommentPattern": {
+      "title": "Store Permission Service Error Comment Pattern",
+      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Comment. E.g. \"errorcomment\"\\s*:\\s*\"(.*)\". If absent, the Error Comment will be \"Storage denied\".",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceErrorCodePattern": {
+      "title": "Store Permission Service Error Code Pattern",
+      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Code in hexadecimal. E.g. \"errorcode\"\\s*:\\s*\"(\\p{XDigit}{4})\". If absent, the Error Code will be 0124H (Not Authorized).",
+      "type": "string"
+    },
+    "dcmRetrieveAET": {
+      "title": "Retrieve AE Title",
+      "description": "AE Title associated with Network AE",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmExternalRetrieveAEDestination": {
+      "title": "External Retrieve AE Destination",
+      "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE.",
+      "type": "string"
+    },
+    "dcmXDSiImagingDocumentSourceAETitle": {
+      "title": "XDS-I Imaging Document Source AE Title",
+      "description": "AE Title of local Application Entity associated with XDS-I Imaging Document Source.",
+      "type": "string"
+    },
+    "dcmAttributeFilter": {
+      "title": "Attribute Filter",
+      "description": "Specifies Attributes stored in the database",
+      "type": "array",
+      "items" : {
+        "$ref": "attributeFilter.schema.json"
+      }
+    },
+    "dcmMetadataFilter": {
+      "title": "Metadata Filter",
+      "description": "Named Attribute Filter for WADO-RS Metadata requests.",
+      "type": "array",
+      "items" : {
+        "$ref": "metadataFilter.schema.json"
+      }
+    },
+    "dcmRemapRetrieveURL": {
+      "title": "Remap Retrieve URL",
+      "description": "Remap Retrieve URL used in QIDO-RS and WADO-RS Metadata responses. Optionally prefixed with \"[<http-client-host>]\". E.g.: \"[cache-proxy]http://cache-proxy:8080\". If absent or if the specified <http-client-host> does not match, scheme and server authority of the QIDO-RS or WADO-RS request URL are used.",
+      "type": "string"
+    },
+    "dcmAuditRecordRepositoryURL": {
+      "title": "Audit Record Repository URL",
+      "description": "Access URL of Audit Record Repository. E.g. http://kibana:5601",
+      "type": "string"
+    },
+    "dcmInvokeImageDisplayPatientURL": {
+      "title": "Invoke Image Display Patient URL",
+      "description": "URL to launch external Image Display for a Patient. {} will be replaced by the Patient ID formatted as HL7 CX data type. E.g.: http://display:8080/IHEInvokeImageDisplay?requestType=PATIENT&patientID={}",
+      "type": "string"
+    },
+    "dcmInvokeImageDisplayStudyURL": {
+      "title": "Invoke Image Display Study URL",
+      "description": "URL to launch external Image Display for a Study. {} will be replaced by the Study Instance UID. E.g.: http://display:8080/IHEInvokeImageDisplay?requestType=STUDY&studyUID={}",
+      "type": "string"
+    },
+    "dcmCopyMoveUpdatePolicy": {
+      "title": "Copy Move Update Policy",
+      "description": "Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. Enumerated values: SUPPLEMENT, OVERWRITE, MERGED, REPLACE. If absent, the attributes will not be updated.",
+      "type": "string",
+      "enum": [
+        "SUPPLEMENT",
+        "OVERWRITE",
+        "MERGED",
+        "REPLACE"
+      ]
+    },
+    "hl7ADTSendingApplication": {
+      "title": "HL7 ADT Sending Application",
+      "description": "Application|Facility name of Sending Application for HL7 ADT messages to synchronize external systems about performed Patient Information updates. If absent, synchronization of external systems by HL7 ADT messages is disabled.",
+      "type": "string"
+    },
+    "hl7ADTReceivingApplication": {
+      "title": "HL7 ADT Receiving Application",
+      "description": "Application|Facility name of Receiving Application for HL7 ADT messages to synchronize external systems about performed Patient Information updates. If absent, synchronization of external systems by HL7 ADT messages is disabled.",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "hl7PSUSendingApplication": {
+      "title": "HL7 Procedure Status Update Sending Application",
+      "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. HL7 Procedure Status Update disabled, if absent.",
+      "type": "string"
+    },
+    "hl7PSUReceivingApplication": {
+      "title": "HL7 Procedure Status Update Receiving Application",
+      "description": "Application|Facility name of Receiving Application for HL7 Procedure Status Update.",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "hl7PSUDelay": {
+      "title": "HL7 Procedure Status Update Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an HL7 Procedure Status Update for a received study is sent to configured HL7 receivers. If absent, HL7 Procedure Status Update is triggered by received MPPS.",
+      "type": "string"
+    },
+    "hl7PSUMWL": {
+      "title": "HL7 Procedure Status Update MWL",
+      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay. Disabled, if absent.",
+      "type": "boolean"
+    },
+    "hl7PSUTimeout": {
+      "title": "HL7 Procedure Status Update Timeout",
+      "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent.",
+      "type": "string"
+    },
+    "hl7PSUOnTimeout": {
+      "title": "HL7 Procedure Status Update On Timeout",
+      "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded; just stop check for completeness on timeout if absent.",
+      "type": "boolean"
+    },
+    "hl7PSUTaskPollingInterval": {
+      "title": "HL7 Procedure Status Update Task Polling Interval",
+      "description": "Polling Interval for HL7 Procedure Status Update Tasks in ISO-8601 duration format PnDTnHnMn.nS. Disabled, if absent.",
+      "type": "string"
+    },
+    "hl7PSUTaskFetchSize": {
+      "title": "HL7 Procedure Status Update Tasks Fetch Size",
+      "description": "Maximal number of HL7 Procedure Status Update Tasks fetched in one query; 100 if absent",
+      "type": "integer",
+      "minimum": 0,
+      "exclusiveMinimum": true
+    },
+    "hl7TrackChangedPatientID": {
+      "title": "HL7 Track Changed Patient ID",
+      "description": "Enable to keep track of the prior Patient ID on a change of the Patient ID by HL7 ADT^A47 or by the RESTful Patient Update Service. Enabled if absent.",
+      "type": "boolean"
+    },
+    "dcmStorage": {
+      "title": "Storage Descriptor",
+      "description": "Specifies Storage System",
+      "type": "array",
+      "items" : {
+        "$ref": "storage.schema.json"
+      }
+    },
+    "dcmQueryRetrieveView": {
+      "title": "Query Retrieve View",
+      "description": "Specifies behavior on Rejection Note Stored",
+      "type": "array",
+      "items" : {
+        "$ref": "queryRetrieveView.schema.json"
+      }
+    },
+    "dcmQueue": {
+      "title": "Queue",
+      "description": "Managed JMS Queue",
+      "type": "array",
+      "items" : {
+        "$ref": "queue.schema.json"
+      }
+    },
+    "dcmExporter": {
+      "title": "Exporter Descriptor",
+      "description": "Exporter Descriptor",
+      "type": "array",
+      "items" : {
+        "$ref": "exporter.schema.json"
+      }
+    },
+    "dcmExportRule": {
+      "title": "Export Rule",
+      "description": "Export Rule",
+      "type": "array",
+      "items" : {
+        "$ref": "exportRule.schema.json"
+      }
+    },
+    "dcmRSForwardRule": {
+      "title": "RESTful Forward Rule",
+      "description": "RESTful Forward Rule",
+      "type": "array",
+      "items" : {
+        "$ref": "rsForwardRule.schema.json"
+      }
+    },
+    "dcmArchiveCompressionRule": {
+      "title": "Archive Compression rule",
+      "description": "Archive Compression rule",
+      "type": "array",
+      "items" : {
+        "$ref": "archiveCompressionRule.schema.json"
+      }
+    },
+    "dcmArchiveAttributeCoercion": {
+      "title": "Archive Attribute Coercion",
+      "description": "Archive Attribute Coercion of received/sent DIMSE",
+      "type": "array",
+      "items" : {
+        "$ref": "archiveAttributeCoercion.schema.json"
+      }
+    },
+    "dcmRejectionNote": {
+      "title": "Rejection Note",
+      "description": "Specifies behavior on Rejection Note Stored",
+      "type": "array",
+      "items" : {
+        "$ref": "rejectionNote.schema.json"
+      }
+    },
+    "dcmStudyRetentionPolicy": {
+      "title": "Study Retention Policy",
+      "description": "Study Retention Policy",
+      "type": "array",
+      "items" : {
+        "$ref": "studyRetentionPolicy.schema.json"
+      }
+    },
+    "dcmStoreAccessControlIDRule": {
+      "title": "Store Access Control Rules",
+      "description": "Store Access Control Rules applied to Studies received by any AE",
+      "type": "array",
+      "items" : {
+        "$ref": "storeAccessControlIDRule.schema.json"
+      }
+    },
+    "dcmIDGenerator": {
+      "title": "ID Generator",
+      "description": "ID Generator",
+      "type": "array",
+      "items" : {
+        "$ref": "idGenerator.schema.json"
+      }
+    },
+    "hl7ForwardRule": {
+      "title": "HL7 Forward Rule",
+      "description": "HL7 Forward Rule",
+      "type": "array",
+      "items" : {
+        "$ref": "hl7ForwardRule.schema.json"
+      }
+    },
+    "hl7OrderScheduledStation": {
+      "title": "Scheduled Station for HL7 Order",
+      "description": "Scheduled Station selected on MWL HL7 Order Feed",
+      "type": "array",
+      "items" : {
+        "$ref": "hl7OrderScheduledStation.schema.json"
+      }
+    },
+    "hl7OrderSPSStatus": {
+      "title": "SPS Status for HL7 Order",
+      "description": "Specifies SPS Status of DICOM MWL items created/updated on received HL7 ORM^O01, OMI^O23, OMG^O19 messages",
+      "type": "array",
+      "items" : {
+        "$ref": "hl7OrderSPSStatus.schema.json"
+      }
+    }
+  }
+}

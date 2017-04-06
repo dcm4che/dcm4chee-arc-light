@@ -33,7 +33,16 @@
             </div>
             <div (click)="addArrayElement(formelement.value, form.controls[formelement.key].controls, form)">add</div>
         </div>
-        <span class="description">{{formelement.description}}</span>
+        <div *ngSwitchCase="'button'">
+            <a class="btn btn-default" [routerLink]="[formelement.url]" title="{{formelement.description}}">{{formelement.title}}</a>
+        </div>
+        <div *ngSwitchCase="'buttondropdown'">
+            <select (change)="navigateTo($event.target.value)">
+                <option [value]="">-</option>
+                <option *ngFor="let opt of formelement.options" [value]="opt.url">{{opt.title}}</option>
+            </select>
+        </div>
+        <span *ngIf="formelement.controlType != 'button'" class="description">{{formelement.description}}</span>
     </div>
     <!--<div class="errorMessage" *ngIf="formelement.controlType != 'array' && !isValid">{{formelement.label}} is required</div>-->
 </div>

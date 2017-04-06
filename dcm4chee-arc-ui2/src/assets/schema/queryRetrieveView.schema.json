@@ -1,0 +1,36 @@
+{
+  "title": "Query Retrieve View",
+  "description": "Specifies behavior on Rejection Note Stored",
+  "type": "object",
+  "required": [
+    "dcmQueryRetrieveViewID"
+  ],
+  "properties": {
+    "dcmQueryRetrieveViewID": {
+      "title": "Query/Retrieve View ID",
+      "description": "Query/Retrieve View Identifier",
+      "type": "string"
+    },
+    "dcmShowInstancesRejectedByCode": {
+      "title": "Show Instances Rejected By Code",
+      "description": "Indicates if the Q/R Services shall show instances rejected by the specified code in format (CV, CSD, 'CM'')",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmHideRejectionNoteWithCode": {
+      "title": "Hide Rejection Note With Code",
+      "description": "Indicates if the Q/R Services shall hide Rejection Notes with the specified code in format (CV, CSD, 'CM'')",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmHideNotRejectedInstances": {
+      "title": "Hide Not Rejected Instances",
+      "description": "Indicates if the Q/R Services shall hide instances not rejected by any reason; disabled if absent",
+      "type": "boolean"
+    }
+  }
+}

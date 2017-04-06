@@ -11,60 +11,6 @@ export class FormService{
     constructor(private _fb:FormBuilder){}
 
     toFormGroup(formelements:FormElement<any>[]){
-        // let group:any = {};
-        //
-        // formelements.forEach(element => {
-        //     console.log("+element",element);
-        //     if(element.controlType === "array"){
-        //         let arr:FormGroup[] = [];
-        //         let locobj = {};
-        //         element["options"].forEach((option:any) => {
-        //             console.log("option=",option);
-        //             option["element"].forEach((e:any) =>{
-        //                 console.log("e",e);
-        //                 locobj[e.key] = e.value || ''
-        //             });
-        //             arr.push(new FormGroup(this.getFormControlObject(locobj)));
-        //         });
-        //
-        //         group[element.key] = new FormArray(arr);
-        //         ////////////////////Test v
-        //         // let testobj = {};
-        //         // let testobj2 = {};
-        //         // let testarr:any[] = [];
-        //         // // testobj["testkey"] = new FormControl("");
-        //         // // testobj["testke2y"] = new FormControl("");
-        //         //
-        //         // // testobj = {
-        //         // //     "testkey":new FormControl(""),
-        //         // //     "testke2y":new FormControl("")
-        //         // // }
-        //         // let keyarr:any = {};
-        //         // keyarr["testkey"] = "value1";
-        //         // keyarr["testke2y"] = "value2";
-        //         // // testobj2 = {
-        //         // //     "testkey":new FormControl(""),
-        //         // //     "testke2y":new FormControl("")
-        //         // // }
-        //         // testarr.push(new FormGroup({
-        //         //         "testkey":new FormControl(""),
-        //         //         "testke2y":new FormControl("")
-        //         //     }));
-        //         // // testarr.push(new FormGroup(this.getFormControlObject(keyarr)));
-        //         //
-        //         // // group['arraytest']= new FormArray([new FormGroup({"testkey":new FormControl("")})]);
-        //         // group['arraytest']= this._fb.array([this._fb.group({
-        //         //     "testkey":"",
-        //         //     "testke2y":""
-        //         // })])
-        //     }else{
-        //         group[element.key] = element.required ? new FormControl(element.value || '', Validators.required)
-        //                                             : new FormControl(element.value || '');
-        //     }
-        //
-        //
-        // });
-        // console.log("group",group);
         return new FormGroup(this.convertFormElement(formelements));
     }
     private convertFormElement(formelements:FormElement<any>[]){
@@ -125,10 +71,14 @@ export class FormService{
                     // group[element.key] = new FormArray([new FormControl("")]);
 
                     console.log("checkboxArr",checkboxArr);
-                    group[element.key] = new FormArray(checkboxArr);
+                    // if(checkboxArr.length === 0){
+                    //     group[element.key] = new FormArray([new FormControl("")]);
+                    // }else{
+                        group[element.key] = new FormArray(checkboxArr);
                     break;
 
                 default:
+                    console.log("............ defual element",element);
                     group[element.key] = element.required ? new FormControl(element.value || '', Validators.required)
                         : new FormControl(element.value || '');
             }

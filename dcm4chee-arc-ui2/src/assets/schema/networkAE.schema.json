@@ -1,0 +1,122 @@
+{
+  "title": "Network AE",
+  "description": "Application entity that provides services on a network",
+  "type": "object",
+  "required": [
+    "dicomAETitle",
+    "dicomNetworkConnectionReference",
+    "dicomAssociationInitiator",
+    "dicomAssociationAcceptor"
+  ],
+  "properties": {
+    "dicomAETitle": {
+      "title": "AE Title",
+      "description": "Unique AE title for this Network AE",
+      "type": "string"
+    },
+    "dicomNetworkConnectionReference": {
+      "title": "Network Connection Reference",
+      "description": "JSON Pointers to the Network Connection objects for this AE",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomAssociationInitiator": {
+      "title": "Association Initiator",
+      "description": "True if the Network AE can initiate associations, false otherwise",
+      "type": "boolean"
+    },
+    "dicomAssociationAcceptor": {
+      "title": "Association Acceptor",
+      "description": "True if the Network AE can accept associations, false otherwise",
+      "type": "boolean"
+    },
+    "dicomDescription": {
+      "title": "AE Description",
+      "description": "Unconstrained text description of the application entity",
+      "type": "string"
+    },
+    "dicomApplicationCluster": {
+      "title": "Application Cluster",
+      "description": "Locally defined names for a subset of related applications",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomPreferredCalledAETitle": {
+      "title": "Preferred Called AE Title",
+      "description": "AE Title(s) that are preferred for initiating associations",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomPreferredCallingAETitle": {
+      "title": "Preferred Calling AE Title",
+      "description": "AE Title(s) that are preferred for accepting associations",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomSupportedCharacterSet": {
+      "title": "Supported Character Set",
+      "description": "Character Set(s) supported by the Network AE for data sets it receives",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dicomInstalled": {
+      "title": "installed",
+      "description": "True if the AE is installed on network. If not present, information about the installed status of the AE is inherited from the device",
+      "type": "boolean"
+    },
+    "dicomTransferCapability": {
+      "title": "Transfer Capabilities",
+      "description": "transfer capabilities provided by the application entity",
+      "type": "array",
+      "items": {
+        "$ref": "transferCapability.schema.json"
+      }
+    },
+    "dcmNetworkAE": {
+      "title": "dcm4che Network AE Attributes",
+      "description": "dcm4che proprietary Attributes of Network AE",
+      "type": "object",
+      "properties": {
+        "dcmAcceptedCallingAETitle": {
+          "title": "Accepted Calling AE Title",
+          "description": "Prohibit accepting associations from unlisted AE. If not present, any AE will be accepted",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dcmOtherAETitle": {
+          "title": "Other AE Title",
+          "description": "Additional AE Title of Network AE - will also accept Association RQs with such Called AE Title",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dcmMasqueradeCallingAETitle": {
+          "title": "Masquerade Calling AE Title",
+          "description": "AE Title used for initiating network associations, masquerading the actual AE Title for this Network AE - optional prefix [<Called AE Title>] limits the masquerading to association to a particular AE Title",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "dcmArchiveNetworkAE": {
+      "title": "Archive Network AE",
+      "description": "DICOM Archive Network AE related information",
+      "$ref": "archiveNetworkAE.schema.json"
+    }
+  }
+}

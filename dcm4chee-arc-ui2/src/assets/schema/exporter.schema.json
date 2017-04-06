@@ -1,0 +1,82 @@
+{
+  "title": "Exporter Descriptor",
+  "description": "Exporter Descriptor",
+  "type": "object",
+  "required": [
+    "dcmExporterID",
+    "dcmURI",
+    "dcmQueueName"
+  ],
+  "properties": {
+    "dcmExporterID": {
+      "title": "Exporter ID",
+      "description": "Exporter ID",
+      "type": "string"
+    },
+    "dcmURI": {
+      "title": "URI",
+      "description": "RFC2079: Uniform Resource Identifier",
+      "type": "string"
+    },
+    "dcmQueueName": {
+      "title": "Queue Name",
+      "description": "JMS Queue Name",
+      "type": "string"
+    },
+    "dicomDescription": {
+      "title": "Exporter Description",
+      "description": "Unconstrained text description of the exporter",
+      "type": "string"
+    },
+    "dicomAETitle": {
+      "title": "Application Entity (AE) title",
+      "description": "Application Entity (AE) title",
+      "type": "string"
+    },
+    "dcmStgCmtSCP": {
+      "title": "Storage Commitment SCP AE Title",
+      "description": "AE Title of external Storage Commitment SCP used to verify export to another archive.",
+      "type": "string"
+    },
+    "dcmIanDestination": {
+      "title": "Ian Destination",
+      "description": "Destination to send IAN N-CREATE RQ",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
+    "dcmRetrieveAET": {
+      "title": "Retrieve AE Title",
+      "description": "AE Title associated with Network AE",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmRetrieveLocationUID": {
+      "title": "Retrieve Location UID",
+      "description": "Retrieve Location UID.",
+      "type": "string"
+    },
+    "dcmInstanceAvailability": {
+      "title": "Instance Availability",
+      "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE. ONLINE if absent.",
+      "type": "string"
+    },
+    "dcmSchedule": {
+      "title": "Schedule",
+      "description": "Schedule Expression in format 'hour=[0-23] dayOfWeek=[0-6]' (0=Sunday)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmProperty": {
+      "title": "Property",
+      "description": "Property in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "title": "Archive Attribute Coercion",
+  "description": "Archive Attribute Coercion of received/sent DIMSE",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmDIMSE",
+    "dicomTransferRole"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name of the Archive Compression Rule",
+      "type": "string"
+    },
+    "dcmDIMSE": {
+      "title": "DIMSE",
+      "description": "DIMSE: 'C_STORE_RQ', 'C_FIND_RQ', 'C_FIND_RSP'",
+      "type": "string",
+      "enum": [
+        "C_STORE_RQ",
+        "C_FIND_RQ",
+        "C_FIND_RSP"
+      ]
+    },
+    "dicomTransferRole": {
+      "title": "DICOM Transfer Role",
+      "description": "Transfer role (either 'SCU' or 'SCP')",
+      "type": "string"
+    },
+    "dcmRulePriority": {
+      "title": "Rule Priority",
+      "description": "Rule Priority. 0 if absent.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "dcmAETitle": {
+      "title": "AE Title",
+      "description": "Application Entity (AE) title",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmHostname": {
+      "title": "Host Name",
+      "description": "DNS hostname",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmSOPClass": {
+      "title": "SOP Class UID",
+      "description": "A SOP Class UID",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmURI": {
+      "title": "URI",
+      "description": "Specifies URI of the style sheet for Attribute Coercion",
+      "type": "string"
+    },
+    "dcmNoKeywords": {
+      "title": "No Keywords",
+      "description": "Indicates if keywords shall be omitted in generated DICOM XML or JSON presentations; false if absent",
+      "type": "boolean"
+    },
+    "dcmMergeMWLMatchingKey": {
+      "title": "Merge MWL Matching Key",
+      "description": "Specifies attribute of received object to lookup MWL Item used to coerce request attributes. Enumerated values: AccessionNumber, StudyInstanceUID, ScheduledProcedureStepID. If absent, request attributes of received objects will not be coerced.",
+      "type": "string",
+      "enum": [
+        "AccessionNumber",
+        "StudyInstanceUID",
+        "ScheduledProcedureStepID"
+      ]
+    },
+    "dcmMergeMWLTemplateURI": {
+      "title": "Merge MWL Template URI",
+      "description": "Specifies URI for the style sheet to coerce request attributes of received objects from matching DICOM MWL items. Only effectiv, if dcmMergeMWLMatchingKey is specified.",
+      "type": "string"
+    },
+    "dcmLeadingCFindSCP": {
+      "title": "Leading C-FIND SCP",
+      "description": "AE Title of external C-FIND SCP for Attribute Coercion with Patient and Study attributes fetched from this AE.",
+      "type": "string"
+    },
+    "dcmAttributeUpdatePolicy": {
+      "title": "Attribute Update Policy",
+      "description": "Specifies how attributes shall be updated with attributes fetched from Leading C-FIND SCP. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE. If absent, MERGE will be applied.",
+      "type": "string",
+      "enum": [
+        "SUPPLEMENT",
+        "MERGE",
+        "OVERWRITE"
+      ]
+    }
+  }
+}

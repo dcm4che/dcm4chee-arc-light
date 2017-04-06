@@ -1,0 +1,44 @@
+{
+  "title": "RESTful Forward Rule",
+  "description": "RESTful Forward Rule",
+  "type": "object",
+  "required": [
+    "cn",
+    "dcmURI"
+  ],
+  "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name of the RESTful Forward Rule",
+      "type": "string"
+    },
+    "dcmURI": {
+      "title": "Target Base URL",
+      "description": "Target URL without operation specific part: http://<host>:<port>/dcm4chee-arc/aets/<aet>/rs/.",
+      "type": "string"
+    },
+    "dcmRSOperation": {
+      "title": "RESTful Operation",
+      "description": "Name of RESTful Operation which shall be forwarded to another archive instance. The value can be one of the following : 'CreatePatient', 'UpdatePatient', 'DeletePatient', 'UpdateStudy', 'DeleteStudy', 'CopyInstances', 'MoveInstances', 'RejectStudy', 'RejectSeries', 'RejectInstance', 'UpdateStudyExpirationDate', 'UpdateSeriesExpirationDate'",
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "CreatePatient",
+          "UpdatePatient",
+          "DeletePatient",
+          "UpdateStudy",
+          "DeleteStudy",
+          "CopyInstances",
+          "MoveInstances",
+          "RejectStudy",
+          "RejectSeries",
+          "RejectInstance",
+          "UpdateStudyExpirationDate",
+          "UpdateSeriesExpirationDate"
+        ]
+
+      }
+    }
+  }
+}

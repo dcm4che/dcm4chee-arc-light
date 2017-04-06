@@ -1,0 +1,57 @@
+{
+  "title": "Storage",
+  "description": "Storage Descriptor",
+  "type": "object",
+  "required": [
+    "dcmStorageID",
+    "dcmURI"
+  ],
+  "properties": {
+    "dcmStorageID": {
+      "title": "Storage ID",
+      "description": "Storage ID",
+      "type": "string"
+    },
+    "dcmURI": {
+      "title": "Storage URI",
+      "description": "RFC2079: Uniform Resource Identifier",
+      "type": "string"
+    },
+    "dcmDigestAlgorithm": {
+      "title": "Digest Algorithm",
+      "description": "Algorithm for generation of check sums: 'MD5' or 'SHA-1'",
+      "type": "string"
+    },
+    "dcmInstanceAvailability": {
+      "title": "Instance Availability",
+      "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE. ONLINE if absent.",
+      "type": "string"
+    },
+    "dcmReadOnly": {
+      "title": "Read Only",
+      "description": "Indicates if a Storage System is read only; false if absent.",
+      "type": "boolean"
+    },
+    "dcmDeleterThreshold": {
+      "title": "Deleter Threshold",
+      "description": "Minimal Usable Space on Storage System. If present, studies are deleted from the Storage System, if the usable space fall below that value. Format [nn'['<schedule>']']nnn(MB|GB|MiB|GiB)",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmProperty": {
+      "title": "Storage Property",
+      "description": "Property in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmExternalRetrieveAET": {
+      "title": "External Retrieve AET",
+      "description": "Constrain deletion of Studies, whose objects are retrievable using this AE from an external C-MOVE SCP, if usable space falls below configured threshold.",
+      "type": "string"
+    }
+  }
+}

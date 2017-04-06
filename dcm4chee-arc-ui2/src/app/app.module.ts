@@ -57,6 +57,7 @@ import {StorageCommitmentService} from "./monitoring/storage-commitment/storage-
 import { ConnectionFormaterComponent } from './helpers/connection-formater/connection-formater.component';
 import { AeListComponent } from './ae-list/ae-list.component';
 import {CreateExporterService} from "./widgets/dialogs/create-exporter/create-exporter.service";
+import {DeviceConfiguratorService} from "./device-configurator/device-configurator.service";
 
 @NgModule({
     declarations: [
@@ -126,6 +127,8 @@ import {CreateExporterService} from "./widgets/dialogs/create-exporter/create-ex
             { path: 'device/devicelist', component: DevicesComponent },
             { path: 'device/aelist', component: AeListComponent },
             { path: 'device/edit/:device', component: DeviceConfiguratorComponent },
+            { path: 'device/edit/:device/:devicereff', component: DeviceConfiguratorComponent },
+            { path: 'device/edit/:device/:devicereff/:schema', component: DeviceConfiguratorComponent },
             { path: '**', component: PageNotFoundComponent }
       ],
             { useHash: true })
@@ -143,7 +146,8 @@ import {CreateExporterService} from "./widgets/dialogs/create-exporter/create-ex
         CalendarModule,
         DropdownModule,
         StorageCommitmentService,
-        CreateExporterService
+        CreateExporterService,
+        DeviceConfiguratorService
     ],
     bootstrap: [AppComponent]
 })

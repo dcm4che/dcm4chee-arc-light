@@ -7,6 +7,7 @@ import {DynamicFormComponent} from "./dynamic-form.component";
 import {FormService} from "../../helpers/form/form.service";
 import {FormElement} from "../../helpers/form/form-element";
 import * as _ from "lodash";
+import {Router} from "@angular/router";
 
 @Component({
     selector:'df-element',
@@ -18,7 +19,7 @@ export class DynamicFormElementComponent{
     @Input() formelements:FormElement<any>[];
     @Input() form:FormGroup;
 
-    constructor(private formservice:FormService, private formcomp:DynamicFormComponent, dcl: ComponentFactoryResolver, elementRef: ElementRef){
+    constructor(private formservice:FormService, private formcomp:DynamicFormComponent, dcl: ComponentFactoryResolver, elementRef: ElementRef, private router:Router){
         // dcl.resolveComponentFactory(DynamicFormComponent);
     }
     get isValid(){
@@ -79,6 +80,12 @@ export class DynamicFormElementComponent{
         }else{
             console.log("findeindex",_.indexOf(form.controls[formelement.key].value,e.target.defaultValue));
             form.controls[formelement.key].value.splice(_.indexOf(form.controls[formelement.key].value,e.target.defaultValue),1);
+        }
+    }
+    navigateTo(e){
+        console.log("NAVIGATE TO",e);
+        if(e != '-'){
+            this.router.navigateByUrl(e);
         }
     }
 }
