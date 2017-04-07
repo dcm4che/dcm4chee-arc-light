@@ -1,6 +1,15 @@
 <div class="main_content deviceconfig">
-    <button (click)="deleteForm()">deleteform</button>
-    <button (click)="addModel()">addmodel</button>
+    <pre>
+        params:{{params|json}}
+    </pre>
+    <div class="pagination">
+        <span *ngFor="let pagination of params;let i = index">
+            <a *ngIf="i!=(params.length-1)" routerLink="{{pagination.url}}" >{{pagination.title}} <span *ngIf="!(i == 0)"> / </span></a>
+            <span *ngIf="i == (params.length-1)"> {{pagination.title}}</span>
+        </span>
+    </div>
+<!--    <button (click)="deleteForm()">deleteform</button>
+    <button (click)="addModel()">addmodel</button>-->
     <div *ngIf="formObj && showform">
         <dynamic-form [formelements]="formObj" [model]="model" (submitFunction)="submitFunction($event)"></dynamic-form>
     </div>

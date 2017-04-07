@@ -7,24 +7,67 @@ import {Checkbox} from "../helpers/form/checkboxes";
 import {ArrayElement} from "../helpers/form/array-element";
 import {ArrayObject} from "../helpers/form/array-object";
 import {DropdownList} from "../helpers/form/dropdown-list";
+import {Observable} from "rxjs";
 
 @Injectable()
 export class DeviceConfiguratorService {
 
     constructor(private $http:Http) { }
     device;
+    schema;
+    pagination = [
+        {
+            url:"/device/devicelist",
+            title:"devicelist",
+            devicereff:undefined
+        }
+    ];
     getDevice(devicename){
         return this.$http.get('../devices/' + devicename).map(device => device.json());
     }
     getSchema(schema){
         return this.$http.get('./assets/schema/' + schema).map(device => device.json());
-    }
+    };
+    getSchemaFromPath(schema, schemaparam){
+
+        console.log("?schema",schema);
+        console.log("?schemaparam",schemaparam);
+        let paramArray = schemaparam.split('.');
+        let currentschemaposition = _.cloneDeep(schema);
+        let parentkey;
+        let parentSchema;
+        _.forEach(paramArray,(m)=>{
+            if(!_.hasIn(currentschemaposition,m)){
+                console.log("currentschemaposition",currentschemaposition);
+                console.log("m",m);
+            }else{
+                parentkey = m;
+                parentSchema = currentschemaposition;
+                currentschemaposition = currentschemaposition[m];
+            }
+        });
+        console.log("end currentschemaposition",currentschemaposition);
+        console.log("end parentSchema",parentSchema);
+        console.log("end parentkey",parentkey);
+
+        return currentschemaposition;
+    };
     convertSchemaToForm(device, schema, params){
         let $this = this;
         let form = [];
+        console.log("in convertschema ",schema);
         if(_.hasIn(schema,"type")){
-            if(schema.type === "object" && _.hasIn(schema,"properties")){
-                _.forEach(schema.properties,(m,i)=>{
+            if((schema.type === "object" && _.hasIn(schema,"properties")) || (schema.type === "array" && _.hasIn(schema,"items.properties"))){
+                let schemaProperties;
+                let propertiesPath = "properties";
+                if(_.hasIn(schema,"properties")){
+                    schemaProperties = schema.properties;
+
+                }else{
+                    schemaProperties = schema.items.properties;
+                    propertiesPath = "items.properties";
+                }
+                _.forEach(schemaProperties,(m,i)=>{
                     console.log("i",i);
                     console.log("m",m);
                     let value;
@@ -108,8 +151,7 @@ export class DeviceConfiguratorService {
                                             console.log("vali",vali);*/
                                             url = '/device/edit/'+params.device;
                                             url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
-                                            url = url +  ((params.schema) ? '/'+params.schema+'.'+i:'/'+i);
-                                            console.log("url",url);
+                                            url = url +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
                                             options.push({
                                                 title:m.title+'.'+vali,
                                                 description:m.description,
@@ -124,8 +166,7 @@ export class DeviceConfiguratorService {
                                     }else{
 
                                         url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i:'/'+i);
-                                        url = url +  ((params.schema) ? '/'+params.schema+'.'+i:'/'+i);
-                                        console.log("url",url);
+                                        url = url +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
                                         form.push({
                                             controlType:"button",
                                             title:m.title,
@@ -175,29 +216,29 @@ export class DeviceConfiguratorService {
                                 url:url
                             });*/
                             let url = '/device/edit/'+params.device;
-                            if(value && _.isObject(value)){
-                                    let options = [];
-                                _.forEach(value,(valm, vali)=>{
- /*                                   console.log("valm",valm);
-                                    console.log("vali",vali);*/
-                                    url = '/device/edit/'+params.device;
-                                    url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
-                                    url = url +  ((params.schema) ? '/'+params.schema+'.'+i:'/'+i);
-                                    console.log("url",url);
-                                    options.push({
-                                        title:m.title+'.'+vali,
-                                        description:m.description,
-                                        key:i,
-                                        url:url
-                                    })
-                                });
-                                form.push({
-                                    controlType:"buttondropdown",
-                                    options:options
-                                });
-                            }else{
+ //                            if(value && _.isObject(value)){
+ //                                    let options = [];
+ //                                _.forEach(value,(valm, vali)=>{
+ // /*                                   console.log("valm",valm);
+ //                                    console.log("vali",vali);*/
+ //                                    url = '/device/edit/'+params.device;
+ //                                    url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
+ //                                    url = url +  ((params.schema) ? '/'+params.schema+'.properties.'+i:'/properties.'+i);
+ //                                    console.log("url",url);
+ //                                    options.push({
+ //                                        title:m.title+'.'+vali,
+ //                                        description:m.description,
+ //                                        key:i,
+ //                                        url:url
+ //                                    })
+ //                                });
+ //                                form.push({
+ //                                    controlType:"buttondropdown",
+ //                                    options:options
+ //                                });
+ //                            }else{
                                 url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i:'/'+i);
-                                url = url +  ((params.schema) ? '/'+params.schema+'.'+i:'/'+i);
+                                url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
                                 console.log("url",url);
                                 form.push({
                                     controlType:"button",
@@ -206,13 +247,15 @@ export class DeviceConfiguratorService {
                                     key:i,
                                     url:url
                                 });
-                            }
+                            // }
                     }
                 });
+            }else{
+                console.error("in else1",schema);
             }
         }else{
             //TODO
-            console.log("In else convert schema to form",schema);
+            console.error("In else convert schema to form",schema);
         }
         return form;
     }

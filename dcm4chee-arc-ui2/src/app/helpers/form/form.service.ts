@@ -63,14 +63,12 @@ export class FormService{
                     let checkboxSingleElementValues:FormControl[] = [];
                     let checkboxArr = [];
                     element["options"].forEach((option: any) => {
-                        console.log("check option",option.value);
                         if(option.active){
                             checkboxArr.push(new FormControl(option.value));
                         }
                     });
                     // group[element.key] = new FormArray([new FormControl("")]);
 
-                    console.log("checkboxArr",checkboxArr);
                     // if(checkboxArr.length === 0){
                     //     group[element.key] = new FormArray([new FormControl("")]);
                     // }else{
@@ -78,7 +76,6 @@ export class FormService{
                     break;
 
                 default:
-                    console.log("............ defual element",element);
                     group[element.key] = element.required ? new FormControl(element.value || '', Validators.required)
                         : new FormControl(element.value || '');
             }
@@ -94,7 +91,6 @@ export class FormService{
                 if(Array.isArray(keys[key])){
                     // retobj[key];
                     let tmpArr:FormControl[] = [];
-                    console.log("+++++++keys[key]",keys[key]);
                     keys[key].forEach((kayvalue:any) => {
                         // retobj[key] = retobj[key] || [];
                         tmpArr.push(new FormControl(kayvalue));
