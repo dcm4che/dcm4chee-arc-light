@@ -37,12 +37,14 @@
             <a class="btn btn-default" [routerLink]="[formelement.url]" title="{{formelement.description}}">{{formelement.title}}</a>
         </div>
         <div *ngSwitchCase="'buttondropdown'">
+            <label title="{{formelement.description}}">{{formelement.title}}</label>
             <select (change)="navigateTo($event.target.value)">
                 <option [value]="">-</option>
                 <option *ngFor="let opt of formelement.options" [value]="opt.url">{{opt.title}}</option>
             </select>
+            <a class="btn btn-default" [routerLink]="[formelement.addUrl]" title="{{formelement.description}}">Add</a>
         </div>
-        <span *ngIf="formelement.controlType != 'button'" class="description">{{formelement.description}}</span>
+        <span class="description">{{formelement.description}}</span>
     </div>
     <!--<div class="errorMessage" *ngIf="formelement.controlType != 'array' && !isValid">{{formelement.label}} is required</div>-->
 </div>

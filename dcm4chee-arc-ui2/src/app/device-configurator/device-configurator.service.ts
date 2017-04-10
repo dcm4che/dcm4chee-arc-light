@@ -52,6 +52,33 @@ export class DeviceConfiguratorService {
 
         return currentschemaposition;
     };
+    replaceCharactersInTitleKey(string, object){
+        console.log("object",object);
+        console.log("string",string);
+            let re = /{(.*?)}/g;
+            let m;
+            let array = [];
+            do {
+            m = re.exec(string);
+            if (m) {
+                console.log("m",m);
+                console.log(m[1], m[2]);
+                if(m[1]){
+                    array.push(m[1]);
+                }
+            }
+        } while (m);
+        _.forEach(array,(i)=>{
+            if(_.hasIn(object,i)){
+               string = _.replace(string,'{'+i+'}',object[i]);
+            }else{
+                string = _.replace(string,'{'+i+'}',"");
+            }
+        })
+        console.log("array",array);
+        console.log("string",string);
+        return string || '';
+    }
     convertSchemaToForm(device, schema, params){
         let $this = this;
         let form = [];
@@ -142,26 +169,40 @@ export class DeviceConfiguratorService {
                             }else{
                                 console.log("m",m);
                                 console.log("in array case button",value);
+
                                 let url = '/device/edit/'+params.device;
                                 if(_.hasIn(m,"items.$ref")) {
                                     if(value && _.isObject(value)){
                                         let options = [];
                                         _.forEach(value,(valm, vali)=>{
-  /*                                          console.log("valm",valm);
-                                            console.log("vali",vali);*/
-                                            url = '/device/edit/'+params.device;
+                                            console.log("valm",valm);
+                                            console.log("vali",vali);
+                                            let title;
+                                            // $this.replaceCharactersInTitleKey(m.titleKey,valm);
                                             url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
                                             url = url +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
+                                            if(_.hasIn(m,"titleKey")){
+                                                title = $this.replaceCharactersInTitleKey(m.titleKey,valm);
+                                            }else{
+                                               title = m.title + '['+vali+']';
+                                            }
                                             options.push({
-                                                title:m.title+'.'+vali,
+                                                title:title,
                                                 description:m.description,
                                                 key:i,
                                                 url:url
                                             })
                                         });
+                                        console.log("optionlength",options);
+                                        url = '/device/edit/'+params.device;
+                                        url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+0+']':'/'+i+'['+0+']');
+                                        url = url +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
                                         form.push({
                                             controlType:"buttondropdown",
-                                            options:options
+                                            title:m.title,
+                                            description:m.description,
+                                            options:options,
+                                            addUrl:url
                                         });
                                     }else{
 
@@ -176,17 +217,50 @@ export class DeviceConfiguratorService {
                                         });
                                     }
                                 }else{
-                                    let type = (_.hasIn(m,"items.type")) ? m.items.type : "text";
-                                    form.push(
-                                        new ArrayElement({
-                                            key:i,
-                                            label:m.title,
+                                    console.log("m",m);
+                                    console.log("************ in array value",value);
+                                    console.log("propertiesPath",propertiesPath);
+                                    if(value && _.isObject(value) && (value.length > 0 && _.isObject(value[0]))){
+                                        let options = [];
+                                        _.forEach(value,(valm, vali)=>{
+                                            console.log("valm",valm);
+                                            console.log("vali",vali);
+                                            let title;
+                                            // $this.replaceCharactersInTitleKey(m.titleKey,valm);
+                                            url = '/device/edit/'+params.device;
+                                            url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
+                                            url = url +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
+                                            if(_.hasIn(m,"titleKey")){
+                                                title = $this.replaceCharactersInTitleKey(m.titleKey,valm);
+                                            }else{
+                                                title = m.title + '['+vali+']';
+                                            }
+                                            options.push({
+                                                title:title,
+                                                description:m.description,
+                                                key:i,
+                                                url:url
+                                            })
+                                        });
+                                        form.push({
+                                            controlType:"buttondropdown",
+                                            title:m.title,
                                             description:m.description,
-                                            type: type,
-                                            value:(value)? value:['']
-
-                                }),
-                                    );
+                                            options:options
+                                        });
+                                    }else{
+                                        console.log("in else....",m);
+                                        let type = (_.hasIn(m,"items.type")) ? m.items.type : "text";
+                                        form.push(
+                                            new ArrayElement({
+                                                key:i,
+                                                label:m.title,
+                                                description:m.description,
+                                                type: type,
+                                                value:(value)? value:['']
+                                            })
+                                        );
+                                    }
                                 }
                             }
                             break;

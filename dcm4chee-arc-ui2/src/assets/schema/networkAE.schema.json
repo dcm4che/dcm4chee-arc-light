@@ -78,6 +78,7 @@
       "title": "Transfer Capabilities",
       "description": "transfer capabilities provided by the application entity",
       "type": "array",
+      "titleKey":"{cn}",
       "items": {
         "$ref": "transferCapability.schema.json"
       }

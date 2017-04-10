@@ -23,6 +23,7 @@ export class DeviceConfiguratorComponent implements OnInit {
     schema;
     showform;
     params = [];
+    recentParams;
     submitValue;
     constructor(
         private route: ActivatedRoute,
@@ -38,7 +39,17 @@ export class DeviceConfiguratorComponent implements OnInit {
 
     }
     submitFunction(value){
+        console.log("this.service.device",this.service.device);
+        console.log("this.recentParams",this.recentParams);
+        console.log("this.shema",this.schema);
+        console.log("this.model",this.model);
+        console.log("this.service.schema",this.service.schema);
+        console.log("this.service.schema with refference",_.get(this.service.schema,this.recentParams.schema));
+        console.log("this.service.pagination",this.service.pagination);
         console.log("submitfunction in deviceconfig",value);
+        // _.assign(_.get(this.service.device,this.recentParams.devicereff), value);
+        _.setWith(this.service.device, this.recentParams.devicereff, value);
+        console.log("this.service.device",this.service.device);
     }
     ngOnInit() {
         let $this = this;
@@ -46,7 +57,7 @@ export class DeviceConfiguratorComponent implements OnInit {
         this.route.params
             // .switchMap((params: Params) => this.service.getHero(+params['id']))
             .subscribe((params) => {
-
+                $this.recentParams = params;
 
                 console.log("params",params);
                 console.log("dev beforegetting",$this.device);
@@ -55,22 +66,27 @@ export class DeviceConfiguratorComponent implements OnInit {
                 // $this.service.getSchema('device.schema.json').subscribe(schema => {
 /*                $this.formObj = undefined;
                 $this.model = undefined;*/
-                if(!(_.hasIn(params,"devicereff") && _.hasIn(params,"schema")) && !$this.service.schema){
+                if(!(_.hasIn(params,"devicereff") && _.hasIn(params,"schema")) || !$this.service.schema){
+                    console.log("*************in first if");
                     $this.service.pagination.push({
                         url:"/device/edit/"+params["device"],
                         title:params["device"],
                         devicereff:"",
                     });
-                    if(this.device && params['device'] === this.device.dicomDeviceName && this.schema) {
+                    console.log("afterpagination");
+                    if($this.service.device && params['device'] === $this.service.device.dicomDeviceName && $this.service.schema) {
+                        console.log("*************in first if2");
                         $this.deleteForm();
                         $this.showform = false;
-                        $this.model = $this.device
-                        let form = $this.service.convertSchemaToForm({},this.schema, params);
+                        $this.model = $this.service.device;
+                        let form =  $this.service.convertSchemaToForm($this.service.device, $this.service.schema, params);
                         $this.formObj = form;
                         setTimeout(()=>{
                             $this.showform = true;
                         },1);
                     }else{
+                        console.log("*************in else0.1");
+
                         Observable.combineLatest(
                             $this.service.getDevice(params['device']),
                             $this.$http.get('./assets/schema/device.schema.json').map(data => data.json())
@@ -92,6 +108,8 @@ export class DeviceConfiguratorComponent implements OnInit {
                         });
                     }
                 }else{
+                    console.log("*************in else1");
+
                     let lastreff = $this.service.pagination[$this.service.pagination.length-1].devicereff;
                     console.log("lastreff",lastreff);
                     let newTitle = params["devicereff"];
@@ -178,6 +196,7 @@ export class DeviceConfiguratorComponent implements OnInit {
                             },1);
                         });
                     }else{
+                        console.log("*************in else3");
                         form = $this.service.convertSchemaToForm($this.model,newSchema, params);
                         console.log("form after value setelse",form);
                         _.set($this.service.schema,params["schema"],newSchema);
