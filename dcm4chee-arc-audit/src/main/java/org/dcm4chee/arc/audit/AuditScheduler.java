@@ -105,8 +105,8 @@ public class AuditScheduler extends Scheduler {
         for (AuditLogger logger : ext.getAuditLoggers()) {
             Path dir = Paths.get(StringUtils.replaceSystemProperties(
                     auditSpoolDir + "/" + logger.getCommonName().replaceAll(" ", "_")));
-            if (!Files.isDirectory(dir))
-                return;
+            if (!Files.isDirectory(dir) || !logger.isInstalled())
+                continue;
 
             final long maxLastModifiedTime = System.currentTimeMillis() - duration.getSeconds() * 1000L;
             ArrayList<Path> pathList = new ArrayList<>();
