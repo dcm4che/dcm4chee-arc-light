@@ -23,6 +23,7 @@ import javax.jms.MessageListener;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2015
  */
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
@@ -82,6 +83,6 @@ public class ExportManagerMDB implements MessageListener {
     }
 
     private ExporterDescriptor getExporterDescriptor(String exporterID) {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getExporterDescriptorNotNull(exporterID);
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).getExporterDescriptor(exporterID);
     }
 }
