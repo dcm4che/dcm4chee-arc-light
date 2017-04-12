@@ -143,6 +143,7 @@ export class QueuesComponent {
                 match.properties.status = 'CANCELED';
                 $this.cfpLoadingBar.complete();
             },(err)=>{
+                $this.cfpLoadingBar.complete();
                 $this.mainservice.setMessage({
                     "title": "Error " + err.status,
                     "text": err.statusText,
@@ -158,6 +159,7 @@ export class QueuesComponent {
                 $this.search(0);
                 $this.cfpLoadingBar.complete();
             },(err)=>{
+                $this.cfpLoadingBar.complete();
                 $this.mainservice.setMessage({
                     "title": "Error " + err.status,
                     "text": err.statusText,
@@ -180,6 +182,7 @@ export class QueuesComponent {
                 });
             }
         },(err)=>{
+            $this.cfpLoadingBar.complete();
             $this.mainservice.setMessage({
                 "title": "Error " + err.status,
                 "text": err.statusText,
@@ -225,6 +228,7 @@ export class QueuesComponent {
                         $this.search(0);
                         $this.cfpLoadingBar.complete();
                     },(err)=>{
+                        $this.cfpLoadingBar.complete();
                         $this.mainservice.setMessage({
                             "title": "Error " + err.status,
                             "text": err.statusText,

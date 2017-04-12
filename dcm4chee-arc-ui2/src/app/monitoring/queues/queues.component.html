@@ -129,11 +129,11 @@
                     <td [innerHtml]="match.properties.queue"></td>
                     <td [innerHtml]="match.properties.status" title="{{match.properties.outcomeMessage}}"></td>
                     <td [innerHtml]="match.properties.failures" title="{{match.properties.errorMessage}}"></td>
-                    <td [innerHtml]="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-                    <td [innerHtml]="match.properties.updatedTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-                    <td [innerHtml]="match.properties.scheduledTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-                    <td [innerHtml]="match.properties.processingStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-                    <td [innerHtml]="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                    <td [innerHtml]="match.properties.createdTime | utc | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                    <td [innerHtml]="match.properties.updatedTime | utc | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                    <td [innerHtml]="match.properties.scheduledTime | utc | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                    <td [innerHtml]="match.properties.processingStartTime | utc | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                    <td [innerHtml]="match.properties.processingEndTime | utc | date:'yyyy-MM-dd HH:mm:ss'"></td>
                 </tr>
                 <tr *ngIf="match.showProperties">
                     <td colspan="8">
