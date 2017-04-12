@@ -48,7 +48,11 @@ export class DeviceConfiguratorComponent implements OnInit {
         console.log("this.service.pagination",this.service.pagination);
         console.log("submitfunction in deviceconfig",value);
         // _.assign(_.get(this.service.device,this.recentParams.devicereff), value);
-        _.setWith(this.service.device, this.recentParams.devicereff, value);
+        if(this.recentParams.devicereff){
+            _.setWith(this.service.device, this.recentParams.devicereff, value);
+        }else{
+            _.assign(this.service.device, value);
+        }
         console.log("this.service.device",this.service.device);
     }
     ngOnInit() {
@@ -68,11 +72,19 @@ export class DeviceConfiguratorComponent implements OnInit {
                 $this.model = undefined;*/
                 if(!(_.hasIn(params,"devicereff") && _.hasIn(params,"schema")) || !$this.service.schema){
                     console.log("*************in first if");
-                    $this.service.pagination.push({
+                    let newPaginationObject = {
                         url:"/device/edit/"+params["device"],
                         title:params["device"],
                         devicereff:"",
-                    });
+                    };
+                    let newPaginationIndex = _.findIndex($this.service.pagination, (p)=>{ return p.url === newPaginationObject.url});
+                    if(newPaginationIndex > -1){
+                        let dropedPaginations = _.dropRight($this.service.pagination,$this.service.pagination.length - newPaginationIndex-1);
+                        $this.service.pagination = dropedPaginations;
+                        $this.params = dropedPaginations;
+                    }else{
+                        $this.service.pagination.push(newPaginationObject);
+                    }
                     console.log("afterpagination");
                     if($this.service.device && params['device'] === $this.service.device.dicomDeviceName && $this.service.schema) {
                         console.log("*************in first if2");
@@ -186,7 +198,6 @@ export class DeviceConfiguratorComponent implements OnInit {
                             console.log("mainschema2",_.cloneDeep($this.service.schema));
 
                             console.log("currentschma after merge",newSchema);
-                            //TODO if array new shchema should be childe of items
                             console.log("service.schema after set",$this.service.schema);
                             form = $this.service.convertSchemaToForm($this.model,newSchema, params);
                             console.log("form after value if",form);
@@ -197,6 +208,13 @@ export class DeviceConfiguratorComponent implements OnInit {
                         });
                     }else{
                         console.log("*************in else3");
+                        let getDevice = params['devicereff'];
+                        let schemaparam = params['schema'];
+                        console.log("service.schema",$this.service.schema);
+                        let newSchema = $this.service.getSchemaFromPath($this.service.schema,schemaparam);
+                        console.log("newSchema",newSchema);
+                        $this.model = _.get($this.service.device,getDevice);
+                        console.log("this.model",$this.model);
                         form = $this.service.convertSchemaToForm($this.model,newSchema, params);
                         console.log("form after value setelse",form);
                         _.set($this.service.schema,params["schema"],newSchema);

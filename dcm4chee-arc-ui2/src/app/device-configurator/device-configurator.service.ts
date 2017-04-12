@@ -29,40 +29,33 @@ export class DeviceConfiguratorService {
         return this.$http.get('./assets/schema/' + schema).map(device => device.json());
     };
     getSchemaFromPath(schema, schemaparam){
-
-        console.log("?schema",schema);
-        console.log("?schemaparam",schemaparam);
+        console.log("getSchemaFromPath schema",schema);
+        console.log("schemaparam",schemaparam);
         let paramArray = schemaparam.split('.');
         let currentschemaposition = _.cloneDeep(schema);
         let parentkey;
         let parentSchema;
         _.forEach(paramArray,(m)=>{
             if(!_.hasIn(currentschemaposition,m)){
-                console.log("currentschemaposition",currentschemaposition);
-                console.log("m",m);
+                console.log("in if csp=", currentschemaposition);
+                console.log("in if m=", m);
+                return null;
             }else{
                 parentkey = m;
                 parentSchema = currentschemaposition;
                 currentschemaposition = currentschemaposition[m];
             }
         });
-        console.log("end currentschemaposition",currentschemaposition);
-        console.log("end parentSchema",parentSchema);
-        console.log("end parentkey",parentkey);
 
         return currentschemaposition;
     };
     replaceCharactersInTitleKey(string, object){
-        console.log("object",object);
-        console.log("string",string);
             let re = /{(.*?)}/g;
             let m;
             let array = [];
             do {
             m = re.exec(string);
             if (m) {
-                console.log("m",m);
-                console.log(m[1], m[2]);
                 if(m[1]){
                     array.push(m[1]);
                 }
@@ -75,14 +68,14 @@ export class DeviceConfiguratorService {
                 string = _.replace(string,'{'+i+'}',"");
             }
         })
-        console.log("array",array);
-        console.log("string",string);
         return string || '';
     }
     convertSchemaToForm(device, schema, params){
+        console.log("device=",device);
+        console.log("schema=",schema);
+        console.log("params=",params);
         let $this = this;
         let form = [];
-        console.log("in convertschema ",schema);
         if(_.hasIn(schema,"type")){
             if((schema.type === "object" && _.hasIn(schema,"properties")) || (schema.type === "array" && _.hasIn(schema,"items.properties"))){
                 let schemaProperties;
@@ -95,11 +88,8 @@ export class DeviceConfiguratorService {
                     propertiesPath = "items.properties";
                 }
                 _.forEach(schemaProperties,(m,i)=>{
-                    console.log("i",i);
-                    console.log("m",m);
                     let value;
                     if(_.hasIn(device,i)){
-                        console.log("hasindevicei true",device[i]);
                         value = device[i];
                     }
                     switch(m.type) {
@@ -134,8 +124,6 @@ export class DeviceConfiguratorService {
                             }
                             break;
                         case "boolean":
-                            console.log("boolean i",i);
-                            console.log("m",m);
                             form.push(
                                 new RadioButtons({
                                     key:i,
@@ -168,17 +156,17 @@ export class DeviceConfiguratorService {
                                 )
                             }else{
                                 console.log("m",m);
-                                console.log("in array case button",value);
-
-                                let url = '/device/edit/'+params.device;
+                                console.log("params",params);
+                                let url = '';
                                 if(_.hasIn(m,"items.$ref")) {
                                     if(value && _.isObject(value)){
                                         let options = [];
+                                        let maxVali = 0;
                                         _.forEach(value,(valm, vali)=>{
-                                            console.log("valm",valm);
-                                            console.log("vali",vali);
                                             let title;
+                                            maxVali = parseInt(vali);
                                             // $this.replaceCharactersInTitleKey(m.titleKey,valm);
+                                            url = '/device/edit/'+params.device;
                                             url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
                                             url = url +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
                                             if(_.hasIn(m,"titleKey")){
@@ -193,21 +181,22 @@ export class DeviceConfiguratorService {
                                                 url:url
                                             })
                                         });
-                                        console.log("optionlength",options);
-                                        url = '/device/edit/'+params.device;
-                                        url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+0+']':'/'+i+'['+0+']');
-                                        url = url +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
+                                        let addUrl = '/device/edit/'+params.device;
+                                        addUrl = addUrl +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+(maxVali+1)+']':'/'+i+'['+(maxVali+1)+']');
+                                        addUrl = addUrl +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
+                                        console.log("addUrl",addUrl);
                                         form.push({
                                             controlType:"buttondropdown",
                                             title:m.title,
                                             description:m.description,
                                             options:options,
-                                            addUrl:url
+                                            addUrl:addUrl
                                         });
                                     }else{
-
+                                        url = '/device/edit/'+params.device;
                                         url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i:'/'+i);
                                         url = url +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
+                                        console.log("url",url);
                                         form.push({
                                             controlType:"button",
                                             title:m.title,
@@ -217,15 +206,12 @@ export class DeviceConfiguratorService {
                                         });
                                     }
                                 }else{
-                                    console.log("m",m);
-                                    console.log("************ in array value",value);
-                                    console.log("propertiesPath",propertiesPath);
                                     if(value && _.isObject(value) && (value.length > 0 && _.isObject(value[0]))){
                                         let options = [];
+                                        let maxVali = 0;
                                         _.forEach(value,(valm, vali)=>{
-                                            console.log("valm",valm);
-                                            console.log("vali",vali);
                                             let title;
+                                            maxVali = parseInt(vali);
                                             // $this.replaceCharactersInTitleKey(m.titleKey,valm);
                                             url = '/device/edit/'+params.device;
                                             url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
@@ -242,14 +228,18 @@ export class DeviceConfiguratorService {
                                                 url:url
                                             })
                                         });
+                                        let addUrl = '/device/edit/'+params.device;
+                                        addUrl = addUrl +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+(maxVali+1)+']':'/'+i+'['+(maxVali+1)+']');
+                                        addUrl = addUrl +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
+                                        console.log("*addUrl",addUrl);
                                         form.push({
                                             controlType:"buttondropdown",
                                             title:m.title,
                                             description:m.description,
-                                            options:options
+                                            options:options,
+                                            addUrl:addUrl
                                         });
                                     }else{
-                                        console.log("in else....",m);
                                         let type = (_.hasIn(m,"items.type")) ? m.items.type : "text";
                                         form.push(
                                             new ArrayElement({
@@ -279,11 +269,9 @@ export class DeviceConfiguratorService {
                         default:
                             // let subschema = {};
                             // subschema[i] = $this.convertSchemaToForm(m);
-                            console.log("m in button",m);
 /*                            let url = '/device/edit/'+params.device;
                                 url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i:'/'+i);
                                 url = url +  ((params.schema) ? '/'+params.schema+'.'+i:'/'+i);
-                            console.log("url",url);
                             form.push({
                                 controlType:"button",
                                 key:i,
@@ -293,12 +281,9 @@ export class DeviceConfiguratorService {
  //                            if(value && _.isObject(value)){
  //                                    let options = [];
  //                                _.forEach(value,(valm, vali)=>{
- // /*                                   console.log("valm",valm);
- //                                    console.log("vali",vali);*/
  //                                    url = '/device/edit/'+params.device;
  //                                    url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
  //                                    url = url +  ((params.schema) ? '/'+params.schema+'.properties.'+i:'/properties.'+i);
- //                                    console.log("url",url);
  //                                    options.push({
  //                                        title:m.title+'.'+vali,
  //                                        description:m.description,
@@ -313,7 +298,6 @@ export class DeviceConfiguratorService {
  //                            }else{
                                 url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i:'/'+i);
                                 url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
-                                console.log("url",url);
                                 form.push({
                                     controlType:"button",
                                     title:m.title,

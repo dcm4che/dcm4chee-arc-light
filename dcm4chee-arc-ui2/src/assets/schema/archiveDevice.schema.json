@@ -564,6 +564,7 @@
       "title": "Attribute Filter",
       "description": "Specifies Attributes stored in the database",
       "type": "array",
+      "titleKey":"{dcmEntity}",
       "items" : {
         "$ref": "attributeFilter.schema.json"
       }
@@ -572,6 +573,7 @@
       "title": "Metadata Filter",
       "description": "Named Attribute Filter for WADO-RS Metadata requests.",
       "type": "array",
+      "titleKey":"{dcmMetadataFilterName}",
       "items" : {
         "$ref": "metadataFilter.schema.json"
       }
@@ -670,6 +672,7 @@
       "title": "Storage Descriptor",
       "description": "Specifies Storage System",
       "type": "array",
+      "titleKey":"{dcmStorageID}",
       "items" : {
         "$ref": "storage.schema.json"
       }
@@ -678,6 +681,7 @@
       "title": "Query Retrieve View",
       "description": "Specifies behavior on Rejection Note Stored",
       "type": "array",
+      "titleKey":"{dcmQueryRetrieveViewID}",
       "items" : {
         "$ref": "queryRetrieveView.schema.json"
       }
@@ -686,6 +690,7 @@
       "title": "Queue",
       "description": "Managed JMS Queue",
       "type": "array",
+      "titleKey":"{dcmQueueName}",
       "items" : {
         "$ref": "queue.schema.json"
       }
@@ -694,6 +699,7 @@
       "title": "Exporter Descriptor",
       "description": "Exporter Descriptor",
       "type": "array",
+      "titleKey":"{dcmExporterID}",
       "items" : {
         "$ref": "exporter.schema.json"
       }
@@ -702,6 +708,7 @@
       "title": "Export Rule",
       "description": "Export Rule",
       "type": "array",
+      "titleKey":"{cn}",
       "items" : {
         "$ref": "exportRule.schema.json"
       }
@@ -710,6 +717,7 @@
       "title": "RESTful Forward Rule",
       "description": "RESTful Forward Rule",
       "type": "array",
+      "titleKey":"{cn}",
       "items" : {
         "$ref": "rsForwardRule.schema.json"
       }
@@ -718,6 +726,7 @@
       "title": "Archive Compression rule",
       "description": "Archive Compression rule",
       "type": "array",
+      "titleKey":"{cn}",
       "items" : {
         "$ref": "archiveCompressionRule.schema.json"
       }
@@ -726,6 +735,7 @@
       "title": "Archive Attribute Coercion",
       "description": "Archive Attribute Coercion of received/sent DIMSE",
       "type": "array",
+      "titleKey":"{cn}",
       "items" : {
         "$ref": "archiveAttributeCoercion.schema.json"
       }
@@ -734,6 +744,7 @@
       "title": "Rejection Note",
       "description": "Specifies behavior on Rejection Note Stored",
       "type": "array",
+      "titleKey":"{dcmRejectionNoteLabel}",
       "items" : {
         "$ref": "rejectionNote.schema.json"
       }
@@ -742,6 +753,7 @@
       "title": "Study Retention Policy",
       "description": "Study Retention Policy",
       "type": "array",
+      "titleKey":"{cn}",
       "items" : {
         "$ref": "studyRetentionPolicy.schema.json"
       }
@@ -750,6 +762,7 @@
       "title": "Store Access Control Rules",
       "description": "Store Access Control Rules applied to Studies received by any AE",
       "type": "array",
+      "titleKey":"{cn}",
       "items" : {
         "$ref": "storeAccessControlIDRule.schema.json"
       }
@@ -758,6 +771,7 @@
       "title": "ID Generator",
       "description": "ID Generator",
       "type": "array",
+      "titleKey":"{dcmIDGeneratorName}",
       "items" : {
         "$ref": "idGenerator.schema.json"
       }
@@ -766,6 +780,7 @@
       "title": "HL7 Forward Rule",
       "description": "HL7 Forward Rule",
       "type": "array",
+      "titleKey":"{cn}",
       "items" : {
         "$ref": "hl7ForwardRule.schema.json"
       }
@@ -774,6 +789,7 @@
       "title": "Scheduled Station for HL7 Order",
       "description": "Scheduled Station selected on MWL HL7 Order Feed",
       "type": "array",
+      "titleKey":"{cn}",
       "items" : {
         "$ref": "hl7OrderScheduledStation.schema.json"
       }
@@ -782,6 +798,7 @@
       "title": "SPS Status for HL7 Order",
       "description": "Specifies SPS Status of DICOM MWL items created/updated on received HL7 ORM^O01, OMI^O23, OMG^O19 messages",
       "type": "array",
+      "titleKey":"{dcmSPSStatus}",
       "items" : {
         "$ref": "hl7OrderSPSStatus.schema.json"
       }

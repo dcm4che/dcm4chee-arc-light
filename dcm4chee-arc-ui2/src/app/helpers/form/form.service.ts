@@ -5,6 +5,7 @@
 import {Injectable} from "@angular/core";
 import {FormElement} from "./form-element";
 import {FormControl, Validators, FormGroup, FormArray, FormBuilder} from "@angular/forms";
+import * as _ from "lodash";
 
 @Injectable()
 export class FormService{
@@ -39,20 +40,20 @@ export class FormService{
                     break;
                 case "arrayelement":
                     let singleElementValues:FormControl[] = [];
+                    console.log("element.value",element.value);
                     if(element.value){
                         if(element["type"] === "number"){
-                            element.value.forEach((value:string) => {
+                            _.forEach(element.value,(value:string) => {
                                 singleElementValues.push(new FormControl(parseInt(value)));
                             });
                         }else{
-                            element.value.forEach((value:string) => {
+                            _.forEach(element.value,(value:string) => {
                                 singleElementValues.push(new FormControl(value));
                             });
                         }
                         group[element.key] = new FormArray(singleElementValues);
                     }else{
                         if(element["type"] === "number"){
-
                             group[element.key] = new FormArray([new FormControl(singleElementValues)]);
                         }else{
                             group[element.key] = new FormArray([new FormControl("")]);

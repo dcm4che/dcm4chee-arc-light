@@ -58,6 +58,7 @@ import { ConnectionFormaterComponent } from './helpers/connection-formater/conne
 import { AeListComponent } from './ae-list/ae-list.component';
 import {CreateExporterService} from "./widgets/dialogs/create-exporter/create-exporter.service";
 import {DeviceConfiguratorService} from "./device-configurator/device-configurator.service";
+import { UtcPipe } from './pipes/utc.pipe';
 
 @NgModule({
     declarations: [
@@ -94,7 +95,8 @@ import {DeviceConfiguratorService} from "./device-configurator/device-configurat
         AssociationsComponent,
         StorageCommitmentComponent,
         ConnectionFormaterComponent,
-        AeListComponent
+        AeListComponent,
+        UtcPipe
     ],
     imports: [
         BrowserModule,

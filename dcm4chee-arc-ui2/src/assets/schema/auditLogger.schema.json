@@ -8,6 +8,11 @@
     "dcmAuditRecordRepositoryDeviceReference"
   ],
   "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name for the Network Connection object",
+      "type": "string"
+    },
     "dicomNetworkConnectionReference": {
       "title": "Network Connection Reference",
       "description": "The JSON Pointers to the Network Connection objects used by this Audit Logger",
@@ -189,6 +194,7 @@
       "title": "Audit Suppress Criteria",
       "description": "Audit Suppress Criteria",
       "type": "array",
+      "titleKey":"{cn}",
       "items": {
         "$ref": "auditSuppressCriteria.schema.json"
       }

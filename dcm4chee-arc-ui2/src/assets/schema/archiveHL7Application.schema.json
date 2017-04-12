@@ -54,6 +54,7 @@
       "title": "HL7 Forward Rule",
       "description": "HL7 Forward Rule",
       "type": "array",
+      "titleKey":"{cn}",
       "items" : {
         "$ref": "hl7ForwardRule.schema.json"
       }
@@ -62,6 +63,7 @@
       "title": "Scheduled Station for HL7 Order",
       "description": "Scheduled Station selected on MWL HL7 Order Feed",
       "type": "array",
+      "titleKey":"{cn}",
       "items" : {
         "$ref": "hl7OrderScheduledStation.schema.json"
       }
@@ -70,6 +72,7 @@
       "title": "SPS Status for HL7 Order",
       "description": "Specifies SPS Status of DICOM MWL items created/updated on received HL7 ORM^O01, OMI^O23, OMG^O19 messages",
       "type": "array",
+      "titleKey":"{dcmSPSStatus}",
       "items" : {
         "$ref": "hl7OrderSPSStatus.schema.json"
       }
