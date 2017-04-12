@@ -43,6 +43,7 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 
+import java.net.URI;
 import java.time.LocalTime;
 
 import org.dcm4che3.net.DeviceExtension;
@@ -1149,14 +1150,20 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public ExporterDescriptor getExporterDescriptor(String exporterID) {
-        return exporterDescriptorMap.get(exporterID);
+        ExporterDescriptor desc = exporterDescriptorMap.get(exporterID);
+        return desc != null ? desc : getExporterDescriptorNotNull(exporterID);
     }
 
     public ExporterDescriptor getExporterDescriptorNotNull(String exporterID) {
-        ExporterDescriptor descriptor = getExporterDescriptor(exporterID);
+        String dicomExporter = exporterID.substring(0,6);
+        ExporterDescriptor descriptor = getExporterDescriptor(dicomExporter);
         if (descriptor == null)
-            throw new IllegalArgumentException("No Exporter configured with ID:" + exporterID);
-        return descriptor;
+            throw new IllegalArgumentException("Generic Exporter not configured for : " + dicomExporter);
+        ExporterDescriptor descRT = new ExporterDescriptor(descriptor);
+        descRT.setExporterID(exporterID);
+        descRT.setExportURI(URI.create(exporterID));
+        exporterDescriptorMap.put(exporterID, descRT);
+        return descRT;
     }
 
     public ExporterDescriptor removeExporterDescriptor(String exporterID) {

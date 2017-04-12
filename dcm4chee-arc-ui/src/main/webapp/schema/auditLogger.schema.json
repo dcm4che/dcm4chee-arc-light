@@ -8,6 +8,11 @@
     "dcmAuditRecordRepositoryDeviceReference"
   ],
   "properties": {
+    "cn": {
+      "title": "Name",
+      "description": "Arbitrary/Meaningful name of the Audit Logger",
+      "type": "string"
+    },
     "dicomNetworkConnectionReference": {
       "title": "Network Connection Reference",
       "description": "The JSON Pointers to the Network Connection objects used by this Audit Logger",
