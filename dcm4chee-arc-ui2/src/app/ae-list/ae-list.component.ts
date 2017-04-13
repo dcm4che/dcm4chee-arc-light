@@ -214,7 +214,7 @@ export class AeListComponent{
                             if(err.status === 404){
                                 $this.mainservice.setMessage({
                                     "title": "Info",
-                                    "text": "Aet not regiestered!",
+                                    "text": "Aet not registered!",
                                     "status": "info"
                                 });
                                 clearAe();
@@ -245,7 +245,7 @@ export class AeListComponent{
                                     });
                                     $this.getAes();
                                 },(error) => {
-                                    console.warn("Reloading ther Archive faild");
+                                    console.warn("Reloading the Archive failed");
                                 })
 
                             },

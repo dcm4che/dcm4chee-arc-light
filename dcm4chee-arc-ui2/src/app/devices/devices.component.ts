@@ -173,7 +173,7 @@ export class DevicesComponent {
                 if(_.indexOf(deviceNameList,parameters.result.input) > -1){
                     $this.mainservice.setMessage({
                         "title": "Error",
-                        "text": "This name exist, pleas chose an other one!",
+                        "text": "This name already exists, please chose another one!",
                         "status": "error"
                     });
                     $this.cfpLoadingBar.complete();

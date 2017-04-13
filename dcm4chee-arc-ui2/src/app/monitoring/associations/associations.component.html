@@ -18,9 +18,9 @@
             <!-- <code> -->
             <h3>Open Associations</h3>
             <p>Press Start or Refresh to get associations</p>
-            <button type="button" class="btn btn-default refresh" (click)="refresh()" title="Get associacions">Refresh</button>
+            <button type="button" class="btn btn-default refresh" (click)="refresh()" title="Get associations">Refresh</button>
             <span title="Set the refresh interval in sec or millisec (with .)">Timer (sec)</span> : <input title="With a dot '.' you can set milliseconds for example: '0.6' = 600 milliseconds" type="text" [(ngModel)]="updaterate" [disabled]="!stopLoop" class="no-close-button"/>
-            <button *ngIf="stopLoop" type="button" class="btn btn-default" (click)="monitor()" title="Start getting associacions">Start</button>
+            <button *ngIf="stopLoop" type="button" class="btn btn-default" (click)="monitor()" title="Start getting associations">Start</button>
             <button *ngIf="!stopLoop" type="button" class="btn btn-default" (click)="stopLoop=true" title="Stop auto refresh">Stop</button>
             <!--<span *ngIf="!stopLoop" class="loader"></span>-->
             <button type="button" class="btn btn-default" (click)="downloadAssocImmage()" title="Download copy of the table as csv-file">Download copy</button>

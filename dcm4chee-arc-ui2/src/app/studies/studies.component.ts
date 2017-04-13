@@ -3138,7 +3138,7 @@ export class StudiesComponent implements OnDestroy{
             }else {
                 this.mainservice.setMessage({
                     "title": "Warning",
-                    "text": "Target object can not bee in the clipboard",
+                    "text": "Target object can not be in the clipboard",
                     "status":'warning'
                 });
             }
@@ -3386,25 +3386,25 @@ export class StudiesComponent implements OnDestroy{
                     msgStatus = "Warning";
                     this.mainservice.setMessage({
                         "title": msgStatus,
-                        "text": faild+' of '+(success+faild)+' faild!',
+                        "text": faild+' of '+(success+faild)+' failed!',
                         "status": msgStatus.toLowerCase()
                     });
-                    console.log(faild+' of '+(success+faild)+' faild!');
+                    console.log(faild+' of '+(success+faild)+' failed!');
                 }
                 if(faild > 0 && success === 0){
                     msgStatus = "Error";
                     this.mainservice.setMessage( {
                         "title": msgStatus,
-                        "text": "all ("+ faild+ ") faild!",
+                        "text": "all ("+ faild+ ") failed!",
                         "status": msgStatus.toLowerCase()
                     });
-                    console.log("all "+ faild+ "faild!");
+                    console.log("all "+ faild+ "failed!");
                 }
                 if(faild === 0){
-                    console.log(success+ " verified successfully, 0 faild!");
+                    console.log(success+ " verified successfully, 0 failed!");
                     this.mainservice.setMessage( {
                         "title": msgStatus,
-                        "text": success+ " verified successfully, 0 faild!",
+                        "text": success+ " verified successfully, 0 failed!",
                         "status": msgStatus.toLowerCase()
                     });
                 }

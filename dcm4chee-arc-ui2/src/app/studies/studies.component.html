@@ -166,7 +166,7 @@
                             <input id="ReferringPhysicianName" type="text" [(ngModel)]="filter.ReferringPhysicianName" placeholder="Referring physician name" title="Referring physician name" class="col-md-12" />
                         </div>
                         <div class="col-md-6" *ngIf="filterMode === 'study'">
-                            <input id="Modality" type="text" size="5"  [(ngModel)]="filter.ModalitiesInStudy" (click)="showModalitySelector = !showModalitySelector" placeholder=" Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
+                            <input id="Modality" type="text" size="5"  [(ngModel)]="filter.ModalitiesInStudy" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
                             <div class="modality_selector [hidden]" *ngIf="showModalitySelector">
                                 <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
                                 <div class="common">
@@ -187,7 +187,7 @@
                             </div>
                         </div>
                         <div class="col-md-6" *ngIf="filterMode === 'mwl'">
-                            <input id="Modality" type="text" size="5"  [(ngModel)]="filter['ScheduledProcedureStepSequence.Modality']" (click)="showModalitySelector = !showModalitySelector" placeholder=" Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
+                            <input id="Modality" type="text" size="5"  [(ngModel)]="filter['ScheduledProcedureStepSequence.Modality']" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
                             <div class="modality_selector [hidden]" *ngIf="showModalitySelector">
                                 <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
                                 <div class="common">
@@ -267,7 +267,7 @@
                                 <!--size="10"-->
                                 <!--[(ngModel)]="studyDate.toObject"-->
                                 <!--uib-datepicker-popup="{{format}}"/>-->
-                                <p-calendar dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder=" Start date to"></p-calendar>
+                                <p-calendar dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Start date to"></p-calendar>
                             </div>
                             <div class="col-md-12">
                                 <!--<input-->
@@ -278,7 +278,7 @@
                                 <!--size="10"-->
                                 <!--[(ngModel)]="studyTime.toObject"-->
                                 <!--data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />-->
-                                <p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder=" Start time to"></p-calendar>
+                                <p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder="Start time to"></p-calendar>
                             </div>
                         </div>
                     </div>
@@ -341,7 +341,7 @@
                                 <!--[(ngModel)]="studyDate.toObject"-->
                                 <!--uib-datepicker-popup="{{format}}"/>-->
                                 <!--<input type="date" placeholder="Study date to" name="StudyDateFrom" [(ngModel)]="studyDate.toObject" />-->
-                                <p-calendar (change)="studyDateChanged($event)" (click)="studyDateChanged($event)" dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder=" Study date to"></p-calendar>
+                                <p-calendar (change)="studyDateChanged($event)" (click)="studyDateChanged($event)" dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Study date to"></p-calendar>
 
                             </div>
                             <div class="col-md-12">
@@ -354,7 +354,7 @@
                                 <!--[(ngModel)]="studyTime.toObject"-->
                                 <!--data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />-->
                                 <!--<input type="time" placeholder="Study time from" name="StudyDateFrom" [(ngModel)]="studyTime.toObject" />-->
-                                <p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder=" Study time to"></p-calendar>
+                                <p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder="Study time to"></p-calendar>
                                 <!--<div class="input-group clockpicker" data-placement="right" data-align="top" data-autoclose="true">-->
                                     <!--<input type="text" class="form-control" [(ngModel)]="studyTime.toObject">-->
                                     <!--<span class="input-group-addon">-->
@@ -524,10 +524,10 @@
                         <input id="ScheduledPerformingPhysicianName" type="text" [(ngModel)]="filter['ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName']" placeholder="Scheduled Performing Physician's Name" title="Scheduled Performing Physician's Name" class="col-md-12" />
                     </div>
                     <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'mwl'">
-                        <input id="StudyInstanceUID" type="text" [(ngModel)]="filter.StudyInstanceUID" placeholder="Studyinstance UID" title="study._VALUE instance UID" class="col-md-12 clearable" />
+                        <input id="StudyInstanceUID" type="text" [(ngModel)]="filter.StudyInstanceUID" placeholder="Study Instance UID" title="study._VALUE instance UID" class="col-md-12 clearable" />
                     </div>
                     <div class="col-md-6" *ngIf="filterMode === 'study'">
-                        <input id="StudyDescription" type="text" [(ngModel)]="filter.StudyDescription" placeholder="Studydescription" title="study._VALUE description" class="col-md-12" />
+                        <input id="StudyDescription" type="text" [(ngModel)]="filter.StudyDescription" placeholder="Study Description" title="study._VALUE description" class="col-md-12" />
                     </div>
                     <div class="col-md-6" *ngIf="filterMode === 'study'">
                         <input id="BodyPartExamined" type="text" [(ngModel)]="filter.BodyPartExamined" placeholder="Body Part Examined" title="Body Part Examined" class="col-md-12 clearable" />
@@ -546,7 +546,7 @@
                         <!--is-open="birthDate.opened"-->
                         <!--datepicker-options="dateOptions"-->
                         <!--close-text="Close"/>-->
-                        <p-calendar dataType="string" [(ngModel)]="filter.PatientBirthDate" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder=" Patient's Birth Date"></p-calendar>
+                        <p-calendar dataType="string" [(ngModel)]="filter.PatientBirthDate" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Patient's Birth Date"></p-calendar>
 
                     </div>
                 </div>
@@ -564,8 +564,8 @@
                                 <!--<input type="checkbox" aria-label="Checkbox for following text input"> No-->
                                 <input type="checkbox" [(ngModel)]="ExternalRetrieveAETchecked" (change)="filter.ExternalRetrieveAET = '';filter['ExternalRetrieveAET!'] = ''"> No
                             </span>
-                            <input class="col-md-12 clearable inputpart" id="ExternalRetrieveAET" *ngIf="!ExternalRetrieveAETchecked" type="text" [(ngModel)]="filter.ExternalRetrieveAET" placeholder="External retrieve AET" title="Retrieveable from external retrieve AET" />
-                            <input class="col-md-12 clearable inputpart" id="ExternalRetrieveAET!" *ngIf="ExternalRetrieveAETchecked" type="text" [(ngModel)]="filter['ExternalRetrieveAET!']" placeholder="External retrieve AET" title="Not retrieveable from external retrieve AET"/>
+                            <input class="col-md-12 clearable inputpart" id="ExternalRetrieveAET" *ngIf="!ExternalRetrieveAETchecked" type="text" [(ngModel)]="filter.ExternalRetrieveAET" placeholder="External retrieve AET" title="Retrievable from external retrieve AET" />
+                            <input class="col-md-12 clearable inputpart" id="ExternalRetrieveAET!" *ngIf="ExternalRetrieveAETchecked" type="text" [(ngModel)]="filter['ExternalRetrieveAET!']" placeholder="External retrieve AET" title="Not retrievable from external retrieve AET"/>
                         </div>
                     </div>
                     <!--<div class="col-md-6" *ngIf="filterMode === 'study' && ExternalRetrieveAETchecked">-->
@@ -812,7 +812,7 @@
                                     <a class="hiddenbuttons" (click)="$event.preventDefault();exportStudy(study._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export study">
                                         <span class="glyphicon glyphicon-export"></span>
                                     </a>
-                                    <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('study', study._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitmen">
+                                    <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('study', study._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitment">
                                         <span class="glyphicon glyphicon-ok"></span>
                                     </a>
                                     <a class="hiddenbuttons" *ngIf="(!trashaktive && isRole('admin') && _.hasIn(study._VALUE,'attrs.00201206.Value[0]') && !_.isEqual(study._VALUE.attrs['00201206'].Value[0], 0))" (click)="$event.preventDefault();rejectStudy(study._VALUE)" href="" title="Reject study">
@@ -889,7 +889,7 @@
                                                     <a class="hiddenbuttons" *ngIf="trashaktive && isRole('admin')" (click)="$event.preventDefault();rejectSeries(series._VALUE)" href="" title="Restore Series">
                                                         <span class="glyphicon glyphicon-repeat"></span>
                                                     </a>
-                                                    <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('series', series._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitmen">
+                                                    <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('series', series._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitment">
                                                         <span class="glyphicon glyphicon-ok"></span>
                                                     </a>
                                                     <!--<a class="hiddenbuttons" ng-click="storageCommitmen('series', series)" ng-show="user.isRole('admin')" href="" title="Verify storage commitmen">-->
@@ -939,7 +939,7 @@
                                                         <a class="hiddenbuttons" *ngIf="trashaktive && isRole('admin')" (click)="$event.preventDefault();rejectInstance(instance._VALUE)" href="" title="Restore instance">
                                                             <span class="glyphicon glyphicon-repeat"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('instance', instance._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitmen">
+                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('instance', instance._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitment">
                                                             <span class="glyphicon glyphicon-ok"></span>
                                                         </a>
                                                         <a class="hiddenbuttons" href="{{downloadURL(instance._VALUE)}}" title="Download Uncompressed DICOM Object">

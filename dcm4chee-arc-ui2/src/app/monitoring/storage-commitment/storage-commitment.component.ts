@@ -187,7 +187,7 @@ export class StorageCommitmentComponent implements OnInit {
         ];
 
         let parameters: any = {
-            content: 'Select before date and status to delete all storage commitements',
+            content: 'Select before date and status to delete all storage commitments',
             select: select,
             date:{
                 placeholder:'Updated before',
