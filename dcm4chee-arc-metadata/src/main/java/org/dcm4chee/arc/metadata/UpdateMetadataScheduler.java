@@ -63,6 +63,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -147,6 +148,14 @@ public class UpdateMetadataScheduler extends Scheduler {
         } catch (IOException e) {
             storage.revokeStorage(writeCtx);
             throw e;
+        } catch (Exception e) {
+            storage.revokeStorage(writeCtx);
+            LOG.error(MessageFormat.format(
+                    "Update metadata failed for [seriesPk={0}, instancePurgeState={1}, storageID={2}, storagePath={3}] ",
+                    ctx.getSeriesMetadataUpdate().seriesPk, ctx.getSeriesMetadataUpdate().instancePurgeState,
+                    ctx.getSeriesMetadataUpdate().storageID, ctx.getSeriesMetadataUpdate().storagePath),
+                    e.getMessage());
+            return;
         }
         try {
             storage.commitStorage(writeCtx);
