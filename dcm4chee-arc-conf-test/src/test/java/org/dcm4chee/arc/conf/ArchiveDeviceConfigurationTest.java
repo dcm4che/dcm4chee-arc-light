@@ -53,6 +53,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 
@@ -92,24 +93,24 @@ public class ArchiveDeviceConfigurationTest {
             for (int i = 0; i < ArchiveDeviceFactory.OTHER_AES.length; i++) {
                 String aet = ArchiveDeviceFactory.OTHER_AES[i];
                 config.registerAETitle(aet);
-                config.persist(setThisNodeCertificates(
+                config.persist(
                         ArchiveDeviceFactory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i], ArchiveDeviceFactory.DEVICE_TYPES[i],
                             ArchiveDeviceFactory.OTHER_ISSUER[i],
                             ArchiveDeviceFactory.OTHER_INST_CODES[i],
                             aet, "localhost",
                             ArchiveDeviceFactory.OTHER_PORTS[i << 1],
-                            ArchiveDeviceFactory.OTHER_PORTS[(i << 1) + 1])));
+                            ArchiveDeviceFactory.OTHER_PORTS[(i << 1) + 1]));
             }
             hl7Config.registerHL7Application(ArchiveDeviceFactory.PIX_MANAGER);
             for (int i = ArchiveDeviceFactory.OTHER_AES.length; i < ArchiveDeviceFactory.OTHER_DEVICES.length; i++)
-                config.persist(setThisNodeCertificates(
-                        ArchiveDeviceFactory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i], configType)));
-            config.persist(setThisNodeCertificates(
+                config.persist(
+                        ArchiveDeviceFactory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i], configType));
+            config.persist(
                     ArchiveDeviceFactory.createHL7Device("hl7rcv",
                         ArchiveDeviceFactory.SITE_A,
                         ArchiveDeviceFactory.INST_A,
                         ArchiveDeviceFactory.PIX_MANAGER,
-                        "localhost", 2576, 12576)));
+                        "localhost", 2576, 12576));
         }
         Device arrDevice = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514, configType);
         Device unknown = ArchiveDeviceFactory.createUnknownDevice("unknown", "UNKNOWN", "localhost", 104);
@@ -120,10 +121,10 @@ public class ArchiveDeviceConfigurationTest {
         config.registerAETitle("DCM4CHEE_TRASH");
         config.registerAETitle("UNKNOWN");
 
-        Device arc = setThisNodeCertificates(
-                ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice, unknown, configType));
-        if (configType == ArchiveDeviceFactory.ConfigType.SAMPLE)
-            setAuthorizedNodeCertificates(arc);
+        Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice, unknown, configType);
+        X509Certificate cacert = (X509Certificate) keyStore.getCertificate("cacert");
+        String deviceRef = config.deviceRef("dcm4chee-arc");
+        arc.setAuthorizedNodeCertificates(deviceRef, cacert);
         config.persist(arc);
 
         Device keycloak = ArchiveDeviceFactory.createKeycloakDevice("keycloak", arrDevice, configType);
@@ -131,19 +132,6 @@ public class ArchiveDeviceConfigurationTest {
         ApplicationEntity ae = config.findApplicationEntity("DCM4CHEE");
         assertNotNull(ae);
         assertDeviceEquals(arc, ae.getDevice());
-    }
-
-    private Device setThisNodeCertificates(Device device) throws Exception {
-        String name = device.getDeviceName();
-        device.setThisNodeCertificates(config.deviceRef(name), (X509Certificate) keyStore.getCertificate(name));
-        return device;
-    }
-
-    private Device setAuthorizedNodeCertificates(Device device) throws Exception {
-        for (String other : ArchiveDeviceFactory.OTHER_DEVICES)
-            device.setAuthorizedNodeCertificates(config.deviceRef(other),
-                    (X509Certificate) keyStore.getCertificate(other));
-        return device;
     }
 
     private void cleanUp() throws Exception {
