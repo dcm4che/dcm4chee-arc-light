@@ -166,7 +166,7 @@ public class StowRS {
 
     @POST
     @Path("/studies")
-    @Consumes("multipart/related;type=application/json")
+    @Consumes("multipart/related;type=application/dicom+json")
     @Produces("application/dicom+xml")
     public void storeJSONMetadataAndBulkdataXML(@Suspended AsyncResponse ar, InputStream in) throws Exception {
         store(ar, in, Input.METADATA_JSON, Output.DICOM_XML);
@@ -174,7 +174,7 @@ public class StowRS {
 
     @POST
     @Path("/studies/{StudyInstanceUID}")
-    @Consumes("multipart/related;type=application/json")
+    @Consumes("multipart/related;type=application/dicom+json")
     @Produces("application/dicom+xml")
     public void storeJSONMetadataAndBulkdata(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
@@ -225,7 +225,7 @@ public class StowRS {
 
     @POST
     @Path("/studies")
-    @Consumes("multipart/related;type=application/json")
+    @Consumes("multipart/related;type=application/dicom+json")
     @Produces("application/json")
     public void storeJSONMetadataAndBulkdataJSON(@Suspended AsyncResponse ar, InputStream in) throws Exception {
         store(ar, in, Input.METADATA_JSON, Output.JSON);
@@ -233,7 +233,7 @@ public class StowRS {
 
     @POST
     @Path("/studies/{StudyInstanceUID}")
-    @Consumes("multipart/related;type=application/json")
+    @Consumes("multipart/related;type=application/dicom+json")
     @Produces("application/json")
     public void storeJSONMetadataAndBulkdataJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
@@ -347,7 +347,7 @@ public class StowRS {
             @Override
             boolean readBodyPart(StowRS stowRS, StoreSession session, MultipartInputStream in,
                                  MediaType mediaType, String contentLocation) throws Exception {
-                if (!MediaTypes.equalsIgnoreParameters(mediaType, MediaType.APPLICATION_JSON_TYPE))
+                if (!MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.APPLICATION_DICOM_JSON_TYPE))
                     return stowRS.spoolBulkdata(session, in, mediaType, contentLocation);
 
                 JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
