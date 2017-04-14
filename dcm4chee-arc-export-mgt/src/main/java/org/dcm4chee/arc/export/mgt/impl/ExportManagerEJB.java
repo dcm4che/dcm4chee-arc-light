@@ -135,7 +135,7 @@ public class ExportManagerEJB implements ExportManager {
                 : arcAE.findExportRules(hostname, sendingAET, receivingAET, ctx.getAttributes(), now).entrySet()) {
             String exporterID = entry.getKey();
             ExportRule rule = entry.getValue();
-            ExporterDescriptor desc = arcDev.getExporterDescriptor(exporterID);
+            ExporterDescriptor desc = arcDev.getExporterDescriptorNotNull(exporterID);
             Date scheduledTime = scheduledTime(now, rule.getExportDelay(), desc.getSchedules());
             switch (rule.getEntity()) {
                 case Study:

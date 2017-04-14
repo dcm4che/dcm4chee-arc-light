@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalTime;
 
 import org.dcm4che3.net.DeviceExtension;
@@ -1150,20 +1151,28 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public ExporterDescriptor getExporterDescriptor(String exporterID) {
-        ExporterDescriptor desc = exporterDescriptorMap.get(exporterID);
-        return desc != null ? desc : getExporterDescriptorNotNull(exporterID);
+        if (exporterID.indexOf(':') > 0) {
+            try {
+                URI uri = new URI(exporterID);
+                ExporterDescriptor prototype = exporterDescriptorMap.get(uri.getScheme() + ':');
+                if (prototype != null) {
+                    ExporterDescriptor descriptor = new ExporterDescriptor(prototype);
+                    descriptor.setExporterID(exporterID);
+                    descriptor.setExportURI(
+                            new URI(prototype.getExportURI().getScheme() + ':' + uri.getSchemeSpecificPart()));
+                    return descriptor;
+                }
+            } catch (URISyntaxException e) {
+            }
+        }
+        return exporterDescriptorMap.get(exporterID);
     }
 
     public ExporterDescriptor getExporterDescriptorNotNull(String exporterID) {
-        String dicomExporter = exporterID.substring(0,6);
-        ExporterDescriptor descriptor = getExporterDescriptor(dicomExporter);
+        ExporterDescriptor descriptor = getExporterDescriptor(exporterID);
         if (descriptor == null)
-            throw new IllegalArgumentException("Generic Exporter not configured for : " + dicomExporter);
-        ExporterDescriptor descRT = new ExporterDescriptor(descriptor);
-        descRT.setExporterID(exporterID);
-        descRT.setExportURI(URI.create(exporterID));
-        exporterDescriptorMap.put(exporterID, descRT);
-        return descRT;
+            throw new IllegalArgumentException("No Exporter configured with ID:" + exporterID);
+        return descriptor;
     }
 
     public ExporterDescriptor removeExporterDescriptor(String exporterID) {

@@ -72,11 +72,18 @@ public class ExporterDescriptor {
     }
 
     public ExporterDescriptor(ExporterDescriptor desc) {
-        this.exporterID = desc.getExporterID();
-        this.exportURI = desc.getExportURI();
-        this.description = desc.getDescription();
-        this.queueName = desc.getQueueName();
-        this.aeTitle = desc.getAETitle();
+        this.exporterID = desc.exporterID;
+        this.exportURI = desc.exportURI;
+        this.description = desc.description;
+        this.queueName = desc.queueName;
+        this.aeTitle = desc.aeTitle;
+        this.ianDestinations = desc.ianDestinations;
+        this.retrieveAETitles = desc.retrieveAETitles;
+        this.retrieveLocationUID = desc.retrieveLocationUID;
+        this.instanceAvailability = desc.instanceAvailability;
+        this.stgCmtSCPAETitle = desc.stgCmtSCPAETitle;
+        this.schedules = desc.schedules;
+        this.properties.putAll(desc.properties);
     }
 
     public ExporterDescriptor(String exporterID) {
