@@ -221,6 +221,13 @@ public class Series {
             this.storageID = storageID;
             this.storagePath = storagePath;
         }
+
+        public String toString() {
+            return "MetadataUpdate[seriesPk=" + seriesPk +
+                    ", storageID=" + storageID +
+                    ", storagePath=" + storagePath +
+                    "]";
+        }
     }
 
     @Id

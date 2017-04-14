@@ -63,7 +63,6 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -122,12 +121,16 @@ public class UpdateMetadataScheduler extends Scheduler {
             do {
                 metadataUpdates = ejb.findSeriesForScheduledMetadataUpdate(fetchSize);
                 for (Series.MetadataUpdate metadataUpdate : metadataUpdates) {
-                    updateMetadata(retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate), storage);
+                    try {
+                        updateMetadata(retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate), storage);
+                    } catch (Exception e) {
+                        LOG.error("{} failed:\n", metadataUpdate, e);
+                    }
                 }
             }
             while (metadataUpdates.size() == fetchSize);
-        } catch (IOException e) {
-            LOG.error("Failed to store Series Metadata to {}:\n", storageDesc.getStorageURI(), e);
+        } catch (Exception e) {
+            LOG.error("Failed to access Storage {}:\n", storageDesc.getStorageURI(), e);
         }
     }
 
@@ -145,17 +148,9 @@ public class UpdateMetadataScheduler extends Scheduler {
                 out.closeEntry();
             }
             out.finish();
-        } catch (IOException e) {
-            storage.revokeStorage(writeCtx);
-            throw e;
         } catch (Exception e) {
             storage.revokeStorage(writeCtx);
-            LOG.error(MessageFormat.format(
-                    "Update metadata failed for [seriesPk={0}, instancePurgeState={1}, storageID={2}, storagePath={3}] ",
-                    ctx.getSeriesMetadataUpdate().seriesPk, ctx.getSeriesMetadataUpdate().instancePurgeState,
-                    ctx.getSeriesMetadataUpdate().storageID, ctx.getSeriesMetadataUpdate().storagePath),
-                    e.getMessage());
-            return;
+            throw e;
         }
         try {
             storage.commitStorage(writeCtx);
