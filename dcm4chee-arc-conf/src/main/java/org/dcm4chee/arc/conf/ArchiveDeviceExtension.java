@@ -1151,21 +1151,26 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public ExporterDescriptor getExporterDescriptor(String exporterID) {
-        if (exporterID.indexOf(':') > 0) {
-            try {
-                URI uri = new URI(exporterID);
-                ExporterDescriptor prototype = exporterDescriptorMap.get(uri.getScheme() + ':');
-                if (prototype != null) {
-                    ExporterDescriptor descriptor = new ExporterDescriptor(prototype);
-                    descriptor.setExporterID(exporterID);
-                    descriptor.setExportURI(
-                            new URI(prototype.getExportURI().getScheme() + ':' + uri.getSchemeSpecificPart()));
-                    return descriptor;
+        ExporterDescriptor descriptor = exporterDescriptorMap.get(exporterID);
+        if (descriptor == null) {
+            for (Map.Entry<String, ExporterDescriptor> entry : exporterDescriptorMap.entrySet()) {
+                String key = entry.getKey();
+                int schemeLen = key.length() - 1;
+                if (schemeLen > 0 && key.charAt(schemeLen) == ':' && exporterID.startsWith(key)) {
+                    try {
+                        ExporterDescriptor prototype = entry.getValue();
+                        URI exportURI = new URI(
+                                prototype.getExportURI().getScheme() + exporterID.substring(schemeLen));
+                        descriptor = new ExporterDescriptor(prototype);
+                        descriptor.setExporterID(exporterID);
+                        descriptor.setExportURI(exportURI);
+                        break;
+                    } catch (URISyntaxException e) {
+                    }
                 }
-            } catch (URISyntaxException e) {
             }
         }
-        return exporterDescriptorMap.get(exporterID);
+        return descriptor;
     }
 
     public ExporterDescriptor getExporterDescriptorNotNull(String exporterID) {
