@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -226,7 +226,7 @@ public class IocmRS {
 
     @POST
     @Path("/patients")
-    @Consumes("application/json")
+    @Consumes("application/dicom+json")
     public String createPatient(InputStream in) throws Exception {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
@@ -266,7 +266,7 @@ public class IocmRS {
 
     @PUT
     @Path("/patients/{PatientID}")
-    @Consumes("application/json")
+    @Consumes("application/dicom+json")
     public void updatePatient(@PathParam("PatientID") IDWithIssuer patientID, InputStream in) throws Exception {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
@@ -382,7 +382,7 @@ public class IocmRS {
 
     @POST
     @Path("/studies")
-    @Consumes("application/json")
+    @Consumes("application/dicom+json")
     @Produces("application/json")
     public StreamingOutput updateStudy(InputStream in) throws Exception {
         logRequest();
