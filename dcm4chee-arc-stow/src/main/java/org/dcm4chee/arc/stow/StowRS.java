@@ -187,7 +187,7 @@ public class StowRS {
     @POST
     @Path("/studies")
     @Consumes("multipart/related;type=application/dicom")
-    @Produces("application/json")
+    @Produces("application/dicom+json")
     public void storeInstancesJSON(@Suspended AsyncResponse ar, InputStream in) throws Exception {
         store(ar, in, Input.DICOM, Output.JSON);
     }
@@ -195,7 +195,7 @@ public class StowRS {
     @POST
     @Path("/studies/{StudyInstanceUID}")
     @Consumes("multipart/related;type=application/dicom")
-    @Produces("application/json")
+    @Produces("application/dicom+json")
     public void storeInstancesJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @Suspended AsyncResponse ar,
@@ -207,7 +207,7 @@ public class StowRS {
     @POST
     @Path("/studies")
     @Consumes("multipart/related;type=application/dicom+xml")
-    @Produces("application/json")
+    @Produces("application/dicom+json")
     public void storeXMLMetadataAndBulkdataJSON(@Suspended AsyncResponse ar, InputStream in) throws Exception {
         store(ar, in, Input.METADATA_XML, Output.JSON);
     }
@@ -215,7 +215,7 @@ public class StowRS {
     @POST
     @Path("/studies/{StudyInstanceUID}")
     @Consumes("multipart/related;type=application/dicom+xml")
-    @Produces("application/json")
+    @Produces("application/dicom+json")
     public void storeXMLMetadataAndBulkdataJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @Suspended AsyncResponse ar, InputStream in) throws Exception {
@@ -226,7 +226,7 @@ public class StowRS {
     @POST
     @Path("/studies")
     @Consumes("multipart/related;type=application/dicom+json")
-    @Produces("application/json")
+    @Produces("application/dicom+json")
     public void storeJSONMetadataAndBulkdataJSON(@Suspended AsyncResponse ar, InputStream in) throws Exception {
         store(ar, in, Input.METADATA_JSON, Output.JSON);
     }
@@ -234,7 +234,7 @@ public class StowRS {
     @POST
     @Path("/studies/{StudyInstanceUID}")
     @Consumes("multipart/related;type=application/dicom+json")
-    @Produces("application/json")
+    @Produces("application/dicom+json")
     public void storeJSONMetadataAndBulkdataJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @Suspended AsyncResponse ar,

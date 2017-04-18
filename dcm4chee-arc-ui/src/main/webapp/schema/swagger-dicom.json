@@ -285,11 +285,11 @@
         "consumes": [
           "multipart/related;type=application/dicom;boundary={messageBoundary}",
           "multipart/related;type=application/dicom+xml;boundary={messageBoundary}",
-          "multipart/related;type=application/json;boundary={messageBoundary}"
+          "multipart/related;type=application/dicom+json;boundary={messageBoundary}"
         ],
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
+          "multipart/related;type=application/dicom+json"
         ],
         "parameters": [
           {
@@ -928,11 +928,11 @@
         "consumes": [
           "multipart/related;type=application/dicom;boundary={messageBoundary}",
           "multipart/related;type=application/dicom+xml;boundary={messageBoundary}",
-          "multipart/related;type=application/json;boundary={messageBoundary}"
+          "multipart/related;type=application/dicom+json;boundary={messageBoundary}"
         ],
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
+          "multipart/related;type=application/dicom+json"
         ],
         "parameters": [
           {
