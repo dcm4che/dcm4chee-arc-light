@@ -53,6 +53,7 @@
         "operationId": "SearchForPatients",
         "produces": [
           "multipart/related;type=application/dicom+xml",
+          "multipart/related;type=application/dicom+json",
           "type=application/json"
         ],
         "parameters": [
@@ -147,6 +148,7 @@
         "operationId": "SearchForStudies",
         "produces": [
           "multipart/related;type=application/dicom+xml",
+          "multipart/related;type=application/dicom+json",
           "application/json"
         ],
         "parameters": [
@@ -325,6 +327,7 @@
         "operationId": "SearchForStudySeries",
         "produces": [
           "multipart/related;type=application/dicom+xml",
+          "multipart/related;type=application/dicom+json",
           "application/json"
         ],
         "parameters": [
@@ -453,6 +456,7 @@
         "operationId": "SearchForSeries",
         "produces": [
           "multipart/related;type=application/dicom+xml",
+          "multipart/related;type=application/dicom+json",
           "application/json"
         ],
         "parameters": [
@@ -574,6 +578,7 @@
         "operationId": "SearchForStudySeriesInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
+          "multipart/related;type=application/dicom+json",
           "application/json"
         ],
         "parameters": [
@@ -675,6 +680,7 @@
         "operationId": "SearchForStudyInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
+          "multipart/related;type=application/dicom+json",
           "application/json"
         ],
         "parameters": [
@@ -776,6 +782,7 @@
         "operationId": "SearchForInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
+          "multipart/related;type=application/dicom+json",
           "application/json"
         ],
         "parameters": [

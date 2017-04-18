@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -246,6 +246,14 @@ public class QidoRS {
     @GET
     @NoCache
     @Path("/patients")
+    @Produces("multipart/related;type=application/dicom+json")
+    public Response searchForPatientsDICOMJSON() throws Exception {
+        return search("SearchForPatients", Model.PATIENT, null, null, PATIENT_FIELDS, Output.JSON);
+    }
+
+    @GET
+    @NoCache
+    @Path("/patients")
     @Produces("application/json")
     public Response searchForPatientsJSON() throws Exception {
         return search("SearchForPatients", Model.PATIENT, null, null, PATIENT_FIELDS, Output.JSON);
@@ -262,6 +270,14 @@ public class QidoRS {
     @GET
     @NoCache
     @Path("/studies")
+    @Produces("multipart/related;type=application/dicom+json")
+    public Response searchForStudiesDICOMJSON() throws Exception {
+        return search("SearchForStudies", Model.STUDY, null, null, STUDY_FIELDS, Output.JSON);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies")
     @Produces("application/json")
     public Response searchForStudiesJSON() throws Exception {
         return search("SearchForStudies", Model.STUDY, null, null, STUDY_FIELDS, Output.JSON);
@@ -273,6 +289,14 @@ public class QidoRS {
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForSeriesXML() throws Exception {
         return search("SearchForSeries", Model.SERIES, null, null, STUDY_SERIES_FIELDS, Output.DICOM_XML);
+    }
+
+    @GET
+    @NoCache
+    @Path("/series")
+    @Produces("multipart/related;type=application/dicom+json")
+    public Response searchForSeriesDICOMJSON() throws Exception {
+        return search("SearchForSeries", Model.SERIES, null, null, STUDY_SERIES_FIELDS, Output.JSON);
     }
 
     @GET
@@ -295,6 +319,15 @@ public class QidoRS {
     @GET
     @NoCache
     @Path("/studies/{StudyInstanceUID}/series")
+    @Produces("multipart/related;type=application/dicom+json")
+    public Response searchForSeriesOfStudyDICOMJSON(
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+        return search("SearchForStudySeries", Model.SERIES, studyInstanceUID, null, SERIES_FIELDS, Output.JSON);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/series")
     @Produces("application/json")
     public Response searchForSeriesOfStudyJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
@@ -307,6 +340,14 @@ public class QidoRS {
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForInstancesXML() throws Exception {
         return search("SearchForInstances", Model.INSTANCE, null, null, STUDY_SERIES_INSTANCE_FIELDS, Output.DICOM_XML);
+    }
+
+    @GET
+    @NoCache
+    @Path("/instances")
+    @Produces("multipart/related;type=application/dicom+json")
+    public Response searchForInstancesDICOMJSON() throws Exception {
+        return search("SearchForInstances", Model.INSTANCE, null, null, STUDY_SERIES_INSTANCE_FIELDS, Output.JSON);
     }
 
     @GET
@@ -325,6 +366,16 @@ public class QidoRS {
             @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
         return search("SearchForStudyInstances", Model.INSTANCE,
                 studyInstanceUID, null, SERIES_INSTANCE_FIELDS, Output.DICOM_XML);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/instances")
+    @Produces("multipart/related;type=application/dicom+json")
+    public Response searchForInstancesOfStudyDICOMJSON(
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+        return search("SearchForStudyInstances", Model.INSTANCE,
+                studyInstanceUID, null, SERIES_INSTANCE_FIELDS, Output.JSON);
     }
 
     @GET
@@ -351,6 +402,17 @@ public class QidoRS {
     @GET
     @NoCache
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
+    @Produces("multipart/related;type=application/dicom+json")
+    public Response searchForInstancesOfSeriesDICOMJSON(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
+        return search("SearchForStudySeriesInstances", Model.INSTANCE,
+                studyInstanceUID, seriesInstanceUID, INSTANCE_FIELDS, Output.JSON);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
     @Produces("application/json")
     public Response searchForInstancesOfSeriesJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
@@ -365,6 +427,14 @@ public class QidoRS {
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForSPSXML() throws Exception {
         return search("SearchForSPS", Model.MWL, null, null, MWL_FIELDS, Output.DICOM_XML);
+    }
+
+    @GET
+    @NoCache
+    @Path("/mwlitems")
+    @Produces("multipart/related;type=application/dicom+json")
+    public Response searchForSPSDICOMJSON() throws Exception {
+        return search("SearchForSPS", Model.MWL, null, null, MWL_FIELDS, Output.JSON);
     }
 
     @GET
