@@ -82,6 +82,7 @@ public class StorageCmtRS {
 
     @POST
     @Path("/studies/{StudyInstanceUID}/stgcmt")
+    @Produces("application/dicom+json")
     public StreamingOutput studyStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID) {
         return storageCommit(studyUID, null, null);
@@ -89,6 +90,7 @@ public class StorageCmtRS {
 
     @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/stgcmt")
+    @Produces("application/dicom+json")
     public StreamingOutput seriesStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("SeriesInstanceUID") String seriesUID) {
@@ -97,6 +99,7 @@ public class StorageCmtRS {
 
     @POST
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/stgcmt")
+    @Produces("application/dicom+json")
     public StreamingOutput instanceStorageCommit(
             @PathParam("StudyInstanceUID") String studyUID,
             @PathParam("SeriesInstanceUID") String seriesUID,
