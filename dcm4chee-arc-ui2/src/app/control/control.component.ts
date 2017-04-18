@@ -22,24 +22,42 @@ export class ControlComponent {
 
     // reverse = false;
     fetchStatus() {
+        let $this = this;
         this.$http.get("/dcm4chee-arc/ctrl/status")
             .map(response => response.json())
             .subscribe( (res) => {
-                this.status = res["status"];
-                this.message = '';
+                $this.status = res["status"];
+                $this.message = '';
+                $this.appservices.setMessage({
+                    "title": "Info",
+                    "text":"Status:" +$this.status,
+                    "status":'info'
+                });
             });
     };
     start(){
+        let $this = this;
         this.$http.post("/dcm4chee-arc/ctrl/start",{}).subscribe((res) => {
-            this.status = 'STARTED';
-            this.message = '';
+            $this.status = 'STARTED';
+            $this.message = '';
+            $this.appservices.setMessage({
+                "title": "Info",
+                "text":"Status:" +$this.status,
+                "status":'info'
+            });
         });
     };
     stop() {
         console.log("stop");
+        let $this = this;
         this.$http.post("/dcm4chee-arc/ctrl/stop",{}).subscribe((res) => {
-            this.status = 'STOPPED';
-            this.message = '';
+            $this.status = 'STOPPED';
+            $this.message = '';
+            $this.appservices.setMessage({
+                "title": "Info",
+                "text":"Status:" +$this.status,
+                "status":'info'
+            });
         });
     };
     reload() {

@@ -3138,7 +3138,7 @@ export class StudiesComponent implements OnDestroy{
             }else {
                 this.mainservice.setMessage({
                     "title": "Warning",
-                    "text": "Target object can not be in the clipboard",
+                    "text": "Target object can not bee in the clipboard",
                     "status":'warning'
                 });
             }
@@ -3379,28 +3379,28 @@ export class StudiesComponent implements OnDestroy{
             .subscribe(
             (response) => {
                 // console.log("response",response);
-                let faild = (response[0]["00081198"] && response[0]["00081198"].Value) ? response[0]["00081198"].Value.length : 0;
+                let failed = (response[0]["00081198"] && response[0]["00081198"].Value) ? response[0]["00081198"].Value.length : 0;
                 let success = (response[0]["00081199"] && response[0]["00081199"].Value) ? response[0]["00081199"].Value.length : 0;
                 let msgStatus = "Info";
-                if(faild > 0 && success > 0){
+                if(failed > 0 && success > 0){
                     msgStatus = "Warning";
                     this.mainservice.setMessage({
                         "title": msgStatus,
-                        "text": faild+' of '+(success+faild)+' failed!',
+                        "text": failed+' of '+(success+failed)+' failed!',
                         "status": msgStatus.toLowerCase()
                     });
-                    console.log(faild+' of '+(success+faild)+' failed!');
+                    console.log(failed+' of '+(success+failed)+' failed!');
                 }
-                if(faild > 0 && success === 0){
+                if(failed > 0 && success === 0){
                     msgStatus = "Error";
                     this.mainservice.setMessage( {
                         "title": msgStatus,
-                        "text": "all ("+ faild+ ") failed!",
+                        "text": "all ("+ failed+ ") failed!",
                         "status": msgStatus.toLowerCase()
                     });
-                    console.log("all "+ faild+ "failed!");
+                    console.log("all "+ failed+ "failed!");
                 }
-                if(faild === 0){
+                if(failed === 0){
                     console.log(success+ " verified successfully, 0 failed!");
                     this.mainservice.setMessage( {
                         "title": msgStatus,
