@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -172,6 +172,16 @@ public class WadoRS {
     }
 
     @GET
+    @Path("/studies/{studyUID}/metadata")
+    @Produces("multipart/related;type=application/dicom+json")
+    public void retrieveStudyMetadataAsDICOMJSON(
+            @PathParam("studyUID") String studyUID,
+            @QueryParam("includefields") String includefields,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveStudyMetadataAsDICOMJSON", studyUID, null, null, null, null, includefields, ar, Output.METADATA_JSON);
+    }
+
+    @GET
     @Path("/studies/{studyUID}/series/{seriesUID}")
     @Produces("multipart/related;type=application/dicom")
     public void retrieveSeries(
@@ -211,6 +221,17 @@ public class WadoRS {
             @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
         retrieve("retrieveSeriesMetadataAsXML", studyUID, seriesUID, null, null, null, includefields, ar, Output.METADATA_XML);
+    }
+
+    @GET
+    @Path("/studies/{studyUID}/series/{seriesUID}/metadata")
+    @Produces("multipart/related;type=application/dicom+json")
+    public void retrieveSeriesMetadataAsDICOMJSON(
+            @PathParam("studyUID") String studyUID,
+            @PathParam("seriesUID") String seriesUID,
+            @QueryParam("includefields") String includefields,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveSeriesMetadataAsDICOMJSON", studyUID, seriesUID, null, null, null, includefields, ar, Output.METADATA_JSON);
     }
 
     @GET
@@ -329,6 +350,18 @@ public class WadoRS {
             @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
         retrieve("retrieveInstanceMetadataAsXML", studyUID, seriesUID, objectUID, null, null, includefields, ar, Output.METADATA_XML);
+    }
+
+    @GET
+    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/metadata")
+    @Produces("multipart/related;type=application/dicom+json")
+    public void retrieveInstanceMetadataAsDICOMJSON(
+            @PathParam("studyUID") String studyUID,
+            @PathParam("seriesUID") String seriesUID,
+            @PathParam("objectUID") String objectUID,
+            @QueryParam("includefields") String includefields,
+            @Suspended AsyncResponse ar) {
+        retrieve("retrieveInstanceMetadataAsDICOMJSON", studyUID, seriesUID, objectUID, null, null, includefields, ar, Output.METADATA_JSON);
     }
 
     private void retrieve(String method, String studyUID, String seriesUID, String objectUID, int[] frameList,
