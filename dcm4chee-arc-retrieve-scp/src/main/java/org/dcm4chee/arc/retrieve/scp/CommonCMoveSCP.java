@@ -53,6 +53,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.entity.Completeness;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
@@ -177,7 +178,7 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             case STUDY:
                 uids.addAll(Arrays.asList(ctx.getStudyInstanceUIDs()));
                 for (StudyInfo studyInfo : ctx.getStudyInfos()) {
-                    if (studyInfo.getCompleteness() != null) {
+                    if (studyInfo.getCompleteness() != Completeness.COMPLETE) {
                         if (maxRetrieveRetries == 0 || studyInfo.getFailedRetrieves() < maxRetrieveRetries)
                             return true;
                         LOG.warn("{}: Maximal number of retries[{}] to retrieve objects of study[{}] from {} exceeded",
@@ -189,7 +190,7 @@ class CommonCMoveSCP extends BasicCMoveSCP {
             case SERIES:
                 uids.addAll(Arrays.asList(ctx.getSeriesInstanceUIDs()));
                 for (SeriesInfo seriesInfo : ctx.getSeriesInfos()) {
-                    if (seriesInfo.getCompleteness() != null) {
+                    if (seriesInfo.getCompleteness() != Completeness.COMPLETE) {
                         if (maxRetrieveRetries == 0 || seriesInfo.getFailedRetrieves() < maxRetrieveRetries)
                             return true;
                         LOG.warn("{}: Maximal number of retries[{}] to retrieve objects of series[{}] from {} exceeded",
