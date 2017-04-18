@@ -1468,7 +1468,7 @@
         "operationId": "SearchForSPS",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -1551,7 +1551,7 @@
           "application/json"
         ],
         "produces": [
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {

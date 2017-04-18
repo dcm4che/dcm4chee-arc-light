@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -109,7 +109,7 @@ public class MwlRS {
     @POST
     @Path("/mwlitems")
     @Consumes("application/json")
-    @Produces("application/json")
+    @Produces("application/dicom+json")
     public StreamingOutput updateSPS(InputStream in) throws Exception {
         LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         try {
