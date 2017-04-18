@@ -53,8 +53,7 @@
         "operationId": "SearchForPatients",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/dicom+json",
-          "type=application/json"
+          "type=application/dicom+json"
         ],
         "parameters": [
           {
