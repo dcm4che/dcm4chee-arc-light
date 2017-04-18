@@ -148,8 +148,7 @@
         "operationId": "SearchForStudies",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -327,8 +326,7 @@
         "operationId": "SearchForStudySeries",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -456,8 +454,7 @@
         "operationId": "SearchForSeries",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -578,8 +575,7 @@
         "operationId": "SearchForStudySeriesInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -680,8 +676,7 @@
         "operationId": "SearchForStudyInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -782,8 +777,7 @@
         "operationId": "SearchForInstances",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
