@@ -1160,7 +1160,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                     try {
                         ExporterDescriptor prototype = entry.getValue();
                         URI exportURI = new URI(
-                                prototype.getExportURI().getScheme() + exporterID.substring(schemeLen));
+                                prototype.getExportURI().getSchemeSpecificPart() + exporterID.substring(schemeLen));
                         descriptor = new ExporterDescriptor(prototype);
                         descriptor.setExporterID(exporterID);
                         descriptor.setExportURI(exportURI);
