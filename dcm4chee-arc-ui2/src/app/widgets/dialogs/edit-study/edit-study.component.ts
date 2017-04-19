@@ -58,7 +58,7 @@ export class EditStudyComponent{
 
              });
              $(".editform .schema-form-fieldset > sf-decorator").hide();*!/
-        },1000);//TODO make it dynamic*/
+        },1000);*/
     }
     
     get mode() {

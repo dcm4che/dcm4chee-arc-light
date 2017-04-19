@@ -21,6 +21,7 @@ import {EditStudyComponent} from "../widgets/dialogs/edit-study/edit-study.compo
 import {ComparewithiodPipe} from "../pipes/comparewithiod.pipe";
 import {DeleteRejectedInstancesComponent} from "../widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component";
 import {DatePipe} from "@angular/common";
+import {ExportDialogComponent} from "../widgets/dialogs/export/export.component";
 
 @Component({
     selector: 'app-studies',
@@ -95,6 +96,7 @@ export class StudiesComponent implements OnDestroy{
     lastPressedCode;
     clipboardHasScrollbar:boolean = false;
     target;
+    allAes;
     // birthDate;
     clipBoardNotEmpty(){
         if(this.clipboard && ((_.size(this.clipboard.otherObjects) > 0) || (_.size(this.clipboard.patients) > 0))){
@@ -1697,51 +1699,54 @@ export class StudiesComponent implements OnDestroy{
     }
 
     exportStudy(study) {
-        console.log("exporters",this.exporters);
-        let select:any = [];
-        _.forEach(this.exporters, (m,i)=>{
-            select.push({
-                title:m.description,
-                value:m.id,
-                label:m.id
-            });
-        });
-        let parameters: any = {
-            content: 'Select Exporter',
-            select: select,
-            result: {
-                select:this.exporters[0].id,
-                checkboxes:{}
-            },
-            checkboxes:[
-                {
-                    name:'only-stgcmt',
-                    label:'Storage commitment without export',
-                    title:'If checked the study will not be sent'
-                },
-                {
-                    name:'only-ian',
-                    label:'IAN without export',
-                    title:'If checked the study will not be sent'
-                }
-            ],
-            warningOn:{
-                message:'Stud will not be sent!',
-                conditions:[
-                    '[result][checkboxes][only-stgcmt]',
-                    '[result][checkboxes][only-ian]'
-                ]
-            },
-            saveButton: "EXPORT"
-        };
+        this.exporter(
+            this.studyURL(study.attrs),
+            "Export study",
+            "Study will not be sent!"
+        );
+    };
+    exportSeries(series) {
+        this.exporter(
+            this.seriesURL(series.attrs),
+            "Export series",
+            "Series will not be sent!"
+        );
+    };
+    exportInstance(instance) {
+        this.exporter(
+            this.instanceURL(instance.attrs),
+            "Export instance",
+            "Instance will not be sent!"
+        );
+    };
+    exporter(url, title, warning){
         let $this = this;
-        this.confirm(parameters).subscribe(result => {
-            if (result) {
+        let id;
+        let noDicomExporters = [];
+        let dicomPrefixes = [];
+        _.forEach(this.exporters, (m, i)=>{
+            if(m.id.indexOf(":") > -1){
+                dicomPrefixes.push(m);
+            }else{
+                noDicomExporters.push(m);
+            }
+        });
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(ExportDialogComponent, this.config);
+        this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
+        this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
+        this.dialogRef.componentInstance.title = title;
+        this.dialogRef.componentInstance.warning = warning;
+        this.dialogRef.afterClosed().subscribe(result => {
+            if(result){
                 $this.cfpLoadingBar.start();
-                console.log("result2",result);
-                console.log("result2",parameters.result.select);
+                if(result.exportType === "dicom"){
+                    id = result.dicomPrefix + result.selectedAet;
+                }else{
+                    id = result.selectedExporter;
+                }
                 $this.$http.post(
-                    $this.studyURL(study.attrs) + '/export/' + parameters.result.select+'?'+this.mainservice.param(parameters.result.checkboxes),
+                    url  + '/export/' + id +'?'+this.mainservice.param(result.checkboxes),
                     {},
                     $this.jsonHeader
                 ).subscribe(
@@ -1762,194 +1767,9 @@ export class StudiesComponent implements OnDestroy{
                         $this.cfpLoadingBar.complete();
                     }
                 );
-
             }
         });
-    };
-    exportSeries(series) {
-        console.log("exporters",this.exporters);
-        let select:any = [];
-        _.forEach(this.exporters, (m,i)=>{
-            select.push({
-                title:m.description,
-                value:m.id,
-                label:m.id
-            });
-        });
-        let parameters: any = {
-            content: 'Select Exporter',
-            select: select,
-            result: {
-                select:this.exporters[0].id,
-                checkboxes:{}
-            },
-            checkboxes:[
-                {
-                    name:'only-stgcmt',
-                    label:'Storage commitment without export',
-                    title:'If checked the series will not be sent'
-                },
-                {
-                    name:'only-ian',
-                    label:'IAN without export',
-                    title:'If checked the series will not be sent'
-                }
-            ],
-            warningOn:{
-                message:'Series will not be sent!',
-                conditions:[
-                    '[result][checkboxes][only-stgcmt]',
-                    '[result][checkboxes][only-ian]'
-                ]
-            },
-            saveButton: "EXPORT"
-        };
-        console.log("parameters", parameters);
-        let $this = this;
-        this.confirm(parameters).subscribe(result => {
-            if (result) {
-                $this.cfpLoadingBar.start();
-                console.log("result",result);
-                console.log("result",parameters.result.select);
-                $this.$http.post(
-                    $this.seriesURL(series.attrs) + '/export/' + parameters.result.select+'?'+this.mainservice.param(parameters.result.checkboxes),
-                    {},
-                    $this.jsonHeader
-                ).subscribe(
-                    (result)=>{
-                        $this.mainservice.setMessage({
-                            "title": "Info",
-                            "text": "Series exported successfully!",
-                            "status": "info"
-                        });
-                        $this.cfpLoadingBar.complete();
-                    },
-                    (err) => {
-                      console.log("err",err);
-                        $this.mainservice.setMessage({
-                            "title": "Error "+err.status,
-                            "text": err.statusText,
-                            "status": "error"
-                        });
-                        $this.cfpLoadingBar.complete();
-                    }
-                );
-
-            }
-        });
-/*        var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
-        vex.dialog.open({
-            message: 'Select Exporter',
-            input: html,
-            buttons: [
-                $.extend({}, vex.dialog.buttons.YES, {
-                    text: 'Export'
-                }), $.extend({}, vex.dialog.buttons.NO, {
-                    text: 'Cancel'
-                })
-            ],
-            callback: function(data) {
-                if (data === false) {
-                    return console.log('Cancelled');
-                }else{
-                    $http.post(seriesURL(series.attrs) + '/export/' + $scope.exporterID);
-                }
-            }
-        });*/
-    };
-    exportInstance(instance) {
-        console.log("exporters",this.exporters);
-        let select:any = [];
-        _.forEach(this.exporters, (m,i)=>{
-            select.push({
-                title:m.description,
-                value:m.id,
-                label:m.id
-            });
-        });
-        let parameters: any = {
-            content: 'Select Exporter',
-            select: select,
-            result: {
-                select:this.exporters[0].id,
-                checkboxes:{}
-            },
-            checkboxes:[
-                {
-                    name:'only-stgcmt',
-                    label:'Storage commitment without export',
-                    title:'If checked the instance will not be sent'
-
-                },
-                {
-                    name:'only-ian',
-                    label:'IAN without export',
-                    title:'If checked the instance will not be sent'
-                }
-            ],
-            warningOn:{
-                message:'Instance will not be sent!',
-                conditions:[
-                    '[result][checkboxes][only-stgcmt]',
-                    '[result][checkboxes][only-ian]'
-                ]
-            },
-            saveButton: "EXPORT"
-        };
-        console.log("parameters", parameters);
-        let $this = this;
-        this.confirm(parameters).subscribe(result => {
-            if (result) {
-                $this.cfpLoadingBar.start();
-                console.log("result",result);
-                console.log("result",parameters.result.select);
-                $this.$http.post(
-                    $this.instanceURL(instance.attrs) + '/export/' + parameters.result.select+'?'+this.mainservice.param(parameters.result.checkboxes),
-                    {},
-                    $this.jsonHeader
-                ).subscribe(
-                    (result)=>{
-                        $this.mainservice.setMessage({
-                            "title": "Info",
-                            "text": "Instance exported successfully!",
-                            "status": "info"
-                        });
-                        $this.cfpLoadingBar.complete();
-                    },
-                    (err) => {
-                        console.log("err",err);
-                        $this.mainservice.setMessage({
-                            "title": "Error "+err.status,
-                            "text": err.statusText,
-                            "status": "error"
-                        });
-                        $this.cfpLoadingBar.complete();
-                    }
-                );
-
-            }
-        });
-/*        var html = $compile('<select id="exporter" ng-model="exporterID" class="col-md-12"><option ng-repeat="exporter in exporters" title="{{exporter.description}}">{{exporter.id}}</option></select>')($scope);
-        vex.dialog.open({
-            message: 'Select Exporter',
-            input: html,
-            buttons: [
-                $.extend({}, vex.dialog.buttons.YES, {
-                    text: 'Export'
-                }), $.extend({}, vex.dialog.buttons.NO, {
-                    text: 'Cancel'
-                })
-            ],
-            callback: function(data) {
-                if (data === false) {
-                    return console.log('Cancelled');
-                }else{
-                    $http.post(instanceURL(instance.attrs) + '/export/' + $scope.exporterID);
-                }
-            }
-        });*/
-
-    };
+    }
     queryMWL(offset){
         this.queryMode = "queryMWL";
         this.moreStudies = undefined;
@@ -2805,6 +2625,8 @@ export class StudiesComponent implements OnDestroy{
         }
     };
     ctrlV() {
+        console.log("ctrlv clipboard",this.clipboard);
+        console.log("ctrlv size",_.size(this.clipboard));
         if (_.size(this.clipboard) > 0) {
             this.cfpLoadingBar.start();
             let headers:Headers = new Headers({'Content-Type': 'application/json'});
@@ -3401,10 +3223,10 @@ export class StudiesComponent implements OnDestroy{
                     console.log("all "+ failed+ "failed!");
                 }
                 if(failed === 0){
-                    console.log(success+ " verified successfully, 0 failed!");
+                    console.log(success+ " verified successfully 0 failed!");
                     this.mainservice.setMessage( {
                         "title": msgStatus,
-                        "text": success+ " verified successfully, 0 failed!",
+                        "text": success+ " verified successfully\n 0 failed!",
                         "status": msgStatus.toLowerCase()
                     });
                 }
@@ -3501,6 +3323,7 @@ export class StudiesComponent implements OnDestroy{
             });
         }
     };
+
     removeClipboardElement(modus, keys){
         this.service.removeClipboardElement(modus, keys, this.clipboard);
     }

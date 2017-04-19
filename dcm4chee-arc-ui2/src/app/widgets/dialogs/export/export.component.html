@@ -1,0 +1,42 @@
+<div class="vex vex-theme-os export" xmlns="http://www.w3.org/1999/html" (keydown)="dialogKeyHandler($event,dialogRef)">
+    <div class="vex-dialog-form">
+        <h5>{{title}}</h5>
+        <div class="content">
+            <p>Select the type of the exporter:</p>
+            <label>
+                <input type="radio" name="exportType" value="dicom" [(ngModel)]="result.exportType"> Dicom exporter
+            </label><br>
+            <label>
+                <input type="radio" name="exportType" value="nonedicom" [(ngModel)]="result.exportType"> No dicom exporter
+            </label>
+            <div class="dicomBlock" *ngIf="result.exportType == 'dicom'">
+                <p>Select the exporter-template and the AETitle:</p>
+                <select class="prefix" [(ngModel)]="result.dicomPrefix">
+                    <option value="{{prefix.id}}" *ngFor="let prefix of dicomPrefixes">{{prefix.id}}</option>
+                </select>
+                <select class="aes" [(ngModel)]="result.selectedAet">
+                    <option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes">{{aet.dicomAETitle}}</option>
+                </select>
+            </div>
+            <div class="noneDicomBlock"  *ngIf="result.exportType != 'dicom'">
+                <p>Select the exporter:</p>
+                <select [(ngModel)]="result.selectedExporter">
+                    <option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters">{{exporter.id}}</option>
+                </select>
+            </div>
+            <label title="If checked the study will not be sent">
+                <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> Storage commitment without export
+            </label><br>
+            <label title="If checked the study will not be sent">
+                <input type="checkbox" name="only-ian" [(ngModel)]="result['checkboxes']['only-ian']"> IAN without export
+            </label>
+            <div *ngIf="(_.hasIn(result,'checkboxes.only-stgcmt') && result['checkboxes']['only-stgcmt']) || (_.hasIn(result,'checkboxes.only-ian') && result['checkboxes']['only-ian'])" >
+                <span class="text-danger">{{warning}}</span>
+            </div>
+        </div>
+        <div class="dialogbuttons">
+            <button class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()">EXPORT</button>
+            <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCEL</button>
+        </div>
+    </div>
+</div>

@@ -726,3 +726,25 @@ md-dialog-container{
     left: 15px;
   }
 }
+.export{
+  select{
+    background: white;
+    border: 1px solid #ccc;
+  }
+  .dicomBlock,.noneDicomBlock{
+    margin:15px 0;
+  }
+  .dicomBlock{
+    select.prefix{
+      width:30%;
+    }
+    select.aes{
+      width:69%;
+    }
+  }
+  .noneDicomBlock{
+    select{
+      width:100%;
+    }
+  }
+}

@@ -17,6 +17,7 @@ import { ProductLabellingComponent } from './dialogs/product-labelling/product-l
 import {DynamicFormElementComponent} from "./dynamicform/dynamic-form-element.component";
 import {DynamicFormComponent} from "./dynamicform/dynamic-form.component";
 import { CreateExporterComponent } from './dialogs/create-exporter/create-exporter.component';
+import { ExportDialogComponent } from './dialogs/export/export.component';
 
 
 @NgModule({
@@ -41,5 +42,6 @@ export const WidgetsComponents = [
     ConfirmComponent,
     DeleteRejectedInstancesComponent,
     ProductLabellingComponent,
-    CreateExporterComponent
+    CreateExporterComponent,
+    ExportDialogComponent
 ];
