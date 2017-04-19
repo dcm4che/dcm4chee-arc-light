@@ -46,9 +46,10 @@
                             </div>
                             <div class="inputblock">
                                 <label class="title">URI</label>
-                                <select [ngModel]="dcmExporter.dcmURI" (ngModelChange)="setDcmUri($event)" name="dcmURI">
+<!--                                <select [ngModel]="dcmExporter.dcmURI" (ngModelChange)="setDcmUri($event)" name="dcmURI">
                                     <option [value]="uri" *ngFor="let uri of externalAeConnections">{{uri}}</option>
-                                </select>
+                                </select>-->
+                                <input type="text" [(ngModel)]="dcmExporter.dcmURI" >
                                 <span class="description">RFC2079: Uniform Resource Identifier</span>
                             </div>
                             <div class="inputblock">
