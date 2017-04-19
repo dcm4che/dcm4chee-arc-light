@@ -21,7 +21,8 @@ export class CreateExporterComponent {
         dcmURI : undefined,
         dcmQueueName : undefined,
         dicomAETitle : undefined,
-        dicomDescription : ''
+        dicomDescription : '',
+        dcmStgCmtSCP : undefined
     };
     externalAeConnections;
     externalAe;
@@ -72,11 +73,11 @@ export class CreateExporterComponent {
 /*    setDcmUri(e){
         this.dcmExporter.dcmURI = "dicom:" + this.externalAeConnections.dicomAETitle;
     };*/
-    setExternalAe(e){
-        if(e.dicomDeviceName){
+    setDcmStgCmtSCP(e){
+            this.dcmExporter.dcmStgCmtSCP = e.dicomAETitle;
+        // if(e.dicomDeviceName){
             let $this = this;
             this.externalAeObject = e;
-            this.dcmExporter.dcmURI = "dicom:" + e.dicomAETitle;
 
             /*           this.service.getDevice(e.dicomDeviceName).subscribe(device => {
                            // $this.selectedDeviceObject = device;
@@ -110,13 +111,13 @@ export class CreateExporterComponent {
                            });
                            $this.cfpLoadingBar.complete();
                        });*/
-        }else{
+/*        }else{
             this.mainservice.setMessage({
                 "title": "Error ",
                 "text": "The selected AE is not connected to any device",
                 "status": "error"
             });
-        }
+        }*/
     };
     selectDevice(e){
         // this.getDevice(e, this.selectedDeviceObject);

@@ -20,7 +20,7 @@
                                     <span class="description">Already existing devices</span>
                                 </div>
                             </div>
-                            <h4 (click)="showexternalae=!showexternalae;showdevice=false">External AE <b *ngIf="!showexternalae && externalAe">{{externalAe}}</b></h4>
+<!--                            <h4 (click)="showexternalae=!showexternalae;showdevice=false">External AE <b *ngIf="!showexternalae && externalAe">{{externalAe}}</b></h4>
                             <div class="content" *ngIf="showexternalae === true">
                                 <div class="block">
                                     <div class="label_part">
@@ -33,7 +33,7 @@
                                     </div>
                                     <span class="description">Already existing aes</span>
                                 </div>
-                            </div>
+                            </div>-->
                         </div>
                         <div class="exporter_block">
 
@@ -70,6 +70,14 @@
                                 <label class="title">Exporter Description</label>
                                 <textarea type="text" [(ngModel)]="dcmExporter.dicomDescription"></textarea>
                                 <span class="description">Unconstrained text description of the exporter</span>
+                            </div>
+                            <div class="inputblock">
+                                <label class="title">Storage Commitment SCP AE Title</label>
+                                <select [ngModel]="externalAeObject" (ngModelChange)="setDcmStgCmtSCP($event)" name="dcmStgCmtSCP">
+                                    <option [ngValue]="{}">-</option>
+                                    <option [ngValue]="obj" *ngFor="let obj of aes">{{obj.dicomAETitle}}</option>
+                                </select>
+                                <span class="description">AE Title of external Storage Commitment SCP used to verify export to another archive.</span>
                             </div>
                             </div>
                         </div>
