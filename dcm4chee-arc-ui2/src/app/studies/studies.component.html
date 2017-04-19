@@ -809,7 +809,7 @@
                                     <a class="hiddenbuttons" *ngIf="isRole('admin')" (click)="$event.preventDefault();editStudy(patients[patient._KEY], patient._KEY, study._KEY, study._VALUE)" href="" title="Edit study">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </a>
-                                    <a class="hiddenbuttons" (click)="$event.preventDefault();exportStudy(study._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export study">
+                                    <a class="hiddenbuttons" (click)="$event.preventDefault();exportStudy(study._VALUE)" *ngIf="showExporter() && isRole('admin')" href="" title="Export study">
                                         <span class="glyphicon glyphicon-export"></span>
                                     </a>
                                     <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('study', study._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitment">
@@ -880,7 +880,7 @@
                                                     <div class="checkbox_content hiddenbuttons">
                                                         <input type="checkbox" [(ngModel)]="series._VALUE.selected" (change)='select(series._VALUE,"series", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY},"fromcheckbox")'>
                                                     </div>
-                                                    <a class="hiddenbuttons" (click)="$event.preventDefault();exportSeries(series._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export Series">
+                                                    <a class="hiddenbuttons" (click)="$event.preventDefault();exportSeries(series._VALUE)" *ngIf="showExporter() && isRole('admin')" href="" title="Export Series">
                                                         <span class="glyphicon glyphicon-export"></span>
                                                     </a>
                                                     <a class="hiddenbuttons" *ngIf="(!trashaktive && isRole('admin') && _.hasIn(series._VALUE,'attrs.00201208.Value[0]') && !_.isEqual(series._VALUE.attrs['00201208'].Value[0], 0))" (click)="$event.preventDefault();rejectSeries(series._VALUE)" href="" title="Reject Series">
@@ -930,7 +930,7 @@
                                                         <div class="checkbox_content hiddenbuttons">
                                                             <input type="checkbox" [(ngModel)]="instance._VALUE.selected" (change)='select(instance._VALUE,"instance", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY},"fromcheckbox")'>
                                                         </div>
-                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();exportInstance(instance._VALUE)" *ngIf="exporterID && isRole('admin')" href="" title="Export instance">
+                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();exportInstance(instance._VALUE)" *ngIf="showExporter() && isRole('admin')" href="" title="Export instance">
                                                             <span class="glyphicon glyphicon-export"></span>
                                                         </a>
                                                         <a class="hiddenbuttons" *ngIf="!trashaktive && isRole('admin')" (click)="$event.preventDefault();rejectInstance(instance._VALUE)" href="" title="Reject instance">

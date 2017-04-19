@@ -3344,6 +3344,13 @@ export class StudiesComponent implements OnDestroy{
                         this.initExporters(retries-1);
                 });
     }
+    showExporter(){
+        if(_.size(this.exporters) > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
     initRjNotes(retries) {
         let $this = this;
        this.$http.get("../reject")
