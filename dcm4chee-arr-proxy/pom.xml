@@ -72,7 +72,7 @@
         <version>${maven-war-plugin.version}</version>
         <configuration>
           <classifier>${classifier}</classifier>
-          <webXml>${webXml}</webXml>
+          <warSourceDirectory>${warSourceDirectory}</warSourceDirectory>
           <webappDirectory>${project.build.directory}/${project.build.finalName}-${classifier}</webappDirectory>
         </configuration>
       </plugin>
@@ -88,7 +88,7 @@
         </property>
       </activation>
       <properties>
-        <webXml>${project.basedir}/src/main/webxml/web.xml</webXml>
+        <warSourceDirectory>${project.basedir}/src/main/webapp</warSourceDirectory>
         <classifier>unsecure</classifier>
       </properties>
     </profile>
@@ -100,7 +100,7 @@
         </property>
       </activation>
       <properties>
-        <webXml>${project.basedir}/src/main/webxml/web-secure.xml</webXml>
+        <warSourceDirectory>${project.basedir}/src/main/webapp-secure</warSourceDirectory>
         <classifier>secure</classifier>
       </properties>
     </profile>
