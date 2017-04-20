@@ -35,19 +35,25 @@ export class DeviceConfiguratorService {
         let currentschemaposition = _.cloneDeep(schema);
         let parentkey;
         let parentSchema;
-        _.forEach(paramArray,(m)=>{
-            if(!_.hasIn(currentschemaposition,m)){
-                console.log("in if csp=", currentschemaposition);
-                console.log("in if m=", m);
-                return null;
-            }else{
-                parentkey = m;
-                parentSchema = currentschemaposition;
-                currentschemaposition = currentschemaposition[m];
-            }
-        });
+        if(_.hasIn(schema,schemaparam)){
 
-        return currentschemaposition;
+            _.forEach(paramArray,(m)=>{
+                if(!_.hasIn(currentschemaposition,m)){
+                    console.log("in if csp=", currentschemaposition);
+                    console.log("in if m=", m);
+                    currentschemaposition = null;
+                    return null;
+                }else{
+                    parentkey = m;
+                    parentSchema = currentschemaposition;
+                    currentschemaposition = currentschemaposition[m];
+                }
+            });
+
+            return currentschemaposition;
+        }else{
+            return null;
+        }
     };
     replaceCharactersInTitleKey(string, object){
             let re = /{(.*?)}/g;
@@ -168,7 +174,7 @@ export class DeviceConfiguratorService {
                                             // $this.replaceCharactersInTitleKey(m.titleKey,valm);
                                             url = '/device/edit/'+params.device;
                                             url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
-                                            url = url +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
+                                            url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
                                             if(_.hasIn(m,"titleKey")){
                                                 title = $this.replaceCharactersInTitleKey(m.titleKey,valm);
                                             }else{
@@ -183,7 +189,7 @@ export class DeviceConfiguratorService {
                                         });
                                         let addUrl = '/device/edit/'+params.device;
                                         addUrl = addUrl +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+(maxVali+1)+']':'/'+i+'['+(maxVali+1)+']');
-                                        addUrl = addUrl +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
+                                        addUrl = addUrl +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
                                         console.log("addUrl",addUrl);
                                         form.push({
                                             controlType:"buttondropdown",
@@ -195,7 +201,7 @@ export class DeviceConfiguratorService {
                                     }else{
                                         url = '/device/edit/'+params.device;
                                         url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i:'/'+i);
-                                        url = url +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
+                                        url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
                                         console.log("url",url);
                                         form.push({
                                             controlType:"button",

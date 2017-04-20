@@ -10,7 +10,6 @@ export class GetKeyPipe implements PipeTransform {
         for (let key in value) {
             keys.push({_KEY: key, _VALUE: value[key]});
         }
-        console.log("keys",keys);
         return keys;
     }
 
