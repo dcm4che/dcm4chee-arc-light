@@ -70,54 +70,10 @@ export class CreateExporterComponent {
     setQueue(e){
         this.dcmExporter.dcmQueueName = e;
     }
-/*    setDcmUri(e){
-        this.dcmExporter.dcmURI = "dicom:" + this.externalAeConnections.dicomAETitle;
-    };*/
     setDcmStgCmtSCP(e){
             this.dcmExporter.dcmStgCmtSCP = e.dicomAETitle;
-        // if(e.dicomDeviceName){
             let $this = this;
             this.externalAeObject = e;
-
-            /*           this.service.getDevice(e.dicomDeviceName).subscribe(device => {
-                           // $this.selectedDeviceObject = device;
-                           if(_.hasIn(device,'dicomNetworkConnection') && _.size(device.dicomNetworkConnection) > 0){
-                               $this.externalAeConnections = [];
-                               _.forEach(device.dicomNetworkConnection,(m, i)=>{
-                                   $this.externalAeConnections.push('dicom:' + e.dicomAETitle);
-                               });
-                               $this.externalAe = e.dicomAETitle;
-                               $this.dcmExporter.dcmExporterID = e.dicomAETitle;
-                               $this.dcmExporter.dicomDescription = 'Export to ' + e.dicomAETitle;
-                               if(_.size($this.externalAeConnections) === 1){
-                                   $this.dcmExporter.dcmURI = $this.externalAeConnections[0];
-                               }
-                               $this.showexternalae = false;
-                               if($this.externalAe && $this.selectedDeviceObject)
-                                   $this.showexporter = true;
-                           }else{
-                               $this.mainservice.setMessage({
-                                   "title": "Error ",
-                                   "text": "The selected External AE" + e + " doesn't have any connections defined!",
-                                   "status": "error"
-                               });
-                           }
-                           $this.cfpLoadingBar.stop();
-                       },(err) => {
-                           $this.mainservice.setMessage({
-                               "title": "Error " + err.status,
-                               "text": err.statusText,
-                               "status": "error"
-                           });
-                           $this.cfpLoadingBar.complete();
-                       });*/
-/*        }else{
-            this.mainservice.setMessage({
-                "title": "Error ",
-                "text": "The selected AE is not connected to any device",
-                "status": "error"
-            });
-        }*/
     };
     selectDevice(e){
         // this.getDevice(e, this.selectedDeviceObject);

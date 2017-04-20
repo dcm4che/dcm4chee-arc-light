@@ -5,6 +5,7 @@
         <!--<br> in ngswitch {{formelement |json}}<br>-->
         <input *ngSwitchCase="'text'" [formControlName]="formelement.key" [id]="formelement.key" [type]="formelement.type" />
         <select *ngSwitchCase="'dropdown'" [id]="formelement.key" [formControlName]="formelement.key">
+            <option value="">-</option>
             <option *ngFor="let opt of formelement.options" [value]="opt.key">{{opt.value}}</option>
         </select>
         <div *ngSwitchCase="'radio'">
