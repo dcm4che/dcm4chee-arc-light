@@ -376,12 +376,12 @@ export class StudiesService {
     isTargetInClipboard(target, clipboard){
         let contains = false;
         _.forEach(clipboard.otherObjects,(m,i)=>{
-            if(_.isEqual(m, target.otherObjects[i])){
+            if(_.hasIn(target, ["otherObjects",i]) && _.isEqual(m, target.otherObjects[i])){
                contains = true;
             }
         });
         _.forEach(clipboard.patients,(m,i)=>{
-            if(_.isEqual(m, target.patients[i])){
+            if(_.hasIn(target, ["patients",i]) &&  _.isEqual(m, target.patients[i])){
                contains = true;
             }
         });

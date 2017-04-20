@@ -2642,7 +2642,7 @@ export class StudiesComponent implements OnDestroy{
     ctrlV() {
         console.log("ctrlv clipboard",this.clipboard);
         console.log("ctrlv size",_.size(this.clipboard));
-        if (_.size(this.clipboard) > 0) {
+        if (_.size(this.clipboard) > 0 && (_.size(this.selected) > 0 || (_.hasIn(this.selected,"hasPatient") && _.size(this.selected) > 1))) {
             this.cfpLoadingBar.start();
             let headers:Headers = new Headers({'Content-Type': 'application/json'});
 
@@ -2968,6 +2968,10 @@ export class StudiesComponent implements OnDestroy{
                                 }
                             }
 
+                        }else{
+                            $this.service.clearSelection(this.patients);
+                            $this.selected = {};
+                            $this.clipboard = {};
                         }
                         $this.cfpLoadingBar.stop();
                         this.dialogRef = null;
@@ -2980,11 +2984,24 @@ export class StudiesComponent implements OnDestroy{
                 });
             }
         }else {
-            this.mainservice.setMessage({
-                "title": "Warning",
-                "text": "Clipboard is empty, first add something in the clipboard with the copy,cut or merge button",
-                "status":'warning'
-            });
+            if((_.size(this.clipboard) < 1 && (_.size(this.selected) < 1 || (_.hasIn(this.selected,"hasPatient") && _.size(this.selected) < 2)))) {
+                console.warn("ctrl v with empty clipboard and empty selected");
+            }else{
+                if(_.size(this.clipboard) < 1){
+                    this.mainservice.setMessage({
+                        "title": "Warning",
+                        "text": "Clipboard is empty, first add something in the clipboard with the copy,cut or merge button",
+                        "status":'warning'
+                    });
+                }
+                if((_.size(this.selected) < 1 || (_.hasIn(this.selected,"hasPatient") && _.size(this.selected) < 2))){
+                    this.mainservice.setMessage({
+                        "title": "Warning",
+                        "text": "No target object was selected!",
+                        "status":'warning'
+                    });
+                }
+            }
         }
     };
     renderURL(inst) {
