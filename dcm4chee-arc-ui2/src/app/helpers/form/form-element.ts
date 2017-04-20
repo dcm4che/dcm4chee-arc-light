@@ -10,6 +10,7 @@ export class FormElement<T>{
     order: number;
     description:string;
     controlType: string;
+    show: boolean;
     constructor(options: {
         value?: T,
         key?: string,
@@ -17,7 +18,8 @@ export class FormElement<T>{
         required?: boolean,
         order?: number,
         description?: string,
-        controlType?: string
+        controlType?: string,
+        show?: boolean;
     } = {}) {
         this.value = options.value;
         this.key = options.key || '';
@@ -26,5 +28,6 @@ export class FormElement<T>{
         this.order = options.order === undefined ? 1 : options.order;
         this.description = options.description || '';
         this.controlType = options.controlType || '';
+        this.show = options.show || true;
     }
 }

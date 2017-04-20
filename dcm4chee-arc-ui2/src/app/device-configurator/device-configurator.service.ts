@@ -114,7 +114,8 @@ export class DeviceConfiguratorService {
                                         key:i,
                                         label:m.title,
                                         description:m.description,
-                                        options: options
+                                        options: options,
+                                        order:5
                                     }),
                                 );
                             }else{
@@ -124,7 +125,8 @@ export class DeviceConfiguratorService {
                                         label:m.title,
                                         description:m.description,
                                         type: "string",
-                                        value:value
+                                        value:value,
+                                        order:5
                                     })
                                 );
                             }
@@ -138,7 +140,8 @@ export class DeviceConfiguratorService {
                                     options: [
                                         {key: 'True',  value: true},
                                         {key: 'False',  value: false},
-                                    ]
+                                    ],
+                                    order:5
                                 })
                             );
                             break;
@@ -157,7 +160,8 @@ export class DeviceConfiguratorService {
                                         key:i,
                                         label:m.title,
                                         description:m.description,
-                                        options: options
+                                        options: options,
+                                        order:5
                                     })
                                 )
                             }else{
@@ -196,7 +200,8 @@ export class DeviceConfiguratorService {
                                             title:m.title,
                                             description:m.description,
                                             options:options,
-                                            addUrl:addUrl
+                                            addUrl:addUrl,
+                                            order:3
                                         });
                                     }else{
                                         url = '/device/edit/'+params.device;
@@ -208,7 +213,8 @@ export class DeviceConfiguratorService {
                                             title:m.title,
                                             description:m.description,
                                             key:i,
-                                            url:url
+                                            url:url,
+                                            order:1
                                         });
                                     }
                                 }else{
@@ -231,7 +237,8 @@ export class DeviceConfiguratorService {
                                                 title:title,
                                                 description:m.description,
                                                 key:i,
-                                                url:url
+                                                url:url,
+                                                order:3
                                             })
                                         });
                                         let addUrl = '/device/edit/'+params.device;
@@ -243,7 +250,8 @@ export class DeviceConfiguratorService {
                                             title:m.title,
                                             description:m.description,
                                             options:options,
-                                            addUrl:addUrl
+                                            addUrl:addUrl,
+                                            order:3
                                         });
                                     }else{
                                         let type = (_.hasIn(m,"items.type")) ? m.items.type : "text";
@@ -253,7 +261,8 @@ export class DeviceConfiguratorService {
                                                 label:m.title,
                                                 description:m.description,
                                                 type: type,
-                                                value:(value)? value:['']
+                                                value:(value)? value:[''],
+                                                order:5
                                             })
                                         );
                                     }
@@ -268,7 +277,8 @@ export class DeviceConfiguratorService {
                                     label:m.title,
                                     description:m.description,
                                     value:value,
-                                    type: "number"
+                                    type: "number",
+                                    order:5
                                 })
                             )
                             break;
@@ -309,7 +319,8 @@ export class DeviceConfiguratorService {
                                     title:m.title,
                                     description:m.description,
                                     key:i,
-                                    url:url
+                                    url:url,
+                                    order:1
                                 });
                             // }
                     }

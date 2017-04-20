@@ -748,3 +748,21 @@ md-dialog-container{
     }
   }
 }
+.dynamicform{
+  .toggle{
+    h4{
+      background: rgba(6, 29, 47, 0.84);
+      box-shadow: 1px 6px 6px -3px #a3a1a1;
+      color: white !important;
+      display: block;
+      float: left;
+      margin-bottom: 0px;
+      margin-top: 10px;
+      padding: 5px 10px;
+      width: 100%;
+      &:hover{
+        cursor: pointer;
+      }
+    }
+  }
+}

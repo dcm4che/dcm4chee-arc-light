@@ -18,7 +18,7 @@ export class DynamicFormElementComponent{
     @Input() formelement:FormElement<any>;
     @Input() formelements:FormElement<any>[];
     @Input() form:FormGroup;
-
+    activetab = "tab_1";
     constructor(private formservice:FormService, private formcomp:DynamicFormComponent, dcl: ComponentFactoryResolver, elementRef: ElementRef, private router:Router){
         // dcl.resolveComponentFactory(DynamicFormComponent);
     }
@@ -29,8 +29,8 @@ export class DynamicFormElementComponent{
     addElement(element:any, formpart:FormControl[]){
         // console.log("in addelement element",element);
         // console.log("in addelement element",element[0]);
-        var globarForm = this.formcomp.getForm();
-        var valueObject = globarForm.value;
+        var globalForm = this.formcomp.getForm();
+        var valueObject = globalForm.value;
         element.push(element[0]);
         // console.log("in addelement element",element);
         // console.log("form",this.form.controls["arraytest"]["controls"]);
@@ -53,9 +53,9 @@ export class DynamicFormElementComponent{
         formpart = formpart || [];
         element = element || [];
         element.push("");
-        var globarForm = this.formcomp.getForm();
+        var globalForm = this.formcomp.getForm();
         formpart.push(new FormControl(""));
-        var valueObject = globarForm.value;
+        var valueObject = globalForm.value;
         this.form = this.formservice.toFormGroup(this.formelements);
         this.form.patchValue(valueObject);
         this.formcomp.setForm(this.form);
@@ -63,8 +63,8 @@ export class DynamicFormElementComponent{
     }
     removeArrayElement(element:any, i:number, form:any){
         if(element.value.length > i){
-            var globarForm = this.formcomp.getForm();
-            var valueObject = globarForm.value;
+            var globalForm = this.formcomp.getForm();
+            var valueObject = globalForm.value;
             element.value.splice(i, 1);
             form.controls[element.key].value.splice(i,1);
             this.form = this.formservice.toFormGroup(this.formelements);
@@ -87,5 +87,26 @@ export class DynamicFormElementComponent{
         if(e != '-'){
             this.router.navigateByUrl(e);
         }
+    }
+    toggleTab(orderId){
+        var globalForm = this.formcomp.getForm();
+        var valueObject = globalForm.value;
+
+        _.forEach(this.formelements,(m,i)=>{
+           if(m.order === orderId+1){
+               if(m.show === true){
+                   m.show = false;
+               }else{
+                   m.show = true;
+               }
+           } else{
+               m.show = false;
+           }
+        });
+        this.form = this.formservice.toFormGroup(this.formelements);
+        this.form.patchValue(valueObject);
+        this.formcomp.setForm(this.form);
+        this.formcomp.setFormModel(valueObject);
+        this.activetab = 'tab_'+(orderId-1);
     }
 }

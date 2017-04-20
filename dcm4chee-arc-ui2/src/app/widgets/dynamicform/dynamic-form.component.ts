@@ -6,6 +6,8 @@ import {FormGroup} from "@angular/forms";
 import {FormService} from "../../helpers/form/form.service";
 import {FormElement} from "../../helpers/form/form-element";
 import {Output} from "@angular/core/src/metadata/directives";
+import {OrderByPipe} from "../../pipes/order-by.pipe";
+import * as _ from "lodash";
 
 @Component({
     selector:'dynamic-form',
@@ -18,6 +20,7 @@ export class DynamicFormComponent implements OnInit{
     @Output() submitFunction = new EventEmitter<any>();
     form: FormGroup;
     payLoad = '';
+    partSearch = "";
 
     constructor(private formservice:FormService){}
     // submi(){
@@ -25,7 +28,37 @@ export class DynamicFormComponent implements OnInit{
     //     this.submitFunction.emmit("test");
     // }
     ngOnInit(): void {
-        this.form = this.formservice.toFormGroup(this.formelements);
+        console.log("formelements",this.formelements);
+        let orderedGroup:any = new OrderByPipe().transform(this.formelements,"order");
+        let orderValue = 0;
+        let order = 0;
+        _.forEach(orderedGroup, (m, i)=>{
+            if(orderValue != m.order){
+                let title = "";
+                switch(m.order) {
+                    case 1:
+                        title = "Extensions";
+                        order = 0;
+                        break;
+                    case 3:
+                        title = "Child Objects";
+                        order = 2;
+                        break;
+                    default:
+                        title = "Attributes";
+                        order = 4;
+                }
+                orderedGroup.splice(i, 0, {
+                    controlType:"togglebutton",
+                    title:title,
+                    orderId:m.order,
+                    order:order
+                });
+            }
+            orderValue = m.order;
+        });
+        let formGroup:any = this.formservice.toFormGroup(orderedGroup);
+        this.form = formGroup;
         console.log("after convert form",this.form);
         //Test setting some values
         console.log("this.model=",this.model);
