@@ -878,7 +878,7 @@
                                                 <div class="exeq_buttons" >
                                                     <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,6)"></div>
                                                     <div class="checkbox_content hiddenbuttons">
-                                                        <input type="checkbox" [(ngModel)]="series._VALUE.selected" (change)='select(series._VALUE,"series", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY},"fromcheckbox")'>
+                                                        <input type="checkbox" [ngModel]="series._VALUE.selected" (change)='select(series._VALUE,"series", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY},"fromcheckbox")'>
                                                     </div>
                                                     <a class="hiddenbuttons" (click)="$event.preventDefault();exportSeries(series._VALUE)" *ngIf="showExporter() && isRole('admin')" href="" title="Export Series">
                                                         <span class="glyphicon glyphicon-export"></span>
@@ -928,7 +928,7 @@
                                                     <div class="exeq_buttons">
                                                         <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,7)"></div>
                                                         <div class="checkbox_content hiddenbuttons">
-                                                            <input type="checkbox" [(ngModel)]="instance._VALUE.selected" (change)='select(instance._VALUE,"instance", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY},"fromcheckbox")'>
+                                                            <input type="checkbox" [ngModel]="instance._VALUE.selected" (change)='select(instance._VALUE,"instance", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY},"fromcheckbox")'>
                                                         </div>
                                                         <a class="hiddenbuttons" (click)="$event.preventDefault();exportInstance(instance._VALUE)" *ngIf="showExporter() && isRole('admin')" href="" title="Export instance">
                                                             <span class="glyphicon glyphicon-export"></span>

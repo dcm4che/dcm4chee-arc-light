@@ -477,7 +477,6 @@ export class StudiesComponent implements OnDestroy{
         console.log("after set ",this.studyTime);
     }
     extendedFilter(...args: any[]){
-        console.log("args",arguments);
         if(args.length > 1){
             args[1].preventDefault();
             args[1].stopPropagation();
@@ -2280,7 +2279,7 @@ export class StudiesComponent implements OnDestroy{
         console.log("2object selected",object.selected);
         // this.selected['otherObjects'][object.attrs["0020000D"].Value[0]]["modus"] = this.selected['otherObjects'][object.attrs["0020000D"].Value[0]]["modus"] || modus;
         // console.log("",);
-        if(object.selected && object.selected === true){
+        if(_.hasIn(object,"selected") && object.selected === true){
             this.selected['otherObjects'] = this.selected['otherObjects'] || {};
             if(modus === "patient"){
 /*                if(!_.isset(object.attrs["00100020"].Value[0])){
@@ -2434,7 +2433,22 @@ export class StudiesComponent implements OnDestroy{
                 // }
             }else{
                 console.log("in else",modus);
-                delete this.selected['otherObjects'][object.attrs["0020000D"].Value[0]];
+                if(_.hasIn(this.selected,['otherObjects',object.attrs["0020000D"].Value[0]])){
+                    delete this.selected['otherObjects'][object.attrs["0020000D"].Value[0]];
+                }
+                if(modus === "study"){
+                    _.forEach(object.series, (m,k)=>{
+                        m.selected = object.selected;
+                        _.forEach(m.instances, (j,i) => {
+                            j.selected = object.selected;
+                        });
+                    });
+                }
+                if(modus === "series"){
+                    _.forEach(object.instances, function(j,i){
+                        j.selected = object.selected;
+                    });
+                }
 /*                this.selected['otherObjects'][object.attrs["0020000D"].Value[0]] = this.selected['otherObjects'][object.attrs["0020000D"].Value[0]] || {};
                 this.selected['otherObjects'][object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] = this.selected['otherObjects'][object.attrs["0020000D"].Value[0]]["StudyInstanceUID"] || object.attrs["0020000D"].Value[0];*/
             }
@@ -2593,7 +2607,8 @@ export class StudiesComponent implements OnDestroy{
                     // this.clipboard.selected = angular.merge({},this.clipboard.selected, this.selected['otherObjects']);
                     // delete this.selected['otherObjects'].patients;
                     console.log("this.selected['otherObjects']",this.selected['otherObjects']);
-                    this.service.MergeRecursive(this.clipboard,this.selected);
+                    // this.service.MergeRecursive(this.clipboard,this.selected);
+                    _.merge(this.clipboard,this.selected);
                     console.log("this.clipboard",this.clipboard);
                     if(this.clipboard.action && this.clipboard.action === "move"){
                         let $this = this;
