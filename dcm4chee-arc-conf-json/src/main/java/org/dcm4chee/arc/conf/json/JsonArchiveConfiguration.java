@@ -183,6 +183,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("hl7PSUMWL", arcDev.isHl7PSUMWL(), false);
         writer.writeNotNull("dcmAcceptConflictingPatientID", arcDev.getAcceptConflictingPatientID());
         writer.writeNotNull("dcmAuditRecordRepositoryURL", arcDev.getAuditRecordRepositoryURL());
+        writer.writeNotNull("dcmElasticSearchURL", arcDev.getElasticSearchURL());
+        writer.writeNotNull("dcmAudit2JsonFhirTemplateURI", arcDev.getAudit2JsonFhirTemplateURI());
+        writer.writeNotNull("dcmAudit2XmlFhirTemplateURI", arcDev.getAudit2XmlFhirTemplateURI());
         writer.writeNotNull("dcmCopyMoveUpdatePolicy", arcDev.getCopyMoveUpdatePolicy());
         writer.writeNotDef("hl7TrackChangedPatientID", arcDev.isHl7TrackChangedPatientID(), true);
         writer.writeNotNull("dcmInvokeImageDisplayPatientURL", arcDev.getInvokeImageDisplayPatientURL());
@@ -879,6 +882,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAuditRecordRepositoryURL":
                     arcDev.setAuditRecordRepositoryURL(reader.stringValue());
+                    break;
+                case "dcmElasticSearchURL":
+                    arcDev.setElasticSearchURL(reader.stringValue());
+                    break;
+                case "dcmAudit2JsonFhirTemplateURI":
+                    arcDev.setAudit2JsonFhirTemplateURI(reader.stringValue());
+                    break;
+                case "dcmAudit2XmlFhirTemplateURI":
+                    arcDev.setAudit2XmlFhirTemplateURI(reader.stringValue());
                     break;
                 case "dcmCopyMoveUpdatePolicy":
                     arcDev.setCopyMoveUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));

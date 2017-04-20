@@ -159,6 +159,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration hl7PSUTaskPollingInterval;
     private boolean hl7PSUMWL = false;
     private String auditRecordRepositoryURL;
+    private String elasticSearchURL;
+    private String atna2JsonFhirTemplateURI;
+    private String atna2XmlFhirTemplateURI;
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
     private boolean hl7TrackChangedPatientID = true;
     private String invokeImageDisplayPatientURL;
@@ -1413,6 +1416,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.auditRecordRepositoryURL = auditRecordRepositoryURL;
     }
 
+    public String getElasticSearchURL() {
+        return elasticSearchURL;
+    }
+
+    public void setElasticSearchURL(String elasticSearchURL) {
+        this.elasticSearchURL = elasticSearchURL;
+    }
+
+    public String getAudit2JsonFhirTemplateURI() {
+        return atna2JsonFhirTemplateURI;
+    }
+
+    public void setAudit2JsonFhirTemplateURI(String atna2JsonFhirTemplateURI) {
+        this.atna2JsonFhirTemplateURI = atna2JsonFhirTemplateURI;
+    }
+
+    public String getAudit2XmlFhirTemplateURI() {
+        return atna2XmlFhirTemplateURI;
+    }
+
+    public void setAudit2XmlFhirTemplateURI(String atna2XmlFhirTemplateURI) {
+        this.atna2XmlFhirTemplateURI = atna2XmlFhirTemplateURI;
+    }
+
     public Attributes.UpdatePolicy getCopyMoveUpdatePolicy() {
         return copyMoveUpdatePolicy;
     }
@@ -1605,6 +1632,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUMWL = arcdev.hl7PSUMWL;
         acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
         auditRecordRepositoryURL = arcdev.auditRecordRepositoryURL;
+        elasticSearchURL = arcdev.elasticSearchURL;
+        atna2JsonFhirTemplateURI = arcdev.atna2JsonFhirTemplateURI;
+        atna2XmlFhirTemplateURI = arcdev.atna2XmlFhirTemplateURI;
         copyMoveUpdatePolicy = arcdev.copyMoveUpdatePolicy;
         hl7TrackChangedPatientID = arcdev.hl7TrackChangedPatientID;
         invokeImageDisplayPatientURL = arcdev.invokeImageDisplayPatientURL;

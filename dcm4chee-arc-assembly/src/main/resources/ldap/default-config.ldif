@@ -24,8 +24,10 @@ dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc
 dcmSendPendingCMoveInterval: PT5S
 dcmQidoMaxNumberOfResults: 1000
 dcmIanTaskPollingInterval: PT1M
+dcmElasticSearchURL: http://elasticsearch:9200
 dcmAECacheStaleTimeout: PT5M
 dcmFuzzyAlgorithmClass: org.dcm4che3.soundex.ESoundex
+dcmAudit2XmlFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl
 dcmExportTaskPollingInterval: PT1M
 dcmKeyStoreType: JKS
 dcmRejectExpiredStudiesAETitle: DCM4CHEE
@@ -57,6 +59,7 @@ dicomManufacturerModelName: dcm4chee-arc
 dcmOverwritePolicy: SAME_SOURCE
 dcmSendPendingCGet: TRUE
 dcmQueryRetrieveViewID: hideRejected
+dcmAudit2JsonFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl
 dicomDeviceName: dcm4chee-arc
 dcmPurgeStgCmtPollingInterval: PT1H
 dcmRejectExpiredStudiesFetchSize: 10

@@ -832,6 +832,23 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.167 NAME 'hl7ScheduledStationAETInOr
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.168 NAME 'dcmElasticSearchURL'
+  DESC 'Access URL of Elastic Search. E.g. http://elasticsearch:9200'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.169 NAME 'dcmAudit2JsonFhirTemplateURI'
+  DESC 'Specifies URI for the style sheet to transcode Audit Message to a FHIR JSON Resource Audit Event'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.170 NAME 'dcmAudit2XmlFhirTemplateURI'
+  DESC 'Specifies URI for the style sheet to transcode Audit Message to a FHIR XML Resource Audit Event'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -934,6 +951,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmAllowDeleteStudyPermanently $
     dcmRemapRetrieveURL $
     dcmAuditRecordRepositoryURL $
+    dcmElasticSearchURL $
+    dcmAudit2JsonFhirTemplateURI $
+    dcmAudit2XmlFhirTemplateURI $
     dcmInvokeImageDisplayPatientURL $
     dcmInvokeImageDisplayStudyURL $
     dcmCopyMoveUpdatePolicy $

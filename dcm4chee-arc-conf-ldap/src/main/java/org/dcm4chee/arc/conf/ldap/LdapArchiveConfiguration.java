@@ -177,6 +177,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(attrs, "hl7PSUMWL", ext.isHl7PSUMWL(), false);
         LdapUtils.storeNotNull(attrs, "dcmAcceptConflictingPatientID", ext.getAcceptConflictingPatientID());
         LdapUtils.storeNotNull(attrs, "dcmAuditRecordRepositoryURL", ext.getAuditRecordRepositoryURL());
+        LdapUtils.storeNotNull(attrs, "dcmElasticSearchURL", ext.getElasticSearchURL());
+        LdapUtils.storeNotNull(attrs,"dcmAudit2JsonFhirTemplateURI", ext.getAudit2JsonFhirTemplateURI());
+        LdapUtils.storeNotNull(attrs,"dcmAudit2XmlFhirTemplateURI", ext.getAudit2XmlFhirTemplateURI());
         LdapUtils.storeNotNull(attrs, "dcmCopyMoveUpdatePolicy", ext.getCopyMoveUpdatePolicy());
         LdapUtils.storeNotDef(attrs, "hl7TrackChangedPatientID", ext.isHl7TrackChangedPatientID(), true);
         LdapUtils.storeNotNull(attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL());
@@ -300,6 +303,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAcceptConflictingPatientID(
                 LdapUtils.enumValue(AcceptConflictingPatientID.class, attrs.get("dcmAcceptConflictingPatientID"), null));
         ext.setAuditRecordRepositoryURL(LdapUtils.stringValue(attrs.get("dcmAuditRecordRepositoryURL"), null));
+        ext.setElasticSearchURL(LdapUtils.stringValue(attrs.get("dcmElasticSearchURL"), null));
+        ext.setAudit2JsonFhirTemplateURI(LdapUtils.stringValue(attrs.get("dcmAudit2JsonFhirTemplateURI"), null));
+        ext.setAudit2XmlFhirTemplateURI(LdapUtils.stringValue(attrs.get("setAudit2XmlFhirTemplateURI"), null));
         ext.setCopyMoveUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmCopyMoveUpdatePolicy"), null));
         ext.setHl7TrackChangedPatientID(LdapUtils.booleanValue(attrs.get("hl7TrackChangedPatientID"), true));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
@@ -489,6 +495,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "hl7PSUMWL", aa.isHl7PSUMWL(), bb.isHl7PSUMWL(), false);
         LdapUtils.storeDiff(mods, "dcmAcceptConflictingPatientID", aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID());
         LdapUtils.storeDiff(mods, "dcmAuditRecordRepositoryURL", aa.getAuditRecordRepositoryURL(), bb.getAuditRecordRepositoryURL());
+        LdapUtils.storeDiff(mods, "dcmElasticSearchURL", aa.getElasticSearchURL(), bb.getElasticSearchURL());
+        LdapUtils.storeDiff(mods,"dcmAudit2JsonFhirTemplateURI", aa.getAudit2JsonFhirTemplateURI(), bb.getAudit2JsonFhirTemplateURI());
+        LdapUtils.storeDiff(mods,"dcmAudit2XmlFhirTemplateURI", aa.getAudit2XmlFhirTemplateURI(), bb.getAudit2XmlFhirTemplateURI());
         LdapUtils.storeDiff(mods, "dcmCopyMoveUpdatePolicy", aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy());
         LdapUtils.storeDiff(mods, "hl7TrackChangedPatientID",
                 aa.isHl7TrackChangedPatientID(), bb.isHl7TrackChangedPatientID(), true);

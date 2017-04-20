@@ -868,6 +868,8 @@ class ArchiveDeviceFactory {
     static final String CORRECT_VR = "${jboss.server.temp.url}/dcm4chee-arc/correct-vr.xsl";
     static final String ENSURE_PID = "${jboss.server.temp.url}/dcm4chee-arc/ensure-pid.xsl";
     static final String MERGE_MWL = "${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl";
+    static final String AUDIT2JSONFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl";
+    static final String AUDIT2XMLFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl";
     static final String PIX_CONSUMER = "DCM4CHEE|DCM4CHEE";
 
     static final String PIX_MANAGER = "HL7RCV|DCM4CHEE";
@@ -959,6 +961,7 @@ class ArchiveDeviceFactory {
     static final Duration PURGE_STGCMT_COMPLETED_DELAY = Duration.parse("P1D");
     static final Duration PURGE_STGCMT_POLLING_INTERVAL = Duration.parse("PT1H");
     static final String AUDIT_RECORD_REPOSITORY_URL = "http://kibana:5601";
+    static final String ELASTIC_SEARCH_URL = "http://elasticsearch:9200";
 
 
     static {
@@ -1263,6 +1266,9 @@ class ArchiveDeviceFactory {
         ext.setRejectExpiredSeriesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
 
         ext.setAuditRecordRepositoryURL(AUDIT_RECORD_REPOSITORY_URL);
+        ext.setElasticSearchURL(ELASTIC_SEARCH_URL);
+        ext.setAudit2JsonFhirTemplateURI(AUDIT2JSONFHIR_XSL);
+        ext.setAudit2XmlFhirTemplateURI(AUDIT2XMLFHIR_XSL);
 
         ext.setAttributeFilter(Entity.Patient, newAttributeFilter(PATIENT_ATTRS, Attributes.UpdatePolicy.SUPPLEMENT));
         ext.setAttributeFilter(Entity.Study, newAttributeFilter(STUDY_ATTRS, Attributes.UpdatePolicy.MERGE));
