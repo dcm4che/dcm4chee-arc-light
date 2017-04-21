@@ -21,6 +21,8 @@ export class DynamicFormComponent implements OnInit{
     form: FormGroup;
     payLoad = '';
     partSearch = "";
+    prevPartSearch = "";
+    listStateBeforeSearch:FormElement<any>[];
 
     constructor(private formservice:FormService){}
     // submi(){
@@ -71,6 +73,23 @@ export class DynamicFormComponent implements OnInit{
         console.log("form",this.form);
     }
 
+    showAll(){
+        if(this.partSearch != ''){
+            if(this.partSearch.length === 1 && this.prevPartSearch.length < this.partSearch.length){
+                this.listStateBeforeSearch = _.cloneDeep(this.formelements);
+                _.forEach(this.formelements,(m,i)=>{
+                    if(!m.show){
+                        m.show = true;
+                    }
+                });
+            }
+        }else{
+            if(_.size(this.listStateBeforeSearch) > 0){
+                this.formelements = _.cloneDeep(this.listStateBeforeSearch);
+            }
+        }
+        this.prevPartSearch = this.partSearch;
+    }
     onSubmit(){
         this.payLoad = JSON.stringify(this.form.value);
         console.log("this.form.value",this.form.value);

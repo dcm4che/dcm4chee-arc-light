@@ -57,21 +57,16 @@ export class DeviceConfiguratorComponent implements OnInit {
     }
     ngOnInit() {
         let $this = this;
+        let form;
         this.params = $this.service.pagination;
         this.route.params
             // .switchMap((params: Params) => this.service.getHero(+params['id']))
             .subscribe((params) => {
                 $this.recentParams = params;
-
-                console.log("params",params);
-                console.log("dev beforegetting",$this.device);
-                console.log("dev from service",$this.service.device);
-
                 // $this.service.getSchema('device.schema.json').subscribe(schema => {
 /*                $this.formObj = undefined;
                 $this.model = undefined;*/
                 if(!(_.hasIn(params,"devicereff") && _.hasIn(params,"schema")) || !$this.service.schema){
-                    console.log("*************in first if");
                     let newPaginationObject = {
                         url:"/device/edit/"+params["device"],
                         title:params["device"],
@@ -85,20 +80,16 @@ export class DeviceConfiguratorComponent implements OnInit {
                     }else{
                         $this.service.pagination.push(newPaginationObject);
                     }
-                    console.log("afterpagination");
                     if($this.service.device && params['device'] === $this.service.device.dicomDeviceName && $this.service.schema) {
-                        console.log("*************in first if2");
                         $this.deleteForm();
                         $this.showform = false;
                         $this.model = $this.service.device;
-                        let form =  $this.service.convertSchemaToForm($this.service.device, $this.service.schema, params);
+                        form =  $this.service.convertSchemaToForm($this.service.device, $this.service.schema, params);
                         $this.formObj = form;
                         setTimeout(()=>{
                             $this.showform = true;
                         },1);
                     }else{
-                        console.log("*************in else0.1");
-
                         Observable.combineLatest(
                             $this.service.getDevice(params['device']),
                             $this.$http.get('./assets/schema/device.schema.json').map(data => data.json())
@@ -110,8 +101,6 @@ export class DeviceConfiguratorComponent implements OnInit {
                             $this.schema = deviceschema[1];
                             $this.service.schema = deviceschema[1];
                             let formObject = $this.service.convertSchemaToForm($this.device, $this.schema, params);
-                            console.log("-+-+-+-+-+formObject",formObject);
-                            console.log("-+-+-+-+-+device",$this.device);
                             $this.formObj = formObject;
                             $this.model = {};
                             setTimeout(()=>{
@@ -120,45 +109,32 @@ export class DeviceConfiguratorComponent implements OnInit {
                         });
                     }
                 }else{
-                    console.log("*************in else1");
-
                     let lastreff = $this.service.pagination[$this.service.pagination.length-1].devicereff;
-                    console.log("lastreff",lastreff);
-                    let newTitle = params["devicereff"];
+                    let newModel:any = _.get(this.service.device,params["devicereff"]);
+                    let newSchema = $this.service.getSchemaFromPath($this.service.schema, params['schema']);
+                    let title = $this.service.getPaginationTitleFromModel(newModel,newSchema);
                     let newPaginationObject = {
                         url:"/device/edit/"+params["device"]+"/"+params["devicereff"]+"/"+params["schema"],
-                        title:_.replace(newTitle,lastreff,''),
+                        // title:_.replace(newTitle,lastreff,''),
+                        title:title,
                         devicereff:params["devicereff"]
                     };
                     let newPaginationIndex = _.findIndex($this.service.pagination, (p)=>{ return p.url === newPaginationObject.url});
-                    console.log("newPaginationIndex",newPaginationIndex);
                     if(newPaginationIndex > -1){
-                        console.log("++++++++++++++++++++++in dropright", $this.service.pagination.length - newPaginationIndex);
-                        console.log("beforedrop", _.cloneDeep($this.service.pagination));
                         let dropedPaginations = _.dropRight($this.service.pagination,$this.service.pagination.length - newPaginationIndex-1);
-                        console.log("droppedpaginations",dropedPaginations);
                         $this.service.pagination = dropedPaginations;
-                        console.log("afterdrop", _.cloneDeep($this.service.pagination));
                         $this.params = dropedPaginations;
                     }else{
                         $this.service.pagination.push(newPaginationObject);
                     }
                     $this.deleteForm();
                     $this.showform = false;
-                    let getDevice = params['devicereff'];
-                    let schemaparam = params['schema'];
-                    let form;
-                    $this.model = _.get($this.service.device,getDevice);
-                    console.log("device",$this.service.device);
-                    console.log("schema",_.cloneDeep($this.service.schema));
-                    let newSchema = $this.service.getSchemaFromPath($this.service.schema,schemaparam);
-                    console.log("newschema after init",_.cloneDeep(newSchema));
+                    $this.model = newModel;
                     if(_.hasIn(newSchema,"$ref") || _.hasIn(newSchema,"items.$ref") ||  _.hasIn(newSchema,"properties.$ref")){
                         let schemaName;
                         let deleteRef;
                         let refPath = '';
                         if(_.hasIn(newSchema,"properties.$ref")){
-                            console.log("----in1");
                             schemaName = newSchema.properties.$ref;
                             refPath = 'properties';
                             deleteRef = ()=>{
@@ -166,7 +142,6 @@ export class DeviceConfiguratorComponent implements OnInit {
                             }
                         }
                         if(_.hasIn(newSchema,"items.$ref")){
-                            console.log("----in2");
                             schemaName = newSchema.items.$ref;
                             refPath = 'items';
                             deleteRef = ()=>{
@@ -174,51 +149,30 @@ export class DeviceConfiguratorComponent implements OnInit {
                             }
                         }
                         if(_.hasIn(newSchema,"$ref")){
-                            console.log("----in3");
-
                             schemaName = newSchema.$ref;
                             deleteRef = ()=>{
                                 delete newSchema.$ref;
                             }
                         }
                         $this.service.getSchema(schemaName).subscribe(subRefSchema => {
-                            console.log("mainschema",_.cloneDeep($this.service.schema));
                             deleteRef();
-                            console.log("subrefschema",_.cloneDeep(subRefSchema));
-                            console.log("afterdeleteref",_.cloneDeep(newSchema));
                             if(refPath === ""){
                                 _.merge(newSchema,subRefSchema);
-                                console.log("in if merge newschema",_.cloneDeep(newSchema));
                             }else{
                                 _.set(newSchema,refPath,subRefSchema);
-                                console.log("in else set newschema",_.cloneDeep(newSchema));
                                 refPath = '.'+refPath;
                             }
                             _.set($this.service.schema,params["schema"],newSchema);
-                            console.log("mainschema2",_.cloneDeep($this.service.schema));
-
-                            console.log("currentschma after merge",newSchema);
-                            console.log("service.schema after set",$this.service.schema);
                             form = $this.service.convertSchemaToForm($this.model,newSchema, params);
-                            console.log("form after value if",form);
                             $this.formObj = form;
                             setTimeout(()=>{
                                 $this.showform = true;
                             },1);
                         });
                     }else{
-                        console.log("*************in else3");
-                        let getDevice = params['devicereff'];
-                        let schemaparam = params['schema'];
-                        console.log("service.schema",$this.service.schema);
-                        let newSchema = $this.service.getSchemaFromPath($this.service.schema,schemaparam);
-                        console.log("newSchema",newSchema);
-                        $this.model = _.get($this.service.device,getDevice);
-                        console.log("this.model",$this.model);
-                        form = $this.service.convertSchemaToForm($this.model,newSchema, params);
-                        console.log("form after value setelse",form);
+                        // let newSchema = $this.service.getSchemaFromPath($this.service.schema,schemaparam);
+                        form = $this.service.convertSchemaToForm(newModel,newSchema, params);
                         _.set($this.service.schema,params["schema"],newSchema);
-                        console.log("service.schema after set",$this.service.schema);
                         $this.formObj = form;
                         setTimeout(()=>{
                             $this.showform = true;

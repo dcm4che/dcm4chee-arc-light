@@ -22,6 +22,15 @@ export class DeviceConfiguratorService {
             devicereff:undefined
         }
     ];
+    getPaginationTitleFromModel(model,schemaObject){
+        let title ="test2";
+        if(_.hasIn(schemaObject,"type") && schemaObject.type === "array"){
+            title = this.replaceCharactersInTitleKey(schemaObject.titleKey,model);
+        }else{
+            title = schemaObject.title;
+        }
+        return title;
+    }
     getDevice(devicename){
         return this.$http.get('../devices/' + devicename).map(device => device.json());
     }
@@ -227,7 +236,7 @@ export class DeviceConfiguratorService {
                                             // $this.replaceCharactersInTitleKey(m.titleKey,valm);
                                             url = '/device/edit/'+params.device;
                                             url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
-                                            url = url +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
+                                            url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
                                             if(_.hasIn(m,"titleKey")){
                                                 title = $this.replaceCharactersInTitleKey(m.titleKey,valm);
                                             }else{
@@ -243,7 +252,7 @@ export class DeviceConfiguratorService {
                                         });
                                         let addUrl = '/device/edit/'+params.device;
                                         addUrl = addUrl +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+(maxVali+1)+']':'/'+i+'['+(maxVali+1)+']');
-                                        addUrl = addUrl +  ((params.schema) ? '/'+params.schema+'.items.properties.'+i:'/properties.'+i);
+                                        addUrl = addUrl +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
                                         console.log("*addUrl",addUrl);
                                         form.push({
                                             controlType:"buttondropdown",
