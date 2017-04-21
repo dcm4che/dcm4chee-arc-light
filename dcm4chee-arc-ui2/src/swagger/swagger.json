@@ -659,7 +659,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "attributeFilter.schema.json"
+              "$ref": "../assets/schema/attributeFilter.schema.json"
             }
           },
           "404": {
