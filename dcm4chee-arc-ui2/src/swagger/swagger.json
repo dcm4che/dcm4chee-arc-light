@@ -297,7 +297,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "device.schema.json"
+              "$ref": "../assets/schema/device.schema.json"
             }
           },
           "404": {
@@ -331,7 +331,7 @@
             "description": "new device",
             "required": true,
             "schema": {
-              "$ref": "device.schema.json"
+              "$ref": "../assets/schema/device.schema.json"
             }
           }
         ],
@@ -370,7 +370,7 @@
             "description": "updated device",
             "required": true,
             "schema": {
-              "$ref": "device.schema.json"
+              "$ref": "../assets/schema/device.schema.json"
             }
           }
         ],
