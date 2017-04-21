@@ -381,7 +381,7 @@ public class QueryServiceEJB {
                 .where(predicate)
                 .fetch();
 
-        if (tuples.isEmpty())
+        if (tuples.isEmpty() && type != SOPInstanceRefsType.KOS_XDSI)
             return null;
 
         if (type == SOPInstanceRefsType.STGCMT)
