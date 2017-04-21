@@ -109,7 +109,6 @@ export class DeviceConfiguratorComponent implements OnInit {
                         });
                     }
                 }else{
-                    let lastreff = $this.service.pagination[$this.service.pagination.length-1].devicereff;
                     let newModel:any = _.get(this.service.device,params["devicereff"]);
                     let newSchema = $this.service.getSchemaFromPath($this.service.schema, params['schema']);
                     let title = $this.service.getPaginationTitleFromModel(newModel,newSchema);

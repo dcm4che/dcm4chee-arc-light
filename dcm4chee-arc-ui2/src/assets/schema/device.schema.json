@@ -36,32 +36,38 @@
     "dicomDeviceName": {
       "title": "Device Name",
       "description": "A unique name for this device",
-      "type": "string"
+      "type": "string",
+      "order":1
     },
     "dicomDescription": {
       "title": "Device Description",
       "description": "Unconstrained text description of the device",
-      "type": "string"
+      "type": "string",
+      "order":2
     },
     "dicomDeviceUID": {
       "title": "Device UID",
       "description": "Unique identifier of the device",
-      "type": "string"
+      "type": "string",
+      "order":3
     },
     "dicomManufacturer": {
       "title": "Manufacturer",
       "description": "Should be the same as the value of Manufacturer (0008,0070) in SOP instances created by this device",
-      "type": "string"
+      "type": "string",
+      "order":4
     },
     "dicomManufacturerModelName": {
       "title": "Manufacturer Model Name",
       "description": "Should be the same as the value of Manufacturer Model Name (0008,1090) in SOP instances created by this device",
-      "type": "string"
+      "type": "string",
+      "order":5
     },
     "dicomSoftwareVersion": {
       "title": "Software Version",
       "description": "Should be the same as the values of Software Versions (0018,1020) in SOP instances created by this device",
       "type": "array",
+      "order":6,
       "items": {
         "type": "string"
       }
@@ -69,17 +75,20 @@
     "dicomStationName": {
       "title": "Station Name",
       "description": "Should be the same as the value of Station Name (0008,1010) in SOP instances created by this device",
-      "type": "string"
+      "type": "string",
+      "order":7
     },
     "dicomDeviceSerialNumber": {
       "title": "Device Serial Number",
       "description": "Should be the same as the value of Device Serial Number (0018,1000) in SOP instances created by this device",
-      "type": "string"
+      "type": "string",
+      "order":8
     },
     "dicomPrimaryDeviceType": {
       "title": "Primary Device Type",
       "description": "Represents the kind of device and is most applicable for acquisition modalities",
       "type": "array",
+      "order":9,
       "items": {
         "type": "string"
       }
@@ -88,6 +97,7 @@
       "title": "Institution Name",
       "description": "Should be the same as the value of Institution Name (0008,0080) in SOP Instances created by this device",
       "type": "array",
+      "order":10,
       "items": {
         "type": "string"
       }
@@ -96,6 +106,7 @@
       "title": "Institution Code",
       "description": "Institution Code(s) in format (CV, CSD, \"CM\")",
       "type": "array",
+      "order":11,
       "items": {
         "type": "string"
       }
@@ -104,6 +115,7 @@
       "title": "Institution Address",
       "description": "Should be the same as the value of Institution Address (0008,0081) attribute in SOP Instances created by this device",
       "type": "array",
+      "order":12,
       "items": {
         "type": "string"
       }
@@ -112,6 +124,7 @@
       "title": "Institution Department Name",
       "description": "Should be the same as the value of Institutional Department Name (0008,1040) in SOP Instances created by this device",
       "type": "array",
+      "order":13,
       "items": {
         "type": "string"
       }
@@ -119,47 +132,56 @@
     "dicomIssuerOfPatientID": {
       "title": "Issuer of Patient ID",
       "description": "Default value for the Issuer of Patient ID (0010,0021), and optionally also default values for the Universal Entity ID (0040,0032) and the Universal Entity ID Type (0040,0033) of the Item of the Issuer of Patient ID Qualifiers Sequence (0010,0024) for SOP Instances created or queried by this device. Format: <Issuer of Patient ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
-      "type": "string"
+      "type": "string",
+      "order":14
     },
     "dicomIssuerOfAccessionNumber": {
       "title": "Issuer of Accession Number",
       "description": "Default values for the Local Namespace Entity ID (0040,0031), the Universal Entity ID (0040,0032) and the Universal Entity ID Type (0040,0033) of the Item of the Issuer of Accession Number Sequence (0008,0051) for SOP Instances created or queried by this device. Format: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
-      "type": "string"
+      "type": "string",
+      "order":15
     },
     "dicomOrderPlacerIdentifier": {
       "title": "Order Placer Identifier",
       "description": "Default values for the Local Namespace Entity ID (0040,0031), the Universal Entity ID (0040,0032) and the Universal Entity ID Type (0040,0033) of the Item of the Order Placer Identifier Sequence (0040,0026) for SOP Instances created or queried by this device. Format: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
-      "type": "string"
+      "type": "string",
+      "order":16
     },
     "dicomOrderFillerIdentifier": {
       "title": "Order Filler Identifier",
       "description": "Default values for the Local Namespace Entity ID (0040,0031), the Universal Entity ID (0040,0032) and the Universal Entity ID Type (0040,0033) of the Item of the Order Filler Identifier Sequence (0040,0027) for SOP Instances created or queried by this device. Format: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
-      "type": "string"
+      "type": "string",
+      "order":17
     },
     "dicomIssuerOfAdmissionID": {
       "title": "Issuer of Admission ID",
       "description": "Default values for the Local Namespace Entity ID (0040,0031), the Universal Entity ID (0040,0032) and the Universal Entity ID Type (0040,0033) of the Item of the Issuer of Admission ID Sequence (0038,0014) for SOP Instances created or queried by this device. Format: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
-      "type": "string"
+      "type": "string",
+      "order":18
     },
     "dicomIssuerOfServiceEpisodeID": {
       "title": "Issuer of Service Episode ID",
       "description": "Default values for the Local Namespace Entity ID (0040,0031), the Universal Entity ID (0040,0032) and the Universal Entity ID Type (0040,0033) of the Item of the Issuer of Service Episode ID Sequence (0038,0064) for SOP Instances created or queried by this device. Format: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
-      "type": "string"
+      "type": "string",
+      "order":19
     },
     "dicomIssuerOfContainerIdentifier": {
       "title": "Issuer of Container Identifier",
       "description": "Default values for the Local Namespace Entity ID (0040,0031), the Universal Entity ID (0040,0032) and the Universal Entity ID Type (0040,0033) of the Item of the Issuer of Container Identifier Sequence (0040,0513) for SOP Instances created or queried by this device. Format: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
-      "type": "string"
+      "type": "string",
+      "order":20
     },
     "dicomIssuerOfSpecimenIdentifier": {
       "title": "Issuer of Specimen Identifier",
       "description": "Default values for the Local Namespace Entity ID (0040,0031), the Universal Entity ID (0040,0032) and the Universal Entity ID Type (0040,0033) of the Item of the Issuer of Specimen Identifier Sequence (0040,0562) for SOP Instances created or queried by this device. Format: <Local Namespace Entity ID>['&'<Universal Entity ID>'&'<Universal Entity ID Type>]",
-      "type": "string"
+      "type": "string",
+      "order":21
     },
     "dicomAuthorizedNodeCertificateReference": {
       "title": "Authorized Node Certificate Reference",
       "description": "The DNs for the certificates of nodes that are authorized to connect to this device",
       "type": "array",
+      "order":22,
       "items": {
         "type": "string"
       }
@@ -168,6 +190,7 @@
       "title": "This Node Certificate Reference",
       "description": "The DNs of the public certificate(s) for this node",
       "type": "array",
+      "order":23,
       "items": {
         "type": "string"
       }
@@ -176,12 +199,14 @@
       "title": "installed",
       "description": "Boolean to indicate whether this device is presently installed on the network",
       "type": "boolean",
+      "order":24,
       "default": true
     },
     "dicomNetworkConnection": {
       "title": "Network Connections",
       "description": "network connections of the device",
       "type": "array",
+      "order":25,
       "titleKey":"{dicomHostname}:{dicomPort}",
       "items": {
         "$ref": "networkConnection.schema.json"
@@ -192,6 +217,7 @@
       "description": "Application entity provided by the device",
       "type": "array",
       "titleKey":"{dicomAETitle}",
+      "order":26,
       "items": {
         "$ref": "networkAE.schema.json"
       }
@@ -199,13 +225,15 @@
     "dcmDevice": {
       "title": "dcm4che Device Attributes",
       "description": "dcm4che proprietary Device Attributes",
-      "$ref": "dcmDevice.schema.json"
+      "$ref": "dcmDevice.schema.json",
+      "order":27
     },
     "hl7Application": {
       "title": "HL7 Applications",
       "description": "HL7 Applications provided by the Device",
       "type": "array",
       "titleKey":"{hl7ApplicationName}",
+      "order":28,
       "items": {
         "$ref": "hl7Application.schema.json"
       }
@@ -215,6 +243,7 @@
       "description": "Specifies Java Image IO Image Writers with Write Parameters used for compressing DICOM images",
       "type": "array",
       "titleKey":"{dicomTransferSyntax}",
+      "order":29,
       "items": {
         "$ref": "imageWriter.schema.json"
       }
@@ -224,6 +253,7 @@
       "description": "Specifies Java Image IO Image Readers used for decompressing compressed DICOM images",
       "type": "array",
       "titleKey":"{dicomTransferSyntax}",
+      "order":30,
       "items": {
         "$ref": "imageReader.schema.json"
       }
@@ -233,6 +263,7 @@
       "description": "Audit Logger related information",
       "titleKey":"{cn}",
       "type": "array",
+      "order":31,
       "items" : {
         "$ref": "auditLogger.schema.json"
       }
@@ -240,11 +271,13 @@
     "dcmAuditRecordRepository": {
       "title": "Audit Record Repository",
       "description": "Audit Record Repository related information",
-      "$ref": "auditRecordRepository.schema.json"
+      "$ref": "auditRecordRepository.schema.json",
+      "order":32
     },
     "dcmArchiveDevice": {
       "title": "Archive Device",
       "description": "DICOM Archive Device related information",
+      "order":33,
       "$ref": "archiveDevice.schema.json"
     }
   }

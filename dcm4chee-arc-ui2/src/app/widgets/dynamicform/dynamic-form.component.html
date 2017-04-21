@@ -1,7 +1,7 @@
 <div>
     <input placeholder="Search in this part..." [(ngModel)]="partSearch" (keyup)="showAll()">
     <form (ngSubmit)="onSubmit()" [formGroup]="form">
-        <div *ngFor="let formelement of formelements|search:partSearch|orderBy:'order'" class="form-row">
+        <div *ngFor="let formelement of filteredFormElements" class="form-row">
             <df-element [formelement]="formelement" [formelements]="formelements" [form]="form"></df-element>
         </div>
         <div class="form-row">

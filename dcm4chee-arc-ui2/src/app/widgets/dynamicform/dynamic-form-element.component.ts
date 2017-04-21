@@ -18,7 +18,7 @@ export class DynamicFormElementComponent{
     @Input() formelement:FormElement<any>;
     @Input() formelements:FormElement<any>[];
     @Input() form:FormGroup;
-    activetab = "tab_1";
+    // activetab = "tab_1";
     constructor(private formservice:FormService, private formcomp:DynamicFormComponent, dcl: ComponentFactoryResolver, elementRef: ElementRef, private router:Router){
         // dcl.resolveComponentFactory(DynamicFormComponent);
     }
@@ -83,7 +83,6 @@ export class DynamicFormElementComponent{
         }
     }
     navigateTo(e){
-        console.log("NAVIGATE TO",e);
         if(e != '-'){
             this.router.navigateByUrl(e);
         }
@@ -93,7 +92,7 @@ export class DynamicFormElementComponent{
         var valueObject = globalForm.value;
 
         _.forEach(this.formelements,(m,i)=>{
-           if(m.order === orderId+1){
+           if(Math.floor(m.order) === orderId+1){
                if(m.show === true){
                    m.show = false;
                }else{
@@ -107,6 +106,6 @@ export class DynamicFormElementComponent{
         this.form.patchValue(valueObject);
         this.formcomp.setForm(this.form);
         this.formcomp.setFormModel(valueObject);
-        this.activetab = 'tab_'+(orderId-1);
+        // this.activetab = 'tab_'+(orderId-1);
     }
 }

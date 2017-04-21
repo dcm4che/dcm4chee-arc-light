@@ -23,11 +23,13 @@ export class DeviceConfiguratorService {
         }
     ];
     getPaginationTitleFromModel(model,schemaObject){
-        let title ="test2";
+        let title ="object";
         if(_.hasIn(schemaObject,"type") && schemaObject.type === "array"){
             title = this.replaceCharactersInTitleKey(schemaObject.titleKey,model);
         }else{
-            title = schemaObject.title;
+            if(_.hasIn(schemaObject,"title")){
+                title = schemaObject.title;
+            }
         }
         return title;
     }
@@ -107,6 +109,10 @@ export class DeviceConfiguratorService {
                     if(_.hasIn(device,i)){
                         value = device[i];
                     }
+                    let newOrderSuffix = 0;
+                    if(m.order){
+                        newOrderSuffix = parseInt(m.order) / 100;
+                    }
                     switch(m.type) {
                         case "string":
                             if(_.hasIn(m,"enum")){
@@ -124,7 +130,7 @@ export class DeviceConfiguratorService {
                                         label:m.title,
                                         description:m.description,
                                         options: options,
-                                        order:5
+                                        order:(5+newOrderSuffix)
                                     }),
                                 );
                             }else{
@@ -135,7 +141,7 @@ export class DeviceConfiguratorService {
                                         description:m.description,
                                         type: "string",
                                         value:value,
-                                        order:5
+                                        order:(5+newOrderSuffix)
                                     })
                                 );
                             }
@@ -150,7 +156,7 @@ export class DeviceConfiguratorService {
                                         {key: 'True',  value: true},
                                         {key: 'False',  value: false},
                                     ],
-                                    order:5
+                                    order:(5+newOrderSuffix)
                                 })
                             );
                             break;
@@ -170,7 +176,7 @@ export class DeviceConfiguratorService {
                                         label:m.title,
                                         description:m.description,
                                         options: options,
-                                        order:5
+                                        order:(5+newOrderSuffix)
                                     })
                                 )
                             }else{
@@ -210,7 +216,7 @@ export class DeviceConfiguratorService {
                                             description:m.description,
                                             options:options,
                                             addUrl:addUrl,
-                                            order:3
+                                            order:(3+newOrderSuffix)
                                         });
                                     }else{
                                         url = '/device/edit/'+params.device;
@@ -223,7 +229,7 @@ export class DeviceConfiguratorService {
                                             description:m.description,
                                             key:i,
                                             url:url,
-                                            order:1
+                                            order:(1+newOrderSuffix)
                                         });
                                     }
                                 }else{
@@ -247,7 +253,7 @@ export class DeviceConfiguratorService {
                                                 description:m.description,
                                                 key:i,
                                                 url:url,
-                                                order:3
+                                                order:(3+newOrderSuffix)
                                             })
                                         });
                                         let addUrl = '/device/edit/'+params.device;
@@ -260,7 +266,7 @@ export class DeviceConfiguratorService {
                                             description:m.description,
                                             options:options,
                                             addUrl:addUrl,
-                                            order:3
+                                            order:(3+newOrderSuffix)
                                         });
                                     }else{
                                         let type = (_.hasIn(m,"items.type")) ? m.items.type : "text";
@@ -271,7 +277,7 @@ export class DeviceConfiguratorService {
                                                 description:m.description,
                                                 type: type,
                                                 value:(value)? value:[''],
-                                                order:5
+                                                order:(5+newOrderSuffix)
                                             })
                                         );
                                     }
@@ -287,7 +293,7 @@ export class DeviceConfiguratorService {
                                     description:m.description,
                                     value:value,
                                     type: "number",
-                                    order:5
+                                    order:(5+newOrderSuffix)
                                 })
                             )
                             break;
@@ -329,7 +335,7 @@ export class DeviceConfiguratorService {
                                     description:m.description,
                                     key:i,
                                     url:url,
-                                    order:1
+                                    order:(1+newOrderSuffix)
                                 });
                             // }
                     }

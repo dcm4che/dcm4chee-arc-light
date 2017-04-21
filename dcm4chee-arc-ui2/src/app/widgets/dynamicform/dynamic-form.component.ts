@@ -8,6 +8,7 @@ import {FormElement} from "../../helpers/form/form-element";
 import {Output} from "@angular/core/src/metadata/directives";
 import {OrderByPipe} from "../../pipes/order-by.pipe";
 import * as _ from "lodash";
+import {SearchPipe} from "../../pipes/search.pipe";
 
 @Component({
     selector:'dynamic-form',
@@ -23,7 +24,7 @@ export class DynamicFormComponent implements OnInit{
     partSearch = "";
     prevPartSearch = "";
     listStateBeforeSearch:FormElement<any>[];
-
+    filteredFormElements:FormElement<any>[];
     constructor(private formservice:FormService){}
     // submi(){
     //     console.log("in submitfunctiondynamicform");
@@ -34,31 +35,32 @@ export class DynamicFormComponent implements OnInit{
         let orderedGroup:any = new OrderByPipe().transform(this.formelements,"order");
         let orderValue = 0;
         let order = 0;
+        // this.filteredFormElements = _.cloneDeep(this.formelements);
         _.forEach(orderedGroup, (m, i)=>{
-            if(orderValue != m.order){
+            if(orderValue != parseInt(m.order)){
                 let title = "";
-                switch(m.order) {
-                    case 1:
-                        title = "Extensions";
-                        order = 0;
-                        break;
-                    case 3:
+                if(1 <= m.order && m.order < 3){
+                    title = "Extensions";
+                    order = 0;
+                }else{
+                    if(3 <= m.order && m.order  < 4) {
                         title = "Child Objects";
                         order = 2;
-                        break;
-                    default:
+                    }else{
                         title = "Attributes";
                         order = 4;
+                    }
                 }
                 orderedGroup.splice(i, 0, {
                     controlType:"togglebutton",
                     title:title,
-                    orderId:m.order,
+                    orderId:order,
                     order:order
                 });
             }
-            orderValue = m.order;
+            orderValue = parseInt(m.order);
         });
+        this.filteredFormElements = orderedGroup;
         let formGroup:any = this.formservice.toFormGroup(orderedGroup);
         this.form = formGroup;
         console.log("after convert form",this.form);
@@ -76,16 +78,18 @@ export class DynamicFormComponent implements OnInit{
     showAll(){
         if(this.partSearch != ''){
             if(this.partSearch.length === 1 && this.prevPartSearch.length < this.partSearch.length){
-                this.listStateBeforeSearch = _.cloneDeep(this.formelements);
+                this.listStateBeforeSearch = _.cloneDeep(this.filteredFormElements);
                 _.forEach(this.formelements,(m,i)=>{
                     if(!m.show){
                         m.show = true;
                     }
                 });
             }
+            this.filteredFormElements = new OrderByPipe().transform(this.formelements,"order");
+            this.filteredFormElements = new SearchPipe().transform(this.filteredFormElements,this.partSearch);
         }else{
             if(_.size(this.listStateBeforeSearch) > 0){
-                this.formelements = _.cloneDeep(this.listStateBeforeSearch);
+                this.filteredFormElements = _.cloneDeep(this.listStateBeforeSearch);
             }
         }
         this.prevPartSearch = this.partSearch;
