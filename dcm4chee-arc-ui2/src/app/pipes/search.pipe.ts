@@ -11,17 +11,19 @@ export class SearchPipe implements PipeTransform {
       if(args === ""){
           return value;
       }else{
-        return value.filter((obj)=>{
-            let keys = _.keysIn(obj);
-            let objString = JSON.stringify(obj).toLowerCase();
-            _.each(keys,(k)=>{
-                if(k){
-                    let re = new RegExp('"'+k.toLowerCase()+'"',"g");
-                    objString = objString.replace(re,'');
-                }
+          if(value){
+            return value.filter((obj)=>{
+                let keys = _.keysIn(obj);
+                let objString = JSON.stringify(obj).toLowerCase();
+                _.each(keys,(k)=>{
+                    if(k){
+                        let re = new RegExp('"'+k.toLowerCase()+'"',"g");
+                        objString = objString.replace(re,'');
+                    }
+                });
+                return objString.indexOf(args.toLowerCase()) !== -1;
             });
-            return objString.indexOf(args.toLowerCase()) !== -1;
-        });
+          }
       }
   }
 

@@ -1,34 +1,34 @@
 <div class="dynamicform" [formGroup]="form">
-    <div *ngIf="formelement.show">
+    <div *ngIf="formelement.show || partSearch != ''">
         <label [attr.for]="formelement.key">{{formelement.label}}</label><br>
     </div>
     <!--form:{{form.controls.arraytest.controls | json}}-->
     <div [ngSwitch]="formelement.controlType">
         <!--<br> in ngswitch {{formelement |json}}<br>-->
-        <div *ngIf="formelement.show">
+        <div *ngIf="formelement.show || partSearch != ''">
             <input *ngSwitchCase="'text'" [formControlName]="formelement.key" [id]="formelement.key" [type]="formelement.type" />
         </div>
-        <div *ngIf="formelement.show">
+        <div *ngIf="formelement.show || partSearch != ''">
             <select *ngSwitchCase="'dropdown'" [id]="formelement.key" [formControlName]="formelement.key">
                 <option value="">-</option>
                 <option *ngFor="let opt of formelement.options" [value]="opt.key">{{opt.value}}</option>
             </select>
         </div>
-        <div *ngIf="formelement.show">
+        <div *ngIf="formelement.show || partSearch != ''">
             <div *ngSwitchCase="'radio'">
                 <div *ngFor="let opt of formelement.options">
                     <input  [id]="formelement.key" [formControlName]="formelement.key" [value]="opt.value" type="radio">{{opt.key}}<br>
                 </div>
             </div>
         </div>
-        <div *ngIf="formelement.show">
+        <div *ngIf="formelement.show || partSearch != ''">
             <div *ngSwitchCase="'checkbox'" [formArrayName]="formelement.key">
                 <div *ngFor="let opt of formelement.options;let checkindex=index" >
                     <input  [id]="formelement.key" [name]="opt.value" [value]="opt.value" (change)="checkboxChange($event,form, formelement)" [checked]="opt.active" type="checkbox">{{opt.key}}<br>
                 </div>
             </div>
         </div>
-        <div *ngIf="formelement.show">
+        <div *ngIf="formelement.show || partSearch != ''">
             <div *ngSwitchCase="'arrayobject'"  [formArrayName]="formelement.key">
                 <div *ngFor="let item of formelement.options; let i=index" name="" [formGroupName]="i" >
                     <div *ngFor="let element of item.element">
@@ -38,7 +38,7 @@
                 <div (click)="addElement(formelement.options, formelement, form.controls[formelement.key].controls)">add</div>
             </div>
         </div>
-        <div *ngIf="formelement.show">
+        <div *ngIf="formelement.show || partSearch != ''">
             <div *ngSwitchCase="'arrayelement'"  [formArrayName]="formelement.key">
                 <div *ngFor="let item of formelement.value; let i=index">
                     <input *ngIf="formelement.type == 'number'" formControlName="{{i}}" type="number">
@@ -48,12 +48,12 @@
                 <div (click)="addArrayElement(formelement.value, form.controls[formelement.key].controls, form)">add</div>
             </div>
         </div>
-        <div *ngIf="formelement.show">
+        <div *ngIf="formelement.show || partSearch != ''">
             <div *ngSwitchCase="'button'">
                 <a class="btn btn-default" [routerLink]="[formelement.url]" title="{{formelement.description}}">{{formelement.title}}</a>
             </div>
         </div>
-        <div *ngIf="formelement.show">
+        <div *ngIf="formelement.show || partSearch != ''">
             <div *ngSwitchCase="'buttondropdown'">
                 <label title="{{formelement.description}}">{{formelement.title}}</label>
                 <select (change)="navigateTo($event.target.value)">
@@ -63,7 +63,7 @@
                 <a class="btn btn-default" [routerLink]="[formelement.addUrl]" title="{{formelement.description}}">Add</a>
             </div>
         </div>
-        <div *ngIf="formelement.show">
+        <div *ngIf="formelement.show || partSearch != ''">
             <span class="description">{{formelement.description}}</span>
         </div>
         <div class="toggle" *ngSwitchCase="'togglebutton'">

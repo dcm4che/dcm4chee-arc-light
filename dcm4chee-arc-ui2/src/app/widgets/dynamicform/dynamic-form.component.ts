@@ -60,7 +60,7 @@ export class DynamicFormComponent implements OnInit{
             }
             orderValue = parseInt(m.order);
         });
-        this.filteredFormElements = orderedGroup;
+        this.formelements = orderedGroup;
         let formGroup:any = this.formservice.toFormGroup(orderedGroup);
         this.form = formGroup;
         console.log("after convert form",this.form);
@@ -77,19 +77,23 @@ export class DynamicFormComponent implements OnInit{
 
     showAll(){
         if(this.partSearch != ''){
-            if(this.partSearch.length === 1 && this.prevPartSearch.length < this.partSearch.length){
-                this.listStateBeforeSearch = _.cloneDeep(this.filteredFormElements);
+            if( (this.partSearch.length === 1 && this.prevPartSearch.length < this.partSearch.length) ||
+                (!this.prevPartSearch && !this.listStateBeforeSearch)
+            ) {
+                this.listStateBeforeSearch = _.cloneDeep(this.formelements);
+            }
+/*            if(this.partSearch.length === 1 && this.prevPartSearch.length < this.partSearch.length){
                 _.forEach(this.formelements,(m,i)=>{
                     if(!m.show){
                         m.show = true;
                     }
                 });
-            }
-            this.filteredFormElements = new OrderByPipe().transform(this.formelements,"order");
-            this.filteredFormElements = new SearchPipe().transform(this.filteredFormElements,this.partSearch);
+            }*/
+            this.formelements = new OrderByPipe().transform(this.listStateBeforeSearch,"order");
+            this.formelements = new SearchPipe().transform(this.formelements,this.partSearch);
         }else{
             if(_.size(this.listStateBeforeSearch) > 0){
-                this.filteredFormElements = _.cloneDeep(this.listStateBeforeSearch);
+                this.formelements = _.cloneDeep(this.listStateBeforeSearch);
             }
         }
         this.prevPartSearch = this.partSearch;

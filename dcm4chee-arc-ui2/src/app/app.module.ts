@@ -59,6 +59,7 @@ import { AeListComponent } from './ae-list/ae-list.component';
 import {CreateExporterService} from "./widgets/dialogs/create-exporter/create-exporter.service";
 import {DeviceConfiguratorService} from "./device-configurator/device-configurator.service";
 import { UtcPipe } from './pipes/utc.pipe';
+import {RouterTestingModule} from "@angular/router/testing";
 
 @NgModule({
     declarations: [
@@ -109,6 +110,7 @@ import { UtcPipe } from './pipes/utc.pipe';
         CalendarModule,
         DropdownModule,
         ReactiveFormsModule,
+        RouterTestingModule,
         RouterModule.forRoot([
             {
               path: '',

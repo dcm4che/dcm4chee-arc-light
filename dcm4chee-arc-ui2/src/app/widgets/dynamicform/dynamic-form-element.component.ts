@@ -18,6 +18,7 @@ export class DynamicFormElementComponent{
     @Input() formelement:FormElement<any>;
     @Input() formelements:FormElement<any>[];
     @Input() form:FormGroup;
+    @Input() partSearch:string;
     // activetab = "tab_1";
     constructor(private formservice:FormService, private formcomp:DynamicFormComponent, dcl: ComponentFactoryResolver, elementRef: ElementRef, private router:Router){
         // dcl.resolveComponentFactory(DynamicFormComponent);
