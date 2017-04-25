@@ -227,7 +227,6 @@ export class DeviceConfiguratorService {
                                             controlType:"button",
                                             title:m.title,
                                             description:m.description,
-                                            key:i,
                                             url:url,
                                             order:(1+newOrderSuffix)
                                         });
@@ -333,7 +332,6 @@ export class DeviceConfiguratorService {
                                     controlType:"button",
                                     title:m.title,
                                     description:m.description,
-                                    key:i,
                                     url:url,
                                     order:(1+newOrderSuffix)
                                 });

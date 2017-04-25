@@ -1,5 +1,5 @@
 <div>
-    <input placeholder="Search in this part..." [(ngModel)]="partSearch" (keyup)="showAll()">
+    <input placeholder="Search in this part..." [(ngModel)]="partSearch" (keyup)="filterFormElements()">
     <form (ngSubmit)="onSubmit()" [formGroup]="form">
         <div *ngFor="let formelement of formelements" class="form-row">
             <df-element [formelement]="formelement" [formelements]="formelements" [form]="form" [partSearch]="partSearch"></df-element>

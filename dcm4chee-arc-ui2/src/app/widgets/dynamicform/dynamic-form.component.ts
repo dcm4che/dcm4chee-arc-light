@@ -75,20 +75,13 @@ export class DynamicFormComponent implements OnInit{
         console.log("form",this.form);
     }
 
-    showAll(){
+    filterFormElements(){
         if(this.partSearch != ''){
             if( (this.partSearch.length === 1 && this.prevPartSearch.length < this.partSearch.length) ||
                 (!this.prevPartSearch && !this.listStateBeforeSearch)
             ) {
                 this.listStateBeforeSearch = _.cloneDeep(this.formelements);
             }
-/*            if(this.partSearch.length === 1 && this.prevPartSearch.length < this.partSearch.length){
-                _.forEach(this.formelements,(m,i)=>{
-                    if(!m.show){
-                        m.show = true;
-                    }
-                });
-            }*/
             this.formelements = new OrderByPipe().transform(this.listStateBeforeSearch,"order");
             this.formelements = new SearchPipe().transform(this.formelements,this.partSearch);
         }else{

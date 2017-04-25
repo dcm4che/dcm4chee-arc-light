@@ -64,15 +64,14 @@ export class DynamicFormElementComponent{
     }
     removeArrayElement(element:any, i:number, form:any){
         if(element.value.length > i){
-            var globalForm = this.formcomp.getForm();
-            var valueObject = globalForm.value;
-            element.value.splice(i, 1);
-            form.controls[element.key].value.splice(i,1);
-            this.form = this.formservice.toFormGroup(this.formelements);
-            // console.log("valueObject",valueObject);
-            // form.patchValue(valueObject);
-            this.formcomp.setForm(this.form);
-            this.formcomp.setFormModel(valueObject);
+            //Remove from react form
+            (<FormArray>this.form.controls[element.key]).removeAt(i);
+            //reflect the changes to the dome
+            _.forEach(this.formelements,(m,j)=>{
+                if(m.key === element.key){
+                    this.formelements[j].value = this.form.value[element.key];
+                }
+            });
         }
     }
     checkboxChange(e, form, formelement){

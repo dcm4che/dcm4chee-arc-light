@@ -77,8 +77,10 @@ export class FormService{
                     break;
 
                 default:
-                    group[element.key] = element.required ? new FormControl(element.value || '', Validators.required)
-                        : new FormControl(element.value || '');
+                    if(element.key){
+                        group[element.key] = element.required ? new FormControl(element.value || '', Validators.required)
+                            : new FormControl(element.value || '');
+                    }
             }
         });
         return group;
