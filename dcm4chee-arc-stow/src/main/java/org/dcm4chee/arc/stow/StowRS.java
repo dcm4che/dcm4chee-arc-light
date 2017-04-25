@@ -41,6 +41,8 @@
 package org.dcm4chee.arc.stow;
 
 import org.dcm4che3.data.*;
+import org.dcm4che3.imageio.codec.jpeg.JPEG;
+import org.dcm4che3.imageio.codec.jpeg.JPEGHeader;
 import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONReader;
@@ -409,18 +411,27 @@ public class StowRS {
     }
 
     private void resolveBulkdataRef(Attributes attrs, int tag, VR vr, BulkData bulkdata, MediaType[] mediaType)
-            throws DicomServiceException {
+            throws IOException {
         BulkDataWithMediaType bulkdataWithMediaType = bulkdataMap.get(bulkdata.getURI());
         if (bulkdataWithMediaType == null)
             throw new DicomServiceException(0xA922, "Missing Bulkdata: " + bulkdata.getURI());
         if (tag != Tag.PixelData || MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(bulkdataWithMediaType.mediaType)) {
             bulkdata.setURI(bulkdataWithMediaType.bulkData.getURI());
         } else {
+            readPixelHeader(bulkdataWithMediaType.bulkData, attrs);
             Fragments frags = attrs.newFragments(tag, vr, 2);
             frags.add(ByteUtils.EMPTY_BYTES);
             frags.add(new BulkData(null, bulkdataWithMediaType.bulkData.getURI(), false));
             mediaType[0] = bulkdataWithMediaType.mediaType;
         }
+    }
+
+    private void readPixelHeader(BulkData bulkData, Attributes attrs) throws IOException {
+        byte[] b16384 = new byte[16384];
+        BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(bulkData.getFile().toPath()));
+        StreamUtils.readAvailable(bis, b16384, 0, 16384);
+        JPEGHeader jpegHeader = new JPEGHeader(b16384, JPEG.SOS);
+        jpegHeader.toAttributes(attrs);
     }
 
     private boolean spoolBulkdata(StoreSession session, MultipartInputStream in, MediaType mediaType,
