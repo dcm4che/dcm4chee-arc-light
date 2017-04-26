@@ -2012,7 +2012,8 @@
         "summary": "Request Storage Commitment of Study",
         "operationId": "StorageCommitmentStudy",
         "produces": [
-          "application/dicom+json"
+          "application/dicom+json",
+          "application/json"
         ],
         "parameters": [
           {
@@ -2060,7 +2061,8 @@
         "summary": "Request Storage Commitment of Series",
         "operationId": "StorageCommitmentSeries",
         "produces": [
-          "application/dicom+json"
+          "application/dicom+json",
+          "application/json"
         ],
         "parameters": [
           {
@@ -2115,7 +2117,8 @@
         "summary": "Request Storage Commitment of Instance",
         "operationId": "StorageCommitmentInstance",
         "produces": [
-          "application/dicom+json"
+          "application/dicom+json",
+          "application/json"
         ],
         "parameters": [
           {
