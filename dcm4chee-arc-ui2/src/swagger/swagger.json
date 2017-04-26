@@ -1237,7 +1237,9 @@
         "summary": "Create Patient",
         "operationId": "CreatePatient",
         "consumes": [
-          "application/dicom+json"
+          "application/dicom+json",
+          "application/json"
+
         ],
         "produces": [
           "text/plain"
@@ -1272,7 +1274,8 @@
         "summary": "Update or Create patient",
         "operationId": "UpdatePatient",
         "consumes": [
-          "application/dicom+json"
+          "application/dicom+json",
+          "application/json"
         ],
         "parameters": [
           {
@@ -1626,7 +1629,8 @@
         "summary": "Create/Update Study",
         "operationId": "UpdateStudy",
         "consumes": [
-          "application/dicom+json"
+          "application/dicom+json",
+          "application/json"
         ],
         "produces": [
           "application/json"

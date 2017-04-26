@@ -226,7 +226,7 @@ public class IocmRS {
 
     @POST
     @Path("/patients")
-    @Consumes("application/dicom+json")
+    @Consumes({"application/dicom+json,application/json"})
     public String createPatient(InputStream in) throws Exception {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
@@ -266,7 +266,7 @@ public class IocmRS {
 
     @PUT
     @Path("/patients/{PatientID}")
-    @Consumes("application/dicom+json")
+    @Consumes("application/dicom+json,application/json")
     public void updatePatient(@PathParam("PatientID") IDWithIssuer patientID, InputStream in) throws Exception {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
@@ -382,7 +382,7 @@ public class IocmRS {
 
     @POST
     @Path("/studies")
-    @Consumes("application/dicom+json")
+    @Consumes("application/dicom+json,application/json")
     @Produces("application/json")
     public StreamingOutput updateStudy(InputStream in) throws Exception {
         logRequest();
