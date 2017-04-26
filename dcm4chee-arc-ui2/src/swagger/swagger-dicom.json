@@ -1707,7 +1707,8 @@
         "operationId": "RetrieveStudyMetadata",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json"
+          "application/dicom+json",
+          "application/json"
         ],
         "parameters": [
           {
@@ -1756,7 +1757,8 @@
         "operationId": "RetrieveSeriesMetadata",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json"
+          "application/dicom+json",
+          "application/json"
         ],
         "parameters": [
           {
@@ -1812,7 +1814,8 @@
         "operationId": "RetrieveInstanceMetadata",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json"
+          "application/dicom+json",
+          "application/json"
         ],
         "parameters": [
           {

@@ -153,7 +153,7 @@ public class WadoRS {
 
     @GET
     @Path("/studies/{studyUID}/metadata")
-    @Produces("application/dicom+json")
+    @Produces("application/dicom+json,application/json")
     public void retrieveStudyMetadataAsJSON(
             @PathParam("studyUID") String studyUID,
             @QueryParam("includefields") String includefields,
@@ -193,7 +193,7 @@ public class WadoRS {
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/metadata")
-    @Produces("application/dicom+json")
+    @Produces("application/dicom+json,application/json")
     public void retrieveSeriesMetadataAsJSON(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
@@ -308,7 +308,7 @@ public class WadoRS {
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/metadata")
-    @Produces("application/dicom+json")
+    @Produces("application/dicom+json,application/json")
     public void retrieveInstanceMetadataAsJSON(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
