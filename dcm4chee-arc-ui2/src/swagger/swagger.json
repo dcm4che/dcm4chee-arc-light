@@ -1471,7 +1471,8 @@
         "operationId": "SearchForSPS",
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "application/dicom+json"
+          "application/dicom+json",
+          "application/json"
         ],
         "parameters": [
           {
@@ -1551,10 +1552,12 @@
         "summary": "Create/Update Scheduled Procedure Step",
         "operationId": "CreateUpdateSPS",
         "consumes": [
+          "application/dicom+json",
           "application/json"
         ],
         "produces": [
-          "application/dicom+json"
+          "application/dicom+json",
+          "application/json"
         ],
         "parameters": [
           {

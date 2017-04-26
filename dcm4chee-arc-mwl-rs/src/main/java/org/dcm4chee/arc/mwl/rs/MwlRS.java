@@ -108,8 +108,8 @@ public class MwlRS {
 
     @POST
     @Path("/mwlitems")
-    @Consumes("application/json")
-    @Produces("application/dicom+json")
+    @Consumes("application/dicom+json,application/json")
+    @Produces("application/dicom+json,application/json")
     public StreamingOutput updateSPS(InputStream in) throws Exception {
         LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         try {

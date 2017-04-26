@@ -370,7 +370,7 @@ public class QidoRS {
     @GET
     @NoCache
     @Path("/mwlitems")
-    @Produces("application/dicom+json")
+    @Produces("application/dicom+json,application/json")
     public Response searchForSPSJSON() throws Exception {
         return search("SearchForSPS", Model.MWL, null, null, MWL_FIELDS, Output.JSON);
     }
