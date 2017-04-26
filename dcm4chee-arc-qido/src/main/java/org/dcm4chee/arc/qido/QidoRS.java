@@ -246,7 +246,7 @@ public class QidoRS {
     @GET
     @NoCache
     @Path("/patients")
-    @Produces("application/dicom+json")
+    @Produces("application/dicom+json,application/json")
     public Response searchForPatientsJSON() throws Exception {
         return search("SearchForPatients", Model.PATIENT, null, null, PATIENT_FIELDS, Output.JSON);
     }
@@ -262,7 +262,7 @@ public class QidoRS {
     @GET
     @NoCache
     @Path("/studies")
-    @Produces("application/dicom+json")
+    @Produces("application/dicom+json,application/json")
     public Response searchForStudiesJSON() throws Exception {
         return search("SearchForStudies", Model.STUDY, null, null, STUDY_FIELDS, Output.JSON);
     }
@@ -278,7 +278,7 @@ public class QidoRS {
     @GET
     @NoCache
     @Path("/series")
-    @Produces("application/dicom+json")
+    @Produces("application/dicom+json,application/json")
     public Response searchForSeriesJSON() throws Exception {
         return search("SearchForSeries", Model.SERIES, null, null, STUDY_SERIES_FIELDS, Output.JSON);
     }
@@ -295,7 +295,7 @@ public class QidoRS {
     @GET
     @NoCache
     @Path("/studies/{StudyInstanceUID}/series")
-    @Produces("application/dicom+json")
+    @Produces("application/dicom+json,application/json")
     public Response searchForSeriesOfStudyJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
         return search("SearchForStudySeries", Model.SERIES, studyInstanceUID, null, SERIES_FIELDS, Output.JSON);
@@ -312,7 +312,7 @@ public class QidoRS {
     @GET
     @NoCache
     @Path("/instances")
-    @Produces("application/dicom+json")
+    @Produces("application/dicom+json,application/json")
     public Response searchForInstancesJSON() throws Exception {
         return search("SearchForInstances", Model.INSTANCE, null, null, STUDY_SERIES_INSTANCE_FIELDS, Output.JSON);
     }
@@ -330,7 +330,7 @@ public class QidoRS {
     @GET
     @NoCache
     @Path("/studies/{StudyInstanceUID}/instances")
-    @Produces("application/dicom+json")
+    @Produces("application/dicom+json,application/json")
     public Response searchForInstancesOfStudyJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
         return search("SearchForStudyInstances", Model.INSTANCE,
@@ -351,7 +351,7 @@ public class QidoRS {
     @GET
     @NoCache
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
-    @Produces("application/dicom+json")
+    @Produces("application/dicom+json,application/json")
     public Response searchForInstancesOfSeriesJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
