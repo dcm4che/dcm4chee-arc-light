@@ -43,6 +43,7 @@ package org.dcm4chee.arc.stow;
 import org.dcm4che3.data.*;
 import org.dcm4che3.imageio.codec.jpeg.JPEG;
 import org.dcm4che3.imageio.codec.jpeg.JPEGHeader;
+import org.dcm4che3.imageio.codec.mpeg.MPEGHeader;
 import org.dcm4che3.io.SAXReader;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONReader;
@@ -418,7 +419,7 @@ public class StowRS {
         if (tag != Tag.PixelData || MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(bulkdataWithMediaType.mediaType)) {
             bulkdata.setURI(bulkdataWithMediaType.bulkData.getURI());
         } else {
-            readPixelHeader(bulkdataWithMediaType.bulkData, attrs);
+            readPixelHeader(bulkdataWithMediaType, attrs);
             Fragments frags = attrs.newFragments(tag, vr, 2);
             frags.add(ByteUtils.EMPTY_BYTES);
             frags.add(new BulkData(null, bulkdataWithMediaType.bulkData.getURI(), false));
@@ -426,10 +427,21 @@ public class StowRS {
         }
     }
 
-    private void readPixelHeader(BulkData bulkData, Attributes attrs) throws IOException {
+    private void readPixelHeader(BulkDataWithMediaType bulkdataWithMediaType, Attributes attrs) throws IOException {
         byte[] b16384 = new byte[16384];
-        BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(bulkData.getFile().toPath()));
+        BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(bulkdataWithMediaType.bulkData.getFile().toPath()));
         StreamUtils.readAvailable(bis, b16384, 0, 16384);
+        String type = bulkdataWithMediaType.mediaType.getType().toLowerCase();
+        String subtype = bulkdataWithMediaType.mediaType.getSubtype().toLowerCase();
+        if (type.equals("video") && subtype.equals("mpeg")) {
+            if (attrs.getString(Tag.SOPClassUID) == null)
+                attrs.setString(Tag.SOPClassUID, VR.UI, UID.VideoPhotographicImageStorage);
+            MPEGHeader mpegHeader = new MPEGHeader(b16384);
+            mpegHeader.toAttributes(attrs, Files.size(bulkdataWithMediaType.bulkData.getFile().toPath()));
+            return;
+        }
+        if (attrs.getString(Tag.SOPClassUID) == null)
+            attrs.setString(Tag.SOPClassUID, VR.UI, UID.SecondaryCaptureImageStorage);
         JPEGHeader jpegHeader = new JPEGHeader(b16384, JPEG.SOS);
         jpegHeader.toAttributes(attrs);
     }
