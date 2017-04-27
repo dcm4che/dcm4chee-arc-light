@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -57,6 +57,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.store.StoreContext;
@@ -379,6 +380,7 @@ public class StowRS {
     private void storeDicomObject(StoreSession session, Attributes attrs) throws IOException {
         StoreContext ctx = service.newStoreContext(session);
         ctx.setAcceptedStudyInstanceUID(acceptedStudyInstanceUID);
+        ensureRequiredAttrs(attrs);
         try {
             ctx.setReceiveTransferSyntax(MediaTypes.transferSyntaxOf(resolveBulkdataRefs(attrs)));
             service.store(ctx, attrs);
@@ -389,6 +391,16 @@ public class StowRS {
             LOG.info("{}: Failed to store {}", session, UID.nameOf(ctx.getSopClassUID()), e);
             failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
         }
+    }
+
+    private void ensureRequiredAttrs(Attributes attrs) {
+        if (attrs.getString(Tag.StudyInstanceUID) == null)
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
+        if (attrs.getString(Tag.SeriesInstanceUID) == null)
+            attrs.setString(Tag.SeriesInstanceUID, VR.UI, UIDUtils.createUID());
+        if (attrs.getString(Tag.SOPInstanceUID) == null)
+            attrs.setString(Tag.SOPInstanceUID, VR.UI, UIDUtils.createUID());
+
     }
 
     private MediaType resolveBulkdataRefs(Attributes attrs) throws DicomServiceException {
