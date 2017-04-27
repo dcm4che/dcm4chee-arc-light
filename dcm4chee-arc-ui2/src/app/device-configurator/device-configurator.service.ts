@@ -66,6 +66,52 @@ export class DeviceConfiguratorService {
             return null;
         }
     };
+    addChangesToDevice(value, devicereff){
+        if(devicereff){
+            //TODO depending on that if that childe exist or not, add or update the childe attributes
+            _.setWith(this.device, devicereff, value,(obj, obj2)=>{
+                if(obj === undefined && obj2 != undefined && obj2 != ''){
+                    return obj2;
+                }
+                if(obj != undefined  && obj2 != undefined && (obj2 != '' || (obj2.length == 1 && obj2[0] != ''))){
+                    return obj2;
+                }
+                if((obj != undefined && (obj === true || obj === false)) && (obj2 === undefined || obj2 === "")){
+                    return obj;
+                }
+                if((obj != undefined && (<any>obj === true || <any>obj === false)) && (obj2 != undefined && (<any>obj2 === true || <any>obj2 === false))){
+                    return obj2;
+                }
+                return null;
+            });
+
+        }else{
+            _.assignWith(this.device, value, (obj,obj2)=>{
+
+                if(obj === undefined && obj2 != undefined && obj2 != ''){
+                    return obj2;
+                }
+                if(obj != undefined  && obj2 != undefined && (obj2 != '' || (obj2.length == 1 && obj2[0] != ''))){
+                    return obj2;
+                }
+                if((obj != undefined && (obj === true || obj === false)) && (obj2 === undefined || obj2 === "")){
+                    return obj;
+                }
+                if((obj != undefined && (obj === true || obj === false)) && (obj2 != undefined && (obj2 === true || obj2 === false))){
+                    return obj2;
+                }
+                return null;
+            });
+            _.forEach(this.device,(m,i)=>{
+                if(m === null){
+                    delete this.device[i];
+                }
+            });
+        }
+    }
+    saveDevice(){
+
+    }
     replaceCharactersInTitleKey(string, object){
             let re = /{(.*?)}/g;
             let m;
@@ -297,35 +343,7 @@ export class DeviceConfiguratorService {
                             )
                             break;
                         default:
-                            // let subschema = {};
-                            // subschema[i] = $this.convertSchemaToForm(m);
-/*                            let url = '/device/edit/'+params.device;
-                                url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i:'/'+i);
-                                url = url +  ((params.schema) ? '/'+params.schema+'.'+i:'/'+i);
-                            form.push({
-                                controlType:"button",
-                                key:i,
-                                url:url
-                            });*/
                             let url = '/device/edit/'+params.device;
- //                            if(value && _.isObject(value)){
- //                                    let options = [];
- //                                _.forEach(value,(valm, vali)=>{
- //                                    url = '/device/edit/'+params.device;
- //                                    url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
- //                                    url = url +  ((params.schema) ? '/'+params.schema+'.properties.'+i:'/properties.'+i);
- //                                    options.push({
- //                                        title:m.title+'.'+vali,
- //                                        description:m.description,
- //                                        key:i,
- //                                        url:url
- //                                    })
- //                                });
- //                                form.push({
- //                                    controlType:"buttondropdown",
- //                                    options:options
- //                                });
- //                            }else{
                                 url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i:'/'+i);
                                 url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
                                 form.push({
@@ -335,7 +353,6 @@ export class DeviceConfiguratorService {
                                     url:url,
                                     order:(1+newOrderSuffix)
                                 });
-                            // }
                     }
                 });
             }else{

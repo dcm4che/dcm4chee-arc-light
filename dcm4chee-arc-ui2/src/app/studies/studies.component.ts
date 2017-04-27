@@ -776,7 +776,7 @@ export class StudiesComponent implements OnDestroy{
                     $this.$http.post(
                         "../aets/"+$this.aet+"/rs/mwlitems",
                         local,
-                        $this.jsonHeader
+                        {headers:new Headers({ 'Content-Type': 'application/dicom+json' })}
                     ).subscribe((response) => {
                         if(mode === "edit"){
                             // _.assign(mwl, mwlFiltered);
@@ -899,7 +899,7 @@ export class StudiesComponent implements OnDestroy{
                     $this.$http.post(
                         "../aets/"+$this.aet+"/rs/studies",
                         local,
-                        $this.jsonHeader
+                        {headers:new Headers({ 'Content-Type': 'application/dicom+json' })}
                     ).subscribe(
                         (response) => {
                             if(mode === "edit"){
@@ -1143,7 +1143,7 @@ export class StudiesComponent implements OnDestroy{
             $this.dialogRef.afterClosed().subscribe(result => {
                 //If user clicked save
                 if(result){
-                    let headers = new Headers({ 'Content-Type': 'application/json' });
+                    let headers = new Headers({ 'Content-Type': 'application/dicom+json' });
                     console.log("patient for clear",patient);
                     $this.service.clearPatientObject(patient.attrs);
                     $this.service.convertStringToNumber(patient.attrs);
@@ -1215,7 +1215,8 @@ export class StudiesComponent implements OnDestroy{
                         // console.log("patient.attrs",patient.attrs);
                         $this.$http.put(
                             "../aets/"+$this.aet+"/rs/patients/"+oldPatientID,
-                            patient.attrs
+                            patient.attrs,
+                            {headers:headers}
                         ).subscribe(function successCallback(response) {
                             if(mode === "edit"){
                                 //Update changes on the patient list
@@ -1226,8 +1227,8 @@ export class StudiesComponent implements OnDestroy{
                                 // $(id).html(attribute);
                             }else{
 
-                                $this.fireRightQuery();
                             }
+                                $this.fireRightQuery();
                             // $scope.dateplaceholder = {};
                             // console.log("data",data);
                             // console.log("datepicker",$(".datepicker .no-close-button"));
@@ -1252,7 +1253,7 @@ export class StudiesComponent implements OnDestroy{
                                 $this.$http.post(
                                     "../aets/"+$this.aet+"/rs/patients/",
                                     patient.attrs,
-                                    headers
+                                    {headers:headers}
                                 )
                                     //.map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
                                 .subscribe(
@@ -1837,9 +1838,9 @@ export class StudiesComponent implements OnDestroy{
                 $this.cfpLoadingBar.complete();
             },
             (err) => {
-                this.mainservice.setMessage({
-                    "title": "Error",
-                    "text": "Error saving study!",
+                $this.mainservice.setMessage({
+                    "title": "Error " + err.status,
+                    "text": err.statusText,
                     "status": "error"
                 });
             }
@@ -3223,7 +3224,7 @@ export class StudiesComponent implements OnDestroy{
                 break;
         }
         let $this = this;
-        let headers = new Headers({ 'Content-Type': 'application/json' });
+        let headers = {headers:new Headers({ 'Content-Type': 'application/dicom+json' })};
             this.$http.post(
                 url,
                 {},

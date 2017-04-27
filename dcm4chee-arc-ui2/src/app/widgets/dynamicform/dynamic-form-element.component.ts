@@ -28,29 +28,18 @@ export class DynamicFormElementComponent{
     }
 
     addElement(element:any, formpart:FormControl[]){
-        // console.log("in addelement element",element);
-        // console.log("in addelement element",element[0]);
         var globalForm = this.formcomp.getForm();
         var valueObject = globalForm.value;
         element.push(element[0]);
-        // console.log("in addelement element",element);
-        // console.log("form",this.form.controls["arraytest"]["controls"]);
-        // console.log("this.formelements",this.formelements);
-        // this.form.controls["arraytest"]["controls"].push(this.form.controls["arraytest"]["controls"][0]);
-        console.log("formpart",formpart);
         formpart["options"].push(formpart["options"][0]);
-        // let globalform = this.formcomp.getForm();
-        // console.log("globalform=",globalform.value);
-
         this.form = this.formservice.toFormGroup(this.formelements);
-        // console.log("globalform",globalform);
-        // console.log("this.form",this.form);
         this.formcomp.setForm(this.form);
         this.formcomp.setFormModel(valueObject);
     }
+    clone(formelement,controls){
+        console.log("formelement",formelement);
+    }
     addArrayElement(element:any, formpart:FormControl[], form:any){
-        console.log("fompart",formpart);
-        console.log("element",element);
         formpart = formpart || [];
         element = element || [];
         element.push("");
@@ -78,7 +67,6 @@ export class DynamicFormElementComponent{
         if(e.target.checked && !_.hasIn(form.controls[formelement.key].value, e.target.defaultValue)){
             form.controls[formelement.key].value.push(e.target.defaultValue);
         }else{
-            console.log("findeindex",_.indexOf(form.controls[formelement.key].value,e.target.defaultValue));
             form.controls[formelement.key].value.splice(_.indexOf(form.controls[formelement.key].value,e.target.defaultValue),1);
         }
     }
@@ -87,6 +75,7 @@ export class DynamicFormElementComponent{
             this.router.navigateByUrl(e);
         }
     }
+
     toggleTab(orderId){
         var globalForm = this.formcomp.getForm();
         var valueObject = globalForm.value;

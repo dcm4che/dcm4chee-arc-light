@@ -131,12 +131,21 @@ export class StudiesService {
         // });
         // this.http.request(new Request(this.options))
 
-        return this.$http.get(url + '/patients' + this._config(params)).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
+        return this.$http.get(
+            url + '/patients' + this._config(params),
+            {
+                headers:  new Headers({"Accept":"application/dicom+json"})
+            }).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
     };
 
     queryStudies = function(url, params) {
         console.log("in querystudies");
-        return this.$http.get(url + '/studies' + this._config(params)).map(res => {
+        return this.$http.get(
+            url + '/studies' + this._config(params),
+            {
+                headers:  new Headers({"Accept":"application/dicom+json"})
+            }
+        ).map(res => {
             let resjson;
             try{
                 resjson = res.json();
@@ -161,11 +170,21 @@ export class StudiesService {
         }
     }
     queryMwl = function(url, params) {
-        return this.$http.get(url + '/mwlitems' + this._config(params)).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
+        return this.$http.get(
+            url + '/mwlitems' + this._config(params),
+            {
+                headers:  new Headers({"Accept":"application/dicom+json"})
+            }
+        ).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
     };
 
     querySeries = function(url, studyIUID, params) {
-        return this.$http.get(url + '/studies/' + studyIUID + '/series' + this._config(params)).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
+        return this.$http.get(
+            url + '/studies/' + studyIUID + '/series' + this._config(params),
+            {
+                headers:  new Headers({"Accept":"application/dicom+json"})
+            }
+        ).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
     };
 
     queryInstances = function(url, studyIUID, seriesIUID, params) {
@@ -173,7 +192,11 @@ export class StudiesService {
             + '/studies/' + studyIUID
             + '/series/' + seriesIUID
             + '/instances' +
-            this._config(params)).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
+            this._config(params),
+            {
+                headers:  new Headers({"Accept":"application/dicom+json"})
+            }
+        ).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
     };
 
     getPatientIod(){
@@ -197,7 +220,9 @@ export class StudiesService {
         if (this._mwlIod) {
             return Observable.of(this._mwlIod);
         } else {
-            return this.$http.get('assets/iod/mwl.iod.json').map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
+            return this.$http.get(
+                'assets/iod/mwl.iod.json'
+            ).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
         }
     };
 
