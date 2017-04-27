@@ -265,6 +265,7 @@ class StoreServiceImpl implements StoreService {
                         openOutputStream(ctx, Location.ObjectType.DICOM_FILE), UID.ExplicitVRLittleEndian)) {
                     dos.writeDataset(attrs.createFileMetaInformation(ctx.getStoreTranferSyntax()), attrs);
                 }
+                adjustPixelDataBulkData(attrs);
                 checkCharacterSet(ctx);
                 storeMetadata(ctx);
                 coerceAttributes(ctx);
@@ -282,6 +283,12 @@ class StoreServiceImpl implements StoreService {
             revokeStorage(ctx, result);
             storeEvent.fire(ctx);
         }
+    }
+
+    private void adjustPixelDataBulkData(Attributes attrs) {
+        Object value = attrs.getValue(Tag.PixelData);
+        if (value instanceof Fragments)
+            attrs.setValue(Tag.PixelData, VR.OB, new BulkData(null, "", false));
     }
 
     @Override
