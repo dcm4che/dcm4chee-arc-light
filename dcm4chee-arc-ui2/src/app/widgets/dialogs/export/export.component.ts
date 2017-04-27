@@ -15,13 +15,15 @@ import * as _ from "lodash";
     `]
 })
 export class ExportDialogComponent{
+
     private _noDicomExporters;
     private _aes;
     private _dicomPrefixes;
     _ = _;
     private _warning;
     private _title;
-    result = {
+    private _okButtonLabel;
+    private _result = {
         exportType:"dicom",
         selectedAet:undefined,
         selectedExporter:undefined,
@@ -31,12 +33,36 @@ export class ExportDialogComponent{
             "only-ian":undefined
         }
     }
+    private _preselectedAet;
     constructor(public dialogRef: MdDialogRef<ExportDialogComponent>, private $http:Http, private mainservice:AppService) {
         this.getAes();
 
         console.log("resultfilter",)
     }
 
+    get preselectedAet() {
+        return this._preselectedAet;
+    }
+
+    set preselectedAet(value) {
+        this._result.selectedAet = value;
+        this._preselectedAet = value;
+    }
+    get result(){
+        return this._result;
+    }
+
+    set result(value:any) {
+        this._result = value;
+    }
+
+    get okButtonLabel() {
+        return this._okButtonLabel;
+    }
+
+    set okButtonLabel(value) {
+        this._okButtonLabel = value;
+    }
 
     get warning() {
         return this._warning;
@@ -85,7 +111,7 @@ export class ExportDialogComponent{
         .map(res=>res.json())
         .subscribe((response) => {
             $this.aes = response;
-            $this.result.selectedAet = $this.aes[0].dicomAETitle;
+            $this._result.selectedAet = $this._result.selectedAet || $this.aes[0].dicomAETitle;
             if($this.mainservice.global && !$this.mainservice.global.aes){
                 let global = _.cloneDeep($this.mainservice.global);
                 global.aes = response;
@@ -102,14 +128,14 @@ export class ExportDialogComponent{
         });
     }
     validForm(){
-        if(this.result.exportType === "dicom"){
-            if(this.result.dicomPrefix && this.result.selectedAet){
+        if(this._result.exportType === "dicom"){
+            if(this._result.dicomPrefix && this._result.selectedAet){
                 return true;
             }else{
                 return false;
             }
         }else{
-            if(this.result.selectedExporter){
+            if(this._result.selectedExporter){
                 return true;
             }else{
                 return false;

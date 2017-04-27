@@ -7,6 +7,7 @@ import {MdDialogConfig, MdDialog, MdDialogRef} from "@angular/material";
 import * as _ from "lodash";
 import {AppService} from "../../app.service";
 import {ExportService} from "./export.service";
+import {ExportDialogComponent} from "../../widgets/dialogs/export/export.component";
 
 @Component({
   selector: 'app-export',
@@ -234,46 +235,72 @@ export class ExportComponent implements OnInit {
     };
     reschedule(match) {
         let $this = this;
-        let select:any = [];
-        _.forEach(this.exporters, (m,i)=>{
-            select.push({
-                title:m.description,
-                value:m.id,
-                label:m.id
-            });
+        let id;
+        let noDicomExporters = [];
+        let dicomPrefixes = [];
+        let result;
+        _.forEach(this.exporters, (m, i)=>{
+            if(m.id.indexOf(":") > -1){
+                dicomPrefixes.push(m);
+            }else{
+                noDicomExporters.push(m);
+            }
         });
-        let parameters: any = {
-            content: 'Are you sure you want to reschedule this task?',
-            select: select,
-            result: {
-                select:this.exporters[0].id
-            },
-            saveButton: "RESCHEDULE"
-        };
-        this.confirm(parameters).subscribe(result => {
+        if(match.properties.ExporterID){
+            if(match.properties.ExporterID.indexOf(":") > -1){
+                let parameters = _.split(match.properties.ExporterID,":");
+                result = {
+                    exportType:"dicom",
+                    selectedAet:parameters[1],
+                    selectedExporter:undefined,
+                    dicomPrefix:parameters[0]+":"
+                };
+            }else{
+                result = {
+                    exportType:"nonedicom",
+                    selectedAet:undefined,
+                    selectedExporter:match.properties.ExporterID,
+                    dicomPrefix:undefined
+                };
+            }
+        }
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(ExportDialogComponent, this.config);
+        this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
+        this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
+        this.dialogRef.componentInstance.title = "Task reschedule";
+        this.dialogRef.componentInstance.warning = null;
+        this.dialogRef.componentInstance.result = result
+        this.dialogRef.componentInstance.okButtonLabel = "RESCHEDULE";
+        this.dialogRef.afterClosed().subscribe(result => {
             if(result){
                 $this.cfpLoadingBar.start();
-                console.log("resultparam",parameters.result.select);
-                this.service.reschedule(match.properties.pk,parameters.result.select)
-                    .subscribe(
-                        (res) => {
-                            $this.search(0);
-                            $this.cfpLoadingBar.complete();
-                            $this.mainservice.setMessage({
-                                "title": "Info",
-                                "text": "Task rescheduled successfully!",
-                                "status":'info'
+                if(result.exportType === "dicom"){
+                    id = result.dicomPrefix + result.selectedAet;
+                }else{
+                    id = result.selectedExporter;
+                }
+                    $this.cfpLoadingBar.start();
+                    this.service.reschedule(match.properties.pk,id)
+                        .subscribe(
+                            (res) => {
+                                $this.search(0);
+                                $this.cfpLoadingBar.complete();
+                                $this.mainservice.setMessage({
+                                    "title": "Info",
+                                    "text": "Task rescheduled successfully!",
+                                    "status":'info'
+                                });
+                            },
+                            (err) => {
+                                $this.cfpLoadingBar.complete();
+                                console.log("cancleerr",err);
+                                $this.mainservice.setMessage({
+                                    "title": "Error " + err.status,
+                                    "text": err.statusText,
+                                    "status": "error"
+                                });
                             });
-                        },
-                        (err) => {
-                            $this.cfpLoadingBar.complete();
-                            console.log("cancleerr",err);
-                            $this.mainservice.setMessage({
-                                "title": "Error " + err.status,
-                                "text": err.statusText,
-                                "status": "error"
-                            });
-                        });
             }
         });
     };

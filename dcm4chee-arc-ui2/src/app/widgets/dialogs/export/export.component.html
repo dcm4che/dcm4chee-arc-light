@@ -24,10 +24,10 @@
                     <option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters">{{exporter.id}}</option>
                 </select>
             </div>
-            <label title="If checked the study will not be sent">
+            <label title="If checked the study will not be sent" *ngIf="warning">
                 <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> Storage commitment without export
             </label><br>
-            <label title="If checked the study will not be sent">
+            <label title="If checked the study will not be sent" *ngIf="warning">
                 <input type="checkbox" name="only-ian" [(ngModel)]="result['checkboxes']['only-ian']"> IAN without export
             </label>
             <div *ngIf="(_.hasIn(result,'checkboxes.only-stgcmt') && result['checkboxes']['only-stgcmt']) || (_.hasIn(result,'checkboxes.only-ian') && result['checkboxes']['only-ian'])" >
@@ -35,7 +35,8 @@
             </div>
         </div>
         <div class="dialogbuttons">
-            <button class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()">EXPORT</button>
+            <button *ngIf="!okButtonLabel" class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()">EXPORT</button>
+            <button *ngIf="okButtonLabel" class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()">{{okButtonLabel}}</button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCEL</button>
         </div>
     </div>
