@@ -25,7 +25,11 @@ export class DeviceConfiguratorService {
     getPaginationTitleFromModel(model,schemaObject){
         let title ="object";
         if(_.hasIn(schemaObject,"type") && schemaObject.type === "array"){
-            title = this.replaceCharactersInTitleKey(schemaObject.titleKey,model);
+            if(model){
+                title = this.replaceCharactersInTitleKey(schemaObject.titleKey,model);
+            }else{
+                title = "[NEW]";
+            }
         }else{
             if(_.hasIn(schemaObject,"title")){
                 title = schemaObject.title;
@@ -40,8 +44,6 @@ export class DeviceConfiguratorService {
         return this.$http.get('./assets/schema/' + schema).map(device => device.json());
     };
     getSchemaFromPath(schema, schemaparam){
-        console.log("getSchemaFromPath schema",schema);
-        console.log("schemaparam",schemaparam);
         let paramArray = schemaparam.split('.');
         let currentschemaposition = _.cloneDeep(schema);
         let parentkey;
@@ -50,8 +52,6 @@ export class DeviceConfiguratorService {
 
             _.forEach(paramArray,(m)=>{
                 if(!_.hasIn(currentschemaposition,m)){
-                    console.log("in if csp=", currentschemaposition);
-                    console.log("in if m=", m);
                     currentschemaposition = null;
                     return null;
                 }else{
@@ -67,47 +67,42 @@ export class DeviceConfiguratorService {
         }
     };
     addChangesToDevice(value, devicereff){
+        /*
+        * Check if the changed part is a child (or in the root)
+        * */
         if(devicereff){
-            //TODO depending on that if that childe exist or not, add or update the childe attributes
-            _.setWith(this.device, devicereff, value,(obj, obj2)=>{
-                if(obj === undefined && obj2 != undefined && obj2 != ''){
-                    return obj2;
-                }
-                if(obj != undefined  && obj2 != undefined && (obj2 != '' || (obj2.length == 1 && obj2[0] != ''))){
-                    return obj2;
-                }
-                if((obj != undefined && (obj === true || obj === false)) && (obj2 === undefined || obj2 === "")){
-                    return obj;
-                }
-                if((obj != undefined && (<any>obj === true || <any>obj === false)) && (obj2 != undefined && (<any>obj2 === true || <any>obj2 === false))){
-                    return obj2;
-                }
-                return null;
-            });
-
+            //If the part is already in the device override / call setWith with the child refference otherwise use lodash to append the object
+            if(_.hasIn(this.device,devicereff)){
+                this.setWith(_.get(this.device,devicereff),value);
+            }else{
+                _.setWith(this.device, devicereff, value, Object);
+            }
         }else{
-            _.assignWith(this.device, value, (obj,obj2)=>{
-
-                if(obj === undefined && obj2 != undefined && obj2 != ''){
-                    return obj2;
-                }
-                if(obj != undefined  && obj2 != undefined && (obj2 != '' || (obj2.length == 1 && obj2[0] != ''))){
-                    return obj2;
-                }
-                if((obj != undefined && (obj === true || obj === false)) && (obj2 === undefined || obj2 === "")){
-                    return obj;
-                }
-                if((obj != undefined && (obj === true || obj === false)) && (obj2 != undefined && (obj2 === true || obj2 === false))){
-                    return obj2;
-                }
-                return null;
-            });
-            _.forEach(this.device,(m,i)=>{
-                if(m === null){
-                    delete this.device[i];
-                }
-            });
+            //The root of the device was changed call setWith
+            this.setWith(this.device,value);
         }
+    }
+    setWith(device,value){
+        _.assignWith(device, value, (obj,obj2)=>{
+            if(obj === undefined && obj2 != undefined && obj2 != ''){
+                return obj2;
+            }
+            if(obj != undefined  && obj2 != undefined && (obj2 != '' || (obj2.length == 1 && obj2[0] != ''))){
+                return obj2;
+            }
+            if((obj != undefined && (obj === true || obj === false)) && (obj2 === undefined || obj2 === "")){
+                return obj;
+            }
+            if((obj != undefined && (obj === true || obj === false)) && (obj2 != undefined && (obj2 === true || obj2 === false))){
+                return obj2;
+            }
+            return null;
+        });
+        _.forEach(device,(m,i)=>{
+            if(m === null){
+                delete device[i];
+            }
+        });
     }
     saveDevice(){
 
@@ -231,39 +226,53 @@ export class DeviceConfiguratorService {
                                 let url = '';
                                 if(_.hasIn(m,"items.$ref")) {
                                     if(value && _.isObject(value)){
-                                        let options = [];
-                                        let maxVali = 0;
-                                        _.forEach(value,(valm, vali)=>{
-                                            let title;
-                                            maxVali = parseInt(vali);
-                                            // $this.replaceCharactersInTitleKey(m.titleKey,valm);
+                                        if(value.length === 0){
                                             url = '/device/edit/'+params.device;
-                                            url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
+                                            url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'[0]':'/'+i+'[0]');
                                             url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
-                                            if(_.hasIn(m,"titleKey")){
-                                                title = $this.replaceCharactersInTitleKey(m.titleKey,valm);
-                                            }else{
-                                               title = m.title + '['+vali+']';
-                                            }
-                                            options.push({
-                                                title:title,
+                                            console.log("url",url);
+                                            form.push({
+                                                controlType:"buttondropdown",
+                                                title:m.title,
                                                 description:m.description,
-                                                key:i,
-                                                url:url
-                                            })
-                                        });
-                                        let addUrl = '/device/edit/'+params.device;
-                                        addUrl = addUrl +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+(maxVali+1)+']':'/'+i+'['+(maxVali+1)+']');
-                                        addUrl = addUrl +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
-                                        console.log("addUrl",addUrl);
-                                        form.push({
-                                            controlType:"buttondropdown",
-                                            title:m.title,
-                                            description:m.description,
-                                            options:options,
-                                            addUrl:addUrl,
-                                            order:(3+newOrderSuffix)
-                                        });
+                                                addUrl:url,
+                                                order:(3+newOrderSuffix)
+                                            });
+                                        }else{
+                                            let options = [];
+                                            let maxVali = 0;
+                                            _.forEach(value,(valm, vali)=>{
+                                                let title;
+                                                maxVali = parseInt(vali);
+                                                // $this.replaceCharactersInTitleKey(m.titleKey,valm);
+                                                url = '/device/edit/'+params.device;
+                                                url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
+                                                url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
+                                                if(_.hasIn(m,"titleKey")){
+                                                    title = $this.replaceCharactersInTitleKey(m.titleKey,valm);
+                                                }else{
+                                                   title = m.title + '['+vali+']';
+                                                }
+                                                options.push({
+                                                    title:title,
+                                                    description:m.description,
+                                                    key:i,
+                                                    url:url
+                                                })
+                                            });
+                                            let addUrl = '/device/edit/'+params.device;
+                                            addUrl = addUrl +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+(maxVali+1)+']':'/'+i+'['+(maxVali+1)+']');
+                                            addUrl = addUrl +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
+                                            console.log("addUrl",addUrl);
+                                            form.push({
+                                                controlType:"buttondropdown",
+                                                title:m.title,
+                                                description:m.description,
+                                                options:options,
+                                                addUrl:addUrl,
+                                                order:(3+newOrderSuffix)
+                                            });
+                                        }
                                     }else{
                                         url = '/device/edit/'+params.device;
                                         url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i:'/'+i);

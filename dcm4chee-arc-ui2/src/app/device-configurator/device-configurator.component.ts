@@ -40,47 +40,7 @@ export class DeviceConfiguratorComponent implements OnInit {
     }
     submitFunction(value){
 
-        // _.assign(_.get(this.service.device,this.recentParams.devicereff), value);
         this.service.addChangesToDevice(value,this.recentParams.devicereff);
-        // if(this.recentParams.devicereff){
-        //     _.setWith(this.service.device, this.recentParams.devicereff, value,(obj, obj2)=>{
-        //         if(obj === undefined && obj2 != undefined && obj2 != ''){
-        //             return obj2;
-        //         }
-        //         if(obj != undefined  && obj2 != undefined && (obj2 != '' || (obj2.length == 1 && obj2[0] != ''))){
-        //             return obj2;
-        //         }
-        //         if((obj != undefined && (obj === true || obj === false)) && (obj2 === undefined || obj2 === "")){
-        //             return obj;
-        //         }
-        //         if((obj != undefined && (<any>obj === true || <any>obj === false)) && (obj2 != undefined && (<any>obj2 === true || <any>obj2 === false))){
-        //             return obj2;
-        //         }
-        //         return null;
-        //     });
-        // }else{
-        //     _.assignWith(this.service.device, value, (obj,obj2)=>{
-        //
-        //         if(obj === undefined && obj2 != undefined && obj2 != ''){
-        //             return obj2;
-        //         }
-        //         if(obj != undefined  && obj2 != undefined && (obj2 != '' || (obj2.length == 1 && obj2[0] != ''))){
-        //             return obj2;
-        //         }
-        //         if((obj != undefined && (obj === true || obj === false)) && (obj2 === undefined || obj2 === "")){
-        //             return obj;
-        //         }
-        //         if((obj != undefined && (obj === true || obj === false)) && (obj2 != undefined && (obj2 === true || obj2 === false))){
-        //             return obj2;
-        //         }
-        //         return null;
-        //     });
-        //     _.forEach(this.service.device,(m,i)=>{
-        //         if(m === null){
-        //             delete this.service.device[i];
-        //         }
-        //     });
-        // }
         console.log("this.service.device",this.service.device);
     }
     ngOnInit() {

@@ -56,7 +56,7 @@
         <div *ngIf="formelement.show || partSearch != ''">
             <div *ngSwitchCase="'buttondropdown'">
                 <label title="{{formelement.description}}">{{formelement.title}}</label>
-                <select (change)="navigateTo($event.target.value)" *ngIf="formelement.options.length > 0">
+                <select (change)="navigateTo($event.target.value)" *ngIf="formelement.options && formelement.options.length > 0">
                     <option [value]="">-</option>
                     <option *ngFor="let opt of formelement.options" [value]="opt.url">{{opt.title}}</option>
                 </select>
