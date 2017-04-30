@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -77,19 +77,8 @@ public class AuditTriggerObserver {
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
         if (auditService.hasAuditLoggers()) {
-            AuditServiceUtils.EventType et = null;
-            switch (event.getType()) {
-                case STARTED:
-                    et = AuditServiceUtils.EventType.APPLNSTART;
-                    break;
-                case STOPPED:
-                    et = AuditServiceUtils.EventType.APPLN_STOP;
-                    break;
-                case RELOADED:
-                    return;
-            }
-            HttpServletRequest request = event.getRequest();
-            auditService.auditApplicationActivity(et, request);
+            AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forApplicationActivity(event);
+            auditService.spoolApplicationActivity(et, event.getRequest());
         }
     }
 

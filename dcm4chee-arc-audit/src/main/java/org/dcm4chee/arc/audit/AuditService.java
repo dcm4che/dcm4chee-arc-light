@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -116,6 +116,9 @@ public class AuditService {
                 ? new SpoolFileReader(path) : null;
         Calendar eventTime = getEventTime(path, auditLogger);
         switch (eventType.eventClass) {
+            case APPLN_ACTIVITY:
+                auditApplicationActivity(auditLogger, readerObj, eventTime, eventType);
+                break;
             case CONN_REJECT:
                 auditConnectionRejected(auditLogger, readerObj, eventTime, eventType);
                 break;
@@ -147,24 +150,33 @@ public class AuditService {
         }
     }
 
-    void auditApplicationActivity(AuditServiceUtils.EventType eventType, HttpServletRequest req) {
-        BuildActiveParticipant ap2 = null;
-        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
+    void spoolApplicationActivity(AuditServiceUtils.EventType eventType, HttpServletRequest req) {
+        if (eventType == null)
+            return;
+        LinkedHashSet<Object> objs = new LinkedHashSet<>();
+        objs.add(new AuditInfo(new BuildAuditInfo.Builder().calledAET(getAET(device)).build()));
         if (req != null) {
+            String callingUser = req.getAttribute(keycloakClassName) != null ? getPreferredUsername(req) : req.getRemoteAddr();
+            objs.add(new AuditInfo(
+                    new BuildAuditInfo.Builder().callingAET(callingUser).callingHost(req.getRemoteAddr()).build()));
+        }
+        writeSpoolFile(String.valueOf(eventType), objs);
+    }
+
+    private void auditApplicationActivity(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType eventType) {
+        BuildActiveParticipant ap2 = null;
+        AuditInfo archiveInfo = new AuditInfo(readerObj.getMainInfo());
+        if (!readerObj.getInstanceLines().isEmpty()) {
+            AuditInfo callerInfo = new AuditInfo(readerObj.getInstanceLines().iterator().next());
             ap2 = new BuildActiveParticipant.Builder(
-                    req.getAttribute(keycloakClassName) != null
-                            ? getPreferredUsername(req) : req.getRemoteAddr(), req.getRemoteAddr()).
-                    requester(true).roleIDCode(AuditMessages.RoleIDCode.ApplicationLauncher).build();
+                    callerInfo.getField(AuditInfo.CALLING_AET), callerInfo.getField(AuditInfo.CALLING_HOST)).
+                    requester(eventType.isSource).roleIDCode(eventType.source).build();
         }
-        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
-            if (auditLogger.isInstalled()) {
-                EventIdentification ei = getEI(eventType, null, auditLogger.timeStamp());
-                BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(getAET(device),
-                        getLocalHostName(auditLogger)).altUserID(auditLogger.processID()).requester(false)
-                        .roleIDCode(AuditMessages.RoleIDCode.Application).build();
-                emitAuditMessage(ei, req != null ? getApList(ap1, ap2) : getApList(ap1), null, auditLogger);
-            }
-        }
+        EventIdentification ei = getEI(eventType, null, eventTime);
+        BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(archiveInfo.getField(AuditInfo.CALLED_AET),
+                getLocalHostName(auditLogger)).altUserID(auditLogger.processID()).requester(eventType.isDest)
+                .roleIDCode(eventType.destination).build();
+        emitAuditMessage(ei, !readerObj.getInstanceLines().isEmpty() ? getApList(ap1, ap2) : getApList(ap1), null, auditLogger);
     }
 
     void spoolInstancesDeleted(StoreContext ctx) {

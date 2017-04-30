@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -40,6 +40,7 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
+import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -108,9 +109,11 @@ class AuditServiceUtils {
                 null, null, true, false, false, null),
 
         APPLNSTART(EventClass.APPLN_ACTIVITY, AuditMessages.EventID.ApplicationActivity, AuditMessages.EventActionCode.Execute,
-                null, null, false, false, false, AuditMessages.EventTypeCode.ApplicationStart),
+                AuditMessages.RoleIDCode.ApplicationLauncher, AuditMessages.RoleIDCode.Application, true, false, false,
+                AuditMessages.EventTypeCode.ApplicationStart),
         APPLN_STOP(EventClass.APPLN_ACTIVITY, AuditMessages.EventID.ApplicationActivity, AuditMessages.EventActionCode.Execute,
-                null, null, false, false, false, AuditMessages.EventTypeCode.ApplicationStop),
+                AuditMessages.RoleIDCode.ApplicationLauncher, AuditMessages.RoleIDCode.Application, true, false, false,
+                AuditMessages.EventTypeCode.ApplicationStop),
 
         QUERY_QIDO(EventClass.QUERY, AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
@@ -167,6 +170,18 @@ class AuditServiceUtils {
 
         static EventType fromFile(Path file) {
             return valueOf(file.getFileName().toString().substring(0, 10));
+        }
+
+        static EventType forApplicationActivity(ArchiveServiceEvent event) {
+            switch (event.getType()) {
+                case STARTED:
+                    return AuditServiceUtils.EventType.APPLNSTART;
+                case STOPPED:
+                    return AuditServiceUtils.EventType.APPLN_STOP;
+                case RELOADED:
+                    break;
+            }
+            return null;
         }
 
         static EventType forQuery(QueryContext ctx) {
