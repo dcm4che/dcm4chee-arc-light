@@ -87,7 +87,7 @@ export class DeviceConfiguratorService {
             if(obj === undefined && obj2 != undefined && obj2 != ''){
                 return obj2;
             }
-            if(obj != undefined  && obj2 != undefined && (obj2 != '' || (obj2.length == 1 && obj2[0] != ''))){
+            if(obj != undefined  && obj2 != undefined && ((obj2 != '' && obj2 != "inherent") || (obj2.length == 1 && obj2[0] != ''))){
                 return obj2;
             }
             if((obj != undefined && (obj === true || obj === false)) && (obj2 === undefined || obj2 === "")){
@@ -95,6 +95,13 @@ export class DeviceConfiguratorService {
             }
             if((obj != undefined && (obj === true || obj === false)) && (obj2 != undefined && (obj2 === true || obj2 === false))){
                 return obj2;
+            }
+            //Handle dicomInstalled with inherent
+            if(obj === undefined && (obj2 === false || obj2 === true)){
+                return obj2;
+            }
+            if((obj === true || obj === false) && (obj2 === "inherent" || obj2 === false || obj2 === true)){
+                return (obj2 === "inherent") ? null : obj2;
             }
             return null;
         });
@@ -154,10 +161,10 @@ export class DeviceConfiguratorService {
                     if(m.order){
                         newOrderSuffix = parseInt(m.order) / 100;
                     }
+                    let options = [];
                     switch(m.type) {
                         case "string":
                             if(_.hasIn(m,"enum")){
-                                let options = [];
                                 _.forEach(m.enum,(opt) =>{
                                     options.push({
                                         key:opt,
@@ -188,27 +195,56 @@ export class DeviceConfiguratorService {
                             }
                             break;
                         case "boolean":
+                            if(i === "dicomInstalled" && _.hasIn(params,"devicereff") && _.hasIn(params,"schema")){
+                                options = [
+                                    {key: 'True',  value: true},
+                                    {key: 'False',  value: false},
+                                    {key: 'Inherent',  value: "inherent"},
+                                ];
+                                if(value != undefined && value != ""){
+                                    //true
+                                    if(value === true){
+                                        options[0]['active'] = true;
+                                    }else{
+                                       //false
+                                        options[1]['active'] = true;
+                                    }
+                                }else{
+                                    //Inherent
+                                    options[2]['active'] = true;
+                                }
+                            }else{
+                                options = [
+                                    {key: 'True',  value: true},
+                                    {key: 'False',  value: false}
+                                ];
+                                if(value != undefined && value != ""){
+                                    //true
+                                    if(value === true){
+                                        options[0]['active'] = true;
+                                    }else{
+                                        //false
+                                        options[1]['active'] = true;
+                                    }
+                                }
+                            }
                             form.push(
                                 new RadioButtons({
                                     key:i,
                                     label:m.title,
                                     description:m.description,
-                                    options: [
-                                        {key: 'True',  value: true},
-                                        {key: 'False',  value: false},
-                                    ],
+                                    options: options,
                                     order:(5+newOrderSuffix)
                                 })
                             );
                             break;
                         case "array":
-                            if(_.hasIn(m,"items.enum")){
-                                let options = [];
-                                _.forEach(m.items.enum,(opt) =>{
+                            if(i == "dicomNetworkConnectionReference"){
+                                _.forEach(this.device["dicomNetworkConnection"],(opt,i) =>{
                                     options.push({
-                                        key:opt,
-                                        value:opt,
-                                        active:(opt === value)? true:false
+                                        value:"/dicomNetworkConnection/"+i,
+                                        key:opt.cn+" ("+opt.dicomHostname+((opt.dicomPort)?":"+opt.dicomPort:'')+")",
+                                        active:(_.indexOf(value,"/dicomNetworkConnection/"+i) > -1)?true:false
                                     });
                                 })
                                 form.push(
@@ -221,25 +257,93 @@ export class DeviceConfiguratorService {
                                     })
                                 )
                             }else{
-                                console.log("m",m);
-                                console.log("params",params);
-                                let url = '';
-                                if(_.hasIn(m,"items.$ref")) {
-                                    if(value && _.isObject(value)){
-                                        if(value.length === 0){
+                                console.log("this.device",this.device);
+                                if(_.hasIn(m,"items.enum")){
+                                    _.forEach(m.items.enum,(opt) =>{
+                                        options.push({
+                                            key:opt,
+                                            value:opt,
+                                            active:(opt === value)? true:false
+                                        });
+                                    })
+                                    form.push(
+                                        new Checkbox({
+                                            key:i,
+                                            label:m.title,
+                                            description:m.description,
+                                            options: options,
+                                            order:(5+newOrderSuffix)
+                                        })
+                                    )
+                                }else{
+                                    console.log("m",m);
+                                    console.log("params",params);
+                                    let url = '';
+                                    if(_.hasIn(m,"items.$ref")) {
+                                        if(value && _.isObject(value)){
+                                            if(value.length === 0){
+                                                url = '/device/edit/'+params.device;
+                                                url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'[0]':'/'+i+'[0]');
+                                                url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
+                                                console.log("url",url);
+                                                form.push({
+                                                    controlType:"buttondropdown",
+                                                    title:m.title,
+                                                    description:m.description,
+                                                    addUrl:url,
+                                                    order:(3+newOrderSuffix)
+                                                });
+                                            }else{
+                                                options = [];
+                                                let maxVali = 0;
+                                                _.forEach(value,(valm, vali)=>{
+                                                    let title;
+                                                    maxVali = parseInt(vali);
+                                                    // $this.replaceCharactersInTitleKey(m.titleKey,valm);
+                                                    url = '/device/edit/'+params.device;
+                                                    url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
+                                                    url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
+                                                    if(_.hasIn(m,"titleKey")){
+                                                        title = $this.replaceCharactersInTitleKey(m.titleKey,valm);
+                                                    }else{
+                                                       title = m.title + '['+vali+']';
+                                                    }
+                                                    options.push({
+                                                        title:title,
+                                                        description:m.description,
+                                                        key:i,
+                                                        url:url
+                                                    })
+                                                });
+                                                let addUrl = '/device/edit/'+params.device;
+                                                addUrl = addUrl +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+(maxVali+1)+']':'/'+i+'['+(maxVali+1)+']');
+                                                addUrl = addUrl +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
+                                                console.log("addUrl",addUrl);
+                                                form.push({
+                                                    controlType:"buttondropdown",
+                                                    title:m.title,
+                                                    description:m.description,
+                                                    options:options,
+                                                    addUrl:addUrl,
+                                                    order:(3+newOrderSuffix)
+                                                });
+                                            }
+                                        }else{
                                             url = '/device/edit/'+params.device;
-                                            url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'[0]':'/'+i+'[0]');
+                                            url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i:'/'+i);
                                             url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
                                             console.log("url",url);
                                             form.push({
-                                                controlType:"buttondropdown",
+                                                controlType:"button",
                                                 title:m.title,
                                                 description:m.description,
-                                                addUrl:url,
-                                                order:(3+newOrderSuffix)
+                                                url:url,
+                                                order:(1+newOrderSuffix)
                                             });
-                                        }else{
-                                            let options = [];
+                                        }
+                                    }else{
+                                        if(value && _.isObject(value) && (value.length > 0 && _.isObject(value[0]))){
+                                            options = [];
                                             let maxVali = 0;
                                             _.forEach(value,(valm, vali)=>{
                                                 let title;
@@ -251,19 +355,20 @@ export class DeviceConfiguratorService {
                                                 if(_.hasIn(m,"titleKey")){
                                                     title = $this.replaceCharactersInTitleKey(m.titleKey,valm);
                                                 }else{
-                                                   title = m.title + '['+vali+']';
+                                                    title = m.title + '['+vali+']';
                                                 }
                                                 options.push({
                                                     title:title,
                                                     description:m.description,
                                                     key:i,
-                                                    url:url
+                                                    url:url,
+                                                    order:(3+newOrderSuffix)
                                                 })
                                             });
                                             let addUrl = '/device/edit/'+params.device;
                                             addUrl = addUrl +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+(maxVali+1)+']':'/'+i+'['+(maxVali+1)+']');
                                             addUrl = addUrl +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
-                                            console.log("addUrl",addUrl);
+                                            console.log("*addUrl",addUrl);
                                             form.push({
                                                 controlType:"buttondropdown",
                                                 title:m.title,
@@ -272,68 +377,19 @@ export class DeviceConfiguratorService {
                                                 addUrl:addUrl,
                                                 order:(3+newOrderSuffix)
                                             });
+                                        }else{
+                                            let type = (_.hasIn(m,"items.type")) ? m.items.type : "text";
+                                            form.push(
+                                                new ArrayElement({
+                                                    key:i,
+                                                    label:m.title,
+                                                    description:m.description,
+                                                    type: type,
+                                                    value:(value)? value:[''],
+                                                    order:(5+newOrderSuffix)
+                                                })
+                                            );
                                         }
-                                    }else{
-                                        url = '/device/edit/'+params.device;
-                                        url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i:'/'+i);
-                                        url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
-                                        console.log("url",url);
-                                        form.push({
-                                            controlType:"button",
-                                            title:m.title,
-                                            description:m.description,
-                                            url:url,
-                                            order:(1+newOrderSuffix)
-                                        });
-                                    }
-                                }else{
-                                    if(value && _.isObject(value) && (value.length > 0 && _.isObject(value[0]))){
-                                        let options = [];
-                                        let maxVali = 0;
-                                        _.forEach(value,(valm, vali)=>{
-                                            let title;
-                                            maxVali = parseInt(vali);
-                                            // $this.replaceCharactersInTitleKey(m.titleKey,valm);
-                                            url = '/device/edit/'+params.device;
-                                            url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']');
-                                            url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
-                                            if(_.hasIn(m,"titleKey")){
-                                                title = $this.replaceCharactersInTitleKey(m.titleKey,valm);
-                                            }else{
-                                                title = m.title + '['+vali+']';
-                                            }
-                                            options.push({
-                                                title:title,
-                                                description:m.description,
-                                                key:i,
-                                                url:url,
-                                                order:(3+newOrderSuffix)
-                                            })
-                                        });
-                                        let addUrl = '/device/edit/'+params.device;
-                                        addUrl = addUrl +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+(maxVali+1)+']':'/'+i+'['+(maxVali+1)+']');
-                                        addUrl = addUrl +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
-                                        console.log("*addUrl",addUrl);
-                                        form.push({
-                                            controlType:"buttondropdown",
-                                            title:m.title,
-                                            description:m.description,
-                                            options:options,
-                                            addUrl:addUrl,
-                                            order:(3+newOrderSuffix)
-                                        });
-                                    }else{
-                                        let type = (_.hasIn(m,"items.type")) ? m.items.type : "text";
-                                        form.push(
-                                            new ArrayElement({
-                                                key:i,
-                                                label:m.title,
-                                                description:m.description,
-                                                type: type,
-                                                value:(value)? value:[''],
-                                                order:(5+newOrderSuffix)
-                                            })
-                                        );
                                     }
                                 }
                             }
