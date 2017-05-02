@@ -33,7 +33,6 @@ export class TooltipDirective {
         this.div.className="tooltip_container";
         let div2 =  document.createElement("div")
         div2.className="dir-tooltip animated";
-        console.log("this.tooltip",this.tooltip);
         let br = document.createElement("br");
 
         this.div.addEventListener("mouseup",()=>{
@@ -43,7 +42,6 @@ export class TooltipDirective {
         if(_.includes(this.tooltip,'<br>')){
             let textArray = this.tooltip.split('<br>');
             _.forEach(textArray,(m,i)=>{
-                console.log("m",m);
                 div2.appendChild(br);
                 div2.appendChild(document.createTextNode(m));
             });

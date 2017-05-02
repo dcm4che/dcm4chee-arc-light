@@ -145,7 +145,7 @@
                             <input id="PatientID" type="text" [(ngModel)]="filter.PatientID" placeholder="Patient ID" title="Patient ID" class="col-md-12" />
                         </div>
                         <div class="col-md-6">
-                            <input autocomplete="off" id="IssuerOfPatientID" [disabled]="disabled.IssuerOfPatientID" type="text" [(ngModel)]="filter.IssuerOfPatientID" placeholder="Issuer of patient" title="Issuer of patient" class="col-md-12" (click)="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient._VALUE ID!')" ng-keypress="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient ID!')" ng-keypress="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient._VALUE ID!')"/>
+                            <input autocomplete="off" id="IssuerOfPatientID" [disabled]="disabled.IssuerOfPatientID" type="text" [(ngModel)]="filter.IssuerOfPatientID" placeholder="Issuer of patient" title="Issuer of patient" class="col-md-12" (click)="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient ID!')" (keyup)="conditionWarning($event, !filter.PatientID, 'Patient ID is empty, set first the patient ID!')" />
                         </div>
                     </div>
                 </div>
@@ -155,7 +155,7 @@
                             <input id="AccessionNumber" type="text" [(ngModel)]="filter.AccessionNumber" placeholder="Accession number" title="Accession number" class="col-md-12" />
                         </div>
                         <div class="col-md-6">
-                            <input id="LocalNamespaceEntityID" type="text" [disabled]="disabled.LocalNamespaceEntityID" [(ngModel)]="filter['IssuerOfAccessionNumberSequence.LocalNamespaceEntityID']" placeholder="Issuer of accession number" title="Issuer of accession number" class="col-md-12"  ng-keypress="conditionWarning($event, !filter.AccessionNumber, 'Accession Number is empty, set first the Accession Number!')" (click)="conditionWarning($event, !filter.AccessionNumber, 'Accession Number is empty, set first the Accession Number!')"/>
+                            <input id="LocalNamespaceEntityID" type="text" [disabled]="disabled.LocalNamespaceEntityID" [(ngModel)]="filter['IssuerOfAccessionNumberSequence.LocalNamespaceEntityID']" placeholder="Issuer of accession number" title="Issuer of accession number" class="col-md-12"  (keyup)="conditionWarning($event, !filter.AccessionNumber, 'Accession Number is empty, set first the Accession Number!')" (click)="conditionWarning($event, !filter.AccessionNumber, 'Accession Number is empty, set first the Accession Number!')"/>
                         </div>
                     </div>
                     <div class="row" *ngIf="filterMode === 'mwl'||filterMode === 'study'">

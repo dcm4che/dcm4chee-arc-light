@@ -2985,9 +2985,21 @@ export class StudiesComponent implements OnDestroy{
                 });
             }
         }else {
-            if((_.size(this.clipboard) < 1 && (_.size(this.selected) < 1 || (_.hasIn(this.selected,"hasPatient") && _.size(this.selected) < 2)))) {
+            if( (_.size(this.clipboard) < 1 &&
+                    (
+                        _.size(this.selected) < 1 ||
+                        (_.hasIn(this.selected,"hasPatient") && _.size(this.selected) < 2) ||
+                        (
+                            (_.hasIn(this.selected,"otherObjects") && _.size(this.selected["otherObjects"]) == 0) &&
+                            (_.hasIn(this.selected,"patients") && _.size(this.selected["patients"]) == 0)
+                        )
+                    )
+                )
+              ) {
                 console.warn("ctrl v with empty clipboard and empty selected");
             }else{
+                console.log("clipboard=",this.clipboard);
+                console.log("selected=",this.selected);
                 if(_.size(this.clipboard) < 1){
                     this.mainservice.setMessage({
                         "title": "Warning",
@@ -3003,6 +3015,21 @@ export class StudiesComponent implements OnDestroy{
                     });
                 }
             }
+        }
+    };
+    conditionWarning($event, condition, msg){
+        let id = $event.currentTarget.id;
+        let $this = this;
+        if(condition){
+            this.disabled[id] = true;
+            this.mainservice.setMessage({
+                "title": "Warning",
+                "text": msg,
+                "status": "warning"
+            });
+            setTimeout(function() {
+                $this.disabled[id] = false;
+            }, 100);
         }
     };
     renderURL(inst) {
