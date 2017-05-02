@@ -50,7 +50,14 @@
         </div>
         <div *ngIf="formelement.show || partSearch != ''">
             <div *ngSwitchCase="'button'">
-                <a class="btn btn-default" [routerLink]="[formelement.url]" title="{{formelement.description}}">{{formelement.title}}</a>
+                <div *ngIf="formelement.value > 0">
+                    <a class="btn btn-default" [routerLink]="[formelement.url]" title="{{formelement.description}}">{{formelement.title}}</a>
+                    <a class="btn btn-danger" (click)="$event.preventDefault();removeObject(formelement,form.controls[formelement.key])" title="Remove {{formelement.title}} extension to device">Remove</a>
+                </div>
+                <div *ngIf="formelement.value === 0">
+                    <a class="btn btn-default disabled" (click)="$event.preventDefault();" title="{{formelement.description}}">{{formelement.title}}</a>
+                    <a class="btn btn-default" [routerLink]="[formelement.url]" title="{{formelement.description}}" title="Append {{formelement.title}} extension to device">Add</a>
+                </div>
             </div>
         </div>
         <div *ngIf="formelement.show || partSearch != ''">
@@ -61,7 +68,7 @@
                     <option *ngFor="let opt of formelement.options" [value]="opt.url">{{opt.title}}</option>
                 </select>
                 <a class="btn btn-default" [routerLink]="[formelement.addUrl]" title="{{formelement.description}}">Add</a>
-                <a class="btn btn-default" (click)="clone(formelement,form.controls[formelement.key].controls)" title="{{formelement.description}}">clone</a>
+                <a class="btn btn-default" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement,form.controls[formelement.key].controls)" title="{{formelement.description}}">clone</a>
             </div>
         </div>
         <div *ngIf="formelement.show || partSearch != ''">

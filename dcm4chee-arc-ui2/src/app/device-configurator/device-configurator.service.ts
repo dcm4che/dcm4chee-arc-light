@@ -37,6 +37,11 @@ export class DeviceConfiguratorService {
         }
         return title;
     }
+    removeExtensionFromDevice(devicereff){
+        console.log("in service devicereff",devicereff);
+        _.unset(this.device,devicereff);
+        console.log("this.device",this.device);
+    }
     getDevice(devicename){
         return this.$http.get('../devices/' + devicename).map(device => device.json());
     }
@@ -75,7 +80,9 @@ export class DeviceConfiguratorService {
             if(_.hasIn(this.device,devicereff)){
                 this.setWith(_.get(this.device,devicereff),value);
             }else{
-                _.setWith(this.device, devicereff, value, Object);
+                let newValue = {};
+                this.setWith(newValue,value);
+                _.setWith(this.device, devicereff, newValue, Object);
             }
         }else{
             //The root of the device was changed call setWith
@@ -338,7 +345,9 @@ export class DeviceConfiguratorService {
                                                 title:m.title,
                                                 description:m.description,
                                                 url:url,
-                                                order:(1+newOrderSuffix)
+                                                devicereff:(params.schema) ? params.schema+'.'+propertiesPath+'.'+i:'properties.'+i,
+                                                order:(1+newOrderSuffix),
+                                                value:_.size(value)
                                             });
                                         }
                                     }else{
@@ -416,7 +425,9 @@ export class DeviceConfiguratorService {
                                     title:m.title,
                                     description:m.description,
                                     url:url,
-                                    order:(1+newOrderSuffix)
+                                    devicereff:(params.devicereff) ? params.devicereff+'.'+i:i,
+                                    order:(1+newOrderSuffix),
+                                    value:_.size(value)
                                 });
                     }
                 });

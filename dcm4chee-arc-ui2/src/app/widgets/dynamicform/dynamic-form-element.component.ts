@@ -8,6 +8,7 @@ import {FormService} from "../../helpers/form/form.service";
 import {FormElement} from "../../helpers/form/form-element";
 import * as _ from "lodash";
 import {Router} from "@angular/router";
+import {DeviceConfiguratorService} from "../../device-configurator/device-configurator.service";
 
 @Component({
     selector:'df-element',
@@ -20,7 +21,7 @@ export class DynamicFormElementComponent{
     @Input() form:FormGroup;
     @Input() partSearch:string;
     // activetab = "tab_1";
-    constructor(private formservice:FormService, private formcomp:DynamicFormComponent, dcl: ComponentFactoryResolver, elementRef: ElementRef, private router:Router){
+    constructor(private formservice:FormService, private formcomp:DynamicFormComponent, dcl: ComponentFactoryResolver, elementRef: ElementRef, private router:Router, private deviceConfiguratorService:DeviceConfiguratorService){
         // dcl.resolveComponentFactory(DynamicFormComponent);
     }
     get isValid(){
@@ -35,6 +36,14 @@ export class DynamicFormElementComponent{
         this.form = this.formservice.toFormGroup(this.formelements);
         this.formcomp.setForm(this.form);
         this.formcomp.setFormModel(valueObject);
+    }
+    removeObject(formelement,controls){
+        this.deviceConfiguratorService.removeExtensionFromDevice(formelement.devicereff);
+        _.forEach(this.formelements,(m,i)=>{
+            if(m["controlType"] === "button" && m["devicereff"] === formelement.devicereff){
+                m.value = 0;
+            }
+        });
     }
     clone(formelement,controls){
         console.log("formelement",formelement);
