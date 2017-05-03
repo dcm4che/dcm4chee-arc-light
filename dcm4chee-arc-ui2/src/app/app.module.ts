@@ -60,6 +60,7 @@ import {CreateExporterService} from "./widgets/dialogs/create-exporter/create-ex
 import {DeviceConfiguratorService} from "./device-configurator/device-configurator.service";
 import { UtcPipe } from './pipes/utc.pipe';
 import {RouterTestingModule} from "@angular/router/testing";
+import { CustomValidatorDirective } from './helpers/custom-validator/custom-validator.directive';
 
 @NgModule({
     declarations: [
@@ -97,7 +98,8 @@ import {RouterTestingModule} from "@angular/router/testing";
         StorageCommitmentComponent,
         ConnectionFormaterComponent,
         AeListComponent,
-        UtcPipe
+        UtcPipe,
+        CustomValidatorDirective
     ],
     imports: [
         BrowserModule,

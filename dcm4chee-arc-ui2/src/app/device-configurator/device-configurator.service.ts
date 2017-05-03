@@ -8,6 +8,7 @@ import {ArrayElement} from "../helpers/form/array-element";
 import {ArrayObject} from "../helpers/form/array-object";
 import {DropdownList} from "../helpers/form/dropdown-list";
 import {Observable} from "rxjs";
+import {InputNumber} from "../helpers/form/input-number";
 
 @Injectable()
 export class DeviceConfiguratorService {
@@ -152,15 +153,30 @@ export class DeviceConfiguratorService {
             if((schema.type === "object" && _.hasIn(schema,"properties")) || (schema.type === "array" && _.hasIn(schema,"items.properties"))){
                 let schemaProperties;
                 let propertiesPath = "properties";
+                let requiredArray;
                 if(_.hasIn(schema,"properties")){
                     schemaProperties = schema.properties;
-
+                    requiredArray = schema.required || [];
                 }else{
                     schemaProperties = schema.items.properties;
                     propertiesPath = "items.properties";
+                    requiredArray = schema.items.required || [];
                 }
                 _.forEach(schemaProperties,(m,i)=>{
                     let value;
+                    let required = (_.indexOf(requiredArray,i) > -1);
+                    let validation = {
+                        required:required
+                    };
+                    if(_.hasIn(m,"minimum")){
+                        validation["minimum"] = m.minimum;
+                    }
+                    if(_.hasIn(m,"maximum")){
+                        validation["maximum"] = m.maximum;
+                    }
+                    if(_.hasIn(m,"pattern")){
+                        validation["pattern"] = m.pattern;
+                    }
                     if(_.hasIn(device,i)){
                         value = device[i];
                     }
@@ -185,7 +201,8 @@ export class DeviceConfiguratorService {
                                         label:m.title,
                                         description:m.description,
                                         options: options,
-                                        order:(5+newOrderSuffix)
+                                        order:(5+newOrderSuffix),
+                                        validation:validation
                                     }),
                                 );
                             }else{
@@ -196,7 +213,8 @@ export class DeviceConfiguratorService {
                                         description:m.description,
                                         type: "string",
                                         value:value,
-                                        order:(5+newOrderSuffix)
+                                        order:(5+newOrderSuffix),
+                                        validation:validation
                                     })
                                 );
                             }
@@ -241,7 +259,8 @@ export class DeviceConfiguratorService {
                                     label:m.title,
                                     description:m.description,
                                     options: options,
-                                    order:(5+newOrderSuffix)
+                                    order:(5+newOrderSuffix),
+                                    validation:validation
                                 })
                             );
                             break;
@@ -260,7 +279,8 @@ export class DeviceConfiguratorService {
                                         label:m.title,
                                         description:m.description,
                                         options: options,
-                                        order:(5+newOrderSuffix)
+                                        order:(5+newOrderSuffix),
+                                        validation:validation
                                     })
                                 )
                             }else{
@@ -279,12 +299,11 @@ export class DeviceConfiguratorService {
                                             label:m.title,
                                             description:m.description,
                                             options: options,
-                                            order:(5+newOrderSuffix)
+                                            order:(5+newOrderSuffix),
+                                            validation:validation
                                         })
                                     )
                                 }else{
-                                    console.log("m",m);
-                                    console.log("params",params);
                                     let url = '';
                                     if(_.hasIn(m,"items.$ref")) {
                                         if(value && _.isObject(value)){
@@ -395,7 +414,8 @@ export class DeviceConfiguratorService {
                                                     description:m.description,
                                                     type: type,
                                                     value:(value)? value:[''],
-                                                    order:(5+newOrderSuffix)
+                                                    order:(5+newOrderSuffix),
+                                                    validation:validation
                                                 })
                                             );
                                         }
@@ -405,14 +425,16 @@ export class DeviceConfiguratorService {
                             break;
                         case "integer":
                             // code block
+
                             form.push(
-                                new InputText({
+                                new InputNumber({
                                     key:i,
                                     label:m.title,
                                     description:m.description,
-                                    value:value,
+                                    value:parseFloat(value),
                                     type: "number",
-                                    order:(5+newOrderSuffix)
+                                    order:(5+newOrderSuffix),
+                                    validation:validation
                                 })
                             )
                             break;

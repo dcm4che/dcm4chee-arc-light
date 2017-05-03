@@ -4,8 +4,9 @@
 
 import {Injectable} from "@angular/core";
 import {FormElement} from "./form-element";
-import {FormControl, Validators, FormGroup, FormArray, FormBuilder} from "@angular/forms";
+import {FormControl, Validators, FormGroup, FormArray, FormBuilder, Validator} from "@angular/forms";
 import * as _ from "lodash";
+import {CustomValidatorDirective} from "../custom-validator/custom-validator.directive";
 
 @Injectable()
 export class FormService{
@@ -18,6 +19,59 @@ export class FormService{
     private convertFormElement(formelements:FormElement<any>[]){
         let group:any = {};
         formelements.forEach(element => {
+            let validation:any;
+            let validationElement:number = 0;
+            if(_.hasIn(element,"validation")){
+                if(_.size(element["validation"]) > 1){
+                    let validationArray = [];
+                    _.forEach(element["validation"],(m,i)=>{
+                        switch (i){
+                            case "minimum":
+                                validationArray.push(CustomValidatorDirective.min(m));
+                                break;
+                            case "maximum":
+                                validationArray.push(CustomValidatorDirective.max(m));
+                                break;
+                            case "pattern":
+                                validationArray.push(CustomValidatorDirective.regExp(m));
+                                break;
+                            default:
+                                if(i=== "required" && m === true){
+                                    validationArray.push(Validators.required);
+                                }
+                        }
+                    });
+                    validation = Validators.compose(validationArray);
+                }else{
+                    if(_.hasIn(element,"validation.required") && element["validation"].required){
+                        validation = Validators.required;
+                    }
+                }
+            }
+/*            if(
+                (_.hasIn(element,"validation.required")  &&
+                    (
+                        (_.hasIn(element,"validation.minimum") && element["validation"].minimum) ||
+                        (_.hasIn(element,"validation.maximum") && element["validation"].maximum)
+                    )
+                )
+            ){
+                let validationArray = [];
+                if(_.hasIn(element,"validation.required") && element["validation"].required){
+                    validationArray.push(Validators.required);
+                }
+                if(_.hasIn(element,"validation.minimum")){
+                    validationArray.push(CustomValidatorDirective.min(element["validation"].minimum));
+                }
+                if(_.hasIn(element,"validation.maximum")){
+                    validationArray.push(CustomValidatorDirective.max(element["validation"].maximum));
+                }
+                validation = Validators.compose(validationArray);
+            }else{
+                if(_.hasIn(element,"validation.required") && element["validation"].required){
+                    validation = Validators.required;
+                }
+            }*/
             switch (element.controlType) {
                 case "arrayobject":
                         let arr: FormGroup[] = [];
@@ -66,7 +120,8 @@ export class FormService{
                     let checkboxArr = [];
                     element["options"].forEach((option: any) => {
                         if(option.active){
-                            checkboxArr.push(new FormControl(option.value));
+                            let formControl = validation ? new FormControl(option.value, validation):new FormControl(option.value);
+                            checkboxArr.push(formControl);
                         }
                     });
                     // group[element.key] = new FormArray([new FormControl("")]);
@@ -79,8 +134,13 @@ export class FormService{
 
                 default:
                     if(element.key){
-                        group[element.key] = element.required ? new FormControl(element.value || '', Validators.required)
-                            : new FormControl(element.value || '');
+                        if(element["type"] === "number"){
+                            group[element.key] = validation ? new FormControl(parseInt(element.value) || 0, validation)
+                                : new FormControl(parseInt(element.value) || 0);
+                        }else{
+                            group[element.key] = validation ? new FormControl(element.value || '', validation)
+                                : new FormControl(element.value || '');
+                        }
                     }
             }
         });
@@ -93,10 +153,8 @@ export class FormService{
                 retobj[key] = new FormControl(keys[key]);
             }else{
                 if(Array.isArray(keys[key])){
-                    // retobj[key];
                     let tmpArr:FormControl[] = [];
                     keys[key].forEach((kayvalue:any) => {
-                        // retobj[key] = retobj[key] || [];
                         tmpArr.push(new FormControl(kayvalue));
                     });
                     retobj[key] = new FormArray(tmpArr);

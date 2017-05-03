@@ -6,7 +6,7 @@ export class FormElement<T>{
     value: T;
     key: string;
     label: string;
-    required: boolean;
+    validation: any;
     order: number;
     description:string;
     controlType: string;
@@ -15,7 +15,7 @@ export class FormElement<T>{
         value?: T,
         key?: string,
         label?: string,
-        required?: boolean,
+        validation?: any,
         order?: number,
         description?: string,
         controlType?: string,
@@ -24,7 +24,7 @@ export class FormElement<T>{
         this.value = options.value;
         this.key = options.key || '';
         this.label = options.label || '';
-        this.required = !!options.required;
+        this.validation = options.validation;
         this.order = options.order === undefined ? 1 : options.order;
         this.description = options.description || '';
         this.controlType = options.controlType || '';

@@ -66,11 +66,12 @@ export class DynamicFormComponent implements OnInit{
         console.log("after convert form",this.form);
         //Test setting some values
         console.log("this.model=",this.model);
-        if(this.model){
+/*        if(this.model){
             this.form.patchValue(this.model);
-        }
+        }*/
         this.form.valueChanges.forEach(fe => {
             console.log("formvalue changes fe", fe);
+            console.log("form",this.form);
         });
         console.log("form",this.form);
     }
@@ -92,8 +93,8 @@ export class DynamicFormComponent implements OnInit{
         this.prevPartSearch = this.partSearch;
     }
     onSubmit(){
-        this.payLoad = JSON.stringify(this.form.value);
         console.log("this.form.value",this.form.value);
+        this.payLoad = JSON.stringify(this.form.value);
         this.submitFunction.emit(this.form.value);
     }
     getForm(){
@@ -104,9 +105,6 @@ export class DynamicFormComponent implements OnInit{
     }
     setForm(form:any){
         this.form = form;
-        this.form.valueChanges.forEach(fe => {
-            console.log("formvalue changes fe", fe);
-        });
     }
 
 }
