@@ -260,7 +260,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNull("dcmDigestAlgorithm", st.getDigestAlgorithm());
             writer.writeNotNull("dcmInstanceAvailability", st.getInstanceAvailability());
             writer.writeNotDef("dcmReadOnly", st.isReadOnly(), false);
-            writer.writeNotEmpty("dcmDeleterThreshold", st.getDeleterThresholdsAsStrings());
+            writer.writeNotDef("dcmCache", st.isCache(), false);
+            writer.writeNotEmpty("dcmStorageThreshold", st.getStorageThresholdsAsStrings());
             writer.writeNotEmpty("dcmProperty", descriptorProperties(st.getProperties()));
             writer.writeNotNull("dcmExternalRetrieveAET", st.getExternalRetrieveAETitle());
             writer.writeEnd();
@@ -1063,8 +1064,11 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmReadOnly":
                         st.setReadOnly(reader.booleanValue());
                         break;
-                    case "dcmDeleterThreshold":
-                        st.setDeleterThresholdsFromStrings(reader.stringArray());
+                    case "dcmCache":
+                        st.setCache(reader.booleanValue());
+                        break;
+                    case "dcmStorageThreshold":
+                        st.setStorageThresholdsFromStrings(reader.stringArray());
                         break;
                     case "dcmProperty":
                         st.setProperties(reader.stringArray());

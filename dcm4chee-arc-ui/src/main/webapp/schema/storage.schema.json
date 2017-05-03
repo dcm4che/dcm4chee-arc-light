@@ -32,9 +32,14 @@
       "description": "Indicates if a Storage System is read only; false if absent.",
       "type": "boolean"
     },
-    "dcmDeleterThreshold": {
-      "title": "Deleter Threshold",
-      "description": "Minimal Usable Space on Storage System. If present, studies are deleted from the Storage System, if the usable space fall below that value. Format [nn'['<schedule>']']nnn(MB|GB|MiB|GiB)",
+    "dcmCache": {
+      "title": "Cache",
+      "description": "Indicates if a Storage System acts as cache - i.e. least recently used objects will be deleted if the usable space fall below the configured Storage Threshold; false if absent.",
+      "type": "boolean"
+    },
+    "dcmStorageThreshold": {
+      "title": "Storage Threshold",
+      "description": "Minimal Usable Space on Storage System. The behavior if the usable space fall below that value, depends if the Storage System is marked as cache. In that case least recently used objects will be deleted. Otherwise the Storage System will be removed from the list of configured Storage Systems of the Network AE requesting that Storage System. Format [nn'['<schedule>']']nnn(MB|GB|MiB|GiB).",
       "type": "array",
       "items": {
         "type": "string"
