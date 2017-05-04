@@ -7,6 +7,15 @@ import {AbstractControl, Validator, NG_VALIDATORS, ValidatorFn} from "@angular/f
 })
 export class CustomValidatorDirective {
 
+    static required(options:any): ValidatorFn {
+        return (control: AbstractControl): {[key: string]: any} => {
+            // {'msg': {'requiredMax': min, 'actual': control.value}}
+            console.log("options",options);
+            return (control.value === undefined || control.value === null || control.value === '') ?
+            {'msg': `This field is required!`} :
+                null;
+        };
+    }
     static min(min: number): ValidatorFn {
         return (control: AbstractControl): {[key: string]: any} => {
             if (!control.value) {

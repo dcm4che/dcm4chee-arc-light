@@ -44,7 +44,11 @@ export class FormService{
                     validation = Validators.compose(validationArray);
                 }else{
                     if(_.hasIn(element,"validation.required") && element["validation"].required){
-                        validation = Validators.required;
+                        if(_.hasIn(element,"options")){
+                            validation = CustomValidatorDirective.required(element["options"]);
+                        }else{
+                            validation = Validators.required;
+                        }
                     }
                 }
             }
@@ -120,7 +124,8 @@ export class FormService{
                     let checkboxArr = [];
                     element["options"].forEach((option: any) => {
                         if(option.active){
-                            let formControl = validation ? new FormControl(option.value, validation):new FormControl(option.value);
+                            // let formControl = validation ? new FormControl(option.value, validation):new FormControl(option.value);
+                            let formControl = new FormControl(option.value,Validators.required);//TODO required wrong!!!!!
                             checkboxArr.push(formControl);
                         }
                     });
@@ -129,7 +134,24 @@ export class FormService{
                     // if(checkboxArr.length === 0){
                     //     group[element.key] = new FormArray([new FormControl("")]);
                     // }else{
-                        group[element.key] = new FormArray(checkboxArr);
+                        group[element.key] = validation ? new FormArray(checkboxArr,validation):new FormArray(checkboxArr);
+                    break;
+                case "radio":
+                    let radio = [];
+                    element["options"].forEach((option: any) => {
+                        if(option.active){
+/*                            let formControl = validation ? new FormControl(option.value, validation):new FormControl(option.value);
+                            radio.push(formControl);*/
+                            // group[element.key] = validation ? new FormControl(option.value, CustomValidatorDirective.required(element["options"])):new FormControl(option.value);
+                            group[element.key] = new FormControl(option.value, CustomValidatorDirective.required(element["options"]));
+                        }
+                    });
+                    // group[element.key] = new FormArray([new FormControl("")]);
+
+                    // if(checkboxArr.length === 0){
+                    //     group[element.key] = new FormArray([new FormControl("")]);
+                    // }else{
+                    //     group[element.key] = new FormArray(checkboxArr);
                     break;
 
                 default:
