@@ -150,7 +150,7 @@ public class ArchiveAEExtension extends AEExtension {
         return metadataStorageIDs;
     }
 
-    public void setMetadataStorageIDs(String... metadataStorageID) {
+    public void setMetadataStorageIDs(String... metadataStorageIDs) {
         Arrays.sort(this.metadataStorageIDs = metadataStorageIDs);
     }
 

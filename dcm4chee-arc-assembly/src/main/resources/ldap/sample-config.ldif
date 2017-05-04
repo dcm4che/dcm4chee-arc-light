@@ -182,6 +182,7 @@ dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
+dcmSeriesMetadataStorageID: series-metadata
 dicomSoftwareVersion: 5.10.1
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
@@ -1101,6 +1102,7 @@ objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
 dcmAcceptedUserRole: user
 dcmAcceptedUserRole: admin
+dcmMetadataStorageID: metadata
 
 dn: cn=Forward to STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: dicom:STORESCP

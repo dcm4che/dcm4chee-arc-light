@@ -280,7 +280,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return seriesMetadataStorageIDs;
     }
 
-    public void setSeriesMetadataStorageIDs(String... seriesMetadataStorageID) {
+    public void setSeriesMetadataStorageIDs(String... seriesMetadataStorageIDs) {
         Arrays.sort(this.seriesMetadataStorageIDs = seriesMetadataStorageIDs);
     }
 
