@@ -3,15 +3,27 @@
   "description": "DICOM Archive Network AE related information",
   "type": "object",
   "properties": {
-    "dcmStorageID": {
-      "title": "Storage ID",
-      "description": "Storage ID",
-      "type": "string"
+    "dcmObjectStorageID": {
+      "title": "Object Storage ID",
+      "description": "ID of Storage System on which received DICOM composite objects are stored. Multiple Storage Systems may be configured.",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmObjectStorageCount": {
+      "title": "Object Storage Count",
+      "description": "Number of Storage Systems which are filled in parallel; 1 if absent.",
+      "type": "integer",
+      "minimum": 1
     },
     "dcmMetadataStorageID": {
       "title": "Metadata Storage ID",
-      "description": "ID of Storage on which Metadata is stored in JSON format - additionally to the complete DICOM composite object - of objects received by this AE. Overwrites value specified on Device level.",
-      "type": "string"
+      "description": "ID of Storage on which Metadata is stored in JSON format - additionally to the complete DICOM composite object. Multiple Storage Systems may be configured. If absent, metadata is not stored additionally.",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
     },
     "dcmSeriesMetadataDelay": {
       "title": "Aggregate Series Metadata Delay",

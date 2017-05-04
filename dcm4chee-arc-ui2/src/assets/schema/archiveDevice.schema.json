@@ -4,7 +4,6 @@
   "type": "object",
   "required": [
     "dcmFuzzyAlgorithmClass",
-    "dcmStorageID",
     "dcmQueryRetrieveViewID"
   ],
   "properties": {
@@ -21,20 +20,13 @@
       "org.dcm4che3.soundex.Phonem"
       ]
     },
-    "dcmStorageID": {
-      "title": "Storage ID",
-      "description": "Storage ID",
-      "type": "string"
-    },
-    "dcmMetadataStorageID": {
-      "title": "Metadata Storage ID",
-      "description": "ID of Storage on which Metadata is stored in JSON format - additionally to the complete DICOM composite object. If absent, metadata is not stored additionally",
-      "type": "string"
-    },
     "dcmSeriesMetadataStorageID": {
       "title": "Series Metadata Storage ID",
-      "description": "ID of Storage on which ZIP archives with aggregated Metadata of all instances of a Series is stored. If absent, no aggregated Series Metadata will be stored.",
-      "type": "string"
+      "description": "ID of Storage on which ZIP archives with aggregated Metadata of all instances of a Series is stored. Multiple Storage Systems may be configured. If absent, no aggregated Series Metadata will be stored.",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
     },
     "dcmSeriesMetadataDelay": {
       "title": "Aggregate Series Metadata Delay",

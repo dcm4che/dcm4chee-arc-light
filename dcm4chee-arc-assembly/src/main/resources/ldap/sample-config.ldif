@@ -136,7 +136,6 @@ dcmExportTaskPollingInterval: PT1M
 dcmKeyStoreType: JKS
 dcmRejectExpiredStudiesAETitle: DCM4CHEE
 dcmKeyStoreURL: ${jboss.server.config.url}/dcm4chee-arc/key.jks
-dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.40
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.65
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.34
@@ -153,6 +152,7 @@ dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.71
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.79.1
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.59
 dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.78.6
+dcmAuditSpoolDirectory: ${jboss.server.data.dir}/audit-spool
 objectClass: dicomDevice
 objectClass: dcmDevice
 objectClass: dcmArchiveDevice
@@ -161,7 +161,6 @@ hl7PatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.x
 dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dicomManufacturerModelName: dcm4chee-arc
 dcmSeriesMetadataPollingInterval: PT1M
-dcmMetadataStorageID: metadata
 dcmOverwritePolicy: SAME_SOURCE
 dcmSendPendingCGet: TRUE
 dcmQueryRetrieveViewID: hideRejected
@@ -172,7 +171,6 @@ dcmRejectExpiredStudiesFetchSize: 10
 dicomPrimaryDeviceType: ARCHIVE
 hl7ImportReportTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-oru2dsr.xsl
 dicomAuthorizedNodeCertificateReference: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmStorageID: fs1
 dcmPurgeStgCmtCompletedDelay: P1D
 dicomManufacturer: dcm4che.org
 dcmExternalRetrieveAEDestination: DCM4CHEE
@@ -184,7 +182,6 @@ dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
-dcmSeriesMetadataStorageID: series-metadata
 dicomSoftwareVersion: 5.10.1
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
@@ -192,8 +189,8 @@ dcmRejectExpiredStudiesPollingInterval: P1D
 dcmDeleteRejectedPollingInterval: PT5M
 dcmRejectExpiredStudiesPollingStartTime: 00:00
 dcmLeadingCFindSCPQueryCacheStaleTimeout: PT5M
-dcmAuditPollingInterval: PT1M
 dcmUnzipVendorDataToURI: ${jboss.server.temp.url}/dcm4chee-arc
+dcmAuditPollingInterval: PT1M
 dcmHideSPSWithStatusFromMWL: STARTED
 dcmHideSPSWithStatusFromMWL: DEPARTED
 dcmHideSPSWithStatusFromMWL: CANCELLED
@@ -1091,18 +1088,19 @@ dcmStorageID: metadata
 dcmURI: ${jboss.server.data.url}/metadata/
 
 dn: dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomAssociationInitiator: TRUE
-dicomDescription: Hide instances rejected for Quality Reasons
-dcmAcceptedUserRole: user
-dcmAcceptedUserRole: admin
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmQueryRetrieveViewID: hideRejected
+dicomDescription: Hide instances rejected for Quality Reasons
+dicomAssociationInitiator: TRUE
+dcmObjectStorageID: fs1
+dicomAssociationAcceptor: TRUE
+dicomAETitle: DCM4CHEE
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
-dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomAETitle: DCM4CHEE
-dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: user
+dcmAcceptedUserRole: admin
 
 dn: cn=Forward to STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: dicom:STORESCP

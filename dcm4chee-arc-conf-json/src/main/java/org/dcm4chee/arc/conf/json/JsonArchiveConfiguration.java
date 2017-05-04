@@ -75,9 +75,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
         writer.writeStartObject("dcmArchiveDevice");
         writer.writeNotNull("dcmFuzzyAlgorithmClass", arcDev.getFuzzyAlgorithmClass());
-        writer.writeNotNull("dcmStorageID", arcDev.getStorageID());
-        writer.writeNotNull("dcmMetadataStorageID", arcDev.getMetadataStorageID());
-        writer.writeNotNull("dcmSeriesMetadataStorageID", arcDev.getSeriesMetadataStorageID());
+        writer.writeNotEmpty("dcmSeriesMetadataStorageID", arcDev.getSeriesMetadataStorageIDs());
         writer.writeNotNull("dcmSeriesMetadataDelay", arcDev.getSeriesMetadataDelay());
         writer.writeNotNull("dcmSeriesMetadataPollingInterval", arcDev.getSeriesMetadataPollingInterval());
         writer.writeNotDef("dcmSeriesMetadataFetchSize", arcDev.getSeriesMetadataFetchSize(), 100);
@@ -506,8 +504,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             return;
 
         writer.writeStartObject("dcmArchiveNetworkAE");
-        writer.writeNotNull("dcmStorageID", arcAE.getStorageID());
-        writer.writeNotNull("dcmMetadataStorageID", arcAE.getMetadataStorageID());
+        writer.writeNotEmpty("dcmObjectStorageID", arcAE.getObjectStorageIDs());
+        writer.writeNotDef("dcmObjectStorageCount", arcAE.getObjectStorageCount(), 1);
+        writer.writeNotEmpty("dcmMetadataStorageID", arcAE.getMetadataStorageIDs());
         writer.writeNotNull("dcmSeriesMetadataDelay", arcAE.getSeriesMetadataDelay());
         writer.writeNotNull("dcmPurgeInstanceRecordsDelay", arcAE.getPurgeInstanceRecordsDelay());
         writer.writeNotNull("dcmStoreAccessControlID", arcAE.getStoreAccessControlID());
@@ -595,14 +594,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmFuzzyAlgorithmClass":
                     arcDev.setFuzzyAlgorithmClass(reader.stringValue());
                     break;
-                case "dcmStorageID":
-                    arcDev.setStorageID(reader.stringValue());
-                    break;
-                case "dcmMetadataStorageID":
-                    arcDev.setMetadataStorageID(reader.stringValue());
-                    break;
                 case "dcmSeriesMetadataStorageID":
-                    arcDev.setSeriesMetadataStorageID(reader.stringValue());
+                    arcDev.setSeriesMetadataStorageIDs(reader.stringArray());
                     break;
                 case "dcmSeriesMetadataDelay":
                     arcDev.setSeriesMetadataDelay(Duration.parse(reader.stringValue()));
@@ -1046,7 +1039,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
             reader.expect(JsonParser.Event.START_OBJECT);
-            StorageDescriptor st = new StorageDescriptor(arcDev.getStorageID());
+            StorageDescriptor st = new StorageDescriptor();
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
                     case "dcmStorageID":
@@ -1616,11 +1609,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     private void loadFrom(ArchiveAEExtension arcAE, JsonReader reader) {
         while (reader.next() == JsonParser.Event.KEY_NAME) {
             switch (reader.getString()) {
-                case "dcmStorageID":
-                    arcAE.setStorageID(reader.stringValue());
+                case "dcmObjectStorageID":
+                    arcAE.setObjectStorageIDs(reader.stringArray());
+                    break;
+                case "dcmObjectStorageCount":
+                    arcAE.setObjectStorageCount(reader.intValue());
                     break;
                 case "dcmMetadataStorageID":
-                    arcAE.setMetadataStorageID(reader.stringValue());
+                    arcAE.setMetadataStorageIDs(reader.stringArray());
                     break;
                 case "dcmSeriesMetadataDelay":
                     arcAE.setSeriesMetadataDelay(Duration.parse(reader.stringValue()));

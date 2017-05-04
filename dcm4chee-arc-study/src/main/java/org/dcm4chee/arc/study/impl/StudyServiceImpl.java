@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.study.impl;
 
-import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.study.StudyMgtContext;

@@ -100,10 +100,10 @@ public class UpdateMetadataScheduler extends Scheduler {
     @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        String seriesMetadataStorageID = arcDev.getSeriesMetadataStorageID();
-        if (seriesMetadataStorageID != null)
+        String[] seriesMetadataStorageIDs = arcDev.getSeriesMetadataStorageIDs();
+        if (seriesMetadataStorageIDs.length > 0)
             try {
-                arcDev.getStorageDescriptorNotNull(seriesMetadataStorageID);
+                arcDev.getStorageDescriptorNotNull(seriesMetadataStorageIDs[0]);
                 return arcDev.getSeriesMetadataPollingInterval();
             } catch (IllegalArgumentException e) {
                 LOG.warn(e.getMessage());
@@ -114,7 +114,8 @@ public class UpdateMetadataScheduler extends Scheduler {
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        StorageDescriptor storageDesc = arcDev.getStorageDescriptor(arcDev.getSeriesMetadataStorageID());
+        String[] seriesMetadataStorageIDs = arcDev.getSeriesMetadataStorageIDs();
+        StorageDescriptor storageDesc = arcDev.getStorageDescriptor(seriesMetadataStorageIDs[0]);
         int fetchSize = arcDev.getSeriesMetadataFetchSize();
         try (Storage storage = storageFactory.getStorage(storageDesc)) {
             List<Series.MetadataUpdate> metadataUpdates;

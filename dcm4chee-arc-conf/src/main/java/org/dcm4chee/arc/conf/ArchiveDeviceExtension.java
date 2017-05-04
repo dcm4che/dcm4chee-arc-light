@@ -64,9 +64,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     private String defaultCharacterSet;
     private String fuzzyAlgorithmClass;
-    private String storageID;
-    private String metadataStorageID;
-    private String seriesMetadataStorageID;
+    private String[] seriesMetadataStorageIDs = {};
     private Duration seriesMetadataDelay;
     private Duration seriesMetadataPollingInterval;
     private int seriesMetadataFetchSize = 100;
@@ -278,28 +276,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.bulkDataSpoolDirectory = bulkDataSpoolDirectory;
     }
 
-    public String getStorageID() {
-        return storageID;
+    public String[] getSeriesMetadataStorageIDs() {
+        return seriesMetadataStorageIDs;
     }
 
-    public void setStorageID(String storageID) {
-        this.storageID = storageID;
-    }
-
-    public String getMetadataStorageID() {
-        return metadataStorageID;
-    }
-
-    public void setMetadataStorageID(String metadataStorageID) {
-        this.metadataStorageID = metadataStorageID;
-    }
-
-    public String getSeriesMetadataStorageID() {
-        return seriesMetadataStorageID;
-    }
-
-    public void setSeriesMetadataStorageID(String seriesMetadataStorageID) {
-        this.seriesMetadataStorageID = seriesMetadataStorageID;
+    public void setSeriesMetadataStorageIDs(String... seriesMetadataStorageID) {
+        Arrays.sort(this.seriesMetadataStorageIDs = seriesMetadataStorageIDs);
     }
 
     public Duration getSeriesMetadataDelay() {
@@ -1534,9 +1516,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         defaultCharacterSet = arcdev.defaultCharacterSet;
         fuzzyAlgorithmClass = arcdev.fuzzyAlgorithmClass;
         fuzzyStr = arcdev.fuzzyStr;
-        storageID = arcdev.storageID;
-        metadataStorageID = arcdev.metadataStorageID;
-        seriesMetadataStorageID = arcdev.seriesMetadataStorageID;
+        seriesMetadataStorageIDs = arcdev.seriesMetadataStorageIDs;
         seriesMetadataDelay = arcdev.seriesMetadataDelay;
         seriesMetadataPollingInterval = arcdev.seriesMetadataPollingInterval;
         seriesMetadataFetchSize = arcdev.seriesMetadataFetchSize;

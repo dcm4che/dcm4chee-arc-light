@@ -142,7 +142,9 @@ public class StoreServiceEJB {
                     logInfo(IGNORE, ctx);
                     return result;
                 }
-                prevStudy.addStorageID(arcAE.storageID());
+                String[] storageIDs = arcAE.getObjectStorageIDs();
+                if (storageIDs.length > 0)
+                    prevStudy.addStorageID(storageIDs[0]);
                 prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                 createLocation(ctx, prevInstance, result, Location.ObjectType.DICOM_FILE);
                 result.setStoredInstance(prevInstance);
@@ -793,7 +795,9 @@ public class StoreServiceEJB {
                 study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .getSingleResult();
-                study.addStorageID(arcAE.storageID());
+                String[] storageIDs = arcAE.getObjectStorageIDs();
+                if (storageIDs.length > 0)
+                    study.addStorageID(storageIDs[0]);
                 study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                 if (result.getRejectionNote() == null)
                     updateStudyRejectionState(ctx, study);
@@ -897,7 +901,9 @@ public class StoreServiceEJB {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         Study study = new Study();
-        study.addStorageID(arcAE.storageID());
+        String[] storageIDs = arcAE.getObjectStorageIDs();
+        if (storageIDs.length > 0)
+            study.addStorageID(storageIDs[0]);
         study.setAccessControlID(arcAE.storeAccessControlID(
                 session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), ctx.getAttributes()));
         study.setCompleteness(Completeness.COMPLETE);

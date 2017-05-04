@@ -537,10 +537,9 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.107 NAME 'dcmStoreUpdateDBMaxRetries
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.108 NAME 'dcmMetadataStorageID'
-  DESC 'ID of Storage on which Metadata is stored in JSON format - additionally to the complete DICOM composite object. If absent, metadata is not stored additionally.'
+  DESC 'ID of Storage on which Metadata is stored in JSON format - additionally to the complete DICOM composite object. Multiple Storage Systems may be configured. If absent, metadata is not stored additionally.'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.109 NAME 'hl7FwdApplicationName'
   DESC 'HL7 Forward Destination Application and Facility name (Application^Facility)'
   EQUALITY caseExactMatch
@@ -642,10 +641,9 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.128 NAME 'dcmMergeMWLCacheSize'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.129 NAME 'dcmSeriesMetadataStorageID'
-  DESC 'ID of Storage on which ZIP archives with aggregated Metadata of all instances of a Series is stored. If absent, no aggregated Series Metadata will be stored.'
+  DESC 'ID of Storage on which ZIP archives with aggregated Metadata of all instances of a Series is stored. Multiple Storage Systems may be configured. If absent, no aggregated Series Metadata will be stored.'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.130 NAME 'dcmSeriesMetadataDelay'
   DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS for storing aggregated Series Metadata on storage. If absent, no aggregated Series Metadata will be stored.'
   EQUALITY caseExactIA5Match
@@ -858,16 +856,25 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.172 NAME 'dcmCache'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.173 NAME 'dcmObjectStorageID'
+  DESC 'ID of Storage System on which received DICOM composite objects are stored. Multiple Storage Systems may be configured.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.174 NAME 'dcmObjectStorageCount'
+  DESC 'Number of Storage Systems which are filled in parallel; 1 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
   MUST (
     dcmFuzzyAlgorithmClass $
-    dcmStorageID $
     dcmQueryRetrieveViewID )
   MAY (
     dcmRetrieveAET $
     dcmDefaultCharacterSet $
+    dcmStorageID $
     dcmMetadataStorageID $
     dcmSeriesMetadataStorageID $
     dcmSeriesMetadataDelay $
@@ -983,6 +990,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmRetrieveAET $
     dcmDefaultCharacterSet $
     dcmStorageID $
+    dcmObjectStorageID $
+    dcmObjectStorageCount $
     dcmMetadataStorageID $
     dcmSeriesMetadataDelay $
     dcmPurgeInstanceRecordsDelay $

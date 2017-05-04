@@ -58,8 +58,9 @@ import java.util.regex.Pattern;
 public class ArchiveAEExtension extends AEExtension {
     private static final String JBOSS_SERVER_TEMP_DIR = "${jboss.server.temp.dir}";
     private String defaultCharacterSet;
-    private String storageID;
-    private String metadataStorageID;
+    private String[] objectStorageIDs = {};
+    private int objectStorageCount = 1;
+    private String[] metadataStorageIDs = {};
     private Duration seriesMetadataDelay;
     private Duration purgeInstanceRecordsDelay;
     private String storeAccessControlID;
@@ -129,32 +130,28 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getDefaultCharacterSet();
     }
 
-    public String getStorageID() {
-        return storageID;
+    public String[] getObjectStorageIDs() {
+        return objectStorageIDs;
     }
 
-    public void setStorageID(String storageID) {
-        this.storageID = storageID;
+    public void setObjectStorageIDs(String... objectStorageIDs) {
+        Arrays.sort(this.objectStorageIDs = objectStorageIDs);
     }
 
-    public String storageID() {
-        return storageID != null
-                ? storageID
-                : getArchiveDeviceExtension().getStorageID();
+    public int getObjectStorageCount() {
+        return objectStorageCount;
     }
 
-    public String getMetadataStorageID() {
-        return metadataStorageID;
+    public void setObjectStorageCount(int objectStorageCount) {
+        this.objectStorageCount = objectStorageCount;
     }
 
-    public void setMetadataStorageID(String metadataStorageID) {
-        this.metadataStorageID = metadataStorageID;
+    public String[] getMetadataStorageIDs() {
+        return metadataStorageIDs;
     }
 
-    public String metadataStorageID() {
-        return metadataStorageID != null
-                ? metadataStorageID
-                : getArchiveDeviceExtension().getMetadataStorageID();
+    public void setMetadataStorageIDs(String... metadataStorageID) {
+        Arrays.sort(this.metadataStorageIDs = metadataStorageIDs);
     }
 
     public Duration getSeriesMetadataDelay() {
@@ -944,8 +941,8 @@ public class ArchiveAEExtension extends AEExtension {
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
         defaultCharacterSet = aeExt.defaultCharacterSet;
-        storageID = aeExt.storageID;
-        metadataStorageID = aeExt.metadataStorageID;
+        objectStorageIDs = aeExt.objectStorageIDs;
+        metadataStorageIDs = aeExt.metadataStorageIDs;
         seriesMetadataDelay = aeExt.seriesMetadataDelay;
         purgeInstanceRecordsDelay = aeExt.purgeInstanceRecordsDelay;
         storeAccessControlID = aeExt.storeAccessControlID;
@@ -1011,15 +1008,6 @@ public class ArchiveAEExtension extends AEExtension {
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return ae.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
-    }
-
-    public StorageDescriptor getStorageDescriptor() {
-        return getArchiveDeviceExtension().getStorageDescriptorNotNull(storageID());
-    }
-
-    public StorageDescriptor getMetadataStorageDescriptor() {
-        String storageID = metadataStorageID();
-        return storageID != null ? getArchiveDeviceExtension().getStorageDescriptorNotNull(storageID) : null;
     }
 
     public Map<String, ExportRule> findExportRules(

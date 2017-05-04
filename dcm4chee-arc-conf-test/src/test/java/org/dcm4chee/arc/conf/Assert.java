@@ -69,7 +69,7 @@ class Assert {
         if (expected == null)
             return;
         assertNotNull(actual);
-        assertEquals(expected.getStorageID(), actual.getStorageID());
+        assertArrayEquals(expected.getObjectStorageIDs(), actual.getObjectStorageIDs());
         assertEquals(expected.getStoreAccessControlID(), actual.getStoreAccessControlID());
 //        assertArrayEquals(expected.getAccessControlIDs(), actual.getAccessControlIDs()); //assert failing here
         assertEquals(expected.getOverwritePolicy(), actual.getOverwritePolicy());
@@ -90,7 +90,6 @@ class Assert {
 
     static void assertEqualsArchiveDeviceExtension(ArchiveDeviceExtension expected, ArchiveDeviceExtension actual) {
         assertNotNull(actual);
-        assertEquals(expected.getStorageID(), actual.getStorageID());
         assertEquals(expected.getFuzzyAlgorithmClass(), actual.getFuzzyAlgorithmClass());
         assertEquals(expected.getOverwritePolicy(), actual.getOverwritePolicy());
         assertEquals(expected.getQueryRetrieveViewID(), actual.getQueryRetrieveViewID());

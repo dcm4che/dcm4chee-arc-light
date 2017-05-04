@@ -539,12 +539,14 @@ class StoreServiceImpl implements StoreService {
             throws IOException {
         StoreSession session = storeContext.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        StorageDescriptor descriptor = objectType == Location.ObjectType.DICOM_FILE
-                ? arcAE.getStorageDescriptor()
-                : arcAE.getMetadataStorageDescriptor();
-        if (descriptor == null)
+        String[] storageIDs = objectType == Location.ObjectType.DICOM_FILE
+                ? arcAE.getObjectStorageIDs()
+                : arcAE.getMetadataStorageIDs();
+        if (storageIDs.length == 0)
             return null;
 
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        StorageDescriptor descriptor = arcDev.getStorageDescriptor(storageIDs[0]);
         Storage storage = getStorage(session, descriptor);
         WriteContext writeCtx = storage.createWriteContext();
         writeCtx.setAttributes(storeContext.getAttributes());

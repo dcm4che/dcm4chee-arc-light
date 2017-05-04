@@ -1216,7 +1216,6 @@ class ArchiveDeviceFactory {
         ArchiveDeviceExtension ext = new ArchiveDeviceExtension();
         device.addDeviceExtension(ext);
         ext.setFuzzyAlgorithmClass("org.dcm4che3.soundex.ESoundex");
-        ext.setStorageID(STORAGE_ID);
         ext.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);
         ext.setQueryRetrieveViewID(HIDE_REJECTED_VIEW.getViewID());
         ext.setExternalRetrieveAEDestination(EXTERNAL_RETRIEVE_AE_DESTINATION);
@@ -1358,7 +1357,6 @@ class ArchiveDeviceFactory {
         ext.addExporterDescriptor(exportDescriptor);
 
         if (configType == configType.SAMPLE || configType == configType.TEST) {
-            ext.setMetadataStorageID(METADATA_STORAGE_ID);
             StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);
             metadataStorageDescriptor.setStorageURIStr(METADATA_STORAGE_URI);
             metadataStorageDescriptor.setProperty("pathFormat", METADATA_PATH_FORMAT);
@@ -1370,7 +1368,7 @@ class ArchiveDeviceFactory {
             seriesMetadataStorageDescriptor.setProperty("pathFormat", SERIES_METADATA_PATH_FORMAT);
             seriesMetadataStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
             ext.addStorageDescriptor(seriesMetadataStorageDescriptor);
-            ext.setSeriesMetadataStorageID(SERIES_METADATA_STORAGE_ID);
+            ext.setSeriesMetadataStorageIDs(SERIES_METADATA_STORAGE_ID);
             ext.setSeriesMetadataDelay(SERIES_METADATA_DELAY);
             ext.setSeriesMetadataPollingInterval(SERIES_METADATA_POLLING_INTERVAL);
 
@@ -1537,11 +1535,13 @@ class ArchiveDeviceFactory {
             addTC(ae, null, SCP, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCU, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCU, UID.InstanceAvailabilityNotificationSOPClass, UID.ImplicitVRLittleEndian);
+            aeExt.setObjectStorageIDs(STORAGE_ID);
+            if (configType == configType.SAMPLE)
+                aeExt.setMetadataStorageIDs(METADATA_STORAGE_ID);
         }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         aeExt.setAcceptedUserRoles(acceptedUserRoles);
         if (configType == configType.TEST) {
-            aeExt.setStorageID(STORAGE_ID);
             aeExt.setStoreAccessControlID("*");
             aeExt.setAccessControlIDs(ACCESS_CONTROL_IDS);
             aeExt.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);

@@ -103,7 +103,6 @@ public class StudyServiceEJB {
         } catch (NoResultException e) {
             ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
             Study study = new Study();
-            study.addStorageID(arcAE.storageID());
             study.setRejectionState(RejectionState.EMPTY);
             study.setAccessControlID(arcAE.storeAccessControlID(
                     ctx.getRemoteHostName(), null, ctx.getApplicationEntity().getAETitle(), ctx.getAttributes()));
