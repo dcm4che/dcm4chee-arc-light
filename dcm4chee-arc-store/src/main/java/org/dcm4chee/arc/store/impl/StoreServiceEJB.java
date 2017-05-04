@@ -567,6 +567,7 @@ public class StoreServiceEJB {
                 checkStorePermission(ctx, pat);
 
                 if (pat == null) {
+                    patMgtCtx.setPatientID(IDWithIssuer.pidOf(ctx.getAttributes()));
                     pat = patientService.createPatient(patMgtCtx);
                     result.setCreatedPatient(pat);
                 } else {
