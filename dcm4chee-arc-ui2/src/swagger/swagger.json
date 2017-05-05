@@ -2692,7 +2692,7 @@
         ],
         "parameters": [
           {
-            "name": "uriSchema",
+            "name": "uriScheme",
             "in": "query",
             "description": "only return Storage Systems of a particular type",
             "type": "string",
