@@ -5,7 +5,7 @@ import {Component, OnInit, Input, EventEmitter} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 import {FormService} from "../../helpers/form/form.service";
 import {FormElement} from "../../helpers/form/form-element";
-import {Output} from "@angular/core/src/metadata/directives";
+import {Output} from "@angular/core";
 import {OrderByPipe} from "../../pipes/order-by.pipe";
 import * as _ from "lodash";
 import {SearchPipe} from "../../pipes/search.pipe";

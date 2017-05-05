@@ -1,5 +1,5 @@
 import {Directive, ElementRef, OnInit, Renderer} from '@angular/core';
-import {Input} from "@angular/core/src/metadata/directives";
+import {Input} from "@angular/core";
 import {Globalvar} from "../constants/globalvar";
 import * as _ from "lodash";
 

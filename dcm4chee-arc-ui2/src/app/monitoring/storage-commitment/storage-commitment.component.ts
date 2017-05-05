@@ -24,6 +24,7 @@ export class StorageCommitmentComponent implements OnInit {
         offset:undefined,
         limit:20,
         status:"*",
+        StudyUID:undefined,
         updatedBefore:undefined,
         dicomDeviceName:undefined
     };

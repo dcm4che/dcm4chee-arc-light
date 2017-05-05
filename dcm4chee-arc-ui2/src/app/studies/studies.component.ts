@@ -260,13 +260,21 @@ export class StudiesComponent implements OnDestroy{
         if(_.hasIn(this.mainservice.global,"state")){
             // $this = $this.mainservice.global.studyThis;
             // _.merge(this,$this.mainservice.global.studyThis);
+            let selectedAet;
             _.forEach(this.mainservice.global.state,(m,i)=>{
                 console.log("m",m);
                 console.log("i",i);
-                if(m){
+                if(m && i != "aetmodel"){
                     $this[i] = m;
                 }
+                if(i === "aetmodel"){
+                    selectedAet = m;
+                }
             });
+            let selectedAetIndex = _.indexOf($this.aes,selectedAet);
+            if(selectedAetIndex > -1){
+                $this.aetmodel = $this.aes[selectedAetIndex];
+            }
         }
         // if(_.hasIn(this.mainservice.global,"patients")){
         //     this.patients = this.mainservice.global.patients;
@@ -3151,35 +3159,37 @@ export class StudiesComponent implements OnDestroy{
     }
     aesdropdown:SelectItem[] = [];
     initAETs(retries) {
-        let $this = this;
-       this.$http.get("../aets")
-            .map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
-            .subscribe(
-                function (res) {
-                    console.log("before call getAes",res,"this user=",$this.user);
-                    $this.aes = $this.service.getAes($this.user, res);
-                    console.log("aes",$this.aes);
-                    // $this.aesdropdown = $this.aes;
-                    $this.aes.map((ae, i)=>{
-                        console.log("in map ae",ae);
-                        console.log("in map i",i);
-                        console.log("aesi=",$this.aes[i]);
-                        $this.aesdropdown.push({label:ae.title,value:ae.title});
-                        $this.aes[i]["label"] = ae.title;
-                        $this.aes[i]["value"] = ae.value;
+        if(!this.aes){
+            let $this = this;
+           this.$http.get("../aets")
+                .map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
+                .subscribe(
+                    function (res) {
+                        console.log("before call getAes",res,"this user=",$this.user);
+                        $this.aes = $this.service.getAes($this.user, res);
+                        console.log("aes",$this.aes);
+                        // $this.aesdropdown = $this.aes;
+                        $this.aes.map((ae, i)=>{
+                            console.log("in map ae",ae);
+                            console.log("in map i",i);
+                            console.log("aesi=",$this.aes[i]);
+                            $this.aesdropdown.push({label:ae.title,value:ae.title});
+                            $this.aes[i]["label"] = ae.title;
+                            $this.aes[i]["value"] = ae.value;
 
-                    });
-                    console.log("$this.aes after map",$this.aes);
-                    $this.aet = $this.aes[0].title.toString();
-                    if(!$this.aetmodel){
-                        $this.aetmodel = $this.aes[0];
-                    }
-                    // $this.mainservice.setGlobal({aet:$this.aet,aetmodel:$this.aetmodel,aes:$this.aes, aesdropdown:$this.aesdropdown});
-                },
-                function (res) {
-                    if (retries)
-                        this.initAETs(retries-1);
-            });
+                        });
+                        console.log("$this.aes after map",$this.aes);
+                        $this.aet = $this.aes[0].title.toString();
+                        if(!$this.aetmodel){
+                            $this.aetmodel = $this.aes[0];
+                        }
+                        // $this.mainservice.setGlobal({aet:$this.aet,aetmodel:$this.aetmodel,aes:$this.aes, aesdropdown:$this.aesdropdown});
+                    },
+                    function (res) {
+                        if (retries)
+                            this.initAETs(retries-1);
+                });
+        }
     }
     testSetObject() {
         this.aetmodel = {

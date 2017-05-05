@@ -1,4 +1,4 @@
-import {Component, ViewContainerRef} from '@angular/core';
+import {Component, ViewContainerRef, HostListener} from '@angular/core';
 import {Http, Headers} from "@angular/http";
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 import * as _ from "lodash";
@@ -7,7 +7,6 @@ import {AppService} from "../app.service";
 import {MdDialog, MdDialogConfig, MdDialogRef} from "@angular/material";
 import {DeleteRejectedInstancesComponent} from "../widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component";
 import {CreateAeComponent} from "../widgets/dialogs/create-ae/create-ae.component";
-import {HostListener} from "@angular/core/src/metadata/directives";
 import {DevicesService} from "../devices/devices.service";
 
 @Component({
@@ -17,6 +16,7 @@ import {DevicesService} from "../devices/devices.service";
 export class AeListComponent{
     _ = _;
     aes;
+    advancedConfig;
     aets;
     aesfilter = "";
     filter = {

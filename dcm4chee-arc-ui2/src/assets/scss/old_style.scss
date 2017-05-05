@@ -1,4 +1,5 @@
 $hoverBlue:#5293C1;
+$blue:#061d2f;
 
 body{
   a{
@@ -1960,6 +1961,12 @@ table{
 		float: left;
 	    position: relative;
 	    width: 80%;
+      md-select{
+        width:100%;
+        .mat-select:focus:not(.mat-select-disabled) .mat-select-underline{
+          background-color: $blue;
+        }
+      }
 	}
 }
 .input{

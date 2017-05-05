@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 declare var DCM4CHE: any;
 import * as _ from "lodash";
-import {Input} from "@angular/core/src/metadata/directives";
+import {Input} from "@angular/core";
 
 @Component({
   selector: 'attribute-list',

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {Input} from "@angular/core/src/metadata/directives";
+import {Input} from "@angular/core";
 import {Http} from "@angular/http";
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 import * as _ from "lodash";

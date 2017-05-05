@@ -21,7 +21,7 @@ export class QueuesComponent {
     queues = [];
     queueName = null;
     status = "*";
-    before = new Date();
+    before;
     isRole:any;
     user:User;
     dialogRef: MdDialogRef<any>;
@@ -29,6 +29,7 @@ export class QueuesComponent {
 
     constructor(public $http: Http, public service:QueuesService,public mainservice:AppService,  public cfpLoadingBar:SlimLoadingBarService, public viewContainerRef: ViewContainerRef,public dialog: MdDialog, public config: MdDialogConfig) {
         this.init();
+        this.before = new Date();
         let $this = this;
         if(!this.mainservice.user){
             // console.log("in if studies ajax");

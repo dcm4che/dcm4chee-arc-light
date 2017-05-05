@@ -117,16 +117,18 @@
                     <div class="row">
                         <label for="aet" class="col-md-6 text-right control-label">AET:</label>
                         <div class=" col-md-6">
-                            <select
+<!--                            <select
                                     id="aet"
                                     [ngModel]="aetmodel"
                                     class="col-md-12"
                                     (ngModelChange)="onChange($event, 'aetmodel')"
                             >
-                                <!--ng-change="setTrash()"-->
-                                <!--ng-options="ae.title for ae in aes"-->
-                                <option [ngValue]="ae" tooltip="{{ae.description}}" [attr.selected]="(ae.title == aetmodel.title)?'':null" (click)="setTrash()" title="{{ae.description}}" *ngFor="let ae of aes" >{{ae.title}}</option>
-                            </select>
+                                <option [ngValue]="ae" [attr.selected]="(ae.title == aetmodel.title)?'':null" (click)="setTrash()" title="{{ae.description}}" *ngFor="let ae of aes" >{{ae.title}}</option>
+                            </select>-->
+                            <md-select [(ngModel)]="aetmodel" (ngModelChange)="onChange($event, 'aetmodel')">
+                                <md-option *ngFor="let ae of aes" [value]="ae" title="{{ae.description}}">{{ ae.title }}</md-option>
+                            </md-select>
+
                             <!--<p-dropdown [options]="aes" [(ngModel)]="aetmodel"></p-dropdown>-->
                         </div>
                     </div>

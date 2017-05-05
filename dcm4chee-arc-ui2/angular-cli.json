@@ -20,7 +20,7 @@
       "styles": [
         "../node_modules/animate.css/animate.min.css",
         "../node_modules/primeng/resources/primeng.min.css",
-        "../node_modules/primeng/resources/themes/omega/theme.css",
+        "../node_modules/primeng/resources/themes/omega/theme.scss",
         "../node_modules/font-awesome/css/font-awesome.min.css",
         "styles.scss",
         "assets/scss/old_style.scss",

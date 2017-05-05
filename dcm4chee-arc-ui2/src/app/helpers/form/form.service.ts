@@ -136,12 +136,13 @@ export class FormService{
                     // }else{
                         group[element.key] = validation ? new FormArray(checkboxArr,validation):new FormArray(checkboxArr);
                     break;
+/*
                 case "radio":
                     let radio = [];
                     element["options"].forEach((option: any) => {
                         if(option.active){
-/*                            let formControl = validation ? new FormControl(option.value, validation):new FormControl(option.value);
-                            radio.push(formControl);*/
+                            /!*                            let formControl = validation ? new FormControl(option.value, validation):new FormControl(option.value);
+                             radio.push(formControl);*!/
                             // group[element.key] = validation ? new FormControl(option.value, CustomValidatorDirective.required(element["options"])):new FormControl(option.value);
                             group[element.key] = new FormControl(option.value, CustomValidatorDirective.required(element["options"]));
                         }
@@ -153,6 +154,7 @@ export class FormService{
                     // }else{
                     //     group[element.key] = new FormArray(checkboxArr);
                     break;
+*/
 
                 default:
                     if(element.key){

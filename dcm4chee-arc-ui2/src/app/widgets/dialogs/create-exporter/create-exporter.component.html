@@ -6,7 +6,7 @@
                 <div md-dialog-content>
                     <div class="createdevice tabcontain exporter">
                         <div class="tab_body">
-                            <h4 (click)="showselectdevice=!showselectdevice;showconnselecteddevice=false">Device <b *ngIf="!showselectdevice && selectedDeviceObject && selectedDeviceObject.dicomDeviceName">{{ selectedDeviceObject.dicomDeviceName }}</b></h4>
+                            <h4 (click)="showselectdevice=!showselectdevice;">Device <b *ngIf="!showselectdevice && selectedDeviceObject && selectedDeviceObject.dicomDeviceName">{{ selectedDeviceObject.dicomDeviceName }}</b></h4>
                             <div class="content" *ngIf="showselectdevice===true">
                                 <div class="block">
                                     <div class="label_part">

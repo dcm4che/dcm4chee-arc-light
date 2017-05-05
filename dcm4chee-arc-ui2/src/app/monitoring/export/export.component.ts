@@ -18,6 +18,7 @@ export class ExportComponent implements OnInit {
     user:User;
     exporters;
     exporterID;
+    showMenu;
     exportTasks = [];
     filters = {
         ExporterID:undefined,

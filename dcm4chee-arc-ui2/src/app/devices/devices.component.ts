@@ -8,7 +8,7 @@ import {MdDialog, MdDialogConfig, MdDialogRef} from "@angular/material";
 import {DevicesService} from "./devices.service";
 import {DeleteRejectedInstancesComponent} from "../widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component";
 import {CreateAeComponent} from "../widgets/dialogs/create-ae/create-ae.component";
-import {HostListener} from "@angular/core/src/metadata/directives";
+import {HostListener} from "@angular/core";
 import {CreateExporterComponent} from "../widgets/dialogs/create-exporter/create-exporter.component";
 
 @Component({

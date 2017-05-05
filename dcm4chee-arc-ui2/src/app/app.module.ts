@@ -59,8 +59,8 @@ import { AeListComponent } from './ae-list/ae-list.component';
 import {CreateExporterService} from "./widgets/dialogs/create-exporter/create-exporter.service";
 import {DeviceConfiguratorService} from "./device-configurator/device-configurator.service";
 import { UtcPipe } from './pipes/utc.pipe';
-import {RouterTestingModule} from "@angular/router/testing";
 import { CustomValidatorDirective } from './helpers/custom-validator/custom-validator.directive';
+import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-browser/animations";
 
 @NgModule({
     declarations: [
@@ -112,7 +112,7 @@ import { CustomValidatorDirective } from './helpers/custom-validator/custom-vali
         CalendarModule,
         DropdownModule,
         ReactiveFormsModule,
-        RouterTestingModule,
+        BrowserAnimationsModule,
         RouterModule.forRoot([
             {
               path: '',

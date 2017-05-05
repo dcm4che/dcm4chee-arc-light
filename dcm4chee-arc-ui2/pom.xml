@@ -55,7 +55,7 @@
   <properties>
     <frontend-maven-plugin.version>1.2</frontend-maven-plugin.version>
     <node.version>v6.9.1</node.version>
-    <npm.version>3.10.6</npm.version>
+    <yarn.version>v0.23.4</yarn.version>
   </properties>
 
   <profiles>
@@ -74,19 +74,19 @@
             <version>${frontend-maven-plugin.version}</version>
             <executions>
               <execution>
-                <id>install node and npm</id>
+                <id>install node and yarn</id>
                 <goals>
-                  <goal>install-node-and-npm</goal>
+                  <goal>install-node-and-yarn</goal>
                 </goals>
                 <configuration>
                   <nodeVersion>${node.version}</nodeVersion>
-                  <npmVersion>${npm.version}</npmVersion>
+                  <yarnVersion>${yarn.version}</yarnVersion>
                 </configuration>
               </execution>
               <execution>
-                <id>npm install</id>
+                <id>yarn install</id>
                 <goals>
-                  <goal>npm</goal>
+                  <goal>yarn</goal>
                 </goals>
                 <configuration>
                   <arguments>install</arguments>

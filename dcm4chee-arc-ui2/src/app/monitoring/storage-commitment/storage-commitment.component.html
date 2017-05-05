@@ -1,21 +1,21 @@
 <div class="main_content monitoring">
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" (click)="showMenu = false;" routerLinkActive="active"><a role="tab" routerLink="/monitoring/queues" routerLinkActive="active">Queues</a></li>
-        <li role="presentation" (click)="showMenu = false;" routerLinkActive="active"><a role="tab" routerLink="/monitoring/export" routerLinkActive="active">Export</a></li>
-        <li role="presentation" (click)="showMenu = false;" routerLinkActive="active"><a role="tab" routerLink="/monitoring/associations" routerLinkActive="active">Associations</a></li>
-        <li role="presentation" (click)="showMenu = false;" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-commitment" routerLinkActive="active">Storage commitments</a></li>
+        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/queues" routerLinkActive="active">Queues</a></li>
+        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/export" routerLinkActive="active">Export</a></li>
+        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/associations" routerLinkActive="active">Associations</a></li>
+        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-commitment" routerLinkActive="active">Storage commitments</a></li>
     </ul>
     <div class="tab-content">
         <div class="row filter"  (keyup)="filterKeyUp($event)">
             <div class="main_filter_block">
                 <div class="col-md-3 block-1-1">
                     <div class="row">
-                        <label for="exporterID" class="col-md-6 text-right control-label">Exporter ID:</label>
+                        <label for="ExporterID" class="col-md-6 text-right control-label">Exporter ID:</label>
                         <div class="col-md-6">
-                            <input id="exporterID" type="text" [(ngModel)]="filters.exporterID" class="col-md-12"/>
+                            <input id="ExporterID" type="text" [(ngModel)]="filters.ExporterID" class="col-md-12"/>
                         </div>
 <!--                        <div class="col-md-6">
-                            <select id="exporterID" name="reject" class="col-md-12" (change)="filters.ExporterID = $event.target.value">
+                            <select id="ExporterID" name="reject" class="col-md-12" (change)="filters.ExporterID = $event.target.value">
                                 <option>*</option>
                                 <option *ngFor="let s of exporters" title="{{s.description}}" value="{{ s.id }}">{{ s.id }}</option>
                             </select>
@@ -48,9 +48,9 @@
                         <!--</div>-->
                     <!--</div>-->
                     <div class="row">
-                        <label for="studyUID" class="col-md-6 text-right control-label">Study UID:</label>
+                        <label for="StudyUID" class="col-md-6 text-right control-label">Study UID:</label>
                         <div class="col-md-6">
-                            <input id="studyUID" type="text" min="1" [(ngModel)]="filters.studyUID" class="col-md-12" />
+                            <input id="StudyUID" type="text" min="1" [(ngModel)]="filters.StudyUID" class="col-md-12" />
                         </div>
                     </div>
                     <div class="row">
@@ -121,13 +121,13 @@
                     </td>
                     <td [innerHtml]="match.properties.dicomDeviceName"></td>
                     <td [innerHtml]="match.properties.status" ></td>
-                    <td [innerHtml]="match.properties.exporterID"></td>
+                    <td [innerHtml]="match.properties.ExporterID"></td>
                     <td [innerHtml]="match.properties.requested"></td>
                     <td [innerHtml]="match.properties.failures"></td>
                     <td [innerHtml]="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
                     <td [innerHtml]="match.properties.updatedTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
                     <td [innerHtml]="match.properties.transactionUID"></td>
-                    <td [innerHtml]="match.properties.studyUID"></td>
+                    <td [innerHtml]="match.properties.StudyUID"></td>
                 </tr>
                 <tr *ngIf="match.showProperties">
                     <td colspan="11">

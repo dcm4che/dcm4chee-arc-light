@@ -13,8 +13,8 @@ import {MdDialogRef} from "@angular/material";
 })
 export class DeleteRejectedInstancesComponent{
     private _rjnotes;
-    private _results = {};
-  constructor(public dialogRef: MdDialogRef<DeleteRejectedInstancesComponent>) { }
+    private _results:any;
+    constructor(public dialogRef: MdDialogRef<DeleteRejectedInstancesComponent>) { }
 
     get rjnotes() {
         return this._rjnotes;

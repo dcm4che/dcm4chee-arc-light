@@ -1,5 +1,5 @@
 import {Directive, ElementRef} from '@angular/core';
-import {Input, HostListener} from "@angular/core/src/metadata/directives";
+import {Input, HostListener} from "@angular/core";
 import * as _ from "lodash";
 
 @Directive({

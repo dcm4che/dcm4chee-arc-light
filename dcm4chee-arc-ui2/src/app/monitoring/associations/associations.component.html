@@ -1,9 +1,9 @@
 <div class="main_content ctrl monitoring">
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" (click)="showMenu = false;" routerLinkActive="active"><a role="tab" routerLink="/monitoring/queues" routerLinkActive="active">Queues</a></li>
-        <li role="presentation" (click)="showMenu = false;" routerLinkActive="active"><a role="tab" routerLink="/monitoring/export" routerLinkActive="active">Export</a></li>
-        <li role="presentation" (click)="showMenu = false;" routerLinkActive="active"><a role="tab" routerLink="/monitoring/associations" routerLinkActive="active">Associations</a></li>
-        <li role="presentation" (click)="showMenu = false;" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-commitment" routerLinkActive="active">Storage commitments</a></li>
+        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/queues" routerLinkActive="active">Queues</a></li>
+        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/export" routerLinkActive="active">Export</a></li>
+        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/associations" routerLinkActive="active">Associations</a></li>
+        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-commitment" routerLinkActive="active">Storage commitments</a></li>
     </ul>
     <div class="tab-content">
 <!--        <h3>Archive</h3>
@@ -26,7 +26,7 @@
             <button type="button" class="btn btn-default" (click)="downloadAssocImmage()" title="Download copy of the table as csv-file">Download copy</button>
             <div *ngIf="!stopLoop" id="loading-bar-spinner">
                 <div class="spinner-icon">
-                    <md-progress-circle mode="indeterminate" ></md-progress-circle>
+                    <md-progress-spinner mode="indeterminate" ></md-progress-spinner>
                 </div>
             </div>
             <table  class="table table-inverse">
