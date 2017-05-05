@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -260,6 +260,11 @@ public class ExportManagerEJB implements ExportManager {
                     exportTask.getSeriesInstanceUID(),
                     exportTask.getSopInstanceUID(),
                     device.getApplicationEntity(exporter.getAETitle(), true));
+            if (attrs == null) {
+                LOG.info("No result found for export task with [pk={}, studyUID={}, seriesUID={}, objectUID={}]",
+                        exportTask.getPk(), exportTask.getStudyInstanceUID(), exportTask.getSeriesInstanceUID(), exportTask.getSopInstanceUID());
+                return;
+            }
             exportTask.setModalities(attrs.getStrings(Tag.ModalitiesInStudy));
             exportTask.setNumberOfInstances(
                     Integer.valueOf(attrs.getInt(Tag.NumberOfStudyRelatedInstances, -1)));
