@@ -56,7 +56,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 
@@ -103,6 +102,7 @@ public class StudyServiceEJB {
         } catch (NoResultException e) {
             ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
             Study study = new Study();
+            study.setCompleteness(Completeness.COMPLETE);
             study.setRejectionState(RejectionState.EMPTY);
             study.setAccessControlID(arcAE.storeAccessControlID(
                     ctx.getRemoteHostName(), null, ctx.getApplicationEntity().getAETitle(), ctx.getAttributes()));

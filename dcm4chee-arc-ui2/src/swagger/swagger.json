@@ -35,6 +35,10 @@
       "description": "Storage Commitment"
     },
     {
+      "name": "STORAGE-RS",
+      "description": "Storage Management"
+    },
+    {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
     },
@@ -2675,6 +2679,62 @@
           }
         }
       }
+    },
+    "/storage": {
+      "get": {
+        "tags": [
+          "STORAGE-RS"
+        ],
+        "summary": "List Storage Systems",
+        "operationId": "listStorageSystems",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "uriScheme",
+            "in": "query",
+            "description": "only return Storage Systems of a particular type",
+            "type": "string",
+            "enum": [
+              "file",
+              "jclouds",
+              "emc-ecs-s3",
+              "hcp",
+              "documentum"
+            ]
+          },
+          {
+            "name": "aet",
+            "in": "query",
+            "description": "only return Storage Systems used by a particular AE",
+            "type": "string"
+          },
+          {
+            "name": "metadata",
+            "in": "query",
+            "description": "If True, return only Storage Systems used for Metadata; if False exclude Storage Systems used for Metadata. Shall only be used with query parameter aet",
+            "type": "boolean"
+          },
+          {
+            "name": "seriesmetadata",
+            "in": "query",
+            "description": "If True, return only Storage Systems used for Series Metadata; if False exclude Storage Systems used for Series Metadata. Shall not be used with query parameter aet",
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/StorageSystems"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2944,6 +3004,97 @@
                 "type": "string"
               }
             }
+          }
+        }
+      }
+    },
+    "StorageSystems": {
+      "title": "Storage Systems",
+      "type": "array",
+      "items": {
+        "required": [
+          "dcmStorageID",
+          "dcmURI"
+        ],
+        "properties": {
+          "dcmStorageID": {
+            "title": "Storage ID",
+            "description": "Storage ID",
+            "type": "string"
+          },
+          "dcmURI": {
+            "title": "Storage URI",
+            "description": "RFC2079: Uniform Resource Identifier",
+            "type": "string"
+          },
+          "dcmDigestAlgorithm": {
+            "title": "Digest Algorithm",
+            "description": "Algorithm for generation of check sums: 'MD5' or 'SHA-1'",
+            "type": "string"
+          },
+          "dcmInstanceAvailability": {
+            "title": "Instance Availability",
+            "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE",
+            "type": "string"
+          },
+          "dcmReadOnly": {
+            "title": "Read Only",
+            "description": "Indicates if a Storage System is read only",
+            "type": "boolean"
+          },
+          "dcmCache": {
+            "title": "Cache",
+            "description": "Indicates if a Storage System acts as cache - i.e. least recently used objects will be deleted if the usable space fall below the configured Storage Threshold",
+            "type": "boolean"
+          },
+          "dcmStorageThreshold": {
+            "title": "Storage Threshold",
+            "description": "Minimal Usable Space on Storage System. Format [nn'['<schedule>']']nnn(MB|GB|MiB|GiB).",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dcmExternalRetrieveAET": {
+            "title": "External Retrieve AET",
+            "description": "Constrain deletion of Studies, whose objects are retrievable using this AE from an external C-MOVE SCP, if usable space falls below configured threshold.",
+            "type": "string"
+          },
+          "dcmProperty": {
+            "title": "Storage Property",
+            "description": "Property in format <name>=<value>",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "aets": {
+            "title": "AE Titles",
+            "description": "AE Titles of AEs using the Storage System",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metadata": {
+            "title": "Metadata",
+            "description": "Indicates if the Storage System is used for Metadata",
+            "type": "boolean"
+          },
+          "seriesmetadata": {
+            "title": "Series Metadata",
+            "description": "Indicates if the Storage System is used for Series Metadata",
+            "type": "boolean"
+          },
+          "usableSpace": {
+            "title": "Usable Space",
+            "description": "Usable Space left on Storage System. Format nnn(MB|GB|MiB|GiB).",
+            "type": "string"
+          },
+          "totalSpace": {
+            "title": "Total Space",
+            "description": "Total Space on Storage System. Format nnn(MB|GB|MiB|GiB).",
+            "type": "string"
           }
         }
       }

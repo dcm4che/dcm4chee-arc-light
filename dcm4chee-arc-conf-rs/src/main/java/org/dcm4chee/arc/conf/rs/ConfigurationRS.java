@@ -214,7 +214,7 @@ public class ConfigurationRS {
             throw new WebApplicationException(
                     "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
                     Response.Status.BAD_REQUEST);
-        conf.merge(device);
+        conf.merge(device, true);
     }
 
     @POST

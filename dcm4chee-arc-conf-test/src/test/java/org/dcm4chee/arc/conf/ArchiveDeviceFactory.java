@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -723,7 +723,7 @@ class ArchiveDeviceFactory {
     static final QueryRetrieveView REGULAR_USE_VIEW =
             createQueryRetrieveView("regularUse",
                     new Code[]{REJECTED_FOR_QUALITY_REASONS},
-                    new Code[]{DATA_RETENTION_POLICY_EXPIRED},
+                    new Code[0],
                     false);
     static final QueryRetrieveView HIDE_REJECTED_VIEW =
             createQueryRetrieveView("hideRejected",
@@ -895,8 +895,10 @@ class ArchiveDeviceFactory {
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final Duration IAN_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.parse("PT1H");
-    static final String DICOM_EXPORTER_ID = "dicom:";
-    static final String DICOM_EXPORTER_DESC = "Generic DICOM Exporter";
+    static final String DICOM_EXPORTER_ID = "DCM4CHEE:";
+    static final String DICOM_EXPORTER_DESC = "Generic DICOM Exporter (Unrejected Instances & Rejection Notes except Retention Expired)";
+    static final String DICOM_EXPORTER_ID_ADMIN = "DCM4CHEE_ADMIN:";
+    static final String DICOM_EXPORTER_DESC_ADMIN = "Generic DICOM Exporter (Unrejected Instances & Rejection Notes)";
     static final URI DICOM_EXPORT_URI = URI.create("dicom");
     static final String WADO_EXPORTER_ID = "WADO";
     static final String WADO_EXPORTER_DESC = "Export to WADO";
@@ -1349,12 +1351,19 @@ class ArchiveDeviceFactory {
                 REJECTION_CODES));
         ext.setHideSPSWithStatusFrom(HIDE_SPS_WITH_STATUS_FROM_MWL);
 
-        ExporterDescriptor exportDescriptor = new ExporterDescriptor(DICOM_EXPORTER_ID);
-        exportDescriptor.setDescription(DICOM_EXPORTER_DESC);
-        exportDescriptor.setExportURI(DICOM_EXPORT_URI);
-        exportDescriptor.setQueueName("Export1");
-        exportDescriptor.setAETitle("DCM4CHEE");
-        ext.addExporterDescriptor(exportDescriptor);
+        ExporterDescriptor dicomExporter = new ExporterDescriptor(DICOM_EXPORTER_ID);
+        dicomExporter.setDescription(DICOM_EXPORTER_DESC);
+        dicomExporter.setExportURI(DICOM_EXPORT_URI);
+        dicomExporter.setQueueName("Export1");
+        dicomExporter.setAETitle("DCM4CHEE");
+        ext.addExporterDescriptor(dicomExporter);
+
+        ExporterDescriptor dicomExporterAdmin = new ExporterDescriptor(DICOM_EXPORTER_ID_ADMIN);
+        dicomExporterAdmin.setDescription(DICOM_EXPORTER_DESC_ADMIN);
+        dicomExporterAdmin.setExportURI(DICOM_EXPORT_URI);
+        dicomExporterAdmin.setQueueName("Export1");
+        dicomExporterAdmin.setAETitle("DCM4CHEE_ADMIN");
+        ext.addExporterDescriptor(dicomExporterAdmin);
 
         if (configType == configType.SAMPLE || configType == configType.TEST) {
             StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);

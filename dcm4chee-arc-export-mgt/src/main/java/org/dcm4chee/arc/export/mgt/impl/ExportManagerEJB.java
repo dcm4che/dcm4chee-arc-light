@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.export.mgt.impl;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -68,7 +67,6 @@ import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.Calendar;
@@ -100,24 +98,6 @@ public class ExportManagerEJB implements ExportManager {
 
     @Inject
     private QueueManager queueManager;
-
-    private static final Expression<?>[] SELECT = {
-            QExportTask.exportTask.exporterID,
-            QExportTask.exportTask.createdTime,
-            QExportTask.exportTask.updatedTime,
-            QExportTask.exportTask.scheduledTime,
-            QExportTask.exportTask.studyInstanceUID,
-            QExportTask.exportTask.seriesInstanceUID,
-            QExportTask.exportTask.sopInstanceUID,
-            QExportTask.exportTask.modalities,
-            QExportTask.exportTask.numberOfInstances,
-            QQueueMessage.queueMessage.status,
-            QQueueMessage.queueMessage.numberOfFailures,
-            QQueueMessage.queueMessage.processingStartTime,
-            QQueueMessage.queueMessage.processingEndTime,
-            QQueueMessage.queueMessage.errorMessage,
-            QQueueMessage.queueMessage.outcomeMessage
-    };
 
     @Override
     public void onStore(@Observes StoreContext ctx) {
@@ -260,6 +240,11 @@ public class ExportManagerEJB implements ExportManager {
                     exportTask.getSeriesInstanceUID(),
                     exportTask.getSopInstanceUID(),
                     device.getApplicationEntity(exporter.getAETitle(), true));
+            if (attrs == null) {
+                LOG.info("No result found for export task with [pk={}, studyUID={}, seriesUID={}, objectUID={}]",
+                        exportTask.getPk(), exportTask.getStudyInstanceUID(), exportTask.getSeriesInstanceUID(), exportTask.getSopInstanceUID());
+                return;
+            }
             exportTask.setModalities(attrs.getStrings(Tag.ModalitiesInStudy));
             exportTask.setNumberOfInstances(
                     Integer.valueOf(attrs.getInt(Tag.NumberOfStudyRelatedInstances, -1)));
