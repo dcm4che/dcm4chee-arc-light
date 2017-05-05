@@ -152,14 +152,14 @@
         </xsl:with-param>
       </xsl:call-template>
     </xsl:if>
-    <xsl:if test="$species/text()">
+    <xsl:if test="$species/component[1]">
       <xsl:call-template name="vet-codedEntry">
         <xsl:with-param name="descTag" select="'00102201'"/>
         <xsl:with-param name="seqTag" select="'00102202'"/>
         <xsl:with-param name="codedEntry" select="$species"/>
       </xsl:call-template>
     </xsl:if>
-    <xsl:if test="$breed/text()">
+    <xsl:if test="$breed/component[1]">
       <xsl:call-template name="vet-codedEntry">
         <xsl:with-param name="descTag" select="'00102292'"/>
         <xsl:with-param name="seqTag" select="'00102293'"/>
