@@ -723,7 +723,7 @@ class ArchiveDeviceFactory {
     static final QueryRetrieveView REGULAR_USE_VIEW =
             createQueryRetrieveView("regularUse",
                     new Code[]{REJECTED_FOR_QUALITY_REASONS},
-                    new Code[]{DATA_RETENTION_POLICY_EXPIRED},
+                    new Code[0],
                     false);
     static final QueryRetrieveView HIDE_REJECTED_VIEW =
             createQueryRetrieveView("hideRejected",
