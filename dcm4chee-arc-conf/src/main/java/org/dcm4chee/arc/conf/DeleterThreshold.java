@@ -48,12 +48,12 @@ import java.util.Calendar;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jan 2016
  */
-public class StorageThreshold implements Comparable<StorageThreshold> {
+public class DeleterThreshold implements Comparable<DeleterThreshold> {
     private final String value;
     private final ScheduleExpression schedule;
     private final long minUsableSpace;
 
-    public StorageThreshold(String s) {
+    public DeleterThreshold(String s) {
         this.value = s;
         String[] split1 = StringUtils.split(value, ']');
         switch (split1.length) {
@@ -85,7 +85,7 @@ public class StorageThreshold implements Comparable<StorageThreshold> {
     }
 
     @Override
-    public int compareTo(StorageThreshold o) {
+    public int compareTo(DeleterThreshold o) {
         return schedule != null ? o.schedule != null ? value.compareTo(o.value) : -1 : o.schedule != null ? 1 : 0;
     }
 }

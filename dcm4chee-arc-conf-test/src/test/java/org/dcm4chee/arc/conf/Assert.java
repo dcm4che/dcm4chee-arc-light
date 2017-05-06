@@ -147,7 +147,7 @@ class Assert {
             assertEquals(expectedSD.getStorageURI(), actualSD.getStorageURI());
             assertEquals(expectedSD.getDigestAlgorithm(), actualSD.getDigestAlgorithm());
             assertEquals(expectedSD.getInstanceAvailability(), actualSD.getInstanceAvailability());
-            assertArrayEquals(expectedSD.getStorageThresholdsAsStrings(), actualSD.getStorageThresholdsAsStrings());
+            assertArrayEquals(expectedSD.getDeleterThresholdsAsStrings(), actualSD.getDeleterThresholdsAsStrings());
             assertArrayEquals(toStrings(expectedSD.getProperties()), toStrings(actualSD.getProperties()));
         }
 

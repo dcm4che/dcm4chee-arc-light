@@ -20,9 +20,8 @@ public final class StorageDescriptor {
     private Availability instanceAvailability;
     private String externalRetrieveAETitle;
     private boolean readOnly;
-    private boolean cache;
 
-    private final ArrayList<StorageThreshold> storageThresholds = new ArrayList<>();
+    private final ArrayList<DeleterThreshold> deleterThresholds = new ArrayList<>();
     private final Map<String, String> properties = new HashMap<>();
 
     public StorageDescriptor() {
@@ -98,38 +97,30 @@ public final class StorageDescriptor {
         this.readOnly = readOnly;
     }
 
-    public boolean isCache() {
-        return cache;
+    public boolean hasDeleterThresholds() {
+        return !deleterThresholds.isEmpty();
     }
 
-    public void setCache(boolean cache) {
-        this.cache = cache;
-    }
-
-    public boolean hasStorageThresholds() {
-        return !storageThresholds.isEmpty();
-    }
-
-    public String[] getStorageThresholdsAsStrings() {
-        String[] ss = new String[storageThresholds.size()];
+    public String[] getDeleterThresholdsAsStrings() {
+        String[] ss = new String[deleterThresholds.size()];
         for (int i = 0; i < ss.length; i++) {
-            ss[i] = storageThresholds.get(i).toString();
+            ss[i] = deleterThresholds.get(i).toString();
         }
         return ss;
     }
 
-    public void setStorageThresholdsFromStrings(String... ss) {
-        storageThresholds.clear();
+    public void setDeleterThresholdsFromStrings(String... ss) {
+        deleterThresholds.clear();
         for (String s : ss) {
-            storageThresholds.add(new StorageThreshold(s));
+            deleterThresholds.add(new DeleterThreshold(s));
         }
-        Collections.sort(storageThresholds);
+        Collections.sort(deleterThresholds);
     }
 
     public long getMinUsableSpace(Calendar cal) {
-        for (StorageThreshold storageThreshold : storageThresholds) {
-            if (storageThreshold.match(cal))
-                return storageThreshold.getMinUsableDiskSpace();
+        for (DeleterThreshold deleterThreshold : deleterThresholds) {
+            if (deleterThreshold.match(cal))
+                return deleterThreshold.getMinUsableDiskSpace();
         }
         return -1L;
     }
@@ -165,10 +156,9 @@ public final class StorageDescriptor {
                 ", storageURI=" + storageURI +
                 ", digestAlg=" + digestAlgorithm +
                 ", availability=" + instanceAvailability +
+                ", deleterThresholds=" + deleterThresholds +
                 ", externalRetrieveAETitle=" + externalRetrieveAETitle +
                 ", readOnly=" + readOnly +
-                ", cache=" + cache +
-                ", storageThresholds=" + storageThresholds +
                 ", properties=" + properties +
                 '}';
     }

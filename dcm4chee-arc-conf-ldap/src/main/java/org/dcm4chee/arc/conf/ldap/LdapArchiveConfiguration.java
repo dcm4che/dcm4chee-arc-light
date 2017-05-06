@@ -1058,8 +1058,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmDigestAlgorithm", descriptor.getDigestAlgorithm());
         LdapUtils.storeNotNull(attrs, "dcmInstanceAvailability", descriptor.getInstanceAvailability());
         LdapUtils.storeNotDef(attrs, "dcmReadOnly", descriptor.isReadOnly(), false);
-        LdapUtils.storeNotDef(attrs, "dcmCache", descriptor.isCache(), false);
-        LdapUtils.storeNotEmpty(attrs, "dcmStorageThreshold", descriptor.getStorageThresholdsAsStrings());
+        LdapUtils.storeNotEmpty(attrs, "dcmDeleterThreshold", descriptor.getDeleterThresholdsAsStrings());
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(descriptor.getProperties()));
         LdapUtils.storeNotNull(attrs, "dcmExternalRetrieveAET", descriptor.getExternalRetrieveAETitle());
         return attrs;
@@ -1085,8 +1084,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setInstanceAvailability(
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), null));
                 desc.setReadOnly(LdapUtils.booleanValue(attrs.get("dcmReadOnly"), false));
-                desc.setCache(LdapUtils.booleanValue(attrs.get("dcmCache"), false));
-                desc.setStorageThresholdsFromStrings(LdapUtils.stringArray(attrs.get("dcmStorageThreshold")));
+                desc.setDeleterThresholdsFromStrings(LdapUtils.stringArray(attrs.get("dcmDeleterThreshold")));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 desc.setExternalRetrieveAETitle(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAET"), null));
                 arcdev.addStorageDescriptor(desc);
@@ -1123,9 +1121,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability());
         LdapUtils.storeDiff(mods, "dcmReadOnly", prev.isReadOnly(), desc.isReadOnly(), false);
-        LdapUtils.storeDiff(mods, "dcmCache", prev.isCache(), desc.isCache(), false);
-        LdapUtils.storeDiff(mods, "dcmStorageThreshold",
-                prev.getStorageThresholdsAsStrings(), desc.getStorageThresholdsAsStrings());
+        LdapUtils.storeDiff(mods, "dcmDeleterThreshold",
+                prev.getDeleterThresholdsAsStrings(), desc.getDeleterThresholdsAsStrings());
         storeDiffProperties(mods, prev.getProperties(), desc.getProperties());
         LdapUtils.storeDiff(mods, "dcmExternalRetrieveAET", prev.getExternalRetrieveAETitle(), desc.getExternalRetrieveAETitle());
         return mods;

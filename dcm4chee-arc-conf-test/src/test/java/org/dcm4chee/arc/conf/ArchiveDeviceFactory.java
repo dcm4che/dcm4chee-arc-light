@@ -1311,7 +1311,7 @@ class ArchiveDeviceFactory {
         storageDescriptor.setDigestAlgorithm("MD5");
         storageDescriptor.setInstanceAvailability(Availability.ONLINE);
         if (configType == configType.TEST) {
-            storageDescriptor.setStorageThresholdsFromStrings("1GB", "1TB");
+            storageDescriptor.setDeleterThresholdsFromStrings("1GB", "1TB");
         }
         ext.addStorageDescriptor(storageDescriptor);
 
