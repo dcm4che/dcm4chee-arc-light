@@ -1112,6 +1112,17 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return storageDescriptorMap.values();
     }
 
+    public List<StorageDescriptor> getStorageDescriptors(String[] storageIDs) {
+        List<StorageDescriptor> list = new ArrayList<>(storageIDs.length);
+        for (String storageID : storageIDs) {
+            StorageDescriptor descriptor = storageDescriptorMap.get(storageID);
+            if (descriptor == null)
+                throw new IllegalArgumentException("No Storage configured with ID:" + storageID);
+            list.add(descriptor);
+        }
+        return list;
+    }
+
     public QueueDescriptor getQueueDescriptor(String queueName) {
         return queueDescriptorMap.get(queueName);
     }

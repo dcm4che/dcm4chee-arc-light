@@ -172,4 +172,12 @@ public final class StorageDescriptor {
                 ", properties=" + properties +
                 '}';
     }
+
+    public static String[] storageIDsOf(List<StorageDescriptor> descriptors) {
+        String[] storageIDs = new String[descriptors.size()];
+        for (int i = 0; i < storageIDs.length; i++) {
+            storageIDs[i] = descriptors.get(i).getStorageID();
+        }
+        return storageIDs;
+    }
 }

@@ -114,24 +114,32 @@ public class UpdateMetadataScheduler extends Scheduler {
     @Override
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        String[] seriesMetadataStorageIDs = arcDev.getSeriesMetadataStorageIDs();
-        StorageDescriptor storageDesc = arcDev.getStorageDescriptor(seriesMetadataStorageIDs[0]);
+        String[] storageIDs = arcDev.getSeriesMetadataStorageIDs();
+        if (storageIDs.length == 0)
+            return;
+
+        List<StorageDescriptor> descriptors = arcDev.getStorageDescriptors(storageIDs);
         int fetchSize = arcDev.getSeriesMetadataFetchSize();
-        try (Storage storage = storageFactory.getStorage(storageDesc)) {
-            List<Series.MetadataUpdate> metadataUpdates;
-            do {
-                metadataUpdates = ejb.findSeriesForScheduledMetadataUpdate(fetchSize);
-                for (Series.MetadataUpdate metadataUpdate : metadataUpdates) {
-                    try {
-                        updateMetadata(retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate), storage);
-                    } catch (Exception e) {
-                        LOG.error("{} failed:\n", metadataUpdate, e);
+        List<Series.MetadataUpdate> metadataUpdates;
+        do {
+            metadataUpdates = ejb.findSeriesForScheduledMetadataUpdate(fetchSize);
+            if (!metadataUpdates.isEmpty())
+                try (Storage storage = storageFactory.getUsableStorage(descriptors)) {
+                    for (Series.MetadataUpdate metadataUpdate : metadataUpdates) {
+                        try (RetrieveContext ctx = retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate)) {
+                            updateMetadata(ctx, storage);
+                        } catch (Exception e) {
+                            LOG.error("{} failed:\n", metadataUpdate, e);
+                        }
                     }
+                } catch (IOException e) {
+                    LOG.error("Failed to access Storage:\n", e);
                 }
-            }
-            while (metadataUpdates.size() == fetchSize);
-        } catch (Exception e) {
-            LOG.error("Failed to access Storage {}:\n", storageDesc.getStorageURI(), e);
+        }
+        while (metadataUpdates.size() == fetchSize);
+        if (descriptors.size() < storageIDs.length) {
+            arcDev.setSeriesMetadataStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
+            //TODO update configuration in LDAP
         }
     }
 

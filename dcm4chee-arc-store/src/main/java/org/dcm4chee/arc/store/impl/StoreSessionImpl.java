@@ -45,7 +45,6 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.OverwritePolicy;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.UIDMap;
@@ -58,6 +57,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -65,6 +65,9 @@ import java.util.Map;
  * @since Jul 2015
  */
 class StoreSessionImpl implements StoreSession {
+    private static final AtomicInteger prevSerialNo = new AtomicInteger();
+
+    private final int serialNo;
     private final Association as;
     private final HttpServletRequest httpRequest;
     private final ApplicationEntity ae;
@@ -77,9 +80,12 @@ class StoreSessionImpl implements StoreSession {
     private final Map<String,Series> seriesCache = new HashMap<>();
     private Map<Long,UIDMap> uidMapCache = new HashMap<>();
     private Map<String, String> uidMap;
+    private String objectStorageID;
+    private String metadataStorageID;
 
     StoreSessionImpl(HttpServletRequest httpRequest, String pathParam, Association as, ApplicationEntity ae,
                             Socket socket, HL7Segment msh, StoreService storeService) {
+        this.serialNo = prevSerialNo.incrementAndGet();
         this.httpRequest = httpRequest;
         this.as = as;
         this.ae = ae;
@@ -88,6 +94,11 @@ class StoreSessionImpl implements StoreSession {
         this.storeService = storeService;
         this.uidMapCache = new HashMap<>();
         this.calledAET = as != null ? as.getCalledAET() : httpRequest != null ? pathParam : ae.getAETitle();
+    }
+
+    @Override
+    public int getSerialNo() {
+        return serialNo;
     }
 
     @Override
@@ -195,6 +206,26 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public void setUIDMap(Map<String, String> uidMap) {
         this.uidMap = uidMap;
+    }
+
+    @Override
+    public String getObjectStorageID() {
+        return objectStorageID;
+    }
+
+    @Override
+    public void setObjectStorageID(String objectStorageID) {
+        this.objectStorageID = objectStorageID;
+    }
+
+    @Override
+    public String getMetadataStorageID() {
+        return metadataStorageID;
+    }
+
+    @Override
+    public void setMetadataStorageID(String metadataStorageID) {
+        this.metadataStorageID = metadataStorageID;
     }
 
     @Override

@@ -383,9 +383,8 @@ class StoreServiceImpl implements StoreService {
     }
 
     private void storeMetadata(StoreContext ctx) throws IOException {
-        OutputStream out = openOutputStream(ctx, Location.ObjectType.METADATA);
-        if (out != null) {
-            try (JsonGenerator gen = Json.createGenerator(out)) {
+        if (ctx.getStoreSession().getArchiveAEExtension().getMetadataStorageIDs().length > 0) {
+            try (JsonGenerator gen = Json.createGenerator(openOutputStream(ctx, Location.ObjectType.METADATA))) {
                 JSONWriter jsonWriter = new JSONWriter(gen);
                 jsonWriter.setReplaceBulkDataURI("");
                 jsonWriter.write(ctx.getAttributes());
@@ -538,16 +537,10 @@ class StoreServiceImpl implements StoreService {
     private OutputStream openOutputStream(StoreContext storeContext, Location.ObjectType objectType)
             throws IOException {
         StoreSession session = storeContext.getStoreSession();
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        String[] storageIDs = objectType == Location.ObjectType.DICOM_FILE
-                ? arcAE.getObjectStorageIDs()
-                : arcAE.getMetadataStorageIDs();
-        if (storageIDs.length == 0)
-            return null;
+        Storage storage = objectType == Location.ObjectType.DICOM_FILE
+                ? selectObjectStorage(session)
+                : selectMetadataStorage(session);
 
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        StorageDescriptor descriptor = arcDev.getStorageDescriptor(storageIDs[0]);
-        Storage storage = getStorage(session, descriptor);
         WriteContext writeCtx = storage.createWriteContext();
         writeCtx.setAttributes(storeContext.getAttributes());
         writeCtx.setStudyInstanceUID(storeContext.getStudyInstanceUID());
@@ -555,6 +548,51 @@ class StoreServiceImpl implements StoreService {
         storeContext.setWriteContext(objectType, writeCtx);
         return storage.openOutputStream(writeCtx);
     }
+
+    private Storage selectObjectStorage(StoreSession session) throws IOException {
+        if (session.getObjectStorageID() != null)
+            return session.getStorage(session.getObjectStorageID());
+
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        String[] storageIDs = arcAE.getObjectStorageIDs();
+        List<StorageDescriptor> descriptors = arcDev.getStorageDescriptors(storageIDs);
+        int storageCount = arcAE.getObjectStorageCount();
+        if (storageCount > 0) {
+            int index = session.getSerialNo() % Math.min(storageCount, descriptors.size());
+            descriptors.add(0, descriptors.remove(index));
+        }
+        Storage storage = storageFactory.getUsableStorage(descriptors);
+        String storageID = storage.getStorageDescriptor().getStorageID();
+        session.putStorage(storageID, storage);
+        session.setObjectStorageID(storageID);
+        if (descriptors.size() < storageIDs.length) {
+            arcAE.setObjectStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
+            //TODO update configuration in LDAP
+        }
+        return storage;
+    }
+
+    private Storage selectMetadataStorage(StoreSession session) throws IOException {
+        if (session.getMetadataStorageID() != null)
+            return session.getStorage(session.getMetadataStorageID());
+
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        String[] storageIDs = arcAE.getMetadataStorageIDs();
+        List<StorageDescriptor> descriptors = arcDev.getStorageDescriptors(storageIDs);
+        Storage storage = storageFactory.getUsableStorage(descriptors);
+        String storageID = storage.getStorageDescriptor().getStorageID();
+        session.putStorage(storageID, storage);
+        session.setMetadataStorageID(storageID);
+        if (descriptors.size() < storageIDs.length) {
+            arcAE.setMetadataStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
+            //TODO update configuration in LDAP
+        }
+        return storage;
+    }
+
+
 
     @Override
     public ZipInputStream openZipInputStream(

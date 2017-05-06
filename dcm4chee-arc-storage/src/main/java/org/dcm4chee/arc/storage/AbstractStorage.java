@@ -86,6 +86,11 @@ public abstract class AbstractStorage implements Storage {
     }
 
     @Override
+    public String toString() {
+        return descriptor.toString();
+    }
+
+    @Override
     public OutputStream openOutputStream(final WriteContext ctx) throws IOException {
         checkAccessable();
         OutputStream stream = openOutputStreamA(ctx);

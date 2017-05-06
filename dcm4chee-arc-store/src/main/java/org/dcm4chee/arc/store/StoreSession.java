@@ -60,6 +60,8 @@ import java.util.Map;
  * @since Jul 2015
  */
 public interface StoreSession extends Closeable {
+    int getSerialNo();
+
     Association getAssociation();
 
     HttpServletRequest getHttpRequest();
@@ -95,4 +97,12 @@ public interface StoreSession extends Closeable {
     Map<String, String> getUIDMap();
 
     void setUIDMap(Map<String, String> uidMap);
+
+    String getObjectStorageID();
+
+    void setObjectStorageID(String objectStorageID);
+
+    String getMetadataStorageID();
+
+    void setMetadataStorageID(String metadataStorageID);
 }
