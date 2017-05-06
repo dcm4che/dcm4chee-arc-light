@@ -2,12 +2,12 @@ package org.dcm4chee.arc.storage;
 
 import org.dcm4chee.arc.conf.NamedQualifier;
 import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.conf.StorageThreshold;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -41,14 +41,11 @@ public class StorageFactory {
 
     private boolean hasMinUsableSpace(Storage storage) throws IOException {
         StorageDescriptor descriptor = storage.getStorageDescriptor();
-        if (!descriptor.hasStorageThresholds())
-            return true;
-
-        long minUsableSpace = descriptor.getMinUsableSpace(Calendar.getInstance());
-        if (minUsableSpace < 0)
+        StorageThreshold storageThreshold = descriptor.getStorageThreshold();
+        if (storageThreshold == null)
             return true;
 
         long usableSpace = storage.getUsableSpace();
-        return usableSpace < 0 || usableSpace >= minUsableSpace;
+        return usableSpace < 0 || usableSpace >= storageThreshold.getMinUsableDiskSpace();
     }
 }

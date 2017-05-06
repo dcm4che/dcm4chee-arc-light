@@ -851,7 +851,8 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.170 NAME 'dcmAudit2XmlFhirTemplateURI'
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.171 NAME 'dcmStorageThreshold'
   DESC 'Minimal Usable Space on Storage System. If the usable space fall below that value the Storage System will be removed from the list of configured Storage Systems of the Network AE requesting that Storage System. Format nnn(MB|GB|MiB|GiB)'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.172 NAME 'dcmObjectStorageID'
   DESC 'ID of Storage System on which received DICOM composite objects are stored. Multiple Storage Systems may be configured.'
   EQUALITY caseExactIA5Match

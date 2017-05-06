@@ -114,7 +114,7 @@ public class PurgeStorageScheduler extends Scheduler {
             if (desc.isReadOnly())
                 continue;
 
-            long minUsableSpace = desc.hasDeleterThresholds() ? desc.getMinUsableSpace(Calendar.getInstance()) : -1L;
+            long minUsableSpace = desc.hasDeleterThresholds() ? desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance()) : -1L;
             long deleteSize = deleteSize(desc, minUsableSpace);
             if (deleteSize > 0L) {
                 LOG.info("Usable Space on {} below {} - start deleting {}", desc.getStorageURI(),

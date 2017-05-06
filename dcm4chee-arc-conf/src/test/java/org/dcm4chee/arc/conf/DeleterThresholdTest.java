@@ -55,9 +55,9 @@ public class DeleterThresholdTest {
 
     @Test
     public void testCompare() throws Exception {
-        DeleterThreshold threshold1 = new DeleterThreshold("10_[hour=18-6]10GB");
-        DeleterThreshold threshold2 = new DeleterThreshold("20_[dayOfWeek=0,6]10GB");
-        DeleterThreshold threshold3 = new DeleterThreshold("1GB");
+        DeleterThreshold threshold1 = DeleterThreshold.valueOf("10_[hour=18-6]10GB");
+        DeleterThreshold threshold2 = DeleterThreshold.valueOf("20_[dayOfWeek=0,6]10GB");
+        DeleterThreshold threshold3 = DeleterThreshold.valueOf("1GB");
         DeleterThreshold[] thresholds = { threshold3, threshold2, threshold1 };
         Arrays.sort(thresholds);
         assertSame(threshold1, thresholds[0]);
@@ -67,7 +67,7 @@ public class DeleterThresholdTest {
 
     @Test
     public void testMatch() throws Exception {
-        DeleterThreshold threshold = new DeleterThreshold("10_[hour=18-6]10GB");
+        DeleterThreshold threshold = DeleterThreshold.valueOf("10_[hour=18-6]10GB");
         assertFalse(threshold.match(new GregorianCalendar(2015, 9, 8, 10, 0)));
         assertTrue(threshold.match(new GregorianCalendar(2015, 9, 8, 18, 0)));
     }

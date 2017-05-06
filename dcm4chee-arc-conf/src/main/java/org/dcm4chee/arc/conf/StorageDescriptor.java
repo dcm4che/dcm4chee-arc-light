@@ -20,7 +20,7 @@ public final class StorageDescriptor {
     private Availability instanceAvailability;
     private String externalRetrieveAETitle;
     private boolean readOnly;
-
+    private StorageThreshold storageThreshold;
     private final ArrayList<DeleterThreshold> deleterThresholds = new ArrayList<>();
     private final Map<String, String> properties = new HashMap<>();
 
@@ -97,6 +97,14 @@ public final class StorageDescriptor {
         this.readOnly = readOnly;
     }
 
+    public StorageThreshold getStorageThreshold() {
+        return storageThreshold;
+    }
+
+    public void setStorageThreshold(StorageThreshold storageThreshold) {
+        this.storageThreshold = storageThreshold;
+    }
+
     public boolean hasDeleterThresholds() {
         return !deleterThresholds.isEmpty();
     }
@@ -112,12 +120,12 @@ public final class StorageDescriptor {
     public void setDeleterThresholdsFromStrings(String... ss) {
         deleterThresholds.clear();
         for (String s : ss) {
-            deleterThresholds.add(new DeleterThreshold(s));
+            deleterThresholds.add(DeleterThreshold.valueOf(s));
         }
         Collections.sort(deleterThresholds);
     }
 
-    public long getMinUsableSpace(Calendar cal) {
+    public long getDeleterThresholdMinUsableSpace(Calendar cal) {
         for (DeleterThreshold deleterThreshold : deleterThresholds) {
             if (deleterThreshold.match(cal))
                 return deleterThreshold.getMinUsableDiskSpace();

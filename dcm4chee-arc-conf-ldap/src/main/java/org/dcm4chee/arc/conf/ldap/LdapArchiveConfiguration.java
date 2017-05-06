@@ -1058,6 +1058,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmDigestAlgorithm", descriptor.getDigestAlgorithm());
         LdapUtils.storeNotNull(attrs, "dcmInstanceAvailability", descriptor.getInstanceAvailability());
         LdapUtils.storeNotDef(attrs, "dcmReadOnly", descriptor.isReadOnly(), false);
+        LdapUtils.storeNotNull(attrs, "dcmStorageThreshold", descriptor.getStorageThreshold());
         LdapUtils.storeNotEmpty(attrs, "dcmDeleterThreshold", descriptor.getDeleterThresholdsAsStrings());
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(descriptor.getProperties()));
         LdapUtils.storeNotNull(attrs, "dcmExternalRetrieveAET", descriptor.getExternalRetrieveAETitle());
@@ -1084,6 +1085,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setInstanceAvailability(
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), null));
                 desc.setReadOnly(LdapUtils.booleanValue(attrs.get("dcmReadOnly"), false));
+                desc.setStorageThreshold(toStorageThreshold(attrs.get("dcmStorageThreshold")));
                 desc.setDeleterThresholdsFromStrings(LdapUtils.stringArray(attrs.get("dcmDeleterThreshold")));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 desc.setExternalRetrieveAETitle(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAET"), null));
@@ -1092,6 +1094,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         } finally {
             LdapUtils.safeClose(ne);
         }
+    }
+
+    private static StorageThreshold toStorageThreshold(Attribute attr) throws NamingException {
+        return attr != null ? StorageThreshold.valueOf((String) attr.get()) : null;
     }
 
     private void mergeStorageDescriptors(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
@@ -1121,6 +1127,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability());
         LdapUtils.storeDiff(mods, "dcmReadOnly", prev.isReadOnly(), desc.isReadOnly(), false);
+        LdapUtils.storeDiff(mods, "dcmStorageThreshold", prev.getStorageThreshold(), desc.getStorageThreshold());
         LdapUtils.storeDiff(mods, "dcmDeleterThreshold",
                 prev.getDeleterThresholdsAsStrings(), desc.getDeleterThresholdsAsStrings());
         storeDiffProperties(mods, prev.getProperties(), desc.getProperties());

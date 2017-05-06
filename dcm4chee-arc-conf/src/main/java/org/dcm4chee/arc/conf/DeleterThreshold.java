@@ -48,40 +48,29 @@ import java.util.Calendar;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jan 2016
  */
-public class DeleterThreshold implements Comparable<DeleterThreshold> {
-    private final String value;
-    private final ScheduleExpression schedule;
-    private final long minUsableSpace;
+public class DeleterThreshold extends StorageThreshold implements Comparable<DeleterThreshold> {
+    protected final ScheduleExpression schedule;
 
-    public DeleterThreshold(String s) {
-        this.value = s;
-        String[] split1 = StringUtils.split(value, ']');
+    public DeleterThreshold(String value, long minUsableSpace, ScheduleExpression schedule) {
+        super(value, minUsableSpace);
+        this.schedule = schedule;
+    }
+
+    public static DeleterThreshold valueOf(String s) {
+        String[] split1 = StringUtils.split(s, ']');
         switch (split1.length) {
             case 1:
-                this.schedule = null;
-                break;
+                return new DeleterThreshold(s, BinaryPrefix.parse(s), null);
             case 2:
                 String[] split2 = StringUtils.split(split1[0], '[');
-                if (split2.length == 2) {
-                    this.schedule = ScheduleExpression.valueOf(split2[1]);
-                    break;
-                }
-            default:
-                throw new IllegalArgumentException(s);
+                if (split2.length == 2)
+                    return new DeleterThreshold(s, BinaryPrefix.parse(split1[split1.length-1]), ScheduleExpression.valueOf(split2[1]));
         }
-        this.minUsableSpace = BinaryPrefix.parse(split1[split1.length-1]);
+        throw new IllegalArgumentException(s);
     }
 
     public boolean match(Calendar cal) {
         return schedule == null || schedule.contains(cal);
-    }
-
-    public long getMinUsableDiskSpace() {
-        return minUsableSpace;
-    }
-
-    public String toString() {
-        return value;
     }
 
     @Override
