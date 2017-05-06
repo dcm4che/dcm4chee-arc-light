@@ -1,0 +1,105 @@
+{
+  "title": "Storage Systems",
+  "type": "array",
+  "items": {
+    "required": [
+      "dcmStorageID",
+      "dcmURI"
+    ],
+    "properties": {
+      "dcmStorageID": {
+        "title": "Storage ID",
+        "description": "Storage ID",
+        "type": "string"
+      },
+      "dcmURI": {
+        "title": "Storage URI",
+        "description": "RFC2079: Uniform Resource Identifier",
+        "type": "string"
+      },
+      "dcmDigestAlgorithm": {
+        "title": "Digest Algorithm",
+        "description": "Algorithm for generation of check sums: 'MD5' or 'SHA-1'",
+        "type": "string"
+      },
+      "dcmInstanceAvailability": {
+        "title": "Instance Availability",
+        "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE",
+        "type": "string"
+      },
+      "dcmReadOnly": {
+        "title": "Read Only",
+        "description": "Indicates if a Storage System is read only",
+        "type": "boolean"
+      },
+      "dcmStorageThreshold": {
+        "title": "Storage Threshold",
+        "description": "Minimal Usable Space on Storage System. If the usable space fall below that value the Storage System will be removed from the list of configured Storage Systems of the Network AE requesting that Storage System. Format nnn(MB|GB|MiB|GiB)",
+        "type": "string"
+      },
+      "dcmDeleterThreshold": {
+        "title": "Deleter Threshold",
+        "description": "Minimal Usable Space on Storage System to trigger deletion. If present, studies are deleted from the Storage System, if the usable space fall below that value. Format [nn'['<schedule>']']nnn(MB|GB|MiB|GiB)",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "dcmExternalRetrieveAET": {
+        "title": "External Retrieve AET",
+        "description": "Constrain deletion of Studies, whose objects are retrievable using this AE from an external C-MOVE SCP, if usable space falls below configured threshold.",
+        "type": "string"
+      },
+      "dcmProperty": {
+        "title": "Storage Property",
+        "description": "Property in format <name>=<value>",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "dicomNetworkAE": {
+        "title": "Network AEs",
+        "description": "Network AEs associated with the Storage System",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "dicomAETitle"
+          ],
+          "properties": {
+            "dicomAETitle": {
+              "title": "AE Title",
+              "type": "string"
+            },
+            "dcmObjectStorageID": {
+              "title": "Content",
+              "description": "Indicates if the Storage System is used for Object Storage",
+              "type": "boolean"
+            },
+            "dcmMetadataStorageID": {
+              "title": "Content",
+              "description": "Indicates if the Storage System is used for Metadata Storage",
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "dcmSeriesMetadataStorageID": {
+        "title": "Series Metadata",
+        "description": "Indicates if the Storage System is used for Series Metadata Storage",
+        "type": "boolean"
+      },
+      "usableSpace": {
+        "title": "Usable Space",
+        "description": "Usable Space left on Storage System. Format nnn(MB|GB).",
+        "type": "string"
+      },
+      "totalSpace": {
+        "title": "Total Space",
+        "description": "Total Space on Storage System. Format nnn(MB|GB).",
+        "type": "string"
+      }
+    }
+  }
+}
