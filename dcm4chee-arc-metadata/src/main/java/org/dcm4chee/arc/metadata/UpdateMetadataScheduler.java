@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.metadata;
 
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.Device;
@@ -75,6 +77,9 @@ import java.util.zip.ZipOutputStream;
 public class UpdateMetadataScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(UpdateMetadataScheduler.class);
+
+    @Inject
+    private DicomConfiguration conf;
 
     @Inject
     private Device device;
@@ -139,7 +144,16 @@ public class UpdateMetadataScheduler extends Scheduler {
         while (metadataUpdates.size() == fetchSize);
         if (descriptors.size() < storageIDs.length) {
             arcDev.setSeriesMetadataStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
-            //TODO update configuration in LDAP
+            updateDeviceConfiguration();
+        }
+    }
+
+    private void updateDeviceConfiguration() {
+        try {
+            LOG.info("Update Storage configuration of Device: {}:\n", device.getDeviceName());
+            conf.merge(device, false);
+        } catch (ConfigurationException e) {
+            LOG.warn("Failed to update Storage configuration of Device: {}:\n", device.getDeviceName(), e);
         }
     }
 

@@ -3,6 +3,8 @@ package org.dcm4chee.arc.storage;
 import org.dcm4chee.arc.conf.NamedQualifier;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.conf.StorageThreshold;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
@@ -17,6 +19,8 @@ import java.util.List;
  */
 @ApplicationScoped
 public class StorageFactory {
+    private static final Logger LOG = LoggerFactory.getLogger(StorageFactory.class);
+
     @Inject
     private Instance<StorageProvider> providers;
 
@@ -33,6 +37,7 @@ public class StorageFactory {
             if (hasMinUsableSpace(storage)) {
                 return storage;
             }
+            LOG.info("No space left on {}", storage);
             storage.close();
             iter.remove();
         }

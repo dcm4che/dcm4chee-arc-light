@@ -164,6 +164,7 @@ public final class StorageDescriptor {
                 ", storageURI=" + storageURI +
                 ", digestAlg=" + digestAlgorithm +
                 ", availability=" + instanceAvailability +
+                ", storageThreshold=" + storageThreshold +
                 ", deleterThresholds=" + deleterThresholds +
                 ", externalRetrieveAETitle=" + externalRetrieveAETitle +
                 ", readOnly=" + readOnly +

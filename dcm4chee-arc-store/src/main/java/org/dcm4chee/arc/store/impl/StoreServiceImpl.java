@@ -41,6 +41,8 @@
 package org.dcm4chee.arc.store.impl;
 
 
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
@@ -97,6 +99,9 @@ class StoreServiceImpl implements StoreService {
 
     static final Logger LOG = LoggerFactory.getLogger(StoreServiceImpl.class);
     static final int DIFF_STUDY_INSTANCE_UID = 0xC409;
+
+    @Inject
+    private DicomConfiguration conf;
 
     @Inject
     private StorageFactory storageFactory;
@@ -568,9 +573,18 @@ class StoreServiceImpl implements StoreService {
         session.setObjectStorageID(storageID);
         if (descriptors.size() < storageIDs.length) {
             arcAE.setObjectStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
-            //TODO update configuration in LDAP
+            updateDeviceConfiguration(arcDev.getDevice());
         }
         return storage;
+    }
+
+    private void updateDeviceConfiguration(Device device) {
+        try {
+            LOG.info("Update Storage configuration of Device: {}:\n", device.getDeviceName());
+            conf.merge(device, false);
+        } catch (ConfigurationException e) {
+            LOG.warn("Failed to update Storage configuration of Device: {}:\n", device.getDeviceName(), e);
+        }
     }
 
     private Storage selectMetadataStorage(StoreSession session) throws IOException {
@@ -587,7 +601,7 @@ class StoreServiceImpl implements StoreService {
         session.setMetadataStorageID(storageID);
         if (descriptors.size() < storageIDs.length) {
             arcAE.setMetadataStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
-            //TODO update configuration in LDAP
+            updateDeviceConfiguration(arcDev.getDevice());
         }
         return storage;
     }
