@@ -745,15 +745,15 @@ md-dialog-container{
     margin:15px 0;
   }
   .dicomBlock{
-    select.prefix{
+    .prefix{
       width:30%;
     }
-    select.aes{
+    .aes{
       width:69%;
     }
   }
   .noneDicomBlock{
-    select{
+    md-select{
       width:100%;
     }
   }

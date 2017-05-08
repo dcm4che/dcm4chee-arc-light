@@ -6,23 +6,32 @@
             <label>
                 <input type="radio" name="exportType" value="dicom" [(ngModel)]="result.exportType"> Dicom exporter
             </label><br>
-            <label>
+            <label *ngIf="noDicomExporters.length > 0">
                 <input type="radio" name="exportType" value="nonedicom" [(ngModel)]="result.exportType"> No dicom exporter
             </label>
             <div class="dicomBlock" *ngIf="result.exportType == 'dicom'">
                 <p>Select the exporter-template and the AETitle:</p>
-                <select class="prefix" [(ngModel)]="result.dicomPrefix">
+<!--                <select class="prefix" [(ngModel)]="result.dicomPrefix">
                     <option value="{{prefix.id}}" *ngFor="let prefix of dicomPrefixes">{{prefix.id}}</option>
-                </select>
-                <select class="aes" [(ngModel)]="result.selectedAet">
+                </select>-->
+                <md-select class="prefix"  [(ngModel)]="result.dicomPrefix">
+                    <md-option value="{{prefix.id}}" *ngFor="let prefix of dicomPrefixes"title="{{prefix.description}}">{{prefix.id}}</md-option>
+                </md-select>
+                <md-select class="aes" [(ngModel)]="result.selectedAet">
+                    <md-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</md-option>
+                </md-select>
+<!--                <select class="aes" [(ngModel)]="result.selectedAet">
                     <option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes">{{aet.dicomAETitle}}</option>
-                </select>
+                </select>-->
             </div>
             <div class="noneDicomBlock"  *ngIf="result.exportType != 'dicom'">
                 <p>Select the exporter:</p>
-                <select [(ngModel)]="result.selectedExporter">
+<!--                <select [(ngModel)]="result.selectedExporter">
                     <option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters">{{exporter.id}}</option>
-                </select>
+                </select>-->
+                <md-select [(ngModel)]="result.selectedExporter">
+                    <md-option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters" title="{{exporter.description}}">{{exporter.id}}</md-option>
+                </md-select>
             </div>
             <label title="If checked the study will not be sent" *ngIf="warning">
                 <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> Storage commitment without export
