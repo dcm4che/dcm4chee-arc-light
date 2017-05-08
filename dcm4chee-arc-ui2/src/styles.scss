@@ -33,8 +33,18 @@ md-grid-list{
     max-width:1403px;
     margin:16px;
 }
-
-
+.mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{
+  color: $blue;
+}
+.mat-select:focus:not(.mat-select-disabled) .mat-select-underline,
+.mat-option.mat-selected, .mat-option.mat-selected:focus,.mat-option.mat-selected:active,
+.mat-select-arrow,
+  .mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{
+  color: $blue;
+}
+.mat-select-underline{
+  border-bottom:1px solid #ccc;
+}
 [md-icon-button] {
     width: 27px;
     height:27px;

@@ -624,14 +624,15 @@ export class StudiesComponent implements OnDestroy{
         }
     }
     deleteRejectedInstances(){
-        // let result = {
-        // };
+        let result = {
+            reject:undefined
+        };
         let $this = this;
         this.scrollToDialog();
         this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(DeleteRejectedInstancesComponent, this.config);
         this.dialogRef.componentInstance.rjnotes = this.rjnotes;
-        // this.dialogRef.componentInstance.results = result;
+        this.dialogRef.componentInstance.results = result;
         this.dialogRef.afterClosed().subscribe(re => {
             console.log("afterclose re",re);
             $this.cfpLoadingBar.start();
@@ -646,10 +647,10 @@ export class StudiesComponent implements OnDestroy{
                 if(re.keepRejectionNote === true){
                     params["keepRejectionNote"] = re.keepRejectionNote;
                 }
+                console.log("params1",$this.mainservice.param(params));
                 console.log("params",params);
                 $this.$http.delete(
-                    '../reject/' + re.reject,
-                    params
+                    '../reject/' + re.reject+'?'+$this.mainservice.param(params)
                 )
                     .map(res => res.json())
                     .subscribe(
