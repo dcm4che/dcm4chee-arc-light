@@ -94,14 +94,14 @@
               </execution>
               <execution>
                 <!--<id>npm run-script prod</id>-->
-                <id>npm run-script prod</id>
+                <id>yarn run prod</id>
                 <phase>prepare-package</phase>
                 <goals>
-                  <goal>npm</goal>
+                  <goal>yarn</goal>
                 </goals>
                 <configuration>
                   <!--<arguments>run-script prod</arguments> //use this for production-->
-                  <arguments>run-script prod</arguments>
+                  <arguments>run prod</arguments>
                 </configuration>
               </execution>
             </executions>
