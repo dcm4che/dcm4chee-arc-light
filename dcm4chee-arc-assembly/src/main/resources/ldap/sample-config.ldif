@@ -976,14 +976,6 @@ dcmImageWriteParam: maxPixelValueError=20.0
 dcmImageWriteParam: avgPixelValueBlockSize=8.0
 cn: JPEG 12-bit Lossy
 
-dn: dcmExporterID=dicom:,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmExporterID: dicom:
-dicomDescription: Generic DICOM Exporter
-dcmQueueName: Export1
-objectClass: dcmExporter
-dicomAETitle: DCM4CHEE
-dcmURI: dicom
-
 dn: dcmQueueName=Export1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Dicom Export Tasks
 dcmQueueName: Export1
@@ -1105,7 +1097,7 @@ dcmAcceptedUserRole: admin
 dcmMetadataStorageID: metadata
 
 dn: cn=Forward to STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmExporterID: dicom:STORESCP
+dcmExporterID: DCM4CHEE:STORESCP
 dcmDuration: PT1M
 dcmEntity: Series
 dcmProperty: Modality=CT|MR
@@ -1174,6 +1166,14 @@ dn: cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Con
 objectClass: dcmImageWriterFactory
 cn: Image Writer Factory
 
+dn: dcmExporterID=DCM4CHEE:,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: DCM4CHEE:
+dicomDescription: Generic DICOM Exporter (Unrejected Instances & Rejection Notes except Retention Expired)
+dcmQueueName: Export1
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: dicom
+
 dn: dcmSPSStatus=DISCONTINUED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSPSStatus: DISCONTINUED
 hl7OrderControlStatus: DC_CA
@@ -1234,6 +1234,14 @@ objectClass: hl7ForwardRule
 hl7FwdApplicationName: HL7RCV|DCM4CHEE
 cn: Forward to HL7RCV|DCM4CHEE
 
+dn: dcmExporterID=DCM4CHEE_ADMIN:,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: DCM4CHEE_ADMIN:
+dicomDescription: Generic DICOM Exporter (Unrejected Instances & Rejection Notes)
+dcmQueueName: Export1
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE_ADMIN
+dcmURI: dicom
+
 dn: dcmRejectionNoteLabel=Quality,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Quality
 dcmRejectionNoteType: REJECTED_FOR_QUALITY_REASONS
@@ -1251,7 +1259,6 @@ dcmShowInstancesRejectedByCode: (113038, DCM, "Incorrect Modality Worklist Entry
 dcmShowInstancesRejectedByCode: (113039, DCM, "Data Retention Policy Expired")
 
 dn: dcmQueryRetrieveViewID=regularUse,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmHideRejectionNoteWithCode: (113039, DCM, "Data Retention Policy Expired")
 dcmQueryRetrieveViewID: regularUse
 objectClass: dcmQueryRetrieveView
 dcmShowInstancesRejectedByCode: (113001, DCM, "Rejected for Quality Reasons")
@@ -4611,6 +4618,24 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Stored Print Storage SOP Class (Retired) SCU
 
+dn: cn=Color Softcopy Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Color Softcopy Presentation State Storage SCP
+
+dn: cn=Color Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Color Softcopy Presentation State Storage SCU
+
 dn: cn=Private Philips MR Cardio Profile Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.3.46.670589.5.0.7
 dicomTransferRole: SCP
@@ -5161,6 +5186,24 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private Philips MR Cardio Storage (Retired) SCU
 
+dn: cn=Blending Softcopy Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.4
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Blending Softcopy Presentation State Storage SCP
+
+dn: cn=Blending Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.4
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Blending Softcopy Presentation State Storage SCU
+
 dn: cn=Digital X-Ray Image Storage - For Processing SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.1.1.1
 dicomTransferRole: SCP
@@ -5204,6 +5247,24 @@ dicomTransferSyntax: 1.2.840.10008.1.2
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Instance Availability Notification SOP Class SCU
+
+dn: cn=Grayscale Softcopy Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Grayscale Softcopy Presentation State Storage SCP
+
+dn: cn=Grayscale Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Grayscale Softcopy Presentation State Storage SCU
 
 dn: cn=Private Agfa Report Transcription Transaction SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.124.113532.3500.8.3
@@ -5515,6 +5576,24 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Macular Grid Thickness and Volume Report Storage SCU
 
+dn: cn=Pseudo-Color Softcopy Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.3
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Pseudo-Color Softcopy Presentation State Storage SCP
+
+dn: cn=Pseudo-Color Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.3
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Pseudo-Color Softcopy Presentation State Storage SCU
+
 dn: cn=Private ERAD Practice Builder Report Text Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.826.0.1.3680043.293.1.0.1
 dicomTransferRole: SCP
@@ -5562,24 +5641,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Study Root Query Retrieve Information Model - MOVE SCP
-
-dn: cn=Color Softcopy Presentation State Storage SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2
-dicomTransferRole: SCP
-dicomTransferSyntax: 1.2.840.10008.1.2
-dicomTransferSyntax: 1.2.840.10008.1.2.1
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Color Softcopy Presentation State Storage SOP Class SCP
-
-dn: cn=Color Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2
-dicomTransferRole: SCU
-dicomTransferSyntax: 1.2.840.10008.1.2
-dicomTransferSyntax: 1.2.840.10008.1.2.1
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Color Softcopy Presentation State Storage SOP Class SCU
 
 dn: cn=Patient Root Query Retrieve Information Model - GET SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.2.1.3
@@ -5700,24 +5761,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.1
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: XA XRF Grayscale Softcopy Presentation State Storage SCU
-
-dn: cn=Blending Softcopy Presentation State Storage SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.4
-dicomTransferRole: SCP
-dicomTransferSyntax: 1.2.840.10008.1.2
-dicomTransferSyntax: 1.2.840.10008.1.2.1
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Blending Softcopy Presentation State Storage SOP Class SCP
-
-dn: cn=Blending Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.4
-dicomTransferRole: SCU
-dicomTransferSyntax: 1.2.840.10008.1.2
-dicomTransferSyntax: 1.2.840.10008.1.2.1
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Blending Softcopy Presentation State Storage SOP Class SCU
 
 dn: cn=Breast Projection X-Ray Image Storage - For Processing SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.13.1.5
@@ -5862,24 +5905,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Digital Intra-Oral X-Ray Image Storage - For Processing SCU
-
-dn: cn=Grayscale Softcopy Presentation State Storage SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.1
-dicomTransferRole: SCP
-dicomTransferSyntax: 1.2.840.10008.1.2
-dicomTransferSyntax: 1.2.840.10008.1.2.1
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Grayscale Softcopy Presentation State Storage SOP Class SCP
-
-dn: cn=Grayscale Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.1
-dicomTransferRole: SCU
-dicomTransferSyntax: 1.2.840.10008.1.2
-dicomTransferSyntax: 1.2.840.10008.1.2.1
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Grayscale Softcopy Presentation State Storage SOP Class SCU
 
 dn: cn=Breast Projection X-Ray Image Storage - For Presentation SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.13.1.4
@@ -6132,24 +6157,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Multi-frame Grayscale Word Secondary Capture Image Storage SCU
-
-dn: cn=Pseudo-Color Softcopy Presentation State Storage SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.3
-dicomTransferRole: SCP
-dicomTransferSyntax: 1.2.840.10008.1.2
-dicomTransferSyntax: 1.2.840.10008.1.2.1
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Pseudo-Color Softcopy Presentation State Storage SOP Class SCP
-
-dn: cn=Pseudo-Color Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.3
-dicomTransferRole: SCU
-dicomTransferSyntax: 1.2.840.10008.1.2
-dicomTransferSyntax: 1.2.840.10008.1.2.1
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Pseudo-Color Softcopy Presentation State Storage SOP Class SCU
 
 dn: cn=Private PixelMed Legacy Converted Enhanced CT Image Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.3.6.1.4.1.5962.301.1
@@ -8165,6 +8172,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Stored Print Storage SOP Class (Retired) SCU
 
+dn: cn=Color Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Color Softcopy Presentation State Storage SCU
+
 dn: cn=Private Philips MR Cardio Profile Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.3.46.670589.5.0.7
 dicomTransferRole: SCU
@@ -8426,6 +8442,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private Philips MR Cardio Storage (Retired) SCU
 
+dn: cn=Blending Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.4
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Blending Softcopy Presentation State Storage SCU
+
 dn: cn=Digital X-Ray Image Storage - For Processing SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.1.1.1
 dicomTransferRole: SCU
@@ -8443,6 +8468,15 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Digital X-Ray Image Storage - For Processing SCU
+
+dn: cn=Grayscale Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Grayscale Softcopy Presentation State Storage SCU
 
 dn: cn=Private Agfa Report Transcription Transaction SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.124.113532.3500.8.3
@@ -8599,6 +8633,15 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Macular Grid Thickness and Volume Report Storage SCU
 
+dn: cn=Pseudo-Color Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.3
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Pseudo-Color Softcopy Presentation State Storage SCU
+
 dn: cn=Private ERAD Practice Builder Report Text Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.826.0.1.3680043.293.1.0.1
 dicomTransferRole: SCU
@@ -8637,15 +8680,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Study Root Query Retrieve Information Model - MOVE SCP
-
-dn: cn=Color Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2
-dicomTransferRole: SCU
-dicomTransferSyntax: 1.2.840.10008.1.2
-dicomTransferSyntax: 1.2.840.10008.1.2.1
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Color Softcopy Presentation State Storage SOP Class SCU
 
 dn: cn=Patient Root Query Retrieve Information Model - GET SCP,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.2.1.3
@@ -8722,15 +8756,6 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: XA XRF Grayscale Softcopy Presentation State Storage SCU
 
-dn: cn=Blending Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.4
-dicomTransferRole: SCU
-dicomTransferSyntax: 1.2.840.10008.1.2
-dicomTransferSyntax: 1.2.840.10008.1.2.1
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Blending Softcopy Presentation State Storage SOP Class SCU
-
 dn: cn=Breast Projection X-Ray Image Storage - For Processing SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.13.1.5
 dicomTransferRole: SCU
@@ -8802,15 +8827,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Digital Intra-Oral X-Ray Image Storage - For Processing SCU
-
-dn: cn=Grayscale Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.1
-dicomTransferRole: SCU
-dicomTransferSyntax: 1.2.840.10008.1.2
-dicomTransferSyntax: 1.2.840.10008.1.2.1
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Grayscale Softcopy Presentation State Storage SOP Class SCU
 
 dn: cn=Breast Projection X-Ray Image Storage - For Presentation SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.13.1.4
@@ -8937,15 +8953,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Multi-frame Grayscale Word Secondary Capture Image Storage SCU
-
-dn: cn=Pseudo-Color Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.3
-dicomTransferRole: SCU
-dicomTransferSyntax: 1.2.840.10008.1.2
-dicomTransferSyntax: 1.2.840.10008.1.2.1
-objectClass: dicomTransferCapability
-objectClass: dcmTransferCapability
-cn: Pseudo-Color Softcopy Presentation State Storage SOP Class SCU
 
 dn: cn=Private PixelMed Legacy Converted Enhanced CT Image Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.3.6.1.4.1.5962.301.1
