@@ -288,6 +288,8 @@ class ArchiveDeviceFactory {
     static final int[] INSTANCE_ATTRS = {
             Tag.SpecificCharacterSet,
             Tag.ImageType,
+            Tag.InstanceCreationDate,
+            Tag.InstanceCreationTime,
             Tag.SOPClassUID,
             Tag.SOPInstanceUID,
             Tag.ContentDate,
