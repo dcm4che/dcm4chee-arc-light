@@ -212,13 +212,13 @@ public class AuditService {
         return new BuildAuditInfo.Builder().callingAET(callingAET).callingHost(req.getRemoteHost()).calledAET(req.getRequestURI())
                 .studyUID(s.getStudyInstanceUID()).accNum(s.getAccessionNumber())
                 .pID(getPID(p.getAttributes())).outcome(getOD(ctx.getException())).studyDate(s.getStudyDate())
-                .pName(null != p.getPatientName().toString() ? getPlainOrHashedPatientName(p.getPatientName().toString()) : null).build();
+                .pName(pName(p.getAttributes())).build();
     }
 
     private BuildAuditInfo buildPermDeletionAuditInfoForScheduler(StudyDeleteContext ctx, Study s, Patient p) {
         return new BuildAuditInfo.Builder().studyUID(s.getStudyInstanceUID()).accNum(s.getAccessionNumber())
                 .pID(getPID(p.getAttributes())).outcome(getOD(ctx.getException())).studyDate(s.getStudyDate())
-                .pName(null != p.getPatientName().toString() ? getPlainOrHashedPatientName(p.getPatientName().toString()) : null).build();
+                .pName(pName(p.getAttributes())).build();
     }
 
     private void auditDeletion(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType eventType) {
@@ -928,22 +928,17 @@ public class AuditService {
     }
 
     private String pName(Attributes attr) {
-        return attr != null
-                ? attr.getString(Tag.PatientName) != null
-                ? getPlainOrHashedPatientName(attr.getString(Tag.PatientName))
-                : null
-                : null;
-    }
-
-    private String getPlainOrHashedPatientName(String pName) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        ShowPatientInfo showPatientInfo = arcDev.showPatientInfoInAuditLog();
-        StringBuilder sb = new StringBuilder(256);
-        if (showPatientInfo != ShowPatientInfo.PLAIN_TEXT)
-            sb.append(pName.hashCode());
-        else
-            sb.append(pName);
-        return sb.toString();
+        if (attr != null && attr.getString(Tag.PatientName) != null) {
+            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+            ShowPatientInfo showPatientInfo = arcDev.showPatientInfoInAuditLog();
+            StringBuilder sb = new StringBuilder(256);
+            if (showPatientInfo != ShowPatientInfo.PLAIN_TEXT)
+                sb.append(attr.getString(Tag.PatientName).hashCode());
+            else
+                sb.append(attr.getString(Tag.PatientName));
+            return sb.toString();
+        }
+        return null;
     }
 
     private String getPlainOrHashedPatientID(String pID) {
