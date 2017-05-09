@@ -1625,15 +1625,14 @@ export class StudiesComponent implements OnDestroy{
     };
     deletePatient(patient,patients, patientkey){
         // console.log("study",study);
-        if(!(patient.attrs["00100020"] && patient.attrs["00100020"].Value[0])){
+        if(!_.hasIn(patient,'attrs["00201200"].Value[0]') || patient.attrs['00201200'].Value[0] === ""){
             this.mainservice.setMessage({
                 "title": "Error",
                 "text": "Cannot delete patient with empty Patient ID!",
                 "status": "error"
             });
             this.cfpLoadingBar.complete();
-        }
-        else if(_.hasIn(patient,'attrs["00201200"].Value[0]') && patient.attrs['00201200'].Value[0] === 0){
+        }else if(_.hasIn(patient,'attrs["00201200"].Value[0]') && patient.attrs['00201200'].Value[0] === 0){
             let $this = this;
             this.confirm({
                 content:'Are you sure you want to delete this patient?'
