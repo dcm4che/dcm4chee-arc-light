@@ -482,6 +482,8 @@ class ArchiveDeviceFactory {
             UID.OphthalmicTomographyImageStorage,
             UID.WideFieldOphthalmicPhotographyStereographicProjectionImageStorage,
             UID.WideFieldOphthalmicPhotography3DCoordinatesImageStorage,
+            UID.OphthalmicOpticalCoherenceTomographyEnFaceImageStorage,
+            UID.OphthalmicOpticalCoherenceTomographyBScanVolumeAnalysisStorage,
             UID.VLWholeSlideMicroscopyImageStorage,
             UID.OphthalmicThicknessMapStorage,
             UID.CornealTopographyMapStorage,
@@ -552,7 +554,9 @@ class ArchiveDeviceFactory {
             UID.RadiopharmaceuticalRadiationDoseSRStorage,
             UID.ColonCADSRStorage,
             UID.ImplantationPlanSRStorage,
-            UID.AcquisitionContextSRStorage
+            UID.AcquisitionContextSRStorage,
+            UID.SimplifiedAdultEchoSRStorage,
+            UID.PatientRadiationDoseSRStorage
     };
 
     static final String[] SR_TSUIDS = {
@@ -587,6 +591,10 @@ class ArchiveDeviceFactory {
             UID.XAXRFGrayscaleSoftcopyPresentationStateStorage,
             UID.GrayscalePlanarMPRVolumetricPresentationStateStorage,
             UID.CompositingPlanarMPRVolumetricPresentationStateStorage,
+            UID.AdvancedBlendingPresentationStateStorage,
+            UID.VolumeRenderingVolumetricPresentationStateStorage,
+            UID.SegmentedVolumeRenderingVolumetricPresentationStateStorage,
+            UID.MultipleVolumeRenderingVolumetricPresentationStateStorage,
             UID.ParametricMapStorage,
             UID.RawDataStorage,
             UID.SpatialRegistrationStorage,
@@ -616,6 +624,7 @@ class ArchiveDeviceFactory {
             UID.DetailSRStorageTrialRetired,
             UID.ComprehensiveSRStorageTrialRetired,
             UID.ContentAssessmentResultsStorage,
+            UID.CTPerformedProcedureProtocolStorage,
             UID.RTDoseStorage,
             UID.RTStructureSetStorage,
             UID.RTBeamsTreatmentRecordStorage,
