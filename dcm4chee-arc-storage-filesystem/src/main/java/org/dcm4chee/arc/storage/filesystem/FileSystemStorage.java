@@ -91,6 +91,11 @@ public class FileSystemStorage extends AbstractStorage {
     }
 
     @Override
+    public long getTotalSpace() throws IOException {
+        return Files.getFileStore(Paths.get(rootURI)).getTotalSpace();
+    }
+
+    @Override
     protected OutputStream openOutputStreamA(WriteContext ctx) throws IOException {
         Path path = Paths.get(rootURI.resolve(pathFormat.format(ctx.getAttributes())));
         Path dir = path.getParent();

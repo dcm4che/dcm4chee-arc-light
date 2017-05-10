@@ -142,7 +142,12 @@ public abstract class AbstractStorage implements Storage {
 
     @Override
     public long getUsableSpace() throws IOException {
-        throw new IOException(descriptor.getStorageURI() + " does not support getUsableSpace()");
+        return -1L;
+    }
+
+    @Override
+    public long getTotalSpace() throws IOException {
+        return -1L;
     }
 
     protected abstract OutputStream openOutputStreamA(WriteContext ctx) throws IOException;

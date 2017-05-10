@@ -24,6 +24,8 @@ public interface Storage extends Closeable {
 
     long getUsableSpace() throws IOException;
 
+    long getTotalSpace() throws IOException;
+
     void commitStorage(WriteContext ctx) throws IOException;
 
     void revokeStorage(WriteContext ctx) throws IOException;
