@@ -1,7 +1,7 @@
 /**
  * Created by shefki on 9/20/16.
  */
-import {Component, Input, ElementRef, OnInit, ComponentFactoryResolver} from "@angular/core";
+import {Component, Input, ElementRef, OnInit, ComponentFactoryResolver, ChangeDetectionStrategy} from "@angular/core";
 import {FormGroup, FormControl, FormArray} from "@angular/forms";
 import {DynamicFormComponent} from "./dynamic-form.component";
 import {FormService} from "../../helpers/form/form.service";
@@ -12,7 +12,8 @@ import {DeviceConfiguratorService} from "../../device-configurator/device-config
 
 @Component({
     selector:'df-element',
-    templateUrl:'./dynamic-form-element.component.html'
+    templateUrl:'./dynamic-form-element.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DynamicFormElementComponent{
 
@@ -72,11 +73,11 @@ export class DynamicFormElementComponent{
             });
         }
     }
-    checkboxChange(e, form, formelement){
-        if(e.target.checked && !_.hasIn(form.controls[formelement.key].value, e.target.defaultValue)){
-            form.controls[formelement.key].value.push(e.target.defaultValue);
+    checkboxChange(e, formelement){
+        if(e.target.checked && !_.hasIn(this.form.controls[formelement.key].value, e.target.defaultValue)){
+            (<FormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new FormControl(e.target.defaultValue));
         }else{
-            form.controls[formelement.key].value.splice(_.indexOf(form.controls[formelement.key].value,e.target.defaultValue),1);
+            (<FormArray>this.form.controls[formelement.key]).removeAt(_.indexOf(this.form.controls[formelement.key].value,e.target.defaultValue));
         }
     }
     navigateTo(e){

@@ -30,6 +30,7 @@ export class DynamicFormComponent implements OnInit{
     //     console.log("in submitfunctiondynamicform");
     //     this.submitFunction.emmit("test");
     // }
+
     ngOnInit(): void {
         console.log("formelements",this.formelements);
         let orderedGroup:any = new OrderByPipe().transform(this.formelements,"order");
@@ -69,10 +70,15 @@ export class DynamicFormComponent implements OnInit{
 /*        if(this.model){
             this.form.patchValue(this.model);
         }*/
-        this.form.valueChanges.forEach(fe => {
-            console.log("formvalue changes fe", fe);
-            console.log("form",this.form);
-        });
+
+        this.form.valueChanges
+            .debounceTime(500)
+            .distinctUntilChanged()
+            .subscribe(fe => {
+                console.log("insubscribe changes fe", fe);
+                console.log("form",this.form);
+            });
+
         console.log("form",this.form);
     }
 

@@ -730,8 +730,8 @@
                 <div class="movegroup">
                     <button [ngClass]="{'disabled':selected.hasPatient===true}" title="Copy selected studies/series/instances to clipboard" class="copyselected" (click)="ctrlC()"><i class="material-icons">content_copy</i></button>
                     <button [ngClass]="{'disabled':selected.hasPatient===true}" title="Cut selected studies/series/instances to clipboard" class="moveselected" (click)="ctrlX()"><i class="material-icons">content_cut</i></button>
-                    <button title="Merge (Add selected patient in the clipboard for Merge)" class="moveselected" (click)="merge()"><i class="material-icons">supervisor_account</i></button>
-                    <button title="Paste studies/series/instances/patient that are in the clipboard to the selected object - open the copy/move/merge dialog" class="pasteselected" (click)="ctrlV()"><i class="material-icons">content_paste</i></button>
+                    <button title="Add for merge (Add selected patient in the clipboard for Merge)" class="moveselected" (click)="merge()"><i class="material-icons">supervisor_account</i></button>
+                    <button title="Paste/merge studies/series/instances/patient that are in the clipboard to the selected object - open the copy/move/merge dialog" class="pasteselected" (click)="ctrlV()"><i class="material-icons">content_paste</i></button>
                 </div>
             </div>
         </div>

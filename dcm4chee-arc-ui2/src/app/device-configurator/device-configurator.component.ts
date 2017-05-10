@@ -164,6 +164,8 @@ export class DeviceConfiguratorComponent implements OnInit {
                         setTimeout(()=>{
                             $this.showform = true;
                         },1);
+                        // this._changeDetectionRef.detectChanges();
+
                     }
                 }
 

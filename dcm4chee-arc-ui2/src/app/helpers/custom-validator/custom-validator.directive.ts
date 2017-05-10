@@ -1,17 +1,41 @@
-import { Directive } from '@angular/core';
-import {AbstractControl, Validator, NG_VALIDATORS, ValidatorFn} from "@angular/forms";
+import {Directive, SimpleChanges, OnChanges} from '@angular/core';
+import {AbstractControl, Validator, NG_VALIDATORS, ValidatorFn, Validators} from "@angular/forms";
+import * as _ from "lodash";
 
 @Directive({
     selector: '[appCustomValidator]',
     providers: [{ provide: NG_VALIDATORS, useExisting: CustomValidatorDirective, multi: true }]
 })
-export class CustomValidatorDirective {
+export class CustomValidatorDirective{
 
+    static requiredArray(options:any): ValidatorFn {
+        return (control: AbstractControl): {[key: string]: any} => {
+            // {'msg': {'requiredMax': min, 'actual': control.value}}
+/*            console.log("options",options);
+            let oneOfOptionsActive = false;
+            _.forEach(options,(m,i)=>{
+                if(m.active && m.active === true){
+                    oneOfOptionsActive = true;
+                }
+            })*/
+            let check = (control.value === undefined || control.value === null || control.value === '' || (_.size(control.value) < 1));
+            return check ?
+            {'msg': `This field is required!`} :
+                null;
+        };
+    }
     static required(options:any): ValidatorFn {
         return (control: AbstractControl): {[key: string]: any} => {
             // {'msg': {'requiredMax': min, 'actual': control.value}}
             console.log("options",options);
-            return (control.value === undefined || control.value === null || control.value === '') ?
+            let oneOfOptionsActive = false;
+            _.forEach(options,(m,i)=>{
+                if(m.active && m.active === true){
+                    oneOfOptionsActive = true;
+                }
+            })
+            let check = ((control.value === undefined || control.value === null || control.value === '') && !oneOfOptionsActive);
+            return check ?
             {'msg': `This field is required!`} :
                 null;
         };
