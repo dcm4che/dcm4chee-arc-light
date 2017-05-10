@@ -164,7 +164,7 @@ abstract class AbstractQuery implements Query {
 
     static String[] splitAndAppend(String s, String append) {
         String[] ss = StringUtils.split(s, '\\');
-        if (!append.equals("*")) {
+        if (append != null && !append.equals("*")) {
             String[] src = ss;
             ss = new String[src.length+1];
             System.arraycopy(src, 0, ss, 0, src.length);
