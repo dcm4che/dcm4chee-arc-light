@@ -35,10 +35,6 @@
       "description": "Storage Commitment"
     },
     {
-      "name": "STORAGE-RS",
-      "description": "Storage Management"
-    },
-    {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
     },
@@ -404,6 +400,110 @@
             "name": "deviceName",
             "in": "path",
             "description": "name of device to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Device not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/devices/{deviceName}/vendordata": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "get Device Vendor Data",
+        "operationId": "getDeviceVendorData",
+        "produces": [
+          "application/zip"
+        ],
+        "parameters": [
+          {
+            "name": "deviceName",
+            "in": "path",
+            "description": "name of device to return vendor data of",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "204": {
+            "description": "successful operation - device has no Vendor Data"
+          },
+          "404": {
+            "description": "Device not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Update Device Vendor Data",
+        "operationId": "updateDeviceVendorData",
+        "consumes": [
+          "application/zip"
+        ],
+        "parameters": [
+          {
+            "name": "deviceName",
+            "in": "path",
+            "description": "name of device to update vendor data of",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "updated device vendor data",
+            "required": true,
+            "schema": {
+              "type": "file"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Device with specified name does not exist"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Delete Device Vendor Data",
+        "operationId": "deleteDeviceVendorData",
+        "parameters": [
+          {
+            "name": "deviceName",
+            "in": "path",
+            "description": "name of device to delete vendor data of",
             "required": true,
             "type": "string"
           }
@@ -2683,7 +2783,8 @@
     "/storage": {
       "get": {
         "tags": [
-          "STORAGE-RS"
+          "CONF-RS",
+          "MONITOR-RS"
         ],
         "summary": "List Storage Systems",
         "operationId": "listStorageSystems",
