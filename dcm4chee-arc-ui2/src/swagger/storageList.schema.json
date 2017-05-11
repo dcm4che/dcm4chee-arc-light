@@ -35,7 +35,7 @@
       "dcmStorageThreshold": {
         "title": "Storage Threshold",
         "description": "Minimal Usable Space on Storage System. If the usable space fall below that value the Storage System will be removed from the list of configured Storage Systems of the Network AE requesting that Storage System. Format nnn(MB|GB|MiB|GiB)",
-        "type": "string"
+        "type": "number"
       },
       "dcmDeleterThreshold": {
         "title": "Deleter Threshold",
@@ -93,12 +93,12 @@
       "usableSpace": {
         "title": "Usable Space",
         "description": "Usable Space left on Storage System. Format nnn(MB|GB).",
-        "type": "string"
+        "type": "number"
       },
       "totalSpace": {
         "title": "Total Space",
         "description": "Total Space on Storage System. Format nnn(MB|GB).",
-        "type": "string"
+        "type": "number"
       }
     }
   }
