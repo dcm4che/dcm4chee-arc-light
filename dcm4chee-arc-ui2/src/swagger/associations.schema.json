@@ -43,7 +43,7 @@
         "description": "Performed Operations in this Association",
         "type": "array",
         "items": {
-          "$ref": "#/definitions/Operation"
+          "$ref": "operation.schema.json"
         }
       },
       "invokedOps": {
@@ -51,72 +51,13 @@
         "description": "Invoked Operations in this Association",
         "type": "array",
         "items": {
-          "$ref": "#/definitions/Operation"
+          "$ref": "operation.schema.json"
         }
       },
       "<other-property>": {
         "title": "Other property",
         "description": "Other property associated with this Associations",
         "type": "string"
-      }
-    }
-  },
-  "definitions": {
-    "Operation": {
-      "type": "object",
-      "properties": {
-        "C-STORE": {
-          "$ref": "#/definitions/RQ_RSP"
-        },
-        "C-GET": {
-          "$ref": "#/definitions/RQ_RSP"
-        },
-        "C-FIND": {
-          "$ref": "#/definitions/RQ_RSP"
-        },
-        "C-MOVE": {
-          "$ref": "#/definitions/RQ_RSP"
-        },
-        "C-ECHO": {
-          "$ref": "#/definitions/RQ_RSP"
-        },
-        "N-EVENT-REPORT": {
-          "$ref": "#/definitions/RQ_RSP"
-        },
-        "N-GET": {
-          "$ref": "#/definitions/RQ_RSP"
-        },
-        "N-SET": {
-          "$ref": "#/definitions/RQ_RSP"
-        },
-        "N-ACTION": {
-          "$ref": "#/definitions/RQ_RSP"
-        },
-        "N-CREATE": {
-          "$ref": "#/definitions/RQ_RSP"
-        },
-        "N-DELETE": {
-          "$ref": "#/definitions/RQ_RSP"
-        }
-      }
-    },
-    "RQ_RSP": {
-      "type": "object",
-      "required": [
-        "RQ",
-        "RSP"
-      ],
-      "properties": {
-        "RQ": {
-          "title": "RQ",
-          "description": "Number of received/sent DIMSE-RQ",
-          "type": "integer"
-        },
-        "RSP": {
-          "title": "RSP",
-          "description": "Number of sent/received DIMSE-RSP",
-          "type": "integer"
-        }
       }
     }
   }
