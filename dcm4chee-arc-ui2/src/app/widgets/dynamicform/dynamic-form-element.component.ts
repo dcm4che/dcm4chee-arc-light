@@ -46,8 +46,11 @@ export class DynamicFormElementComponent{
             }
         });
     }
-    clone(formelement,controls){
-        console.log("formelement",formelement);
+    clone(formelement){
+/*        console.log("formelement",formelement);
+        let value = (<FormArray>this.form.controls[formelement.key]).getRawValue();
+        (<FormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new FormControl(value));*/
+        this.router.navigateByUrl(formelement.addUrl);
     }
     addArrayElement(element:any, formpart:FormControl[], form:any){
         formpart = formpart || [];
@@ -64,6 +67,7 @@ export class DynamicFormElementComponent{
     removeArrayElement(element:any, i:number, form:any){
         if(element.value.length > i){
             //Remove from react form
+
             (<FormArray>this.form.controls[element.key]).removeAt(i);
             //reflect the changes to the dome
             _.forEach(this.formelements,(m,j)=>{

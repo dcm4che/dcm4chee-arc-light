@@ -314,7 +314,8 @@ export class DeviceConfiguratorService {
                                                 console.log("url",url);
                                                 form.push({
                                                     controlType:"buttondropdown",
-                                                    title:m.title,
+                                                    key:i,
+                                                    label:m.title,
                                                     description:m.description,
                                                     addUrl:url,
                                                     order:(3+newOrderSuffix)
@@ -347,7 +348,8 @@ export class DeviceConfiguratorService {
                                                 console.log("addUrl",addUrl);
                                                 form.push({
                                                     controlType:"buttondropdown",
-                                                    title:m.title,
+                                                    key:i,
+                                                    label:m.title,
                                                     description:m.description,
                                                     options:options,
                                                     addUrl:addUrl,
@@ -361,6 +363,7 @@ export class DeviceConfiguratorService {
                                             console.log("url",url);
                                             form.push({
                                                 controlType:"button",
+                                                label:m.title,
                                                 title:m.title,
                                                 description:m.description,
                                                 url:url,
@@ -399,7 +402,8 @@ export class DeviceConfiguratorService {
                                             console.log("*addUrl",addUrl);
                                             form.push({
                                                 controlType:"buttondropdown",
-                                                title:m.title,
+                                                key:i,
+                                                label:m.title,
                                                 description:m.description,
                                                 options:options,
                                                 addUrl:addUrl,
@@ -444,6 +448,7 @@ export class DeviceConfiguratorService {
                                 url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
                                 form.push({
                                     controlType:"button",
+                                    label:m.title,
                                     title:m.title,
                                     description:m.description,
                                     url:url,

@@ -4,16 +4,15 @@
         <div *ngFor="let formelement of formelements" class="form-row">
             <df-element [formelement]="formelement" [formelements]="formelements" [form]="form" [partSearch]="partSearch"></df-element>
         </div>
-        <div class="form-row">
-            <button type="submit" [disabled]="!form.valid">Save</button>
+        <div class="form-row submit_button_block">
+            <button class="btn btn-default submit" type="submit" [disabled]="!form.valid">Save</button>
         </div>
     </form>
-    <div>
+<!--    <div>
         form.valid:{{form.valid}}
         form.status:{{form.status|json}}
     </div>
-    <!--<button (click)="submitFunction()">submittesT</button>-->
     <div *ngIf="payLoad" class="form-row">
         <strong>Saved the following values</strong><br>{{payLoad}}
-    </div>
+    </div>-->
 </div>

@@ -1,8 +1,8 @@
 <div class="main_content deviceconfig">
-<!--    <pre>
-        form:{{formObj|json}}
-    </pre>-->
-    <a *ngIf="params.length > 1" routerLink="{{params[params.length-2].url}}">< back</a><br>
+    <pre>
+        pagination:{{params|json}}
+    </pre>
+    <a *ngIf="params.length > 1" routerLink="{{params[params.length-2].url}}"><i class="material-icons">chevron_left</i> back</a><br>
     <div class="pagination">
         <span *ngFor="let pagination of params;let i = index">
             <a *ngIf="i!=(params.length-1)" routerLink="{{pagination.url}}" >{{pagination.title}} </a> <span *ngIf="i!=(params.length-1)"> / </span>
