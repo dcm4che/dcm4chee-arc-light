@@ -83,7 +83,9 @@ export class DeviceConfiguratorService {
             }else{
                 let newValue = {};
                 this.setWith(newValue,value);
-                _.setWith(this.device, devicereff, newValue, Object);
+                //TODO observe,change becous of bug when the device is new
+                // _.setWith(this.device, devicereff, newValue, Object);
+                _.set(this.device, devicereff, newValue);
             }
         }else{
             //The root of the device was changed call setWith
@@ -91,7 +93,22 @@ export class DeviceConfiguratorService {
         }
     }
     setWith(device,value){
-        _.assignWith(device, value, (obj,obj2)=>{
+        _.forEach(value,(m,i)=>{
+            if(_.hasIn(device,i)){
+                if(!_.isPlainObject(device[i]) && !(_.isArray(device[i]) && device[i].length > 0 && _.isPlainObject(device[i][0]))){
+                    let newValue = this.getWrightValue(device[i],m);
+                    if(newValue){
+                        device[i] = newValue;
+                    }
+                }
+            }else{
+                let newValue = this.getWrightValue(device[i],m);
+                if(newValue){
+                    device[i] = newValue;
+                }
+            }
+        });
+/*        _.assignWith(device, value, (obj,obj2)=>{
             if(obj === undefined && obj2 != undefined && obj2 != ''){
                 return obj2;
             }
@@ -112,15 +129,56 @@ export class DeviceConfiguratorService {
                 return (obj2 === "inherent") ? null : obj2;
             }
             return null;
-        });
+        });*/
         _.forEach(device,(m,i)=>{
             if(m === null){
                 delete device[i];
             }
         });
     }
+    getWrightValue(obj,obj2){
+        if(!_.isEqual(obj,obj2)){
+            if(obj === undefined && obj2 != undefined && obj2 != ''){
+                return obj2;
+            }
+            if(obj != undefined  && obj2 != undefined && ((obj2 != '' && obj2 != "inherent") || (obj2.length == 1 && obj2[0] != ''))){
+                return obj2;
+            }
+            if((obj != undefined && (obj === true || obj === false)) && (obj2 === undefined || obj2 === "")){
+                return null;
+            }
+            if((obj != undefined && (obj === true || obj === false)) && (obj2 != undefined && (obj2 === true || obj2 === false))){
+                return obj2;
+            }
+            //Handle dicomInstalled with inherent
+            if(obj === undefined && (obj2 === false || obj2 === true)){
+                return obj2;
+            }
+            if((obj === true || obj === false) && (obj2 === "inherent" || obj2 === false || obj2 === true)){
+                return (obj2 === "inherent") ? null : obj2;
+            }
+        }
+        return null;
+    }
     saveDevice(){
 
+    }
+    updateDevice(){
+        //TODO check if devicename was changed
+        if(_.hasIn(this.device,"dicomDeviceName") && this.device.dicomDeviceName != ""){
+            console.log("paginationtitle",this.pagination[1].title);
+            console.log("this.device.dicomDeviceName",this.device.dicomDeviceName);
+            return this.$http.put('../devices/' + this.device.dicomDeviceName,this.device).map(device => device.json());
+        }else{
+            return null;
+        }
+    }
+    createDevice(){
+        if(_.hasIn(this.device,"dicomDeviceName") && this.device.dicomDeviceName != ""){
+            return this.$http.post('../devices/' + this.device.dicomDeviceName,this.device).map(device => device.json());
+        }else{
+            return null;
+        }
     }
     replaceCharactersInTitleKey(string, object){
             let re = /{(.*?)}/g;
@@ -202,7 +260,8 @@ export class DeviceConfiguratorService {
                                         description:m.description,
                                         options: options,
                                         order:(5+newOrderSuffix),
-                                        validation:validation
+                                        validation:validation,
+                                        value:value
                                     }),
                                 );
                             }else{
@@ -357,6 +416,8 @@ export class DeviceConfiguratorService {
                                                 });
                                             }
                                         }else{
+                                            //TODO Observe, changed because of bug when the extendsions and the childe not presend on object
+                                            /*
                                             url = '/device/edit/'+params.device;
                                             url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i:'/'+i);
                                             url = url +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
@@ -370,6 +431,18 @@ export class DeviceConfiguratorService {
                                                 devicereff:(params.schema) ? params.schema+'.'+propertiesPath+'.'+i:'properties.'+i,
                                                 order:(1+newOrderSuffix),
                                                 value:_.size(value)
+                                            });*/
+                                            let addUrl = '/device/edit/'+params.device;
+                                            addUrl = addUrl +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'[0]':'/'+i+'[0]');
+                                            addUrl = addUrl +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
+                                            form.push({
+                                                controlType:"buttondropdown",
+                                                key:i,
+                                                label:m.title,
+                                                description:m.description,
+                                                options:[],
+                                                addUrl:addUrl,
+                                                order:(3+newOrderSuffix)
                                             });
                                         }
                                     }else{

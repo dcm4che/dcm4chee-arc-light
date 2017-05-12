@@ -758,10 +758,42 @@ md-dialog-container{
     }
   }
 }
+.main_content.deviceconfig{
+  float: left;
+  width:100%;
+}
+.form-row.submit_button_block{
+  button.submit{
+    float: right;
+    width: 150px;
+    height: 30px;
+    background:$lightBlue;
+    color:white;
+    border-radius: 0;
+    line-height: 30px;
+    padding: 0;
+    margin-top:20px;
+    background: $lightBlue;
+    &[disabled] {
+      color: #888;
+      background: rgba(6, 29, 47, 0.74);
+      opacity:1;
+      &:hover{
+        background: rgba(6, 29, 47, 0.74);
+      }
+    }
+    &:hover{
+      cursor:pointer;
+      background:$blue;
+    }
+  }
+}
 .dynamicform:not(.hiddencontent){
   float: left;
   width: 100%;
-  margin: 10px 0;
+  margin: 0;
+  border-bottom: 1px solid #dedede;
+  padding: 10px;
   .title{
     float: left;
     width: 30%;
@@ -780,12 +812,43 @@ md-dialog-container{
     width:45%;
   }
 }
+.device_config_back{
+  float: left;
+  text-decoration: none;
+  display: block;
+  background: transparent;
+  border:1px solid #ccc;
+  padding: 1px 25px 1px 5px;
+  height: 30px;
+  line-height: 25px;
+  text-align: center;
+  color: #333333;
+  &:hover{
+    background:$lightBlue;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  i{
+    float:left;
+  }
+
+}
+.pagination{
+  float: left;
+  width:100%;
+}
 .dynamicform{
   .simple_input{
     width:100%;
     border: 1px solid #ccc;
     height: 30px;
     padding-left: 7px;
+  }
+  &.radio{
+    label{
+      font-weight:600;
+    }
   }
   .button{
     .button{

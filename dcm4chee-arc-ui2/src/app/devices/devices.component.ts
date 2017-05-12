@@ -10,6 +10,7 @@ import {DeleteRejectedInstancesComponent} from "../widgets/dialogs/delete-reject
 import {CreateAeComponent} from "../widgets/dialogs/create-ae/create-ae.component";
 import {HostListener} from "@angular/core";
 import {CreateExporterComponent} from "../widgets/dialogs/create-exporter/create-exporter.component";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-devices',
@@ -43,10 +44,19 @@ export class DevicesComponent {
     aes;
     dialogRef: MdDialogRef<any>;
 
-    constructor(public $http: Http, public cfpLoadingBar:SlimLoadingBarService, public mainservice:AppService,public viewContainerRef: ViewContainerRef ,public dialog: MdDialog, public config: MdDialogConfig,public service:DevicesService) {
+    constructor(
+        public $http: Http,
+        public cfpLoadingBar:SlimLoadingBarService,
+        public mainservice:AppService,
+        public viewContainerRef: ViewContainerRef ,
+        public dialog: MdDialog,
+        public config: MdDialogConfig,
+        public service:DevicesService,
+        private router:Router
+    ) {
         this.getDevices();
         this.getAes();
-  }
+    }
 
 
     @HostListener('window:scroll', ['$event'])
@@ -57,6 +67,11 @@ export class DevicesComponent {
             wS = window.pageYOffset;
         if (wS > (hT+hH-wH)){
             this.loadMoreDevices();
+        }
+    }
+    editDevice(devicename){
+        if(devicename && devicename != ""){
+            this.router.navigateByUrl("/device/edit/"+devicename);
         }
     }
     loadMoreDevices(){
@@ -286,6 +301,9 @@ export class DevicesComponent {
                     // vex.dialog.alert("Error loading aes, please reload the page and try again!");
                 });
         }
+    }
+    createDevice(){
+        this.router.navigateByUrl("/device/edit/[new_device]");
     }
     getDevices(){
         let $this = this;

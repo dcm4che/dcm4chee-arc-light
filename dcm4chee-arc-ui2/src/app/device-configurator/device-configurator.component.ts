@@ -39,9 +39,44 @@ export class DeviceConfiguratorComponent implements OnInit {
 
     }
     submitFunction(value){
-
         this.service.addChangesToDevice(value,this.recentParams.devicereff);
-        console.log("this.service.device",this.service.device);
+        let newSchema = this.service.getSchemaFromPath(this.service.schema, this.recentParams['schema']);
+        let title = this.service.getPaginationTitleFromModel(value,newSchema);
+        this.service.pagination[this.service.pagination.length-1].title = title;
+        if(_.hasIn(this.service.pagination,"[1].title") && this.service.pagination[1].title === "[new_device]"){
+
+            if(this.service.createDevice()){
+                this.service.createDevice()
+                    .subscribe(
+                        (success)=>{
+                            console.log("succes",success);
+                            //TODO reload archive
+                        },
+                        (err)=>{
+                            console.log("error",err);
+                        }
+
+                    );
+            }else{
+                console.warn("devicename is missing",this.service.device);
+            }
+        }else{
+            if(this.service.updateDevice()){
+                this.service.updateDevice()
+                    .subscribe(
+                        (success)=>{
+                            console.log("succes",success);
+                            //TODO reload archive
+                        },
+                        (err)=>{
+                            console.log("error",err);
+                        }
+
+                    );
+            }else{
+                console.warn("devicename is missing",this.service.device);
+            }
+        }
     }
     ngOnInit() {
         let $this = this;
@@ -78,23 +113,40 @@ export class DeviceConfiguratorComponent implements OnInit {
                             $this.showform = true;
                         },1);
                     }else{
-                        Observable.combineLatest(
-                            $this.service.getDevice(params['device']),
-                            $this.$http.get('./assets/schema/device.schema.json').map(data => data.json())
-                        ).subscribe(deviceschema => {
-                            $this.showform = false;
-                            console.log("deviceschema",deviceschema);
-                            $this.device = deviceschema[0];
-                            $this.service.device = deviceschema[0];
-                            $this.schema = deviceschema[1];
-                            $this.service.schema = deviceschema[1];
-                            let formObject = $this.service.convertSchemaToForm($this.device, $this.schema, params);
-                            $this.formObj = formObject;
-                            $this.model = {};
-                            setTimeout(()=>{
-                                $this.showform = true;
-                            },1);
-                        });
+                        if(params["device"]=="[new_device]"){
+                            $this.$http.get('./assets/schema/device.schema.json').map(data => data.json()).subscribe((schema)=>{
+                                $this.showform = false;
+                                $this.device = {};
+                                $this.service.device = {};
+                                $this.schema = schema;
+                                $this.service.schema = schema;
+                                let formObject = $this.service.convertSchemaToForm($this.device, $this.schema, params);
+                                $this.formObj = formObject;
+                                $this.model = {};
+                                setTimeout(()=>{
+                                    $this.showform = true;
+                                },1);
+                            });
+                        }else{
+
+                            Observable.combineLatest(
+                                $this.service.getDevice(params['device']),
+                                $this.$http.get('./assets/schema/device.schema.json').map(data => data.json())
+                            ).subscribe(deviceschema => {
+                                $this.showform = false;
+                                console.log("deviceschema",deviceschema);
+                                $this.device = deviceschema[0];
+                                $this.service.device = deviceschema[0];
+                                $this.schema = deviceschema[1];
+                                $this.service.schema = deviceschema[1];
+                                let formObject = $this.service.convertSchemaToForm($this.device, $this.schema, params);
+                                $this.formObj = formObject;
+                                $this.model = {};
+                                setTimeout(()=>{
+                                    $this.showform = true;
+                                },1);
+                            });
+                        }
                     }
                 }else{
                     let newModel:any = _.get(this.service.device,params["devicereff"]);

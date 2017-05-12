@@ -15,7 +15,7 @@
             <div class="dropdown_parent" *ngIf="formelement.show || partSearch != ''">
                 <select class="dropdown" *ngSwitchCase="'dropdown'" [id]="formelement.key" [formControlName]="formelement.key">
                     <option value="">-</option>
-                    <option *ngFor="let opt of formelement.options" [value]="opt.key">{{opt.value}}</option>
+                    <option *ngFor="let opt of formelement.options" [value]="opt.key" [selected]="opt.active">{{opt.value}}</option>
                 </select>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
@@ -56,7 +56,7 @@
                 <div class="button_parent" *ngSwitchCase="'button'">
                     <div class="button_content" *ngIf="formelement.value > 0">
                         <a [ngClass]="{'disabled':!form.valid}" class="button edit" [routerLink]="[formelement.url]" title="{{formelement.description}}"><i class="material-icons">mode_edit</i> Edit extension</a>
-                        <a [ngClass]="{'disabled':!form.valid}" class="delete button" (click)="$event.preventDefault();removeObject(formelement,form.controls[formelement.key])" title="Remove {{formelement.title}} extension to device"><i class="material-icons">clear</i></a>
+                        <a [ngClass]="{'disabled':!form.valid}" class="delete button" (click)="$event.preventDefault();removeObject(formelement,form.controls[formelement.key])" title="Remove {{formelement.title}} extension from device"><i class="material-icons">clear</i></a>
                     </div>
                     <div class="button_content" *ngIf="formelement.value === 0">
                         <a [ngClass]="{'disabled':!form.valid}" class="button edit gray disabled" (click)="$event.preventDefault();" title="{{formelement.description}}">Extension is not present</a>
