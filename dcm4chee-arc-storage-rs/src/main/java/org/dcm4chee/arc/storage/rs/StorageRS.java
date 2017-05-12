@@ -46,6 +46,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.DeleterThreshold;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
@@ -64,18 +65,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Collection;
+import java.util.*;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -87,7 +80,6 @@ import java.util.Collection;
 public class StorageRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(StorageRS.class);
-    private ArchiveAEExtension arcAE;
 
     @Inject
     private Device device;
@@ -109,6 +101,9 @@ public class StorageRS {
     @Pattern(regexp = "dcmObjectStorageID|dcmMetadataStorageID|dcmSeriesMetadataStorageID")
     private String usage;
 
+    @QueryParam("usableSpaceBelow")
+    private Long usableSpaceBelow;
+
     @GET
     @NoCache
     @Produces("application/json")
@@ -120,7 +115,6 @@ public class StorageRS {
                 gen.writeStartArray();
                 for (StorageSystem ss : getStorageSystems()) {
                     StorageDescriptor desc = ss.desc;
-                    List<ArchiveAEExtension> arcAEs = ss.arcAEs;
                     JsonWriter writer = new JsonWriter(gen);
                     gen.writeStartObject();
                     gen.write("dcmStorageID", desc.getStorageID());
@@ -129,24 +123,22 @@ public class StorageRS {
                     writer.writeNotNull("dcmInstanceAvailability", desc.getInstanceAvailability());
                     writer.writeNotDef("dcmReadOnly", desc.isReadOnly(), false);
                     if (desc.getStorageThreshold() != null)
-                        writer.writeNotNull("dcmStorageThreshold", desc.getStorageThreshold().getMinUsableDiskSpace());
-                    writer.writeNotEmpty("dcmDeleterThreshold", desc.getDeleterThresholdsAsStrings());
+                        gen.write("storageThreshold", desc.getStorageThreshold().getMinUsableDiskSpace());
+                    writeDeleterThresholds(writer, gen, desc.getDeleterThresholds());
                     writer.writeNotNull("dcmExternalRetrieveAET", desc.getExternalRetrieveAETitle());
                     writer.writeNotEmpty("dcmProperty", descriptorProperties(desc.getProperties()));
-                    writeAEInfo(writer, arcAEs);
-                    if (isSeriesStorageReferenced(desc))
-                        writer.writeNotNull("dcmSeriesMetadataStorageID", true);
-                    writeSpaceInfo(writer, desc);
+                    writer.writeNotEmpty("dicomAETitle", ss.aets.toArray(new String[ss.aets.size()]));
+                    writer.writeNotEmpty("usages", ss.usages.toArray(new String[ss.usages.size()]));
+                    if (ss.usableSpace > 0L)
+                        gen.write("usableSpace", ss.usableSpace);
+                    if (ss.usableSpace > 0L)
+                        gen.write("totalSpace", ss.totalSpace);
                     gen.writeEnd();
                 }
                 gen.writeEnd();
                 gen.flush();
             }
         };
-    }
-
-    enum Case {
-        ONLY_USAGE, ONLY_URI, ONLY_AE, URI_USAGE, AET_USAGE, AET_URI, ALL, NO_PARAMS
     }
 
     private String[] descriptorProperties(Map<String, ?> props) {
@@ -157,109 +149,40 @@ public class StorageRS {
         return ss;
     }
 
-    private void writeAEInfo(JsonWriter writer, List<ArchiveAEExtension> arcAEs) {
-        if (arcAEs.isEmpty())
+    private void writeDeleterThresholds(JsonWriter writer, JsonGenerator gen, List<DeleterThreshold> deleterThresholds) {
+        if (deleterThresholds.isEmpty())
             return;
-        writer.writeStartArray("dicomNetworkAE");
-        for (ArchiveAEExtension arcAE : arcAEs) {
+        writer.writeStartArray("deleterThreshold");
+        for (DeleterThreshold deleterThreshold : deleterThresholds) {
             writer.writeStartObject();
-            writer.writeNotNull("dicomAETitle", arcAE.getApplicationEntity().getAETitle());
-            writer.writeNotDef("dcmObjectStorageID", arcAE.getObjectStorageIDs().length > 0, false);
-            writer.writeNotDef("dcmMetadataStorageID", arcAE.getMetadataStorageIDs().length > 0, false);
+            gen.write(deleterThreshold.getPrefix(), deleterThreshold.getMinUsableDiskSpace());
             writer.writeEnd();
         }
         writer.writeEnd();
     }
 
-    private void writeSpaceInfo(JsonWriter writer, StorageDescriptor desc) {
-        try (Storage storage = storageFactory.getStorage(desc)) {
-            if (storage.getUsableSpace() != -1L)
-                writer.writeNotNull("usableSpace", storage.getUsableSpace());
-            if (storage.getTotalSpace() != -1L)
-                writer.writeNotNull("totalSpace", storage.getTotalSpace());
-        } catch (IOException e) {
-            LOG.warn("Failed to access {}", desc.getStorageURI(), e);
-        }
-    }
-
     private List<StorageSystem> getStorageSystems() {
         List<StorageSystem> storageSystems = new ArrayList<>();
-        if (isBadRequest())
-            throw new WebApplicationException(
-                    getResponse("Bad Request. Combination of query parameters not supported.",
-                            Response.Status.BAD_REQUEST));
-        Case case1 = getCase();
-        if (case1 != null) {
-            List<StorageDescriptor> sortedStorageDescriptors = getSortedStorageDescriptors();
-            for (StorageDescriptor desc : sortedStorageDescriptors) {
-                List<ArchiveAEExtension> arcAEs = getMatchingAEs(desc);
-                StorageSystem ss = new StorageSystem(desc, arcAEs);
-                storageSystems.add(ss);
+        if (dicomAETitle != null) {
+            ApplicationEntity ae = device.getApplicationEntity(dicomAETitle, true);
+            if (ae == null || !ae.isInstalled()) {
+                LOG.info("Dicom AE Title in query param is not installed : " + dicomAETitle);
+                return storageSystems;
             }
-            if (case1 != Case.NO_PARAMS)
-                getStorageSystemsMatchingQueryParams(storageSystems, case1);
         }
-        return storageSystems;
-    }
-
-    private void getStorageSystemsMatchingQueryParams(List<StorageSystem> storageSystems, Case case1) {
+        List<StorageDescriptor> sortedStorageDescriptors = getSortedStorageDescriptors();
+        for (StorageDescriptor desc : sortedStorageDescriptors)
+            storageSystems.add(new StorageSystem(desc));
         Iterator<StorageSystem> iter = storageSystems.iterator();
         while (iter.hasNext()) {
             StorageSystem ss = iter.next();
-            switch (case1) {
-                case ONLY_URI:
-                    if (!isMatchingURIScheme(ss.desc))
-                        iter.remove();
-                    break;
-                case ONLY_AE:
-                    if (!ss.arcAEs.contains(arcAE))
-                        iter.remove();
-                    break;
-                case ONLY_USAGE:
-                    if (!isStorageReferenced(ss))
-                        iter.remove();
-                    break;
-                case AET_USAGE:
-                    if (!ss.arcAEs.contains(arcAE) || !isStorageReferenced(ss))
-                        iter.remove();
-                    break;
-                case AET_URI:
-                    if (!ss.arcAEs.contains(arcAE) || !isMatchingURIScheme(ss.desc))
-                        iter.remove();
-                    break;
-                case URI_USAGE:
-                    if (!isMatchingURIScheme(ss.desc) || !isStorageReferenced(ss))
-                        iter.remove();
-                    break;
-                case ALL:
-                    if (!isMatchingURIScheme(ss.desc) || !isStorageReferenced(ss) || !ss.arcAEs.contains(arcAE))
-                        iter.remove();
-                    break;
-            }
+            if ((usableSpaceBelow != null && ss.usableSpace > usableSpaceBelow)
+                    || (dicomAETitle != null && !ss.aets.contains(dicomAETitle))
+                    || (usage != null && !ss.usages.contains(usage))
+                    || (uriScheme != null && !ss.desc.getStorageURI().getScheme().equals(uriScheme)))
+                iter.remove();
         }
-    }
-
-    private boolean isMatchingURIScheme(StorageDescriptor desc) {
-        return desc.getStorageURI().getScheme().equals(uriScheme);
-    }
-
-    private boolean isStorageReferenced(StorageSystem storageSystem) {
-        return (!usage.equals("dcmSeriesMetadataStorageID") && !storageSystem.arcAEs.isEmpty()
-                && isObjectOrMetadataStorageReferenced(storageSystem.desc))
-            || (usage.equals("dcmSeriesMetadataStorageID") && isSeriesStorageReferenced(storageSystem.desc));
-    }
-
-    private boolean isObjectOrMetadataStorageReferenced(StorageDescriptor desc) {
-        return (usage.equals("dcmObjectStorageID") && arcAE.getObjectStorageIDs().length > 0
-                    && Arrays.asList(arcAE.getObjectStorageIDs()).contains(desc.getStorageID()))
-                || (usage.equals("dcmMetadataStorageID") && arcAE.getMetadataStorageIDs().length > 0
-                    && Arrays.asList(arcAE.getMetadataStorageIDs()).contains(desc.getStorageID()));
-    }
-
-    private boolean isSeriesStorageReferenced(StorageDescriptor desc) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getSeriesMetadataStorageIDs().length > 0
-                && Arrays.asList(arcDev.getSeriesMetadataStorageIDs()).contains(desc.getStorageID());
+        return storageSystems;
     }
 
     private List<StorageDescriptor> getSortedStorageDescriptors() {
@@ -270,61 +193,50 @@ public class StorageRS {
         return storageDescriptors;
     }
 
-    private List<ArchiveAEExtension> getMatchingAEs(StorageDescriptor desc) {
-        Collection<String> aets = device.getApplicationAETitles();
-        List<ArchiveAEExtension> arcAEs = new ArrayList<>();
-        for (String aet : aets) {
-            ApplicationEntity ae = device.getApplicationEntity(aet);
-            ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-            if (Arrays.asList(arcAE.getObjectStorageIDs()).contains(desc.getStorageID())
-                    || Arrays.asList(arcAE.getMetadataStorageIDs()).contains(desc.getStorageID()))
-                arcAEs.add(arcAE);
-        }
-        return arcAEs;
-    }
-
-    private boolean isBadRequest() {
-        return (dicomAETitle != null && usage != null && usage.equals("dcmSeriesMetadataStorageID"))
-            || (dicomAETitle == null && usage != null && (usage.equals("dcmMetadataStorageID") || usage.equals("dcmObjectStorageID")));
-    }
-
-    private Response getResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
-    }
-
-    private Case getCase() {
-        if (dicomAETitle != null) {
-            ApplicationEntity ae = device.getApplicationEntity(dicomAETitle, true);
-            if (!(ae != null && ae.isInstalled())) {
-                LOG.info("Dicom AE Title in query param is not installed.");
-                return null;
-            }
-            this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-        }
-        return usage != null
-                ? uriScheme != null
-                    ? dicomAETitle != null
-                        ? Case.ALL
-                        : Case.URI_USAGE
-                    : dicomAETitle != null
-                        ? Case.AET_USAGE
-                        : Case.ONLY_USAGE
-                : uriScheme != null
-                    ? dicomAETitle != null
-                        ? Case.AET_URI
-                        : Case.ONLY_URI
-                : dicomAETitle != null
-                    ? Case.ONLY_AE : Case.NO_PARAMS;
-    }
-
     class StorageSystem {
         private StorageDescriptor desc;
-        private List<ArchiveAEExtension> arcAEs;
+        private long usableSpace;
+        private long totalSpace;
+        private List<String> usages = new ArrayList<>();
+        private List<String> aets = new ArrayList<>();
 
-        StorageSystem(StorageDescriptor desc, List<ArchiveAEExtension> arcAEs) {
+        StorageSystem(StorageDescriptor desc) {
             this.desc = desc;
-            this.arcAEs = arcAEs;
+            getSpaceInfo(desc);
+            getAETsAndUsages(desc);
         }
+
+        void getSpaceInfo(StorageDescriptor desc) {
+            try (Storage storage = storageFactory.getStorage(desc)) {
+                if (storage.getUsableSpace() != -1)
+                    usableSpace = storage.getUsableSpace();
+                if (storage.getTotalSpace() != -1)
+                    totalSpace = storage.getTotalSpace();
+            } catch (IOException e) {
+                LOG.warn("Failed to access {}", desc.getStorageURI(), e);
+            }
+        }
+
+        void getAETsAndUsages(StorageDescriptor desc) {
+            for (String aet : device.getApplicationAETitles()) {
+                if (usages.size() == 2)
+                    break;
+                ApplicationEntity ae = device.getApplicationEntity(aet);
+                ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+                if (Arrays.asList(arcAE.getObjectStorageIDs()).contains(desc.getStorageID())) {
+                    usages.add("dcmObjectStorageID");
+                    aets.add(aet);
+                }
+                if (Arrays.asList(arcAE.getMetadataStorageIDs()).contains(desc.getStorageID())) {
+                    usages.add("dcmMetadataStorageID");
+                    aets.add(aet);
+                }
+            }
+            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+            for (String seriesMetadataStorageID : arcDev.getSeriesMetadataStorageIDs())
+                if (arcDev.getStorageDescriptor(seriesMetadataStorageID).getStorageID().equals(desc.getStorageID()))
+                    usages.add("dcmSeriesMetadataStorageID");
+        }
+
     }
 }

@@ -117,6 +117,10 @@ public final class StorageDescriptor {
         return ss;
     }
 
+    public List<DeleterThreshold> getDeleterThresholds() {
+        return deleterThresholds;
+    }
+
     public void setDeleterThresholdsFromStrings(String... ss) {
         deleterThresholds.clear();
         for (String s : ss) {

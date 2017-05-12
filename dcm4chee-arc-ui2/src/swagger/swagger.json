@@ -2821,6 +2821,12 @@
               "dcmMetadataStorageID",
               "dcmSeriesMetadataStorageID"
             ]
+          },
+          {
+            "name": "usableSpaceBelow",
+            "in": "query",
+            "description": "only return Storage Systems which have usable space below specified value",
+            "type": "integer"
           }
         ],
         "responses": {
