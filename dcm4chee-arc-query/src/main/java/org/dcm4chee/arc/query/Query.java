@@ -55,6 +55,8 @@ public interface Query {
 
     void initQuery();
 
+    void setFetchSize(int fetchSize);
+
     void executeQuery();
 
     long count();

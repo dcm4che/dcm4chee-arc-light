@@ -88,6 +88,12 @@ abstract class AbstractQuery implements Query {
     }
 
     @Override
+    public void setFetchSize(int fetchSize) {
+        checkQuery();
+        query.setFetchSize(fetchSize);
+    }
+
+    @Override
     public void executeQuery() {
         checkQuery();
         rejected = 0;

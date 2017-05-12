@@ -158,6 +158,12 @@
       "description": "Specifies URI for the style sheet used to render structured reports to plain text",
       "type": "string"
     },
+    "dcmQueryFetchSize": {
+      "title": "Query Fetch Size",
+      "description": "Number of rows fetched from the database at once by the Query Service. 100 if absent",
+      "type": "integer",
+      "minimum": 0
+    },
     "dcmQidoMaxNumberOfResults": {
       "title": "Qido Max Number Of Results",
       "description": "Maximal number of return results by QIDO-RS Service. 0 (=unlimited) if absent",

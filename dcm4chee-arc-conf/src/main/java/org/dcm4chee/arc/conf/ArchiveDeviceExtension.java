@@ -80,6 +80,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private boolean sendPendingCGet = false;
     private Duration sendPendingCMoveInterval;
     private boolean personNameComponentOrderInsensitiveMatching = false;
+    private int queryFetchSize = 100;
     private int qidoMaxNumberOfResults = 0;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
@@ -543,6 +544,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setAlternativeCMoveSCP(String alternativeCMoveSCP) {
         this.alternativeCMoveSCP = alternativeCMoveSCP;
+    }
+
+    public int getQueryFetchSize() {
+        return queryFetchSize;
+    }
+
+    public void setQueryFetchSize(int queryFetchSize) {
+       this.queryFetchSize = greaterOrEqualsZero(queryFetchSize, "queryFetchSize");
     }
 
     public int getQidoMaxNumberOfResults() {
@@ -1550,6 +1559,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientUpdateTemplateURI = arcdev.patientUpdateTemplateURI;
         importReportTemplateURI = arcdev.importReportTemplateURI;
         scheduleProcedureTemplateURI = arcdev.scheduleProcedureTemplateURI;
+        queryFetchSize = arcdev.queryFetchSize;
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
         queryRetrieveViewMap.clear();
         queryRetrieveViewMap.putAll(arcdev.queryRetrieveViewMap);

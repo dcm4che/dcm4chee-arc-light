@@ -861,6 +861,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.173 NAME 'dcmObjectStorageCount'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.174 NAME 'dcmQueryFetchSize'
+  DESC 'Number of rows fetched from the database at once by the Query Service. 100 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -893,6 +898,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmWadoSupportedSRClasses $
     dcmWadoSR2HtmlTemplateURI $
     dcmWadoSR2TextTemplateURI $
+    dcmQueryFetchSize $
     dcmQidoMaxNumberOfResults $
     dcmFwdMppsDestination $
     dcmIanDestination $

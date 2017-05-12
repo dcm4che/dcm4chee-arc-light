@@ -50,6 +50,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.*;
@@ -381,10 +382,12 @@ public class QidoRS {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, includetags, model);
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         Query query = model.createQuery(service, ctx);
         try {
             query.initQuery();
-            int maxResults = ctx.getArchiveAEExtension().qidoMaxNumberOfResults();
+            query.setFetchSize(arcAE.getArchiveDeviceExtension().getQueryFetchSize());
+            int maxResults = arcAE.qidoMaxNumberOfResults();
             int offsetInt = parseInt(offset);
             int limitInt = parseInt(limit);
             int remaining = 0;

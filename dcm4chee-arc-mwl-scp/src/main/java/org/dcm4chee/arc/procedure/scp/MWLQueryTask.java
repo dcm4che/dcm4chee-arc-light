@@ -41,14 +41,12 @@
 package org.dcm4chee.arc.procedure.scp;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicQueryTask;
-import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryTask;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.query.Query;
 
 /**
@@ -64,11 +62,17 @@ public class MWLQueryTask extends BasicQueryTask {
         this.query = query;
         try {
             query.initQuery();
+            query.setFetchSize(getQueryFetchSize(as));
             query.executeQuery();
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToCalculateNumberOfMatches, e);
         }
         setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
+    }
+
+    private int getQueryFetchSize(Association as) {
+        return as.getApplicationEntity().getDevice().getDeviceExtension(ArchiveDeviceExtension.class)
+                .getQueryFetchSize();
     }
 
     @Override
