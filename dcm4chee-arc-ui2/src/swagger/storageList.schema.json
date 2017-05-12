@@ -32,17 +32,18 @@
         "description": "Indicates if a Storage System is read only",
         "type": "boolean"
       },
-      "dcmStorageThreshold": {
+      "storageThreshold": {
         "title": "Storage Threshold",
-        "description": "Minimal Usable Space on Storage System. If the usable space fall below that value the Storage System will be removed from the list of configured Storage Systems of the Network AE requesting that Storage System. Format nnn(MB|GB|MiB|GiB)",
+        "description": "Minimal Usable Space on Storage System. If the usable space fall below that value the Storage System will be removed from the list of configured Storage Systems of the Network AE requesting that Storage System in bytes",
         "type": "number"
       },
-      "dcmDeleterThreshold": {
+      "deleterThreshold": {
         "title": "Deleter Threshold",
-        "description": "Minimal Usable Space on Storage System to trigger deletion. If present, studies are deleted from the Storage System, if the usable space fall below that value. Format [nn'['<schedule>']']nnn(MB|GB|MiB|GiB)",
-        "type": "array",
-        "items": {
-          "type": "string"
+        "description": "Minimal Usable Space on Storage System to trigger deletion. If present, studies are deleted from the Storage System, if the usable space fall below that value",
+        "type": "object",
+        "properties": {
+          "": "number",
+          "nn[<schedule>]": "number"
         }
       },
       "dcmExternalRetrieveAET": {
@@ -58,46 +59,35 @@
           "type": "string"
         }
       },
-      "dicomNetworkAE": {
-        "title": "Network AEs",
-        "description": "Network AEs associated with the Storage System",
+      "dicomAETitle": {
+        "title": "AE Title",
+        "description": "AE Title associated with the Storage System",
         "type": "array",
         "items": {
-          "type": "object",
-          "required": [
-            "dicomAETitle"
-          ],
-          "properties": {
-            "dicomAETitle": {
-              "title": "AE Title",
-              "type": "string"
-            },
-            "dcmObjectStorageID": {
-              "title": "Content",
-              "description": "Indicates if the Storage System is used for Object Storage",
-              "type": "boolean"
-            },
-            "dcmMetadataStorageID": {
-              "title": "Content",
-              "description": "Indicates if the Storage System is used for Metadata Storage",
-              "type": "boolean"
-            }
-          }
+          "type": "string"
         }
       },
-      "dcmSeriesMetadataStorageID": {
-        "title": "Series Metadata",
-        "description": "Indicates if the Storage System is used for Series Metadata Storage",
-        "type": "boolean"
+      "usage": {
+        "title": "Usage",
+        "description": "Usage of the Storage System",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "dcmObjectStorageID",
+            "dcmMetadataStorageID",
+            "dcmSeriesMetadataStorageID"
+          ]
+        }
       },
       "usableSpace": {
         "title": "Usable Space",
-        "description": "Usable Space left on Storage System. Format nnn(MB|GB).",
+        "description": "Usable Space left on Storage System in bytes",
         "type": "number"
       },
       "totalSpace": {
         "title": "Total Space",
-        "description": "Total Space on Storage System. Format nnn(MB|GB).",
+        "description": "Total Space on Storage System in bytes",
         "type": "number"
       }
     }

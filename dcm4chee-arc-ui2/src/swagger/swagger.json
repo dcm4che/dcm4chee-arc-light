@@ -2814,7 +2814,7 @@
           {
             "name": "usage",
             "in": "query",
-            "description": "only return Storage Systems used for the specified content. dcmObjectStorageID, dcmMetadataStorageID shall only be used together with dicomAETitle, dcmSeriesMetadataStorageID shall only be used without dicomAETitle",
+            "description": "only return Storage Systems used for the specified content",
             "type": "string",
             "enum": [
               "dcmObjectStorageID",

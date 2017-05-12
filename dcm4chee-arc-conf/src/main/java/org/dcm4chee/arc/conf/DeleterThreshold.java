@@ -69,6 +69,10 @@ public class DeleterThreshold extends StorageThreshold implements Comparable<Del
         throw new IllegalArgumentException(s);
     }
 
+    public String getPrefix() {
+        return value.substring(0, value.indexOf(']')+1);
+    }
+
     public boolean match(Calendar cal) {
         return schedule == null || schedule.contains(cal);
     }
