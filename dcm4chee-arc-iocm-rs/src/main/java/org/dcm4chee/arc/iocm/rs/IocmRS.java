@@ -240,7 +240,7 @@ public class IocmRS {
             ctx.setAttributes(attrs);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             patientService.updatePatient(ctx);
-            forwardRS(HttpMethod.POST, RSOperation.CreatePatient, arcAE, attrs);
+            forwardRS(HttpMethod.PUT, RSOperation.CreatePatient, arcAE, attrs);
             sendHL7Message("ADT^A28^ADT_A05", ctx);
             return IDWithIssuer.pidOf(attrs).toString();
         } catch (JsonParsingException e) {
@@ -290,7 +290,7 @@ public class IocmRS {
                 else
                     patientService.changePatientID(ctx);
             }
-            forwardRS(HttpMethod.PUT, newPatient ? RSOperation.CreatePatient : RSOperation.UpdatePatient, arcAE, attrs);
+            forwardRS(HttpMethod.PUT, RSOperation.UpdatePatient, arcAE, attrs);
             String msgType = ctx.getEventActionCode() == AuditMessages.EventActionCode.Create
                     ? newPatient
                         ? "ADT^A28^ADT_A05" : "ADT^A47^ADT_A30"
