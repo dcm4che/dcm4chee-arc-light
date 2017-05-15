@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.iocm.rs;
 
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -48,6 +49,8 @@ import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -56,11 +59,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2015
  */
 @Path("reject")
@@ -81,29 +83,23 @@ public class QueryRejectionNotes {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                Writer w = new OutputStreamWriter(out, "UTF-8");
-                int count = 0;
-                w.write('[');
-                boolean revoke = Boolean.parseBoolean(revokeRejection);
+                JsonGenerator gen = Json.createGenerator(out);
+                gen.writeStartArray();
                 for (RejectionNote rjNote : device.getDeviceExtension(ArchiveDeviceExtension.class).getRejectionNotes()) {
-                    if (rjNote.isRevokeRejection() != revoke)
+                    if (rjNote.isRevokeRejection() != Boolean.parseBoolean(revokeRejection))
                         continue;
 
                     Code code = rjNote.getRejectionNoteCode();
-                    if (count++ > 0)
-                        w.write(',');
-                    w.write("{\"label\":\"");
-                    w.write(rjNote.getRejectionNoteLabel());
-                    w.write("\",\"codeValue\":\"");
-                    w.write(code.getCodeValue());
-                    w.write("\",\"codingSchemeDesignator\":\"");
-                    w.write(code.getCodingSchemeDesignator());
-                    w.write("\",\"codeMeaning\":\"");
-                    w.write(code.getCodeMeaning());
-                    w.write("\"}");
+                    JsonWriter writer = new JsonWriter(gen);
+                    gen.writeStartObject();
+                    writer.writeNotNull("label", rjNote.getRejectionNoteLabel());
+                    writer.writeNotNull("codeValue", code.getCodeValue());
+                    writer.writeNotNull("codingSchemeDesignator", code.getCodingSchemeDesignator());
+                    writer.writeNotNull("codeMeaning", code.getCodeMeaning());
+                    gen.writeEnd();
                 }
-                w.write(']');
-                w.flush();
+                gen.writeEnd();
+                gen.flush();
             }
         };
     }

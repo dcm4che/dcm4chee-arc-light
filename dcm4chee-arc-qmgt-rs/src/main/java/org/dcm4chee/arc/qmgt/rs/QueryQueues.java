@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.qmgt.rs;
 
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
@@ -47,17 +48,18 @@ import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2015
  */
 @Path("queue")
@@ -75,25 +77,17 @@ public class QueryQueues {
             @Override
             public void write(OutputStream out) throws IOException {
                 ArchiveDeviceExtension ext = device.getDeviceExtension(ArchiveDeviceExtension.class);
-                Writer w = new OutputStreamWriter(out, "UTF-8");
-                int count = 0;
-                w.write('[');
+                JsonGenerator gen = Json.createGenerator(out);
+                gen.writeStartArray();
                 for (QueueDescriptor queueDesc : ext.getQueueDescriptors()) {
-                    if (count++ > 0)
-                        w.write(',');
-                    w.write("{\"name\":\"");
-                    w.write(queueDesc.getQueueName());
-                    String desc = queueDesc.getDescription();
-                    if (desc != null) {
-                        w.write("\",\"description\":\"");
-                        w.write(desc);
-                        w.write("\"}");
-                    } else {
-                        w.write("\",\"description\":null}");
-                    }
+                    JsonWriter writer = new JsonWriter(gen);
+                    gen.writeStartObject();
+                    writer.writeNotNull("name", queueDesc.getQueueName());
+                    writer.writeNotNull("description", queueDesc.getDescription());
+                    gen.writeEnd();
                 }
-                w.write(']');
-                w.flush();
+                gen.writeEnd();
+                gen.flush();
             }
         };
     }
