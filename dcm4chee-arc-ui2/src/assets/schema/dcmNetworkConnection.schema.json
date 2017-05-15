@@ -27,11 +27,14 @@
     "dcmTLSProtocol": {
       "title": "TLS Protocol",
       "description": "The Supported TLS Protocols; TLSv1, SSLv3 if absent",
-      "type": "string",
-      "enum": [
-        "TLSv1",
-        "SSLv3"
-      ]
+      "type": "array",
+      "items" : {
+        "type": "string",
+        "enum": [
+          "TLSv1",
+          "SSLv3"
+        ]
+      }
     },
     "dcmTCPBacklog": {
       "title": "TCP Backlog",
