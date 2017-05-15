@@ -42,10 +42,12 @@ package org.dcm4chee.arc.conf;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Nov 2016
  */
 public enum RSOperation {
     CreatePatient, UpdatePatient, DeletePatient,
+    ChangePatientID, MergePatient, MergePatients,
     UpdateStudy, DeleteStudy,
     CopyInstances, MoveInstances,
     RejectStudy, RejectSeries, RejectInstance,

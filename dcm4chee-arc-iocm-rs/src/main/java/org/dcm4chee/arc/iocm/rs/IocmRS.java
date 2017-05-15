@@ -313,6 +313,8 @@ public class IocmRS {
             final Attributes attrs = parseOtherPatientIDs(in);
             for (Attributes otherPID : attrs.getSequence(Tag.OtherPatientIDsSequence))
                 mergePatient(patientID, otherPID);
+
+            forwardRS("POST", RSOperation.MergePatients, getArchiveAE(), attrs);
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
@@ -330,6 +332,7 @@ public class IocmRS {
             if (priorPatientID.getIssuer() != null)
                 priorPatAttr.setString(Tag.IssuerOfPatientID, VR.LO, priorPatientID.getIssuer().toString());
             mergePatient(patientID, priorPatAttr);
+            forwardRS("POST", RSOperation.MergePatient, getArchiveAE(), null);
         } catch (Exception e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
@@ -374,6 +377,7 @@ public class IocmRS {
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
             patientService.changePatientID(ctx);
             sendHL7Message("ADT^A47^ADT_A30", ctx);
+            forwardRS("POST", RSOperation.ChangePatientID, arcAE, null);
         } catch (Exception e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
