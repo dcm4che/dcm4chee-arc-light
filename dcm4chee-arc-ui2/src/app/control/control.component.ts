@@ -6,6 +6,7 @@ import * as FileSaver from "file-saver";
 import {AppService} from "../app.service";
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 import {MessagingComponent} from "../widgets/messaging/messaging.component";
+import {ControlService} from "./control.service";
 
 @Component({
     selector: 'app-control',
@@ -15,7 +16,7 @@ import {MessagingComponent} from "../widgets/messaging/messaging.component";
 export class ControlComponent {
     status:any;
     message = '';
-    constructor(public $http: Http, public appservices:AppService, private cfpLoadingBar:SlimLoadingBarService,public messaging:MessagingComponent) {
+    constructor(public $http: Http, public appservices:AppService, private cfpLoadingBar:SlimLoadingBarService,public messaging:MessagingComponent, private service:ControlService) {
         this.fetchStatus();
         this.cfpLoadingBar.interval = 200;
     }
@@ -62,7 +63,7 @@ export class ControlComponent {
     };
     reload() {
         let $this = this;
-        this.$http.post("/dcm4chee-arc/ctrl/reload",{}).subscribe((res) => {
+        this.service.reloadArchive().subscribe((res) => {
             console.log("res",res);
                 // $this.message = 'Reload successful';
             $this.appservices.setMessage({

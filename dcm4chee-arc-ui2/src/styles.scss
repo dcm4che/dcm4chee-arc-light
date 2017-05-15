@@ -5,6 +5,7 @@
 
 $green :#2FA6C1;
 $lightBlue:rgba(6, 29, 47, 0.84);
+$lightBlueNoTransparence:#2c404f;
 $blue:#061d2f;
 $hoverBlue:#5293C1;
 
@@ -834,9 +835,147 @@ md-dialog-container{
   }
 
 }
+.breadcrumb_container{
+  float:left;
+  width:100%;
+  margin:15px;
+}
+.btn-breadcrumb{
+  .btn:not(:last-child):hover{
+    background:$lightBlueNoTransparence;
+    color:white;
+  }
+  .btn:last-child:hover{
+    background:white;
+    border-color: #cccccc;
+  }
+
+.btn:after {
+  content: " ";
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 17px solid transparent;
+  border-bottom: 17px solid transparent;
+  border-left: 10px solid white;
+  position: absolute;
+  top: 50%;
+  margin-top: -17px;
+  left: 100%;
+  z-index: 3;
+}
+.btn:before {
+  content: " ";
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 17px solid transparent;
+  border-bottom: 17px solid transparent;
+  border-left: 10px solid #ccc;
+  position: absolute;
+  top: 50%;
+  margin-top: -17px;
+  margin-left: 1px;
+  left: 100%;
+  z-index: 3;
+}
+
+/** The Spacing **/
+.btn {
+  padding:6px 12px 6px 24px;
+  -webkit-border-radius:0;
+  -moz-border-radius:0;
+  border-radius:0;
+}
+.btn:first-child {
+  padding:6px 6px 6px 10px;
+}
+.btn:last-child {
+  padding:6px 18px 6px 24px;
+}
+
+/** Default button **/
+.btn.btn-default:not(:last-child):after {
+  border-left: 10px solid #fff;
+  &:hover{
+    background:$lightBlueNoTransparence;
+    color:white;
+  }
+}
+.btn.btn-default:before {
+  border-left: 10px solid #ccc;
+}
+.btn.btn-default:not(:last-child):hover:after {
+  border-left: 10px solid $lightBlueNoTransparence;
+}
+.btn.btn-default:not(:last-child):hover:before {
+  border-left: 10px solid $lightBlueNoTransparence;
+}
+
+}
 .pagination{
   float: left;
   width:100%;
+  & > span{
+    float: left;
+  }
+  a{
+    text-decoration: none;
+    border: 1px solid #ccc;
+    padding: 0 14px;
+    height: 30px;
+    display: inline-block;
+    line-height: 30px;
+
+    &:hover{
+      background:$lightBlue;
+      cursor:pointer;
+      color:white;
+    }
+    &:after {
+      content: " ";
+      display: block;
+      width: 0;
+      height: 0;
+      border-top: 17px solid transparent;
+      border-bottom: 17px solid transparent;
+      border-left: 10px solid white;
+      position: absolute;
+      top: 50%;
+      margin-top: -17px;
+      left: 100%;
+      z-index: 3;
+    }
+    &:before {
+      content: " ";
+      display: block;
+      width: 0;
+      height: 0;
+      border-top: 17px solid transparent;
+      border-bottom: 17px solid transparent;
+      border-left: 10px solid rgb(173, 173, 173);
+      position: absolute;
+      top: 50%;
+      margin-top: -17px;
+      margin-left: 1px;
+      left: 100%;
+      z-index: 3;
+    }
+  }
+  //
+
+//
+  .slash{
+    margin:0 3px;
+  }
+  .current_title{
+    text-decoration: none;
+    border: 1px solid #ccc;
+    padding: 0 14px;
+    height: 30px;
+    display: inline-block;
+    line-height: 30px;
+  }
 }
 .dynamicform{
   .simple_input{
@@ -850,6 +989,14 @@ md-dialog-container{
       font-weight:600;
     }
   }
+  select.dropdown{
+    float:left;
+    width:100%;
+    background:white;
+    height:30px;
+    border:1px solid #ccc;
+  }
+
   .button{
     .button{
       display: block;
@@ -959,6 +1106,15 @@ md-dialog-container{
         &:hover{
           cursor: pointer;
           background: $lightBlue;
+          color:white;
+        }
+      }
+      .button.add.big{
+        border:1px solid #ccc;
+        color:#444;
+        visibility: visible;
+        opacity: 1;
+        &:hover{
           color:white;
         }
       }

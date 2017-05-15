@@ -87,7 +87,7 @@
         </div>
 
         <div class="toggle" *ngSwitchCase="'togglebutton'">
-            <h4 (click)="toggleTab(formelement.order)">{{formelement.title}}</h4>
+            <h4 [ngClass]="{'disabled':!form.valid}" (click)="toggleTab(formelement.order)">{{formelement.title}}</h4>
         </div>
     </div>
     <div  class="description_parent" *ngIf="formelement.show || partSearch != ''">

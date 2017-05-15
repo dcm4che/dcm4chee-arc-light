@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable, OnInit} from '@angular/core';
 import {Http} from "@angular/http";
 import * as _ from "lodash";
 import {InputText} from "../helpers/form/input-text";
@@ -11,18 +11,20 @@ import {Observable} from "rxjs";
 import {InputNumber} from "../helpers/form/input-number";
 
 @Injectable()
-export class DeviceConfiguratorService {
+export class DeviceConfiguratorService{
 
-    constructor(private $http:Http) { }
+    constructor(private $http:Http) {
+        this.pagination = [
+            {
+                url:"/device/devicelist",
+                title:"devicelist",
+                devicereff:undefined
+            }
+        ];
+    }
     device;
     schema;
-    pagination = [
-        {
-            url:"/device/devicelist",
-            title:"devicelist",
-            devicereff:undefined
-        }
-    ];
+    pagination = [];
     getPaginationTitleFromModel(model,schemaObject){
         let title ="object";
         if(_.hasIn(schemaObject,"type") && schemaObject.type === "array"){
@@ -69,6 +71,7 @@ export class DeviceConfiguratorService {
 
             return currentschemaposition;
         }else{
+            //TODO that means that in the schema thare is a $ref
             return null;
         }
     };

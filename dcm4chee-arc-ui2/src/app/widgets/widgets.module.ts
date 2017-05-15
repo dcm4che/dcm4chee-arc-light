@@ -18,6 +18,7 @@ import {DynamicFormElementComponent} from "./dynamicform/dynamic-form-element.co
 import {DynamicFormComponent} from "./dynamicform/dynamic-form.component";
 import { CreateExporterComponent } from './dialogs/create-exporter/create-exporter.component';
 import { ExportDialogComponent } from './dialogs/export/export.component';
+import { CloneSelectorComponent } from './dialogs/clone-selector/clone-selector.component';
 
 
 @NgModule({
@@ -43,5 +44,6 @@ export const WidgetsComponents = [
     DeleteRejectedInstancesComponent,
     ProductLabellingComponent,
     CreateExporterComponent,
-    ExportDialogComponent
+    ExportDialogComponent,
+    CloneSelectorComponent
 ];

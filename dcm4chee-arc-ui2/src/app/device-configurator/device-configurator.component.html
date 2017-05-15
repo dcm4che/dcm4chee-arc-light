@@ -2,12 +2,17 @@
 <!--    <pre>
         pagination:{{params|json}}
     </pre>-->
-    <a *ngIf="params.length > 1" routerLink="{{params[params.length-2].url}}" class="device_config_back"><i class="material-icons">chevron_left</i> <span>back</span></a><br>
-    <div class="pagination">
-        <span *ngFor="let pagination of params;let i = index">
-            <a *ngIf="i!=(params.length-1)" routerLink="{{pagination.url}}" >{{pagination.title}} </a> <span *ngIf="i!=(params.length-1)"> / </span>
-            <span *ngIf="i == (params.length-1)"> {{pagination.title}}</span>
-        </span>
+
+    <a *ngIf="params.length > 1" (click)="fireBreadcrumb(params[params.length-2])" class="device_config_back"><i class="material-icons">chevron_left</i> <span>back</span></a><br>
+    <div class="breadcrumb_container">
+        <div class="row">
+            <div class="btn-group btn-breadcrumb">
+                <ng-container *ngFor="let pagination of params;let i = index">
+                    <a *ngIf="i!=(params.length-1)" (click)="fireBreadcrumb(pagination)" class="btn btn-default" >{{pagination.title}} </a> <!--<span class="slash" *ngIf="i!=(params.length-1)"> / </span>-->
+                    <a class="current_title btn btn-default" *ngIf="i == (params.length-1)" (click)="$event.preventDefault()"> {{pagination.title}}</a>
+                </ng-container>
+            </div>
+        </div>
     </div>
 <!--    <button (click)="deleteForm()">deleteform</button>
     <button (click)="addModel()">addmodel</button>-->

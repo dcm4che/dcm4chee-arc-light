@@ -61,6 +61,7 @@ import {DeviceConfiguratorService} from "./device-configurator/device-configurat
 import { UtcPipe } from './pipes/utc.pipe';
 import { CustomValidatorDirective } from './helpers/custom-validator/custom-validator.directive';
 import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-browser/animations";
+import {ControlService} from "./control/control.service";
 
 @NgModule({
     declarations: [
@@ -135,6 +136,7 @@ import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-b
             { path: 'device/edit/:device', component: DeviceConfiguratorComponent },
             { path: 'device/edit/:device/:devicereff', component: DeviceConfiguratorComponent },
             { path: 'device/edit/:device/:devicereff/:schema', component: DeviceConfiguratorComponent },
+            { path: 'device/edit/:device/:devicereff/:schema/:clone', component: DeviceConfiguratorComponent },
             { path: '**', component: PageNotFoundComponent }
       ],
             { useHash: true })
@@ -145,6 +147,7 @@ import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-b
         WidgetsComponents,
         AppService,
         StudiesService,
+        ControlService,
         QueuesService,
         DevicesService,
         ExportService,

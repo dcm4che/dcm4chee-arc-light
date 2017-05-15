@@ -1,7 +1,10 @@
 /**
  * Created by shefki on 9/20/16.
  */
-import {Component, Input, ElementRef, OnInit, ComponentFactoryResolver, ChangeDetectionStrategy} from "@angular/core";
+import {
+    Component, Input, ElementRef, OnInit, ComponentFactoryResolver, ChangeDetectionStrategy,
+    ViewContainerRef
+} from "@angular/core";
 import {FormGroup, FormControl, FormArray} from "@angular/forms";
 import {DynamicFormComponent} from "./dynamic-form.component";
 import {FormService} from "../../helpers/form/form.service";
@@ -9,6 +12,8 @@ import {FormElement} from "../../helpers/form/form-element";
 import * as _ from "lodash";
 import {Router} from "@angular/router";
 import {DeviceConfiguratorService} from "../../device-configurator/device-configurator.service";
+import {CloneSelectorComponent} from "../dialogs/clone-selector/clone-selector.component";
+import {MdDialogRef, MdDialog, MdDialogConfig} from "@angular/material";
 
 @Component({
     selector:'df-element',
@@ -21,8 +26,19 @@ export class DynamicFormElementComponent{
     @Input() formelements:FormElement<any>[];
     @Input() form:FormGroup;
     @Input() partSearch:string;
+    dialogRef: MdDialogRef<any>;
     // activetab = "tab_1";
-    constructor(private formservice:FormService, private formcomp:DynamicFormComponent, dcl: ComponentFactoryResolver, elementRef: ElementRef, private router:Router, private deviceConfiguratorService:DeviceConfiguratorService){
+    constructor(
+        private formservice:FormService,
+        private formcomp:DynamicFormComponent,
+        dcl: ComponentFactoryResolver,
+        elementRef: ElementRef,
+        private router:Router,
+        private deviceConfiguratorService:DeviceConfiguratorService,
+        public dialog: MdDialog,
+        public config: MdDialogConfig,
+        public viewContainerRef: ViewContainerRef
+    ){
         // dcl.resolveComponentFactory(DynamicFormComponent);
     }
     get isValid(){
@@ -50,7 +66,26 @@ export class DynamicFormElementComponent{
 /*        console.log("formelement",formelement);
         let value = (<FormArray>this.form.controls[formelement.key]).getRawValue();
         (<FormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new FormControl(value));*/
-        this.router.navigateByUrl(formelement.addUrl);
+        let $this = this;
+        var globalForm = this.formcomp.getForm();
+        let value = globalForm.value;
+        this.dialogRef = this.dialog.open(CloneSelectorComponent, {
+            height:'auto',
+            width:'500px'
+        });
+        this.dialogRef.componentInstance.select = value;
+        /*        this.dialogRef.afterClosed().subscribe(result => {
+         if(result){
+         console.log("result", result);
+         }else{
+         console.log("false");
+         }
+         });*/
+        this.dialogRef.afterClosed().subscribe((selected)=>{
+            if(selected){
+                $this.router.navigateByUrl(formelement.addUrl);
+            }
+        });
     }
     addArrayElement(element:any, formpart:FormControl[], form:any){
         formpart = formpart || [];
@@ -91,24 +126,26 @@ export class DynamicFormElementComponent{
     }
 
     toggleTab(orderId){
-        var globalForm = this.formcomp.getForm();
-        var valueObject = globalForm.value;
+        if(this.form.valid){
+            var globalForm = this.formcomp.getForm();
+            var valueObject = globalForm.value;
 
-        _.forEach(this.formelements,(m,i)=>{
-           if(Math.floor(m.order) === orderId+1){
-               if(m.show === true){
+            _.forEach(this.formelements,(m,i)=>{
+               if(Math.floor(m.order) === orderId+1){
+                   if(m.show === true){
+                       m.show = false;
+                   }else{
+                       m.show = true;
+                   }
+               } else{
                    m.show = false;
-               }else{
-                   m.show = true;
                }
-           } else{
-               m.show = false;
-           }
-        });
-        this.form = this.formservice.toFormGroup(this.formelements);
-        this.form.patchValue(valueObject);
-        this.formcomp.setForm(this.form);
-        this.formcomp.setFormModel(valueObject);
+            });
+            this.form = this.formservice.toFormGroup(this.formelements);
+            this.form.patchValue(valueObject);
+            this.formcomp.setForm(this.form);
+            this.formcomp.setFormModel(valueObject);
+        }
         // this.activetab = 'tab_'+(orderId-1);
     }
 }
