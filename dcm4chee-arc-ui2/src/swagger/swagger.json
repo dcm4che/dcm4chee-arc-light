@@ -22,7 +22,7 @@
       "name": "CONFIG-RS",
       "description": "Configuration Access"
     },
-    {
+    {-RS
       "name": "ECHO-RS",
       "description": "DICOM Verification"
     },
@@ -2783,7 +2783,7 @@
     "/storage": {
       "get": {
         "tags": [
-          "CONF-RS",
+          "CONFIG-RS",
           "MONITOR-RS"
         ],
         "summary": "List Storage Systems",
