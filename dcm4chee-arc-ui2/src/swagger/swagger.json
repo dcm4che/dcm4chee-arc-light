@@ -22,7 +22,7 @@
       "name": "CONFIG-RS",
       "description": "Configuration Access"
     },
-    {-RS
+    {
       "name": "ECHO-RS",
       "description": "DICOM Verification"
     },
