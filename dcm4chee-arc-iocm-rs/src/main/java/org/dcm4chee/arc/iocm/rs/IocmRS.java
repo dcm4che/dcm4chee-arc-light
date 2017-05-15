@@ -205,7 +205,7 @@ public class IocmRS {
         ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
         ctx.setPatient(patient);
         deletionService.deletePatient(ctx);
-        forwardRS("DELETE", RSOperation.DeletePatient, arcAE, null);
+        forwardRS(HttpMethod.DELETE, RSOperation.DeletePatient, arcAE, null);
     }
 
     @DELETE
@@ -215,7 +215,7 @@ public class IocmRS {
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             deletionService.deleteStudy(studyUID, request, arcAE.getApplicationEntity());
-            forwardRS("DELETE", RSOperation.DeleteStudy, arcAE, null);
+            forwardRS(HttpMethod.DELETE, RSOperation.DeleteStudy, arcAE, null);
         } catch (StudyNotFoundException e) {
             throw new WebApplicationException(getResponse("Study having study instance UID " + studyUID + " not found.",
                     Response.Status.NOT_FOUND));
@@ -309,12 +309,18 @@ public class IocmRS {
     @Consumes("application/json")
     public void mergePatients(@PathParam("patientID") IDWithIssuer patientID, InputStream in) throws Exception {
         logRequest();
-        try {
-            final Attributes attrs = parseOtherPatientIDs(in);
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int length;
+            while ((length = in.read(buffer)) != -1) {
+                baos.write(buffer, 0, length);
+            }
+            InputStream is1 = new ByteArrayInputStream(baos.toByteArray());
+            final Attributes attrs = parseOtherPatientIDs(is1);
             for (Attributes otherPID : attrs.getSequence(Tag.OtherPatientIDsSequence))
                 mergePatient(patientID, otherPID);
 
-            forwardRS("POST", RSOperation.MergePatients, getArchiveAE(), attrs);
+            forwardRSMergeMultiplePatients(HttpMethod.POST, RSOperation.MergePatients, getArchiveAE(), baos.toByteArray());
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
@@ -332,7 +338,7 @@ public class IocmRS {
             if (priorPatientID.getIssuer() != null)
                 priorPatAttr.setString(Tag.IssuerOfPatientID, VR.LO, priorPatientID.getIssuer().toString());
             mergePatient(patientID, priorPatAttr);
-            forwardRS("POST", RSOperation.MergePatient, getArchiveAE(), null);
+            forwardRS(HttpMethod.POST, RSOperation.MergePatient, getArchiveAE(), null);
         } catch (Exception e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
@@ -377,7 +383,7 @@ public class IocmRS {
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
             patientService.changePatientID(ctx);
             sendHL7Message("ADT^A47^ADT_A30", ctx);
-            forwardRS("POST", RSOperation.ChangePatientID, arcAE, null);
+            forwardRS(HttpMethod.POST, RSOperation.ChangePatientID, arcAE, null);
         } catch (Exception e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
@@ -535,6 +541,21 @@ public class IocmRS {
                 if (!request.getRemoteAddr().equals(
                         InetAddress.getByName(URI.create(baseURI).getHost()).getHostAddress())) {
                     rsClient.scheduleRequest(method, mkForwardURI(baseURI, rsOp, attrs), toContent(attrs));
+                }
+            } catch (Exception e) {
+                LOG.warn("Failed to apply {}:\n", rule, e);
+            }
+        }
+    }
+
+    private void forwardRSMergeMultiplePatients(String method, RSOperation rsOp, ArchiveAEExtension arcAE, byte[] in) {
+        List<RSForwardRule> rules = arcAE.findRSForwardRules(rsOp);
+        for (RSForwardRule rule : rules) {
+            String baseURI = rule.getBaseURI();
+            try {
+                if (!request.getRemoteAddr().equals(
+                        InetAddress.getByName(URI.create(baseURI).getHost()).getHostAddress())) {
+                    rsClient.scheduleRequest(method, mkForwardURI(baseURI, rsOp, null), in);
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to apply {}:\n", rule, e);
