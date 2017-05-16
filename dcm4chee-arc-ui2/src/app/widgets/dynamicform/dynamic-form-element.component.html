@@ -7,6 +7,9 @@
         <!--<br> in ngswitch {{formelement |json}}<br>-->
         <div *ngIf="formelement.show || partSearch != ''" class="content">
             <div *ngIf="formelement.show || partSearch != ''">
+                <input class="simple_input text disabled" *ngSwitchCase="'constantField'" disabled [formControlName]="formelement.key" [id]="formelement.key" type="text" />
+            </div>
+            <div *ngIf="formelement.show || partSearch != ''">
                 <input class="simple_input text" *ngSwitchCase="'text'" [formControlName]="formelement.key" [id]="formelement.key" [type]="formelement.type" />
             </div>
             <div *ngIf="formelement.show || partSearch != ''">

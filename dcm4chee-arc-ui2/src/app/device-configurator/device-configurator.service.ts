@@ -248,37 +248,49 @@ export class DeviceConfiguratorService{
                     let options = [];
                     switch(m.type) {
                         case "string":
-                            if(_.hasIn(m,"enum")){
-                                _.forEach(m.enum,(opt) =>{
-                                    options.push({
-                                        key:opt,
-                                        value:opt,
-                                        active:(opt === value)? true:false
-                                    });
-                                })
-                                form.push(
-                                    new DropdownList({
-                                        key:i,
-                                        label:m.title,
-                                        description:m.description,
-                                        options: options,
-                                        order:(5+newOrderSuffix),
-                                        validation:validation,
-                                        value:value
-                                    }),
-                                );
+                            if(i === "dicomDeviceName"){
+                                form.push({
+                                    controlType:"constantField",
+                                    key:i,
+                                    label:m.title,
+                                    description:m.description,
+                                    order:(5+newOrderSuffix),
+                                    value:value,
+                                    show:true
+                                });
                             }else{
-                                form.push(
-                                    new InputText({
-                                        key:i,
-                                        label:m.title,
-                                        description:m.description,
-                                        type: "string",
-                                        value:value,
-                                        order:(5+newOrderSuffix),
-                                        validation:validation
+                                if(_.hasIn(m,"enum")){
+                                    _.forEach(m.enum,(opt) =>{
+                                        options.push({
+                                            key:opt,
+                                            value:opt,
+                                            active:(opt === value)? true:false
+                                        });
                                     })
-                                );
+                                    form.push(
+                                        new DropdownList({
+                                            key:i,
+                                            label:m.title,
+                                            description:m.description,
+                                            options: options,
+                                            order:(5+newOrderSuffix),
+                                            validation:validation,
+                                            value:value
+                                        }),
+                                    );
+                                }else{
+                                    form.push(
+                                        new InputText({
+                                            key:i,
+                                            label:m.title,
+                                            description:m.description,
+                                            type: "string",
+                                            value:value,
+                                            order:(5+newOrderSuffix),
+                                            validation:validation
+                                        })
+                                    );
+                                }
                             }
                             break;
                         case "boolean":
