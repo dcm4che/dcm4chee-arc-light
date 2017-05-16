@@ -46,8 +46,6 @@ import org.dcm4che3.conf.json.audit.JsonAuditRecordRepositoryConfiguration;
 import org.dcm4che3.conf.json.hl7.JsonHL7Configuration;
 import org.dcm4che3.conf.json.imageio.JsonImageReaderConfiguration;
 import org.dcm4che3.conf.json.imageio.JsonImageWriterConfiguration;
-import org.dcm4chee.arc.conf.json.JsonArchivHL7Configuration;
-import org.dcm4chee.arc.conf.json.JsonArchiveConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;

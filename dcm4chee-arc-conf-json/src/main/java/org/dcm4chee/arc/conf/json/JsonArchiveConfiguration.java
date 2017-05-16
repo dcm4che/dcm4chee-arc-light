@@ -46,18 +46,20 @@ import org.dcm4che3.conf.json.JsonConfigurationExtension;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Code;
 import org.dcm4che3.data.ValueSelector;
 import org.dcm4che3.net.*;
-import org.dcm4chee.arc.conf.*;
-import org.dcm4che3.data.Code;
 import org.dcm4che3.util.Property;
+import org.dcm4chee.arc.conf.*;
 
 import javax.json.stream.JsonParser;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.time.LocalTime;
 import java.time.Period;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
