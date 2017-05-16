@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf.rs;
 
 import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
@@ -58,6 +59,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.json.stream.JsonParsingException;
 import javax.naming.directory.Attributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -105,15 +107,21 @@ public class ConfigurationRS {
     @Produces("application/json")
     public StreamingOutput getDevice(@PathParam("DeviceName") String deviceName) throws Exception {
         final Device device;
-        device = conf.findDevice(deviceName);
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
-                JsonGenerator w = Json.createGenerator(out);
-                jsonConf.writeTo(device, w, true);
-                w.flush();
-            }
-        };
+        try {
+            device = conf.findDevice(deviceName);
+            return new StreamingOutput() {
+                @Override
+                public void write(OutputStream out) throws IOException {
+                    JsonGenerator w = Json.createGenerator(out);
+                    jsonConf.writeTo(device, w, true);
+                    w.flush();
+                }
+            };
+        } catch (ConfigurationNotFoundException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponseAsTextPlain(e));
+        }
     }
 
     @GET
@@ -129,18 +137,22 @@ public class ConfigurationRS {
     @Path("/devices")
     @Produces("application/json")
     public StreamingOutput listDevices() throws Exception {
-        final DeviceInfo[] deviceInfos = conf.listDeviceInfos(new DeviceInfoBuilder(uriInfo).deviceInfo);
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
-                JsonGenerator gen = Json.createGenerator(out);
-                gen.writeStartArray();
-                for (DeviceInfo deviceInfo : deviceInfos)
-                    jsonConf.writeTo(deviceInfo, gen);
-                gen.writeEnd();
-                gen.flush();
-            }
-        };
+        try {
+            final DeviceInfo[] deviceInfos = conf.listDeviceInfos(new DeviceInfoBuilder(uriInfo).deviceInfo);
+            return new StreamingOutput() {
+                @Override
+                public void write(OutputStream out) throws IOException {
+                    JsonGenerator gen = Json.createGenerator(out);
+                    gen.writeStartArray();
+                    for (DeviceInfo deviceInfo : deviceInfos)
+                        jsonConf.writeTo(deviceInfo, gen);
+                    gen.writeEnd();
+                    gen.flush();
+                }
+            };
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponseAsTextPlain(e));
+        }
     }
 
     @GET
@@ -148,18 +160,22 @@ public class ConfigurationRS {
     @Path("/aes")
     @Produces("application/json")
     public StreamingOutput listAETs() throws Exception {
-        final ApplicationEntityInfo[] aetInfos = conf.listAETInfos(new ApplicationEntityInfoBuilder(uriInfo).aetInfo);
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
-                JsonGenerator gen = Json.createGenerator(out);
-                gen.writeStartArray();
-                for (ApplicationEntityInfo aetInfo : aetInfos)
-                    jsonConf.writeTo(aetInfo, gen, false);
-                gen.writeEnd();
-                gen.flush();
-            }
-        };
+        try {
+            final ApplicationEntityInfo[] aetInfos = conf.listAETInfos(new ApplicationEntityInfoBuilder(uriInfo).aetInfo);
+            return new StreamingOutput() {
+                @Override
+                public void write(OutputStream out) throws IOException {
+                    JsonGenerator gen = Json.createGenerator(out);
+                    gen.writeStartArray();
+                    for (ApplicationEntityInfo aetInfo : aetInfos)
+                        jsonConf.writeTo(aetInfo, gen, false);
+                    gen.writeEnd();
+                    gen.flush();
+                }
+            };
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponseAsTextPlain(e));
+        }
     }
 
     @GET
@@ -167,8 +183,12 @@ public class ConfigurationRS {
     @Path("/unique/aets")
     @Produces("application/json")
     public StreamingOutput listRegisteredAETS() throws Exception {
-        String[] registeredAETs = conf.listRegisteredAETitles();
-        return writeJsonArray(registeredAETs);
+        try {
+            String[] registeredAETs = conf.listRegisteredAETitles();
+            return writeJsonArray(registeredAETs);
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponseAsTextPlain(e));
+        }
     }
 
     @GET
@@ -176,9 +196,13 @@ public class ConfigurationRS {
     @Path("/unique/hl7apps")
     @Produces("application/json")
     public StreamingOutput listRegisteredHL7Apps() throws Exception {
-        HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
-        String[] registeredHL7Apps = hl7Conf.listRegisteredHL7ApplicationNames();
-        return writeJsonArray(registeredHL7Apps);
+        try {
+            HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
+            String[] registeredHL7Apps = hl7Conf.listRegisteredHL7ApplicationNames();
+            return writeJsonArray(registeredHL7Apps);
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponseAsTextPlain(e));
+        }
     }
 
     private StreamingOutput writeJsonArray(String[] values) {
@@ -200,12 +224,20 @@ public class ConfigurationRS {
     @Consumes("application/json")
     public void createDevice(@PathParam("DeviceName") String deviceName, Reader content) throws Exception {
         logRequest();
-        Device device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
-        if (!device.getDeviceName().equals(deviceName))
-            throw new WebApplicationException(
-                    "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
-                    Response.Status.BAD_REQUEST);
-        conf.persist(device);
+        try {
+            Device device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
+            if (!device.getDeviceName().equals(deviceName))
+                throw new WebApplicationException(
+                        "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
+                        Response.Status.BAD_REQUEST);
+            conf.persist(device);
+        } catch (ConfigurationNotFoundException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
+        } catch (IllegalArgumentException | JsonParsingException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponseAsTextPlain(e));
+        }
     }
 
     @PUT
@@ -213,12 +245,20 @@ public class ConfigurationRS {
     @Consumes("application/json")
     public void updateDevice(@PathParam("DeviceName") String deviceName, Reader content) throws Exception {
         logRequest();
-        Device device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
-        if (!device.getDeviceName().equals(deviceName))
-            throw new WebApplicationException(
-                    "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
-                    Response.Status.BAD_REQUEST);
-        conf.merge(device, true);
+        try {
+            Device device = jsonConf.loadDeviceFrom(Json.createParser(content), configDelegate);
+            if (!device.getDeviceName().equals(deviceName))
+                throw new WebApplicationException(getResponse(
+                        "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
+                        Response.Status.BAD_REQUEST));
+            conf.merge(device, true);
+        } catch (ConfigurationNotFoundException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
+        } catch (IllegalArgumentException | JsonParsingException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponseAsTextPlain(e));
+        }
     }
 
     @POST
@@ -228,10 +268,10 @@ public class ConfigurationRS {
         logRequest();
         try {
             if (!conf.registerAETitle(aet))
-                throw new WebApplicationException(
-                        "Application Entity Title " + aet + " already registered.", Response.Status.CONFLICT);
+                throw new WebApplicationException(getResponse(
+                        "Application Entity Title " + aet + " already registered.", Response.Status.CONFLICT));
         } catch (ConfigurationException e) {
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(getResponseAsTextPlain(e));
         }
     }
 
@@ -239,14 +279,14 @@ public class ConfigurationRS {
     @Path("/unique/aets/{aet}")
     public void unregisterAET(@PathParam("aet") String aet) throws Exception {
         logRequest();
-        List<String> aets = Arrays.asList(conf.listRegisteredAETitles());
-        if (!aets.contains(aet))
-            throw new WebApplicationException(
-                    "Application Entity Title " + aet + " not registered.", Response.Status.NOT_FOUND);
         try {
+            List<String> aets = Arrays.asList(conf.listRegisteredAETitles());
+            if (!aets.contains(aet))
+                throw new WebApplicationException(getResponse(
+                        "Application Entity Title " + aet + " not registered.", Response.Status.NOT_FOUND));
             conf.unregisterAETitle(aet);
         } catch (ConfigurationException e) {
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(getResponseAsTextPlain(e));
         }
     }
 
@@ -255,13 +295,13 @@ public class ConfigurationRS {
     @Consumes("application/json")
     public void registerHL7App(@PathParam("appName") String appName) throws Exception {
         logRequest();
-        HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
         try {
+            HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
             if (!hl7Conf.registerHL7Application(appName))
-                throw new WebApplicationException(
-                        "HL7 Application " + appName + " already registered.", Response.Status.CONFLICT);
+                throw new WebApplicationException(getResponse(
+                        "HL7 Application " + appName + " already registered.", Response.Status.CONFLICT));
         } catch (ConfigurationException e) {
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(getResponseAsTextPlain(e));
         }
     }
 
@@ -269,15 +309,15 @@ public class ConfigurationRS {
     @Path("/unique/hl7apps/{appName}")
     public void unregisterHL7App(@PathParam("appName") String appName) throws Exception {
         logRequest();
-        HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
-        List<String> hl7apps = Arrays.asList(hl7Conf.listRegisteredHL7ApplicationNames());
-        if (!hl7apps.contains(appName))
-            throw new WebApplicationException(
-                    "HL7 Application " + appName + " not registered.", Response.Status.NOT_FOUND);
         try {
-            hl7Conf.unregisterHL7Application(appName);
-        } catch (ConfigurationException e) {
-            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+            HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
+            List<String> hl7apps = Arrays.asList(hl7Conf.listRegisteredHL7ApplicationNames());
+            if (!hl7apps.contains(appName))
+                throw new WebApplicationException(getResponse(
+                        "HL7 Application " + appName + " not registered.", Response.Status.NOT_FOUND));
+                hl7Conf.unregisterHL7Application(appName);
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponseAsTextPlain(e));
         }
     }
 
@@ -285,7 +325,13 @@ public class ConfigurationRS {
     @Path("/devices/{DeviceName}")
     public void deleteDevice(@PathParam("DeviceName") String deviceName) throws Exception {
         logRequest();
-        conf.removeDevice(deviceName);
+        try {
+            conf.removeDevice(deviceName);
+        } catch (ConfigurationNotFoundException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponseAsTextPlain(e));
+        }
     }
 
     @GET
@@ -301,9 +347,10 @@ public class ConfigurationRS {
                 content = vendorData[0];
                 status = Response.Status.OK;
             }
+        } catch (ConfigurationNotFoundException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (Exception e) {
-            status = Response.Status.NOT_FOUND;
-            LOG.info(e.getMessage());
+            throw new WebApplicationException(getResponseAsTextPlain(e));
         }
         return Response.ok(content).status(status).type("application/zip").header("Content-Disposition", "attachment; filename=vendordata.zip").build();
     }
@@ -400,5 +447,17 @@ public class ConfigurationRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response getResponse(Object errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
+    }
+
+    private Response getResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 }
