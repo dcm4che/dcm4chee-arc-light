@@ -401,7 +401,8 @@ export class DeviceConfiguratorService{
                                                         title:title,
                                                         description:m.description,
                                                         key:i,
-                                                        url:url
+                                                        url:url,
+                                                        forCloneUrl:((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']')
                                                     })
                                                 });
                                                 let addUrl = '/device/edit/'+params.device;
@@ -469,6 +470,7 @@ export class DeviceConfiguratorService{
                                                     description:m.description,
                                                     key:i,
                                                     url:url,
+                                                    forCloneUrl:((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']'),
                                                     order:(3+newOrderSuffix)
                                                 })
                                             });

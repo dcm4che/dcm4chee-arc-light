@@ -73,7 +73,7 @@ export class DynamicFormElementComponent{
             height:'auto',
             width:'500px'
         });
-        this.dialogRef.componentInstance.select = value;
+        this.dialogRef.componentInstance.toCloneElement = formelement;
         /*        this.dialogRef.afterClosed().subscribe(result => {
          if(result){
          console.log("result", result);
@@ -83,7 +83,7 @@ export class DynamicFormElementComponent{
          });*/
         this.dialogRef.afterClosed().subscribe((selected)=>{
             if(selected){
-                $this.router.navigateByUrl(formelement.addUrl);
+                $this.router.navigateByUrl(formelement.addUrl+selected.forCloneUrl);
             }
         });
     }

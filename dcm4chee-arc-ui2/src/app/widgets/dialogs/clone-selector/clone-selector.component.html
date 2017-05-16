@@ -1,3 +1,14 @@
-<p>
-  Clone functionality coming soon!
-</p>
+<div class="vex vex-theme-os confirm" xmlns="http://www.w3.org/1999/html">
+    <div class="vex-dialog-form">
+        <h5>Select element for clone</h5>
+        <div class="content">
+            <md-select [(ngModel)]="selectedOption" (ngModelChange)="selectedOption = $event">
+                <md-option *ngFor="let options of toCloneElement.options" [value]="options" title="{{options.description}}">{{ options.title }}</md-option>
+            </md-select>
+        </div>
+        <div class="dialogbuttons">
+            <button class="save" type="button" (click)="dialogRef.close(selectedOption)">EDIT CLONE</button>
+            <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCEL</button>
+        </div>
+</div>
+</div>

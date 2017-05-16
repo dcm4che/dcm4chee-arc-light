@@ -7,15 +7,15 @@ import {MdDialogRef} from "@angular/material";
 })
 export class CloneSelectorComponent {
 
-    private _select;
+    private _toCloneElement;
 
     constructor(public dialogRef: MdDialogRef<CloneSelectorComponent>) { }
 
-    get select() {
-        return this._select;
+    get toCloneElement() {
+        return this._toCloneElement;
     }
 
-    set select(value) {
-        this._select = value;
+    set toCloneElement(value) {
+        this._toCloneElement = value;
     }
 }
