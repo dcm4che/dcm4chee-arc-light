@@ -48,6 +48,8 @@ import org.dcm4che3.conf.json.JsonConfiguration;
 import org.dcm4che3.net.ApplicationEntityInfo;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DeviceInfo;
+import org.dcm4che3.util.ByteUtils;
+import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,15 +58,17 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.naming.directory.Attributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Reader;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -282,6 +286,26 @@ public class ConfigurationRS {
     public void deleteDevice(@PathParam("DeviceName") String deviceName) throws Exception {
         logRequest();
         conf.removeDevice(deviceName);
+    }
+
+    @GET
+    @NoCache
+    @Path("/devices/{deviceName}/vendordata")
+    @Produces("application/zip")
+    public Response getVendorData(@PathParam("deviceName") String deviceName) throws Exception {
+        byte[] content = ByteUtils.EMPTY_BYTES;
+        Response.Status status = Response.Status.NO_CONTENT;
+        try {
+            byte[][] vendorData = conf.loadDeviceVendorData(deviceName);
+            if (vendorData.length > 0) {
+                content = vendorData[0];
+                status = Response.Status.OK;
+            }
+        } catch (Exception e) {
+            status = Response.Status.NOT_FOUND;
+            LOG.info(e.getMessage());
+        }
+        return Response.ok(content).status(status).type("application/zip").header("Content-Disposition", "attachment; filename=vendordata.zip").build();
     }
 
     private static class DeviceInfoBuilder {
