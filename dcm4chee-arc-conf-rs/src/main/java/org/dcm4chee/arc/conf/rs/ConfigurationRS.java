@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf.rs;
 
+import org.apache.commons.io.IOUtils;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
@@ -65,6 +66,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -353,6 +355,20 @@ public class ConfigurationRS {
             throw new WebApplicationException(getResponseAsTextPlain(e));
         }
         return Response.ok(content).status(status).type("application/zip").header("Content-Disposition", "attachment; filename=vendordata.zip").build();
+    }
+
+    @PUT
+    @Path("/devices/{deviceName}/vendordata")
+    @Consumes("application/zip")
+    public Response updateVendorData(@PathParam("deviceName") String deviceName, File file) throws Exception {
+        try {
+            conf.updateDeviceVendorData(deviceName, Files.readAllBytes(file.toPath()));
+        } catch (ConfigurationNotFoundException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponseAsTextPlain(e));
+        }
+        return Response.ok().status(Response.Status.NO_CONTENT).build();
     }
 
     @DELETE
