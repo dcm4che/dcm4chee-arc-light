@@ -562,9 +562,9 @@ class StoreServiceImpl implements StoreService {
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         String[] storageIDs = arcAE.getObjectStorageIDs();
         List<StorageDescriptor> descriptors = arcDev.getStorageDescriptors(storageIDs);
-        int storageCount = arcAE.getObjectStorageCount();
-        if (storageCount > 0) {
-            int index = session.getSerialNo() % Math.min(storageCount, descriptors.size());
+        int storageCount = Math.min(arcAE.getObjectStorageCount(), descriptors.size());
+        if (storageCount > 1) {
+            int index = session.getSerialNo() % storageCount;
             descriptors.add(0, descriptors.remove(index));
         }
         Storage storage = storageFactory.getUsableStorage(descriptors);
