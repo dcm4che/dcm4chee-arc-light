@@ -485,8 +485,8 @@
           "204": {
             "description": "successful operation"
           },
-          "400": {
-            "description": "Device with specified name does not exist"
+          "404": {
+            "description": "Device not found"
           },
           "default": {
             "description": "unexpected error"
