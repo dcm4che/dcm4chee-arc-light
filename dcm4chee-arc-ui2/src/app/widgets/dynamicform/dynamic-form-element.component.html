@@ -7,7 +7,10 @@
         <!--<br> in ngswitch {{formelement |json}}<br>-->
         <div *ngIf="formelement.show || partSearch != ''" class="content">
             <div *ngIf="formelement.show || partSearch != ''">
-                <input class="simple_input text disabled" *ngSwitchCase="'constantField'" disabled [formControlName]="formelement.key" [id]="formelement.key" type="text" />
+                <a class="vendordata_button" *ngSwitchCase="'file'" href="{{formelement.downloadUrl}}">Download</a>
+            </div>
+            <div *ngIf="formelement.show || partSearch != ''">
+                <input class="simple_input text disabled" *ngSwitchCase="'constantField'" disabled value="{{formelement.value}}" type="text" />
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <input class="simple_input text" *ngSwitchCase="'text'" [formControlName]="formelement.key" [id]="formelement.key" [type]="formelement.type" />

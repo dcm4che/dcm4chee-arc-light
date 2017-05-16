@@ -789,6 +789,26 @@ md-dialog-container{
     }
   }
 }
+.dynamicform{
+  .vendordata_button{
+    float: right;
+    color: #777;
+    width: 100%;
+    border: 1px solid #ccc;
+    margin-top: 2px;
+    height: 30px;
+    vertical-align: middle;
+    line-height: 30px;
+    text-align: center;
+    position: relative;
+    text-decoration: none;
+    &:hover{
+      cursor: pointer;
+      background: $lightBlue;
+      color: white;
+    }
+  }
+}
 .dynamicform:not(.hiddencontent){
   float: left;
   width: 100%;

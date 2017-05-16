@@ -45,6 +45,12 @@
       "type": "string",
       "order":2
     },
+    "dicomVendorData":{
+      "title": "Vendor Device Data",
+      "description": "Device specific vendor configuration information",
+      "type": "boolean",
+      "order":2
+    },
     "dicomDeviceUID": {
       "title": "Device UID",
       "description": "Unique identifier of the device",

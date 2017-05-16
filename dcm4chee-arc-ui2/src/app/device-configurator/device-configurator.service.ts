@@ -294,49 +294,63 @@ export class DeviceConfiguratorService{
                             }
                             break;
                         case "boolean":
-                            if(i === "dicomInstalled" && _.hasIn(params,"devicereff") && _.hasIn(params,"schema")){
-                                options = [
-                                    {key: 'True',  value: true},
-                                    {key: 'False',  value: false},
-                                    {key: 'Inherent',  value: "inherent"},
-                                ];
-                                if(value != undefined && value != ""){
-                                    //true
-                                    if(value === true){
-                                        options[0]['active'] = true;
-                                    }else{
-                                       //false
-                                        options[1]['active'] = true;
-                                    }
-                                }else{
-                                    //Inherent
-                                    options[2]['active'] = true;
+                            if(i === "dicomVendorData"){
+                                if(_.hasIn(device,"dicomVendorData") && device.dicomVendorData === true && _.hasIn(device,"dicomDeviceName") && device.dicomDeviceName != ""){
+                                    form.push({
+                                        controlType:"file",
+                                        key:i,
+                                        label:m.title,
+                                        description:m.description,
+                                        order:(5+newOrderSuffix),
+                                        downloadUrl:`../devices/${device.dicomDeviceName}/vendordata`,
+                                        show:true
+                                    });
                                 }
                             }else{
-                                options = [
-                                    {key: 'True',  value: true},
-                                    {key: 'False',  value: false}
-                                ];
-                                if(value != undefined && value != ""){
-                                    //true
-                                    if(value === true){
-                                        options[0]['active'] = true;
+                                if(i === "dicomInstalled" && _.hasIn(params,"devicereff") && _.hasIn(params,"schema")){
+                                    options = [
+                                        {key: 'True',  value: true},
+                                        {key: 'False',  value: false},
+                                        {key: 'Inherent',  value: "inherent"},
+                                    ];
+                                    if(value != undefined && value != ""){
+                                        //true
+                                        if(value === true){
+                                            options[0]['active'] = true;
+                                        }else{
+                                           //false
+                                            options[1]['active'] = true;
+                                        }
                                     }else{
-                                        //false
-                                        options[1]['active'] = true;
+                                        //Inherent
+                                        options[2]['active'] = true;
+                                    }
+                                }else{
+                                    options = [
+                                        {key: 'True',  value: true},
+                                        {key: 'False',  value: false}
+                                    ];
+                                    if(value != undefined && value != ""){
+                                        //true
+                                        if(value === true){
+                                            options[0]['active'] = true;
+                                        }else{
+                                            //false
+                                            options[1]['active'] = true;
+                                        }
                                     }
                                 }
+                                form.push(
+                                    new RadioButtons({
+                                        key:i,
+                                        label:m.title,
+                                        description:m.description,
+                                        options: options,
+                                        order:(5+newOrderSuffix),
+                                        validation:validation
+                                    })
+                                );
                             }
-                            form.push(
-                                new RadioButtons({
-                                    key:i,
-                                    label:m.title,
-                                    description:m.description,
-                                    options: options,
-                                    order:(5+newOrderSuffix),
-                                    validation:validation
-                                })
-                            );
                             break;
                         case "array":
                             if(i == "dicomNetworkConnectionReference"){
