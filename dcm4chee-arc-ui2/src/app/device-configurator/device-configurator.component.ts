@@ -13,6 +13,7 @@ import * as _ from "lodash";
 import {Observable} from "rxjs";
 import {AppService} from "../app.service";
 import {ControlService} from "../control/control.service";
+import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 
 @Component({
   selector: 'app-device-configurator',
@@ -33,7 +34,8 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
         private service:DeviceConfiguratorService,
         private $http:Http,
         private mainservice:AppService,
-        private controlService:ControlService
+        private controlService:ControlService,
+        public cfpLoadingBar:SlimLoadingBarService
     ) { }
     addModel(){
         let explod = this.params['device'].split("|");
@@ -45,6 +47,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
     submitFunction(value){
         console.log("in submit");
         let $this = this;
+        this.cfpLoadingBar.start();
         this.service.addChangesToDevice(value,this.recentParams.devicereff);
         if(_.hasIn(this.recentParams,"schema")){
             let newSchema = this.service.getSchemaFromPath(this.service.schema, this.recentParams['schema']);
@@ -84,7 +87,11 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                                     "text": "Reload successful",
                                     "status":'info'
                                 });
-                            });
+                                    $this.cfpLoadingBar.complete();
+                            },(err)=>{
+                                $this.cfpLoadingBar.complete();
+                                }
+                            );
                             setTimeout(()=>{
                                 $this.router.navigateByUrl(`/device/edit/${value.dicomDeviceName}`);
                             },200);
@@ -96,6 +103,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                                 "text": err.statusText,
                                 "status": "error"
                             });
+                            $this.cfpLoadingBar.complete();
                         }
 
                     );
@@ -121,7 +129,12 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                                     "text": "Reload successful",
                                     "status":'info'
                                 });
-                            });
+                                    $this.cfpLoadingBar.complete();
+                            },(err)=>{
+
+                                    $this.cfpLoadingBar.complete();
+                                }
+                            );
                         },
                         (err)=>{
                             console.log("error",err);
@@ -130,11 +143,18 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                                 "text": err.statusText,
                                 "status": "error"
                             });
+                            $this.cfpLoadingBar.complete();
                         }
 
                     );
             }else{
+                $this.mainservice.setMessage({
+                    "title": "Error",
+                    "text": "Device name is missing!",
+                    "status": "error"
+                });
                 console.warn("devicename is missing",this.service.device);
+                $this.cfpLoadingBar.complete();
             }
         }
     }
@@ -142,6 +162,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
         let $this = this;
         let form;
         this.params = $this.service.pagination;
+        $this.cfpLoadingBar.start();
         this.route.params
             .subscribe((params) => {
                 if(
@@ -184,6 +205,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                         $this.formObj = form;
                         setTimeout(()=> {
                             $this.showform = true;
+                            $this.cfpLoadingBar.complete();
                         }, 1);
                     } else {
                         if (params["device"] == "[new_device]") {
@@ -198,6 +220,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                                 $this.model = {};
                                 setTimeout(()=> {
                                     $this.showform = true;
+                                    $this.cfpLoadingBar.complete();
                                 }, 1);
                             });
                         } else {
@@ -219,6 +242,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                                     $this.formObj = formObject;
                                     $this.model = {};
                                     setTimeout(()=> {
+                                        $this.cfpLoadingBar.complete();
                                         $this.showform = true;
                                     }, 1);
                                 }
@@ -236,6 +260,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                     "status":'error'
                 });
                     $this.router.navigateByUrl($this.service.pagination[$this.service.pagination.length-1].url);
+                    $this.cfpLoadingBar.complete();
             }
             });
         // this.model = {};
@@ -484,8 +509,12 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                 $this.formObj = form;
                 setTimeout(()=> {
                     $this.showform = true;
+                    $this.cfpLoadingBar.complete();
                 }, 1);
-            });
+            },(err)=>{
+                $this.cfpLoadingBar.complete();
+            }
+            );
         } else {
             // let newSchema = $this.service.getSchemaFromPath($this.service.schema,schemaparam);
             form = $this.service.convertSchemaToForm(newModel, newSchema, params);
@@ -493,6 +522,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
             $this.formObj = form;
             setTimeout(()=> {
                 $this.showform = true;
+                $this.cfpLoadingBar.complete();
             }, 1);
             // this._changeDetectionRef.detectChanges();
 

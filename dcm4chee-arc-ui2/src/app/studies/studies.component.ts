@@ -243,7 +243,16 @@ export class StudiesComponent implements OnDestroy{
     dialogRef: MdDialogRef<any>;
     subscription:Subscription;
 
-    constructor(public $http: Http, public service:StudiesService, public mainservice:AppService,public cfpLoadingBar:SlimLoadingBarService, public messaging:MessagingComponent, public viewContainerRef: ViewContainerRef ,public dialog: MdDialog, public config: MdDialogConfig) {
+    constructor(
+        public $http: Http,
+        public service:StudiesService,
+        public mainservice:AppService,
+        public cfpLoadingBar:SlimLoadingBarService,
+        public messaging:MessagingComponent,
+        public viewContainerRef: ViewContainerRef ,
+        public dialog: MdDialog,
+        public config: MdDialogConfig
+    ) {
         // $('.clockpicker').clockpicker()
         //     .find('input').change(function(){
         //     // TODO: time changed

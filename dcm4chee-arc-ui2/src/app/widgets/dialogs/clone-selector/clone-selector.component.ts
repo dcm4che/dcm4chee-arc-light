@@ -6,7 +6,7 @@ import {MdDialogRef} from "@angular/material";
   templateUrl: './clone-selector.component.html'
 })
 export class CloneSelectorComponent {
-
+    selectedOption;
     private _toCloneElement;
 
     constructor(public dialogRef: MdDialogRef<CloneSelectorComponent>) { }
