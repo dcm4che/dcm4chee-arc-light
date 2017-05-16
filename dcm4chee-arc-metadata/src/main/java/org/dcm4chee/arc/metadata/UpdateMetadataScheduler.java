@@ -151,7 +151,7 @@ public class UpdateMetadataScheduler extends Scheduler {
     private void updateDeviceConfiguration() {
         try {
             LOG.info("Update Storage configuration of Device: {}:\n", device.getDeviceName());
-            conf.merge(device, false);
+            conf.merge(device, true, false);
         } catch (ConfigurationException e) {
             LOG.warn("Failed to update Storage configuration of Device: {}:\n", device.getDeviceName(), e);
         }

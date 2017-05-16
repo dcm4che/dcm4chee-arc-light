@@ -53,7 +53,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URI;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 
@@ -92,43 +91,38 @@ public class ArchiveDeviceConfigurationTest {
         if (configType == ArchiveDeviceFactory.ConfigType.SAMPLE) {
             for (int i = 0; i < ArchiveDeviceFactory.OTHER_AES.length; i++) {
                 String aet = ArchiveDeviceFactory.OTHER_AES[i];
-                config.registerAETitle(aet);
                 config.persist(
                         ArchiveDeviceFactory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i], ArchiveDeviceFactory.DEVICE_TYPES[i],
                             ArchiveDeviceFactory.OTHER_ISSUER[i],
                             ArchiveDeviceFactory.OTHER_INST_CODES[i],
                             aet, "localhost",
                             ArchiveDeviceFactory.OTHER_PORTS[i << 1],
-                            ArchiveDeviceFactory.OTHER_PORTS[(i << 1) + 1]));
+                            ArchiveDeviceFactory.OTHER_PORTS[(i << 1) + 1]),
+                        true);
             }
-            hl7Config.registerHL7Application(ArchiveDeviceFactory.PIX_MANAGER);
             for (int i = ArchiveDeviceFactory.OTHER_AES.length; i < ArchiveDeviceFactory.OTHER_DEVICES.length; i++)
                 config.persist(
-                        ArchiveDeviceFactory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i], configType));
+                        ArchiveDeviceFactory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i], configType), true);
             config.persist(
                     ArchiveDeviceFactory.createHL7Device("hl7rcv",
                         ArchiveDeviceFactory.SITE_A,
                         ArchiveDeviceFactory.INST_A,
                         ArchiveDeviceFactory.PIX_MANAGER,
-                        "localhost", 2576, 12576));
+                        "localhost", 2576, 12576), true);
         }
         Device arrDevice = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514, configType);
         Device unknown = ArchiveDeviceFactory.createUnknownDevice("unknown", "UNKNOWN", "localhost", 104);
-        config.persist(arrDevice);
-        config.persist(unknown);
-        config.registerAETitle("DCM4CHEE");
-        config.registerAETitle("DCM4CHEE_ADMIN");
-        config.registerAETitle("DCM4CHEE_TRASH");
-        config.registerAETitle("UNKNOWN");
+        config.persist(arrDevice, true);
+        config.persist(unknown, true);
 
         Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice, unknown, configType);
         X509Certificate cacert = (X509Certificate) keyStore.getCertificate("cacert");
         String deviceRef = config.deviceRef("dcm4chee-arc");
         arc.setAuthorizedNodeCertificates(deviceRef, cacert);
-        config.persist(arc);
+        config.persist(arc, true);
 
         Device keycloak = ArchiveDeviceFactory.createKeycloakDevice("keycloak", arrDevice, configType);
-        config.persist(keycloak);
+        config.persist(keycloak, false);
         ApplicationEntity ae = config.findApplicationEntity("DCM4CHEE");
         assertNotNull(ae);
         assertDeviceEquals(arc, ae.getDevice());
@@ -138,27 +132,28 @@ public class ArchiveDeviceConfigurationTest {
         config.unregisterAETitle("DCM4CHEE");
         config.unregisterAETitle("DCM4CHEE_ADMIN");
         config.unregisterAETitle("DCM4CHEE_TRASH");
+        config.unregisterAETitle("UNKNOWN");
+        hl7Config.unregisterHL7Application("HL7RCV|DCM4CHEE");
         for (String aet : ArchiveDeviceFactory.OTHER_AES)
             config.unregisterAETitle(aet);
-        hl7Config.unregisterHL7Application(ArchiveDeviceFactory.PIX_MANAGER);
         try {
-            config.removeDevice("dcm4chee-arc");
+            config.removeDevice("dcm4chee-arc", false);
         } catch (ConfigurationNotFoundException e) {}
         try {
-            config.removeDevice("logstash");
+            config.removeDevice("logstash", false);
         } catch (ConfigurationNotFoundException e) {}
         try {
-            config.removeDevice("keycloak");
+            config.removeDevice("keycloak", false);
         } catch (ConfigurationNotFoundException e) {}
         try {
-            config.removeDevice("unknown");
+            config.removeDevice("unknown", false);
         } catch (ConfigurationNotFoundException e) {}
         try {
-            config.removeDevice("hl7rcv");
+            config.removeDevice("hl7rcv", false);
         } catch (ConfigurationNotFoundException e) {}
         for (String name : ArchiveDeviceFactory.OTHER_DEVICES)
             try {
-                config.removeDevice(name);
+                config.removeDevice(name, false);
             }  catch (ConfigurationNotFoundException e) {}
     }
 }

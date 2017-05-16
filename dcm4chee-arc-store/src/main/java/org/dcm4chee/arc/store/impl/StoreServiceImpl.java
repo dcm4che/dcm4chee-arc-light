@@ -581,7 +581,7 @@ class StoreServiceImpl implements StoreService {
     private void updateDeviceConfiguration(Device device) {
         try {
             LOG.info("Update Storage configuration of Device: {}:\n", device.getDeviceName());
-            conf.merge(device, false);
+            conf.merge(device, true, false);
         } catch (ConfigurationException e) {
             LOG.warn("Failed to update Storage configuration of Device: {}:\n", device.getDeviceName(), e);
         }

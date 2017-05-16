@@ -40,10 +40,11 @@
 
 package org.dcm4chee.arc.conf.rs;
 
-import org.apache.commons.io.IOUtils;
+import org.dcm4che3.conf.api.AETitleAlreadyExistsException;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
+import org.dcm4che3.conf.api.hl7.HL7ApplicationAlreadyExistsException;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfiguration;
@@ -51,7 +52,6 @@ import org.dcm4che3.net.ApplicationEntityInfo;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DeviceInfo;
 import org.dcm4che3.util.ByteUtils;
-import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,6 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParsingException;
-import javax.naming.directory.Attributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -70,9 +69,6 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -232,11 +228,13 @@ public class ConfigurationRS {
                 throw new WebApplicationException(
                         "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
                         Response.Status.BAD_REQUEST);
-            conf.persist(device);
+            conf.persist(device, true);
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException | JsonParsingException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+        } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(getResponseAsTextPlain(e));
         }
@@ -253,11 +251,13 @@ public class ConfigurationRS {
                 throw new WebApplicationException(getResponse(
                         "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
                         Response.Status.BAD_REQUEST));
-            conf.merge(device, true);
+            conf.merge(device, true, true);
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException | JsonParsingException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+        } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
             throw new WebApplicationException(getResponseAsTextPlain(e));
         }
@@ -328,7 +328,7 @@ public class ConfigurationRS {
     public void deleteDevice(@PathParam("DeviceName") String deviceName) throws Exception {
         logRequest();
         try {
-            conf.removeDevice(deviceName);
+            conf.removeDevice(deviceName, true);
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (Exception e) {
