@@ -355,6 +355,19 @@ public class ConfigurationRS {
         return Response.ok(content).status(status).type("application/zip").header("Content-Disposition", "attachment; filename=vendordata.zip").build();
     }
 
+    @DELETE
+    @Path("/devices/{deviceName}/vendordata")
+    public Response deleteVendorData(@PathParam("deviceName") String deviceName) throws Exception {
+        try {
+            conf.updateDeviceVendorData(deviceName);
+        } catch (ConfigurationNotFoundException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponseAsTextPlain(e));
+        }
+        return Response.ok().status(Response.Status.NO_CONTENT).build();
+    }
+
     private static class DeviceInfoBuilder {
         final DeviceInfo deviceInfo = new DeviceInfo();
 
