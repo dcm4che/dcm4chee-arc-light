@@ -62,6 +62,7 @@ import { UtcPipe } from './pipes/utc.pipe';
 import { CustomValidatorDirective } from './helpers/custom-validator/custom-validator.directive';
 import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-browser/animations";
 import {ControlService} from "./control/control.service";
+import { FileUploadModule} from "ng2-file-upload";
 
 @NgModule({
     declarations: [
@@ -101,6 +102,7 @@ import {ControlService} from "./control/control.service";
         AeListComponent,
         UtcPipe,
         CustomValidatorDirective
+
     ],
     imports: [
         BrowserModule,
@@ -114,6 +116,7 @@ import {ControlService} from "./control/control.service";
         DropdownModule,
         ReactiveFormsModule,
         BrowserAnimationsModule,
+        FileUploadModule,
         RouterModule.forRoot([
             {
               path: '',

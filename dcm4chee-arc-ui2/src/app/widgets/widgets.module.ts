@@ -19,6 +19,7 @@ import {DynamicFormComponent} from "./dynamicform/dynamic-form.component";
 import { CreateExporterComponent } from './dialogs/create-exporter/create-exporter.component';
 import { ExportDialogComponent } from './dialogs/export/export.component';
 import { CloneSelectorComponent } from './dialogs/clone-selector/clone-selector.component';
+import { UploadFilesComponent } from './dialogs/upload-files/upload-files.component';
 
 
 @NgModule({
@@ -45,5 +46,6 @@ export const WidgetsComponents = [
     ProductLabellingComponent,
     CreateExporterComponent,
     ExportDialogComponent,
-    CloneSelectorComponent
+    CloneSelectorComponent,
+    UploadFilesComponent
 ];

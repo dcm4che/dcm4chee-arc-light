@@ -248,7 +248,7 @@ export class DeviceConfiguratorService{
                     let options = [];
                     switch(m.type) {
                         case "string":
-                            if(i === "dicomDeviceName"){
+                            if(i === "dicomDeviceName" && _.hasIn(device,"dicomDeviceName") && device.dicomDeviceName != ""){
                                 form.push({
                                     controlType:"constantField",
                                     key:i,
@@ -295,16 +295,31 @@ export class DeviceConfiguratorService{
                             break;
                         case "boolean":
                             if(i === "dicomVendorData"){
-                                if(_.hasIn(device,"dicomVendorData") && device.dicomVendorData === true && _.hasIn(device,"dicomDeviceName") && device.dicomDeviceName != ""){
-                                    form.push({
-                                        controlType:"file",
-                                        key:i,
-                                        label:m.title,
-                                        description:m.description,
-                                        order:(5+newOrderSuffix),
-                                        downloadUrl:`../devices/${device.dicomDeviceName}/vendordata`,
-                                        show:true
-                                    });
+                                if(_.hasIn(device,"dicomDeviceName") && device.dicomDeviceName != ""){ //Show upload button just if the device is on edit mode (preventing trying to upload files for a device that doesn't exist yet)
+                                    if(_.hasIn(device,"dicomVendorData") && device.dicomVendorData === true && _.hasIn(device,"dicomDeviceName") && device.dicomDeviceName != ""){ // If the vendordata is tru than show the download lin
+                                        form.push({
+                                            controlType:"filedownload",
+                                            key:i,
+                                            label:m.title,
+                                            deviceName:device.dicomDeviceName,
+                                            description:m.description,
+                                            order:(5+newOrderSuffix),
+                                            downloadUrl:`../devices/${device.dicomDeviceName}/vendordata`,
+                                            show:true
+                                        });
+                                    }else{
+                                        //If the vendor data is missing or false than show the upload button
+                                        form.push({
+                                            controlType:"fileupload",
+                                            modus:"upload",
+                                            key:i,
+                                            label:m.title,
+                                            deviceName:device.dicomDeviceName,
+                                            description:m.description,
+                                            order:(5+newOrderSuffix),
+                                            show:true
+                                        });
+                                    }
                                 }
                             }else{
                                 if(i === "dicomInstalled" && _.hasIn(params,"devicereff") && _.hasIn(params,"schema")){
