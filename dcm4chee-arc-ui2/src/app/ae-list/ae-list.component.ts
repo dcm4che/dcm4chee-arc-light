@@ -345,12 +345,12 @@ export class AeListComponent{
         this.dialogRef.afterClosed().subscribe(re => {
             if(re){
                 console.log("res",re);
-                $this.$http.post(
+/*                $this.$http.post(
                     "../unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle,
                     {},
                     headers
                 ).subscribe((response) => {
-                    console.log("success response",response);
+                    console.log("success response",response);*/
                     if(re.mode === "createdevice"){
                         //Create device
                         //            console.log("$scope.netAEModel",$scope.netAEModel);
@@ -387,7 +387,7 @@ export class AeListComponent{
                                 },
                                 (err)=>{
                                     $this.cfpLoadingBar.complete();
-                                    $this.$http.delete(
+/*                                    $this.$http.delete(
                                         "../unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle
                                     ).subscribe((response) => {
                                         $this.mainservice.setMessage({
@@ -395,7 +395,7 @@ export class AeListComponent{
                                             "text": "Aet couldn't be registered!",
                                             "status": "error"
                                         });
-                                    });
+                                    });*/
                                 });
                     }else{
                         console.log("in else post",re);
@@ -423,7 +423,7 @@ export class AeListComponent{
                             .subscribe((putresponse) => {
                                 $this.mainservice.setMessage({
                                     "title": "Info",
-                                    "text": "Aet registered and added to device successfully!",
+                                    "text": "Aet added to device successfully!",
                                     "status": "info"
                                 });
                                 $this.$http.post("../ctrl/reload",{}).subscribe((res) => {
@@ -436,7 +436,7 @@ export class AeListComponent{
                                 $this.searchAes();
                             },(err) => {
                                 $this.cfpLoadingBar.complete();
-                                $this.$http.delete(
+/*                                $this.$http.delete(
                                     "../unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle
                                 ).subscribe((response) => {
                                     $this.mainservice.setMessage({
@@ -444,7 +444,7 @@ export class AeListComponent{
                                         "text": "Aet couldn't be registered!",
                                         "status": "error"
                                     });
-                                });
+                                });*/
                             });
                     }
                     // DeviceService.msg($scope, {
@@ -452,7 +452,7 @@ export class AeListComponent{
                     //     "text": "Aet registered successfully!",
                     //     "status": "info"
                     // });
-                }, (response) => {
+/*                }, (response) => {
                     console.log("errorcallback response",response);
                     if(response.status === 409){
                         $this.mainservice.setMessage({
@@ -467,7 +467,7 @@ export class AeListComponent{
                             "status": "error"
                         });
                     }
-                });
+                });*/
             }
         });
     };
