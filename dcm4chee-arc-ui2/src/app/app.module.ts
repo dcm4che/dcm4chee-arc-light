@@ -63,6 +63,8 @@ import { CustomValidatorDirective } from './helpers/custom-validator/custom-vali
 import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-browser/animations";
 import {ControlService} from "./control/control.service";
 import { FileUploadModule} from "ng2-file-upload";
+import { StorageSystemsComponent } from './monitoring/storage-systems/storage-systems.component';
+import {StorageSystemsService} from "./monitoring/storage-systems/storage-systems.service";
 
 @NgModule({
     declarations: [
@@ -101,7 +103,8 @@ import { FileUploadModule} from "ng2-file-upload";
         ConnectionFormaterComponent,
         AeListComponent,
         UtcPipe,
-        CustomValidatorDirective
+        CustomValidatorDirective,
+        StorageSystemsComponent
 
     ],
     imports: [
@@ -134,6 +137,7 @@ import { FileUploadModule} from "ng2-file-upload";
             { path: 'monitoring/queues', component: QueuesComponent },
             { path: 'monitoring/associations', component: AssociationsComponent },
             { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent },
+            { path: 'monitoring/storage-systems', component: StorageSystemsComponent },
             { path: 'device/devicelist', component: DevicesComponent },
             { path: 'device/aelist', component: AeListComponent },
             { path: 'device/edit/:device', component: DeviceConfiguratorComponent },
@@ -158,6 +162,7 @@ import { FileUploadModule} from "ng2-file-upload";
         CalendarModule,
         DropdownModule,
         StorageCommitmentService,
+        StorageSystemsService,
         CreateExporterService,
         DeviceConfiguratorService
     ],

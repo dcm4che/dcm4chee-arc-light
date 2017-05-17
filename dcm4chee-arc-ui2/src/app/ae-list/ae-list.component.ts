@@ -373,7 +373,7 @@ export class AeListComponent{
                             .subscribe( (devre) => {
                                     $this.mainservice.setMessage({
                                         "title": "Info",
-                                        "text": "Aet registered successfully!<br>Device created successfully!",
+                                        "text": "Device with the AET created successfully!",
                                         "status": "info"
                                     });
                                     $this.$http.post("../ctrl/reload",{},headers).subscribe((res) => {
