@@ -18,13 +18,12 @@ export class StorageSystemsComponent implements OnInit {
     exporterID;
     exportTasks = [];
     filters = {
-        ExporterID:undefined,
         offset:undefined,
         limit:20,
-        status:"*",
-        StudyUID:undefined,
-        updatedBefore:undefined,
-        dicomDeviceName:undefined
+        uriScheme:"*",
+        dicomAETitle:undefined,
+        usage:undefined,
+        usableSpaceBelow:undefined
     };
     isRole:any;
     dialogRef: MdDialogRef<any>;
