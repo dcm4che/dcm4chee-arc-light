@@ -789,6 +789,17 @@ md-dialog-container{
     }
   }
 }
+.upload{
+  input{
+    width: 100%;
+    float: left;
+    background: white;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+}
 .vendordata_button{
   float: left;
   color: #777;
