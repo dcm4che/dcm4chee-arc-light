@@ -1,0 +1,12 @@
+<div class="vex vex-theme-os confirm" xmlns="http://www.w3.org/1999/html" (keydown)="dialogKeyHandler($event,dialogRef)">
+    <div class="vex-dialog-form">
+        <h5>Upload vendor device data</h5>
+        <div class="content">
+            <input type="file" ng2FileSelect [uploader]="vendorUpload" />
+            <button (click)="uploadFile(dialogRef)">Upload</button>
+        </div>
+        <div class="dialogbuttons">
+            <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCEL</button>
+        </div>
+    </div>
+</div>
