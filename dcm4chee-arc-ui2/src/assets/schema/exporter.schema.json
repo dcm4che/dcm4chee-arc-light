@@ -55,7 +55,8 @@
     "dcmRetrieveLocationUID": {
       "title": "Retrieve Location UID",
       "description": "Retrieve Location UID.",
-      "type": "string"
+      "type": "string",
+      "pattern": "^[0-2]((\\.0)|(\\.[1-9][0-9]*))*$"
     },
     "dcmInstanceAvailability": {
       "title": "Instance Availability",

@@ -10,7 +10,8 @@
     "dicomTransferSyntax": {
       "title": "Transfer Syntax",
       "description": "Transfer Syntax of compressed DICOM image",
-      "type": "string"
+      "type": "string",
+      "pattern": "^[0-2]((\\.0)|(\\.[1-9][0-9]*))*$"
     },
     "dcmIIOFormatName": {
       "title": "Image IO Reader Format Name",

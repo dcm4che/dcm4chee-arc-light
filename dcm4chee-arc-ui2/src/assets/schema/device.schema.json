@@ -55,6 +55,7 @@
       "title": "Device UID",
       "description": "Unique identifier of the device",
       "type": "string",
+      "pattern": "^[0-2]((\\.0)|(\\.[1-9][0-9]*))*$",
       "order":3
     },
     "dicomManufacturer": {
@@ -213,7 +214,7 @@
       "description": "network connections of the device",
       "type": "array",
       "order":25,
-      "titleKey":"{dicomHostname}:{dicomPort}",
+      "titleKey":"{dicomHostname}:{dicomPort} {cn}",
       "items": {
         "$ref": "networkConnection.schema.json"
       }
