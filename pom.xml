@@ -481,7 +481,6 @@
     <module>dcm4chee-arc-validation</module>
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>
-    <module>dcm4chee-arc-ui</module>
     <module>dcm4chee-arc-ui2</module>
     <module>dcm4chee-arc-xdsi</module>
     <module>dcm4chee-arc-ear</module>
