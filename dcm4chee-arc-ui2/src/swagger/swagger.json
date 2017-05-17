@@ -52,7 +52,7 @@
     }
   ],
   "paths": {
-    "/ui/rs/realm": {
+    "/ui2/rs/realm": {
       "get": {
         "tags": [
           "REALM-RS"

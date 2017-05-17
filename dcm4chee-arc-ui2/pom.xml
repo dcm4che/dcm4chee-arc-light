@@ -58,6 +58,15 @@
     <yarn.version>v0.23.4</yarn.version>
   </properties>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-realm-rs</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+
   <profiles>
     <profile>
       <id>ng-build</id>

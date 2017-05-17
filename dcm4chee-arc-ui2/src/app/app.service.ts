@@ -83,7 +83,7 @@ export class AppService implements OnInit, OnDestroy{
     //     this.msg.setMsg(msg);
     // }
     getUserInfo():Observable<User>{
-        return this.$http.get("/dcm4chee-arc/ui/rs/realm")
+        return this.$http.get("/dcm4chee-arc/ui2/rs/realm")
             .map(res => {
                 console.log("in map1", res);
                 let resjson;
