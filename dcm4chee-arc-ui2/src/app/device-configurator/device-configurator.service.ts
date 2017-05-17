@@ -529,18 +529,33 @@ export class DeviceConfiguratorService{
                                                 order:(3+newOrderSuffix)
                                             });
                                         }else{
-                                            let type = (_.hasIn(m,"items.type")) ? m.items.type : "text";
-                                            form.push(
-                                                new ArrayElement({
+                                            if(_.hasIn(m,"items.properties")){
+                                                let addUrl = '/device/edit/'+params.device;
+                                                addUrl = addUrl +  ((params.devicereff) ? '/'+params.devicereff+'.'+i+'[0]':'/'+i+'[0]');
+                                                addUrl = addUrl +  ((params.schema) ? '/'+params.schema+'.'+propertiesPath+'.'+i:'/properties.'+i);
+                                                form.push({
+                                                    controlType:"buttondropdown",
                                                     key:i,
                                                     label:m.title,
                                                     description:m.description,
-                                                    type: type,
-                                                    value:(value)? value:[''],
-                                                    order:(5+newOrderSuffix),
-                                                    validation:validation
-                                                })
-                                            );
+                                                    options:[],
+                                                    addUrl:addUrl,
+                                                    order:(3+newOrderSuffix)
+                                                });
+                                            }else{
+                                                let type = (_.hasIn(m,"items.type")) ? m.items.type : "text";
+                                                form.push(
+                                                    new ArrayElement({
+                                                        key:i,
+                                                        label:m.title,
+                                                        description:m.description,
+                                                        type: type,
+                                                        value:(value)? value:[''],
+                                                        order:(5+newOrderSuffix),
+                                                        validation:validation
+                                                    })
+                                                );
+                                            }
                                         }
                                     }
                                 }
