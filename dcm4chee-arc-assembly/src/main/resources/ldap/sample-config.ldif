@@ -185,7 +185,7 @@ dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
 dcmSeriesMetadataStorageID: series-metadata
-dicomSoftwareVersion: 5.10.2
+dicomSoftwareVersion: 5.10.3
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D
