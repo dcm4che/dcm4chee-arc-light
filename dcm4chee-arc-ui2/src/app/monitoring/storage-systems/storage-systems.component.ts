@@ -21,7 +21,7 @@ export class StorageSystemsComponent implements OnInit {
         offset:undefined,
         limit:20,
         uriScheme:"",
-        dicomAETitle:undefined,
+        dicomAETitle:"",
         usage:undefined,
         usableSpaceBelow:undefined
     };

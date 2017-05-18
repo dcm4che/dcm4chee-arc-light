@@ -44,6 +44,7 @@
                         <div class="col-md-6">
                             <!--<input id="ExporterID" type="text" [(ngModel)]="filters.dicomAETitle" class="col-md-12"/>-->
                             <md-select [(ngModel)]="filters.dicomAETitle" class="col-md-12">
+                                <md-option value="">*</md-option>
                                 <md-option *ngFor="let ae of aets" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>
                             </md-select>
                         </div>
