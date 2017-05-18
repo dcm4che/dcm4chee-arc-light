@@ -246,8 +246,11 @@ public class ConfigurationRS {
             conf.persist(device, options());
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
-        } catch (IllegalArgumentException | JsonParsingException e) {
+        } catch (IllegalArgumentException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {
@@ -269,8 +272,11 @@ public class ConfigurationRS {
             conf.merge(device, options());
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
-        } catch (IllegalArgumentException | JsonParsingException e) {
+        } catch (IllegalArgumentException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         } catch (AETitleAlreadyExistsException | HL7ApplicationAlreadyExistsException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.CONFLICT));
         } catch (Exception e) {

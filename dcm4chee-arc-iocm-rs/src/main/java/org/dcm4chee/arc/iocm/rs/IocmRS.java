@@ -245,7 +245,7 @@ public class IocmRS {
             return IDWithIssuer.pidOf(attrs).toString();
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
-                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         } catch (IOException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
         }
@@ -298,7 +298,7 @@ public class IocmRS {
             sendHL7Message(msgType, ctx);
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
-                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         } catch (Exception e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.BAD_REQUEST));
         }
@@ -323,7 +323,7 @@ public class IocmRS {
             forwardRSMergeMultiplePatients(HttpMethod.POST, RSOperation.MergePatients, getArchiveAE(), baos.toByteArray());
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
-                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         }
     }
 
@@ -428,7 +428,7 @@ public class IocmRS {
             };
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
-                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.INTERNAL_SERVER_ERROR));
+                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         }
     }
 
