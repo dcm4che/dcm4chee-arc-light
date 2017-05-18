@@ -581,7 +581,9 @@ class StoreServiceImpl implements StoreService {
     private void updateDeviceConfiguration(Device device) {
         try {
             LOG.info("Update Storage configuration of Device: {}:\n", device.getDeviceName());
-            conf.merge(device, true, false);
+            conf.merge(device, EnumSet.of(
+                    DicomConfiguration.Option.PRESERVE_VENDOR_DATA,
+                    DicomConfiguration.Option.PRESERVE_CERTIFICATE));
         } catch (ConfigurationException e) {
             LOG.warn("Failed to update Storage configuration of Device: {}:\n", device.getDeviceName(), e);
         }

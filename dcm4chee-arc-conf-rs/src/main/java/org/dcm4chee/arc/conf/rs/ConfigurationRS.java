@@ -68,6 +68,7 @@ import javax.ws.rs.core.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -93,13 +94,9 @@ public class ConfigurationRS {
     @Context
     private HttpServletRequest request;
 
-    @QueryParam("register")
+    @QueryParam("options")
     @Pattern(regexp = "true|false")
     private String register;
-
-    private boolean register() {
-        return register == null || Boolean.parseBoolean(register);
-    }
 
     private ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
         @Override
@@ -226,6 +223,15 @@ public class ConfigurationRS {
         };
     }
 
+    private EnumSet<DicomConfiguration.Option> options() {
+        EnumSet<DicomConfiguration.Option> options = EnumSet.of(
+                DicomConfiguration.Option.PRESERVE_VENDOR_DATA,
+                DicomConfiguration.Option.PRESERVE_CERTIFICATE);
+        if (register == null || Boolean.parseBoolean(register))
+            options.add(DicomConfiguration.Option.REGISTER);
+        return options;
+    }
+
     @POST
     @Path("/devices/{DeviceName}")
     @Consumes("application/json")
@@ -237,7 +243,7 @@ public class ConfigurationRS {
                 throw new WebApplicationException(
                         "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
                         Response.Status.BAD_REQUEST);
-            conf.persist(device, register());
+            conf.persist(device, options());
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException | JsonParsingException e) {
@@ -260,7 +266,7 @@ public class ConfigurationRS {
                 throw new WebApplicationException(getResponse(
                         "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
                         Response.Status.BAD_REQUEST));
-            conf.merge(device, true, register());
+            conf.merge(device, options());
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException | JsonParsingException e) {
@@ -337,7 +343,7 @@ public class ConfigurationRS {
     public void deleteDevice(@PathParam("DeviceName") String deviceName) throws Exception {
         logRequest();
         try {
-            conf.removeDevice(deviceName, register());
+            conf.removeDevice(deviceName, options());
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (Exception e) {

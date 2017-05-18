@@ -65,6 +65,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -151,7 +152,9 @@ public class UpdateMetadataScheduler extends Scheduler {
     private void updateDeviceConfiguration() {
         try {
             LOG.info("Update Storage configuration of Device: {}:\n", device.getDeviceName());
-            conf.merge(device, true, false);
+            conf.merge(device, EnumSet.of(
+                    DicomConfiguration.Option.PRESERVE_VENDOR_DATA,
+                    DicomConfiguration.Option.PRESERVE_CERTIFICATE));
         } catch (ConfigurationException e) {
             LOG.warn("Failed to update Storage configuration of Device: {}:\n", device.getDeviceName(), e);
         }
