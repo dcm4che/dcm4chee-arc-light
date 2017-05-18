@@ -16,7 +16,8 @@ export class CopyMoveObjectsComponent {
     private _target;
     private _selected;
     private _saveLabel;
-    private _title
+    private _title;
+    _ = _;
     constructor(public dialogRef: MdDialogRef<CopyMoveObjectsComponent>,public service:StudiesService) {
         console.log("in construct copymovecomponent");
     }

@@ -12,7 +12,8 @@
 
         <div class="targetobject" *ngIf="target.modus === 'patient'">
             <h5>Selected target patient</h5>
-            <b>{{target.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.attrs['00100020'].Value[0]}}</b><br>
+            <span *ngIf="target && target.attrs && target.attrs['00100010'] && target.attrs['00100010'].Value && target.attrs['00100010'].Value[0].Alphabetic;else noname"><b>{{target.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.attrs['00100020'].Value[0]}}</b></span><br>
+            <ng-template #noname>Patient ID <b>{{target.attrs['00100020'].Value[0]}}</b></ng-template>
             <div *ngIf="clipboard.action != 'merge'">
                 (An empty study will be automatically created, so it can be used as target study!)
             </div>

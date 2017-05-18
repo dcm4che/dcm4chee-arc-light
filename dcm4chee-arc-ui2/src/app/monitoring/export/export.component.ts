@@ -206,7 +206,7 @@ export class ExportComponent implements OnInit {
             result: {
                 select:this.exporters[0].id
             },
-            saveButton: "CANCEL"
+            saveButton: "YES"
         };
         this.confirm(parameters).subscribe(result => {
             if(result){
