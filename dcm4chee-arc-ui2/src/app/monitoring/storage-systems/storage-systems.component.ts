@@ -20,7 +20,7 @@ export class StorageSystemsComponent implements OnInit {
     filters = {
         offset:undefined,
         limit:20,
-        uriScheme:"*",
+        uriScheme:"",
         dicomAETitle:undefined,
         usage:undefined,
         usableSpaceBelow:undefined
@@ -28,10 +28,12 @@ export class StorageSystemsComponent implements OnInit {
     isRole:any;
     dialogRef: MdDialogRef<any>;
     _ = _;
+    aets;
 
     constructor(public $http: Http, public cfpLoadingBar:SlimLoadingBarService, public mainservice:AppService,public  service:StorageSystemsService,public viewContainerRef: ViewContainerRef,public dialog: MdDialog, public config: MdDialogConfig) {
         // this.initExporters(1);
         // this.init();
+        this.getAets();
         let $this = this;
         if(!this.mainservice.user){
             // console.log("in if studies ajax");
@@ -288,6 +290,19 @@ export class StorageSystemsComponent implements OnInit {
     olderOffset(objs) {
         return objs[0].offset + this.filters.limit;
     };
+    getAets(){
+
+        let $this = this;
+        this.$http.get(
+            '../aets'
+        ).map(res => res.json())
+            .subscribe((response) => {
+                $this.aets = response;
+
+            },(err) =>{
+                console.log("error getting aets",err);
+            });
+    }
 
     /*    init() {
      let $this = this;

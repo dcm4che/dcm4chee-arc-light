@@ -130,7 +130,7 @@
                                     </label>
                                     <span class="description checkbox">JSON Pointers to the Network Connection objects for this AE</span>
                                 </ng-container>
-                                <ng-container *ngIf="!_.hasIn(selctedDeviceObject,'dicomNetworkAE[0].dicomNetworkConnectionReference') && activetab === 'selectdevice'">
+                                <ng-container *ngIf="!_.hasIn(selctedDeviceObject,'dicomNetworkConnection[0]') && activetab === 'selectdevice'">
                                     <div class="helpvalue">
                                         To be able to select the reference create first a  network connection or select device with a network connection!
                                     </div>

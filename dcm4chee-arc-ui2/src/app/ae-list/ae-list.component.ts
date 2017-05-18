@@ -181,7 +181,7 @@ export class AeListComponent{
     };
     deleteAE(device, ae){
         let parameters: any = {
-            content: 'Are you sure you want to unregister and delete from device the AE: <b>'+ae+'</b>?',
+            content: `Are you sure you want to delete from <b>${device}</b> the AE: <b>${ae}</b>?`,
             input: {
                 name:'deletedevice',
                 type:'checkbox',
@@ -195,119 +195,85 @@ export class AeListComponent{
         let $this = this;
         this.confirm(parameters).subscribe(result => {
             if(result){
-                console.log("in ok",result);
-                console.log("parameters",parameters);
-                $this.$http.delete(
-                    "../unique/aets/"+ae
-                )
-                    .subscribe((response) => {
-
+                console.log("in clearae",result);
+                if(result.input === true){
+                    $this.$http.delete('../devices/'+device).subscribe((res)=>{
+                            console.log("res",res);
                             $this.mainservice.setMessage({
                                 "title": "Info",
-                                "text": "Aet unregistered successfully!",
+                                "text": "Device deleted successfully!",
                                 "status": "info"
                             });
-                            clearAe();
-                        },(err)=>{
-                            console.log("in errror");
-
-                            if(err.status === 404){
+                            $this.$http.post("../ctrl/reload",{}).subscribe((res) => {
                                 $this.mainservice.setMessage({
                                     "title": "Info",
-                                    "text": "Aet not registered!",
+                                    "text": "Archive reloaded successfully!",
                                     "status": "info"
                                 });
-                                clearAe();
-                            }else{
-                                $this.mainservice.setMessage({
-                                    "title": "Error "+err.status,
-                                    "text": "Error:"+err.statusText,
-                                    "status": "error"
-                                });
-                            }
-                        }
-                    )
-                let clearAe = function () {
-                    console.log("in clearae",result);
-                    if(result.input === true){
-                        $this.$http.delete('../devices/'+device).subscribe((res)=>{
+                                $this.searchAes();
+                            },(error) => {
+                                console.warn("Reloading the Archive failed");
+                            })
+
+                        },
+                        (err) => {
+                            $this.mainservice.setMessage({
+                                "title": "Error",
+                                "text": "Error deleting the device!",
+                                "status": "error"
+                            });
+                        });
+                }else{
+                    $this.$http.get('../devices/'+device)
+                        .map(res => res.json())
+                        .subscribe(
+                            (res) => {
                                 console.log("res",res);
-                                $this.mainservice.setMessage({
-                                    "title": "Info",
-                                    "text": "Device deleted successfully!",
-                                    "status": "info"
+                                let deviceObject = res;
+                                //Remove ae from device and save it back
+                                _.forEach(deviceObject.dicomNetworkAE ,(m, i) => {
+                                    console.log("m",m);
+                                    console.log("i",i);
+                                    if(m && m.dicomAETitle === ae){
+                                        deviceObject.dicomNetworkAE.splice(i, 1);
+                                    }
                                 });
-                                $this.$http.post("../ctrl/reload",{}).subscribe((res) => {
-                                    $this.mainservice.setMessage({
-                                        "title": "Info",
-                                        "text": "Archive reloaded successfully!",
-                                        "status": "info"
-                                    });
-                                    $this.getAes();
-                                },(error) => {
-                                    console.warn("Reloading the Archive failed");
-                                })
-
+                                console.log("equal",_.isEqual(res,deviceObject));
+                                console.log("deviceObj",deviceObject);
+                                $this.$http.put("../devices/" + device, deviceObject)
+                                    .subscribe((resdev) => {
+                                            console.log("resdev",resdev);
+                                            $this.mainservice.setMessage({
+                                                "title": "Info",
+                                                "text": "Ae removed from device successfully!",
+                                                "status": "info"
+                                            });
+                                            $this.$http.post("../ctrl/reload",{}).subscribe((res) => {
+                                                $this.mainservice.setMessage({
+                                                    "title": "Info",
+                                                    "text": "Archive reloaded successfully!",
+                                                    "status": "info"
+                                                });
+                                                $this.searchAes();
+                                            });
+                                        },
+                                        (err) => {
+                                            console.log("err",err);
+                                            $this.mainservice.setMessage({
+                                                "title": "error",
+                                                "text": "Error, the AE was not removed from device!",
+                                                "status": "error"
+                                            });
+                                        });
                             },
                             (err) => {
                                 $this.mainservice.setMessage({
-                                    "title": "Error",
-                                    "text": "Error deleting the device!",
+                                    "title": "error",
+                                    "text": "Error getting device "+device,
                                     "status": "error"
                                 });
-                            });
-                    }else{
-                        $this.$http.get('../devices/'+device)
-                            .map(res => res.json())
-                            .subscribe(
-                                (res) => {
-                                    console.log("res",res);
-                                    let deviceObject = res;
-                                    //Remove ae from device and save it back
-                                    _.forEach(deviceObject.dicomNetworkAE ,(m, i) => {
-                                        console.log("m",m);
-                                        console.log("i",i);
-                                        if(m && m.dicomAETitle === ae){
-                                            deviceObject.dicomNetworkAE.splice(i, 1);
-                                        }
-                                    });
-                                    console.log("equal",_.isEqual(res,deviceObject));
-                                    console.log("deviceObj",deviceObject);
-                                    $this.$http.put("../devices/" + device, deviceObject)
-                                        .subscribe((resdev) => {
-                                                console.log("resdev",resdev);
-                                                $this.mainservice.setMessage({
-                                                    "title": "Info",
-                                                    "text": "Ae removed from device successfully!",
-                                                    "status": "info"
-                                                });
-                                                $this.$http.post("../ctrl/reload",{}).subscribe((res) => {
-                                                    $this.mainservice.setMessage({
-                                                        "title": "Info",
-                                                        "text": "Archive reloaded successfully!",
-                                                        "status": "info"
-                                                    });
-                                                    $this.getAes();
-                                                });
-                                            },
-                                            (err) => {
-                                                console.log("err",err);
-                                                $this.mainservice.setMessage({
-                                                    "title": "error",
-                                                    "text": "Error, the AE was not removed from device!",
-                                                    "status": "error"
-                                                });
-                                            });
-                                },
-                                (err) => {
-                                    $this.mainservice.setMessage({
-                                        "title": "error",
-                                        "text": "Error getting device "+device,
-                                        "status": "error"
-                                    });
-                                }
-                            );
-                    }
+                            }
+                        );
                 }
             }
         });
@@ -398,27 +364,10 @@ export class AeListComponent{
                                     });*/
                                 });
                     }else{
-                        console.log("in else post",re);
-
                         re.device.dicomNetworkAE =  re.device.dicomNetworkAE || [];
-
-                        console.log("re.device.dicomNetworkAE",re.device.dicomNetworkAE);
-
-                        console.log("re",_.cloneDeep(re));
-                        console.log("re.newaetmode",_.cloneDeep(re.newaetmodel));
-
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationInitiator = true;
-
-                        console.log("re.newaetmode.dicomNetworkAE",re.newaetmodel.dicomNetworkAE);
-
                         re.newaetmodel.dicomNetworkAE[0].dicomAssociationAcceptor = true;
-
-
-
                         re.device.dicomNetworkAE.push(re.newaetmodel.dicomNetworkAE[0]);
-
-
-
                         $this.$http.put("../devices/" + re.device.dicomDeviceName, re.device)
                             .subscribe((putresponse) => {
                                 $this.mainservice.setMessage({
@@ -473,9 +422,9 @@ export class AeListComponent{
     };
     getAes(){
         let $this = this;
-        if($this.mainservice.global && $this.mainservice.global.aes) {
+/*        if($this.mainservice.global && $this.mainservice.global.aes) {
             this.aes = this.mainservice.global.aes;
-        }else{
+        }else{*/
             this.$http.get(
                 '../aes'
                 // './assets/dummydata/aes.json'
@@ -497,7 +446,7 @@ export class AeListComponent{
                 }, (response) => {
                     // vex.dialog.alert("Error loading aes, please reload the page and try again!");
                 });
-        }
+        // }
     }
     getAets(){
 
@@ -519,8 +468,8 @@ export class AeListComponent{
             this.devices = this.mainservice.global.devices;
         }else{
             this.$http.get(
-                // '../devices'
-                './assets/dummydata/devices.json'
+                '../devices'
+                // './assets/dummydata/devices.json'
             ).map(res => res.json())
                 .subscribe((response) => {
                     $this.devices = response;

@@ -20,20 +20,32 @@
                                                 </div>-->
                         <label for="status" class="col-md-6 text-right control-label">Uri Schema:</label>
                         <div class="col-md-6">
-                            <select id="status" [(ngModel)]="filters.uriScheme" class="col-md-12">
+<!--                            <select id="status" [(ngModel)]="filters.uriScheme" class="col-md-12">
                                 <option value="">*</option>
                                 <option>file</option>
                                 <option>jclouds</option>
                                 <option>emc-ecs-s3</option>
                                 <option>hcp</option>
                                 <option>documentu</option>
-                            </select>
+                            </select>-->
+                            <md-select [(ngModel)]="filters.uriScheme" class="col-md-12">
+                                <!--<md-option *ngFor="let ae of aets" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>-->
+                                <md-option value="">*</md-option>
+                                <md-option value="file">file</md-option>
+                                <md-option value="jclouds">jclouds</md-option>
+                                <md-option value="emc-ecs-s3">emc-ecs-s3</md-option>
+                                <md-option value="hcp">hcp</md-option>
+                                <md-option value="documentu">documentu</md-option>
+                            </md-select>
                         </div>
                     </div>
                     <div class="row">
                         <label for="ExporterID" class="col-md-6 text-right control-label">AETitle:</label>
                         <div class="col-md-6">
-                            <input id="ExporterID" type="text" [(ngModel)]="filters.dicomAETitle" class="col-md-12"/>
+                            <!--<input id="ExporterID" type="text" [(ngModel)]="filters.dicomAETitle" class="col-md-12"/>-->
+                            <md-select [(ngModel)]="filters.dicomAETitle" class="col-md-12">
+                                <md-option *ngFor="let ae of aets" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>
+                            </md-select>
                         </div>
                     </div>
                     <div class="row">

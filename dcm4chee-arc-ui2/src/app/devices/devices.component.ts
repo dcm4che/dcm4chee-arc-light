@@ -306,9 +306,9 @@ export class DevicesComponent {
     }
     getDevices(){
         let $this = this;
-        if(this.mainservice.global && this.mainservice.global.devices){
-            this.devices = this.mainservice.global.devices;
-        }else{
+        // if(this.mainservice.global && this.mainservice.global.devices){
+        //     this.devices = this.mainservice.global.devices;
+        // }else{
             this.$http.get(
                 '../devices'
                 // './assets/dummydata/devices.json'
@@ -331,7 +331,7 @@ export class DevicesComponent {
                 }, (err) => {
                     // vex.dialog.alert("Error loading device names, please reload the page and try again!");
                 });
-        }
+        // }
     };
 
 }

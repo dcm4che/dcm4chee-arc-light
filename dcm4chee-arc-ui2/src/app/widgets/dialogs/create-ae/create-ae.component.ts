@@ -213,7 +213,12 @@ export class CreateAeComponent {
                     "status": "error"
                 });
             }else{
-                this.selctedDeviceObject.dicomNetworkConnection.push(_.cloneDeep(this.newAetModel.dicomNetworkConnection[0]));
+                if(_.hasIn(this.selctedDeviceObject,"dicomNetworkConnection")){
+                    this.selctedDeviceObject.dicomNetworkConnection.push(_.cloneDeep(this.newAetModel.dicomNetworkConnection[0]));
+                }else{
+                    this.selctedDeviceObject["dicomNetworkConnection"] = [];
+                    this.selctedDeviceObject.dicomNetworkConnection.push(_.cloneDeep(this.newAetModel.dicomNetworkConnection[0]));
+                }
             }
         }
     }
