@@ -19,10 +19,9 @@ export class StorageSystemsComponent implements OnInit {
     exportTasks = [];
     filters = {
         offset:undefined,
-        limit:20,
         uriScheme:"",
         dicomAETitle:"",
-        usage:undefined,
+        usage:"",
         usableSpaceBelow:undefined
     };
     isRole:any;
@@ -99,19 +98,37 @@ export class StorageSystemsComponent implements OnInit {
             .subscribe((res) => {
                 if(res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
-                        $this.cfpLoadingBar.complete();
-                        if(_.hasIn(properties,'dicomAETitle')){
-                            properties.dicomAETitle = properties.dicomAETitle.join(',');
+/*                        if(_.hasIn(properties,'dicomAETitle')){
+                            properties.dicomAETitle = properties.dicomAETitle.join(' | ');
+                        }*/
+                        if(_.hasIn(properties,'deleterThreshold')){
+                            properties.deleterThreshold = properties.deleterThreshold.map((deleter,i)=>{
+                                if(_.keys(deleter)[0] != ""){
+                                    return _.keys(deleter)[0] + ":"+ $this.convertBtoGBorMB(_.values(deleter)[0]);
+                                }else{
+                                    return $this.convertBtoGBorMB(_.values(deleter)[0]);
+                                }
+                            })
                         }
+                        if(_.hasIn(properties,'usableSpace')){
+                            properties.usableSpace =$this.convertBtoGBorMB(properties.usableSpace);
+                        }
+                        if(_.hasIn(properties,'totalSpace')){
+                            properties.totalSpace =$this.convertBtoGBorMB(properties.totalSpace);
+                        }
+                        _.forEach(properties,(l,k)=>{
+                            if(_.isObject(l)){
+                                properties[k] = l.join(" | ");
+                            }
+                        });
+
                         return {
                             offset: offset + index,
                             properties: properties,
                             showProperties: false
                         };
                     });
-                    _.forEach($this.matches,(m,i)=>{
-                        m.properties["convertedSpace"] = $this.convertKBtoGB(m.properties.usableSpace) + '/' + $this.convertKBtoGB(m.properties.totalSpace);
-                    });
+                        $this.cfpLoadingBar.complete();
                 }else{
                     $this.cfpLoadingBar.complete();
                     $this.matches = [];
@@ -127,8 +144,12 @@ export class StorageSystemsComponent implements OnInit {
                 console.log("err",err);
             });
     };
-    convertKBtoGB(value){
-        return Math.round((value / 1024 / 1024 / 1024)*1000)/1000;
+    convertBtoGBorMB(value){
+        if(value > 2000000000){
+            return (Math.round((value / 1000 / 1000 / 1000)*1000)/1000 )+ " GB";
+        }else{
+            return (Math.round((value / 1000 / 1000)*1000)/1000 )+ " MB";
+        }
     }
     getDifferenceTime(starttime,endtime){
         let start = new Date(starttime).getTime();
@@ -278,18 +299,6 @@ export class StorageSystemsComponent implements OnInit {
     }
     ngOnInit() {
     }
-    hasOlder(objs) {
-        return objs && (objs.length === this.filters.limit);
-    };
-    hasNewer(objs) {
-        return objs && objs.length && objs[0].offset;
-    };
-    newerOffset(objs) {
-        return Math.max(0, objs[0].offset - this.filters.limit);
-    };
-    olderOffset(objs) {
-        return objs[0].offset + this.filters.limit;
-    };
     getAets(){
 
         let $this = this;

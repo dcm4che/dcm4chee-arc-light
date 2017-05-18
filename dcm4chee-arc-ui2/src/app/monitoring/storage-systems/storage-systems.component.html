@@ -11,23 +11,8 @@
             <div class="main_filter_block">
                 <div class="col-md-3 block-1-1">
                     <div class="row">
-
-                        <!--                        <div class="col-md-6">
-                                                    <select id="ExporterID" name="reject" class="col-md-12" (change)="filters.ExporterID = $event.target.value">
-                                                        <option>*</option>
-                                                        <option *ngFor="let s of exporters" title="{{s.description}}" value="{{ s.id }}">{{ s.id }}</option>
-                                                    </select>
-                                                </div>-->
-                        <label for="status" class="col-md-6 text-right control-label">Uri Schema:</label>
+                        <label class="col-md-6 text-right control-label">Uri Schema:</label>
                         <div class="col-md-6">
-<!--                            <select id="status" [(ngModel)]="filters.uriScheme" class="col-md-12">
-                                <option value="">*</option>
-                                <option>file</option>
-                                <option>jclouds</option>
-                                <option>emc-ecs-s3</option>
-                                <option>hcp</option>
-                                <option>documentu</option>
-                            </select>-->
                             <md-select [(ngModel)]="filters.uriScheme" class="col-md-12">
                                 <!--<md-option *ngFor="let ae of aets" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>-->
                                 <md-option value="">*</md-option>
@@ -42,7 +27,6 @@
                     <div class="row">
                         <label class="col-md-6 text-right control-label">AETitle:</label>
                         <div class="col-md-6">
-                            <!--<input id="ExporterID" type="text" [(ngModel)]="filters.dicomAETitle" class="col-md-12"/>-->
                             <md-select [(ngModel)]="filters.dicomAETitle" class="col-md-12">
                                 <md-option value="">*</md-option>
                                 <md-option *ngFor="let ae of aets" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>
@@ -50,9 +34,9 @@
                         </div>
                     </div>
                     <div class="row">
-                        <label for="limit" class="col-md-6 text-right control-label">Page Size:</label>
+                        <label for="usage" class="col-md-6 text-right control-label">Usablespace below:</label>
                         <div class="col-md-6">
-                            <input id="limit" type="number" min="1" [(ngModel)]="filters.limit" class="col-md-12" />
+                            <input id="usage" type="number" min="1" [(ngModel)]="filters.usableSpaceBelow" class="col-md-12" />
                         </div>
                     </div>
                 </div>
@@ -66,14 +50,17 @@
                     <div class="row" title="Only return Storage Systems used for the specified content">
                         <label for="usage" class="col-md-6 text-right control-label">Usage:</label>
                         <div class="col-md-6">
-                            <input id="usage" type="text" min="1" [(ngModel)]="filters.usage" class="col-md-12" />
+                            <!--<input id="usage" type="text" min="1" [(ngModel)]="filters.usage" class="col-md-12" />-->
+                            <md-select [(ngModel)]="filters.usage" class="col-md-12">
+                                <md-option value="">*</md-option>
+                                <md-option value="dcmObjectStorageID">Object Storage</md-option>
+                                <md-option value="dcmMetadataStorageID">Metadata Storage</md-option>
+                                <md-option value="dcmSeriesMetadataStorageID">SeriesMetadata Storage</md-option>
+                            </md-select>
                         </div>
                     </div>
                     <div class="row" title="Only return Storage Systems which have usable space below specified value">
-                            <label for="usage" class="col-md-6 text-right control-label">Usablespace below:</label>
-                            <div class="col-md-6">
-                                <input id="usage" type="number" min="1" [(ngModel)]="filters.usableSpaceBelow" class="col-md-12" />
-                            </div>
+
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -92,7 +79,7 @@
             <thead>
             <tr>
                 <th colspan="2">
-                    <button class="btn btn-link btn-xs"
+<!--                    <button class="btn btn-link btn-xs"
                             [disabled]="!hasNewer(matches)"
                             (click)="search(newerOffset(matches))"
                             title="Newer">
@@ -103,13 +90,15 @@
                             (click)="search(olderOffset(matches))"
                             title="Older">
                         <span class="glyphicon glyphicon-menu-right"></span>
-                    </button>
+                    </button>-->
                 </th>
                 <th>Storage ID</th>
                 <th>Storage URI</th>
                 <th>Read Only</th>
                 <th>AE Title</th>
-                <th>Space(Usable/Total) GB</th>
+                <th>Space(Usable/Total)</th>
+                <th>Deleter Threshold</th>
+                <th>Storage Threshold</th>
             </tr>
             </thead>
             <tbody>
@@ -120,21 +109,14 @@
                         <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
                         </a>
-                        <!--                        <a *ngIf="isRole('admin') && ((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))" (click)="$event.preventDefault();cancel(match)" href="" title="Cancel">
-                                                    <span class="glyphicon glyphicon-ban-circle"></span>
-                                                </a>
-                                                <a *ngIf="isRole('admin') && (match.properties.status && (match.properties.status === 'TO SCHEDULE' || match.properties.status === 'CANCELED' || match.properties.status === 'COMPLETED' || match.properties.status === 'FAILED'))" (click)="$event.preventDefault();reschedule(match)" href="" title="Reschedule">
-                                                    <span class="glyphicon glyphicon-repeat"></span>
-                                                </a>-->
-<!--                        <a *ngIf="isRole('admin')" (click)="$event.preventDefault();delete(match)" href="" title="Delete">
-                            <span class="glyphicon glyphicon-remove-circle"></span>
-                        </a>-->
                     </td>
                     <td [innerHtml]="match.properties.dcmStorageID"></td>
                     <td [innerHtml]="match.properties.dcmURI" ></td>
                     <td [innerHtml]="match.properties.dcmReadOnly || 'false'" ></td>
                     <td [innerHtml]="match.properties.dicomAETitle" ></td>
-                    <td [innerHtml]="match.properties.convertedSpace" ></td>
+                    <td >{{match.properties.usableSpace}} / {{match.properties.totalSpace}}</td>
+                    <td [innerHtml]="match.properties.deleterThreshold || ''" ></td>
+                    <td [innerHtml]="match.properties.storageThreshold || ''" ></td>
                 </tr>
                 <tr *ngIf="match.showProperties">
                     <td colspan="11">
