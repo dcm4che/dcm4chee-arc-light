@@ -62,6 +62,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParsingException;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
@@ -91,6 +92,10 @@ public class ConfigurationRS {
 
     @Context
     private HttpServletRequest request;
+
+    @QueryParam("register")
+    @Pattern(regexp = "true|false")
+    private String register;
 
     private ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
         @Override
@@ -228,7 +233,7 @@ public class ConfigurationRS {
                 throw new WebApplicationException(
                         "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
                         Response.Status.BAD_REQUEST);
-            conf.persist(device, true);
+            conf.persist(device, Boolean.parseBoolean(register));
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException | JsonParsingException e) {
@@ -251,7 +256,7 @@ public class ConfigurationRS {
                 throw new WebApplicationException(getResponse(
                         "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
                         Response.Status.BAD_REQUEST));
-            conf.merge(device, true, true);
+            conf.merge(device, true, Boolean.parseBoolean(register));
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException | JsonParsingException e) {
@@ -328,7 +333,7 @@ public class ConfigurationRS {
     public void deleteDevice(@PathParam("DeviceName") String deviceName) throws Exception {
         logRequest();
         try {
-            conf.removeDevice(deviceName, true);
+            conf.removeDevice(deviceName, Boolean.parseBoolean(register));
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (Exception e) {

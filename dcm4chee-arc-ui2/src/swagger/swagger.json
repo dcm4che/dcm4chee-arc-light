@@ -326,6 +326,13 @@
             "type": "string"
           },
           {
+            "name": "register",
+            "in": "query",
+            "description": "indicates to register AE Titles and HL7 Application names of added Device",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "body",
             "in": "body",
             "description": "new device",
@@ -365,6 +372,13 @@
             "type": "string"
           },
           {
+            "name": "register",
+            "in": "query",
+            "description": "indicates to register/unregister added/removed AE Titles and HL7 Application names of the updated Device",
+            "type": "boolean",
+            "default": false
+          },
+          {
             "name": "body",
             "in": "body",
             "description": "updated device",
@@ -402,6 +416,13 @@
             "description": "name of device to delete",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "register",
+            "in": "query",
+            "description": "indicates to unregister AE Titles and HL7 Application names of the removed Device",
+            "type": "boolean",
+            "default": false
           }
         ],
         "responses": {
