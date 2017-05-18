@@ -517,96 +517,116 @@ export class StudiesComponent implements OnDestroy{
         this.clipboard = {};
         this.selected['otherObjects'] = {};
     };
-    queryStudies(offset){
-        this.queryMode = "queryStudies";
-        this.moreMWL = undefined;
-        this.morePatients = undefined;
-        this.cfpLoadingBar.start();
-        if (offset < 0 || offset === undefined) offset = 0;
+    showNoFilterWarning(queryParameters){
+        let param =  _.clone(queryParameters);
+        if(param["orderby"]=="-StudyDate,-StudyTime"){
+            if(_.hasIn(param,["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"])){
+                delete param["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"];
+            }
+            if(_.hasIn(param,"includefield")){
+                delete param["includefield"];
+            }
+            if(_.hasIn(param,"limit")){
+                delete param["limit"];
+            }
+            if(_.hasIn(param,"offset")){
+                delete param["offset"];
+            }
+            if(_.hasIn(param,"orderby")){
+                delete param["orderby"];
+            }
+            return (_.size(param) < 1) ? true : false;
+        }else{
+            return false;
+        }
+    }
+    queryStudie(queryParameters,offset){
         let $this = this;
+        if (offset < 0 || offset === undefined) offset = 0;
+        this.cfpLoadingBar.start();
         this.service.queryStudies(
             this.rsURL(),
-            this.createQueryParams(offset, this.limit+1, this.createStudyFilterParams())
+            queryParameters
         ).subscribe((res) => {
 
-            $this.patients = [];
-            //           $this.studies = [];
-            $this.morePatients = undefined;
-            $this.moreStudies = undefined;
-            if(_.size(res) > 0){
-                //Add number of patient related studies manuelly hex(00201200) => dec(2101760)
-                let index = 0;
-                while($this.attributeFilters.Patient.dcmTag[index] && ($this.attributeFilters.Patient.dcmTag[index] < 2101760)){
-                    index++;
-                }
-                $this.attributeFilters.Patient.dcmTag.splice(index, 0, 2101760);
-
-                var pat, study, patAttrs, tags = $this.attributeFilters.Patient.dcmTag;
-                console.log("res",res);
-                res.forEach(function (studyAttrs, index) {
-                    patAttrs = {};
-                    $this.extractAttrs(studyAttrs, tags, patAttrs);
-                    if (!(pat && _.isEqual(pat.attrs, patAttrs))) { //angular.equals replaced with Rx.helpers.defaultComparer
-                        pat = {
-                            attrs: patAttrs,
-                            studies: [],
-                            showAttributes: false
-                        };
-                        // $this.$apply(function () {
-                        $this.patients.push(pat);
-                        // });
-                    }
-                    study = {
-                        patient: pat,
-                        offset: offset + index,
-                        moreSeries: false,
-                        attrs: studyAttrs,
-                        series: null,
-                        showAttributes: false,
-                        fromAllStudies:false,
-                        selected:false
-                    };
-                    pat.studies.push(study);
-                    $this.extendedFilter(false);
-                    //                   $this.studies.push(study); //sollte weg kommen
-                });
-                if ($this.moreStudies = (res.length > $this.limit)) {
-                    pat.studies.pop();
-                    if (pat.studies.length === 0){
-                        $this.patients.pop();
-                    }
-                    // this.studies.pop();
-                }
-                console.log("patients=",$this.patients[0]);
-                // $this.mainservice.setMessage({
-                //     "title": "Info",
-                //     "text": "Test",
-                //     "status": "info"
-                // });
-                // sessionStorage.setItem("patients", $this.patients);
-                // $this.mainservice.setGlobal({patients:this.patients,moreStudies:$this.moreStudies});
-                // $this.mainservice.setGlobal({studyThis:$this});
-                console.log("global set",$this.mainservice.global);
-                $this.cfpLoadingBar.complete();
-
-            } else {
-                console.log("in else setmsg");
                 $this.patients = [];
+                //           $this.studies = [];
+                $this.morePatients = undefined;
+                $this.moreStudies = undefined;
+                if (_.size(res) > 0) {
+                    //Add number of patient related studies manuelly hex(00201200) => dec(2101760)
+                    let index = 0;
+                    while ($this.attributeFilters.Patient.dcmTag[index] && ($this.attributeFilters.Patient.dcmTag[index] < 2101760)) {
+                        index++;
+                    }
+                    $this.attributeFilters.Patient.dcmTag.splice(index, 0, 2101760);
 
-                $this.mainservice.setMessage({
-                    "title": "Info",
-                    "text": "No matching Studies found!",
-                    "status": "info"
-                });
+                    var pat, study, patAttrs, tags = $this.attributeFilters.Patient.dcmTag;
+                    console.log("res", res);
+                    res.forEach(function (studyAttrs, index) {
+                        patAttrs = {};
+                        $this.extractAttrs(studyAttrs, tags, patAttrs);
+                        if (!(pat && _.isEqual(pat.attrs, patAttrs))) { //angular.equals replaced with Rx.helpers.defaultComparer
+                            pat = {
+                                attrs: patAttrs,
+                                studies: [],
+                                showAttributes: false
+                            };
+                            // $this.$apply(function () {
+                            $this.patients.push(pat);
+                            // });
+                        }
+                        study = {
+                            patient: pat,
+                            offset: offset + index,
+                            moreSeries: false,
+                            attrs: studyAttrs,
+                            series: null,
+                            showAttributes: false,
+                            fromAllStudies: false,
+                            selected: false
+                        };
+                        pat.studies.push(study);
+                        $this.extendedFilter(false);
+                        //                   $this.studies.push(study); //sollte weg kommen
+                    });
+                    if ($this.moreStudies = (res.length > $this.limit)) {
+                        pat.studies.pop();
+                        if (pat.studies.length === 0) {
+                            $this.patients.pop();
+                        }
+                        // this.studies.pop();
+                    }
+                    console.log("patients=", $this.patients[0]);
+                    // $this.mainservice.setMessage({
+                    //     "title": "Info",
+                    //     "text": "Test",
+                    //     "status": "info"
+                    // });
+                    // sessionStorage.setItem("patients", $this.patients);
+                    // $this.mainservice.setGlobal({patients:this.patients,moreStudies:$this.moreStudies});
+                    // $this.mainservice.setGlobal({studyThis:$this});
+                    console.log("global set", $this.mainservice.global);
+                    $this.cfpLoadingBar.complete();
+
+                } else {
+                    console.log("in else setmsg");
+                    $this.patients = [];
+
+                    $this.mainservice.setMessage({
+                        "title": "Info",
+                        "text": "No matching Studies found!",
+                        "status": "info"
+                    });
+                    $this.cfpLoadingBar.complete();
+                }
+                // setTimeout(function(){
+                //     togglePatientsHelper("hide");
+                // }, 1000);
                 $this.cfpLoadingBar.complete();
-            }
-            // setTimeout(function(){
-            //     togglePatientsHelper("hide");
-            // }, 1000);
-           $this.cfpLoadingBar.complete();
-        },
-            (err)=>{
-                console.log("in error",err);
+            },
+            (err)=> {
+                console.log("in error", err);
                 $this.patients = [];
                 $this.mainservice.setMessage({
                     "title": "Info",
@@ -616,6 +636,25 @@ export class StudiesComponent implements OnDestroy{
                 $this.cfpLoadingBar.complete();
             }
         );
+    }
+    queryStudies(offset) {
+        this.queryMode = "queryStudies";
+        this.moreMWL = undefined;
+        this.morePatients = undefined;
+        let $this = this;
+        let queryParameters = this.createQueryParams(offset, this.limit + 1, this.createStudyFilterParams());
+        if (this.showNoFilterWarning(queryParameters)) {
+            $this.confirm({
+                content:'No filter are set, are you sure you want to continue?'
+            }).subscribe(result => {
+                if(result){
+                    $this.queryStudie(queryParameters, offset);
+                }
+            });
+        }else{
+                $this.queryStudie(queryParameters, offset);
+        }
+
     };
     editMWL(patient, patientkey, mwlkey, mwl){
         this.saveLabel = "SAVE";
