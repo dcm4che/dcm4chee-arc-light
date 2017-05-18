@@ -168,11 +168,15 @@ public class PurgeStorageScheduler extends Scheduler {
                 Study study = ejb.deleteStudy(ctx);
                 removed++;
                 LOG.info("Successfully delete {} on {}", study, desc.getStorageURI());
-                studyDeletedEvent.fire(ctx);
             } catch (Exception e) {
                 LOG.warn("Failed to delete Study[pk={}] on {}", studyPk, desc.getStorageURI(), e);
                 ctx.setException(e);
-                studyDeletedEvent.fire(ctx);
+            } finally {
+                try {
+                    studyDeletedEvent.fire(ctx);
+                } catch (Exception e) {
+                    LOG.warn("Unexpected exception in audit : " + e.getMessage());
+                }
             }
         }
         return removed;
