@@ -97,6 +97,10 @@ public class ConfigurationRS {
     @Pattern(regexp = "true|false")
     private String register;
 
+    private boolean register() {
+        return register == null || Boolean.parseBoolean(register);
+    }
+
     private ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
         @Override
         public Device findDevice(String name) throws ConfigurationException {
@@ -233,7 +237,7 @@ public class ConfigurationRS {
                 throw new WebApplicationException(
                         "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
                         Response.Status.BAD_REQUEST);
-            conf.persist(device, Boolean.parseBoolean(register));
+            conf.persist(device, register());
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException | JsonParsingException e) {
@@ -256,7 +260,7 @@ public class ConfigurationRS {
                 throw new WebApplicationException(getResponse(
                         "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
                         Response.Status.BAD_REQUEST));
-            conf.merge(device, true, Boolean.parseBoolean(register));
+            conf.merge(device, true, register());
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException | JsonParsingException e) {
@@ -333,7 +337,7 @@ public class ConfigurationRS {
     public void deleteDevice(@PathParam("DeviceName") String deviceName) throws Exception {
         logRequest();
         try {
-            conf.removeDevice(deviceName, Boolean.parseBoolean(register));
+            conf.removeDevice(deviceName, register());
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (Exception e) {

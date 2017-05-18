@@ -330,7 +330,7 @@
             "in": "query",
             "description": "indicates to register AE Titles and HL7 Application names of added Device",
             "type": "boolean",
-            "default": false
+            "default": true
           },
           {
             "name": "body",
@@ -376,7 +376,7 @@
             "in": "query",
             "description": "indicates to register/unregister added/removed AE Titles and HL7 Application names of the updated Device",
             "type": "boolean",
-            "default": false
+            "default": true
           },
           {
             "name": "body",
@@ -422,7 +422,7 @@
             "in": "query",
             "description": "indicates to unregister AE Titles and HL7 Application names of the removed Device",
             "type": "boolean",
-            "default": false
+            "default": true
           }
         ],
         "responses": {
