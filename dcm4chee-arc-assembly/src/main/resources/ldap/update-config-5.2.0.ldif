@@ -1,0 +1,93 @@
+version: 1
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomSoftwareVersion
+dicomSoftwareVersion: 5.2.0
+-
+add: dcmIanTaskPollingInterval
+dcmIanTaskPollingInterval: PT1M
+-
+add: dcmPurgeQueueMessagePollingInterval
+dcmPurgeQueueMessagePollingInterval: PT1H
+-
+delete: dicomVendorData
+-
+add: dicomVendorData
+dicomVendorData:< file:vendor-data.zip
+-
+
+dn: dcmEntity=Patient,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmAttributeUpdatePolicy
+dcmAttributeUpdatePolicy: SUPPLEMENT
+-
+
+dn: dcmEntity=Study,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmAttributeUpdatePolicy
+dcmAttributeUpdatePolicy: MERGE
+-
+
+dn: dcmEntity=Series,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmAttributeUpdatePolicy
+dcmAttributeUpdatePolicy: MERGE
+-
+
+dn: dcmQueueName=StgCmtSCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmPurgeQueueMessageCompletedDelay
+dcmPurgeQueueMessageCompletedDelay: P1D
+-
+
+dn: dcmQueueName=IANSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: IAN Tasks
+dcmQueueName: IANSCU
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/IANSCU
+
+dn: dcmQueueName=MPPSSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmPurgeQueueMessageCompletedDelay
+dcmPurgeQueueMessageCompletedDelay: P1D
+-
+
+dn: dcmQueueName=Export1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmPurgeQueueMessageCompletedDelay
+dcmPurgeQueueMessageCompletedDelay: P1D
+-
+
+dn: dcmQueueName=Export2,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmPurgeQueueMessageCompletedDelay
+dcmPurgeQueueMessageCompletedDelay: P1D
+-
+
+dn: dcmQueueName=Export3,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmPurgeQueueMessageCompletedDelay
+dcmPurgeQueueMessageCompletedDelay: P1D
+-
+
+dn: dcmRejectionNoteLabel=Retention Expired,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmDeleteRejectedInstanceDelay
+dcmDeleteRejectedInstanceDelay: P1D
+-
+add: dcmDeleteRejectionNoteDelay
+dcmDeleteRejectionNoteDelay: P1D
+-
+
+dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: hl7AcceptedMessageType
+hl7AcceptedMessageType: OMI^O23
+-

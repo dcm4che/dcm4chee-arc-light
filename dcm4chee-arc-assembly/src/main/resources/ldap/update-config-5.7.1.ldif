@@ -1,0 +1,7 @@
+version: 1
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomSoftwareVersion
+dicomSoftwareVersion: 5.7.1
+-
