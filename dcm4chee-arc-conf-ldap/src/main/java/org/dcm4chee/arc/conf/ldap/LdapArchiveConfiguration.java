@@ -49,6 +49,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
+import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.Property;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.*;
@@ -318,26 +319,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditUnknownPatientID(LdapUtils.stringValue(attrs.get("dcmAuditUnknownPatientID"), null));
     }
 
-
     @Override
-    protected void storeDiffs(Device prev, Device device, List<ModificationItem> mods, Attributes attrs)
-            throws NamingException {
+    protected void storeDiffs(Device prev, Device device, List<ModificationItem> mods) {
         ArchiveDeviceExtension aa = prev.getDeviceExtension(ArchiveDeviceExtension.class);
         ArchiveDeviceExtension bb = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        if (aa == null && bb == null)
+        if (aa == null || bb == null)
             return;
-
-        if (aa == null) {
-            aa = new ArchiveDeviceExtension();
-            if (!LdapUtils.hasObjectClass(attrs, "dcmArchiveDevice"))
-                mods.add(new ModificationItem(DirContext.ADD_ATTRIBUTE,
-                        LdapUtils.attr("objectClass", "dcmArchiveDevice")));
-        }
-        boolean remove = false;
-        if (bb == null) {
-            bb = new ArchiveDeviceExtension();
-            remove = true;
-        }
 
         LdapUtils.storeDiff(mods, "dcmFuzzyAlgorithmClass", aa.getFuzzyAlgorithmClass(), bb.getFuzzyAlgorithmClass());
         LdapUtils.storeDiff(mods, "dcmSeriesMetadataStorageID",
@@ -521,10 +508,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "hl7ScheduledStationAETInOrder", aa.getHl7ScheduledStationAETInOrder(), bb.getHl7ScheduledStationAETInOrder());
         LdapUtils.storeDiff(mods, "dcmAuditUnknownStudyInstanceUID", aa.getAuditUnknownStudyInstanceUID(), bb.getAuditUnknownStudyInstanceUID());
         LdapUtils.storeDiff(mods, "dcmAuditUnknownPatientID", aa.getAuditUnknownPatientID(), bb.getAuditUnknownPatientID());
-
-        if (remove)
-            mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
-                    LdapUtils.attr("objectClass", "dcmArchiveDevice")));
     }
 
     @Override
@@ -535,7 +518,23 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         if (arcDev == null)
             return;
 
-        storeChildren(deviceDN, arcDev);
+        storeAttributeFilter(deviceDN, arcDev);
+        storeStorageDescriptors(deviceDN, arcDev);
+        storeQueueDescriptors(deviceDN, arcDev);
+        storeExporterDescriptors(deviceDN, arcDev);
+        storeExportRules(arcDev.getExportRules(), deviceDN);
+        storeCompressionRules(arcDev.getCompressionRules(), deviceDN);
+        storeStoreAccessControlIDRules(arcDev.getStoreAccessControlIDRules(), deviceDN);
+        storeAttributeCoercions(arcDev.getAttributeCoercions(), deviceDN);
+        storeQueryRetrieveViews(deviceDN, arcDev);
+        storeRejectNotes(deviceDN, arcDev);
+        storeStudyRetentionPolicies(arcDev.getStudyRetentionPolicies(), deviceDN);
+        storeIDGenerators(deviceDN, arcDev);
+        storeHL7ForwardRules(arcDev.getHL7ForwardRules(), deviceDN, config);
+        storeRSForwardRules(arcDev.getRSForwardRules(), deviceDN);
+        storeMetadataFilter(deviceDN, arcDev);
+        storeScheduledStations(arcDev.getHL7OrderScheduledStations(), deviceDN, config);
+        storeHL7OrderSPSStatus(arcDev.getHL7OrderSPSStatuses(), deviceDN, config);
     }
 
     @Override
@@ -571,76 +570,26 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 .getDeviceExtension(ArchiveDeviceExtension.class);
         ArchiveDeviceExtension bb = device
                 .getDeviceExtension(ArchiveDeviceExtension.class);
-        if (aa == null && bb == null)
+        if (aa == null || bb == null)
             return;
 
-        if (aa != null) {
-            if (bb != null)
-                mergeChildren(deviceDN, aa, bb);
-            else
-                removeChildren(deviceDN, aa);
-        } else
-            storeChildren(deviceDN, bb);
-    }
-
-    private void mergeChildren(String deviceDN, ArchiveDeviceExtension aa, ArchiveDeviceExtension bb) throws NamingException {
         mergeAttributeFilters(aa, bb, deviceDN);
-        mergeExportDescriptors(aa, bb, deviceDN);
-        mergeIDGenerators(aa, bb, deviceDN);
-        mergeMetadataFilters(aa, bb, deviceDN);
+        mergeStorageDescriptors(aa, bb, deviceDN);
         mergeQueueDescriptors(aa, bb, deviceDN);
+        mergeExportDescriptors(aa, bb, deviceDN);
+        mergeExportRules(aa.getExportRules(), bb.getExportRules(), deviceDN);
+        mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
+        mergeStoreAccessControlIDRules(aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), deviceDN);
+        mergeAttributeCoercions(aa.getAttributeCoercions(), bb.getAttributeCoercions(), deviceDN);
         mergeQueryRetrieveViews(aa, bb, deviceDN);
         mergeRejectNotes(aa, bb, deviceDN);
-        mergeStorageDescriptors(aa, bb, deviceDN);
-        mergeAttributeCoercions(aa.getAttributeCoercions(), bb.getAttributeCoercions(), deviceDN);
-        mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
-        mergeExportRules(aa.getExportRules(), bb.getExportRules(), deviceDN);
-        mergeStoreAccessControlIDRules(aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), deviceDN);
         mergeStudyRetentionPolicies(aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), deviceDN);
-        mergeRSForwardRules(aa.getRSForwardRules(), bb.getRSForwardRules(), deviceDN);
+        mergeIDGenerators(aa, bb, deviceDN);
         mergeHL7ForwardRules(aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), deviceDN, config);
-        mergeHL7OrderSPSStatus(aa.getHL7OrderSPSStatuses(), bb.getHL7OrderSPSStatuses(), deviceDN, config);
+        mergeRSForwardRules(aa.getRSForwardRules(), bb.getRSForwardRules(), deviceDN);
+        mergeMetadataFilters(aa, bb, deviceDN);
         mergeScheduledStations(aa.getHL7OrderScheduledStations(), bb.getHL7OrderScheduledStations(), deviceDN, config);
-    }
-
-    private void removeChildren(String deviceDN, ArchiveDeviceExtension prev) throws NamingException {
-        removeAttributeFilter(deviceDN, prev);
-        removeExportDescriptors(deviceDN, prev);
-        removeIDGenerators(deviceDN, prev);
-        removeMetadataFilter(deviceDN, prev);
-        removeQueueDescriptors(deviceDN, prev);
-        removeQueryRetrieveViews(deviceDN, prev);
-        removeStorageDescriptor(deviceDN, prev);
-        removeRejectNotes(deviceDN, prev);
-        removeAttributeCoercions(deviceDN, prev.getAttributeCoercions());
-        removeCompressionRules(deviceDN, prev.getCompressionRules());
-        removeExportRules(deviceDN, prev.getExportRules());
-        removeStoreAccessControlIDRules(deviceDN, prev.getStoreAccessControlIDRules());
-        removeRSForwardRules(deviceDN, prev.getRSForwardRules());
-        removeStudyRetentionPolicies(deviceDN, prev.getStudyRetentionPolicies());
-        removeHL7ForwardRules(deviceDN, prev.getHL7ForwardRules(), config);
-        removeHL7OrderSPSStatus(deviceDN, prev.getHL7OrderSPSStatuses(), config);
-        removeScheduledStations(deviceDN, prev.getHL7OrderScheduledStations(), config);
-    }
-
-    private void storeChildren(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
-        storeAttributeFilter(deviceDN, arcDev);
-        storeExporterDescriptors(deviceDN, arcDev);
-        storeIDGenerators(deviceDN, arcDev);
-        storeMetadataFilter(deviceDN, arcDev);
-        storeQueueDescriptors(deviceDN, arcDev);
-        storeQueryRetrieveViews(deviceDN, arcDev);
-        storeRejectNotes(deviceDN, arcDev);
-        storeStorageDescriptors(deviceDN, arcDev);
-        storeAttributeCoercions(arcDev.getAttributeCoercions(), deviceDN);
-        storeCompressionRules(arcDev.getCompressionRules(), deviceDN);
-        storeExportRules(arcDev.getExportRules(), deviceDN);
-        storeStoreAccessControlIDRules(arcDev.getStoreAccessControlIDRules(), deviceDN);
-        storeStudyRetentionPolicies(arcDev.getStudyRetentionPolicies(), deviceDN);
-        storeRSForwardRules(arcDev.getRSForwardRules(), deviceDN);
-        storeHL7ForwardRules(arcDev.getHL7ForwardRules(), deviceDN, config);
-        storeHL7OrderSPSStatus(arcDev.getHL7OrderSPSStatuses(), deviceDN, config);
-        storeScheduledStations(arcDev.getHL7OrderScheduledStations(), deviceDN, config);
+        mergeHL7OrderSPSStatus(aa.getHL7OrderSPSStatuses(), bb.getHL7OrderSPSStatuses(), deviceDN, config);
     }
 
     @Override
@@ -907,12 +856,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void removeAttributeFilter(String deviceDN, ArchiveDeviceExtension prev)
-        throws NamingException {
-        for (Entity entity : prev.getAttributeFilters().keySet())
-            config.destroySubcontext(LdapUtils.dnOf("dcmEntity", entity.name(), deviceDN));
-    }
-
     private void storeMetadataFilter(String deviceDN, ArchiveDeviceExtension arcDev)
             throws NamingException {
         for (Map.Entry<String, MetadataFilter> entry : arcDev.getMetadataFilters().entrySet()) {
@@ -920,12 +863,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     LdapUtils.dnOf("dcmMetadataFilterName", entry.getKey(), deviceDN),
                     storeTo(entry.getValue(), entry.getKey(), new BasicAttributes(true)));
         }
-    }
-
-    private void removeMetadataFilter(String deviceDN, ArchiveDeviceExtension prev)
-            throws NamingException {
-        for (String filterName : prev.getMetadataFilters().keySet())
-            config.destroySubcontext(LdapUtils.dnOf("dcmMetadataFilterName", filterName, deviceDN));
     }
 
     private static Attributes storeTo(AttributeFilter filter, Entity entity,  BasicAttributes attrs) {
@@ -951,6 +888,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("dcmSPSStatus", spsStatus.name());
         LdapUtils.storeNotEmpty(attrs, "hl7OrderControlStatus", hl7OrderSPSStatus.getOrderControlStatusCodes());
         return attrs;
+    }
+
+    private void storeNotEmptyTags(BasicAttributes attrs, String attrid, int[] vals) {
+        if (vals != null && vals.length > 0)
+            attrs.put(tagsAttr(attrid, vals));
     }
 
     private static Attribute tagsAttr(String attrID, int[] tags) {
@@ -1025,6 +967,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private static int[] tags(Attribute attr) throws NamingException {
+        if (attr == null)
+            return ByteUtils.EMPTY_INTS;
+
         int[] is = new int[attr.size()];
         for (int i = 0; i < is.length; i++)
             is[i] = Integer.parseInt((String) attr.get(i), 16);
@@ -1069,14 +1014,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     protected static void mergeHL7OrderSPSStatus(
-            Map<SPSStatus, HL7OrderSPSStatus> prev, Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String parentDN,
+            Map<SPSStatus, HL7OrderSPSStatus> prev, Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String deviceDN,
             LdapDicomConfiguration config) throws NamingException {
         for (SPSStatus spsStatus : prev.keySet())
             if (!hl7OrderSPSStatusMap.containsKey(spsStatus))
-                config.destroySubcontext(LdapUtils.dnOf("dcmSPSStatus", spsStatus.toString(), parentDN));
+                config.destroySubcontext(LdapUtils.dnOf("dcmSPSStatus", spsStatus.toString(), deviceDN));
         for (Map.Entry<SPSStatus, HL7OrderSPSStatus> entry : hl7OrderSPSStatusMap.entrySet()) {
             SPSStatus spsStatus = entry.getKey();
-            String dn = LdapUtils.dnOf("dcmSPSStatus", spsStatus.toString(), parentDN);
+            String dn = LdapUtils.dnOf("dcmSPSStatus", spsStatus.toString(), deviceDN);
             HL7OrderSPSStatus prevHL7OrderSPSStatus = prev.get(spsStatus);
             if (prevHL7OrderSPSStatus == null)
                 config.createSubcontext(dn, storeTo(entry.getValue(), spsStatus, new BasicAttributes(true)));
@@ -1117,11 +1062,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     LdapUtils.dnOf("dcmStorageID", storageID, deviceDN),
                     storeTo(descriptor, new BasicAttributes(true)));
         }
-    }
-
-    private void removeStorageDescriptor(String deviceDN, ArchiveDeviceExtension prev) throws NamingException {
-        for (StorageDescriptor descriptor : prev.getStorageDescriptors())
-            config.destroySubcontext(LdapUtils.dnOf("dcmStorageID", descriptor.getStorageID(), deviceDN));
     }
 
     private Attributes storeTo(StorageDescriptor descriptor, BasicAttributes attrs) {
@@ -1227,11 +1167,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void removeQueueDescriptors(String deviceDN, ArchiveDeviceExtension prev) throws NamingException {
-        for (QueueDescriptor descriptor : prev.getQueueDescriptors())
-            config.destroySubcontext(LdapUtils.dnOf("dcmQueueName", descriptor.getQueueName(), deviceDN));
-    }
-
     private Attributes storeTo(QueueDescriptor descriptor, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmQueue");
         attrs.put("dcmQueueName", descriptor.getQueueName());
@@ -1310,11 +1245,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     LdapUtils.dnOf("dcmExporterID", storageID, deviceDN),
                     storeTo(descriptor, new BasicAttributes(true)));
         }
-    }
-
-    private void removeExportDescriptors(String deviceDN, ArchiveDeviceExtension prev) throws NamingException {
-        for (ExporterDescriptor descriptor : prev.getExporterDescriptors())
-            config.destroySubcontext(LdapUtils.dnOf("dcmExporterID", descriptor.getExporterID(), deviceDN));
     }
 
     private Attributes storeTo(ExporterDescriptor descriptor, BasicAttributes attrs) {
@@ -1412,11 +1342,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     LdapUtils.dnOf("cn", cn, parentDN),
                     storeTo(rule, new BasicAttributes(true)));
         }
-    }
-
-    private void removeExportRules(String parentDN, Collection<ExportRule> exportRules) throws NamingException {
-        for (ExportRule rule : exportRules)
-            config.destroySubcontext(LdapUtils.dnOf("cn", rule.getCommonName(), parentDN));
     }
 
     private Attributes storeTo(ExportRule rule, BasicAttributes attrs) {
@@ -1517,14 +1442,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void removeCompressionRules(String parentDN, Collection<ArchiveCompressionRule> rules)
-            throws NamingException {
-        for (ArchiveCompressionRule rule : rules) {
-            String cn = rule.getCommonName();
-            config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
-        }
-    }
-
     private void storeStudyRetentionPolicies(Collection<StudyRetentionPolicy> policies, String parentDN)
             throws NamingException {
         for (StudyRetentionPolicy policy : policies) {
@@ -1532,14 +1449,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             config.createSubcontext(
                     LdapUtils.dnOf("cn", cn, parentDN),
                     storeTo(policy, new BasicAttributes(true)));
-        }
-    }
-
-    private void removeStudyRetentionPolicies(String parentDN, Collection<StudyRetentionPolicy> prevPolicies)
-            throws NamingException {
-        for (StudyRetentionPolicy prevRule : prevPolicies) {
-            String cn = prevRule.getCommonName();
-            config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
         }
     }
 
@@ -1553,13 +1462,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void removeStoreAccessControlIDRules(String parentDN, Collection<StoreAccessControlIDRule> rules)
-            throws NamingException {
-        for (StoreAccessControlIDRule rule : rules) {
-            String cn = rule.getCommonName();
-            config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
-        }
-    }
 
     protected static void storeHL7ForwardRules(
             Collection<HL7ForwardRule> rules, String parentDN, LdapDicomConfiguration config)
@@ -1569,14 +1471,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             config.createSubcontext(
                     LdapUtils.dnOf("cn", cn, parentDN),
                     storeTo(rule, new BasicAttributes(true)));
-        }
-    }
-
-    static void removeHL7ForwardRules(String parentDN, Collection<HL7ForwardRule> prevRules,
-                                      LdapDicomConfiguration config) throws NamingException {
-        for (HL7ForwardRule prevRule : prevRules) {
-            String cn = prevRule.getCommonName();
-            config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
         }
     }
 
@@ -1591,14 +1485,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    static void removeScheduledStations(String parentDN, Collection<HL7OrderScheduledStation> prevStations,
-                                        LdapDicomConfiguration config) throws NamingException {
-        for (HL7OrderScheduledStation prevRule : prevStations) {
-            String cn = prevRule.getCommonName();
-            config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
-        }
-    }
-
     protected static void storeHL7OrderSPSStatus(
             Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String parentDN, LdapDicomConfiguration config)
             throws NamingException {
@@ -1609,12 +1495,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    static void removeHL7OrderSPSStatus(String parentDN, Map<SPSStatus, HL7OrderSPSStatus> prev,
-                                        LdapDicomConfiguration config) throws NamingException {
-        for (SPSStatus spsStatus : prev.keySet())
-            config.destroySubcontext(LdapUtils.dnOf("dcmSPSStatus", spsStatus.toString(), parentDN));
-    }
-
     private void storeRSForwardRules(Collection<RSForwardRule> rules, String parentDN)
             throws NamingException {
         for (RSForwardRule rule : rules) {
@@ -1622,13 +1502,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             config.createSubcontext(
                     LdapUtils.dnOf("cn", cn, parentDN),
                     storeTo(rule, new BasicAttributes(true)));
-        }
-    }
-
-    private void removeRSForwardRules(String parentDN, Collection<RSForwardRule> prevRules) throws NamingException {
-        for (RSForwardRule prevRule : prevRules) {
-            String cn = prevRule.getCommonName();
-            config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
         }
     }
 
@@ -2037,11 +1910,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     storeTo(view, new BasicAttributes(true)));
     }
 
-    private void removeQueryRetrieveViews(String deviceDN, ArchiveDeviceExtension prev) throws NamingException {
-        for (QueryRetrieveView view : prev.getQueryRetrieveViews())
-            config.destroySubcontext( LdapUtils.dnOf("dcmQueryRetrieveViewID", view.getViewID(), deviceDN));
-    }
-
     private Attributes storeTo(QueryRetrieveView qrView, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmQueryRetrieveView");
         attrs.put("dcmQueryRetrieveViewID", qrView.getViewID());
@@ -2116,14 +1984,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void removeAttributeCoercions(String parentDN, Collection<ArchiveAttributeCoercion> coercions)
-            throws NamingException {
-        for (ArchiveAttributeCoercion coercion : coercions) {
-            String cn = coercion.getCommonName();
-            config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
-        }
-    }
-
     private Attributes storeTo(ArchiveAttributeCoercion coercion, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmArchiveAttributeCoercion");
         attrs.put("cn", coercion.getCommonName());
@@ -2135,6 +1995,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmURI", coercion.getXSLTStylesheetURI());
         LdapUtils.storeNotDef(attrs, "dcmNoKeywords", coercion.isNoKeywords(), false);
         LdapUtils.storeNotNull(attrs, "dcmLeadingCFindSCP", coercion.getLeadingCFindSCP());
+        storeNotEmptyTags(attrs, "dcmTag", coercion.getLeadingCFindSCPReturnKeys());
         LdapUtils.storeNotNull(attrs, "dcmMergeMWLTemplateURI",
                 coercion.getMergeMWLTemplateURI());
         LdapUtils.storeNotNull(attrs, "dcmMergeMWLMatchingKey",
@@ -2162,6 +2023,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 coercion.setNoKeywords(LdapUtils.booleanValue(attrs.get("dcmNoKeywords"), false));
                 coercion.setLeadingCFindSCP(LdapUtils.stringValue(attrs.get("dcmLeadingCFindSCP"), null));
+                coercion.setLeadingCFindSCPReturnKeys(tags(attrs.get("dcmTag")));
                 coercion.setMergeMWLTemplateURI(
                         LdapUtils.stringValue(attrs.get("dcmMergeMWLTemplateURI"), null));
                 coercion.setMergeMWLMatchingKey(
@@ -2188,6 +2050,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmURI", prev.getXSLTStylesheetURI(), coercion.getXSLTStylesheetURI());
         LdapUtils.storeDiff(mods, "dcmNoKeywords", prev.isNoKeywords(), coercion.isNoKeywords(), false);
         LdapUtils.storeDiff(mods, "dcmLeadingCFindSCP", prev.getLeadingCFindSCP(), coercion.getLeadingCFindSCP());
+        storeDiffTags(mods, "dcmTag", prev.getLeadingCFindSCPReturnKeys(), coercion.getLeadingCFindSCPReturnKeys());
         LdapUtils.storeDiff(mods, "dcmMergeMWLTemplateURI",
                 prev.getMergeMWLTemplateURI(),
                 coercion.getMergeMWLTemplateURI());
@@ -2218,24 +2081,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void removeRejectNotes(String deviceDN, ArchiveDeviceExtension prev) throws NamingException {
-        for (RejectionNote rejectionNote : prev.getRejectionNotes()) {
-            String id = rejectionNote.getRejectionNoteLabel();
-            config.destroySubcontext(LdapUtils.dnOf("dcmRejectionNoteLabel", id, deviceDN));
-        }
-    }
-
     private void storeIDGenerators(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
         for (IDGenerator generator : arcDev.getIDGenerators().values()) {
             config.createSubcontext(
                     LdapUtils.dnOf("dcmIDGeneratorName", generator.getName().name(), deviceDN),
                     storeTo(generator, new BasicAttributes(true)));
         }
-    }
-
-    private void removeIDGenerators(String deviceDN, ArchiveDeviceExtension prev) throws NamingException {
-        for (IDGenerator.Name name : prev.getIDGenerators().keySet())
-            config.destroySubcontext(LdapUtils.dnOf("dcmIDGenerator", name.name(), deviceDN));
     }
 
     private Attributes storeTo(RejectionNote rjNote, BasicAttributes attrs) {
@@ -2325,7 +2176,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             throws NamingException {
         for (IDGenerator.Name name : prev.getIDGenerators().keySet()) {
             if (!arcDev.getIDGenerators().containsKey(name))
-                config.destroySubcontext(LdapUtils.dnOf("dcmIDGenerator", name.name(), deviceDN));
+                            config.destroySubcontext(LdapUtils.dnOf("dcmIDGenerator", name.name(), deviceDN));
         }
         for (IDGenerator entryNew : arcDev.getIDGenerators().values()) {
             IDGenerator.Name name = entryNew.getName();

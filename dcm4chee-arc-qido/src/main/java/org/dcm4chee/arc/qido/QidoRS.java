@@ -512,6 +512,7 @@ public class QidoRS {
                     case "expired":
                     case "retrievefailed":
                     case "incomplete":
+                    case "inverse":
                     case "SendingApplicationEntityTitleOfSeries":
                     case "StudyReceiveDateTime":
                     case "ExternalRetrieveAET":

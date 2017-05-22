@@ -63,6 +63,7 @@ public class ArchiveAttributeCoercion {
     private String xsltStylesheetURI;
     private boolean noKeywords;
     private String leadingCFindSCP;
+    private int[] leadingCFindSCPReturnKeys = {};
     private MergeMWLMatchingKey mergeMWLMatchingKey;
     private String mergeMWLTemplateURI;
     private Attributes.UpdatePolicy attributeUpdatePolicy;
@@ -152,6 +153,14 @@ public class ArchiveAttributeCoercion {
 
     public void setLeadingCFindSCP(String leadingCFindSCP) {
         this.leadingCFindSCP = leadingCFindSCP;
+    }
+
+    public int[] getLeadingCFindSCPReturnKeys() {
+        return leadingCFindSCPReturnKeys;
+    }
+
+    public void setLeadingCFindSCPReturnKeys(int[] leadingCFindSCPReturnKeys) {
+        this.leadingCFindSCPReturnKeys = leadingCFindSCPReturnKeys;
     }
 
     public MergeMWLMatchingKey getMergeMWLMatchingKey() {

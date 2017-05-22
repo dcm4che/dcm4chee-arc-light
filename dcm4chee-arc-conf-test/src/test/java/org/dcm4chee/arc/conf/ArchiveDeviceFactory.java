@@ -318,6 +318,25 @@ class ArchiveDeviceFactory {
             Tag.IdenticalDocumentsSequence,
             Tag.CurrentRequestedProcedureEvidenceSequence
     };
+    static final int[] LEADING_C_FIND_SCP_ATTRS = {
+            Tag.StudyDate,
+            Tag.StudyTime,
+            Tag.AccessionNumber,
+            Tag.IssuerOfAccessionNumberSequence,
+            Tag.ReferringPhysicianName,
+            Tag.StudyDescription,
+            Tag.ProcedureCodeSequence,
+            Tag.PatientName,
+            Tag.PatientID,
+            Tag.IssuerOfPatientID,
+            Tag.PatientBirthDate,
+            Tag.PatientSex,
+            Tag.PatientAge,
+            Tag.PatientSize,
+            Tag.PatientWeight,
+            Tag.StudyInstanceUID,
+            Tag.StudyID
+    };
     static final int[] MPPS_ATTRS = {
             Tag.SpecificCharacterSet,
             Tag.Modality,
@@ -1162,6 +1181,8 @@ class ArchiveDeviceFactory {
         coercion.setXSLTStylesheetURI(xsltURI);
         coercion.setNoKeywords(xsltURI != null);
         coercion.setLeadingCFindSCP(leadingCFindSCP);
+        if (leadingCFindSCP != null)
+            coercion.setLeadingCFindSCPReturnKeys(LEADING_C_FIND_SCP_ATTRS);
         coercion.setMergeMWLMatchingKey(mergeMWLMatchingKey);
         if (mergeMWLMatchingKey != null)
             coercion.setMergeMWLTemplateURI(MERGE_MWL);

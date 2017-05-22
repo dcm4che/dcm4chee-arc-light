@@ -49,8 +49,10 @@ import org.dcm4chee.arc.Cache;
  * @since May 2016
  */
 public interface CFindSCU {
-    Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID)
+    Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID, int[] returnKeys)
             throws Exception;
 
-    Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID, Cache<String,Attributes> cache);
+    Attributes queryStudy(
+            ApplicationEntity localAE, String calledAET, String studyIUID, int[] returnKeys,
+            Cache<String, Attributes> cache);
 }

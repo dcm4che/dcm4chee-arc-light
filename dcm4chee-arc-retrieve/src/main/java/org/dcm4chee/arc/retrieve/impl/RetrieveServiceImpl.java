@@ -820,9 +820,17 @@ public class RetrieveServiceImpl implements RetrieveService {
         int expected = 0;
         ApplicationEntity localAE = ctx.getLocalApplicationEntity();
         for (String studyIUID : ctx.getStudyInstanceUIDs()) {
-            Attributes studyAttrs = cfindscu.queryStudy(localAE, findSCP, studyIUID, leadingCFindSCPQueryCache);
+            Attributes studyAttrs = null;
+            try {
+                studyAttrs = cfindscu.queryStudy(localAE, findSCP, studyIUID,
+                        new int[] { Tag.NumberOfStudyRelatedInstances });
+            } catch (Exception e) {
+                LOG.warn("Failed to query Study[{}] from {} - cannot verify number of retrieved objects from {}:\n",
+                        studyIUID, findSCP, ctx.getFallbackAssociation().getRemoteAET(), e);
+                return -1;
+            }
             if (studyAttrs == null) {
-                LOG.warn("Failed to query Study[{}] from {} - cannot verify number of retrieved objects from {}",
+                LOG.warn("Study[{}] not found at {} - cannot verify number of retrieved objects from {}",
                         studyIUID, findSCP, ctx.getFallbackAssociation().getRemoteAET());
                 return -1;
             }
@@ -858,10 +866,23 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
         String leadingCFindSCP = rule.getLeadingCFindSCP();
         if (leadingCFindSCP != null) {
-            coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(),
-                    leadingCFindSCP, rule.attributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
+            int[] returnKeys = rule.getLeadingCFindSCPReturnKeys();
+            if (returnKeys.length == 0)
+                returnKeys = patAndStudyTags(aeExt.getArchiveDeviceExtension());
+            coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP, returnKeys,
+                    rule.attributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
         }
         return coercion;
+    }
+
+    private int[] patAndStudyTags(ArchiveDeviceExtension arcDev) {
+        int[] patTags = arcDev.getAttributeFilter(Entity.Patient).getSelection();
+        int[] studyTags = arcDev.getAttributeFilter(Entity.Study).getSelection();
+        int[] tags = new int[patTags.length + studyTags.length];
+        System.arraycopy(patTags, 0, tags, 0, patTags.length);
+        System.arraycopy(studyTags, 0, tags, patTags.length, studyTags.length);
+        Arrays.sort(tags);
+        return tags;
     }
 
     private boolean isAccessable(ArchiveDeviceExtension arcDev, InstanceLocations match) {
