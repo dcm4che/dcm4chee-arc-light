@@ -868,7 +868,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private static Attributes storeTo(AttributeFilter filter, Entity entity,  BasicAttributes attrs) {
         attrs.put("objectclass", "dcmAttributeFilter");
         attrs.put("dcmEntity", entity.name());
-        attrs.put(tagsAttr("dcmTag", filter.getSelection()));
+        storeNotEmptyTags(attrs, "dcmTag", filter.getSelection());
         LdapUtils.storeNotNull(attrs, "dcmCustomAttribute1", filter.getCustomAttribute1());
         LdapUtils.storeNotNull(attrs, "dcmCustomAttribute2", filter.getCustomAttribute2());
         LdapUtils.storeNotNull(attrs, "dcmCustomAttribute3", filter.getCustomAttribute3());
@@ -879,7 +879,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private static Attributes storeTo(MetadataFilter filter, String filterName,  BasicAttributes attrs) {
         attrs.put("objectclass", "dcmMetadataFilter");
         attrs.put("dcmMetadataFilterName", filterName);
-        attrs.put(tagsAttr("dcmTag", filter.getSelection()));
+        storeNotEmptyTags(attrs, "dcmTag", filter.getSelection());
         return attrs;
     }
 
@@ -890,7 +890,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attrs;
     }
 
-    private void storeNotEmptyTags(BasicAttributes attrs, String attrid, int[] vals) {
+    private static void storeNotEmptyTags(Attributes attrs, String attrid, int[] vals) {
         if (vals != null && vals.length > 0)
             attrs.put(tagsAttr(attrid, vals));
     }
@@ -972,7 +972,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
         int[] is = new int[attr.size()];
         for (int i = 0; i < is.length; i++)
-            is[i] = Integer.parseInt((String) attr.get(i), 16);
+            is[i] = TagUtils.intFromHexString((String) attr.get(i));
 
         return is;
     }
@@ -1052,7 +1052,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private void storeDiffTags(List<ModificationItem> mods, String attrId, int[] prevs, int[] vals) {
         if (!Arrays.equals(prevs, vals))
-            mods.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, tagsAttr(attrId, vals)));
+            mods.add((vals != null && vals.length == 0)
+                    ? new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(attrId))
+                    : new ModificationItem(DirContext.REPLACE_ATTRIBUTE, tagsAttr(attrId, vals)));
     }
 
     private void storeStorageDescriptors(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {

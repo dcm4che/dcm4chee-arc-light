@@ -50,6 +50,7 @@ import org.dcm4che3.data.Code;
 import org.dcm4che3.data.ValueSelector;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.Property;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.*;
 
 import javax.json.stream.JsonParser;
@@ -236,7 +237,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     public void writeAttributeFilter(JsonWriter writer, Entity entity, AttributeFilter attributeFilter) {
         writer.writeStartObject();
         writer.writeNotNull("dcmEntity", entity.name());
-        writer.writeNotEmpty("dcmTag", attributeFilter.getSelection());
+        writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(attributeFilter.getSelection()));
         writer.writeNotNull("dcmCustomAttribute1", attributeFilter.getCustomAttribute1());
         writer.writeNotNull("dcmCustomAttribute2", attributeFilter.getCustomAttribute2());
         writer.writeNotNull("dcmCustomAttribute3", attributeFilter.getCustomAttribute3());
@@ -248,7 +249,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     public void writeMetadataFilter(JsonWriter writer, String filter, MetadataFilter metadataFilter) {
         writer.writeStartObject();
         writer.writeNotNull("dcmMetadataFilterName", filter);
-        writer.writeNotEmpty("dcmTag", metadataFilter.getSelection());
+        writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(metadataFilter.getSelection()));
         writer.writeEnd();
     }
 
@@ -397,7 +398,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmNoKeywords", aac.isNoKeywords(), false);
             writer.writeNotNull("dcmURI", aac.getXSLTStylesheetURI());
             writer.writeNotNull("dcmLeadingCFindSCP", aac.getLeadingCFindSCP());
-            writer.writeNotEmpty("dcmTag", aac.getLeadingCFindSCPReturnKeys());
+            writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(aac.getLeadingCFindSCPReturnKeys()));
             writer.writeNotNull("dcmMergeMWLMatchingKey", aac.getMergeMWLMatchingKey());
             writer.writeNotNull("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI());
             writer.writeNotNull("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy());
@@ -993,7 +994,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         entity = Entity.valueOf(reader.stringValue());
                         break;
                     case "dcmTag":
-                        af.setSelection(reader.intArray());
+                        af.setSelection(TagUtils.fromHexStrings(reader.stringArray()));
                         break;
                     case "dcmCustomAttribute1":
                         af.setCustomAttribute1(ValueSelector.valueOf(reader.stringValue()));
@@ -1029,7 +1030,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         mf.setName(reader.stringValue());
                         break;
                     case "dcmTag":
-                        mf.setSelection(reader.intArray());
+                        mf.setSelection(TagUtils.fromHexStrings(reader.stringArray()));
                         break;
                     default:
                         reader.skipUnknownProperty();
@@ -1364,7 +1365,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         aac.setLeadingCFindSCP(reader.stringValue());
                         break;
                     case "dcmTag":
-                        aac.setLeadingCFindSCPReturnKeys(reader.intArray());
+                        aac.setLeadingCFindSCPReturnKeys(TagUtils.fromHexStrings(reader.stringArray()));
                         break;
                     case "dcmMergeMWLMatchingKey":
                         aac.setMergeMWLMatchingKey(MergeMWLMatchingKey.valueOf(reader.stringValue()));

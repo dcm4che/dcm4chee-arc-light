@@ -92,7 +92,7 @@
       "title": "Leading C-FIND SCP return keys",
       "description": "DICOM Tag as hex string of attributes fetched from external C-FIND SCP for Attribute Coercion. If absent, all Patient and Study Attributes extracted into the DB - configured by the Patient and Study Attribute Filter - are fetched.",
       "type": "array",
-      "items" : { "type": "integer" }
+      "items" : { "type": "string" }
     },
     "dcmAttributeUpdatePolicy": {
       "title": "Attribute Update Policy",

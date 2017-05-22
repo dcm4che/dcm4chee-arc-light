@@ -14,10 +14,10 @@
     },
     "dcmTag": {
       "title": "Attribute Tag",
-      "description": "DICOM Tag as integer value",
+      "description": "DICOM Tag as hex string",
       "type": "array",
       "items": {
-        "type": "integer"
+        "type": "string"
       }
     }
   }
