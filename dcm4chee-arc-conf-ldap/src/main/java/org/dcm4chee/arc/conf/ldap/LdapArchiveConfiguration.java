@@ -323,9 +323,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     protected void storeDiffs(Device prev, Device device, List<ModificationItem> mods) {
         ArchiveDeviceExtension aa = prev.getDeviceExtension(ArchiveDeviceExtension.class);
         ArchiveDeviceExtension bb = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        if (aa == null || bb == null)
+        if (aa == null && bb == null)
             return;
 
+        boolean remove = bb == null;
+        if (remove) {
+            bb = new ArchiveDeviceExtension();
+        } else if (aa == null) {
+            aa = new ArchiveDeviceExtension();
+            mods.add(new ModificationItem(DirContext.ADD_ATTRIBUTE,
+                    LdapUtils.attr("objectClass", "dcmArchiveDevice")));
+        }
         LdapUtils.storeDiff(mods, "dcmFuzzyAlgorithmClass", aa.getFuzzyAlgorithmClass(), bb.getFuzzyAlgorithmClass());
         LdapUtils.storeDiff(mods, "dcmSeriesMetadataStorageID",
                 aa.getSeriesMetadataStorageIDs(),
@@ -508,6 +516,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "hl7ScheduledStationAETInOrder", aa.getHl7ScheduledStationAETInOrder(), bb.getHl7ScheduledStationAETInOrder());
         LdapUtils.storeDiff(mods, "dcmAuditUnknownStudyInstanceUID", aa.getAuditUnknownStudyInstanceUID(), bb.getAuditUnknownStudyInstanceUID());
         LdapUtils.storeDiff(mods, "dcmAuditUnknownPatientID", aa.getAuditUnknownPatientID(), bb.getAuditUnknownPatientID());
+        if (remove)
+            mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
+                    LdapUtils.attr("objectClass", "dcmArchiveDevice")));
     }
 
     @Override
@@ -724,9 +735,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     protected void storeDiffs(ApplicationEntity prev, ApplicationEntity ae, List<ModificationItem> mods) {
         ArchiveAEExtension aa = prev.getAEExtension(ArchiveAEExtension.class);
         ArchiveAEExtension bb = ae.getAEExtension(ArchiveAEExtension.class);
-        if (aa == null || bb == null)
+        if (aa == null && bb == null)
             return;
 
+        boolean remove = bb == null;
+        if (remove) {
+            bb = new ArchiveAEExtension();
+        } else if (aa == null) {
+            aa = new ArchiveAEExtension();
+            mods.add(new ModificationItem(DirContext.ADD_ATTRIBUTE,
+                    LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));
+        }
         LdapUtils.storeDiff(mods, "dcmObjectStorageID", aa.getObjectStorageIDs(), bb.getObjectStorageIDs());
         LdapUtils.storeDiff(mods, "dcmObjectStorageCount", aa.getObjectStorageCount(), bb.getObjectStorageCount());
         LdapUtils.storeDiff(mods, "dcmMetadataStorageID", aa.getMetadataStorageIDs(), bb.getMetadataStorageIDs());
@@ -802,6 +821,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmCopyMoveUpdatePolicy", aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy());
         LdapUtils.storeDiff(mods, "dcmInvokeImageDisplayPatientURL", aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL());
         LdapUtils.storeDiff(mods, "dcmInvokeImageDisplayStudyURL", aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL());
+        if (remove)
+            mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
+                    LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));
     }
 
     @Override
