@@ -87,12 +87,18 @@ public class FileSystemStorage extends AbstractStorage {
 
     @Override
     public long getUsableSpace() throws IOException {
-        return Files.getFileStore(Paths.get(rootURI)).getUsableSpace();
+        return getFileStore().getUsableSpace();
+    }
+
+    private FileStore getFileStore() throws IOException {
+        Path dir = Paths.get(rootURI);
+        Files.createDirectories(dir);
+        return Files.getFileStore(dir);
     }
 
     @Override
     public long getTotalSpace() throws IOException {
-        return Files.getFileStore(Paths.get(rootURI)).getTotalSpace();
+        return getFileStore().getTotalSpace();
     }
 
     @Override
