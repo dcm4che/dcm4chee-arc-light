@@ -304,7 +304,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditRecordRepositoryURL(LdapUtils.stringValue(attrs.get("dcmAuditRecordRepositoryURL"), null));
         ext.setElasticSearchURL(LdapUtils.stringValue(attrs.get("dcmElasticSearchURL"), null));
         ext.setAudit2JsonFhirTemplateURI(LdapUtils.stringValue(attrs.get("dcmAudit2JsonFhirTemplateURI"), null));
-        ext.setAudit2XmlFhirTemplateURI(LdapUtils.stringValue(attrs.get("setAudit2XmlFhirTemplateURI"), null));
+        ext.setAudit2XmlFhirTemplateURI(LdapUtils.stringValue(attrs.get("dcmAudit2XmlFhirTemplateURI"), null));
         ext.setCopyMoveUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmCopyMoveUpdatePolicy"), null));
         ext.setHl7TrackChangedPatientID(LdapUtils.booleanValue(attrs.get("hl7TrackChangedPatientID"), true));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
@@ -581,8 +581,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 .getDeviceExtension(ArchiveDeviceExtension.class);
         ArchiveDeviceExtension bb = device
                 .getDeviceExtension(ArchiveDeviceExtension.class);
-        if (aa == null || bb == null)
+        if (aa == null && bb == null)
             return;
+
+        if (aa == null)
+            aa = new ArchiveDeviceExtension();
+        else if (bb == null)
+            bb = new ArchiveDeviceExtension();
 
         mergeAttributeFilters(aa, bb, deviceDN);
         mergeStorageDescriptors(aa, bb, deviceDN);
@@ -858,8 +863,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     protected void mergeChilds(ApplicationEntity prev, ApplicationEntity ae, String aeDN) throws NamingException {
         ArchiveAEExtension aa = prev.getAEExtension(ArchiveAEExtension.class);
         ArchiveAEExtension bb = ae.getAEExtension(ArchiveAEExtension.class);
-        if (aa == null || bb == null)
+        if (aa == null && bb == null)
             return;
+
+        if (aa == null)
+            aa = new ArchiveAEExtension();
+        else if (bb == null)
+            bb = new ArchiveAEExtension();
 
         mergeExportRules(aa.getExportRules(), bb.getExportRules(), aeDN);
         mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), aeDN);
@@ -2200,11 +2210,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             throws NamingException {
         for (IDGenerator.Name name : prev.getIDGenerators().keySet()) {
             if (!arcDev.getIDGenerators().containsKey(name))
-                            config.destroySubcontext(LdapUtils.dnOf("dcmIDGenerator", name.name(), deviceDN));
+                            config.destroySubcontext(LdapUtils.dnOf("dcmIDGeneratorName", name.name(), deviceDN));
         }
         for (IDGenerator entryNew : arcDev.getIDGenerators().values()) {
             IDGenerator.Name name = entryNew.getName();
-            String dn = LdapUtils.dnOf("dcmIDGenerator", name.name(), deviceDN);
+            String dn = LdapUtils.dnOf("dcmIDGeneratorName", name.name(), deviceDN);
             IDGenerator entryOld = prev.getIDGenerators().get(name);
             if (entryOld == null) {
                 config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));

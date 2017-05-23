@@ -473,7 +473,7 @@ public class StowRS {
     private java.nio.file.Path spoolDirectoryRoot() throws IOException {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         return  Files.createDirectories(Paths.get(StringUtils.replaceSystemProperties(
-                StringUtils.maskNull(arcDev.getStowSpoolDirectory(), JBOSS_SERVER_TEMP))));
+                StringUtils.maskNull(arcDev != null ? arcDev.getStowSpoolDirectory() : null, JBOSS_SERVER_TEMP))));
     }
 
     private Attributes mkSOPRefWithRetrieveURL(StoreContext ctx) {

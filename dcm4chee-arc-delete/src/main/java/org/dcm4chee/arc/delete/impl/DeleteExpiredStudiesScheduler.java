@@ -105,7 +105,7 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
     @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getRejectExpiredStudiesPollingInterval();
+        return arcDev != null ? arcDev.getRejectExpiredStudiesPollingInterval() : null;
     }
 
     @Override
