@@ -88,6 +88,12 @@
       "description": "AE Title of external C-FIND SCP for Attribute Coercion with Patient and Study attributes fetched from this AE.",
       "type": "string"
     },
+    "dcmTag": {
+      "title": "Leading C-FIND SCP return keys",
+      "description": "DICOM Tag as hex string of attributes fetched from external C-FIND SCP for Attribute Coercion. If absent, all Patient and Study Attributes extracted into the DB - configured by the Patient and Study Attribute Filter - are fetched.",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
     "dcmAttributeUpdatePolicy": {
       "title": "Attribute Update Policy",
       "description": "Specifies how attributes shall be updated with attributes fetched from Leading C-FIND SCP. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE. If absent, MERGE will be applied.",

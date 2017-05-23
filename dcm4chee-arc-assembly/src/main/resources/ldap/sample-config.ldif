@@ -927,6 +927,23 @@ dcmDIMSE: C_STORE_RQ
 dcmLeadingCFindSCP: DCMQRSCP
 dcmAETitle: LEADING_DCMQRSCP
 dicomTransferRole: SCP
+dcmTag: 00080020
+dcmTag: 00080030
+dcmTag: 00080050
+dcmTag: 00080051
+dcmTag: 00080090
+dcmTag: 00081030
+dcmTag: 00081032
+dcmTag: 00100010
+dcmTag: 00100020
+dcmTag: 00100021
+dcmTag: 00100030
+dcmTag: 00100040
+dcmTag: 00101010
+dcmTag: 00101020
+dcmTag: 00101030
+dcmTag: 0020000D
+dcmTag: 00200010
 objectClass: dcmArchiveAttributeCoercion
 cn: Leading DCMQRSCP
 

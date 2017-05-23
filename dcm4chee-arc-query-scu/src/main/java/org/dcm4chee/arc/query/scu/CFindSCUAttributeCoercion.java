@@ -58,17 +58,19 @@ public class CFindSCUAttributeCoercion implements AttributesCoercion {
 
     private final ApplicationEntity localAE;
     private final String calledAET;
+    private final int[] returnKeys;
     private final Attributes.UpdatePolicy attributeUpdatePolicy;
     private final CFindSCU cfindSCU;
     private final Cache<String,Attributes> queryCache;
     private final AttributesCoercion next;
 
     public CFindSCUAttributeCoercion(
-            ApplicationEntity localAE, String calledAET,
+            ApplicationEntity localAE, String calledAET, int[] returnKeys,
             Attributes.UpdatePolicy attributeUpdatePolicy, CFindSCU cfindSCU, Cache<String, Attributes> queryCache,
             AttributesCoercion next) {
         this.localAE = localAE;
         this.calledAET = calledAET;
+        this.returnKeys = returnKeys;
         this.attributeUpdatePolicy = attributeUpdatePolicy;
         this.cfindSCU = cfindSCU;
         this.queryCache = queryCache;
@@ -78,7 +80,7 @@ public class CFindSCUAttributeCoercion implements AttributesCoercion {
     @Override
     public void coerce(Attributes attrs, Attributes modified) {
         String studyIUID = attrs.getString(Tag.StudyInstanceUID);
-        Attributes newAttrs = cfindSCU.queryStudy(localAE, calledAET, studyIUID, queryCache);
+        Attributes newAttrs = cfindSCU.queryStudy(localAE, calledAET, studyIUID, returnKeys, queryCache);
         if (newAttrs != null)
             attrs.update(attributeUpdatePolicy, newAttrs, modified);
         else

@@ -65,6 +65,7 @@ import {ControlService} from "./control/control.service";
 import { FileUploadModule} from "ng2-file-upload";
 import { StorageSystemsComponent } from './monitoring/storage-systems/storage-systems.component';
 import {StorageSystemsService} from "./monitoring/storage-systems/storage-systems.service";
+import {UploadDicomService} from "./widgets/dialogs/upload-dicom/upload-dicom.service";
 
 @NgModule({
     declarations: [
@@ -164,7 +165,8 @@ import {StorageSystemsService} from "./monitoring/storage-systems/storage-system
         StorageCommitmentService,
         StorageSystemsService,
         CreateExporterService,
-        DeviceConfiguratorService
+        DeviceConfiguratorService,
+        UploadDicomService
     ],
     bootstrap: [AppComponent]
 })

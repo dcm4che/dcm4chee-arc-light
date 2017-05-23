@@ -22,6 +22,7 @@ import {ComparewithiodPipe} from "../pipes/comparewithiod.pipe";
 import {DeleteRejectedInstancesComponent} from "../widgets/dialogs/delete-rejected-instances/delete-rejected-instances.component";
 import {DatePipe} from "@angular/common";
 import {ExportDialogComponent} from "../widgets/dialogs/export/export.component";
+import {UploadDicomComponent} from "../widgets/dialogs/upload-dicom/upload-dicom.component";
 
 @Component({
     selector: 'app-studies',
@@ -51,6 +52,7 @@ export class StudiesComponent implements OnDestroy{
         "series":false,
         "instance":false
     };
+    showFilterWarning:boolean;
     debugpre = false;
     saveLabel = "SAVE";
     titleLabel = "Edit patient";
@@ -258,6 +260,7 @@ export class StudiesComponent implements OnDestroy{
         //     // TODO: time changed
         //     console.log(this.value);
         // });
+        this.showFilterWarning = true;
         console.log("getglobal",this.mainservice.global);
         let $this = this;
         let dateset = localStorage.getItem("dateset");
@@ -643,7 +646,7 @@ export class StudiesComponent implements OnDestroy{
         this.morePatients = undefined;
         let $this = this;
         let queryParameters = this.createQueryParams(offset, this.limit + 1, this.createStudyFilterParams());
-        if (this.showNoFilterWarning(queryParameters)) {
+        if (this.showNoFilterWarning(queryParameters) && this.showFilterWarning) {
             $this.confirm({
                 content:'No filter are set, are you sure you want to continue?'
             }).subscribe(result => {
@@ -654,6 +657,7 @@ export class StudiesComponent implements OnDestroy{
         }else{
                 $this.queryStudie(queryParameters, offset);
         }
+        this.showFilterWarning = true;
 
     };
     editMWL(patient, patientkey, mwlkey, mwl){
@@ -1948,6 +1952,7 @@ export class StudiesComponent implements OnDestroy{
     }
     fireRightQuery(){
         console.log("querymode=",this.queryMode);
+        this.showFilterWarning = false;
         this[this.queryMode](0);
     }
     querySeries = function(study, offset) {
@@ -2581,6 +2586,20 @@ export class StudiesComponent implements OnDestroy{
         setTimeout(function() {
             $this.showClipboardContent = false;
         }, 1500);
+    };
+    uploadDicom(){
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(UploadDicomComponent, {
+            height:'auto',
+            width:'500px'
+        });
+        this.dialogRef.componentInstance.aes = this.aes;
+        this.dialogRef.componentInstance.selectedAe = this.aetmodel.title;
+        this.dialogRef.afterClosed().subscribe((result)=>{
+            console.log("result",result);
+            if(result){
+            }
+        });
     };
     ctrlX(){
         if(this.isRole("admin")){

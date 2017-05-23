@@ -371,7 +371,7 @@ export class StudiesService {
                 haspatient = true;
             }
         })
-        clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
+clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
     }
     /*
     * return patientid - combination of patient id, issuer

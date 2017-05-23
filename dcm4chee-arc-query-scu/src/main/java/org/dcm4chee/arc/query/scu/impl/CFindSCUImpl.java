@@ -46,8 +46,6 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4chee.arc.Cache;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -69,13 +67,13 @@ public class CFindSCUImpl implements CFindSCU {
     private IApplicationEntityCache aeCache;
 
     @Override
-    public Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID)
+    public Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID, int[] returnKeys)
             throws Exception {
         ApplicationEntity remoteAE = aeCache.get(calledAET);
         Association as = localAE.connect(remoteAE, createAARQ());
         try {
             DimseRSP rsp = as.cfind(UID.StudyRootQueryRetrieveInformationModelFIND, Priority.NORMAL,
-                    mkQueryStudyKeys(studyIUID), UID.ImplicitVRLittleEndian, 0);
+                    mkQueryStudyKeys(studyIUID, returnKeys), UID.ImplicitVRLittleEndian, 0);
             rsp.next();
             return rsp.getDataset();
         } finally {
@@ -86,14 +84,15 @@ public class CFindSCUImpl implements CFindSCU {
 
     @Override
     public Attributes queryStudy(
-            ApplicationEntity localAE, String calledAET, String studyIUID, Cache<String, Attributes> cache) {
+            ApplicationEntity localAE, String calledAET, String studyIUID, int[] returnKeys,
+            Cache<String, Attributes> cache) {
         Cache.Entry<Attributes> entry = cache.getEntry(studyIUID);
         Attributes newAttrs;
         if (entry != null) {
             newAttrs = entry.value();
         } else {
             try {
-                newAttrs = queryStudy(localAE, calledAET, studyIUID);
+                newAttrs = queryStudy(localAE, calledAET, studyIUID, returnKeys);
             } catch (Exception e) {
                 newAttrs = null;
             }
@@ -102,23 +101,13 @@ public class CFindSCUImpl implements CFindSCU {
         return newAttrs;
     }
 
-    private Attributes mkQueryStudyKeys(String studyIUID) {
-        ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int[] patTags = arcdev.getAttributeFilter(Entity.Patient).getSelection();
-        int[] studyTags = arcdev.getAttributeFilter(Entity.Study).getSelection();
-        Attributes keys = new Attributes(patTags.length + studyTags.length);
+    private Attributes mkQueryStudyKeys(String studyIUID, int[] returnKeys) {
+        Attributes keys = new Attributes(returnKeys.length + 2);
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
-        setReturnKeys(keys, patTags);
-        setReturnKeys(keys, studyTags);
+        for (int tag : returnKeys)
+            keys.setNull(tag, DICT.vrOf(tag));
         keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
-        keys.setNull(Tag.NumberOfStudyRelatedInstances, VR.IS);
         return keys;
-    }
-
-    private void setReturnKeys(Attributes keys, int[] tags) {
-        for (int tag : tags)
-            if (tag != Tag.SpecificCharacterSet)
-                keys.setNull(tag, DICT.vrOf(tag));
     }
 
     private AAssociateRQ createAARQ() {

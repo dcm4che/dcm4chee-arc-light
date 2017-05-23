@@ -35,6 +35,10 @@
       "description": "Storage Commitment"
     },
     {
+      "name": "DIFF-RS",
+      "description": "Compare Studies"
+    },
+    {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
     },
@@ -2545,6 +2549,132 @@
             "in": "path",
             "description": "ExpirationDate",
             "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "series not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/diff/studies/{remoteAET}": {
+      "get": {
+        "tags": [
+          "DIFF-RS"
+        ],
+        "summary": "Compare Studies",
+        "operationId": "CompareStudies",
+        "produces": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "remoteAET",
+            "in": "path",
+            "description": "Remote AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "inverse",
+            "in": "query",
+            "description": "Indicates to query for matching studies {remoteAET} instead the local archive",
+            "type": "boolean",
+            "default": "false"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "includefield",
+            "in": "query",
+            "description": "includefield={attributeID} | all",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "returnempty",
+            "in": "query",
+            "description": "compare also empty Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "compare only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "compare only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "compare only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "compare Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "compare Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "compare Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "compare Studies which are not retrieveable from external <AE Title>",
             "type": "string"
           }
         ],

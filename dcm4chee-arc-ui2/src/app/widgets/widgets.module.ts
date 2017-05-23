@@ -20,6 +20,7 @@ import { CreateExporterComponent } from './dialogs/create-exporter/create-export
 import { ExportDialogComponent } from './dialogs/export/export.component';
 import { CloneSelectorComponent } from './dialogs/clone-selector/clone-selector.component';
 import { UploadFilesComponent } from './dialogs/upload-files/upload-files.component';
+import { UploadDicomComponent } from './dialogs/upload-dicom/upload-dicom.component';
 
 
 @NgModule({
@@ -29,7 +30,7 @@ import { UploadFilesComponent } from './dialogs/upload-files/upload-files.compon
         FormsModule,
         CalendarModule
     ],
-    declarations: [WidgetsComponent],
+    declarations: [WidgetsComponent ],
     exports:[WidgetsComponent],
     providers: [MdDialogConfig]
 })
@@ -47,5 +48,6 @@ export const WidgetsComponents = [
     CreateExporterComponent,
     ExportDialogComponent,
     CloneSelectorComponent,
-    UploadFilesComponent
+    UploadFilesComponent,
+    UploadDicomComponent
 ];
