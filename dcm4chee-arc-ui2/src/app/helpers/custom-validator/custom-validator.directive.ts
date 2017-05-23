@@ -18,7 +18,7 @@ export class CustomValidatorDirective{
                     oneOfOptionsActive = true;
                 }
             })*/
-            let check = (control.value === undefined || control.value === null || control.value === '' || (_.size(control.value) < 1));
+            let check = (control.value === undefined || control.value === null || control.value === '' || (_.size(control.value) < 1) || (_.isArray(control.value) && control.value[0] === ""));
             return check ?
             {'msg': `This field is required!`} :
                 null;

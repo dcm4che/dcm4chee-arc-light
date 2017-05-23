@@ -59,7 +59,7 @@ export class FormService{
                     validation = Validators.compose(validationArray);
                 }else{
                     if(_.hasIn(element,"validation.required") && element["validation"].required){
-                        if(_.hasIn(element,"options")){
+                        if(_.hasIn(element,"options") || element["controlType"] === "arrayelement"){
                             if(element["controlType"] === "checkbox" || element["controlType"] === "arrayelement"){
                                 validation = CustomValidatorDirective.requiredArray(element["options"]);
                             }else{
