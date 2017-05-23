@@ -4,7 +4,7 @@
   "type": "object",
   "required": [
     "cn",
-    "hl7OrderScheduledStationDeviceName"
+    "hl7OrderScheduledStationDeviceReference"
   ],
   "properties": {
     "cn": {
@@ -12,9 +12,9 @@
       "description": "Arbitrary/Meaningful name for the Scheduled Station Order Mapping",
       "type": "string"
     },
-    "hl7OrderScheduledStationDeviceName": {
-      "title": "Scheduled Station Device Name",
-      "description": "Device Name of Scheduled Station",
+    "hl7OrderScheduledStationDeviceReference": {
+      "title": "Scheduled Station Device Reference",
+      "description": "The DN of a dicomDeviceObject referenced by hl7OrderScheduledStation",
       "type": "string"
     },
     "dcmRulePriority": {
