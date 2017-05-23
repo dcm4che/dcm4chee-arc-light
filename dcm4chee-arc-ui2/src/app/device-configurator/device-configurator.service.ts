@@ -100,13 +100,13 @@ export class DeviceConfiguratorService{
             if(_.hasIn(device,i)){
                 if(!_.isPlainObject(device[i]) && !(_.isArray(device[i]) && device[i].length > 0 && _.isPlainObject(device[i][0]))){
                     let newValue = this.getWrightValue(device[i],m);
-                    if(newValue != null){
+                    if(newValue  != null){
                         device[i] = newValue;
                     }
                 }
             }else{
                 let newValue = this.getWrightValue(device[i],m);
-                if(newValue){
+                if(newValue  != null){
                     device[i] = newValue;
                 }
             }
@@ -134,7 +134,7 @@ export class DeviceConfiguratorService{
             return null;
         });*/
         _.forEach(device,(m,i)=>{
-            if(m === null){
+            if(m === null || m === "" || (_.isArray(m) && m.length === 0)){
                 delete device[i];
             }
         });
@@ -147,6 +147,9 @@ export class DeviceConfiguratorService{
             //Deleting value
             if(_.isString(obj) && obj != "" && obj2 === ""){
                 return obj2;
+            }
+            if(_.isNumber(obj) && obj && (obj2 == "" || !obj2)){
+                return "";
             }
             //Updating array
             if(_.isArray(obj) && _.isArray(obj2)){
@@ -401,7 +404,7 @@ export class DeviceConfiguratorService{
                                         options.push({
                                             key:opt,
                                             value:opt,
-                                            active:(opt === value)? true:false
+                                            active:(opt === value || _.indexOf(value,opt) > -1)? true:false
                                         });
                                     })
                                     form.push(
