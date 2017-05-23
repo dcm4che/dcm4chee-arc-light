@@ -166,7 +166,7 @@ export class DynamicFormElementComponent{
     removeObject(formelement,controls){
         let $this = this;
         this.confirm({
-            content:'Are you sure you want to remove this axtension and all subchildes of it?'
+            content:'Are you sure you want to remove this extension and all of its child objects?'
         }).subscribe(result => {
             if(result){
                 $this.deviceConfiguratorService.removeExtensionFromDevice(formelement.devicereff);
