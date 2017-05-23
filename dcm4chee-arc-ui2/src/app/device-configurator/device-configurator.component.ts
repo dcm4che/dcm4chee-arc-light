@@ -197,7 +197,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                     } else {
                         $this.service.pagination.push(newPaginationObject);
                     }
-                    if ($this.service.device && params['device'] === $this.service.device.dicomDeviceName && $this.service.schema) {
+/*                    if ($this.service.device && params['device'] === $this.service.device.dicomDeviceName && $this.service.schema) {
                         $this.deleteForm();
                         $this.showform = false;
                         $this.model = $this.service.device;
@@ -207,7 +207,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                             $this.showform = true;
                             $this.cfpLoadingBar.complete();
                         }, 1);
-                    } else {
+                    } else {*/
                         if (params["device"] == "[new_device]") {
                             $this.$http.get('./assets/schema/device.schema.json').map(data => data.json()).subscribe((schema)=> {
                                 $this.showform = false;
@@ -248,7 +248,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                                 }
                             });
                         }
-                    }
+                    // }
                 } else {
                     this.setFormFromParameters(params,form);
                 }

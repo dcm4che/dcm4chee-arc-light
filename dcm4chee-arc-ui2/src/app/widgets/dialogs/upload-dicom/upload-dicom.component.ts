@@ -63,7 +63,7 @@ export class UploadDicomComponent implements OnInit {
             });*/
             let reader = new FileReader();
             let fileContent = reader.readAsArrayBuffer(fileList[0]);
-            let fileContentString = reader.readAsBinaryString(fileList[0]);
+            // let fileContentString = reader.readAsBinaryString(fileList[0]);
             console.log("fileContnet",fileContent);
 /*            let file: File = fileList[0];
             let formData:FormData = new FormData();
