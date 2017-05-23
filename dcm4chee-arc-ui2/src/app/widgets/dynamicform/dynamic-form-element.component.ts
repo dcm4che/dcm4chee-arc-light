@@ -43,6 +43,7 @@ export class DynamicFormElementComponent{
         public config: MdDialogConfig,
         public viewContainerRef: ViewContainerRef,
         public $http:Http,
+        private ref: ChangeDetectorRef
 
     ){
         // dcl.resolveComponentFactory(DynamicFormComponent);
@@ -163,10 +164,18 @@ export class DynamicFormElementComponent{
         this.formcomp.setFormModel(valueObject);
     }
     removeObject(formelement,controls){
-        this.deviceConfiguratorService.removeExtensionFromDevice(formelement.devicereff);
-        _.forEach(this.formelements,(m,i)=>{
-            if(m["controlType"] === "button" && m["devicereff"] === formelement.devicereff){
-                m.value = 0;
+        let $this = this;
+        this.confirm({
+            content:'Are you sure you want to remove this axtension and all subchildes of it?'
+        }).subscribe(result => {
+            if(result){
+                $this.deviceConfiguratorService.removeExtensionFromDevice(formelement.devicereff);
+                _.forEach($this.formelements,(m,i)=>{
+                    if(m["controlType"] === "button" && m["devicereff"] === formelement.devicereff){
+                        m.value = 0;
+                    }
+                });
+                $this.ref.detectChanges();
             }
         });
     }
@@ -206,6 +215,7 @@ export class DynamicFormElementComponent{
         this.form.patchValue(valueObject);
         this.formcomp.setForm(this.form);
         this.formcomp.setFormModel(valueObject);
+        this.ref.detectChanges();
     }
     removeArrayElement(element:any, i:number, form:any){
         if(element.value.length > i){
@@ -218,6 +228,7 @@ export class DynamicFormElementComponent{
                     this.formelements[j].value = this.form.value[element.key];
                 }
             });
+            this.ref.detectChanges();
         }
     }
     checkboxChange(e, formelement){
