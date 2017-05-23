@@ -111,7 +111,8 @@ public class ArchiveDeviceProducer {
     }
 
     private void extractVendorData() {
-        String unzipTo = device.getDeviceExtension(ArchiveDeviceExtension.class).getUnzipVendorDataToURI();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        String unzipTo = arcDev != null ? arcDev.getUnzipVendorDataToURI() : null;
         if (unzipTo == null)
             return;
 

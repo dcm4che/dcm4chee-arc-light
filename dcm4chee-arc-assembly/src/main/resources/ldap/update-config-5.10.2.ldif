@@ -1,0 +1,596 @@
+version: 1
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomSoftwareVersion
+dicomSoftwareVersion: 5.10.2
+-
+delete: dcmStorageID
+-
+delete: dicomVendorData
+-
+add: dicomVendorData
+dicomVendorData:< file:vendor-data.zip
+-
+add: dcmWadoSupportedSRClasses
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.72
+dcmWadoSupportedSRClasses: 1.2.840.10008.5.1.4.1.1.88.73
+-
+
+dn: dcmEntity=Instance,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmTag
+dcmTag: 00080012
+dcmTag: 00080013
+-
+
+dn: dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmObjectStorageID
+dcmObjectStorageID: fs1
+-
+
+dn: dcmExporterID=dicom:,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+-
+
+dn: dcmExporterID=DCM4CHEE:,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmExporterID: DCM4CHEE:
+dicomDescription: Generic DICOM Exporter (Unrejected Instances & Rejection Notes except Retention Expired)
+dcmQueueName: Export1
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: dicom
+-
+
+dn: dcmExporterID=DCM4CHEE_ADMIN:,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmExporterID: DCM4CHEE_ADMIN:
+dicomDescription: Generic DICOM Exporter (Unrejected Instances & Rejection Notes)
+dcmQueueName: Export1
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE_ADMIN
+dcmURI: dicom
+-
+
+dn: dcmQueryRetrieveViewID=regularUse,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: dcmHideRejectionNoteWithCode
+-
+
+dn: cn=Simplified Adult Echo SR Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.72
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.1.99
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Simplified Adult Echo SR Storage SCP
+-
+
+dn: cn=Simplified Adult Echo SR Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.72
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.1.99
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Simplified Adult Echo SR Storage SCU
+-
+
+dn: cn=Patient Radiation Dose SR Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.73
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.1.99
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Patient Radiation Dose SR Storage SCP
+-
+
+dn: cn=Patient Radiation Dose SR Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.73
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.1.99
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Patient Radiation Dose SR Storage SCU
+-
+
+dn: cn=CT Performed Procedure Protocol Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.200.2
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: CT Performed Procedure Protocol Storage SCP
+-
+
+dn: cn=CT Performed Procedure Protocol Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.200.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: CT Performed Procedure Protocol Storage SCU
+-
+
+dn: cn=Advanced Blending Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.8
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Advanced Blending Presentation State Storage SCP
+-
+
+dn: cn=Advanced Blending Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.8
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Advanced Blending Presentation State Storage SCU
+-
+
+dn: cn=Volume Rendering Volumetric Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.9
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Volume Rendering Volumetric Presentation State Storage SCP
+-
+
+dn: cn=Volume Rendering Volumetric Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.9
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Volume Rendering Volumetric Presentation State Storage SCU
+-
+
+dn: cn=Ophthalmic Optical Coherence Tomography En Face Image Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.77.1.5.7
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.4.50
+dicomTransferSyntax: 1.2.840.10008.1.2.4.51
+dicomTransferSyntax: 1.2.840.10008.1.2.4.70
+dicomTransferSyntax: 1.2.840.10008.1.2.4.57
+dicomTransferSyntax: 1.2.840.10008.1.2.4.80
+dicomTransferSyntax: 1.2.840.10008.1.2.4.81
+dicomTransferSyntax: 1.2.840.10008.1.2.4.90
+dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.5
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Ophthalmic Optical Coherence Tomography En Face Image Storage SCP
+-
+
+dn: cn=Ophthalmic Optical Coherence Tomography En Face Image Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.77.1.5.7
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.4.50
+dicomTransferSyntax: 1.2.840.10008.1.2.4.51
+dicomTransferSyntax: 1.2.840.10008.1.2.4.70
+dicomTransferSyntax: 1.2.840.10008.1.2.4.57
+dicomTransferSyntax: 1.2.840.10008.1.2.4.80
+dicomTransferSyntax: 1.2.840.10008.1.2.4.81
+dicomTransferSyntax: 1.2.840.10008.1.2.4.90
+dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.5
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Ophthalmic Optical Coherence Tomography En Face Image Storage SCU
+-
+
+dn: cn=Multiple Volume Rendering Volumetric Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.11
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Multiple Volume Rendering Volumetric Presentation State Storage SCP
+-
+
+dn: cn=Multiple Volume Rendering Volumetric Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.11
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Multiple Volume Rendering Volumetric Presentation State Storage SCU
+-
+
+dn: cn=Segmented Volume Rendering Volumetric Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.10
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Segmented Volume Rendering Volumetric Presentation State Storage SCP
+-
+
+dn: cn=Segmented Volume Rendering Volumetric Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.10
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Segmented Volume Rendering Volumetric Presentation State Storage SCU
+-
+
+dn: cn=Ophthalmic Optical Coherence Tomography B-scan Volume Analysis Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.77.1.5.8
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.4.50
+dicomTransferSyntax: 1.2.840.10008.1.2.4.51
+dicomTransferSyntax: 1.2.840.10008.1.2.4.70
+dicomTransferSyntax: 1.2.840.10008.1.2.4.57
+dicomTransferSyntax: 1.2.840.10008.1.2.4.80
+dicomTransferSyntax: 1.2.840.10008.1.2.4.81
+dicomTransferSyntax: 1.2.840.10008.1.2.4.90
+dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.5
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Ophthalmic Optical Coherence Tomography B-scan Volume Analysis Storage SCP
+-
+
+dn: cn=Ophthalmic Optical Coherence Tomography B-scan Volume Analysis Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.77.1.5.8
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.4.50
+dicomTransferSyntax: 1.2.840.10008.1.2.4.51
+dicomTransferSyntax: 1.2.840.10008.1.2.4.70
+dicomTransferSyntax: 1.2.840.10008.1.2.4.57
+dicomTransferSyntax: 1.2.840.10008.1.2.4.80
+dicomTransferSyntax: 1.2.840.10008.1.2.4.81
+dicomTransferSyntax: 1.2.840.10008.1.2.4.90
+dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.5
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Ophthalmic Optical Coherence Tomography B-scan Volume Analysis Storage SCU
+-
+
+dn: cn=Simplified Adult Echo SR Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.72
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.1.99
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Simplified Adult Echo SR Storage SCU
+-
+
+dn: cn=Patient Radiation Dose SR Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.88.73
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.1.99
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Patient Radiation Dose SR Storage SCU
+-
+
+dn: cn=CT Performed Procedure Protocol Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.200.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: CT Performed Procedure Protocol Storage SCU
+-
+
+dn: cn=Advanced Blending Presentation State Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.8
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Advanced Blending Presentation State Storage SCU
+-
+
+dn: cn=Volume Rendering Volumetric Presentation State Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.9
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Volume Rendering Volumetric Presentation State Storage SCU
+-
+
+dn: cn=Ophthalmic Optical Coherence Tomography En Face Image Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.77.1.5.7
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.4.50
+dicomTransferSyntax: 1.2.840.10008.1.2.4.51
+dicomTransferSyntax: 1.2.840.10008.1.2.4.70
+dicomTransferSyntax: 1.2.840.10008.1.2.4.57
+dicomTransferSyntax: 1.2.840.10008.1.2.4.80
+dicomTransferSyntax: 1.2.840.10008.1.2.4.81
+dicomTransferSyntax: 1.2.840.10008.1.2.4.90
+dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.5
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Ophthalmic Optical Coherence Tomography En Face Image Storage SCU
+-
+
+dn: cn=Multiple Volume Rendering Volumetric Presentation State Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.11
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Multiple Volume Rendering Volumetric Presentation State Storage SCU
+-
+
+dn: cn=Segmented Volume Rendering Volumetric Presentation State Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.10
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Segmented Volume Rendering Volumetric Presentation State Storage SCU
+-
+
+dn: cn=Ophthalmic Optical Coherence Tomography B-scan Volume Analysis Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.77.1.5.8
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+dicomTransferSyntax: 1.2.840.10008.1.2.4.50
+dicomTransferSyntax: 1.2.840.10008.1.2.4.51
+dicomTransferSyntax: 1.2.840.10008.1.2.4.70
+dicomTransferSyntax: 1.2.840.10008.1.2.4.57
+dicomTransferSyntax: 1.2.840.10008.1.2.4.80
+dicomTransferSyntax: 1.2.840.10008.1.2.4.81
+dicomTransferSyntax: 1.2.840.10008.1.2.4.90
+dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.5
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Ophthalmic Optical Coherence Tomography B-scan Volume Analysis Storage SCU
+-
+
+dn: cn=Color Softcopy Presentation State Storage SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+-
+
+dn: cn=Color Softcopy Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Color Softcopy Presentation State Storage SCP
+-
+
+dn: cn=Color Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+-
+
+dn: cn=Color Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Color Softcopy Presentation State Storage SCU
+-
+
+dn: cn=Blending Softcopy Presentation State Storage SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+-
+
+dn: cn=Blending Softcopy Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.4
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Blending Softcopy Presentation State Storage SCP
+-
+
+dn: cn=Blending Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+-
+
+dn: cn=Blending Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.4
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Blending Softcopy Presentation State Storage SCU
+-
+
+dn: cn=Grayscale Softcopy Presentation State Storage SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+-
+
+dn: cn=Grayscale Softcopy Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Grayscale Softcopy Presentation State Storage SCP
+-
+
+dn: cn=Grayscale Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+-
+
+dn: cn=Grayscale Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Grayscale Softcopy Presentation State Storage SCU
+-
+
+dn: cn=Pseudo-Color Softcopy Presentation State Storage SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+-
+
+dn: cn=Pseudo-Color Softcopy Presentation State Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.3
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Pseudo-Color Softcopy Presentation State Storage SCP
+-
+
+dn: cn=Pseudo-Color Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+-
+
+dn: cn=Pseudo-Color Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.3
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Pseudo-Color Softcopy Presentation State Storage SCU
+-
+
+dn: cn=Color Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+-
+
+dn: cn=Color Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.2
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Color Softcopy Presentation State Storage SCU
+-
+
+dn: cn=Blending Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+-
+
+dn: cn=Blending Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.4
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Blending Softcopy Presentation State Storage SCU
+-
+
+dn: cn=Grayscale Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+-
+
+dn: cn=Grayscale Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Grayscale Softcopy Presentation State Storage SCU
+-
+
+dn: cn=Pseudo-Color Softcopy Presentation State Storage SOP Class SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+-
+
+dn: cn=Pseudo-Color Softcopy Presentation State Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomSOPClass: 1.2.840.10008.5.1.4.1.1.11.3
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+dicomTransferSyntax: 1.2.840.10008.1.2.1
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Pseudo-Color Softcopy Presentation State Storage SCU
+-

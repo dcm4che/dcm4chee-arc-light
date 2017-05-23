@@ -89,7 +89,7 @@ public class AuditScheduler extends Scheduler {
     @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.isAuditAggregate() ? arcDev.getAuditPollingInterval() : null;
+        return arcDev != null && arcDev.isAuditAggregate() ? arcDev.getAuditPollingInterval() : null;
     }
 
     @Override

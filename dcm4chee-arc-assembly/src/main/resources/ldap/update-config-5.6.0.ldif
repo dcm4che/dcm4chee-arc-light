@@ -1,0 +1,89 @@
+version: 1
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomSoftwareVersion
+dicomSoftwareVersion: 5.6.0
+-
+replace: userCertificate;binary
+userCertificate;binary:: MIIDdTCCAl2gAwIBAgIEVUXoPTANBgkqhkiG9w0BAQsFADBrMQswCQYDVQQGEwJBVDEPMA0GA1UECBMGVmllbm5hMQ8wDQYDVQQHEwZWaWVubmExEDAOBgNVBAoTB2RjbTRjaGUxFTATBgNVBAsTDGRjbTRjaGUtdG9vbDERMA8GA1UEAxMIZGNtcXJzY3AwHhcNMTYwODI5MDkxNDI3WhcNMTcwODI5MDkxNDI3WjBrMQswCQYDVQQGEwJBVDEPMA0GA1UECBMGVmllbm5hMQ8wDQYDVQQHEwZWaWVubmExEDAOBgNVBAoTB2RjbTRjaGUxFTATBgNVBAsTDGRjbTRjaGUtdG9vbDERMA8GA1UEAxMIZGNtcXJzY3AwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCa17LGeRnIV4SI8hyrbpcOmVVnQtbjVyaPvMdHB4G5zDXXBVR62kD8Izkh6tdYO6vQy88KQxm1WwmujF6PGU6/WcGouEMUJAOietn5FtBBVZsTpsqAwnm3pbg7Ep9DZaxD6Of5NMeftOyKKpZq+gRjHkUn0POwK4+J4cxS3pAG8VxAOnVCaKkwDIMwwWIbzuxz+zhRMT0HsgtEvYNKk3CChqmvdb9oZbpFW2F6yX9U7NhhpzrOcTu1v/fPjYwsHfl1mWyo7AtiI2wLrKqoNJcM9b1OXMhgQTxgQdIQFL1fl0BnezORwfgzPeXGXVtWjArydn9GQdnei4Ft9vCZXDuxAgMBAAGjITAfMB0GA1UdDgQWBBTTc3L+Jubz1LIKqAOwG56DfX6N8zANBgkqhkiG9w0BAQsFAAOCAQEACJUW/VL7fv3yvLeIZxojRa0TIfDnKk56KbSBU92eGWAc661XJfYyLSwgvT6TuLsux/KJP8AzxrEOe5YkjCDrJA+oXy2Ol5fLIydZg31Mel6QtxdBFJqo5IP0Ed8uPiPKHJ3+3dghLOdwbErGjok9AMyhoCg17PD7oaF7wZ2ECOsWB5loWZrJNS4RUvhsTLDXNRWsmAHywndlUZu99xSJv6A6wVue9LnTQ17tr+RCn5SHaHnDI61chpP0HkoSTtds1OXCVlmivYhPop98wfmO5nkPM0RDPyJPDMfmIMtTlzIJYZNTb8pSvDt1iQdY2fVaDy9XB1KYSTsKRj0IqDc43Q==
+-
+
+dn: dcmEntity=Instance,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: dcmTag
+dcmTag: 04000561
+-
+
+dn: dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmAcceptedUserRole
+dcmAcceptedUserRole: user
+dcmAcceptedUserRole: admin
+-
+
+dn: dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmAcceptedUserRole
+dcmAcceptedUserRole: admin
+-
+
+dn: dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmAcceptedUserRole
+dcmAcceptedUserRole: admin
+-
+
+dn: dcmQueueName=HL7Send,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Forward HL7 Tasks
+dcmQueueName: HL7Send
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/HL7Send
+-
+
+dn: dicomAETitle=DCM4CHEE_ADMIN,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dicomUniqueAETitle
+dicomAETitle: DCM4CHEE_ADMIN
+-
+
+dn: dicomAETitle=DCM4CHEE_TRASH,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dicomUniqueAETitle
+dicomAETitle: DCM4CHEE_TRASH
+-
+
+dn: dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomInstalled: TRUE
+dicomDeviceName: keycloak
+objectClass: dicomDevice
+objectClass: dcmDevice
+dicomPrimaryDeviceType: AUTH
+-
+
+dn: cn=syslog,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomHostname: keycloak-host
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dcmProtocol: SYSLOG_UDP
+dcmClientBindAddress: 0.0.0.0
+cn: syslog
+-
+
+dn: cn=Audit Logger,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmAuditSourceTypeCode: 4
+dcmAuditRecordRepositoryDeviceReference: dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmAuditLogger
+dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAuditMessageSchemaURI: http://www.dcm4che.org/DICOM/audit-message.rnc
+cn: Audit Logger
+-

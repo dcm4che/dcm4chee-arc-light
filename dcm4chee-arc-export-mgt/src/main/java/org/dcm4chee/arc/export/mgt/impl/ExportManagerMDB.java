@@ -82,6 +82,7 @@ public class ExportManagerMDB implements MessageListener {
     }
 
     private ExporterDescriptor getExporterDescriptor(String exporterID) {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getExporterDescriptorNotNull(exporterID);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        return arcDev != null ? arcDev.getExporterDescriptorNotNull(exporterID) : null;
     }
 }

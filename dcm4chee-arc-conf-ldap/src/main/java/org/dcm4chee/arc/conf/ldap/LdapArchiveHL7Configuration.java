@@ -50,6 +50,7 @@ import org.dcm4chee.arc.conf.ScheduledStationAETInOrder;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import java.util.List;
 
@@ -128,9 +129,17 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 a.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         ArchiveHL7ApplicationExtension bb =
                 b.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        if (aa == null || bb == null)
+        if (aa == null && bb == null)
             return;
 
+        boolean remove = bb == null;
+        if (remove) {
+            bb = new ArchiveHL7ApplicationExtension();
+        } else if (aa == null) {
+            aa = new ArchiveHL7ApplicationExtension();
+            mods.add(new ModificationItem(DirContext.ADD_ATTRIBUTE,
+                    LdapUtils.attr("objectClass", "dcmArchiveHL7Application")));
+        }
         LdapUtils.storeDiff(mods, "hl7PatientUpdateTemplateURI",
                 aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI());
         LdapUtils.storeDiff(mods, "hl7ImportReportTemplateURI",
@@ -144,14 +153,22 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeDiff(mods, "hl7ScheduledProtocolCodeInOrder", aa.getHl7ScheduledProtocolCodeInOrder(),
                 bb.getHl7ScheduledProtocolCodeInOrder());
         LdapUtils.storeDiff(mods, "hl7ScheduledStationAETInOrder", aa.getHl7ScheduledStationAETInOrder(), bb.getHl7ScheduledStationAETInOrder());
+        if (remove)
+            mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
+                    LdapUtils.attr("objectClass", "dcmArchiveHL7Application")));
     }
 
     @Override
     public void mergeChilds(HL7Application prev, HL7Application hl7App, String appDN) throws NamingException {
         ArchiveHL7ApplicationExtension aa = prev.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         ArchiveHL7ApplicationExtension bb = hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        if (aa == null || bb == null)
+        if (aa == null && bb == null)
             return;
+
+        if (aa == null)
+            aa = new ArchiveHL7ApplicationExtension();
+        else if (bb == null)
+            bb = new ArchiveHL7ApplicationExtension();
 
         LdapArchiveConfiguration.mergeHL7ForwardRules(
                 aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), appDN, getDicomConfiguration());
