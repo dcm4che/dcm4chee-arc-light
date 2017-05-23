@@ -1,0 +1,17 @@
+<div class="vex vex-theme-os upload" xmlns="http://www.w3.org/1999/html">
+    <div class="vex-dialog-form">
+        <h5>Upload DICOM data</h5>
+        <div class="content">
+            <label>Select the ae title:</label>
+            <md-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
+                <md-option *ngFor="let ae of aes" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>
+            </md-select>
+            <input type="file" ng2FileSelect [uploader]="vendorUpload" />
+            <input type="file" (change)="fileChange($event)" placeholder="Upload file">
+        </div>
+        <div class="dialogbuttons">
+            <button class="save" (click)="uploadFile(dialogRef)">Upload</button>
+            <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCEL</button>
+        </div>
+    </div>
+</div>
