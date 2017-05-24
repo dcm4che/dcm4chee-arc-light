@@ -793,7 +793,9 @@ public class StoreServiceEJB {
                 study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .getSingleResult();
-                study.addStorageID(storeSession.getObjectStorageID());
+                for (Location l : ctx.getLocations())
+                    if (l.getObjectType() == Location.ObjectType.DICOM_FILE)
+                        study.addStorageID(l.getStorageID());
                 study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                 if (result.getRejectionNote() == null)
                     updateStudyRejectionState(ctx, study);
