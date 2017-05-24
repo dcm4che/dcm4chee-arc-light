@@ -5,6 +5,7 @@ import {Headers, RequestOptions, Http} from "@angular/http";
 import {Observable} from "rxjs";
 import {UploadDicomService} from "./upload-dicom.service";
 import {request} from "http";
+import {unescape} from "querystring";
 
 @Component({
   selector: 'app-upload-dicom',
@@ -55,32 +56,148 @@ export class UploadDicomComponent implements OnInit {
 
     }
     fileChange(event) {
-
+        let $this = this;
+        let boundary = Math.random().toString().substr(2);
+        let filetype;
         let fileList: File[] = event.target.files;
         if(fileList.length > 0) {
 /*            this.service.makeFileRequest(`../aets/${this._selectedAe}/rs/studies`, [], fileList).subscribe(() => {
                 console.log('sent');
             });*/
+/*            let reader = new FileReader();
+            reader.readAsDataURL(fileList[0]);
+
+            reader.onload = function(e) {
+
+                var xmlHttpRequest = new XMLHttpRequest();
+                //Some AJAX-y stuff - callbacks, handlers etc.
+                xmlHttpRequest.open("POST", `../aets/${$this._selectedAe}/rs/studies`, true);
+                var dashes = '--';
+                var crlf = "\r\n";
+
+                //Post with the correct MIME type (If the OS can identify one)
+                if ( fileList[0].type == '' ){
+                    filetype = 'application/dicom';
+                } else {
+                    filetype = fileList[0].type;
+                }
+
+                //Build a HTTP request to post the file
+                var data = dashes + boundary + crlf + "Content-Disposition: form-data;" + "name=\"file\";" + "filename=\"" + encodeURIComponent(fileList[0].name) + "\"" + crlf + "Content-Type: " + filetype + crlf + crlf + e.target["result"] + crlf + dashes + boundary + dashes;
+
+                xmlHttpRequest.setRequestHeader("Content-Type", "multipart/related;boundary=" + boundary);
+
+                //Send the binary data
+                xmlHttpRequest.send(data);
+            };*/
+
             let reader = new FileReader();
-            let fileContent = reader.readAsArrayBuffer(fileList[0]);
-            // let fileContentString = reader.readAsBinaryString(fileList[0]);
-            console.log("fileContnet",fileContent);
-/*            let file: File = fileList[0];
-            let formData:FormData = new FormData();
-            formData.append('uploadFile', file, file.name);
-            let headers = new Headers();
-            headers.append('Content-Type', undefined);
-            headers.append('Accept', 'Application/dicom');
-            let options = new RequestOptions({ headers: headers });
-            this.$http.post(`../aets/${this._selectedAe}/rs/studies`, formData, options)
-                .map(res => res.json())
-                .catch(error => Observable.throw(error))
-                .subscribe(
-                    data => console.log('success'),
-                    error => console.log(error)
-                )*/
+            reader.readAsBinaryString(fileList[0]);
+
+            reader.onload = function(e) {
+
+                var xmlHttpRequest = new XMLHttpRequest();
+                //Some AJAX-y stuff - callbacks, handlers etc.
+                xmlHttpRequest.open("POST", `../aets/${$this._selectedAe}/rs/studies`, true);
+                var dashes = '--';
+                var crlf = "\r\n";
+
+                //Post with the correct MIME type (If the OS can identify one)
+                if ( fileList[0].type == '' ){
+                    filetype = 'application/dicom';
+                } else {
+                    filetype = fileList[0].type;
+                }
+
+                //Build a HTTP request to post the file
+                var data = dashes + boundary + crlf + "Content-Type: " + filetype + crlf + crlf + e.target["result"] + crlf + dashes + boundary + dashes;
+                xmlHttpRequest.setRequestHeader("Content-Type", "multipart/related;type=application/dicom;boundary=" + boundary+";");
+
+                //Send the binary data
+                xmlHttpRequest.send(data);
+            };
+/*            var xmlHttpRequest = new XMLHttpRequest();
+            xmlHttpRequest.open("POST", `../aets/${$this._selectedAe}/rs/studies`, true);
+            xmlHttpRequest.setRequestHeader("Content-Type", "multipart/related;boundary=" + boundary+";Type:application/dicom");
+            var dashes = '--';
+            var crlf = "\r\n";
+            if ( fileList[0].type == '' ){
+                filetype = 'application/dicom';
+            } else {
+                filetype = fileList[0].type;
+            }
+            this.parseFile(fileList[0],{
+                binary:true,
+                success:(file)=>{
+                    console.log("successfile",file);
+                },
+                error_callback: (error)=>{
+                    alert(error);
+                },
+                chunk_read_callback:(filePart)=>{
+                    console.log("filepart",filePart);
+                    var data = dashes + boundary + crlf + "name=\"file\";" + "filename=\"" + encodeURIComponent(fileList[0].name) + "\"" + crlf + "Content-Type: " + filetype + crlf + crlf + filePart + crlf + dashes + boundary + dashes;
+                    xmlHttpRequest.send(data);
+                }
+            });*/
         }
 
+    }
+    //Copyed from     https://gist.github.com/alediaferia/cfb3a7503039f9278381
+    /*
+     * Valid options are:
+     * - chunk_read_callback: a function that accepts the read chunk
+     as its only argument. If binary option
+     is set to true, this function will receive
+     an instance of ArrayBuffer, otherwise a String
+     * - error_callback:      an optional function that accepts an object of type
+     FileReader.error
+     * - success:             an optional function invoked as soon as the whole file has been
+     read successfully
+     * - binary:              If true chunks will be read through FileReader.readAsArrayBuffer
+     *                        otherwise as FileReader.readAsText. Default is false.
+     * - chunk_size:          The chunk size to be used, in bytes. Default is 64K.
+     */
+    parseFile(file, options) {
+        let opts       = typeof options === 'undefined' ? {} : options;
+        let fileSize   = file.size;
+        let chunkSize  = typeof opts['chunk_size'] === 'undefined' ?  64 * 1024 : parseInt(opts['chunk_size']); // bytes
+        let binary     = typeof opts['binary'] === 'undefined' ? false : opts['binary'] == true;
+        let offset     = 0;
+        let self       = this; // we need a reference to the current object
+        let readBlock  = null;
+        let chunkReadCallback = typeof opts['chunk_read_callback'] === 'function' ? opts['chunk_read_callback'] : function() {};
+        let chunkErrorCallback = typeof opts['error_callback'] === 'function' ? opts['error_callback'] : function() {};
+        let success = typeof opts['success'] === 'function' ? opts['success'] : function() {};
+
+        let onLoadHandler = function(evt) {
+            if (evt.target.error == null) {
+                offset += evt.target.result.length;
+                chunkReadCallback(evt.target.result);
+            } else {
+                chunkErrorCallback(evt.target.error);
+                return;
+            }
+            if (offset >= fileSize) {
+                success(file);
+                return;
+            }
+
+            readBlock(offset, chunkSize, file);
+        }
+
+        readBlock = function(_offset, length, _file) {
+            var r = new FileReader();
+            var blob = _file.slice(_offset, length + _offset);
+            r.onload = onLoadHandler;
+            if (binary) {
+                r.readAsArrayBuffer(blob);
+            } else {
+                r.readAsText(blob);
+            }
+        }
+
+        readBlock(offset, chunkSize, file);
     }
     uploadFile(dialogRef){
 

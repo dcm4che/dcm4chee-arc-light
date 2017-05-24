@@ -6,7 +6,7 @@
             <md-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
                 <md-option *ngFor="let ae of aes" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>
             </md-select>
-            <input type="file" ng2FileSelect [uploader]="vendorUpload" />
+            <!--<input type="file" ng2FileSelect [uploader]="vendorUpload" />-->
             <input type="file" (change)="fileChange($event)" placeholder="Upload file">
         </div>
         <div class="dialogbuttons">
