@@ -442,6 +442,9 @@ public class ConfigurationRS {
                     case "dicomInstalled":
                         deviceInfo.setInstalled(Boolean.parseBoolean(toString(entry)));
                         break;
+                    case "hasArcDevExt":
+                        deviceInfo.setArcDevExt(Boolean.parseBoolean(toString(entry)));
+                        break;
                 }
             }
         }

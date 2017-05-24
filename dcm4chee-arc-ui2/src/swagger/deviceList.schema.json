@@ -68,6 +68,11 @@
         "title": "installed",
         "description": "Boolean to indicate whether this device is presently installed on the network",
         "type": "boolean"
+      },
+      "hasArcDevExt": {
+        "title": "Has Archive Device Extension",
+        "description": "Boolean to indicate whether this device has an archive device extension or not",
+        "type": "boolean"
       }
     }
   }
