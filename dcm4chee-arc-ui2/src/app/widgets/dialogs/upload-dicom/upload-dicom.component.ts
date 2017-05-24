@@ -108,10 +108,14 @@ export class UploadDicomComponent implements OnInit {
                 } else {
                     filetype = fileList[0].type;
                 }
-
+/*                var array = new Int8Array(e.target["result"]);
+                let content = JSON.stringify(array, null, '  ');
+                console.log("content",content);*/
+                let content = e.target["result"];
                 //Build a HTTP request to post the file
-                var data = dashes + boundary + crlf + "Content-Type: " + filetype + crlf + crlf + e.target["result"] + crlf + dashes + boundary + dashes;
+                var data = dashes + boundary + crlf + "Content-Type: " + filetype + crlf + crlf + content + crlf + dashes + boundary + dashes;
                 xmlHttpRequest.setRequestHeader("Content-Type", "multipart/related;type=application/dicom;boundary=" + boundary+";");
+                xmlHttpRequest.setRequestHeader("Accept", "application/dicom+json");
 
                 //Send the binary data
                 xmlHttpRequest.send(data);

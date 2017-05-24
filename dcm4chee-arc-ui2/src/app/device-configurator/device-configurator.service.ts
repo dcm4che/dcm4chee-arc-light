@@ -337,7 +337,7 @@ export class DeviceConfiguratorService{
                                     options = [
                                         {key: 'True',  value: true},
                                         {key: 'False',  value: false},
-                                        {key: 'Inherent',  value: "inherent"},
+                                        {key: 'Inherited',  value: "inherent"},
                                     ];
                                     if(value != undefined && value != ""){
                                         //true
@@ -348,7 +348,7 @@ export class DeviceConfiguratorService{
                                             options[1]['active'] = true;
                                         }
                                     }else{
-                                        //Inherent
+                                        //Inherited
                                         options[2]['active'] = true;
                                     }
                                 }else{
