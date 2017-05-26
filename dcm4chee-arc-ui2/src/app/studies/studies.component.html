@@ -749,7 +749,7 @@
             <div class="more_menu_content">
                 <div class="more_menu_study" [ngClass]="{show_checkboxes:showCheckboxes}">
                     <div class="colcell">
-                        <div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.'"> </div>
+                        <div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.' || ''"> </div>
                     </div>
                       <div class="exeq_buttons">
                           <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,3)"></div>

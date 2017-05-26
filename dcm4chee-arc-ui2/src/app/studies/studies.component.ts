@@ -3063,7 +3063,7 @@ export class StudiesComponent implements OnDestroy{
             }else {
                 this.mainservice.setMessage({
                     "title": "Warning",
-                    "text": "Target object can not bee in the clipboard",
+                    "text": "Target object can not be in the clipboard",
                     "status":'warning'
                 });
             }

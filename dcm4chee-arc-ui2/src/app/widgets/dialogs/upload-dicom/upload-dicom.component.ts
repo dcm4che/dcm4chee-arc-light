@@ -55,6 +55,7 @@ export class UploadDicomComponent implements OnInit {
         // }]});
 
     }
+
     fileChange(event) {
         let $this = this;
         let boundary = Math.random().toString().substr(2);
@@ -92,33 +93,59 @@ export class UploadDicomComponent implements OnInit {
             };*/
 
             let reader = new FileReader();
-            reader.readAsBinaryString(fileList[0]);
+            // reader.readAsBinaryString(fileList[0]);
+            reader.readAsArrayBuffer(fileList[0]);
 
             reader.onload = function(e) {
-
                 var xmlHttpRequest = new XMLHttpRequest();
                 //Some AJAX-y stuff - callbacks, handlers etc.
                 xmlHttpRequest.open("POST", `../aets/${$this._selectedAe}/rs/studies`, true);
                 var dashes = '--';
                 var crlf = "\r\n";
-
                 //Post with the correct MIME type (If the OS can identify one)
                 if ( fileList[0].type == '' ){
                     filetype = 'application/dicom';
                 } else {
                     filetype = fileList[0].type;
                 }
+                const dataView = new DataView(e.target["result"]);
+                const AUDIO_CONTENT_DISPOSITION ="Content-Type: " + filetype;
+                const postDataStart = [
+                    crlf,
+                    dashes,
+                    boundary,
+                    crlf,
+                    AUDIO_CONTENT_DISPOSITION,
+                    crlf
+                ].join('');
+                const postDataEnd = [crlf, dashes, boundary, dashes, crlf].join('');
 /*                var array = new Int8Array(e.target["result"]);
                 let content = JSON.stringify(array, null, '  ');
                 console.log("content",content);*/
                 let content = e.target["result"];
                 //Build a HTTP request to post the file
-                var data = dashes + boundary + crlf + "Content-Type: " + filetype + crlf + crlf + content + crlf + dashes + boundary + dashes;
+                // var data = dashes + boundary + crlf + "Content-Type: " + filetype + crlf + crlf + content + crlf + dashes + boundary + dashes;
+                const size = postDataStart.length + dataView.byteLength + postDataEnd.length;
+                const uint8Array = new Uint8Array(size);
+                let i = 0;
+
+                for (; i < postDataStart.length; i++) {
+                    uint8Array[i] = postDataStart.charCodeAt(i) & 0xFF;
+                }
+
+                for (let j = 0; j < dataView.byteLength; i++, j++) {
+                    uint8Array[i] = dataView.getUint8(j);
+                }
+
+                for (let j = 0; j < postDataEnd.length; i++, j++) {
+                    uint8Array[i] = postDataEnd.charCodeAt(j) & 0xFF;
+                }
+                const payload = uint8Array.buffer;
                 xmlHttpRequest.setRequestHeader("Content-Type", "multipart/related;type=application/dicom;boundary=" + boundary+";");
                 xmlHttpRequest.setRequestHeader("Accept", "application/dicom+json");
 
                 //Send the binary data
-                xmlHttpRequest.send(data);
+                xmlHttpRequest.send(payload);
             };
 /*            var xmlHttpRequest = new XMLHttpRequest();
             xmlHttpRequest.open("POST", `../aets/${$this._selectedAe}/rs/studies`, true);
