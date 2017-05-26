@@ -36,7 +36,7 @@
     },
     {
       "name": "DIFF-RS",
-      "description": "Compare Studies"
+      "description": "Compare Studies in external Archive"
     },
     {
       "name": "IOCM-RS",
@@ -2565,7 +2565,7 @@
         }
       }
     },
-    "/aets/{aet}/diff/studies/{remoteAET}": {
+    "/aets/{aet}/diff/{remoteAET}/studies": {
       "get": {
         "tags": [
           "DIFF-RS"
@@ -2592,11 +2592,11 @@
             "type": "string"
           },
           {
-            "name": "inverse",
+            "name": "missing",
             "in": "query",
-            "description": "Indicates to query for matching studies {remoteAET} instead the local archive",
-            "type": "boolean",
-            "default": "false"
+            "description": "Indicates to include also Studies missing local or remote",
+            "type": "string",
+            "enum": [ "local", "remote" ]
           },
           {
             "name": "{attributeID}",
@@ -2679,11 +2679,14 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "successful operation"
+         "204": {
+            "description": "no different study found"
           },
-          "404": {
-            "description": "series not found"
+          "200": {
+            "description": "different/missing studies found",
+            "schema": {
+              "type": "file"
+            }
           },
           "default": {
             "description": "unexpected error"

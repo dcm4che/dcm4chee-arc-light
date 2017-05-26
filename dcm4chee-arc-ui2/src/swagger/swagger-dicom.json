@@ -130,7 +130,7 @@
               "type": "file"
             }
           },
-          "404": {
+          "204": {
             "description": "no matching patient found"
           },
           "default": {
@@ -270,7 +270,7 @@
               "type": "file"
             }
           },
-          "404": {
+          "204": {
             "description": "no matching study found"
           },
           "default": {
@@ -309,7 +309,7 @@
               "type": "file"
             }
           },
-          "404": {
+          "204": {
             "description": "object not found"
           },
           "default": {
@@ -438,7 +438,7 @@
               "type": "file"
             }
           },
-          "404": {
+          "204": {
             "description": "no matching series found"
           },
           "default": {
@@ -560,7 +560,7 @@
               "type": "file"
             }
           },
-          "404": {
+          "204": {
             "description": "no matching series found"
           },
           "default": {
@@ -662,7 +662,7 @@
               "type": "file"
             }
           },
-          "404": {
+          "204": {
             "description": "no matching instances found"
           },
           "default": {
@@ -764,7 +764,7 @@
               "type": "file"
             }
           },
-          "404": {
+          "204": {
             "description": "no matching instances found"
           },
           "default": {
@@ -866,7 +866,7 @@
               "type": "file"
             }
           },
-          "404": {
+          "204": {
             "description": "no matching instances found"
           },
           "default": {
