@@ -54,8 +54,6 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.*;
-import org.dcm4che3.util.StringUtils;
-import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
@@ -87,12 +85,10 @@ import java.util.*;
  */
 @RequestScoped
 @Path("aets/{AETitle}/rs")
-@ValidUriInfo(type = QidoRS.QueryAttributes.class)
+@ValidUriInfo(type = QueryAttributes.class)
 public class QidoRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(QidoRS.class);
-
-    private static ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
 
     private final static int[] PATIENT_FIELDS = {
             Tag.PatientName,
@@ -406,11 +402,15 @@ public class QidoRS {
             else if (limitInt > 0)
                 query.limit(limitInt);
 
-            List<OrderSpecifier<?>> orderSpecifiers = queryAttrs.getOrderSpecifiers(model);
-            if (!orderSpecifiers.isEmpty()) {
+            ArrayList<QueryAttributes.OrderByTag> orderByTags = queryAttrs.getOrderByTags();
+            if (!orderByTags.isEmpty()) {
+                ArrayList<OrderSpecifier<?>> list = new ArrayList<>(orderByTags.size() + 1);
+                for (QueryAttributes.OrderByTag orderByTag : orderByTags) {
+                    model.addOrderSpecifier(orderByTag.tag, orderByTag.order, list);
+                }
                 if (limitInt > 0)
-                    orderSpecifiers.add(model.getPk().asc());
-                query.orderBy(orderSpecifiers.toArray(new OrderSpecifier<?>[orderSpecifiers.size()]));
+                    list.add(model.getPk().asc());
+                query.orderBy(list.toArray(new OrderSpecifier<?>[list.size()]));
             }
 
             query.executeQuery();
@@ -484,128 +484,6 @@ public class QidoRS {
                     "No such Application Entity: " + aet,
                     Response.Status.SERVICE_UNAVAILABLE);
         return ae;
-    }
-
-    public static class QueryAttributes {
-        private final Attributes keys = new Attributes();
-        private final AttributesBuilder builder = new AttributesBuilder(keys);
-        private boolean includeAll;
-        private final ArrayList<OrderByTag> orderByTags = new ArrayList<>();
-        private boolean orderByPatientName;
-
-        public QueryAttributes(UriInfo info) {
-            MultivaluedMap<String, String> map = info.getQueryParameters();
-            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-                String key = entry.getKey();
-                switch (key) {
-                    case "includefield":
-                        addIncludeTag(entry.getValue());
-                        break;
-                    case "orderby":
-                        addOrderByTag(entry.getValue());
-                        break;
-                    case "offset":
-                    case "limit":
-                    case "withoutstudies":
-                    case "fuzzymatching":
-                    case "returnempty":
-                    case "expired":
-                    case "retrievefailed":
-                    case "incomplete":
-                    case "inverse":
-                    case "SendingApplicationEntityTitleOfSeries":
-                    case "StudyReceiveDateTime":
-                    case "ExternalRetrieveAET":
-                    case "ExternalRetrieveAET!":
-                        break;
-                    default:
-                        addQueryKey(key, entry.getValue());
-                        break;
-                }
-            }
-        }
-
-        private void addIncludeTag(List<String> includefields) {
-            for (String s : includefields) {
-                if (s.equals("all")) {
-                    includeAll = true;
-                    break;
-                }
-                for (String field : StringUtils.split(s, ',')) {
-                    try {
-                        builder.setNull(field);
-                    } catch (IllegalArgumentException e2) {
-                        throw new IllegalArgumentException("includefield=" + s);
-                    }
-                }
-            }
-        }
-
-        private void addOrderByTag(List<String> orderby) {
-            for (String s : orderby) {
-                try {
-                    for (String field : StringUtils.split(s, ',')) {
-                        boolean desc = field.charAt(0) == '-';
-                        int tags[] = TagUtils.parseTagPath(desc ? field.substring(1) : field);
-                        orderByTags.add(new OrderByTag(tags[tags.length-1], desc ? Order.DESC : Order.ASC));
-                        if (tags[0] == Tag.PatientName)
-                            orderByPatientName = true;
-                    }
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("orderby=" + s);
-                }
-            }
-        }
-
-        public List<OrderSpecifier<?>> getOrderSpecifiers(Model model) {
-            if (orderByTags.isEmpty())
-                return Collections.emptyList();
-            ArrayList<OrderSpecifier<?>> list = new ArrayList<>(orderByTags.size()+1);
-            for (OrderByTag orderByTag : orderByTags)
-                model.addOrderSpecifier(orderByTag.tag, orderByTag.order, list);
-            return list;
-        }
-
-        public Attributes getQueryKeys() {
-            return keys;
-        }
-
-        public Attributes getReturnKeys(int[] includetags) {
-            if (includeAll)
-                return null;
-
-            Attributes returnKeys = new Attributes(keys.size() + 3 + includetags.length);
-            returnKeys.addAll(keys);
-            returnKeys.setNull(Tag.SpecificCharacterSet, VR.CS);
-            returnKeys.setNull(Tag.RetrieveAETitle, VR.AE);
-            returnKeys.setNull(Tag.InstanceAvailability, VR.CS);
-            for (int tag : includetags)
-               returnKeys.setNull(tag, DICT.vrOf(tag));
-            return returnKeys;
-        }
-
-        public boolean isOrderByPatientName() {
-            return orderByPatientName;
-        }
-
-        private static class OrderByTag {
-            final int tag;
-            final Order order;
-
-            private OrderByTag(int tag, Order order) {
-                this.tag = tag;
-                this.order = order;
-            }
-        }
-
-        private void addQueryKey(String attrPath, List<String> values) {
-            try {
-                builder.setString(attrPath, values.toArray(new String[values.size()]));
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException(attrPath + "=" + values.get(0));
-            }
-        }
-
     }
 
     private enum Model {
