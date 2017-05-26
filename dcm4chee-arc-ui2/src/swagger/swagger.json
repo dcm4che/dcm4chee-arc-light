@@ -2679,7 +2679,7 @@
           }
         ],
         "responses": {
-         "204": {
+          "204": {
             "description": "no different study found"
           },
           "200": {
