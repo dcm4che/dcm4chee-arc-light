@@ -7,11 +7,14 @@
                 <md-option *ngFor="let ae of aes" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>
             </md-select>
             <!--<input type="file" ng2FileSelect [uploader]="vendorUpload" />-->
+            <label>Chose a File to upload:</label>
             <input type="file" (change)="fileChange($event)" placeholder="Upload file">
+            <div *ngIf="percentComplete.show">
+                <md-progress-bar color="primary" mode="determinate" [value]="percentComplete.value"></md-progress-bar>
+            </div>
         </div>
         <div class="dialogbuttons">
-            <button class="save" (click)="uploadFile(dialogRef)">Upload</button>
-            <button class="cancle" type="button" (click)="dialogRef.close(null)">CANCEL</button>
+            <button class="cancle" type="button" (click)="close(dialogRef)">CANCEL</button>
         </div>
     </div>
 </div>

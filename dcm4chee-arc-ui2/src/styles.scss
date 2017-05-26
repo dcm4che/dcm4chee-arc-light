@@ -792,6 +792,9 @@ md-dialog-container{
     }
   }
 }
+[_nghost-c6]   .mat-progress-bar-fill[_ngcontent-c6]::after,.mat-progress-bar-fill::after{
+  background:$lightBlue;
+}
 .upload{
   input{
     width: 100%;
@@ -799,7 +802,7 @@ md-dialog-container{
     background: white;
     border-bottom: 1px solid #ccc;
     padding-bottom: 10px;
-    margin-bottom: 10px;
+    //margin-bottom: 10px;
     margin-top: 20px;
   }
   md-select{
