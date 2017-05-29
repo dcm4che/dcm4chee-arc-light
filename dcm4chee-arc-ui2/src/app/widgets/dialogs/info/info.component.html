@@ -1,0 +1,13 @@
+<div class="vex vex-theme-os confirm" xmlns="http://www.w3.org/1999/html" >
+    <div class="vex-dialog-form">
+        <h5>{{info.title}}</h5>
+        <div class="content">
+            <div md-dialog-content>
+            {{info.content}}
+            </div>
+        </div>
+        <div class="dialogbuttons">
+            <button  class="save" type="button" (click)="dialogRef.close('ok')">OK</button>
+        </div>
+    </div>
+</div>

@@ -22,6 +22,7 @@ import { CloneSelectorComponent } from './dialogs/clone-selector/clone-selector.
 import { UploadFilesComponent } from './dialogs/upload-files/upload-files.component';
 import { UploadDicomComponent } from './dialogs/upload-dicom/upload-dicom.component';
 import { RemovePartSelectorComponent } from './dialogs/remove-part-selector/remove-part-selector.component';
+import { InfoComponent } from './dialogs/info/info.component';
 
 
 @NgModule({
@@ -51,5 +52,6 @@ export const WidgetsComponents = [
     CloneSelectorComponent,
     UploadFilesComponent,
     UploadDicomComponent,
-    RemovePartSelectorComponent
+    RemovePartSelectorComponent,
+    InfoComponent
 ];

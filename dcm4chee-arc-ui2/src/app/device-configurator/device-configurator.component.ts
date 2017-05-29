@@ -102,8 +102,9 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                             console.log("error",err);
                             $this.mainservice.setMessage({
                                 "title": "Error "+err.status,
-                                "text": err.statusText,
-                                "status": "error"
+                                "text": err.statusText+"!",
+                                "status": "error",
+                                "detailError":err._body
                             });
                             $this.cfpLoadingBar.complete();
                         }
@@ -149,8 +150,9 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                             console.log("error",err);
                             $this.mainservice.setMessage({
                                 "title": "Error "+err.status,
-                                "text": err.statusText,
-                                "status": "error"
+                                "text": err.statusText+"!",
+                                "status": "error",
+                                "detailError":err._body
                             });
                             $this.cfpLoadingBar.complete();
                         }

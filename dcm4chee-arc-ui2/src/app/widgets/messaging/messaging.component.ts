@@ -1,7 +1,10 @@
-import {Component, OnDestroy} from '@angular/core';
+import {Component, OnDestroy, ViewContainerRef} from '@angular/core';
 import {AppService} from "../../app.service";
 import {Subscribable} from "rxjs/Observable";
 import {Subscription} from "rxjs";
+import {ConfirmComponent} from "../dialogs/confirm/confirm.component";
+import {InfoComponent} from "../dialogs/info/info.component";
+import {MdDialogRef, MdDialog, MdDialogConfig} from "@angular/material";
 @Component({
   selector: 'app-messaging',
   template: `
@@ -9,7 +12,11 @@ import {Subscription} from "rxjs";
         <li *ngFor="let m of msg" class="{{m.status}} msg_{{m.id}} slideInRight animated"  (click)="closeBox(m)">
             <span class="close" data-dismiss="alert" aria-label="close">&times;</span>  
             <h4>{{m.title}}</h4>
-            <p [innerHtml]="m.text"></p>
+            <p *ngIf="!m.detailError" [innerHtml]="m.text"></p>
+            <p *ngIf="m.detailError">
+                {{m.text}}<br>
+                <a *ngIf="m.detailError" class="more" (click)="$event.preventDefault();alert(m)">more..</a>
+            </p>
             <div class="progress"></div>
         </li>
     </div>
@@ -20,11 +27,30 @@ export class MessagingComponent implements OnDestroy{
     public msg:Array<any> = [];
     subscription:Subscription;
 
-    constructor(private mainservice:AppService){
+    dialogRef: MdDialogRef<any>;
+    constructor(
+        private mainservice:AppService,
+        public dialog: MdDialog,
+        public config: MdDialogConfig
+    ){
         this.subscription = this.mainservice.messageSet$.subscribe(msg => {
             console.log("msg in subscribe messagecomponent ",msg);
             this.setMsg(msg);
         });
+    }
+
+    alert(m){
+        // alert(m.detailError);
+        // this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(InfoComponent, {
+            height:'auto',
+            width:'60%'
+        });
+        this.dialogRef.componentInstance.info = {
+            title:"Error detail",
+            content:m.detailError
+        };
+        this.dialogRef.afterClosed().subscribe();
     }
     setMsg(msg:any){
         console.log("in setmessage in messaging.component",msg);

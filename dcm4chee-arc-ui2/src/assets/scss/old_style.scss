@@ -604,6 +604,9 @@ device and create an other one with the new name*/
 			background-size:55px;
 			background-position: 15px center;
 			background-repeat: no-repeat;
+            a{
+              color:#fff;
+            }
 			&:hover{
 	    		background-color: rgb(6, 29, 47);
 			}
@@ -617,6 +620,9 @@ device and create an other one with the new name*/
     		background-color: rgba(202, 33, 33, 0.9);
     		border-color: #b41d1d;
 		    color: #fff;
+            a{
+              color:#fff;
+            }
 		    &:hover{
     			background-color: rgb(202, 33, 33);
 		    }
@@ -629,6 +635,9 @@ device and create an other one with the new name*/
  			background-color: rgba(197, 131, 0, 0.9);
     		border-color: #b97429;
 		    color: #fff;
+            a{
+              color:#fff;
+            }
 		    &:hover{
     			background-color: rgb(197, 131, 0);
 		    }
