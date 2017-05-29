@@ -48,6 +48,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
         console.log("in submit");
         let $this = this;
         this.cfpLoadingBar.start();
+        let deviceClone = _.cloneDeep(this.service.device);
         this.service.addChangesToDevice(value,this.recentParams.devicereff);
         if(_.hasIn(this.recentParams,"schema")){
             let newSchema = this.service.getSchemaFromPath(this.service.schema, this.recentParams['schema']);
@@ -97,6 +98,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                             },200);
                         },
                         (err)=>{
+                            _.assign($this.service.device, deviceClone);
                             console.log("error",err);
                             $this.mainservice.setMessage({
                                 "title": "Error "+err.status,
@@ -108,7 +110,13 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
 
                     );
             }else{
+                _.assign($this.service.device, deviceClone);
                 console.warn("devicename is missing",this.service.device);
+                $this.mainservice.setMessage({
+                    "title": "Error",
+                    "text": "Device name is missing!",
+                    "status": "error"
+                });
             }
         }else{
             if(this.service.updateDevice()){
@@ -137,6 +145,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
                             );
                         },
                         (err)=>{
+                            _.assign($this.service.device, deviceClone);
                             console.log("error",err);
                             $this.mainservice.setMessage({
                                 "title": "Error "+err.status,
@@ -148,6 +157,7 @@ export class DeviceConfiguratorComponent implements OnInit,OnDestroy {
 
                     );
             }else{
+                _.assign($this.service.device, deviceClone);
                 $this.mainservice.setMessage({
                     "title": "Error",
                     "text": "Device name is missing!",
