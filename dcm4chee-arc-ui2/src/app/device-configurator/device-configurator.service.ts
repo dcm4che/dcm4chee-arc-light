@@ -40,6 +40,17 @@ export class DeviceConfiguratorService{
         }
         return title;
     }
+    removePartFromDevice(path){
+        if(path){
+            try{
+                (<Array<any>>_.get(this.device,path.path)).splice(path.index,1);
+                return true;
+            }catch (e){
+                return false
+            }
+        }
+        return false;
+    }
     removeExtensionFromDevice(devicereff){
         console.log("in service devicereff",devicereff);
         _.unset(this.device,devicereff);
@@ -454,7 +465,7 @@ export class DeviceConfiguratorService{
                                                         description:m.description,
                                                         key:i,
                                                         url:url,
-                                                        forCloneUrl:((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']')
+                                                        currentElementUrl:((params.devicereff) ? params.devicereff+'.'+i+'['+vali+']': i+'['+vali+']')
                                                     })
                                                 });
                                                 let addUrl = '/device/edit/'+params.device;
@@ -472,7 +483,6 @@ export class DeviceConfiguratorService{
                                                 });
                                             }
                                         }else{
-                                            //TODO Observe, changed because of bug when the extendsions and the childe not presend on object
                                             /*
                                             url = '/device/edit/'+params.device;
                                             url = url +  ((params.devicereff) ? '/'+params.devicereff+'.'+i:'/'+i);
@@ -522,7 +532,7 @@ export class DeviceConfiguratorService{
                                                     description:m.description,
                                                     key:i,
                                                     url:url,
-                                                    forCloneUrl:((params.devicereff) ? '/'+params.devicereff+'.'+i+'['+vali+']':'/'+i+'['+vali+']'),
+                                                    currentElementUrl:((params.devicereff) ? params.devicereff+'.'+i+'['+vali+']':i+'['+vali+']'),
                                                     order:(3+newOrderSuffix)
                                                 })
                                             });
@@ -607,7 +617,6 @@ export class DeviceConfiguratorService{
                 console.error("in else1",schema);
             }
         }else{
-            //TODO
             console.error("In else convert schema to form",schema);
         }
         return form;

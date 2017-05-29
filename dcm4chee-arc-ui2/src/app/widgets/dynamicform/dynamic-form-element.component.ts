@@ -18,6 +18,8 @@ import {FileUploader} from "ng2-file-upload";
 import {UploadFilesComponent} from "../dialogs/upload-files/upload-files.component";
 import {ConfirmComponent} from "../dialogs/confirm/confirm.component";
 import {Http} from "@angular/http";
+import {RemovePartSelectorComponent} from "../dialogs/remove-part-selector/remove-part-selector.component";
+import {AppService} from "../../app.service";
 
 @Component({
     selector:'df-element',
@@ -32,6 +34,7 @@ export class DynamicFormElementComponent{
     @Input() partSearch:string;
     dialogRef: MdDialogRef<any>;
     // activetab = "tab_1";
+    partRemoved:boolean;
     constructor(
         private formservice:FormService,
         private formcomp:DynamicFormComponent,
@@ -43,11 +46,12 @@ export class DynamicFormElementComponent{
         public config: MdDialogConfig,
         public viewContainerRef: ViewContainerRef,
         public $http:Http,
-        private ref: ChangeDetectorRef
+        private ref: ChangeDetectorRef,
+        private mainservice:AppService
 
     ){
         // dcl.resolveComponentFactory(DynamicFormComponent);
-
+        this.partRemoved = false;
     }
     get isValid(){
         return this.form.controls[this.formelement.key].valid;
@@ -135,22 +139,12 @@ export class DynamicFormElementComponent{
         this.dialogRef.componentInstance.deviceName = deviceName;
         this.dialogRef.afterClosed().subscribe((selected)=>{
             if(selected){
-/*                var globalForm = $this.formcomp.getForm();
-                var valueObject = globalForm.value;
-                valueObject.dicomVendorData = true;
-                $this.formcomp.setFormModel(valueObject);
-                $this.form = $this.formservice.toFormGroup($this.formelements);
-                $this.formcomp.setForm($this.form);*/
                 console.log($this.formelements);
-                // $this.router.navigateByUrl(`/device/edit/${deviceName}`);
                 $this.deviceConfiguratorService.device = {};
                 $this.deviceConfiguratorService.schema = {};
                 $this.router.navigateByUrl('blank').then(() => {
                     $this.router.navigateByUrl(`/device/edit/${deviceName}`);
                 });
-                // window.location.reload();
-                // $this.router.navigateByUrl('/DummyComponent', true);
-                // location.reload();
             }
         });
     }
@@ -179,6 +173,61 @@ export class DynamicFormElementComponent{
             }
         });
     }
+    extractIndexFromPath(path){
+        if(_.endsWith(path,"]")){
+            try {
+                let indexStart = path.lastIndexOf("[");
+                let index = path.substring(indexStart);
+                index = _.replace(index,"[","");
+                index = _.replace(index,"]","");
+                let clearPath = path.substring(0, indexStart);
+                return {
+                    index:index,
+                    path:clearPath
+                };
+            }catch (e){
+                return null;
+            }
+        }
+    }
+    removePart(formelement){
+        let $this = this;
+        var globalForm = this.formcomp.getForm();
+        let value = globalForm.value;
+        this.dialogRef = this.dialog.open(RemovePartSelectorComponent, {
+            height:'auto',
+            width:'500px'
+        });
+        this.dialogRef.componentInstance.toRemoveElement = formelement;
+        this.dialogRef.afterClosed().subscribe((selected)=>{
+            if(selected){
+                let elementFound = false;
+                _.forEach(formelement.options,(m, i)=>{
+                    if(m === selected){
+                        formelement.options.splice(i,1);
+                        let check = $this.deviceConfiguratorService.removePartFromDevice($this.extractIndexFromPath(selected.currentElementUrl));
+                        if(check){
+                            elementFound = true;
+                            $this.partRemoved = true;
+                            $this.mainservice.setMessage({
+                                "title": "Info",
+                                "text": `Click save if you want to remove "${selected.title}" permanently!`,
+                                "status":'info'
+                            });
+                        }
+                    }else{
+                        if(elementFound){
+                           let pathObject = $this.extractIndexFromPath(formelement.options[_.toInteger(i)-1].currentElementUrl);
+                            let oldCurrentElementUrl = formelement.options[_.toInteger(i)-1].currentElementUrl;
+                            formelement.options[_.toInteger(i)-1].currentElementUrl = `${pathObject.path}[${(pathObject.index-1)}]`;
+                            formelement.options[_.toInteger(i)-1].url = _.replace(formelement.options[_.toInteger(i)-1].url, oldCurrentElementUrl, formelement.options[_.toInteger(i)-1].currentElementUrl);
+                        }
+                    }
+                })
+                $this.ref.detectChanges();
+            }
+        });
+    }
     clone(formelement){
 /*        console.log("formelement",formelement);
         let value = (<FormArray>this.form.controls[formelement.key]).getRawValue();
@@ -191,16 +240,10 @@ export class DynamicFormElementComponent{
             width:'500px'
         });
         this.dialogRef.componentInstance.toCloneElement = formelement;
-        /*        this.dialogRef.afterClosed().subscribe(result => {
-         if(result){
-         console.log("result", result);
-         }else{
-         console.log("false");
-         }
-         });*/
         this.dialogRef.afterClosed().subscribe((selected)=>{
             if(selected){
-                $this.router.navigateByUrl(formelement.addUrl+selected.forCloneUrl);
+                let cloneUrl = formelement.addUrl+"/"+selected.currentElementUrl;
+                $this.router.navigateByUrl(cloneUrl);
             }
         });
     }

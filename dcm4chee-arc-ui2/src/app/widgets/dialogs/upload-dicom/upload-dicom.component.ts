@@ -132,7 +132,9 @@ export class UploadDicomComponent implements OnInit{
         // dialogRef.close("ok");
     }
     close(dialogRef){
-        this.xmlHttpRequest.abort();
+        if(this.xmlHttpRequest){
+            this.xmlHttpRequest.abort();
+        }
         dialogRef.close(null)
     }
     onChange(newValue) {

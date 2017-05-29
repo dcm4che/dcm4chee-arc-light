@@ -1165,7 +1165,7 @@ md-dialog-container{
           opacity: 1;
         }
         select{
-          width:80%;
+          width:70%;
         }
       }
     }
@@ -1201,6 +1201,9 @@ md-dialog-container{
         -o-transition: 0.2s visibility, opacity 0.2s linear ;
         transition: 0.2s visibility, opacity 0.2s linear ;
         &.clone{
+          right:10%;
+        }
+        &.delete{
           right:0;
         }
         &.big{
