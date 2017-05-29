@@ -267,6 +267,11 @@ export class StudiesComponent implements OnDestroy{
         console.log("dateset", dateset);
         if(dateset === "no"){
             this.clearStudyDate();
+            this.filter["ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate"] = null;
+            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.fromObject = null;
+            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.toObject = null;
+            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.from = "";
+            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.to = "";
         }
 
         if(_.hasIn(this.mainservice.global,"state")){
@@ -274,8 +279,6 @@ export class StudiesComponent implements OnDestroy{
             // _.merge(this,$this.mainservice.global.studyThis);
             let selectedAet;
             _.forEach(this.mainservice.global.state,(m,i)=>{
-                console.log("m",m);
-                console.log("i",i);
                 if(m && i != "aetmodel"){
                     $this[i] = m;
                 }
