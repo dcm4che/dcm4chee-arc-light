@@ -29,12 +29,28 @@ import java.net.Socket;
 @Typed(HL7Service.class)
 class PatientUpdateService extends AbstractHL7Service {
 
+    private static final String[] MESSAGE_TYPES = {
+            "ADT^A01",
+            "ADT^A02",
+            "ADT^A03",
+            "ADT^A04",
+            "ADT^A05",
+            "ADT^A06",
+            "ADT^A07",
+            "ADT^A08",
+            "ADT^A12",
+            "ADT^A13",
+            "ADT^A28",
+            "ADT^A31",
+            "ADT^A40",
+            "ADT^A47",
+    };
+
     @Inject
     private PatientService patientService;
 
     public PatientUpdateService() {
-        super("ADT^A01", "ADT^A02", "ADT^A03", "ADT^A04", "ADT^A05", "ADT^A06", "ADT^A07", "ADT^A08",
-                "ADT^A28", "ADT^A31", "ADT^A40", "ADT^A47");
+        super(MESSAGE_TYPES);
     }
 
     @Override

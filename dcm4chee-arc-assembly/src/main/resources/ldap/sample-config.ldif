@@ -1066,6 +1066,8 @@ hl7AcceptedMessageType: ADT^A05
 hl7AcceptedMessageType: ADT^A06
 hl7AcceptedMessageType: ADT^A07
 hl7AcceptedMessageType: ADT^A08
+hl7AcceptedMessageType: ADT^A12
+hl7AcceptedMessageType: ADT^A13
 hl7AcceptedMessageType: ADT^A28
 hl7AcceptedMessageType: ADT^A31
 hl7AcceptedMessageType: ADT^A40

@@ -862,6 +862,8 @@ class ArchiveDeviceFactory {
             "ADT^A06",
             "ADT^A07",
             "ADT^A08",
+            "ADT^A12",
+            "ADT^A13",
             "ADT^A28",
             "ADT^A31",
             "ADT^A40",

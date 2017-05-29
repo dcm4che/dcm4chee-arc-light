@@ -5,3 +5,10 @@ changetype: modify
 replace: dicomSoftwareVersion
 dicomSoftwareVersion: 5.10.3
 -
+
+dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: hl7AcceptedMessageType
+hl7AcceptedMessageType: ADT^A12
+hl7AcceptedMessageType: ADT^A13
+-
