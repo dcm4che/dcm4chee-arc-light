@@ -10,7 +10,7 @@
   "properties": {
     "cn": {
       "title": "Name",
-      "description": "Arbitrary/Meaningful name of the Archive Compression Rule",
+      "description": "Arbitrary/Meaningful name of the Archive Attribute Coercion",
       "type": "string"
     },
     "dcmDIMSE": {
@@ -26,7 +26,11 @@
     "dicomTransferRole": {
       "title": "DICOM Transfer Role",
       "description": "Transfer role (either 'SCU' or 'SCP')",
-      "type": "string"
+      "type": "string",
+      "enum": [
+        "SCU",
+        "SCP"
+      ]
     },
     "dcmRulePriority": {
       "title": "Rule Priority",
@@ -80,7 +84,7 @@
     },
     "dcmMergeMWLTemplateURI": {
       "title": "Merge MWL Template URI",
-      "description": "Specifies URI for the style sheet to coerce request attributes of received objects from matching DICOM MWL items. Only effectiv, if dcmMergeMWLMatchingKey is specified.",
+      "description": "Specifies URI for the style sheet to coerce request attributes of received objects from matching DICOM MWL items. Only effective, if dcmMergeMWLMatchingKey is specified.",
       "type": "string"
     },
     "dcmLeadingCFindSCP": {

@@ -748,7 +748,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.125 NAME 'dcmMergeMWLMatchingKey'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.126 NAME 'dcmMergeMWLTemplateURI'
-  DESC 'Specifies URI for the style sheet to coerce request attributes of received objects from matching DICOM MWL items. Only effectiv, if dcmMergeMWLMatchingKey is specified.'
+  DESC 'Specifies URI for the style sheet to coerce request attributes of received objects from matching DICOM MWL items. Only effective, if dcmMergeMWLMatchingKey is specified.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
