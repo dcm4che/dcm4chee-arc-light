@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -102,13 +102,15 @@ public class QueryAETs {
         gen.writeStartObject();
         gen.write("title", aet);
         writer.writeNotNull("description", ae.getDescription());
-        if (arcAE.getQueryRetrieveView().isHideNotRejectedInstances())
-            writer.writeNotNull("dcmHideNotRejectedInstances", arcAE.getQueryRetrieveView().isHideNotRejectedInstances());
-        else {
-            writer.writeNotNull("dcmInvokeImageDisplayPatientURL", arcAE.invokeImageDisplayPatientURL());
-            writer.writeNotNull("dcmInvokeImageDisplayStudyURL", arcAE.invokeImageDisplayStudyURL());
+        if (arcAE != null) {
+            if (arcAE.getQueryRetrieveView() != null && arcAE.getQueryRetrieveView().isHideNotRejectedInstances())
+                writer.writeNotNull("dcmHideNotRejectedInstances", arcAE.getQueryRetrieveView().isHideNotRejectedInstances());
+            else {
+                writer.writeNotNull("dcmInvokeImageDisplayPatientURL", arcAE.invokeImageDisplayPatientURL());
+                writer.writeNotNull("dcmInvokeImageDisplayStudyURL", arcAE.invokeImageDisplayStudyURL());
+            }
+            writer.writeNotEmpty("dcmAcceptedUserRole", arcAE.getAcceptedUserRoles());
         }
-        writer.writeNotEmpty("dcmAcceptedUserRole", arcAE.getAcceptedUserRoles());
         gen.writeEnd();
     }
 }
