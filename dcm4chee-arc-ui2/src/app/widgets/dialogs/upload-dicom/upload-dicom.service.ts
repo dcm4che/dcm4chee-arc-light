@@ -15,7 +15,7 @@ export class UploadDicomService {
         return Observable.create(observer => {
             let formData: FormData = new FormData(),
                 xhr: XMLHttpRequest = new XMLHttpRequest();
-            formData.append('Content-Type', new Blob(['some plain text'], {type : 'Application/dicom'}));
+            // formData.append('Content-Type', new Blob(['some plain text'], {type : 'Application/dicom'}));
 
             for (var i = 0; i< files.length; i++) {
                 var fileObj = files[i];

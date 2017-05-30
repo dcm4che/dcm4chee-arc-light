@@ -8,13 +8,16 @@
             </md-select>
             <!--<input type="file" ng2FileSelect [uploader]="vendorUpload" />-->
             <label>Chose a File to upload:</label>
-            <input type="file" (change)="fileChange($event)" placeholder="Upload file">
-            <div *ngIf="percentComplete.show">
-                <md-progress-bar color="primary" mode="determinate" [value]="percentComplete.value"></md-progress-bar>
+            <input type="file" (change)="fileChange($event)" placeholder="Upload file" multiple>
+            <div *ngFor="let file of fileList">
+                {{file.name}} <span class="text-danger" *ngIf="percentComplete[file.name].status">Error {{percentComplete[file.name].status}}</span>
+                <div>
+                    <md-progress-bar color="primary" mode="determinate" [value]="percentComplete[file.name].value"></md-progress-bar>
+                </div>
             </div>
         </div>
         <div class="dialogbuttons">
-            <button class="cancle" type="button" (click)="close(dialogRef)">CANCEL</button>
+            <button class="cancle" type="button" (click)="close(dialogRef)">CLOSE</button>
         </div>
     </div>
 </div>
