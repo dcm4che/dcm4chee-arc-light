@@ -37,7 +37,7 @@
     },
     "dcmStoreAccessControlID": {
       "title": "Store Access Control ID",
-      "description": "Access Contol ID assigned to Studies received by this AE",
+      "description": "Access Control ID assigned to Studies received by this AE",
       "type": "string"
     },
     "dcmStoreAccessControlIDRule": {
@@ -51,7 +51,7 @@
     },
     "dcmAccessControlID": {
       "title": "Access Control ID",
-      "description": "Access Contol IDs assigned to Query/Retrieve requests received by this AE",
+      "description": "Access Control IDs assigned to Query/Retrieve requests received by this AE",
       "type": "array",
       "items": { "type": "string" }
     },

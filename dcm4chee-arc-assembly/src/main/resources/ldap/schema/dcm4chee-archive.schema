@@ -361,7 +361,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.60 NAME 'dcmDeletePatientOnDeleteLastStud
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.61 NAME 'dcmStoreAccessControlID'
-  DESC 'AccessContolID assigned to Studies received by this AE'
+  DESC 'AccessControlID assigned to Studies received by this AE'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -795,7 +795,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.133 NAME 'dcmRSOperation'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.134 NAME 'dcmMetadataFilterName'
-  DESC 'Metadata Filter Name referenced by propritary "includefields" Query Parameter of WADO-RS Metadata requests'
+  DESC 'Metadata Filter Name referenced by proprietary "includefields" Query Parameter of WADO-RS Metadata requests'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15

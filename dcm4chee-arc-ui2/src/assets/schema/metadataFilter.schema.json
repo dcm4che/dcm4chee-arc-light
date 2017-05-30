@@ -9,7 +9,7 @@
   "properties": {
     "dcmMetadataFilterName": {
       "title": "Metadata Filter Name",
-      "description": "Metadata Filter Name referenced by propritary 'includefields' Query Parameter of WADO-RS Metadata requests.",
+      "description": "Metadata Filter Name referenced by proprietary 'includefields' Query Parameter of WADO-RS Metadata requests.",
       "type": "string"
     },
     "dcmTag": {
