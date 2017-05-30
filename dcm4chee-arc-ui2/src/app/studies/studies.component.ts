@@ -3168,9 +3168,11 @@ export class StudiesComponent implements OnDestroy{
     }
     extractAttrs(attrs, tags, extracted) {
         for(let tag in attrs){
-            if (this.binarySearch(tags, parseInt(tag, 16)) >= 0) {
-                extracted[tag] = attrs[tag];
-            }
+            // if (this.binarySearch(tags, parseInt(tag, 16)) >= 0) {
+                if(_.indexOf(tags,tag) > -1){
+                    extracted[tag] = attrs[tag];
+                }
+            // }
         }
         // attrs.forEach((value, tag) => {
         //     if (this.binarySearch(tags, parseInt(tag, 16)) >= 0) {
