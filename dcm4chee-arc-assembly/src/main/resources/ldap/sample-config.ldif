@@ -1066,10 +1066,12 @@ hl7AcceptedMessageType: ADT^A05
 hl7AcceptedMessageType: ADT^A06
 hl7AcceptedMessageType: ADT^A07
 hl7AcceptedMessageType: ADT^A08
+hl7AcceptedMessageType: ADT^A11
 hl7AcceptedMessageType: ADT^A12
 hl7AcceptedMessageType: ADT^A13
 hl7AcceptedMessageType: ADT^A28
 hl7AcceptedMessageType: ADT^A31
+hl7AcceptedMessageType: ADT^A38
 hl7AcceptedMessageType: ADT^A40
 hl7AcceptedMessageType: ADT^A47
 hl7AcceptedMessageType: ORM^O01

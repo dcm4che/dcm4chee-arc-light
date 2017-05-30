@@ -38,10 +38,12 @@ class PatientUpdateService extends AbstractHL7Service {
             "ADT^A06",
             "ADT^A07",
             "ADT^A08",
+            "ADT^A11",
             "ADT^A12",
             "ADT^A13",
             "ADT^A28",
             "ADT^A31",
+            "ADT^A38",
             "ADT^A40",
             "ADT^A47",
     };
