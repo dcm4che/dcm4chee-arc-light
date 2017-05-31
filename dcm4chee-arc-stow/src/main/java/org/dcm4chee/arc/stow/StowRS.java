@@ -341,7 +341,7 @@ public class StowRS {
             boolean readBodyPart(StowRS stowRS, StoreSession session, MultipartInputStream in,
                                  MediaType mediaType, String contentLocation) throws Exception {
                 if (!MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.APPLICATION_DICOM_XML_TYPE))
-                    return stowRS.spoolBulkdata(session, in, mediaType, contentLocation);
+                    return stowRS.spoolBulkdata(in, mediaType, contentLocation);
 
                 stowRS.instances.add(SAXReader.parse(in));
                 return true;
@@ -352,7 +352,7 @@ public class StowRS {
             boolean readBodyPart(StowRS stowRS, StoreSession session, MultipartInputStream in,
                                  MediaType mediaType, String contentLocation) throws Exception {
                 if (!MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.APPLICATION_DICOM_JSON_TYPE))
-                    return stowRS.spoolBulkdata(session, in, mediaType, contentLocation);
+                    return stowRS.spoolBulkdata(in, mediaType, contentLocation);
 
                 JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
                 stowRS.instances.add(reader.readDataset(null));
@@ -458,16 +458,21 @@ public class StowRS {
         jpegHeader.toAttributes(attrs);
     }
 
-    private boolean spoolBulkdata(StoreSession session, MultipartInputStream in, MediaType mediaType,
-                                  String contentLocation) throws IOException {
-        if (spoolDirectory == null)
-            spoolDirectory = Files.createTempDirectory(spoolDirectoryRoot(), null);
-        java.nio.file.Path spoolFile = Files.createTempFile(spoolDirectory, null, null);
-        try (OutputStream out = Files.newOutputStream(spoolFile)) {
-            StreamUtils.copy(in, out);
+    private boolean spoolBulkdata(MultipartInputStream in, MediaType mediaType,
+                                  String contentLocation) {
+        try {
+            if (spoolDirectory == null)
+                spoolDirectory = Files.createTempDirectory(spoolDirectoryRoot(), null);
+            java.nio.file.Path spoolFile = Files.createTempFile(spoolDirectory, null, null);
+            try (OutputStream out = Files.newOutputStream(spoolFile)) {
+                StreamUtils.copy(in, out);
+            }
+            bulkdataMap.put(contentLocation, new BulkDataWithMediaType(spoolFile, mediaType));
+            return true;
+        } catch (Exception e) {
+            LOG.warn("Exception caught while spooling bulkdata : " + e.getMessage());
+            return false;
         }
-        bulkdataMap.put(contentLocation, new BulkDataWithMediaType(spoolFile, mediaType));
-        return true;
     }
 
     private java.nio.file.Path spoolDirectoryRoot() throws IOException {
