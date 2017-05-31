@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {MdDialogRef} from "@angular/material";
 import * as _ from 'lodash';
+import {AppService} from "../../../app.service";
 
 @Component({
   selector: 'app-upload-files',
@@ -17,7 +18,8 @@ export class UploadFilesComponent implements OnInit {
     xmlHttpRequest;
     percentComplete: any;
     constructor(
-        public dialogRef: MdDialogRef<UploadFilesComponent>
+        public dialogRef: MdDialogRef<UploadFilesComponent>,
+        public mainservice:AppService
     ) {
     }
 
@@ -37,9 +39,21 @@ export class UploadFilesComponent implements OnInit {
                  value:0,
                  show:false
                  }*/
-
-                    console.log("file",file);
-                    console.log("filetype",file.type);
+                let transfareSyntax;
+                switch (file.type) {
+                    case "image/jpeg":
+                        transfareSyntax = "1.2.840.10008.1.2.​4.50";
+                        break;
+                    case "video/mpeg":
+                        transfareSyntax = "1.2.840.10008.1.2.4.100";
+                        break;
+                    case "application/pdf":
+                        transfareSyntax = "1.2.840.10008.5.1.4.1.1.104.1";
+                        break;
+                }
+                if(transfareSyntax){
+                    console.log("file", file);
+                    console.log("filetype", file.type);
                     this.percentComplete[file.name] = {};
                     this.percentComplete[file.name]['value'] = 0;
                     let reader = new FileReader();
@@ -59,14 +73,13 @@ export class UploadFilesComponent implements OnInit {
                             filetype = file.type;
                         }
                         let studyObject = _.cloneDeep($this._dicomObject.attrs);
-                            studyObject["7FE00010"] = {
-                                "vr":"OB",
-                                "BulkDataURI":"file/"+file.name
-                            }
-                        let transfareSyntax = "1.2.840.10008.1.2.​4.​50";
+                        studyObject["7FE00010"] = {
+                            "vr": "OB",
+                            "BulkDataURI": "file/" + file.name
+                        }
                         const dataView = new DataView(e.target['result']);
-                        const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(studyObject)+ crlf;
-                        const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + filetype + ';transfer-Syntax:1.2.840.10008.1.2.4.50' + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
+                        const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(studyObject) + crlf;
+                        const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + filetype + ';transfer-Syntax:' + transfareSyntax + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
                         const postDataEnd = crlf + dashes + boundary + dashes;
                         const size = postDataStart.length + dataView.byteLength + postDataEnd.length;
                         const uint8Array = new Uint8Array(size);
@@ -106,13 +119,22 @@ export class UploadFilesComponent implements OnInit {
                             $this.percentComplete[file.name]['value'] = 0;
                         };
                         xmlHttpRequest.upload.onloadend = function (e) {
-                            if (xmlHttpRequest.status === 200){
+                            if (xmlHttpRequest.status === 200) {
                                 $this.percentComplete[file.name]['value'] = 100;
                             }
                         };
                         //Send the binary data
                         xmlHttpRequest.send(payload);
                     };
+                }else{
+                    $this.mainservice.setMessage({
+                        'title': 'Error',
+                        'text': `Filetype "${file.type}" not allowed!`,
+                        'status': 'error'
+                    });
+                    $this.fileList = [];
+                    $this.file = null;
+                }
             });
         }
 

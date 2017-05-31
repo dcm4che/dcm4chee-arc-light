@@ -8,7 +8,7 @@
             </md-select>
             <!--<input type="file" ng2FileSelect [uploader]="vendorUpload" />-->
             <label>Chose a File to upload:</label>
-            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  accept="application/dicom" multiple>
+            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  accept="image/jpeg,video/mpeg,application/pdf">
             <div md-dialog-content>
                 <div class="upload_state" *ngFor="let file of fileList">
                     {{file.name}}

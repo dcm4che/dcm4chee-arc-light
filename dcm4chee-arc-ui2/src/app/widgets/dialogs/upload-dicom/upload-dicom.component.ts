@@ -4,6 +4,7 @@ import {MdDialogRef} from '@angular/material';
 import {Http} from '@angular/http';
 import {UploadDicomService} from './upload-dicom.service';
 import * as _ from 'lodash';
+import {AppService} from "../../../app.service";
 
 @Component({
   selector: 'app-upload-dicom',
@@ -27,7 +28,8 @@ export class UploadDicomComponent implements OnInit{
     constructor(
         public dialogRef: MdDialogRef<UploadDicomComponent>,
         private $http: Http,
-        private service: UploadDicomService
+        private service: UploadDicomService,
+        public mainservice:AppService
     ) {
         this.service.progress$.subscribe(
             data => {
@@ -73,7 +75,11 @@ export class UploadDicomComponent implements OnInit{
                     show:false
                 }*/
                 if(file.type && file.type != "application/dicom"){
-                    alert(file.type + " not allowed type!");
+                    $this.mainservice.setMessage({
+                        'title': 'Error',
+                        'text': `Filetype "${file.type}" not allowed!`,
+                        'status': 'error'
+                    });
                     $this.fileList = [];
                     event = null;
                     $this.file = null;
