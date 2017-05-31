@@ -34,15 +34,10 @@ export class UploadFilesComponent implements OnInit {
         this.fileList = event.target.files;
         if (this.fileList) {
             _.forEach(this.fileList, (file, i) => {
-                /*                {
-                 mode:"determinate",
-                 value:0,
-                 show:false
-                 }*/
                 let transfareSyntax;
                 switch (file.type) {
                     case "image/jpeg":
-                        transfareSyntax = "1.2.840.10008.1.2.​4.50";
+                        transfareSyntax = "1.2.840.10008.1.2.4.50";
                         break;
                     case "video/mpeg":
                         transfareSyntax = "1.2.840.10008.1.2.4.100";
@@ -67,19 +62,26 @@ export class UploadFilesComponent implements OnInit {
                         let dashes = '--';
                         let crlf = '\r\n';
                         //Post with the correct MIME type (If the OS can identify one)
-                        if (file.type == '') {
-                            filetype = 'application/dicom';
-                        } else {
-                            filetype = file.type;
-                        }
                         let studyObject = _.cloneDeep($this._dicomObject.attrs);
+                        if(transfareSyntax === "1.2.840.10008.5.1.4.1.1.104.1"){
+                            studyObject["00420011"] = {
+                                "vr": "OB",
+                                "Value": "file/" + file.name
+                            };
+                            studyObject["00080016"] =  {
+                                "vr":"UI",
+                                "Value":[
+                                    "1.2.840.10008.5.1.4.1.1.104.1"
+                                ]
+                            }
+                        }
                         studyObject["7FE00010"] = {
                             "vr": "OB",
                             "BulkDataURI": "file/" + file.name
                         }
                         const dataView = new DataView(e.target['result']);
                         const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(studyObject) + crlf;
-                        const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + filetype + ';transfer-Syntax:' + transfareSyntax + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
+                        const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + ';transfer-Syntax:' + transfareSyntax + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
                         const postDataEnd = crlf + dashes + boundary + dashes;
                         const size = postDataStart.length + dataView.byteLength + postDataEnd.length;
                         const uint8Array = new Uint8Array(size);
