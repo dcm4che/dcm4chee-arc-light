@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import {Http} from "@angular/http";
+import {Http} from '@angular/http';
 
 @Injectable()
 export class CreateExporterService {
 
-    constructor(private $http:Http) { }
+    constructor(private $http: Http) { }
 
     getDevice(devicename){
         return this.$http.get('../devices/' + devicename).map(device => device.json());

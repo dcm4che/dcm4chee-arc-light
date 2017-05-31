@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
-import {Http, RequestMethod, RequestOptions, Headers, Request, URLSearchParams} from "@angular/http";
-import {DatePipe} from "@angular/common";
-import * as _ from "lodash";
-import {Observable} from "rxjs";
+import {Http, Headers} from '@angular/http';
+import {DatePipe} from '@angular/common';
+import * as _ from 'lodash';
+import {Observable} from 'rxjs';
 declare var DCM4CHE: any;
-declare var window:any
+declare var window: any;
 
 @Injectable()
 export class StudiesService {
-    private _patientIod:any;
-    private _mwlIod:any;
+    private _patientIod: any;
+    private _mwlIod: any;
     private _studyIod;
-    integerVr = ["DS","FL","FD","IS","SL","SS","UL", "US"];
+    integerVr = ['DS', 'FL', 'FD', 'IS', 'SL', 'SS', 'UL', 'US'];
 
-    constructor(public $http:Http, public datePipe:DatePipe) { }
+    constructor(public $http: Http, public datePipe: DatePipe) { }
 
     get studyIod() {
         return this._studyIod;
@@ -46,22 +46,22 @@ export class StudiesService {
         return window;
     }
     getAes(user, aes){
-        console.log("in get aes service");
-        if(!user || !user.user || user.roles.length === 0){
+        console.log('in get aes service');
+        if (!user || !user.user || user.roles.length === 0){
             return aes;
         }else{
-            var endAes = [];
-            var valid;
+            let endAes = [];
+            let valid;
             aes.forEach((ae, i) => {
                 valid = false;
-                user.roles.forEach((user, i)=>{
+                user.roles.forEach((user, i) => {
                     ae.dcmAcceptedUserRole.forEach((aet, j) => {
-                        if(user === aet){
+                        if (user === aet){
                             valid = true;
                         }
-                    })
+                    });
                 });
-                if(valid){
+                if (valid){
                     endAes.push(ae);
                 }
             });
@@ -69,26 +69,26 @@ export class StudiesService {
         }
     }
     _config = function(params) {
-        console.log("jquery params",jQuery.param(params));
-        return "?" + jQuery.param(params);
+        console.log('jquery params', jQuery.param(params));
+        return '?' + jQuery.param(params);
     };
 
     replaceKeyInJson(object, key, key2){
         let $this = this;
-        _.forEach(object,function(m, k){
-            if(m[key]){
+        _.forEach(object, function(m, k){
+            if (m[key]){
                 object[k][key2] = [object[k][key]];
                 delete object[k][key];
             }
-            if(m.vr && m.vr !="SQ" && !m.Value){
-                if(m.vr === "PN"){
-                    object[k]["Value"] = object[k]["Value"] || [{Alphabetic:''}];
-                    object[k]["Value"] = [{Alphabetic:''}];
+            if (m.vr && m.vr != 'SQ' && !m.Value){
+                if (m.vr === 'PN'){
+                    object[k]['Value'] = object[k]['Value'] || [{Alphabetic: ''}];
+                    object[k]['Value'] = [{Alphabetic: ''}];
                 }else{
-                    object[k]["Value"] = [""];
+                    object[k]['Value'] = [''];
                 }
             }
-            if((Object.prototype.toString.call(m) === '[object Array]') || (object[k] !== null && typeof(object[k]) == "object")) {
+            if ((Object.prototype.toString.call(m) === '[object Array]') || (object[k] !== null && typeof(object[k]) == 'object')) {
                 $this.replaceKeyInJson(m, key, key2);
             }
         });
@@ -97,19 +97,19 @@ export class StudiesService {
     initEmptyValue(object){
         // console.log(".", object);
         let $this = this;
-        _.forEach(object,function(m, k){
-            console.log("m",m);
-            if(m && m.vr && m.vr==="PN" && m.vr !="SQ" && (!m.Value || m.Value[0] === null)){
-                console.log("in pnvalue=",m);
-                object[k]["Value"] = [{
-                    Alphabetic:""
+        _.forEach(object, function(m, k){
+            console.log('m', m);
+            if (m && m.vr && m.vr === 'PN' && m.vr != 'SQ' && (!m.Value || m.Value[0] === null)){
+                console.log('in pnvalue=', m);
+                object[k]['Value'] = [{
+                    Alphabetic: ''
                 }];
             }
-            if(m && m.vr && m.vr !="SQ" && !m.Value){
-                object[k]["Value"] = [""];
+            if (m && m.vr && m.vr != 'SQ' && !m.Value){
+                object[k]['Value'] = [''];
             }
-            if(m && (_.isArray(m) || (m && _.isObject(m)))) {
-                console.log("beforecall",m);
+            if (m && (_.isArray(m) || (m && _.isObject(m)))) {
+                console.log('beforecall', m);
                 $this.initEmptyValue(m);
             }
         });
@@ -117,7 +117,7 @@ export class StudiesService {
     };
 
     queryPatients = function(url, params) {
-        console.log("this._config(aparms", this._config(params));
+        console.log('this._config(aparms', this._config(params));
 
         // this.headers = new Headers();
         // this.headers.append('Content-Type', 'application/json');
@@ -134,16 +134,16 @@ export class StudiesService {
         return this.$http.get(
             url + '/patients' + this._config(params),
             {
-                headers:  new Headers({"Accept":"application/dicom+json"})
-            }).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
+                headers:  new Headers({'Accept': 'application/dicom+json'})
+            }).map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
     };
 
     queryStudies = function(url, params) {
-        console.log("in querystudies");
+        console.log('in querystudies');
         return this.$http.get(
             url + '/studies' + this._config(params),
             {
-                headers:  new Headers({"Accept":"application/dicom+json"})
+                headers:  new Headers({'Accept': 'application/dicom+json'})
             }
         ).map(res => {
             let resjson;
@@ -156,15 +156,15 @@ export class StudiesService {
         });
     };
     appendPatientIdTo(patient, obj){
-        if(_.hasIn(patient,"00100020")){
+        if (_.hasIn(patient, '00100020')){
             obj['00100020'] = obj['00100020'] || {};
             obj['00100020'] = patient['00100020'];
         }
-        if(_.hasIn(patient,"00100021")){
+        if (_.hasIn(patient, '00100021')){
             obj['00100021'] = obj['00100021'] || {};
             obj['00100021'] = patient['00100021'];
         }
-        if(_.hasIn(patient,"00100024")){
+        if (_.hasIn(patient, '00100024')){
             obj['00100024'] = obj['00100024'] || {};
             obj['00100024'] = patient['00100024'];
         }
@@ -173,18 +173,18 @@ export class StudiesService {
         return this.$http.get(
             url + '/mwlitems' + this._config(params),
             {
-                headers:  new Headers({"Accept":"application/dicom+json"})
+                headers:  new Headers({'Accept': 'application/dicom+json'})
             }
-        ).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
+        ).map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
     };
 
     querySeries = function(url, studyIUID, params) {
         return this.$http.get(
             url + '/studies/' + studyIUID + '/series' + this._config(params),
             {
-                headers:  new Headers({"Accept":"application/dicom+json"})
+                headers:  new Headers({'Accept': 'application/dicom+json'})
             }
-        ).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
+        ).map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
     };
 
     queryInstances = function(url, studyIUID, seriesIUID, params) {
@@ -194,54 +194,54 @@ export class StudiesService {
             + '/instances' +
             this._config(params),
             {
-                headers:  new Headers({"Accept":"application/dicom+json"})
+                headers:  new Headers({'Accept': 'application/dicom+json'})
             }
-        ).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
+        ).map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
     };
 
     getPatientIod(){
-        console.log("_patientIod",this._patientIod);
+        console.log('_patientIod', this._patientIod);
         if (this._patientIod) {
             return Observable.of(this._patientIod);
         } else {
-            return this.$http.get('assets/iod/patient.iod.json').map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
+            return this.$http.get('assets/iod/patient.iod.json').map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
         }
     };
     getStudyIod(){
-        console.log("_patientIod",this._studyIod);
+        console.log('_patientIod', this._studyIod);
         if (this._studyIod) {
             return Observable.of(this._studyIod);
         } else {
-            return this.$http.get('assets/iod/study.iod.json').map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
+            return this.$http.get('assets/iod/study.iod.json').map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
         }
     };
     getMwlIod(){
-        console.log("_mwlIod",this._mwlIod);
+        console.log('_mwlIod', this._mwlIod);
         if (this._mwlIod) {
             return Observable.of(this._mwlIod);
         } else {
             return this.$http.get(
                 'assets/iod/mwl.iod.json'
-            ).map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;});
+            ).map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
         }
     };
 
     getArrayFromIod(res){
         let dropdown = [];
         _.forEach(res, function(m, i){
-            if(i === "00400100"){
+            if (i === '00400100'){
                 _.forEach(m.items, function(l, j){
                     dropdown.push({
-                        "code":"00400100:"+j,
-                        "codeComma": ">"+j.slice(0, 4)+","+j.slice(4),
-                        "name":DCM4CHE.elementName.forTag(j)
+                        'code': '00400100:' + j,
+                        'codeComma': '>' + j.slice(0, 4) + ',' + j.slice(4),
+                        'name': DCM4CHE.elementName.forTag(j)
                     });
                 });
             }else{
                 dropdown.push({
-                    "code":i,
-                    "codeComma": i.slice(0, 4)+","+i.slice(4),
-                    "name":DCM4CHE.elementName.forTag(i)
+                    'code': i,
+                    'codeComma': i.slice(0, 4) + ',' + i.slice(4),
+                    'name': DCM4CHE.elementName.forTag(i)
                 });
             }
         });
@@ -250,12 +250,12 @@ export class StudiesService {
 
     clearPatientObject(object){
         let $this = this;
-        _.forEach(object, function(m,i){
-            if(typeof(m) === "object" && i != "vr"){
+        _.forEach(object, function(m, i){
+            if (typeof(m) === 'object' && i != 'vr'){
                 $this.clearPatientObject(m);
             }else{
-                var check = typeof(i) === "number" || i === "vr" || i === "Value" || i === "Alphabetic" || i === "Ideographic" || i === "Phonetic" || i === "items";
-                if(!check){
+                let check = typeof(i) === 'number' || i === 'vr' || i === 'Value' || i === 'Alphabetic' || i === 'Ideographic' || i === 'Phonetic' || i === 'items';
+                if (!check){
                     delete object[i];
                 }
             }
@@ -263,14 +263,14 @@ export class StudiesService {
     };
     convertStringToNumber(object){
         let $this = this;
-        _.forEach(object, function(m,i){
-            if(typeof(m) === "object" && i != "vr"){
+        _.forEach(object, function(m, i){
+            if (typeof(m) === 'object' && i != 'vr'){
                 $this.convertStringToNumber(m);
             }else{
-                if(i === "vr"){
-                    if(($this.integerVr.indexOf(object.vr) > -1 && object.Value && object.Value.length > 0)){
-                        if(object.Value.length > 1){
-                            _.forEach(object.Value,(k, j) =>{
+                if (i === 'vr'){
+                    if (($this.integerVr.indexOf(object.vr) > -1 && object.Value && object.Value.length > 0)){
+                        if (object.Value.length > 1){
+                            _.forEach(object.Value, (k, j) => {
                                 object.Value[j] = Number(object.Value[j]);
                             });
                         }else{
@@ -283,16 +283,16 @@ export class StudiesService {
         });
     };
     clearSelection(patients){
-        _.forEach(patients,function(patient, i){
+        _.forEach(patients, function(patient, i){
             patient.selected = false;
-            if(patient.studies){
-                _.forEach(patient.studies,function(study, j){
+            if (patient.studies){
+                _.forEach(patient.studies, function(study, j){
                     study.selected = false;
-                    if(study.series){
-                        _.forEach(study.series,function(serie, j){
+                    if (study.series){
+                        _.forEach(study.series, function(serie, j){
                             serie.selected = false;
-                            if(serie.instances){
-                                _.forEach(serie.instances,function(instance, j){
+                            if (serie.instances){
+                                _.forEach(serie.instances, function(instance, j){
                                     instance.selected = false;
                                 });
                             }
@@ -305,25 +305,25 @@ export class StudiesService {
     MergeRecursive(clipboard, selected) {
         _.forEach(selected, function(study, studykey){
             clipboard[studykey] = clipboard[studykey] || selected[studykey];
-            if(clipboard[studykey]){
-                if(study["ReferencedSeriesSequence"]){
-                    clipboard[studykey]["ReferencedSeriesSequence"] = clipboard[studykey]["ReferencedSeriesSequence"] || study["ReferencedSeriesSequence"]
-                    _.forEach(study["ReferencedSeriesSequence"] ,function(selSeries,selSeriesKey){
+            if (clipboard[studykey]){
+                if (study['ReferencedSeriesSequence']){
+                    clipboard[studykey]['ReferencedSeriesSequence'] = clipboard[studykey]['ReferencedSeriesSequence'] || study['ReferencedSeriesSequence'];
+                    _.forEach(study['ReferencedSeriesSequence'] , function(selSeries, selSeriesKey){
 
                         let SeriesInstanceUIDInArray = false;
-                        _.forEach(clipboard[studykey]["ReferencedSeriesSequence"] ,function(clipSeries,clipSeriesKey){
-                            if(clipSeries.SeriesInstanceUID === selSeries.SeriesInstanceUID){
+                        _.forEach(clipboard[studykey]['ReferencedSeriesSequence'] , function(clipSeries, clipSeriesKey){
+                            if (clipSeries.SeriesInstanceUID === selSeries.SeriesInstanceUID){
                                 SeriesInstanceUIDInArray = true;
-                                if(selSeries.ReferencedSOPSequence){
-                                    if(clipSeries.ReferencedSOPSequence){
+                                if (selSeries.ReferencedSOPSequence){
+                                    if (clipSeries.ReferencedSOPSequence){
                                         _.forEach(selSeries.ReferencedSOPSequence , function(selInstance, selSeriesKey){
                                             let sopClassInstanceUIDInArray = false;
                                             _.forEach(clipSeries.ReferencedSOPSequence , function(clipInstance, clipInstanceKey){
-                                                if(clipInstance.ReferencedSOPClassUID && clipInstance.ReferencedSOPClassUID === selInstance.ReferencedSOPClassUID && clipInstance.ReferencedSOPInstanceUID && clipInstance.ReferencedSOPInstanceUID === selInstance.ReferencedSOPInstanceUID){
+                                                if (clipInstance.ReferencedSOPClassUID && clipInstance.ReferencedSOPClassUID === selInstance.ReferencedSOPClassUID && clipInstance.ReferencedSOPInstanceUID && clipInstance.ReferencedSOPInstanceUID === selInstance.ReferencedSOPInstanceUID){
                                                     sopClassInstanceUIDInArray = true;
                                                 }
                                             });
-                                            if(!sopClassInstanceUIDInArray){
+                                            if (!sopClassInstanceUIDInArray){
                                                 clipSeries.ReferencedSOPSequence.push(selInstance);
                                             }
                                         });
@@ -331,8 +331,8 @@ export class StudiesService {
                                 }
                             }
                         });
-                        if(!SeriesInstanceUIDInArray){
-                            clipboard[studykey]["ReferencedSeriesSequence"].push(selSeries);
+                        if (!SeriesInstanceUIDInArray){
+                            clipboard[studykey]['ReferencedSeriesSequence'].push(selSeries);
                         }
                     });
                 }
@@ -346,19 +346,19 @@ export class StudiesService {
     * @clipboard: the clipboard object
     * */
     removeClipboardElement(modus, keys, clipboard){
-        switch(modus) {
-            case "patient":
+        switch (modus) {
+            case 'patient':
                 delete clipboard['patients'][keys.patientkey];
                 delete clipboard['otherObjects'][keys.patientkey];
                 break;
-            case "study":
+            case 'study':
                 delete clipboard['otherObjects'][keys.studykey];
                 break;
-            case "serie":
+            case 'serie':
                 delete clipboard['otherObjects'][keys.studykey].ReferencedSeriesSequence[keys.serieskey];
                 break;
-            case "instance":
-                clipboard['otherObjects'][keys.studykey].ReferencedSeriesSequence[keys.serieskey].ReferencedSOPSequence.splice(keys.instancekey,1);
+            case 'instance':
+                clipboard['otherObjects'][keys.studykey].ReferencedSeriesSequence[keys.serieskey].ReferencedSOPSequence.splice(keys.instancekey, 1);
                 break;
             default:
         }
@@ -366,47 +366,47 @@ export class StudiesService {
         * Check if there are any patient in the clipboard anymore
         * */
         let haspatient = false;
-        _.forEach(clipboard.otherObjects, (m,i)=>{
-            if(i != '' && (!m || _.size(m) === 0)){
+        _.forEach(clipboard.otherObjects, (m, i) => {
+            if (i != '' && (!m || _.size(m) === 0)){
                 haspatient = true;
             }
-        })
+        });
 clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
     }
     /*
     * return patientid - combination of patient id, issuer
     * */
     getPatientId(patient){
-        console.log("patient",patient);
+        console.log('patient', patient);
         let obj;
-        if(_.hasIn(patient, '[0]')){
+        if (_.hasIn(patient, '[0]')){
             obj = patient[0];
         }else{
             obj = patient;
         }
         let patientId = obj.PatientID;
-        if(obj.IssuerOfPatientID){
-            patientId += "^^^"+obj.IssuerOfPatientID;
+        if (obj.IssuerOfPatientID){
+            patientId += '^^^' + obj.IssuerOfPatientID;
         }
 
-        if(_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]')){
-            patientId +="&"+ obj["00100024"].Value[0]["00400032"].Value[0];
+        if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]')){
+            patientId += '&' + obj['00100024'].Value[0]['00400032'].Value[0];
         }
-        if(_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]')){
-            patientId +="&"+ obj["00100024"].Value[0]["00400033"].Value[0];
+        if (_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]')){
+            patientId += '&' + obj['00100024'].Value[0]['00400033'].Value[0];
         }
         return patientId;
     }
 
     isTargetInClipboard(target, clipboard){
         let contains = false;
-        _.forEach(clipboard.otherObjects,(m,i)=>{
-            if(_.hasIn(target, ["otherObjects",i]) && _.isEqual(m, target.otherObjects[i])){
+        _.forEach(clipboard.otherObjects, (m, i) => {
+            if (_.hasIn(target, ['otherObjects', i]) && _.isEqual(m, target.otherObjects[i])){
                contains = true;
             }
         });
-        _.forEach(clipboard.patients,(m,i)=>{
-            if(_.hasIn(target, ["patients",i]) &&  _.isEqual(m, target.patients[i])){
+        _.forEach(clipboard.patients, (m, i) => {
+            if (_.hasIn(target, ['patients', i]) &&  _.isEqual(m, target.patients[i])){
                contains = true;
             }
         });

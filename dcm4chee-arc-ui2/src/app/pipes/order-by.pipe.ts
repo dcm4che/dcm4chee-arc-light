@@ -5,21 +5,21 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class OrderByPipe implements PipeTransform {
 
-  transform(value: any, args?: any, args2?:boolean): any {
-      if(value){
-          if(typeof args2 !== 'undefined'){
-              if(args2 === true){
+  transform(value: any, args?: any, args2?: boolean): any {
+      if (value){
+          if (typeof args2 !== 'undefined'){
+              if (args2 === true){
                   value.sort((a: any, b: any) => {
-                      if(typeof a[args] === "object"){
-                          let astring = "";
-                          let bstring = "";
-                          for(let oa in a[args]){
-                              if(typeof oa === "string"){
+                      if (typeof a[args] === 'object'){
+                          let astring = '';
+                          let bstring = '';
+                          for (let oa in a[args]){
+                              if (typeof oa === 'string'){
                                   astring = oa;
                               }
                           }
-                          for(let ob in b[args]){
-                              if(typeof ob === "string"){
+                          for (let ob in b[args]){
+                              if (typeof ob === 'string'){
                                   bstring = ob;
                               }
                           }
@@ -42,16 +42,16 @@ export class OrderByPipe implements PipeTransform {
                   });
               }else{
                   value.sort((a: any, b: any) => {
-                      if(typeof a[args] === "object"){
-                          let astring = "";
-                          let bstring = "";
-                          for(let oa in a[args]){
-                              if(typeof oa === "string"){
+                      if (typeof a[args] === 'object'){
+                          let astring = '';
+                          let bstring = '';
+                          for (let oa in a[args]){
+                              if (typeof oa === 'string'){
                                   astring = oa;
                               }
                           }
-                          for(let ob in b[args]){
-                              if(typeof ob === "string"){
+                          for (let ob in b[args]){
+                              if (typeof ob === 'string'){
                                   bstring = ob;
                               }
                           }

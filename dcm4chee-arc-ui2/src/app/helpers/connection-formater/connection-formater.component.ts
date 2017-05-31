@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {Input} from "@angular/core";
-import * as _ from "lodash";
+import {Input} from '@angular/core';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'connection-formater',
@@ -20,10 +20,10 @@ export class ConnectionFormaterComponent implements OnInit {
 
     constructor() { }
     ngOnInit() {
-       _.forEach(this.dicomNetworkConnection, (m, i)=>{
-           if(m.dicomTLSCipherSuite){
-               if(m.dicomTLSCipherSuite[0] && m.dicomTLSCipherSuite[1]){
-                   m.dicomTLSCipherSuite = m.dicomTLSCipherSuite[0] +'\n'+ m.dicomTLSCipherSuite[1];
+       _.forEach(this.dicomNetworkConnection, (m, i) => {
+           if (m.dicomTLSCipherSuite){
+               if (m.dicomTLSCipherSuite[0] && m.dicomTLSCipherSuite[1]){
+                   m.dicomTLSCipherSuite = m.dicomTLSCipherSuite[0] + '\n' + m.dicomTLSCipherSuite[1];
                }
            }
        });

@@ -2,52 +2,52 @@
  * Created by shefki on 9/20/16.
  */
 
-import {Injectable} from "@angular/core";
-import {FormElement} from "./form-element";
-import {FormControl, Validators, FormGroup, FormArray, FormBuilder, Validator, AbstractControl} from "@angular/forms";
-import * as _ from "lodash";
-import {CustomValidatorDirective} from "../custom-validator/custom-validator.directive";
+import {Injectable} from '@angular/core';
+import {FormElement} from './form-element';
+import {FormControl, Validators, FormGroup, FormBuilder, AbstractControl} from '@angular/forms';
+import * as _ from 'lodash';
+import {CustomValidatorDirective} from '../custom-validator/custom-validator.directive';
 
-function testValidation(c:AbstractControl){
-    console.log("c");
+function testValidation(c: AbstractControl){
+    console.log('c');
 }
 @Injectable()
 export class FormService{
-    constructor(private _fb:FormBuilder){}
+    constructor(private _fb: FormBuilder){}
 
-    toFormGroup(formelements:FormElement<any>[]){
+    toFormGroup(formelements: FormElement<any>[]){
         return this._fb.group(this.convertFormElement(formelements));
     }
 
-    private convertFormElement(formelements:FormElement<any>[]){
-        let group:any = {};
+    private convertFormElement(formelements: FormElement<any>[]){
+        let group: any = {};
         let $this = this;
         formelements.forEach(element => {
-            let validation:any;
-            let validationElement:number = 0;
-            if(_.hasIn(element,"validation")){
-                if(_.size(element["validation"]) > 1){
+            let validation: any;
+            let validationElement = 0;
+            if (_.hasIn(element, 'validation')){
+                if (_.size(element['validation']) > 1){
                     let validationArray = [];
-                    _.forEach(element["validation"],(m,i)=>{
+                    _.forEach(element['validation'], (m, i) => {
                         switch (i){
-                            case "minimum":
+                            case 'minimum':
                                 validationArray.push(CustomValidatorDirective.min(m));
                                 break;
-                            case "maximum":
+                            case 'maximum':
                                 validationArray.push(CustomValidatorDirective.max(m));
                                 break;
-                            case "pattern":
+                            case 'pattern':
                                 validationArray.push(CustomValidatorDirective.regExp(m));
                                 break;
                             default:
-                                if(i=== "required" && m === true){
+                                if (i === 'required' && m === true){
                                     validationArray.push(Validators.required);
-                                    if(_.hasIn(element,"validation.required") && element["validation"].required){
-                                        if(_.hasIn(element,"options")){
-                                            if(element["controlType"] === "checkbox" || element["controlType"] === "arrayelement"){
-                                                validationArray.push(CustomValidatorDirective.requiredArray(element["options"]));
+                                    if (_.hasIn(element, 'validation.required') && element['validation'].required){
+                                        if (_.hasIn(element, 'options')){
+                                            if (element['controlType'] === 'checkbox' || element['controlType'] === 'arrayelement'){
+                                                validationArray.push(CustomValidatorDirective.requiredArray(element['options']));
                                             }else{
-                                                validationArray.push(CustomValidatorDirective.required(element["options"]));
+                                                validationArray.push(CustomValidatorDirective.required(element['options']));
                                             }
                                         }else{
                                             validationArray.push(Validators.required);
@@ -58,12 +58,12 @@ export class FormService{
                     });
                     validation = Validators.compose(validationArray);
                 }else{
-                    if(_.hasIn(element,"validation.required") && element["validation"].required){
-                        if(_.hasIn(element,"options") || element["controlType"] === "arrayelement"){
-                            if(element["controlType"] === "checkbox" || element["controlType"] === "arrayelement"){
-                                validation = CustomValidatorDirective.requiredArray(element["options"]);
+                    if (_.hasIn(element, 'validation.required') && element['validation'].required){
+                        if (_.hasIn(element, 'options') || element['controlType'] === 'arrayelement'){
+                            if (element['controlType'] === 'checkbox' || element['controlType'] === 'arrayelement'){
+                                validation = CustomValidatorDirective.requiredArray(element['options']);
                             }else{
-                                validation = CustomValidatorDirective.required(element["options"]);
+                                validation = CustomValidatorDirective.required(element['options']);
                             }
                         }else{
                             validation = Validators.required;
@@ -72,19 +72,19 @@ export class FormService{
                 }
             }
             switch (element.controlType) {
-                case "arrayobject":
+                case 'arrayobject':
                         let arr: FormGroup[] = [];
                         let locobj = {};
-                        element["options"].forEach((option: any) => {
-                            option["element"].forEach((e: any) => {
-                                if(e.controlType=== "arrayobject"){
+                        element['options'].forEach((option: any) => {
+                            option['element'].forEach((e: any) => {
+                                if (e.controlType === 'arrayobject'){
                                     let subgroup = this.convertFormElement([e]);
                                     locobj[e.key] = subgroup[e.key];
                                 }else{
-                                    if(e.controlType === "arrayelement"){
-                                        locobj[e.key] = e.value || [""];
+                                    if (e.controlType === 'arrayelement'){
+                                        locobj[e.key] = e.value || [''];
                                     }else{
-                                        locobj[e.key] = e.value || ''
+                                        locobj[e.key] = e.value || '';
                                     }
                                 }
                             });
@@ -92,40 +92,40 @@ export class FormService{
                         });
                         group[element.key] = $this._fb.array(arr);
                     break;
-                case "arrayelement":
-                    let singleElementValues:FormControl[] = [];
-                    console.log("element.value",element.value);
-                    if(element.value){
-                        if(element["type"] === "number"){
-                            _.forEach(element.value,(value:string) => {
+                case 'arrayelement':
+                    let singleElementValues: FormControl[] = [];
+                    console.log('element.value', element.value);
+                    if (element.value){
+                        if (element['type'] === 'number'){
+                            _.forEach(element.value, (value: string) => {
                                 singleElementValues.push($this._fb.control(parseInt(value)));
                             });
                         }else{
-                            _.forEach(element.value,(value:string) => {
+                            _.forEach(element.value, (value: string) => {
                                 singleElementValues.push($this._fb.control(value));
                             });
                         }
-                        group[element.key] = validation ? $this._fb.array(singleElementValues, validation):$this._fb.array(singleElementValues);
+                        group[element.key] = validation ? $this._fb.array(singleElementValues, validation) : $this._fb.array(singleElementValues);
                     }else{
-                        if(element["type"] === "number"){
-                            group[element.key] = validation ? $this._fb.array([$this._fb.control(singleElementValues)], validation):$this._fb.array([$this._fb.control(singleElementValues)]);
+                        if (element['type'] === 'number'){
+                            group[element.key] = validation ? $this._fb.array([$this._fb.control(singleElementValues)], validation) : $this._fb.array([$this._fb.control(singleElementValues)]);
                         }else{
-                            group[element.key] = validation ? $this._fb.array([$this._fb.control("")],validation):$this._fb.array([$this._fb.control("")]);
+                            group[element.key] = validation ? $this._fb.array([$this._fb.control('')], validation) : $this._fb.array([$this._fb.control('')]);
                         }
                     }
                     break;
-                case "checkbox":
+                case 'checkbox':
                     let checkboxArr = [];
-                    element["options"].forEach((option: any) => {
-                        if(option.active){
+                    element['options'].forEach((option: any) => {
+                        if (option.active){
                             checkboxArr.push($this._fb.control(option.value));
                         }
                     });
-                    group[element.key] = validation ? $this._fb.array(checkboxArr, validation):$this._fb.array(checkboxArr);
+                    group[element.key] = validation ? $this._fb.array(checkboxArr, validation) : $this._fb.array(checkboxArr);
                     break;
                 default:
-                    if(element.key){
-                        if(element["type"] === "number"){
+                    if (element.key){
+                        if (element['type'] === 'number'){
                             group[element.key] = validation ? $this._fb.control(parseInt(element.value) || 0, validation)
                                 : $this._fb.control(parseInt(element.value) || 0);
                         }else{
@@ -137,16 +137,16 @@ export class FormService{
         });
         return group;
     }
-    private getFormControlObject(keys:any){
-        let retobj:any = {};
+    private getFormControlObject(keys: any){
+        let retobj: any = {};
         let $this = this;
         Object.keys(keys).forEach(function(key) {
-            if(typeof keys[key] != "object"){
+            if (typeof keys[key] != 'object'){
                 retobj[key] = $this._fb.control(keys[key]);
             }else{
-                if(Array.isArray(keys[key])){
-                    let tmpArr:FormControl[] = [];
-                    keys[key].forEach((kayvalue:any) => {
+                if (Array.isArray(keys[key])){
+                    let tmpArr: FormControl[] = [];
+                    keys[key].forEach((kayvalue: any) => {
                         tmpArr.push($this._fb.control(kayvalue));
                     });
                     retobj[key] = $this._fb.array(tmpArr);

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import {MdDialogRef} from "@angular/material";
-import * as _ from "lodash";
-import {StudiesService} from "../../../studies/studies.service";
+import { Component } from '@angular/core';
+import {MdDialogRef} from '@angular/material';
+import * as _ from 'lodash';
+import {StudiesService} from '../../../studies/studies.service';
 
 @Component({
     selector: 'app-copy-move-objects',
@@ -18,8 +18,8 @@ export class CopyMoveObjectsComponent {
     private _saveLabel;
     private _title;
     _ = _;
-    constructor(public dialogRef: MdDialogRef<CopyMoveObjectsComponent>,public service:StudiesService) {
-        console.log("in construct copymovecomponent");
+    constructor(public dialogRef: MdDialogRef<CopyMoveObjectsComponent>, public service: StudiesService) {
+        console.log('in construct copymovecomponent');
     }
 
     get title() {
@@ -67,7 +67,7 @@ export class CopyMoveObjectsComponent {
         this._rjnotes = value;
     }
     getKeys(obj){
-        if(_.isArray(obj)){
+        if (_.isArray(obj)){
             return obj;
         }else{
             return Object.keys(obj);

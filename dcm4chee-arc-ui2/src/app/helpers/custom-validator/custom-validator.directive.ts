@@ -1,6 +1,6 @@
-import {Directive, SimpleChanges, OnChanges} from '@angular/core';
-import {AbstractControl, Validator, NG_VALIDATORS, ValidatorFn, Validators} from "@angular/forms";
-import * as _ from "lodash";
+import {Directive} from '@angular/core';
+import {AbstractControl, NG_VALIDATORS, ValidatorFn} from '@angular/forms';
+import * as _ from 'lodash';
 
 @Directive({
     selector: '[appCustomValidator]',
@@ -8,7 +8,7 @@ import * as _ from "lodash";
 })
 export class CustomValidatorDirective{
 
-    static requiredArray(options:any): ValidatorFn {
+    static requiredArray(options: any): ValidatorFn {
         return (control: AbstractControl): {[key: string]: any} => {
             // {'msg': {'requiredMax': min, 'actual': control.value}}
 /*            console.log("options",options);
@@ -18,21 +18,21 @@ export class CustomValidatorDirective{
                     oneOfOptionsActive = true;
                 }
             })*/
-            let check = (control.value === undefined || control.value === null || control.value === '' || (_.size(control.value) < 1) || (_.isArray(control.value) && control.value[0] === ""));
+            let check = (control.value === undefined || control.value === null || control.value === '' || (_.size(control.value) < 1) || (_.isArray(control.value) && control.value[0] === ''));
             return check ?
             {'msg': `This field is required!`} :
                 null;
         };
     }
-    static required(options:any): ValidatorFn {
+    static required(options: any): ValidatorFn {
         return (control: AbstractControl): {[key: string]: any} => {
             // {'msg': {'requiredMax': min, 'actual': control.value}}
             let oneOfOptionsActive = false;
-            _.forEach(options,(m,i)=>{
-                if(m.active && m.active === true){
+            _.forEach(options, (m, i) => {
+                if (m.active && m.active === true){
                     oneOfOptionsActive = true;
                 }
-            })
+            });
             let check = ((control.value === undefined || control.value === null || control.value === '') && !oneOfOptionsActive);
             return check ?
             {'msg': `This field is required!`} :
@@ -67,9 +67,9 @@ export class CustomValidatorDirective{
             if (!control.value) {
                 return null;  // don't validate empty values to allow optional controls
             }
-            var re = new RegExp(patern, 'g');
-            console.log("exec",re.exec(control.value));
-            console.log("exec",(re.exec(control.value) === null));
+            let re = new RegExp(patern, 'g');
+            console.log('exec', re.exec(control.value));
+            console.log('exec', (re.exec(control.value) === null));
             // {'msg': {'pattern': patern, 'value': control.value}} :
             return (re.exec(control.value) === null) ?
             {'msg': `The given value is not a valid string!`} :

@@ -1092,6 +1092,22 @@ md-dialog-container{
     line-height: 30px;
   }
 }
+.upload{
+  label{
+    margin-top:10px;
+  }
+}
+.upload_ticker{
+  float:right;
+  i{
+    font-size:19px;
+  }
+}
+.upload_state{
+  float: left;
+  width:100%;
+  margin-top:10px;
+}
 .dynamicform{
   .simple_input{
     width:100%;

@@ -1,6 +1,6 @@
 export class User {
-    private _user:string;
-    private _roles:Array<string>;
+    private _user: string;
+    private _roles: Array<string>;
 
     get user(): string {
         return this._user;

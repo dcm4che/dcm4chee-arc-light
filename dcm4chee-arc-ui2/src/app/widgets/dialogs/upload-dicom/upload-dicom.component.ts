@@ -1,12 +1,9 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {FileUploader} from "ng2-file-upload";
-import {MdDialogRef} from "@angular/material";
-import {Headers, RequestOptions, Http} from "@angular/http";
-import {Observable} from "rxjs";
-import {UploadDicomService} from "./upload-dicom.service";
-import {request} from "http";
-import {unescape} from "querystring";
-import * as _ from "lodash";
+import {Component, OnInit} from '@angular/core';
+import {FileUploader} from 'ng2-file-upload';
+import {MdDialogRef} from '@angular/material';
+import {Http} from '@angular/http';
+import {UploadDicomService} from './upload-dicom.service';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-upload-dicom',
@@ -17,10 +14,11 @@ export class UploadDicomComponent implements OnInit{
 
     private _aes;
     private _selectedAe;
-    fileList:File[];
+    file;
+    fileList: File[];
     xmlHttpRequest;
-    percentComplete:any;
-    public vendorUpload:FileUploader = new FileUploader({
+    percentComplete: any;
+    public vendorUpload: FileUploader = new FileUploader({
         url: ``,
         // allowedMimeType:['application/octet-stream','application/zip']
         // headers: [{name: 'Content-Type', value: `multipart/related`}]
@@ -28,12 +26,12 @@ export class UploadDicomComponent implements OnInit{
     });
     constructor(
         public dialogRef: MdDialogRef<UploadDicomComponent>,
-        private $http:Http,
-        private service:UploadDicomService
+        private $http: Http,
+        private service: UploadDicomService
     ) {
         this.service.progress$.subscribe(
             data => {
-                console.log('progress = '+data);
+                console.log('progress = ' + data);
             });
     }
 
@@ -44,18 +42,18 @@ export class UploadDicomComponent implements OnInit{
          });*/
         this.percentComplete = {};
         this.vendorUpload.onAfterAddingFile = (item) => {
-            item.method = "POST";
-            console.log("this.vendorUpload.optionss",this.vendorUpload.options);
-            console.log("item",item);
+            item.method = 'POST';
+            console.log('this.vendorUpload.optionss', this.vendorUpload.options);
+            console.log('item', item);
         };
-        this.vendorUpload.onBeforeUploadItem = (item) =>{
+        this.vendorUpload.onBeforeUploadItem = (item) => {
             this.addFileNameHeader(item.file.name);
         };
     }
     addFileNameHeader(fileName) {
         // var boundary=Math.random().toString().substr(2);
-        console.log("this.vendorUpload.progress",this.vendorUpload.progress);
-        console.log("this.vendorUpload.optionss",this.vendorUpload.options);
+        console.log('this.vendorUpload.progress', this.vendorUpload.progress);
+        console.log('this.vendorUpload.optionss', this.vendorUpload.options);
         // this.vendorUpload.setOptions({headers: [{
         //     name: 'Content-Type', value: `multipart/related`
         // }]});
@@ -67,79 +65,89 @@ export class UploadDicomComponent implements OnInit{
         let boundary = Math.random().toString().substr(2);
         let filetype;
         this.fileList = event.target.files;
-        if(this.fileList) {
-            _.forEach(this.fileList, (file,i)=>{
+        if (this.fileList) {
+            _.forEach(this.fileList, (file, i) => {
 /*                {
                     mode:"determinate",
                         value:0,
                     show:false
                 }*/
-                this.percentComplete[file.name] = {};
-                this.percentComplete[file.name]["value"] = 0;
-                let reader = new FileReader();
-                // reader.readAsBinaryString(file);
-                reader.readAsArrayBuffer(file);
-                reader.onload = function (e) {
+                if(file.type && file.type != "application/dicom"){
+                    alert(file.type + " not allowed type!");
+                    $this.fileList = [];
+                    event = null;
+                    $this.file = null;
+                }else{
 
-                    let xmlHttpRequest = new XMLHttpRequest();
-                    //Some AJAX-y stuff - callbacks, handlers etc.
-                    xmlHttpRequest.open("POST", `../aets/${$this._selectedAe}/rs/studies`, true);
-                    var dashes = '--';
-                    var crlf = "\r\n";
-                    //Post with the correct MIME type (If the OS can identify one)
-                    if (file.type == '') {
-                        filetype = 'application/dicom';
-                    } else {
-                        filetype = file.type;
-                    }
-                    const dataView = new DataView(e.target["result"]);
-                    const postDataStart = dashes + boundary + crlf + "Content-Disposition: form-data;" + "name=\"file\";" + "filename=\"" + encodeURIComponent(file.name) + "\"" + crlf + "Content-Type: " + filetype + crlf + crlf;
-                    const postDataEnd = crlf + dashes + boundary + dashes;
-                    const size = postDataStart.length + dataView.byteLength + postDataEnd.length;
-                    const uint8Array = new Uint8Array(size);
-                    let i = 0;
-                    for (; i < postDataStart.length; i++) {
-                        uint8Array[i] = postDataStart.charCodeAt(i) & 0xFF;
-                    }
+                    console.log("file",file);
+                    console.log("filetype",file.type);
+                    this.percentComplete[file.name] = {};
+                    this.percentComplete[file.name]['value'] = 0;
+                    let reader = new FileReader();
+                    // reader.readAsBinaryString(file);
+                    reader.readAsArrayBuffer(file);
+                    reader.onload = function (e) {
 
-                    for (let j = 0; j < dataView.byteLength; i++, j++) {
-                        uint8Array[i] = dataView.getUint8(j);
-                    }
-
-                    for (let j = 0; j < postDataEnd.length; i++, j++) {
-                        uint8Array[i] = postDataEnd.charCodeAt(j) & 0xFF;
-                    }
-                    const payload = uint8Array.buffer;
-                    xmlHttpRequest.setRequestHeader("Content-Type", "multipart/related;type=application/dicom;boundary=" + boundary + ";");
-                    xmlHttpRequest.setRequestHeader("Accept", "application/dicom+json");
-                    xmlHttpRequest.upload.onprogress = function (e) {
-                        if (e.lengthComputable) {
-                            $this.percentComplete[file.name]["value"] = (e.loaded / e.total) * 100;
+                        let xmlHttpRequest = new XMLHttpRequest();
+                        //Some AJAX-y stuff - callbacks, handlers etc.
+                        xmlHttpRequest.open('POST', `../aets/${$this._selectedAe}/rs/studies`, true);
+                        let dashes = '--';
+                        let crlf = '\r\n';
+                        //Post with the correct MIME type (If the OS can identify one)
+                        if (file.type == '') {
+                            filetype = 'application/dicom';
+                        } else {
+                            filetype = file.type;
                         }
-                    }
-                    xmlHttpRequest.onreadystatechange = () => {
-                        if (xmlHttpRequest.readyState === 4) {
-                            if (xmlHttpRequest.status === 200) {
-                                console.log("in response",JSON.parse(xmlHttpRequest.response));
-                            } else {
-                                console.log("in respons error",xmlHttpRequest.status);
-                                console.log("statusText",xmlHttpRequest.statusText);
-                                $this.percentComplete[file.name]["value"] = 0;
-                                $this.percentComplete[file.name]["status"] = xmlHttpRequest.status + ' ' + xmlHttpRequest.statusText;
+                        const dataView = new DataView(e.target['result']);
+                        const postDataStart = dashes + boundary + crlf + 'Content-Disposition: form-data;' + 'name=\"file\";' + 'filename=\"' + encodeURIComponent(file.name) + '\"' + crlf + 'Content-Type: ' + filetype + crlf + crlf;
+                        const postDataEnd = crlf + dashes + boundary + dashes;
+                        const size = postDataStart.length + dataView.byteLength + postDataEnd.length;
+                        const uint8Array = new Uint8Array(size);
+                        let i = 0;
+                        for (; i < postDataStart.length; i++) {
+                            uint8Array[i] = postDataStart.charCodeAt(i) & 0xFF;
+                        }
+
+                        for (let j = 0; j < dataView.byteLength; i++, j++) {
+                            uint8Array[i] = dataView.getUint8(j);
+                        }
+
+                        for (let j = 0; j < postDataEnd.length; i++, j++) {
+                            uint8Array[i] = postDataEnd.charCodeAt(j) & 0xFF;
+                        }
+                        const payload = uint8Array.buffer;
+                        xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type=application/dicom;boundary=' + boundary + ';');
+                        xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
+                        xmlHttpRequest.upload.onprogress = function (e) {
+                            if (e.lengthComputable) {
+                                $this.percentComplete[file.name]['value'] = (e.loaded / e.total) * 100;
                             }
-                        }
+                        };
+                        xmlHttpRequest.onreadystatechange = () => {
+                            if (xmlHttpRequest.readyState === 4) {
+                                if (xmlHttpRequest.status === 200) {
+                                    console.log('in response', JSON.parse(xmlHttpRequest.response));
+                                } else {
+                                    console.log('in respons error', xmlHttpRequest.status);
+                                    console.log('statusText', xmlHttpRequest.statusText);
+                                    $this.percentComplete[file.name]['value'] = 0;
+                                    $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + ' ' + xmlHttpRequest.statusText;
+                                }
+                            }
+                        };
+                        xmlHttpRequest.upload.onloadstart = function (e) {
+                            $this.percentComplete[file.name]['value'] = 0;
+                        };
+                        xmlHttpRequest.upload.onloadend = function (e) {
+                            if (xmlHttpRequest.status === 200){
+                                $this.percentComplete[file.name]['value'] = 100;
+                            }
+                        };
+                        //Send the binary data
+                        xmlHttpRequest.send(payload);
                     };
-                    xmlHttpRequest.upload.onloadstart = function (e) {
-                        $this.percentComplete[file.name]["value"] = 0;
-                    }
-                    xmlHttpRequest.upload.onloadend = function (e) {
-                        if(xmlHttpRequest.status === 200){
-                            $this.percentComplete[file.name]["value"] = 100;
-                        }
-                    }
-                    //Send the binary data
-                    xmlHttpRequest.send(payload);
-                };
+                }
             });
         }
 
@@ -151,10 +159,10 @@ export class UploadDicomComponent implements OnInit{
         // dialogRef.close("ok");
     }
     close(dialogRef){
-        if(this.xmlHttpRequest){
+        if (this.xmlHttpRequest){
             this.xmlHttpRequest.abort();
         }
-        dialogRef.close(null)
+        dialogRef.close(null);
     }
     onChange(newValue) {
         this._selectedAe = newValue.title;

@@ -1,6 +1,6 @@
-import {Component, AfterViewChecked} from '@angular/core';
-import {MdDialogRef} from "@angular/material";
-import * as _ from "lodash";
+import {Component} from '@angular/core';
+import {MdDialogRef} from '@angular/material';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'app-confirm',
@@ -27,10 +27,10 @@ export class ConfirmComponent{
     }
     dialogKeyHandler(e, dialogRef){
         let code = (e.keyCode ? e.keyCode : e.which);
-        if(code === 13){
+        if (code === 13){
             dialogRef.close('ok');
         }
-        if(code === 27){
+        if (code === 27){
             dialogRef.close(null);
         }
     }

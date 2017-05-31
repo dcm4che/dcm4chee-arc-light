@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {Observable} from "rxjs";
+import {Observable} from 'rxjs';
 
 @Injectable()
 export class UploadDicomService {
@@ -7,7 +7,7 @@ export class UploadDicomService {
     progressObserver;
     constructor () {
         this.progress$ = Observable.create(observer => {
-            this.progressObserver = observer
+            this.progressObserver = observer;
         }).share();
     }
 
@@ -17,8 +17,8 @@ export class UploadDicomService {
                 xhr: XMLHttpRequest = new XMLHttpRequest();
             // formData.append('Content-Type', new Blob(['some plain text'], {type : 'Application/dicom'}));
 
-            for (var i = 0; i< files.length; i++) {
-                var fileObj = files[i];
+            for (let i = 0; i < files.length; i++) {
+                let fileObj = files[i];
                 formData.append( '{ size : ' + fileObj.size + ' }' , files[i].name);
             }
 /*            for (let i = 0; i < files.length; i++) {
@@ -28,7 +28,7 @@ export class UploadDicomService {
             xhr.onreadystatechange = () => {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
-                        console.log("responseheader",xhr.getResponseHeader('Content-Type'));
+                        console.log('responseheader', xhr.getResponseHeader('Content-Type'));
                         observer.next(JSON.parse(xhr.response));
                         observer.complete();
                     } else {

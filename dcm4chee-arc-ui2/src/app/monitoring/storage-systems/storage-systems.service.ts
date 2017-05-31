@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
-import {Http} from "@angular/http";
-import {AppService} from "../../app.service";
+import {Http} from '@angular/http';
+import {AppService} from '../../app.service';
 
 @Injectable()
 export class StorageSystemsService {
 
-    constructor(public $http: Http,public mainservice:AppService) {
+    constructor(public $http: Http, public mainservice: AppService) {
     }
 
     search(filters, offset) {
-        return this.$http.get("../storage" + '?' + this.mainservice.param(this.queryParams(filters, offset)));
+        return this.$http.get('../storage' + '?' + this.mainservice.param(this.queryParams(filters, offset)));
     };
     queryParams(filters, offset) {
         /*        var params = {
@@ -18,10 +18,10 @@ export class StorageSystemsService {
          status:undefined
          }*/
         filters.offset = (offset && offset != '') ? offset : 0;
-        if (filters.status && filters.status === "*"){
+        if (filters.status && filters.status === '*'){
             delete filters.status;
         }
-        if (filters.ExporterID && filters.ExporterID === "*"){
+        if (filters.ExporterID && filters.ExporterID === '*'){
             delete filters.ExporterID;
         }
         return filters;
@@ -31,13 +31,13 @@ export class StorageSystemsService {
             status: status,
             updatedBefore: before
         });
-        return this.$http.delete('../stgcmt'+'?'+urlParam);
+        return this.$http.delete('../stgcmt' + '?' + urlParam);
     };
     // cancel(pk){
     //     return this.$http.post("../monitor/export/"+pk+"/cancel",{});
     // }
     delete(pk){
-        return this.$http.delete("../stgcmt/"+pk);
+        return this.$http.delete('../stgcmt/' + pk);
     }
     // reschedule(pk, exporterID){
     //     return this.$http.post("../monitor/export/"+pk+"/reschedule/"+exporterID,{});

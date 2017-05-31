@@ -1,10 +1,8 @@
-import {Component, OnDestroy, ViewContainerRef} from '@angular/core';
-import {AppService} from "../../app.service";
-import {Subscribable} from "rxjs/Observable";
-import {Subscription} from "rxjs";
-import {ConfirmComponent} from "../dialogs/confirm/confirm.component";
-import {InfoComponent} from "../dialogs/info/info.component";
-import {MdDialogRef, MdDialog, MdDialogConfig} from "@angular/material";
+import {Component, OnDestroy} from '@angular/core';
+import {AppService} from '../../app.service';
+import {Subscription} from 'rxjs';
+import {InfoComponent} from '../dialogs/info/info.component';
+import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
 @Component({
   selector: 'app-messaging',
   template: `
@@ -24,17 +22,17 @@ import {MdDialogRef, MdDialog, MdDialogConfig} from "@angular/material";
 })
 export class MessagingComponent implements OnDestroy{
     private msgTimeout = 10000;
-    public msg:Array<any> = [];
-    subscription:Subscription;
+    public msg: Array<any> = [];
+    subscription: Subscription;
 
     dialogRef: MdDialogRef<any>;
     constructor(
-        private mainservice:AppService,
+        private mainservice: AppService,
         public dialog: MdDialog,
         public config: MdDialogConfig
     ){
         this.subscription = this.mainservice.messageSet$.subscribe(msg => {
-            console.log("msg in subscribe messagecomponent ",msg);
+            console.log('msg in subscribe messagecomponent ', msg);
             this.setMsg(msg);
         });
     }
@@ -43,21 +41,21 @@ export class MessagingComponent implements OnDestroy{
         // alert(m.detailError);
         // this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(InfoComponent, {
-            height:'auto',
-            width:'60%'
+            height: 'auto',
+            width: '60%'
         });
         this.dialogRef.componentInstance.info = {
-            title:"Error detail",
-            content:m.detailError
+            title: 'Error detail',
+            content: m.detailError
         };
         this.dialogRef.afterClosed().subscribe();
     }
-    setMsg(msg:any){
-        console.log("in setmessage in messaging.component",msg);
+    setMsg(msg: any){
+        console.log('in setmessage in messaging.component', msg);
         let timeout = msg.timeout || this.msgTimeout;
         let isInArray = false;
-        let presentId = "";
-        if(this.msg && this.msg.length > 0){
+        let presentId = '';
+        if (this.msg && this.msg.length > 0){
             this.msg.forEach((k, i) => {
                 if (k.text === msg.text && k.status === msg.status) {
                     presentId = k.id;
@@ -66,12 +64,12 @@ export class MessagingComponent implements OnDestroy{
             });
         }
         if (isInArray) { //If the same message is already in the array, then just put the class pulse (To simulate a pulse) and remove it again
-            $(".msg_" + presentId).removeClass("slideInRight").addClass('pulse');
+            $('.msg_' + presentId).removeClass('slideInRight').addClass('pulse');
             setTimeout(function() {
-                $(".msg_" + presentId).removeClass("pulse");
+                $('.msg_' + presentId).removeClass('pulse');
             }, 500);
         } else {
-            var id = this.getUniqueRandomId();
+            let id = this.getUniqueRandomId();
             msg.id = id;
             this.msg.push(msg);
             this.msgCounter(id, timeout);
@@ -87,14 +85,14 @@ export class MessagingComponent implements OnDestroy{
     };
 
     private msgCounter(id, timeout) {
-        let cssClass = ".msg_" + id;
+        let cssClass = '.msg_' + id;
         let x = 0;
         let $this = this;
         let interval = setInterval(function() {
-            $(cssClass).find(".progress").css("width", (x * 10000 / timeout) + "%");
+            $(cssClass).find('.progress').css('width', (x * 10000 / timeout) + '%');
             if (x === (timeout / 100)) {
                     clearInterval(interval);
-                $(".msg_container li." + "msg_" + id).fadeOut("400", function() {
+                $('.msg_container li.' + 'msg_' + id).fadeOut('400', function() {
                     $this.removeMsgFromArray(id);
                 });
             }
@@ -104,8 +102,8 @@ export class MessagingComponent implements OnDestroy{
 
     closeBox(m){
         // this.msg.finde(m);
-        console.log("m.id",m.id);
-        console.log("m.text",m.text);
+        console.log('m.id', m.id);
+        console.log('m.text', m.text);
         this.removeMsgFromArray(m.id);
     }
     private getUniqueRandomId() {

@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import {Http} from "@angular/http";
-import {MdDialogRef} from "@angular/material";
-import {AppService} from "../../../app.service";
-import {SlimLoadingBarService} from "ng2-slim-loading-bar";
-import * as _ from "lodash";
-import {CreateExporterService} from "./create-exporter.service";
+import {Http} from '@angular/http';
+import {MdDialogRef} from '@angular/material';
+import {AppService} from '../../../app.service';
+import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
+import * as _ from 'lodash';
+import {CreateExporterService} from './create-exporter.service';
 
 @Component({
   selector: 'app-create-exporter',
@@ -32,11 +32,11 @@ export class CreateExporterComponent {
     private _devices;
     _ = _;
     constructor(
-        public $http:Http,
+        public $http: Http,
         public dialogRef: MdDialogRef<CreateExporterComponent>,
-        public mainservice:AppService,
-        public cfpLoadingBar:SlimLoadingBarService,
-        private service:CreateExporterService
+        public mainservice: AppService,
+        public cfpLoadingBar: SlimLoadingBarService,
+        private service: CreateExporterService
     ) {
         this.cfpLoadingBar.complete();
         let $this = this;
@@ -54,7 +54,7 @@ export class CreateExporterComponent {
     }
 
     onChange(newValue, model) {
-        _.set(this, model,newValue);
+        _.set(this, model, newValue);
     }
 
     get devices() {
@@ -83,30 +83,30 @@ export class CreateExporterComponent {
         this.service.getDevice(e).subscribe(device => {
             $this.selectedDeviceObject = device;
             $this.showselectdevice = false;
-            if($this.externalAe && $this.selectedDeviceObject)
+            if ($this.externalAe && $this.selectedDeviceObject)
                 $this.showexporter = true;
             $this.cfpLoadingBar.stop();
-        },(err) => {
+        }, (err) => {
             $this.mainservice.setMessage({
-                "title": "Error " + err.status,
-                "text": err.statusText,
-                "status": "error"
+                'title': 'Error ' + err.status,
+                'text': err.statusText,
+                'status': 'error'
             });
             $this.cfpLoadingBar.complete();
         });
     }
 
     validAeForm(){
-        if(!this.dcmExporter.dcmExporterID || this.dcmExporter.dcmExporterID === ''){
+        if (!this.dcmExporter.dcmExporterID || this.dcmExporter.dcmExporterID === ''){
             return false;
         }
-        if(!this.dcmExporter.dcmURI || this.dcmExporter.dcmURI === ''){
+        if (!this.dcmExporter.dcmURI || this.dcmExporter.dcmURI === ''){
             return false;
         }
-        if(!this.dcmExporter.dcmQueueName || this.dcmExporter.dcmQueueName === ''){
+        if (!this.dcmExporter.dcmQueueName || this.dcmExporter.dcmQueueName === ''){
             return false;
         }
-        if(!this.dcmExporter.dicomAETitle || this.dcmExporter.dicomAETitle === ''){
+        if (!this.dcmExporter.dicomAETitle || this.dcmExporter.dicomAETitle === ''){
             return false;
         }
         return true;

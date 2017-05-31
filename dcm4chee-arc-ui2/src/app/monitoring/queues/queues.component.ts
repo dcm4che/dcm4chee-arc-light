@@ -1,14 +1,13 @@
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
-import {Http} from "@angular/http";
-import {QueuesService} from "./queues.service";
-import {map} from "rxjs/operator/map";
-import {AppService} from "../../app.service";
-import {User} from "../../models/user";
-import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
-import {SlimLoadingBarService} from "ng2-slim-loading-bar";
-import {MdDialogRef, MdDialog, MdDialogConfig} from "@angular/material";
-import {DatePipe} from "@angular/common";
-import * as _ from "lodash";
+import {Component, ViewContainerRef} from '@angular/core';
+import {Http} from '@angular/http';
+import {QueuesService} from './queues.service';
+import {AppService} from '../../app.service';
+import {User} from '../../models/user';
+import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
+import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
+import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
+import {DatePipe} from '@angular/common';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-queues',
@@ -20,18 +19,18 @@ export class QueuesComponent {
     limit = 20;
     queues = [];
     queueName = null;
-    status = "*";
+    status = '*';
     before;
-    isRole:any;
-    user:User;
+    isRole: any;
+    user: User;
     dialogRef: MdDialogRef<any>;
     _ = _;
 
-    constructor(public $http: Http, public service:QueuesService,public mainservice:AppService,  public cfpLoadingBar:SlimLoadingBarService, public viewContainerRef: ViewContainerRef,public dialog: MdDialog, public config: MdDialogConfig) {
+    constructor(public $http: Http, public service: QueuesService, public mainservice: AppService,  public cfpLoadingBar: SlimLoadingBarService, public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig) {
         this.init();
         this.before = new Date();
         let $this = this;
-        if(!this.mainservice.user){
+        if (!this.mainservice.user){
             // console.log("in if studies ajax");
             this.mainservice.user = this.mainservice.getUserInfo().share();
             this.mainservice.user
@@ -41,11 +40,11 @@ export class QueuesComponent {
                         $this.mainservice.user.user = response.user;
                         $this.user.roles = response.roles;
                         $this.mainservice.user.roles = response.roles;
-                        $this.isRole = (role)=>{
-                            if(response.user === null && response.roles.length === 0){
+                        $this.isRole = (role) => {
+                            if (response.user === null && response.roles.length === 0){
                                 return true;
                             }else{
-                                if(response.roles && response.roles.indexOf(role) > -1){
+                                if (response.roles && response.roles.indexOf(role) > -1){
                                     return true;
                                 }else{
                                     return false;
@@ -55,13 +54,13 @@ export class QueuesComponent {
                     },
                     (response) => {
                         // $this.user = $this.user || {};
-                        console.log("get user error");
-                        $this.user.user = "user";
-                        $this.mainservice.user.user = "user";
-                        $this.user.roles = ["user","admin"];
-                        $this.mainservice.user.roles = ["user","admin"];
-                        $this.isRole = (role)=>{
-                            if(role === "admin"){
+                        console.log('get user error');
+                        $this.user.user = 'user';
+                        $this.mainservice.user.user = 'user';
+                        $this.user.roles = ['user', 'admin'];
+                        $this.mainservice.user.roles = ['user', 'admin'];
+                        $this.isRole = (role) => {
+                            if (role === 'admin'){
                                 return false;
                             }else{
                                 return true;
@@ -77,7 +76,7 @@ export class QueuesComponent {
     };
     filterKeyUp(e){
         let code = (e.keyCode ? e.keyCode : e.which);
-        if(code === 13){
+        if (code === 13){
             this.search(0);
         }
     };
@@ -87,9 +86,9 @@ export class QueuesComponent {
         this.service.search(this.queueName, this.status, offset, this.limit)
             .map(res => res.json())
             .subscribe((res) => {
-                console.log("res2",res);
-                console.log("res",res.length);
-                if(res && res.length > 0){
+                console.log('res2', res);
+                console.log('res', res.length);
+                if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
                         $this.cfpLoadingBar.complete();
                         return {
@@ -102,13 +101,13 @@ export class QueuesComponent {
                     $this.matches = [];
                     $this.cfpLoadingBar.complete();
                     $this.mainservice.setMessage({
-                        "title": "Info",
-                        "text": "No tasks found!",
-                        "status":'info'
+                        'title': 'Info',
+                        'text': 'No tasks found!',
+                        'status': 'info'
                     });
                 }
-            }, (err) =>{
-                console.log("err",err);
+            }, (err) => {
+                console.log('err', err);
                 $this.matches = [];
             });
     };
@@ -116,13 +115,13 @@ export class QueuesComponent {
     scrollToDialog(){
         let counter = 0;
         let i = setInterval(function(){
-            if(($(".md-overlay-pane").length > 0)) {
+            if (($('.md-overlay-pane').length > 0)) {
                 clearInterval(i);
                 $('html, body').animate({
-                    scrollTop: ($(".md-overlay-pane").offset().top)
+                    scrollTop: ($('.md-overlay-pane').offset().top)
                 }, 200);
             }
-            if(counter > 200){
+            if (counter > 200){
                 clearInterval(i);
             }else{
                 counter++;
@@ -143,12 +142,12 @@ export class QueuesComponent {
             .subscribe(function (res) {
                 match.properties.status = 'CANCELED';
                 $this.cfpLoadingBar.complete();
-            },(err)=>{
+            }, (err) => {
                 $this.cfpLoadingBar.complete();
                 $this.mainservice.setMessage({
-                    "title": "Error " + err.status,
-                    "text": err.statusText,
-                    "status": "error"
+                    'title': 'Error ' + err.status,
+                    'text': err.statusText,
+                    'status': 'error'
                 });
             });
     };
@@ -159,42 +158,42 @@ export class QueuesComponent {
             .subscribe((res) => {
                 $this.search(0);
                 $this.cfpLoadingBar.complete();
-            },(err)=>{
+            }, (err) => {
                 $this.cfpLoadingBar.complete();
                 $this.mainservice.setMessage({
-                    "title": "Error " + err.status,
-                    "text": err.statusText,
-                    "status": "error"
+                    'title': 'Error ' + err.status,
+                    'text': err.statusText,
+                    'status': 'error'
                 });
             });
     };
     delete(match) {
         let $this = this;
         this.confirm({
-            content:'Are you sure you want to delete?'
+            content: 'Are you sure you want to delete?'
         }).subscribe(result => {
-            if(result){
+            if (result){
                 $this.cfpLoadingBar.start();
 
                 this.service.delete(this.queueName, match.properties.id)
                 .subscribe((res) => {
                     $this.search($this.matches[0].offset);
-                    $this.cfpLoadingBar.complete()
+                    $this.cfpLoadingBar.complete();
                 });
             }
-        },(err)=>{
+        }, (err) => {
             $this.cfpLoadingBar.complete();
             $this.mainservice.setMessage({
-                "title": "Error " + err.status,
-                "text": err.statusText,
-                "status": "error"
+                'title': 'Error ' + err.status,
+                'text': err.statusText,
+                'status': 'error'
             });
         });
     };
     getQueueDescriptionFromName(queuename){
         let description;
-        _.forEach(this.queues,(m,i)=>{
-            if(m.name == queuename){
+        _.forEach(this.queues, (m, i) => {
+            if (m.name == queuename){
                 description = m.description;
             }
         });
@@ -203,37 +202,37 @@ export class QueuesComponent {
     flushBefore() {
         let $this = this;
         let datePipeEn = new DatePipe('us-US');
-        let beforeDate = datePipeEn.transform(this.before,'yyyy-mm-dd');
-        console.log("beforeDate",beforeDate);
-        console.log("this.status",this.status);
+        let beforeDate = datePipeEn.transform(this.before, 'yyyy-mm-dd');
+        console.log('beforeDate', beforeDate);
+        console.log('this.status', this.status);
         let parameters = {
-            content:'Flush with this configuration:<br>- Before: ' + beforeDate + '<br>- In queue:"' + this.getQueueDescriptionFromName(this.queueName) + '"<br>- With status:' + this.status,
-            result:"ok",
-            noForm:true,
-            saveButton:"Flush",
-            saveButtonClass:"btn-danger"
-        }
+            content: 'Flush with this configuration:<br>- Before: ' + beforeDate + '<br>- In queue:"' + this.getQueueDescriptionFromName(this.queueName) + '"<br>- With status:' + this.status,
+            result: 'ok',
+            noForm: true,
+            saveButton: 'Flush',
+            saveButtonClass: 'btn-danger'
+        };
         this.confirm(parameters).subscribe(result => {
-            console.log("result",result);
-            if(result){
+            console.log('result', result);
+            if (result){
                 $this.cfpLoadingBar.start();
                 this.service.flush(this.queueName, this.status, this.before)
                     .map(res => res.json())
                     .subscribe((res) => {
-                        console.log("resflush",res);
+                        console.log('resflush', res);
                         $this.mainservice.setMessage({
-                            "title": "Info",
-                            "text": res.deleted + " queues deleted successfully!",
-                            "status":"info"
+                            'title': 'Info',
+                            'text': res.deleted + ' queues deleted successfully!',
+                            'status': 'info'
                         });
                         $this.search(0);
                         $this.cfpLoadingBar.complete();
-                    },(err)=>{
+                    }, (err) => {
                         $this.cfpLoadingBar.complete();
                         $this.mainservice.setMessage({
-                            "title": "Error " + err.status,
-                            "text": err.statusText,
-                            "status": "error"
+                            'title': 'Error ' + err.status,
+                            'text': err.statusText,
+                            'status': 'error'
                         });
                     });
             }
@@ -255,12 +254,12 @@ export class QueuesComponent {
     init() {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.$http.get("../queue")
+        this.$http.get('../queue')
             .map(res => res.json())
             .subscribe((res) => {
             $this.queues = res;
             $this.queueName = res[0].name;
             $this.cfpLoadingBar.complete();
-        })
+        });
     }
 }

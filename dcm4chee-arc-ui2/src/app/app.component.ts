@@ -1,13 +1,12 @@
-import {Component, ViewContainerRef, Output} from '@angular/core';
-import {MdDialog, MdDialogRef, MdDialogConfig} from "@angular/material";
-import {MessagingComponent} from "./widgets/messaging/messaging.component";
-import {AppService} from "./app.service";
-import {ViewChild} from "@angular/core";
-import {User} from "./models/user";
+import {Component, ViewContainerRef} from '@angular/core';
+import {MdDialog, MdDialogRef, MdDialogConfig} from '@angular/material';
+import {MessagingComponent} from './widgets/messaging/messaging.component';
+import {AppService} from './app.service';
+import {ViewChild} from '@angular/core';
 import 'rxjs/add/operator/catch';
-import {Http} from "@angular/http";
-import {ProductLabellingComponent} from "./widgets/dialogs/product-labelling/product-labelling.component";
-import {HostListener} from "@angular/core";
+import {Http} from '@angular/http';
+import {ProductLabellingComponent} from './widgets/dialogs/product-labelling/product-labelling.component';
+import {HostListener} from '@angular/core';
 // import {DCM4CHE} from "./constants/dcm4-che";
 // declare var $:JQueryStatic;
 // import * as vex from "vex-js";
@@ -21,33 +20,33 @@ declare var DCM4CHE: any;
 export class AppComponent {
     progressValue = 30;
     //Detect witch header should be shown.
-    user:any = {};
+    user: any = {};
     dialogRef: MdDialogRef<any>;
-    showUserMenu:boolean = false;
-    url = "/auth";
+    showUserMenu = false;
+    url = '/auth';
     logoutUrl = '';
-    isRole:any;
+    isRole: any;
     archive;
     showMenu = false;
-    showScrollButton:boolean = false;
+    showScrollButton = false;
     @ViewChild(MessagingComponent) msg;
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
 
-    constructor( public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig, public messaging:MessagingComponent,public mainservice:AppService,public $http:Http){
+    constructor( public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig, public messaging: MessagingComponent, public mainservice: AppService, public $http: Http){
         let $this = this;
-        if(!this.mainservice.user){
+        if (!this.mainservice.user){
             this.mainservice.user = this.mainservice.getUserInfo().share();
             this.mainservice.user
                 .subscribe(
                     (response) => {
-                        console.log("in userauth response",response);
+                        console.log('in userauth response', response);
                         $this.mainservice.user.user = response.user;
                         $this.mainservice.user.roles = response.roles;
                         $this.mainservice.isRole = function(role){
-                            if(response.user === null && response.roles.length === 0){
+                            if (response.user === null && response.roles.length === 0){
                                 return true;
                             }else{
-                                if(response.roles && response.roles.indexOf(role) > -1){
+                                if (response.roles && response.roles.indexOf(role) > -1){
                                     return true;
                                 }else{
                                     return false;
@@ -59,11 +58,11 @@ export class AppComponent {
                     },
                     (response) => {
                         // this.user = this.user || {};
-                        console.log("in user auth errorespons",response);
-                        $this.mainservice.user.user = "user";
-                        $this.mainservice.user.roles = ["user","admin"];
-                        $this.mainservice.isRole = (role)=>{
-                            if(role === "admin"){
+                        console.log('in user auth errorespons', response);
+                        $this.mainservice.user.user = 'user';
+                        $this.mainservice.user.roles = ['user', 'admin'];
+                        $this.mainservice.isRole = (role) => {
+                            if (role === 'admin'){
                                 return false;
                             }else{
                                 return true;
@@ -76,12 +75,12 @@ export class AppComponent {
 
         this.$http.get('../devicename')
             .map(res => res.json())
-            .subscribe((res)=>{
-                console.log("devicename",res);
-                $this.$http.get('../devices?dicomDeviceName='+res.dicomDeviceName)
+            .subscribe((res) => {
+                console.log('devicename', res);
+                $this.$http.get('../devices?dicomDeviceName=' + res.dicomDeviceName)
                     .map(res => res.json())
                     .subscribe(arc => {
-                        console.log("arch");
+                        console.log('arch');
                         $this.archive = arc[0];
                     });
             });
@@ -91,15 +90,15 @@ export class AppComponent {
             .subscribe(
             (response) => {
             $this.url  = response.url;
-            var host    = location.protocol + "//" + location.host
+            let host    = location.protocol + '//' + location.host;
 
-            $this.logoutUrl = response.url + "/realms/dcm4che/protocol/openid-connect/logout?redirect_uri="
+            $this.logoutUrl = response.url + '/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
                 + encodeURIComponent(host + location.pathname);
         }, (response) => {
             // vex.dialog.alert("Error loading device names, please reload the page and try again!");
-            $this.url = "/auth";
-            let host = location.protocol + "//" + location.host
-            $this.logoutUrl =  host + "/auth/realms/dcm4che/protocol/openid-connect/logout?redirect_uri="
+            $this.url = '/auth';
+            let host = location.protocol + '//' + location.host;
+            $this.logoutUrl =  host + '/auth/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
                 + encodeURIComponent(host + location.pathname);
         });
 
@@ -108,9 +107,9 @@ export class AppComponent {
 
     progress(){
         let changeTo = function (t) {
-            console.log("t",t);
+            console.log('t', t);
             this.progressValue = t;
-        }
+        };
         // let getValue = function(){
         //   return this.value;
         // }
@@ -121,23 +120,23 @@ export class AppComponent {
         //     return this.value;
         // }
         return{
-            getValue:this.progressValue,
-            setValue:(v)=>{
+            getValue: this.progressValue,
+            setValue: (v) => {
                 this.progressValue = v;
             }
-        }
+        };
     };
     @HostListener('window:scroll', ['$event'])
     onScroll(event) {
         if (window.pageYOffset > 150 && !this.showScrollButton){
             this.showScrollButton = true;
         }
-        if(window.pageYOffset < 149 && this.showScrollButton){
+        if (window.pageYOffset < 149 && this.showScrollButton){
             this.showScrollButton = false;
         }
     }
     scrollUp(){
-        $("html, body").animate({
+        $('html, body').animate({
             scrollTop: 0
         }, 300);
     }
@@ -147,21 +146,21 @@ export class AppComponent {
 
     onClick() {
         // this.dcm4che.elementName.forTag()
-        console.log("dcm4chetest",DCM4CHE.elementName.forTag("00000000"));
+        console.log('dcm4chetest', DCM4CHE.elementName.forTag('00000000'));
 
         this.msg.setMsg({
-            "title": "Warning",
-            "text": "Attribute already exists!",
-            "status": "warning",
-            "timeout":50000
+            'title': 'Warning',
+            'text': 'Attribute already exists!',
+            'status': 'warning',
+            'timeout': 50000
         });
-        setTimeout(()=>{
+        setTimeout(() => {
             this.msg.setMsg({
-                "title": "Info ",
-                "text": "Info message!",
-                "status": "info"
+                'title': 'Info ',
+                'text': 'Info message!',
+                'status': 'info'
             });
-        },500);
+        }, 500);
         // this.messaging.showMessageBlock = true;
         // this.messaging.change.emit(new MessagingComponent(true, "testmsg"));
         // this.messaging.showMessageBlock.emit(false);
@@ -181,8 +180,8 @@ export class AppComponent {
          }
          });*/
         this.dialogRef.afterClosed().subscribe(res => {
-            if(res){
-                console.log("in res")
+            if (res){
+                console.log('in res');
             }
         });
     }

@@ -1,23 +1,20 @@
-import {Injectable, OnInit, ViewContainerRef, OnDestroy} from '@angular/core';
-import {MessagingComponent} from "./widgets/messaging/messaging.component";
-import {Http} from "@angular/http";
-import {Observer, Observable, Subject, Subscription} from "rxjs";
-import {User} from "./models/user";
-import * as _ from "lodash";
-import {ViewChildren, ViewChild} from "@angular/core/src/metadata/di";
-import {ConfirmComponent} from "./widgets/dialogs/confirm/confirm.component";
+import {Injectable, OnInit, OnDestroy} from '@angular/core';
+import {Http} from '@angular/http';
+import {Observable, Subject, Subscription} from 'rxjs';
+import {User} from './models/user';
+import * as _ from 'lodash';
 
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
-    private _user:User;
+    private _user: User;
     private _global;
-    subscription:Subscription;
+    subscription: Subscription;
 
-    constructor(public $http:Http) {
+    constructor(public $http: Http) {
         this.subscription = this.globalSet$.subscribe(obj => {
-            console.log("globalset subscribe ",obj);
+            console.log('globalset subscribe ', obj);
             this._global = obj;
-            console.log("globalafterset",this._global);
+            console.log('globalafterset', this._global);
         });
     }
 
@@ -30,18 +27,18 @@ export class AppService implements OnInit, OnDestroy{
     }
 
     private _isRole = function(role){
-        if(this.user){
-            if(this.user.user === null && this.user.roles.length === 0){
+        if (this.user){
+            if (this.user.user === null && this.user.roles.length === 0){
                 return true;
             }else{
-                if(this.user.roles && this.user.roles.indexOf(role) > -1){
+                if (this.user.roles && this.user.roles.indexOf(role) > -1){
                     return true;
                 }else{
                     return false;
                 }
             }
         }else{
-            if(role === "admin"){
+            if (role === 'admin'){
                 return false;
             }else{
                 return true;
@@ -60,7 +57,7 @@ export class AppService implements OnInit, OnDestroy{
     createPatient$ = this.createPatientSource.asObservable();
     // Service message commands
     setMessage(msg: any) {
-        console.log("in set message",msg);
+        console.log('in set message', msg);
         this.setMessageSource.next(msg);
     }
     setGlobal(object: any) {
@@ -74,7 +71,7 @@ export class AppService implements OnInit, OnDestroy{
             this.setGlobalSource.next(object);
         // }
     }
-    createPatient(patient:any){
+    createPatient(patient: any){
         this.createPatientSource.next(patient);
     }
 
@@ -82,10 +79,10 @@ export class AppService implements OnInit, OnDestroy{
     //     console.log("in appservice",msg);
     //     this.msg.setMsg(msg);
     // }
-    getUserInfo():Observable<User>{
-        return this.$http.get("/dcm4chee-arc/ui2/rs/realm")
+    getUserInfo(): Observable<User>{
+        return this.$http.get('/dcm4chee-arc/ui2/rs/realm')
             .map(res => {
-                console.log("in map1", res);
+                console.log('in map1', res);
                 let resjson;
                 try {
                     resjson = res.json();
@@ -96,25 +93,25 @@ export class AppService implements OnInit, OnDestroy{
             });
     }
     get user(): any {
-        console.log("ingetuser");
+        console.log('ingetuser');
         return this._user;
     }
 
     set user(value: any) {
-        console.log("user set",value);
+        console.log('user set', value);
         this._user = value;
     }
 
-    get isRole(): (role)=>boolean {
+    get isRole(): (role) => boolean {
         return this._isRole;
     }
 
-    set isRole(value: (role)=>boolean) {
+    set isRole(value: (role) => boolean) {
         this._isRole = value;
     }
 
     ngOnInit(): void {
-        console.log("in appservice on init before hhtp");
+        console.log('in appservice on init before hhtp');
     }
     // getUserObservable():Observable<User>{
     //     return Observable.create(()=>{
@@ -137,12 +134,12 @@ export class AppService implements OnInit, OnDestroy{
         this.subscription.unsubscribe();
     }
     param(filter){
-        let filterMaped = Object.keys(filter).map((key)=>{
-            if(filter[key]){
+        let filterMaped = Object.keys(filter).map((key) => {
+            if (filter[key]){
                 return encodeURIComponent(key) + '=' + encodeURIComponent(filter[key]);
             }
-        })
+        });
         let filterCleared = _.compact(filterMaped);
-        return filterCleared.join("&");
+        return filterCleared.join('&');
     }
 }

@@ -2,52 +2,51 @@
  * Created by shefki on 9/20/16.
  */
 import {
-    Component, Input, ElementRef, OnInit, ComponentFactoryResolver, ChangeDetectionStrategy,
-    ViewContainerRef, ApplicationRef, NgZone, ChangeDetectorRef, Inject
-} from "@angular/core";
-import {FormGroup, FormControl, FormArray} from "@angular/forms";
-import {DynamicFormComponent} from "./dynamic-form.component";
-import {FormService} from "../../helpers/form/form.service";
-import {FormElement} from "../../helpers/form/form-element";
-import * as _ from "lodash";
-import {Router} from "@angular/router";
-import {DeviceConfiguratorService} from "../../device-configurator/device-configurator.service";
-import {CloneSelectorComponent} from "../dialogs/clone-selector/clone-selector.component";
-import {MdDialogRef, MdDialog, MdDialogConfig} from "@angular/material";
-import {FileUploader} from "ng2-file-upload";
-import {UploadFilesComponent} from "../dialogs/upload-files/upload-files.component";
-import {ConfirmComponent} from "../dialogs/confirm/confirm.component";
-import {Http} from "@angular/http";
-import {RemovePartSelectorComponent} from "../dialogs/remove-part-selector/remove-part-selector.component";
-import {AppService} from "../../app.service";
+    Component, Input, ElementRef, ComponentFactoryResolver, ChangeDetectionStrategy,
+    ViewContainerRef, ChangeDetectorRef
+} from '@angular/core';
+import {FormGroup, FormControl, FormArray} from '@angular/forms';
+import {DynamicFormComponent} from './dynamic-form.component';
+import {FormService} from '../../helpers/form/form.service';
+import {FormElement} from '../../helpers/form/form-element';
+import * as _ from 'lodash';
+import {Router} from '@angular/router';
+import {DeviceConfiguratorService} from '../../device-configurator/device-configurator.service';
+import {CloneSelectorComponent} from '../dialogs/clone-selector/clone-selector.component';
+import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
+import {UploadVendorComponent} from '../dialogs/upload-vendor/upload-vendor.component';
+import {ConfirmComponent} from '../dialogs/confirm/confirm.component';
+import {Http} from '@angular/http';
+import {RemovePartSelectorComponent} from '../dialogs/remove-part-selector/remove-part-selector.component';
+import {AppService} from '../../app.service';
 
 @Component({
-    selector:'df-element',
-    templateUrl:'./dynamic-form-element.component.html',
+    selector: 'df-element',
+    templateUrl: './dynamic-form-element.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DynamicFormElementComponent{
 
-    @Input() formelement:FormElement<any>;
-    @Input() formelements:FormElement<any>[];
-    @Input() form:FormGroup;
-    @Input() partSearch:string;
+    @Input() formelement: FormElement<any>;
+    @Input() formelements: FormElement<any>[];
+    @Input() form: FormGroup;
+    @Input() partSearch: string;
     dialogRef: MdDialogRef<any>;
     // activetab = "tab_1";
-    partRemoved:boolean;
+    partRemoved: boolean;
     constructor(
-        private formservice:FormService,
-        private formcomp:DynamicFormComponent,
+        private formservice: FormService,
+        private formcomp: DynamicFormComponent,
         dcl: ComponentFactoryResolver,
         elementRef: ElementRef,
-        private router:Router,
-        private deviceConfiguratorService:DeviceConfiguratorService,
+        private router: Router,
+        private deviceConfiguratorService: DeviceConfiguratorService,
         public dialog: MdDialog,
         public config: MdDialogConfig,
         public viewContainerRef: ViewContainerRef,
-        public $http:Http,
+        public $http: Http,
         private ref: ChangeDetectorRef,
-        private mainservice:AppService
+        private mainservice: AppService
 
     ){
         // dcl.resolveComponentFactory(DynamicFormComponent);
@@ -69,15 +68,15 @@ export class DynamicFormElementComponent{
          });*/
         return this.dialogRef.afterClosed();
     };
-    deleteFile(deviceName,formelement){
+    deleteFile(deviceName, formelement){
         let $this = this;
         this.confirm({
-            content:'Are you sure you want to delete the vendor data of this device?'
+            content: 'Are you sure you want to delete the vendor data of this device?'
         }).subscribe(result => {
-            if(result){
-                console.log("delete file form device",deviceName);
-                $this.$http.delete(`../devices/${deviceName}/vendordata`).subscribe((res)=>{
-                    console.log("deleted successfully");
+            if (result){
+                console.log('delete file form device', deviceName);
+                $this.$http.delete(`../devices/${deviceName}/vendordata`).subscribe((res) => {
+                    console.log('deleted successfully');
 /*                    var globalForm = $this.formcomp.getForm();
                     var valueObject = globalForm.value;
                     valueObject.dicomVendorData = false;
@@ -89,30 +88,30 @@ export class DynamicFormElementComponent{
                             m.controlType = "fileupload";
                         }
                     });*/
-                    console.log("formelements",$this.formelements);
-                    console.log("formelement",$this.formelement);
+                    console.log('formelements', $this.formelements);
+                    console.log('formelement', $this.formelement);
                     // $this.formelements = [];
                     // formelement.controlType = "fileupload";
                     let test = {
-                        controlType: "filedownload",
-                        description: "Device specific vendor configuration information",
-                        deviceName: "Testdevi2",
-                        downloadUrl: "../devices/Testdevi2/vendordata",
-                        key: "dicomVendorData",
-                        label: "Vendor Device Data",
+                        controlType: 'filedownload',
+                        description: 'Device specific vendor configuration information',
+                        deviceName: 'Testdevi2',
+                        downloadUrl: '../devices/Testdevi2/vendordata',
+                        key: 'dicomVendorData',
+                        label: 'Vendor Device Data',
                         order: 5.02,
                         show: true
                     };
                     let test2 = {
-                        controlType:"fileupload",
-                        description:"Device specific vendor configuration information",
-                        deviceName:"Testdevi2",
-                        key:"dicomVendorData",
-                        label:"Vendor Device Data",
-                        modus:"upload",
-                        order:5.02,
-                        show:true
-                    }
+                        controlType: 'fileupload',
+                        description: 'Device specific vendor configuration information',
+                        deviceName: 'Testdevi2',
+                        key: 'dicomVendorData',
+                        label: 'Vendor Device Data',
+                        modus: 'upload',
+                        order: 5.02,
+                        show: true
+                    };
                     console.log(formelement);
 /*
                     $this.router.navigateByUrl(`/device/edit/${deviceName}`);*/
@@ -124,7 +123,7 @@ export class DynamicFormElementComponent{
                     $this.deviceConfiguratorService.schema = {};
                     $this.router.navigateByUrl('blank').then(() => {
                         $this.router.navigateByUrl(`/device/edit/${deviceName}`);
-                    })
+                    });
                     // $this.router.navigateByUrl(`/device/edit/${deviceName}`);
                 });
             }
@@ -132,13 +131,13 @@ export class DynamicFormElementComponent{
     }
     uploadVendor(deviceName){
         let $this = this;
-        this.dialogRef = this.dialog.open(UploadFilesComponent, {
-            height:'auto',
-            width:'500px'
+        this.dialogRef = this.dialog.open(UploadVendorComponent, {
+            height: 'auto',
+            width: '500px'
         });
         this.dialogRef.componentInstance.deviceName = deviceName;
-        this.dialogRef.afterClosed().subscribe((selected)=>{
-            if(selected){
+        this.dialogRef.afterClosed().subscribe((selected) => {
+            if (selected){
                 console.log($this.formelements);
                 $this.deviceConfiguratorService.device = {};
                 $this.deviceConfiguratorService.schema = {};
@@ -148,24 +147,24 @@ export class DynamicFormElementComponent{
             }
         });
     }
-    addElement(element:any, formpart:FormControl[]){
-        var globalForm = this.formcomp.getForm();
-        var valueObject = globalForm.value;
+    addElement(element: any, formpart: FormControl[]){
+        let globalForm = this.formcomp.getForm();
+        let valueObject = globalForm.value;
         element.push(element[0]);
-        formpart["options"].push(formpart["options"][0]);
+        formpart['options'].push(formpart['options'][0]);
         this.form = this.formservice.toFormGroup(this.formelements);
         this.formcomp.setForm(this.form);
         this.formcomp.setFormModel(valueObject);
     }
-    removeObject(formelement,controls){
+    removeObject(formelement, controls){
         let $this = this;
         this.confirm({
-            content:'Are you sure you want to remove this extension and all of its child objects?'
+            content: 'Are you sure you want to remove this extension and all of its child objects?'
         }).subscribe(result => {
-            if(result){
+            if (result){
                 $this.deviceConfiguratorService.removeExtensionFromDevice(formelement.devicereff);
-                _.forEach($this.formelements,(m,i)=>{
-                    if(m["controlType"] === "button" && m["devicereff"] === formelement.devicereff){
+                _.forEach($this.formelements, (m, i) => {
+                    if (m['controlType'] === 'button' && m['devicereff'] === formelement.devicereff){
                         m.value = 0;
                     }
                 });
@@ -174,16 +173,16 @@ export class DynamicFormElementComponent{
         });
     }
     extractIndexFromPath(path){
-        if(_.endsWith(path,"]")){
+        if (_.endsWith(path, ']')){
             try {
-                let indexStart = path.lastIndexOf("[");
+                let indexStart = path.lastIndexOf('[');
                 let index = path.substring(indexStart);
-                index = _.replace(index,"[","");
-                index = _.replace(index,"]","");
+                index = _.replace(index, '[', '');
+                index = _.replace(index, ']', '');
                 let clearPath = path.substring(0, indexStart);
                 return {
-                    index:index,
-                    path:clearPath
+                    index: index,
+                    path: clearPath
                 };
             }catch (e){
                 return null;
@@ -192,38 +191,38 @@ export class DynamicFormElementComponent{
     }
     removePart(formelement){
         let $this = this;
-        var globalForm = this.formcomp.getForm();
+        let globalForm = this.formcomp.getForm();
         let value = globalForm.value;
         this.dialogRef = this.dialog.open(RemovePartSelectorComponent, {
-            height:'auto',
-            width:'500px'
+            height: 'auto',
+            width: '500px'
         });
         this.dialogRef.componentInstance.toRemoveElement = formelement;
-        this.dialogRef.afterClosed().subscribe((selected)=>{
-            if(selected){
+        this.dialogRef.afterClosed().subscribe((selected) => {
+            if (selected){
                 let elementFound = false;
-                _.forEach(formelement.options,(m, i)=>{
-                    if(m === selected){
-                        formelement.options.splice(i,1);
+                _.forEach(formelement.options, (m, i) => {
+                    if (m === selected){
+                        formelement.options.splice(i, 1);
                         let check = $this.deviceConfiguratorService.removePartFromDevice($this.extractIndexFromPath(selected.currentElementUrl));
-                        if(check){
+                        if (check){
                             elementFound = true;
                             $this.partRemoved = true;
                             $this.mainservice.setMessage({
-                                "title": "Info",
-                                "text": `Click save if you want to remove "${selected.title}" permanently!`,
-                                "status":'info'
+                                'title': 'Info',
+                                'text': `Click save if you want to remove "${selected.title}" permanently!`,
+                                'status': 'info'
                             });
                         }
                     }else{
-                        if(elementFound){
-                           let pathObject = $this.extractIndexFromPath(formelement.options[_.toInteger(i)-1].currentElementUrl);
-                            let oldCurrentElementUrl = formelement.options[_.toInteger(i)-1].currentElementUrl;
-                            formelement.options[_.toInteger(i)-1].currentElementUrl = `${pathObject.path}[${(pathObject.index-1)}]`;
-                            formelement.options[_.toInteger(i)-1].url = _.replace(formelement.options[_.toInteger(i)-1].url, oldCurrentElementUrl, formelement.options[_.toInteger(i)-1].currentElementUrl);
+                        if (elementFound){
+                           let pathObject = $this.extractIndexFromPath(formelement.options[_.toInteger(i) - 1].currentElementUrl);
+                            let oldCurrentElementUrl = formelement.options[_.toInteger(i) - 1].currentElementUrl;
+                            formelement.options[_.toInteger(i) - 1].currentElementUrl = `${pathObject.path}[${(pathObject.index - 1)}]`;
+                            formelement.options[_.toInteger(i) - 1].url = _.replace(formelement.options[_.toInteger(i) - 1].url, oldCurrentElementUrl, formelement.options[_.toInteger(i) - 1].currentElementUrl);
                         }
                     }
-                })
+                });
                 $this.ref.detectChanges();
             }
         });
@@ -233,41 +232,41 @@ export class DynamicFormElementComponent{
         let value = (<FormArray>this.form.controls[formelement.key]).getRawValue();
         (<FormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new FormControl(value));*/
         let $this = this;
-        var globalForm = this.formcomp.getForm();
+        let globalForm = this.formcomp.getForm();
         let value = globalForm.value;
         this.dialogRef = this.dialog.open(CloneSelectorComponent, {
-            height:'auto',
-            width:'500px'
+            height: 'auto',
+            width: '500px'
         });
         this.dialogRef.componentInstance.toCloneElement = formelement;
-        this.dialogRef.afterClosed().subscribe((selected)=>{
-            if(selected){
-                let cloneUrl = formelement.addUrl+"/"+selected.currentElementUrl;
+        this.dialogRef.afterClosed().subscribe((selected) => {
+            if (selected){
+                let cloneUrl = formelement.addUrl + '/' + selected.currentElementUrl;
                 $this.router.navigateByUrl(cloneUrl);
             }
         });
     }
-    addArrayElement(element:any, formpart:FormControl[], form:any){
+    addArrayElement(element: any, formpart: FormControl[], form: any){
         formpart = formpart || [];
         element = element || [];
-        element.push("");
-        var globalForm = this.formcomp.getForm();
-        formpart.push(new FormControl(""));
-        var valueObject = globalForm.value;
+        element.push('');
+        let globalForm = this.formcomp.getForm();
+        formpart.push(new FormControl(''));
+        let valueObject = globalForm.value;
         this.form = this.formservice.toFormGroup(this.formelements);
         this.form.patchValue(valueObject);
         this.formcomp.setForm(this.form);
         this.formcomp.setFormModel(valueObject);
         this.ref.detectChanges();
     }
-    removeArrayElement(element:any, i:number, form:any){
-        if(element.value.length > i){
+    removeArrayElement(element: any, i: number, form: any){
+        if (element.value.length > i){
             //Remove from react form
 
             (<FormArray>this.form.controls[element.key]).removeAt(i);
             //reflect the changes to the dome
-            _.forEach(this.formelements,(m,j)=>{
-                if(m.key === element.key){
+            _.forEach(this.formelements, (m, j) => {
+                if (m.key === element.key){
                     this.formelements[j].value = this.form.value[element.key];
                 }
             });
@@ -275,26 +274,26 @@ export class DynamicFormElementComponent{
         }
     }
     checkboxChange(e, formelement){
-        if(e.target.checked && !_.hasIn(this.form.controls[formelement.key].value, e.target.defaultValue)){
+        if (e.target.checked && !_.hasIn(this.form.controls[formelement.key].value, e.target.defaultValue)){
             (<FormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new FormControl(e.target.defaultValue));
         }else{
-            (<FormArray>this.form.controls[formelement.key]).removeAt(_.indexOf(this.form.controls[formelement.key].value,e.target.defaultValue));
+            (<FormArray>this.form.controls[formelement.key]).removeAt(_.indexOf(this.form.controls[formelement.key].value, e.target.defaultValue));
         }
     }
     navigateTo(e){
-        if(e != '-'){
+        if (e != '-'){
             this.router.navigateByUrl(e);
         }
     }
 
     toggleTab(orderId){
-        if(this.form.valid){
-            var globalForm = this.formcomp.getForm();
-            var valueObject = globalForm.value;
+        if (this.form.valid){
+            let globalForm = this.formcomp.getForm();
+            let valueObject = globalForm.value;
 
-            _.forEach(this.formelements,(m,i)=>{
-               if(Math.floor(m.order) === orderId+1){
-                   if(m.show === true){
+            _.forEach(this.formelements, (m, i) => {
+               if (Math.floor(m.order) === orderId + 1){
+                   if (m.show === true){
                        m.show = false;
                    }else{
                        m.show = true;

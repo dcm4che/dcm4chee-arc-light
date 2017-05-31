@@ -5,7 +5,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class TrimPipe implements PipeTransform {
 
-    transform(value: string, l:any) : string {
+    transform(value: string, l: any) : string {
         // console.log("value",value);
         // console.log("limit",l);
         let limit = !isNaN(l) ? parseInt(l, 10) : 10;

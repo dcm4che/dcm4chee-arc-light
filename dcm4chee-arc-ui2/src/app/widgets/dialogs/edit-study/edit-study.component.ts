@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import {AppService} from "../../../app.service";
-import {MdDialogRef} from "@angular/material";
-import {Globalvar} from "../../../constants/globalvar";
-import {SearchPipe} from "../../../pipes/search.pipe";
+import { Component } from '@angular/core';
+import {AppService} from '../../../app.service';
+import {MdDialogRef} from '@angular/material';
+import {Globalvar} from '../../../constants/globalvar';
+import {SearchPipe} from '../../../pipes/search.pipe';
 declare var DCM4CHE: any;
-import * as _ from "lodash";
+import * as _ from 'lodash';
 
 
 @Component({
@@ -19,19 +19,19 @@ export class EditStudyComponent{
 
     opendropdown = false;
 
-    addStudyAttribut = "";
+    addStudyAttribut = '';
     lastPressedCode;
     private _saveLabel;
     private _titleLabel;
-    private _dropdown
-    private _study:any;
-    private _studykey:any;
-    private _iod:any;
+    private _dropdown;
+    private _study: any;
+    private _studykey: any;
+    private _iod: any;
     private _mode;
     options = Globalvar.OPTIONS;
 
     DCM4CHE = DCM4CHE;
-    constructor(public dialogRef: MdDialogRef<EditStudyComponent>, public mainservice:AppService) {
+    constructor(public dialogRef: MdDialogRef<EditStudyComponent>, public mainservice: AppService) {
 /*
         setTimeout(function(){
             if(this._mode === "create"){
@@ -60,7 +60,7 @@ export class EditStudyComponent{
              $(".editform .schema-form-fieldset > sf-decorator").hide();*!/
         },1000);*/
     }
-    
+
     get mode() {
         return this._mode;
     }
@@ -116,28 +116,28 @@ export class EditStudyComponent{
         this._iod = value;
     }
     getKeys(obj){
-        if(_.isArray(obj)){
+        if (_.isArray(obj)){
             return obj;
         }else{
             return Object.keys(obj);
         }
     }
     checkClick(e){
-        console.log("e",e);
-        var code = (e.keyCode ? e.keyCode : e.which);
-        console.log("code in checkclick");
-        if(!(e.target.id === "dropdown" || e.target.id === 'addPatientAttribut')){
+        console.log('e', e);
+        let code = (e.keyCode ? e.keyCode : e.which);
+        console.log('code in checkclick');
+        if (!(e.target.id === 'dropdown' || e.target.id === 'addPatientAttribut')){
             this.opendropdown = false;
         }
     }
     dialogKeyHandler(e, dialogRef){
         let code = (e.keyCode ? e.keyCode : e.which);
-        console.log("in modality keyhandler",code);
-        if(code === 13){
+        console.log('in modality keyhandler', code);
+        if (code === 13){
             dialogRef.close(this._study);
         }
-        if(code === 27){
-            if(this.opendropdown){
+        if (code === 27){
+            if (this.opendropdown){
                 this.opendropdown = false;
             }else{
                 dialogRef.close(null);
@@ -146,16 +146,16 @@ export class EditStudyComponent{
     };
 
     addAttribute(attrcode){
-        if(this._study.attrs[attrcode] != undefined){
-            if(this._iod[attrcode].multi){
-                this._study.attrs[attrcode]["Value"].push("");
-                this.addStudyAttribut           = "";
+        if (this._study.attrs[attrcode] != undefined){
+            if (this._iod[attrcode].multi){
+                this._study.attrs[attrcode]['Value'].push('');
+                this.addStudyAttribut           = '';
                 this.opendropdown                 = false;
             }else{
                 this.mainservice.setMessage({
-                    "title": "Warning",
-                    "text": "Attribute already exists!",
-                    "status": "warning"
+                    'title': 'Warning',
+                    'text': 'Attribute already exists!',
+                    'status': 'warning'
                 });
             }
         }else{
@@ -164,31 +164,31 @@ export class EditStudyComponent{
     };
 
     pressedKey(e){
-        console.log("in pressedkey");
+        console.log('in pressedkey');
         this.opendropdown = true;
         let code = (e.keyCode ? e.keyCode : e.which);
         this.lastPressedCode = code;
-        let attrcode:any;
-        if(code === 13){
-            var filtered =  new SearchPipe().transform(this.dropdown,this.addStudyAttribut);
-            if(filtered){
+        let attrcode: any;
+        if (code === 13){
+            let filtered =  new SearchPipe().transform(this.dropdown, this.addStudyAttribut);
+            if (filtered){
                 this.opendropdown = true;
             }
-            if($(".dropdown_element.selected").length){
-                attrcode = $(".dropdown_element.selected").attr("name");
+            if ($('.dropdown_element.selected').length){
+                attrcode = $('.dropdown_element.selected').attr('name');
             }else{
                 attrcode = filtered[0].code;
             }
-            if(this._study.attrs[attrcode] != undefined){
-                if(this._iod[attrcode].multi){
-                    this._study.attrs[attrcode]["Value"].push("");
-                    this.addStudyAttribut           = "";
+            if (this._study.attrs[attrcode] != undefined){
+                if (this._iod[attrcode].multi){
+                    this._study.attrs[attrcode]['Value'].push('');
+                    this.addStudyAttribut           = '';
                     this.opendropdown                 = false;
                 }else{
                     this.mainservice.setMessage({
-                        "title": "Warning",
-                        "text": "Attribute already exists!",
-                        "status": "warning"
+                        'title': 'Warning',
+                        'text': 'Attribute already exists!',
+                        'status': 'warning'
                     });
                 }
             }else{
@@ -197,49 +197,49 @@ export class EditStudyComponent{
             }
             setTimeout(function(){
                 this.lastPressedCode = 0;
-            },1000);
+            }, 1000);
         }
         //Arrow down pressed
-        if(code === 40){
+        if (code === 40){
             this.opendropdown = true;
-            if(!$(".dropdown_element.selected").length){
-                $(".dropdown_element").first().addClass('selected');
+            if (!$('.dropdown_element.selected').length){
+                $('.dropdown_element').first().addClass('selected');
             }else{
-                if($(".dropdown_element.selected").next().length){
-                    $(".dropdown_element.selected").removeClass('selected').next().addClass('selected');
+                if ($('.dropdown_element.selected').next().length){
+                    $('.dropdown_element.selected').removeClass('selected').next().addClass('selected');
                 }else{
-                    $(".dropdown_element.selected").removeClass('selected');
-                    $(".dropdown_element").first().addClass('selected');
+                    $('.dropdown_element.selected').removeClass('selected');
+                    $('.dropdown_element').first().addClass('selected');
                 }
             }
 
-            if($(".dropdown_element.selected").position()){
-                $('.dropdown').scrollTop($('.dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('.dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
+            if ($('.dropdown_element.selected').position()){
+                $('.dropdown').scrollTop($('.dropdown').scrollTop() + $('.dropdown_element.selected').position().top - $('.dropdown').height() / 2 + $('.dropdown_element.selected').height() / 2);
             }
         }
         //Arrow up pressed
-        if(code === 38){
+        if (code === 38){
             this.opendropdown = true;
-            if(!$(".dropdown_element.selected").length){
-                $(".dropdown_element").prev().addClass('selected');
+            if (!$('.dropdown_element.selected').length){
+                $('.dropdown_element').prev().addClass('selected');
             }else{
-                if($(".dropdown_element.selected").index() === 0){
-                    $(".dropdown_element.selected").removeClass('selected');
-                    $(".dropdown_element").last().addClass('selected');
+                if ($('.dropdown_element.selected').index() === 0){
+                    $('.dropdown_element.selected').removeClass('selected');
+                    $('.dropdown_element').last().addClass('selected');
                 }else{
-                    $(".dropdown_element.selected").removeClass('selected').prev().addClass('selected');
+                    $('.dropdown_element.selected').removeClass('selected').prev().addClass('selected');
                 }
             }
-            $('.dropdown').scrollTop($('.dropdown').scrollTop() + $(".dropdown_element.selected").position().top - $('.dropdown').height()/2 + $(".dropdown_element.selected").height()/2);
+            $('.dropdown').scrollTop($('.dropdown').scrollTop() + $('.dropdown_element.selected').position().top - $('.dropdown').height() / 2 + $('.dropdown_element.selected').height() / 2);
         }
-        if(code === 27 || code === 9){
+        if (code === 27 || code === 9){
             this.opendropdown = false;
         }
     };
     removeAttr(attrcode){
-        switch(arguments.length) {
+        switch (arguments.length) {
             case 2:
-                if(this._study.attrs[arguments[0]].Value.length === 1){
+                if (this._study.attrs[arguments[0]].Value.length === 1){
                     delete  this._study.attrs[arguments[0]];
                 }else{
                     this._study.attrs[arguments[0]].Value.splice(arguments[1], 1);

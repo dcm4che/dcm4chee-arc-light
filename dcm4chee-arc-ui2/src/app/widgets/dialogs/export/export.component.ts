@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import {MdDialogRef} from "@angular/material";
-import {AppService} from "../../../app.service";
-import {Http} from "@angular/http";
-import * as _ from "lodash";
+import { Component } from '@angular/core';
+import {MdDialogRef} from '@angular/material';
+import {AppService} from '../../../app.service';
+import {Http} from '@angular/http';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'app-export',
@@ -24,20 +24,20 @@ export class ExportDialogComponent{
     private _title;
     private _okButtonLabel;
     private _result = {
-        exportType:"dicom",
-        selectedAet:undefined,
-        selectedExporter:undefined,
-        dicomPrefix:undefined,
-        checkboxes:{
-            "only-stgcmt":undefined,
-            "only-ian":undefined
+        exportType: 'dicom',
+        selectedAet: undefined,
+        selectedExporter: undefined,
+        dicomPrefix: undefined,
+        checkboxes: {
+            'only-stgcmt': undefined,
+            'only-ian': undefined
         }
-    }
+    };
     private _preselectedAet;
-    constructor(public dialogRef: MdDialogRef<ExportDialogComponent>, private $http:Http, private mainservice:AppService) {
+    constructor(public dialogRef: MdDialogRef<ExportDialogComponent>, private $http: Http, private mainservice: AppService) {
         this.getAes();
 
-        console.log("resultfilter",)
+        console.log('resultfilter', );
     }
 
     get preselectedAet() {
@@ -52,7 +52,7 @@ export class ExportDialogComponent{
         return this._result;
     }
 
-    set result(value:any) {
+    set result(value: any) {
         this._result = value;
     }
 
@@ -108,19 +108,19 @@ export class ExportDialogComponent{
         this.$http.get(
             '../aes'
         )
-        .map(res=>res.json())
+        .map(res => res.json())
         .subscribe((response) => {
             $this.aes = response;
             $this._result.selectedAet = $this._result.selectedAet || $this.aes[0].dicomAETitle;
-            if($this.mainservice.global && !$this.mainservice.global.aes){
+            if ($this.mainservice.global && !$this.mainservice.global.aes){
                 let global = _.cloneDeep($this.mainservice.global);
                 global.aes = response;
                 $this.mainservice.setGlobal(global);
             }else{
-                if($this.mainservice.global && $this.mainservice.global.aes){
+                if ($this.mainservice.global && $this.mainservice.global.aes){
                     $this.mainservice.global.aes = response;
                 }else{
-                    $this.mainservice.setGlobal({aes:response});
+                    $this.mainservice.setGlobal({aes: response});
                 }
             }
         }, (response) => {
@@ -128,14 +128,14 @@ export class ExportDialogComponent{
         });
     }
     validForm(){
-        if(this._result.exportType === "dicom"){
-            if(this._result.dicomPrefix && this._result.selectedAet){
+        if (this._result.exportType === 'dicom'){
+            if (this._result.dicomPrefix && this._result.selectedAet){
                 return true;
             }else{
                 return false;
             }
         }else{
-            if(this._result.selectedExporter){
+            if (this._result.selectedExporter){
                 return true;
             }else{
                 return false;
@@ -144,11 +144,11 @@ export class ExportDialogComponent{
     }
     dialogKeyHandler(e, dialogRef){
         let code = (e.keyCode ? e.keyCode : e.which);
-        console.log("in modality keyhandler",code);
-        if(code === 13){
-            dialogRef.close("ok");//TODO
+        console.log('in modality keyhandler', code);
+        if (code === 13){
+            dialogRef.close('ok'); //TODO
         }
-        if(code === 27){
+        if (code === 27){
             dialogRef.close(null);
         }
     };

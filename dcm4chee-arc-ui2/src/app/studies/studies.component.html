@@ -815,6 +815,9 @@
                                     <a class="hiddenbuttons" (click)="$event.preventDefault();exportStudy(study._VALUE)" *ngIf="showExporter() && isRole('admin')" href="" title="Export study">
                                         <span class="glyphicon glyphicon-export"></span>
                                     </a>
+                                    <a class="hiddenbuttons" (click)="$event.preventDefault();upload(study._VALUE)" *ngIf="isRole('admin')" href="" title="Upload file">
+                                        <i class="material-icons">file_upload</i>
+                                    </a>
                                     <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('study', study._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitment">
                                         <span class="glyphicon glyphicon-ok"></span>
                                     </a>

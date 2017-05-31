@@ -11,18 +11,18 @@ export class FormatAttributeValuePipe implements PipeTransform {
               case 'SQ':
                   return value.Value.length + ' Item(s)';
               case 'PN':
-                  if(value.Value && value.Value[0]){
+                  if (value.Value && value.Value[0]){
                       return value.Value.map(function(value){
                           return value.Alphabetic;
                       }).join();
                   }else{
-                      return "";
+                      return '';
                   }
               default:
                   return value.Value.join();
           }
       }
-      return value.BulkDataURI || "";
+      return value.BulkDataURI || '';
   }
 
 }

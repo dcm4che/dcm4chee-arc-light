@@ -7,12 +7,16 @@
                 <md-option *ngFor="let ae of aes" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>
             </md-select>
             <!--<input type="file" ng2FileSelect [uploader]="vendorUpload" />-->
-            <label>Chose a File to upload:</label>
-            <input type="file" (change)="fileChange($event)" placeholder="Upload file" multiple>
-            <div *ngFor="let file of fileList">
-                {{file.name}} <span class="text-danger" *ngIf="percentComplete[file.name].status">Error {{percentComplete[file.name].status}}</span>
-                <div>
-                    <md-progress-bar color="primary" mode="determinate" [value]="percentComplete[file.name].value"></md-progress-bar>
+            <label>Chose DICOM Files to upload:</label>
+            <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  accept="application/dicom" multiple>
+            <div md-dialog-content>
+                <div class="upload_state" *ngFor="let file of fileList">
+                    {{file.name}}
+                    <span class="text-danger" *ngIf="percentComplete[file.name] && percentComplete[file.name].status">Error {{percentComplete[file.name].status}}</span>
+                    <span class="upload_ticker"  *ngIf="percentComplete[file.name].value == '100'"><i class="material-icons">check</i></span>
+                    <div>
+                        <md-progress-bar color="primary" mode="determinate" [value]="percentComplete[file.name].value"></md-progress-bar>
+                    </div>
                 </div>
             </div>
         </div>

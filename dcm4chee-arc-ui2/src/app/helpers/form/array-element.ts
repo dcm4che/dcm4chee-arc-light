@@ -1,13 +1,13 @@
-import {FormElement} from "./form-element";
+import {FormElement} from './form-element';
 /**
  * Created by shefki on 9/20/16.
  */
 
 export class ArrayElement extends FormElement<string>{
     controlType = 'arrayelement';
-    type:string;
+    type: string;
 
-    constructor(options:{} = {}){
+    constructor(options: {} = {}){
         super(options);
         this.type = options['type'] || '';
     }

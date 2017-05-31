@@ -8,7 +8,7 @@ export class FormElement<T>{
     label: string;
     validation: any;
     order: number;
-    description:string;
+    description: string;
     controlType: string;
     show: boolean;
     constructor(options: {

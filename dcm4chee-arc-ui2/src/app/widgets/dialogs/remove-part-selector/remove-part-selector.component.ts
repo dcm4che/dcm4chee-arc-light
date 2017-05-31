@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {MdDialogRef} from "@angular/material";
+import {MdDialogRef} from '@angular/material';
 
 @Component({
   selector: 'app-remove-part-selector',
