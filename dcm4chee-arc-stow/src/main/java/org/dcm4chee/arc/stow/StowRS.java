@@ -276,6 +276,8 @@ public class StowRS {
                         in.skipAll();
                     }
                 } catch (Exception e) {
+                    if (instances.size() == 1)
+                        throw new WebApplicationException(e.getMessage());
                     new WebApplicationException("Failed to process Part #" + partNumber + headerParams, e);
                 }
             }
