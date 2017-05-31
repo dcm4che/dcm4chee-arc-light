@@ -81,6 +81,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -469,9 +470,12 @@ public class StowRS {
             }
             bulkdataMap.put(contentLocation, new BulkDataWithMediaType(spoolFile, mediaType));
             return true;
-        } catch (Exception e) {
-            LOG.warn("Exception caught while spooling bulkdata : " + e.getMessage());
-            return false;
+        } catch (AccessDeniedException e) {
+            throw new WebApplicationException(getResponse("Exception caught while spooling bulkdata : " + e.getMessage(),
+                    Response.Status.UNAUTHORIZED));
+        } catch (IOException e) {
+            throw new WebApplicationException(getResponse("IOException caught while spooling bulkdata : " + e.getMessage(),
+                    Response.Status.INTERNAL_SERVER_ERROR));
         }
     }
 
