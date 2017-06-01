@@ -87,7 +87,7 @@ import java.util.*;
 public class WadoRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(WadoRS.class);
-    private static final String JBOSS_SERVER_TEMP = "${jboss.server.temp}";
+    private static final String JBOSS_SERVER_TEMP = "${jboss.server.temp.dir}";
 
     @Inject
     private RetrieveService service;

@@ -92,7 +92,7 @@ import java.util.*;
 @ApplicationScoped
 public class AuditService {
     private final Logger LOG = LoggerFactory.getLogger(AuditService.class);
-    private final String JBOSS_SERVER_TEMP = "${jboss.server.data.dir}/temp";
+    private final String JBOSS_SERVER_TEMP = "${jboss.server.temp.dir}";
     private final String studyDate = "StudyDate";
     private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
 
