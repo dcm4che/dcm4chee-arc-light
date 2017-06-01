@@ -337,6 +337,28 @@ class ArchiveDeviceFactory {
             Tag.StudyInstanceUID,
             Tag.StudyID
     };
+    static final int[] DIFF_STUDIES_INCLUDE_FIELDS_ALL = {
+            Tag.StudyDate,
+            Tag.StudyTime,
+            Tag.AccessionNumber,
+            Tag.IssuerOfAccessionNumberSequence,
+            Tag.ModalitiesInStudy,
+            Tag.ReferringPhysicianName,
+            Tag.StudyDescription,
+            Tag.ProcedureCodeSequence,
+            Tag.PatientName,
+            Tag.PatientID,
+            Tag.IssuerOfPatientID,
+            Tag.PatientBirthDate,
+            Tag.PatientSex,
+            Tag.PatientAge,
+            Tag.PatientSize,
+            Tag.PatientWeight,
+            Tag.StudyInstanceUID,
+            Tag.StudyID,
+            Tag.NumberOfStudyRelatedSeries,
+            Tag.NumberOfStudyRelatedInstances
+    };
     static final int[] MPPS_ATTRS = {
             Tag.SpecificCharacterSet,
             Tag.Modality,
@@ -1314,6 +1336,7 @@ class ArchiveDeviceFactory {
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
         ext.setAttributeFilter(Entity.MWL, new AttributeFilter(MWL_ATTRS));
 
+        ext.setDiffStudiesIncludefieldAll(DIFF_STUDIES_INCLUDE_FIELDS_ALL);
 
         ext.addHL7OrderScheduledStation(newScheduledStation(unknown));
 

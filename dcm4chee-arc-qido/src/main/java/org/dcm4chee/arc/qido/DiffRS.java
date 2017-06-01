@@ -39,17 +39,16 @@
 package org.dcm4chee.arc.qido;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4che3.util.SafeClose;
+import org.dcm4che3.net.DimseRSP;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.query.Query;
-import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -71,19 +70,22 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
+
+import static org.dcm4che3.util.ByteUtils.EMPTY_INTS;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since May 2017
  */
 @RequestScoped
-@Path("aets/{AETitle}/diff/{RemoteAETitle}")
+@Path("aets/{AETitle}/diff/{RemoteAETitle1}/{RemoteAETitle2}")
 @ValidUriInfo(type = QueryAttributes.class)
 public class DiffRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiffRS.class);
 
-    private final static int[] STUDY_FIELDS = {
+    private static final int[] DEF_INCLUDE_FIELDS = {
             Tag.StudyDate,
             Tag.StudyTime,
             Tag.AccessionNumber,
@@ -99,9 +101,6 @@ public class DiffRS {
             Tag.NumberOfStudyRelatedInstances
     };
 
-    @Inject
-    private QueryService service;
-
     @Context
     private HttpServletRequest request;
 
@@ -114,54 +113,25 @@ public class DiffRS {
     @PathParam("AETitle")
     private String aet;
 
-    @PathParam("RemoteAETitle")
-    private String remoteAET;
+    @PathParam("RemoteAETitle1")
+    private String remoteAET1;
 
-    @QueryParam("missing")
-    @Pattern(regexp = "local|remote")
-    private String missing;
+    @PathParam("RemoteAETitle2")
+    private String remoteAET2;
 
-    @QueryParam("returnempty")
-    @Pattern(regexp = "true|false")
-    private String returnempty;
-
-    @QueryParam("expired")
-    @Pattern(regexp = "true|false")
-    private String expired;
-
-    @QueryParam("fuzzymatching")
-    @Pattern(regexp = "true|false")
-    private String fuzzymatching;
+    @QueryParam("offset")
+    @Pattern(regexp = "0|([1-9]\\d{0,4})")
+    private String offset;
 
     @QueryParam("limit")
     @Pattern(regexp = "[1-9]\\d{0,4}")
     private String limit;
 
-    @QueryParam("withoutstudies")
-    @Pattern(regexp = "true|false")
-    private String withoutstudies;
+    @Inject
+    private CFindSCU findSCU;
 
-    @QueryParam("incomplete")
-    @Pattern(regexp = "true|false")
-    private String incomplete;
-
-    @QueryParam("retrievefailed")
-    @Pattern(regexp = "true|false")
-    private String retrievefailed;
-
-    @QueryParam("SendingApplicationEntityTitleOfSeries")
-    private String sendingApplicationEntityTitleOfSeries;
-
-    @QueryParam("StudyReceiveDateTime")
-    private String studyReceiveDateTime;
-
-    @QueryParam("ExternalRetrieveAET")
-    private String externalRetrieveAET;
-
-    @QueryParam("ExternalRetrieveAET!")
-    private String externalRetrieveAETNot;
-
-    private Query query;
+    private Association as1;
+    private Association as2;
 
     @Override
     public String toString() {
@@ -174,65 +144,43 @@ public class DiffRS {
     @Produces("application/dicom+json,application/json")
     public void searchForStudiesJSON(@Suspended AsyncResponse ar) throws Exception {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
-        QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
-        QueryContext ctx = newQueryContext(queryAttrs);
-        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        query = service.createQuery(ctx);
         ar.register(new CompletionCallback() {
             @Override
             public void onComplete(Throwable throwable) {
-                if (query != null)
-                    query.close();
+                safeRelease(as1);
+                safeRelease(as2);
             }
         });
-        query.initQuery();
-        query.setFetchSize(arcAE.getArchiveDeviceExtension().getQueryFetchSize());
-        int limitInt = parseInt(limit);
-        query.executeQuery();
-        while (query.hasMoreMatches()) {
-            Attributes match = query.adjust(query.nextMatch());
-            if (diff(match)) {
-                ar.resume(Response.ok(entity(query, match, limitInt)).build());
+        ApplicationEntity localAE = getApplicationEntity();
+        as1 = findSCU.openAssociation(localAE, remoteAET1);
+        as2 = findSCU.openAssociation(localAE, remoteAET2);
+        ArchiveAEExtension arcAE = localAE.getAEExtension(ArchiveAEExtension.class);
+        Attributes keys = new QueryAttributes(uriInfo).getQueryKeys(DEF_INCLUDE_FIELDS,
+                arcAE != null ? arcAE.diffStudiesIncludefieldAll() : EMPTY_INTS);
+        int[] returnKeys = keys.tags();
+        keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
+        DimseRSP dimseRSP = findSCU.queryStudies(as1, keys);
+        int skip = parseInt(offset, 0);
+        while (dimseRSP.next()) {
+            if (diff(dimseRSP, returnKeys) && skip-- == 0) {
+                ar.resume(Response.ok(entity(dimseRSP, returnKeys)).build());
                 return;
             }
         }
         ar.resume(Response.noContent().build());
     }
 
-    private boolean diff(Attributes match) {
-        return match != null;
+    private void safeRelease(Association as) {
+        if (as != null)
+            try {
+                as.release();
+            } catch (IOException e) {
+                LOG.info("{}: Failed to release association:\\n", as, e);
+            }
     }
 
-    private QueryContext newQueryContext(QueryAttributes queryAttrs) {
-        ApplicationEntity ae = getApplicationEntity();
-
-        org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
-        queryParam.setCombinedDatetimeMatching(true);
-        queryParam.setFuzzySemanticMatching(Boolean.parseBoolean(fuzzymatching));
-        queryParam.setReturnEmpty(Boolean.parseBoolean(returnempty));
-        queryParam.setExpired(Boolean.parseBoolean(expired));
-        queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
-        queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
-        queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
-        queryParam.setSendingApplicationEntityTitleOfSeries(sendingApplicationEntityTitleOfSeries);
-        queryParam.setStudyReceiveDateTime(studyReceiveDateTime);
-        queryParam.setExternalRetrieveAET(externalRetrieveAET);
-        queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
-        QueryContext ctx = service.newQueryContextQIDO(request, "CompareStudies", ae, queryParam);
-        ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.STUDY);
-        Attributes keys = queryAttrs.getQueryKeys();
-        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
-        if (idWithIssuer != null)
-            ctx.setPatientIDs(idWithIssuer);
-        ctx.setQueryKeys(keys);
-        ctx.setReturnKeys(queryAttrs.getReturnKeys(STUDY_FIELDS));
-        ctx.setOrderByPatientName(queryAttrs.isOrderByPatientName());
-        return ctx;
-    }
-
-
-    private static int parseInt(String s) {
-        return s != null ? Integer.parseInt(s) : 0;
+    private static int parseInt(String s, int defval) {
+        return s != null ? Integer.parseInt(s) : defval;
     }
 
     private ApplicationEntity getApplicationEntity() {
@@ -244,26 +192,56 @@ public class DiffRS {
         return ae;
     }
 
-    private Object entity(final Query query, final Attributes firstMatch, final int limit) {
+    private Object entity(final DimseRSP dimseRSP, final int[] returnKeys) {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
                 try (JsonGenerator gen = Json.createGenerator(out)) {
                     JSONWriter writer = new JSONWriter(gen);
                     gen.writeStartArray();
-                    writer.write(firstMatch);
-                    int count = 1;
-                    while ((limit == 0 || limit > count) && query.hasMoreMatches()) {
-                        Attributes match = query.adjust(query.nextMatch());
-                        if (diff(match)) {
-                            writer.write(match);
-                            count++;
-                        }
+                    writer.write(dimseRSP.getDataset());
+                    int remaining = parseInt(limit, -1);
+                    try {
+                        while ((remaining < 0 || remaining-- > 0) && dimseRSP.next())
+                            if (diff(dimseRSP, returnKeys))
+                                writer.write(dimseRSP.getDataset());
+                    } catch (Exception e) {
+                        writer.write(toAttributes(e));
+                        LOG.info("Failure on query for matching studies:\\n", e);
                     }
                     gen.writeEnd();
                 }
             }
         };
+    }
+
+    private Attributes toAttributes(Exception e) {
+        return null;
+    }
+
+    private boolean diff(DimseRSP dimseRSP, int[] returnKeys) throws Exception {
+        Attributes match = dimseRSP.getDataset();
+        if (match == null)
+            return false;
+
+        Attributes other = findSCU.queryStudy(as2, match.getString(Tag.StudyInstanceUID), returnKeys);
+        Attributes modified = new Attributes(match);
+        if (other == null) {
+            modified.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, 0);
+            modified.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, 0);
+        } else if (!other.testUpdateSelected(Attributes.UpdatePolicy.MERGE, match, modified, returnKeys)
+                || modified.isEmpty())
+            return false;
+
+        Sequence sq = match.newSequence(Tag.OriginalAttributesSequence, 1);
+        Attributes item = new Attributes();
+        sq.add(item);
+        item.newSequence(Tag.ModifiedAttributesSequence, 1).add(modified);
+        item.setString(Tag.SourceOfPreviousValues, VR.LO, remoteAET2);
+        item.setDate(Tag.AttributeModificationDateTime, VR.DT, new Date());
+        item.setString(Tag.ModifyingSystem, VR.LO, remoteAET1);
+        item.setString(Tag.ReasonForTheAttributeModification, VR.CS, "DIFFS");
+        return true;
     }
 
 }

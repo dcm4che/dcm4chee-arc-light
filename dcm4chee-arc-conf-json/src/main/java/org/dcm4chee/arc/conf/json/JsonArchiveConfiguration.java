@@ -198,6 +198,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("hl7ScheduledStationAETInOrder", arcDev.getHl7ScheduledStationAETInOrder());
         writer.writeNotNull("dcmAuditUnknownStudyInstanceUID", arcDev.getAuditUnknownStudyInstanceUID());
         writer.writeNotNull("dcmAuditUnknownPatientID", arcDev.getAuditUnknownPatientID());
+        writer.writeNotEmpty("dcmDiffStudiesIncludefieldAll",
+                TagUtils.toHexStrings(arcDev.getDiffStudiesIncludefieldAll()));
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -568,6 +570,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmCopyMoveUpdatePolicy", arcAE.getCopyMoveUpdatePolicy());
         writer.writeNotNull("dcmInvokeImageDisplayPatientURL", arcAE.getInvokeImageDisplayPatientURL());
         writer.writeNotNull("dcmInvokeImageDisplayStudyURL", arcAE.getInvokeImageDisplayStudyURL());
+        writer.writeNotEmpty("dcmDiffStudiesIncludefieldAll",
+                TagUtils.toHexStrings(arcAE.getDiffStudiesIncludefieldAll()));
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
@@ -923,6 +927,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAuditUnknownPatientID":
                     arcDev.setAuditUnknownPatientID(reader.stringValue());
+                    break;
+                case "dcmDiffStudiesIncludefieldAll":
+                    arcDev.setDiffStudiesIncludefieldAll(TagUtils.fromHexStrings(reader.stringArray()));
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
@@ -1776,6 +1783,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmInvokeImageDisplayStudyURL":
                     arcAE.setInvokeImageDisplayStudyURL(reader.stringValue());
+                    break;
+                case "dcmDiffStudiesIncludefieldAll":
+                    arcAE.setDiffStudiesIncludefieldAll(TagUtils.fromHexStrings(reader.stringArray()));
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

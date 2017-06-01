@@ -2565,7 +2565,7 @@
         }
       }
     },
-    "/aets/{aet}/diff/{remoteAET}/studies": {
+    "/aets/{aet}/diff/{aet1}/{aet2}/studies": {
       "get": {
         "tags": [
           "DIFF-RS"
@@ -2580,23 +2580,23 @@
           {
             "name": "aet",
             "in": "path",
-            "description": "Archive AE Title",
+            "description": "Archive AE Title used as Calling AET for querying for Studies",
             "required": true,
             "type": "string"
           },
           {
-            "name": "remoteAET",
+            "name": "aet1",
             "in": "path",
-            "description": "Remote AE Title",
+            "description": "AE Title of first C-FIND SCP to query for Studies",
             "required": true,
             "type": "string"
           },
           {
-            "name": "missing",
-            "in": "query",
-            "description": "Indicates to include also Studies missing local or remote",
-            "type": "string",
-            "enum": [ "local", "remote" ]
+            "name": "aet2",
+            "in": "path",
+            "description": "AE Title of second C-FIND SCP to query for Studies returned from the first C-FIND SCP",
+            "required": true,
+            "type": "string"
           },
           {
             "name": "{attributeID}",
@@ -2611,7 +2611,7 @@
           {
             "name": "includefield",
             "in": "query",
-            "description": "includefield={attributeID} | all",
+            "description": "includefield={attributeID}",
             "type": "array",
             "items": {
               "type": "string"
@@ -2619,63 +2619,11 @@
             "collectionFormat": "multi"
           },
           {
-            "name": "fuzzymatching",
+            "name": "offset",
             "in": "query",
-            "description": "fuzzy semantic matching of person names",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "returnempty",
-            "in": "query",
-            "description": "compare also empty Studies",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "expired",
-            "in": "query",
-            "description": "compare only expired Studies",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "incomplete",
-            "in": "query",
-            "description": "compare only Studies which are marked as incomplete",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "retrievefailed",
-            "in": "query",
-            "description": "compare only Studies which failed to be retrieved from fallback C-MOVE SCP",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "SendingApplicationEntityTitleOfSeries",
-            "in": "query",
-            "description": "compare Studies which includes at least one Series received from <AE Title>",
-            "type": "string"
-          },
-          {
-            "name": "StudyReceiveDateTime",
-            "in": "query",
-            "description": "compare Studies which were created between <datetime1>-<datetime2>",
-            "type": "string"
-          },
-          {
-            "name": "ExternalRetrieveAET",
-            "in": "query",
-            "description": "compare Studies which are retrieveable from external <AE Title>",
-            "type": "string"
-          },
-          {
-            "name": "ExternalRetrieveAET!",
-            "in": "query",
-            "description": "compare Studies which are not retrieveable from external <AE Title>",
-            "type": "string"
+            "description": "offset={skippedResults}",
+            "type": "integer",
+            "default": 0
           },
           {
             "name": "limit",

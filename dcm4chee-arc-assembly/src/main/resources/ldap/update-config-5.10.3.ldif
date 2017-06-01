@@ -5,6 +5,28 @@ changetype: modify
 replace: dicomSoftwareVersion
 dicomSoftwareVersion: 5.10.3
 -
+add: dcmDiffStudiesIncludefieldAll
+dcmDiffStudiesIncludefieldAll: 00080020
+dcmDiffStudiesIncludefieldAll: 00080030
+dcmDiffStudiesIncludefieldAll: 00080050
+dcmDiffStudiesIncludefieldAll: 00080051
+dcmDiffStudiesIncludefieldAll: 00080061
+dcmDiffStudiesIncludefieldAll: 00080090
+dcmDiffStudiesIncludefieldAll: 00081030
+dcmDiffStudiesIncludefieldAll: 00081032
+dcmDiffStudiesIncludefieldAll: 00100010
+dcmDiffStudiesIncludefieldAll: 00100020
+dcmDiffStudiesIncludefieldAll: 00100021
+dcmDiffStudiesIncludefieldAll: 00100030
+dcmDiffStudiesIncludefieldAll: 00100040
+dcmDiffStudiesIncludefieldAll: 00101010
+dcmDiffStudiesIncludefieldAll: 00101020
+dcmDiffStudiesIncludefieldAll: 00101030
+dcmDiffStudiesIncludefieldAll: 0020000D
+dcmDiffStudiesIncludefieldAll: 00200010
+dcmDiffStudiesIncludefieldAll: 00201206
+dcmDiffStudiesIncludefieldAll: 00201208
+_
 
 dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify

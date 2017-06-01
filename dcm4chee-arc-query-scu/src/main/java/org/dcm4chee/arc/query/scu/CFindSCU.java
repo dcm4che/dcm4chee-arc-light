@@ -42,6 +42,8 @@ package org.dcm4chee.arc.query.scu;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Association;
+import org.dcm4che3.net.DimseRSP;
 import org.dcm4chee.arc.Cache;
 
 /**
@@ -51,6 +53,12 @@ import org.dcm4chee.arc.Cache;
 public interface CFindSCU {
     Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID, int[] returnKeys)
             throws Exception;
+
+    Association openAssociation(ApplicationEntity localAE, String calledAET) throws Exception;
+
+    Attributes queryStudy(Association as, String studyIUID, int[] returnKeys) throws Exception;
+
+    DimseRSP queryStudies(Association as, Attributes keys) throws Exception;
 
     Attributes queryStudy(
             ApplicationEntity localAE, String calledAET, String studyIUID, int[] returnKeys,

@@ -239,6 +239,12 @@
       "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage",
       "type": "string"
     },
+    "dcmDiffStudiesIncludefieldAll": {
+      "title": "Diff Studies Attributes",
+      "description": "DICOM Tag as hex string of Attributes beeing compared by the DIFF-RS service with Query Parameter includefield=all. Use QIDO-RS STUDY Returned Attributes, if absent.",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
     "dcmExportTaskPollingInterval": {
       "title": "Export Task Polling Interval",
       "description": "Export Task Polling Interval in ISO-8601 duration format PnDTnHnMn.nS",

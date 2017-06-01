@@ -869,6 +869,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.174 NAME 'dcmQueryFetchSize'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.175 NAME 'dcmDiffStudiesIncludefieldAll'
+  DESC 'DICOM Tag as hex string of Attributes beeing compared by the DIFF-RS service with Query Parameter includefield=all. Use QIDO-RS STUDY Returned Attributes, if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 -
 delete: olcObjectClasses
 -
@@ -923,6 +927,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmExternalRetrieveAEDestination $
     dcmXDSiImagingDocumentSourceAETitle $
     dcmAltCMoveSCP $
+    dcmDiffStudiesIncludefieldAll $
     dcmExportTaskPollingInterval $
     dcmExportTaskFetchSize $
     dcmPurgeStoragePollingInterval $
@@ -1034,6 +1039,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmFallbackCMoveSCPStudyOlderThan $
     dcmExternalRetrieveAEDestination $
     dcmAltCMoveSCP $
+    dcmDiffStudiesIncludefieldAll $
     dcmStorePermissionServiceURL $
     dcmStorePermissionServiceResponsePattern $
     dcmStorePermissionServiceExpirationDatePattern $

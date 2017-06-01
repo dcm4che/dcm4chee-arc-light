@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.query.scu.impl;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.*;
@@ -50,6 +51,8 @@ import org.dcm4chee.arc.query.scu.CFindSCU;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -69,17 +72,31 @@ public class CFindSCUImpl implements CFindSCU {
     @Override
     public Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID, int[] returnKeys)
             throws Exception {
-        ApplicationEntity remoteAE = aeCache.get(calledAET);
-        Association as = localAE.connect(remoteAE, createAARQ());
+        Association as = openAssociation(localAE, calledAET);
         try {
-            DimseRSP rsp = as.cfind(UID.StudyRootQueryRetrieveInformationModelFIND, Priority.NORMAL,
-                    mkQueryStudyKeys(studyIUID, returnKeys), UID.ImplicitVRLittleEndian, 0);
-            rsp.next();
-            return rsp.getDataset();
+            return queryStudy(as, studyIUID, returnKeys);
         } finally {
             as.waitForOutstandingRSP();
             as.release();
         }
+    }
+
+    @Override
+    public Association openAssociation(ApplicationEntity localAE, String calledAET) throws Exception {
+        return localAE.connect(aeCache.get(calledAET), createAARQ());
+    }
+
+    @Override
+    public Attributes queryStudy(Association as, String studyIUID, int[] returnKeys) throws Exception {
+        DimseRSP rsp = queryStudies(as, mkQueryStudyKeys(studyIUID, returnKeys));
+        rsp.next();
+        return rsp.getDataset();
+    }
+
+    @Override
+    public DimseRSP queryStudies(Association as, Attributes keys) throws Exception {
+        return as.cfind(UID.StudyRootQueryRetrieveInformationModelFIND, Priority.NORMAL,
+                keys, UID.ImplicitVRLittleEndian, 0);
     }
 
     @Override

@@ -43,6 +43,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ElementDictionary;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.query.util.AttributesBuilder;
@@ -90,7 +91,6 @@ public class QueryAttributes {
                 case "StudyReceiveDateTime":
                 case "ExternalRetrieveAET":
                 case "ExternalRetrieveAET!":
-                case "missing":
                     break;
                 default:
                     addQueryKey(key, entry.getValue());
@@ -133,6 +133,14 @@ public class QueryAttributes {
 
     public Attributes getQueryKeys() {
         return keys;
+    }
+
+    public Attributes getQueryKeys(int[] includetags, int[] includeAllTags) {
+        Attributes queryKeys = new Attributes(keys.size() + includetags.length);
+        for (int tag : includeAll && includeAllTags.length > 0 ? includeAllTags : includetags)
+            queryKeys.setNull(tag, DICT.vrOf(tag));
+        queryKeys.addAll(keys);
+        return queryKeys;
     }
 
     public Attributes getReturnKeys(int[] includetags) {

@@ -171,6 +171,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private String auditUnknownStudyInstanceUID;
     private String auditUnknownPatientID;
+    private int[] diffStudiesIncludefieldAll = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1530,6 +1531,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return StringUtils.maskNull(auditUnknownPatientID, "<none>");
     }
 
+    public int[] getDiffStudiesIncludefieldAll() {
+        return diffStudiesIncludefieldAll;
+    }
+
+    public void setDiffStudiesIncludefieldAll(int[] diffStudiesIncludefieldAll) {
+        this.diffStudiesIncludefieldAll = diffStudiesIncludefieldAll;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -1646,6 +1655,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7ScheduledStationAETInOrder = arcdev.hl7ScheduledStationAETInOrder;
         auditUnknownStudyInstanceUID = arcdev.auditUnknownStudyInstanceUID;
         auditUnknownPatientID = arcdev.auditUnknownPatientID;
+        diffStudiesIncludefieldAll = arcdev.diffStudiesIncludefieldAll;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         metadataFilters.clear();
