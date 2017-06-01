@@ -2183,6 +2183,7 @@ export class StudiesComponent implements OnDestroy{
         return this.wadoURL(inst.wadoQueryParams, exQueryParams);
     };
     viewInstance(inst) {
+        this.select_show = false;
         window.open(this.renderURL(inst));
     };
     select(object, modus, keys, fromcheckbox){
@@ -3429,6 +3430,9 @@ export class StudiesComponent implements OnDestroy{
     showMoreFunction(e, elementLimit){
         let duration = 300;
         let visibleElements = $(e.target).siblings('.hiddenbuttons').length - $(e.target).siblings('.hiddenbuttons.ng-hide').length;
+/*        $(".more_menu_content").removeClass("activemenu");
+        console.log("moremenucontent",$(e.target).closest(".more_menu_content"));*/
+        // $(e.target).closest(".more_menu_content").addClass("activemenu");
         console.log('visibleElements', visibleElements);
         let index = 1;
         let cssClass: string = 'block' + elementLimit;
@@ -3443,6 +3447,9 @@ export class StudiesComponent implements OnDestroy{
         }
         let element = $(e.target).closest('.more_menu_study');
 
+        $.each($(".more_menu_content.instance_level"),(i,m)=>{
+            $(m).removeClass("activemenu");
+        });
         if (element.hasClass('open')){
             $(e.target).closest('.more_menu_content').css('height', 26);
             if (visibleElements > elementLimit){
@@ -3455,7 +3462,11 @@ export class StudiesComponent implements OnDestroy{
                 element.removeAttr('style');
             });
         }else{
+            setTimeout(()=>{
+                $(e.target).closest(".more_menu_content.instance_level").addClass("activemenu");
+            },300);
             $(e.target).closest('.more_menu_content').css('height', height);
+                console.log("vor settitmout");
             if (visibleElements > elementLimit){
                 console.log('$(e.target).parent(.more_menu_content)', $(e.target).closest('.more_menu_content'));
                 $(e.target).closest('.more_menu_content').addClass(cssClass).addClass('block');

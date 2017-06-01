@@ -1330,6 +1330,43 @@ table{
 								height: 25px;
 							}
 						}
+                      .selecta{
+                        float: left;
+                        width: 26px;
+                        height: 26px;
+                        line-height: 26px;
+                        & > span{
+                          text-align: center;
+                          width: 100%;
+                          &:hover{
+                            cursor: pointer;
+                          }
+                        }
+                        .select_block {
+                          background: white none repeat scroll 0 0;
+                          height: 220px;
+                          overflow-y: scroll;
+                          position:relative;
+                          width: 35px;
+                          z-index: 999999999;
+                          -webkit-box-shadow: 3px 4px 5px rgba(0, 0, 0, 0.58);
+                          -moz-box-shadow: 3px 4px 5px rgba(0, 0, 0, 0.58);
+                          box-shadow: 3px 4px 5px rgba(0, 0, 0, 0.58);
+                          a{
+                            color: black;
+                            float: left;
+                            height: 23px;
+                            line-height: 23px;
+                            text-align: center;
+                            vertical-align: middle;
+                            width: 100%;
+                            &:hover{
+                              cursor: pointer;
+                              background:#ddd;
+                            }
+                          }
+                        }
+                      }
 						.attribute_list{
 							overflow-x: scroll;
 						}
@@ -1356,6 +1393,7 @@ table{
 									    position:relative;
 									    width: 35px;
 									    z-index: 999999999;
+                                        box-shadow: 3px 4px 5px rgba(0, 0, 0, 0.58);
 									    a{
 										    color: black;
 										    float: left;

@@ -778,7 +778,6 @@
                           <a class="table_btn" (click)="$event.preventDefault();patient._VALUE.showAttributes = !patient._VALUE.showAttributes" href="" title="Show Attributes">
                               <span class="glyphicon glyphicon-th-list"></span>
                           </a>
-
                           <a *ngIf="isRole('admin') && !(patient._VALUE.studies || patient._VALUE.mwls)" class="table_btn"  (click)="queryAllStudiesOfPatient(patient._VALUE,0, $event)" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
                           <a *ngIf="isRole('admin') && (patient._VALUE.studies)" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].studies = null" href="" title="Hide Studies">&#9660;</a>
                           <a class="table_btn" *ngIf="!patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = true" href="" title="Show MWLs">&#9658;</a>
@@ -860,13 +859,13 @@
                                 </div>
                                 <div style="width:5.1%" class="td_cell hover_cell" ><div *ngIf="study._VALUE.attrs['00080030'] && study._VALUE.attrs['00080030'].Value && study._VALUE.attrs['00080030'].Value[0]" [innerHtml]="(study._VALUE.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'"></div></div>
                                 <div style="width:10.2%" class="td_cell txt hover_cell"  >
-                                    <div *ngIf="study._VALUE.attrs['00080090'] && study._VALUE.attrs['00080090'].Value && study._VALUE.attrs['00080090'].Value[0] && study._VALUE.attrs['00080090'].Value[0].Alphabetic" tooltip="{{study._VALUE.attrs['00080090'].Value[0].Alphabetic}}">{{(study._VALUE.attrs['00080090'].Value[0].Alphabetic) || '&nbsp;'}}</div>
+                                    <div *ngIf="study._VALUE.attrs['00080090'] && study._VALUE.attrs['00080090'].Value && study._VALUE.attrs['00080090'].Value[0] && study._VALUE.attrs['00080090'].Value[0].Alphabetic" tooltip="{{study._VALUE.attrs['00080090'].Value[0].Alphabetic}}">{{(study._VALUE.attrs['00080090'].Value[0].Alphabetic|trim:18) || '&nbsp;'}}</div>
                                 </div>
                                 <div class="td_cell txt hover_cell" ><div *ngIf="study._VALUE.attrs['00080050'] && study._VALUE.attrs['00080050'].Value && study._VALUE.attrs['00080050'].Value[0]" tooltip="{{study._VALUE.attrs['00080050'].Value[0]}}"  >{{(study._VALUE.attrs['00080050'].Value[0]) || '&nbsp;'}}</div></div>
                                 <div style="width:5.2%" class="td_cell hover_cell">
                                     <div [innerHtml]="(study._VALUE.attrs['00080061'] | formatAttributeValue) || '&nbsp;'" *ngIf="study._VALUE.attrs['00080061'] && study._VALUE.attrs['00080061'].Value">&nbsp;</div>
                                 </div>
-                                <div style="width:17%" class="td_cell txt hover_cell" ><div tooltip="{{study._VALUE.attrs['00081030'].Value[0]}}" *ngIf="study._VALUE.attrs['00081030'] && study._VALUE.attrs['00081030'].Value && study._VALUE.attrs['00081030'].Value[0]">{{(study._VALUE.attrs['00081030'].Value[0]) || '&nbsp;'}}</div></div>
+                                <div style="width:17%" class="td_cell txt hover_cell" ><div tooltip="{{study._VALUE.attrs['00081030'].Value[0]}}" *ngIf="study._VALUE.attrs['00081030'] && study._VALUE.attrs['00081030'].Value && study._VALUE.attrs['00081030'].Value[0]">{{(study._VALUE.attrs['00081030'].Value[0] | trim:38) || '&nbsp;'}}</div></div>
                                 <div style="width:3%" class="td_cell txt hover_cell"  ><div *ngIf="study._VALUE.attrs['00201206'] && study._VALUE.attrs['00201206'].Value && study._VALUE.attrs['00201206'].Value[0]" tooltip="{{study._VALUE.attrs['00201206'].Value[0]}}">{{(study._VALUE.attrs['00201206'].Value[0]) || '&nbsp;'}}</div></div>
                                 <div style="width:3%" class="td_cell txt hover_cell" ><div *ngIf="study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0]" tooltip="{{study._VALUE.attrs['00201208'].Value[0]}}">{{(study._VALUE.attrs['00201208'].Value[0]) || '&nbsp;'}}</div></div>
                             </div>
@@ -914,12 +913,12 @@
                                                 <a *ngIf="series._VALUE.instances" (click)="$event.preventDefault();series._VALUE.instances = null" href="" title="Hide Instances">&#9660;</a>
                                             </div>
                                             <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00081010'] && series._VALUE.attrs['00081010'].Value && series._VALUE.attrs['00081010'].Value[0]" tooltip="{{series._VALUE.attrs['00081010'].Value[0]}}" >{{(series._VALUE.attrs['00081010'].Value[0]) || '&nbsp;'}}</div></div>
-                                            <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00200011'] && series._VALUE.attrs['00200011'].Value && series._VALUE.attrs['00200011'].Value[0]" tooltip="{{series._VALUE.attrs['00200011'].Value[0]}}" >{{(series._VALUE.attrs['00200011'].Value[0]) || '&nbsp;'}}</div></div>
+                                            <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00200011'] && series._VALUE.attrs['00200011'].Value && series._VALUE.attrs['00200011'].Value[0]" tooltip="{{series._VALUE.attrs['00200011'].Value[0]}}" >{{(series._VALUE.attrs['00200011'].Value[0]|trim:20) || '&nbsp;'}}</div></div>
                                             <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00400244'] && series._VALUE.attrs['00400244'].Value && series._VALUE.attrs['00400244'].Value[0]" tooltip="{{series._VALUE.attrs['00400244'].Value[0]}}" >{{(series._VALUE.attrs['00400244'].Value[0] | formatDA) || '&nbsp;'}}</div></div>
                                             <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00400245'] && series._VALUE.attrs['00400245'].Value && series._VALUE.attrs['00400245'].Value[0]" tooltip="{{series._VALUE.attrs['00400245'].Value[0]}}" >{{(series._VALUE.attrs['00400245'].Value[0] | formatTM) || '&nbsp;'}}</div></div>
                                             <div class="td_cell txt hover_cell"><div *ngIf="series._VALUE.attrs['00180015'] && series._VALUE.attrs['00180015'].Value && series._VALUE.attrs['00180015'].Value[0]" tooltip="{{series._VALUE.attrs['00180015'].Value[0]}}" >{{(series._VALUE.attrs['00180015'].Value[0]) || '&nbsp;'}}</div></div>
                                             <div class="td_cell hover_cell"><div *ngIf="series._VALUE.attrs['00080060'] && series._VALUE.attrs['00080060'].Value && series._VALUE.attrs['00080060'].Value[0]" [innerHtml]="(series._VALUE.attrs['00080060'].Value[0]) || '&nbsp;'" ></div></div>
-                                            <div style="width:21.5%" class="td_cell txt hover_cell" ><div *ngIf="series._VALUE.attrs['0008103E'] && series._VALUE.attrs['0008103E'].Value && series._VALUE.attrs['0008103E'].Value[0]" tooltip="{{(series._VALUE.attrs['0008103E'].Value[0]) || '&nbsp;'}}">{{(series._VALUE.attrs['0008103E'].Value[0]) || '&nbsp;'}}</div></div>
+                                            <div style="width:21.5%" class="td_cell txt hover_cell" ><div *ngIf="series._VALUE.attrs['0008103E'] && series._VALUE.attrs['0008103E'].Value && series._VALUE.attrs['0008103E'].Value[0]" tooltip="{{(series._VALUE.attrs['0008103E'].Value[0]) || '&nbsp;'}}">{{(series._VALUE.attrs['0008103E'].Value[0] |trim:38) || '&nbsp;'}}</div></div>
                                             <div style="width:2.1%" class="td_cell txt hover_cell" ><div *ngIf="series._VALUE.attrs['00201209'] && series._VALUE.attrs['00201209'].Value && series._VALUE.attrs['00201209'].Value[0]">{{(series._VALUE.attrs['00201209'].Value[0]) || '&nbsp;'}}</div></div>
                                         </div>
                                         <div class="tr_row"  *ngIf="series._VALUE.showAttributes">
@@ -928,7 +927,7 @@
                                             </div>
                                         </div>
                                         <div class="repeat3" *ngFor="let instance of series._VALUE.instances | getKey" contextmenu-item="instance">
-                                            <div class="more_menu_content">
+                                            <div class="more_menu_content instance_level">
                                                 <div class="more_menu_study repeat3block" [ngClass]="{show_checkboxes:showCheckboxes}">
                                                     <div class="td_cell colcell" [innerHtml]="instance._VALUE.offset+1+'.'"> </div>
                                                     <div class="exeq_buttons">
@@ -954,13 +953,13 @@
                                                         <a class="hiddenbuttons" href="{{downloadURL(instance._VALUE, '*')}}" title="Download DICOM Object">
                                                             <span class="glyphicon glyphicon-download-alt"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" [hidden]="instance._VALUE.views.length > 1" (click)="$event.preventDefault();viewInstance(instance._VALUE)" href="#" title="View DICOM Object">
+                                                        <a class="hiddenbuttons" *ngIf="instance._VALUE.views.length === 1" (click)="$event.preventDefault();viewInstance(instance._VALUE)" href="#" title="View DICOM Object">
                                                             <span class="glyphicon glyphicon-picture"></span>
                                                         </a>
-                                                        <span class="selecta hiddenbuttons" *ngIf="instance._VALUE.views.length > 1" href="" title="View DICOM Object">
+                                                        <span class="selecta hiddenbuttons" *ngIf="instance._VALUE.views.length > 1" title="View DICOM Object">
                                                             <span class="glyphicon glyphicon-picture" (click)="select_show = !select_show"></span>
-                                                            <div *ngIf="select_show" class="select_block" (click)="select_show = false">
-                                                                <a [(ngModel)]="instance._VALUE.view" *ngFor="let value of instance._VALUE.views" (click)="(instance._VALUE.view=value);viewInstance(instance._VALUE)">{{value}}</a>
+                                                            <div *ngIf="select_show" class="select_block">
+                                                                <a *ngFor="let value of instance._VALUE.views" (click)="$event.preventDefault();instance._VALUE.view=value;viewInstance(instance._VALUE)">{{value}}</a>
                                                             </div>
                                                         </span>
                                                     </div>

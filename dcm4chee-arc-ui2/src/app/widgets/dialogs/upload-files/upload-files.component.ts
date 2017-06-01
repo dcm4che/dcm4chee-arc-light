@@ -46,6 +46,7 @@ export class UploadFilesComponent implements OnInit {
                         transfareSyntax = "1.2.840.10008.5.1.4.1.1.104.1";
                         break;
                 }
+                //TODO if file.type is pdf than don't handle it as binary-file
                 if(transfareSyntax){
                     console.log("file", file);
                     console.log("filetype", file.type);
@@ -139,7 +140,6 @@ export class UploadFilesComponent implements OnInit {
                 }
             });
         }
-
     }
     close(dialogRef){
         if (this.xmlHttpRequest){
