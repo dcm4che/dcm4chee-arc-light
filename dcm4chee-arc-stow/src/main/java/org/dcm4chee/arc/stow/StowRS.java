@@ -81,7 +81,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-import java.nio.file.AccessDeniedException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -97,7 +96,7 @@ import java.util.*;
 public class StowRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(StowRS.class);
-    private static final String JBOSS_SERVER_TEMP = "${jboss.server.temp}";
+    private static final String JBOSS_SERVER_TEMP = "${jboss.server.temp.dir}";
 
     @Inject
     private StoreService service;
