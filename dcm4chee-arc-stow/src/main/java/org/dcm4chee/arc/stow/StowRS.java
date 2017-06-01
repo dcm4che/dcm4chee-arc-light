@@ -472,6 +472,9 @@ public class StowRS {
             bulkdataMap.put(contentLocation, new BulkDataWithMediaType(spoolFile, mediaType));
             return true;
         } catch (IOException e) {
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            LOG.error(sw.toString());
             throw new WebApplicationException(getResponse("IOException caught while spooling bulkdata : " + e.getMessage(),
                     Response.Status.INTERNAL_SERVER_ERROR));
         }
