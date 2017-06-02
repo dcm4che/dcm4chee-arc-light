@@ -19,6 +19,8 @@ export class UploadFilesComponent implements OnInit {
     percentComplete: any;
     selectedSopClass;
     modality;
+    showFileList = false;
+    isImage = false;
     imageType = [
         {
             title:"Screenshots",
@@ -43,12 +45,18 @@ export class UploadFilesComponent implements OnInit {
         this.percentComplete = {};
         this.selectedSopClass = this.imageType[0];
     }
-
-    fileChange(event) {
+    fileChange(event){
+        this.fileList = event.target.files;
+        if(this.fileList[0].type === "image/jpeg"){
+            this.isImage = true;
+        }
+    }
+    upload() {
         let $this = this;
         let boundary = Math.random().toString().substr(2);
         let filetype;
-        this.fileList = event.target.files;
+        this.showFileList = true;
+        // this.fileList = this.file;
         if (this.fileList) {
             _.forEach(this.fileList, (file, i) => {
                 let transfareSyntax;

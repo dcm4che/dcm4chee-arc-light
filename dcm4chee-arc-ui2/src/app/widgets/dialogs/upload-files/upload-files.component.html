@@ -6,24 +6,29 @@
             <md-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
                 <md-option *ngFor="let ae of aes" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>
             </md-select>
-            <label>Captured Image Type:</label>
-            <md-select [ngModel]="selectedSopClass" (ngModelChange)="selectedSopClass = $event">
-                <md-option *ngFor="let type of imageType" [value]="type" title="{{type.description}}">{{ type.title }}</md-option>
-            </md-select>
+            <ng-container *ngIf="isImage">
+                <label>Captured Image Type:</label>
+                <md-select [ngModel]="selectedSopClass" (ngModelChange)="selectedSopClass = $event">
+                    <md-option *ngFor="let type of imageType" [value]="type" title="{{type.description}}">{{ type.title }}</md-option>
+                </md-select>
+            </ng-container>
             <label>Chose a File to upload:</label>
             <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  accept="image/jpeg,video/mpeg,application/pdf">
             <div md-dialog-content>
-                <div class="upload_state" *ngFor="let file of fileList">
-                    {{file.name}}
-                    <span class="text-danger" *ngIf="percentComplete[file.name] && percentComplete[file.name].status">Error {{percentComplete[file.name].status}}</span>
-                    <span class="upload_ticker"  *ngIf="percentComplete[file.name].showTicker"><i class="material-icons">check</i></span>
-                    <div>
-                        <md-progress-bar color="primary" mode="determinate" [value]="percentComplete[file.name].value"></md-progress-bar>
+                <ng-container *ngIf="showFileList">
+                    <div class="upload_state" *ngFor="let file of fileList">
+                        {{file.name}}
+                        <span class="text-danger" *ngIf="percentComplete[file.name] && percentComplete[file.name].status">Error {{percentComplete[file.name].status}}</span>
+                        <span class="upload_ticker"  *ngIf="percentComplete[file.name].showTicker"><i class="material-icons">check</i></span>
+                        <div>
+                            <md-progress-bar color="primary" mode="determinate" [value]="percentComplete[file.name].value"></md-progress-bar>
+                        </div>
                     </div>
-                </div>
+                </ng-container>
             </div>
         </div>
         <div class="dialogbuttons">
+            <button class="save" type="button" (click)="upload()">START UPLOADING</button>
             <button class="cancle" type="button" (click)="close(dialogRef)">CLOSE</button>
         </div>
     </div>
