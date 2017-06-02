@@ -37,17 +37,16 @@ export class UploadFilesComponent implements OnInit {
                 let transfareSyntax;
                 switch (file.type) {
                     case "image/jpeg":
-                        transfareSyntax = "1.2.840.10008.1.2.4.50";
+                        transfareSyntax = ";transfer-Syntax:1.2.840.10008.1.2.4.50";
                         break;
                     case "video/mpeg":
-                        transfareSyntax = "1.2.840.10008.1.2.4.100";
+                        transfareSyntax = ";transfer-Syntax:1.2.840.10008.1.2.4.100";
                         break;
                     case "application/pdf":
-                        transfareSyntax = "1.2.840.10008.5.1.4.1.1.104.1";
+                        transfareSyntax = "";
                         break;
                 }
-                //TODO if file.type is pdf than don't handle it as binary-file
-                if(transfareSyntax){
+                if(transfareSyntax || transfareSyntax === ""){
                     console.log("file", file);
                     console.log("filetype", file.type);
                     this.percentComplete[file.name] = {};
@@ -64,10 +63,10 @@ export class UploadFilesComponent implements OnInit {
                         let crlf = '\r\n';
                         //Post with the correct MIME type (If the OS can identify one)
                         let studyObject = _.cloneDeep($this._dicomObject.attrs);
-                        if(transfareSyntax === "1.2.840.10008.5.1.4.1.1.104.1"){
+                        if(file.type === "application/pdf"){
                             studyObject["00420011"] = {
                                 "vr": "OB",
-                                "Value": "file/" + file.name
+                                "BulkData": "file/" + file.name
                             };
                             studyObject["00080016"] =  {
                                 "vr":"UI",
@@ -75,14 +74,34 @@ export class UploadFilesComponent implements OnInit {
                                     "1.2.840.10008.5.1.4.1.1.104.1"
                                 ]
                             }
-                        }
-                        studyObject["7FE00010"] = {
-                            "vr": "OB",
-                            "BulkDataURI": "file/" + file.name
+                            studyObject["00280301"] =  {
+                                "vr":"CS",
+                                "Value":[
+                                    "YES"
+                                ]
+                            }
+                            studyObject["00420012"] =  {
+                                "vr":"LO",
+                                "Value":[
+                                    "application/pdf"
+                                ]
+                            }
+                        }else{
+                            studyObject["7FE00010"] = {
+                                "vr": "OB",
+                                "BulkDataURI": "file/" + file.name
+                            }
+                            //TODO
+                                studyObject["00080016"] =  {
+                                    "vr":"UI",
+                                    "Value":[
+                                        "1.2.840.10008.5.1.4.1.1.104.1"
+                                    ]
+                                }
                         }
                         const dataView = new DataView(e.target['result']);
                         const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(studyObject) + crlf;
-                        const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + ';transfer-Syntax:' + transfareSyntax + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
+                        const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + transfareSyntax + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
                         const postDataEnd = crlf + dashes + boundary + dashes;
                         const size = postDataStart.length + dataView.byteLength + postDataEnd.length;
                         const uint8Array = new Uint8Array(size);
