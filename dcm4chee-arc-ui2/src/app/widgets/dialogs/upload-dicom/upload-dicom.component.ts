@@ -89,6 +89,7 @@ export class UploadDicomComponent implements OnInit{
                     console.log("filetype",file.type);
                     this.percentComplete[file.name] = {};
                     this.percentComplete[file.name]['value'] = 0;
+                    $this.percentComplete[file.name]['showTicker'] = false;
                     let reader = new FileReader();
                     // reader.readAsBinaryString(file);
                     reader.readAsArrayBuffer(file);
@@ -134,6 +135,7 @@ export class UploadDicomComponent implements OnInit{
                             if (xmlHttpRequest.readyState === 4) {
                                 if (xmlHttpRequest.status === 200) {
                                     console.log('in response', JSON.parse(xmlHttpRequest.response));
+                                    $this.percentComplete[file.name]['showTicker'] = true;
                                 } else {
                                     console.log('in respons error', xmlHttpRequest.status);
                                     console.log('statusText', xmlHttpRequest.statusText);

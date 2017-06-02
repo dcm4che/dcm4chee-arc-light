@@ -37,10 +37,10 @@ export class UploadFilesComponent implements OnInit {
                 let transfareSyntax;
                 switch (file.type) {
                     case "image/jpeg":
-                        transfareSyntax = ";transfer-Syntax:1.2.840.10008.1.2.4.50";
+                        transfareSyntax = "1.2.840.10008.1.2.4.50";
                         break;
                     case "video/mpeg":
-                        transfareSyntax = ";transfer-Syntax:1.2.840.10008.1.2.4.100";
+                        transfareSyntax = "1.2.840.10008.1.2.4.100";
                         break;
                     case "application/pdf":
                         transfareSyntax = "";
@@ -51,6 +51,7 @@ export class UploadFilesComponent implements OnInit {
                     console.log("filetype", file.type);
                     this.percentComplete[file.name] = {};
                     this.percentComplete[file.name]['value'] = 0;
+                    $this.percentComplete[file.name]['showTicker'] = false;
                     let reader = new FileReader();
                     // reader.readAsBinaryString(file);
                     reader.readAsArrayBuffer(file);
@@ -66,7 +67,7 @@ export class UploadFilesComponent implements OnInit {
                         if(file.type === "application/pdf"){
                             studyObject["00420011"] = {
                                 "vr": "OB",
-                                "BulkData": "file/" + file.name
+                                "BulkDataURI": "file/" + file.name
                             };
                             studyObject["00080016"] =  {
                                 "vr":"UI",
@@ -91,13 +92,13 @@ export class UploadFilesComponent implements OnInit {
                                 "vr": "OB",
                                 "BulkDataURI": "file/" + file.name
                             }
-                            //TODO
-                                studyObject["00080016"] =  {
-                                    "vr":"UI",
-                                    "Value":[
-                                        "1.2.840.10008.5.1.4.1.1.104.1"
-                                    ]
-                                }
+                            studyObject["00080016"] =  {
+                                "vr":"UI",
+                                "Value":[
+                                    transfareSyntax
+                                ]
+                            }
+                            transfareSyntax = ';transfer-Syntax:' + transfareSyntax;
                         }
                         const dataView = new DataView(e.target['result']);
                         const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(studyObject) + crlf;
@@ -129,6 +130,7 @@ export class UploadFilesComponent implements OnInit {
                             if (xmlHttpRequest.readyState === 4) {
                                 if (xmlHttpRequest.status === 200) {
                                     console.log('in response', JSON.parse(xmlHttpRequest.response));
+                                    $this.percentComplete[file.name]['showTicker'] = true;
                                 } else {
                                     console.log('in respons error', xmlHttpRequest.status);
                                     console.log('statusText', xmlHttpRequest.statusText);
