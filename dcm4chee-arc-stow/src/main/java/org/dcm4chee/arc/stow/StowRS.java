@@ -70,6 +70,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.json.stream.JsonParsingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
@@ -274,6 +275,9 @@ public class StowRS {
                         LOG.info("{}: Ignore Part with Content-Type={}", session, mediaType);
                         in.skipAll();
                     }
+                } catch (JsonParsingException e) {
+                    throw new WebApplicationException(
+                            getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
                 } catch (Exception e) {
                     if (instances.size() == 1)
                         throw new WebApplicationException(e.getMessage());
