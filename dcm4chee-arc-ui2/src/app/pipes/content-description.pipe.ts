@@ -19,7 +19,8 @@ export class ContentDescriptionPipe implements PipeTransform {
       function imageDescriptionOf(attrs) {
           let cols = valueOf(attrs, '00280011'); // Columns
           return cols && (cols + 'x'
-              + valueOf(attrs, '00280010') + ' ' // Rows
+              + valueOf(attrs, '00280010') // Rows
+              + ((valueOf(attrs, '00280008') > 1) ?  ('x'+ valueOf(attrs, '00280008') + ' ') : ' ') + ' ' // Frames
               + valueOf(attrs, '00280100') + ' bit ' // BitsAllocated
               + valuesOf(attrs['00080008'])); // ImageType
       };

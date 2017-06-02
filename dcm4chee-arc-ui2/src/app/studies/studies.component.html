@@ -982,7 +982,9 @@
                                                     <div class="td_cell hover_cell" ><div *ngIf="(instance._VALUE.attrs['00080023'] && instance._VALUE.attrs['00080023'].Value && instance._VALUE.attrs['00080023'].Value[0]) || (instance._VALUE.attrs['00700082'] && instance._VALUE.attrs['00700082'].Value && instance._VALUE.attrs['00700082'].Value[0])">{{((instance._VALUE.attrs['00080023'] || instance._VALUE.attrs['00700082']).Value[0] | formatDA) || '&nbsp;'}}</div></div>
                                                     <div class="td_cell hover_cell" ><div *ngIf="(instance._VALUE.attrs['00080033'] && instance._VALUE.attrs['00080033'].Value && instance._VALUE.attrs['00080033'].Value[0]) || (instance._VALUE.attrs['00700083'] && instance._VALUE.attrs['00700083'].Value && instance._VALUE.attrs['00700083'].Value[0])">{{((instance._VALUE.attrs['00080033'] || instance._VALUE.attrs['00700083']).Value[0] | formatTM) || '&nbsp;'}}</div></div>
                                                     <div style="width:30.7%" class="td_cell txt hover_cell" tooltip="{{(instance._VALUE.attrs | contentDescription)}}" [innerHtml]="instance._VALUE.attrs | contentDescription"></div>
-                                                    <div style="width:3%" class="td_cell hover_cell" ></div>
+                                                    <div style="width:3%" class="td_cell hover_cell" >
+                                                        <div *ngIf="instance._VALUE.attrs['00280008'] && instance._VALUE.attrs['00280008'].Value && instance._VALUE.attrs['00280008'].Value[0]" tooltip="{{instance._VALUE.attrs['00280008'].Value[0]}}" >{{instance._VALUE.attrs['00280008'].Value[0]|| '&nbsp;'}}</div>
+                                                    </div>
                                                 </div>
                                                 <div class="tr_row"  *ngIf="instance._VALUE.showAttributes">
                                                     <div class="td_cell attribute_list">
