@@ -260,6 +260,10 @@ export class DeviceConfiguratorService{
                     }
                     if (_.hasIn(device, i)){
                         value = device[i];
+                    }else{
+                        if(_.hasIn(m,"default")){
+                            value = m.default;
+                        }
                     }
                     let newOrderSuffix = 0;
                     if (m.order){
