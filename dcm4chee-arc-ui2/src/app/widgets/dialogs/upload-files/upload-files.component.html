@@ -6,7 +6,10 @@
             <md-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
                 <md-option *ngFor="let ae of aes" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>
             </md-select>
-            <!--<input type="file" ng2FileSelect [uploader]="vendorUpload" />-->
+            <label>Captured Image Type:</label>
+            <md-select [ngModel]="selectedSopClass" (ngModelChange)="selectedSopClass = $event">
+                <md-option *ngFor="let type of imageType" [value]="type" title="{{type.description}}">{{ type.title }}</md-option>
+            </md-select>
             <label>Chose a File to upload:</label>
             <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  accept="image/jpeg,video/mpeg,application/pdf">
             <div md-dialog-content>

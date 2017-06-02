@@ -17,6 +17,22 @@ export class UploadFilesComponent implements OnInit {
     fileList: File[];
     xmlHttpRequest;
     percentComplete: any;
+    selectedSopClass;
+    modality;
+    imageType = [
+        {
+            title:"Screenshots",
+            description:"Secondary Capture Image Storage",
+            value:"1.2.840.10008.5.1.4.1.1.7",
+            modality:"OT"
+        },
+        {
+            title:"Photographs",
+            description:"VL Photographic Image Storage",
+            value:"1.2.840.10008.5.1.4.1.1.77.1.4",
+            modality:"XC"
+        }
+    ]
     constructor(
         public dialogRef: MdDialogRef<UploadFilesComponent>,
         public mainservice:AppService
@@ -25,6 +41,7 @@ export class UploadFilesComponent implements OnInit {
 
     ngOnInit() {
         this.percentComplete = {};
+        this.selectedSopClass = this.imageType[0];
     }
 
     fileChange(event) {
@@ -38,12 +55,15 @@ export class UploadFilesComponent implements OnInit {
                 switch (file.type) {
                     case "image/jpeg":
                         transfareSyntax = "1.2.840.10008.1.2.4.50";
+                        $this.modality = $this.selectedSopClass.modality;
                         break;
                     case "video/mpeg":
                         transfareSyntax = "1.2.840.10008.1.2.4.100";
+                        $this.modality = "XC";
                         break;
                     case "application/pdf":
                         transfareSyntax = "";
+                        $this.modality = "DOC";
                         break;
                 }
                 if(transfareSyntax || transfareSyntax === ""){
@@ -64,6 +84,10 @@ export class UploadFilesComponent implements OnInit {
                         let crlf = '\r\n';
                         //Post with the correct MIME type (If the OS can identify one)
                         let studyObject = _.cloneDeep($this._dicomObject.attrs);
+/*                        studyObject = studyObject.filter((attr,i)=>{
+                                console.log("attr",attr);
+                                console.log("i",i);
+                            });*/
                         if(file.type === "application/pdf"){
                             studyObject["00420011"] = {
                                 "vr": "OB",
@@ -80,25 +104,41 @@ export class UploadFilesComponent implements OnInit {
                                 "Value":[
                                     "YES"
                                 ]
-                            }
+                            };
                             studyObject["00420012"] =  {
                                 "vr":"LO",
                                 "Value":[
                                     "application/pdf"
                                 ]
-                            }
+                            };
+
                         }else{
+                            if(file.type === "video/mpeg"){
+                                studyObject["00080016"] =  {
+                                    "vr":"UI",
+                                    "Value":[
+                                        "1.2.840.10008.5.1.4.1.1.77.1.4.1"
+                                    ]
+                                }
+                            }else{
+                                studyObject["00080016"] =  {
+                                    "vr":"UI",
+                                    "Value":[
+                                        $this.selectedSopClass.value
+                                    ]
+                                }
+                            }
                             studyObject["7FE00010"] = {
                                 "vr": "OB",
                                 "BulkDataURI": "file/" + file.name
                             }
-                            studyObject["00080016"] =  {
-                                "vr":"UI",
-                                "Value":[
-                                    "1.2.840.10008.5.1.4.1.1.7"
-                                ]
-                            }
                             transfareSyntax = ';transfer-syntax:' + transfareSyntax;
+                        }
+                        studyObject["00080060"] =  {
+                            "vr":"CS",
+                            "Value":[
+                                $this.modality
+                            ]
                         }
                         const dataView = new DataView(e.target['result']);
                         const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(studyObject) + crlf;
