@@ -95,10 +95,10 @@ export class UploadFilesComponent implements OnInit {
                             studyObject["00080016"] =  {
                                 "vr":"UI",
                                 "Value":[
-                                    transfareSyntax
+                                    "1.2.840.10008.5.1.4.1.1.7"
                                 ]
                             }
-                            transfareSyntax = ';transfer-Syntax:' + transfareSyntax;
+                            transfareSyntax = ';transfer-syntax:' + transfareSyntax;
                         }
                         const dataView = new DataView(e.target['result']);
                         const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(studyObject) + crlf;
