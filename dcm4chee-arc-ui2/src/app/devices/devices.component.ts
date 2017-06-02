@@ -241,7 +241,9 @@ export class DevicesComponent {
             width: '90%'
         });
         let $this = this;
-        this.dialogRef.componentInstance.devices = this.devices;
+        this.dialogRef.componentInstance.devices = this.devices.filter((dev)=>{
+            return (_.hasIn(dev,"hasArcDevExt") && dev.hasArcDevExt === true);
+        });
         this.dialogRef.componentInstance.aes = this.aes;
         this.dialogRef.afterClosed().subscribe(re => {
             console.log('re', re);

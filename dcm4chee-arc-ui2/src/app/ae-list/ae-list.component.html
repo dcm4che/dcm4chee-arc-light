@@ -106,9 +106,9 @@
                 <!-- <td><a class="listlink" (click)="editDeviceList(ae.dicomDeviceName)"  title="Edit device">{{ae.dicomDeviceName}}</a></td> -->
                 <td>{{ae.dicomAETitle}}</td>
                 <td>
-                    <!--<a title="Edit device" href="" (click)="$event.preventDefault();editDeviceList(ae.dicomDeviceName)">-->
+                    <a title="Edit device" href="" routerLink="/device/edit/{{ae.dicomDeviceName}}">
                     {{ae.dicomDeviceName}}
-                    <!--</a>-->
+                    </a>
                 </td>
                 <td>
                     <span *ngFor="let otherae of ae.dcmOtherAETitle">{{otherae}}<br></span>
