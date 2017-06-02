@@ -2177,9 +2177,11 @@ export class StudiesComponent implements OnDestroy{
     //     }
     // };
     downloadURL(inst, transferSyntax) {
-        let exQueryParams = { contentType: 'application/dicom', transferSyntax: ''};
-        if (transferSyntax)
-            exQueryParams.transferSyntax = transferSyntax;
+        let exQueryParams = { contentType: 'application/dicom'};
+        if (transferSyntax){
+            exQueryParams["transferSyntax"] = {};
+            exQueryParams["transferSyntax"] = transferSyntax;
+        }
         return this.wadoURL(inst.wadoQueryParams, exQueryParams);
     };
     viewInstance(inst) {
