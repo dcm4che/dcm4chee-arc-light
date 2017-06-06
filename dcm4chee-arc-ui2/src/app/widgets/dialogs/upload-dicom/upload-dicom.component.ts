@@ -90,71 +90,71 @@ export class UploadDicomComponent implements OnInit{
                     this.percentComplete[file.name] = {};
                     this.percentComplete[file.name]['value'] = 0;
                     $this.percentComplete[file.name]['showTicker'] = false;
-                    let reader = new FileReader();
+/*                    let reader = new FileReader();
                     // reader.readAsBinaryString(file);
                     reader.readAsArrayBuffer(file);
-                    reader.onload = function (e) {
+                    reader.onload = function (e) {*/
 
-                        let xmlHttpRequest = new XMLHttpRequest();
-                        //Some AJAX-y stuff - callbacks, handlers etc.
-                        xmlHttpRequest.open('POST', `../aets/${$this._selectedAe}/rs/studies`, true);
-                        let dashes = '--';
-                        let crlf = '\r\n';
-                        //Post with the correct MIME type (If the OS can identify one)
-                        if (file.type == '') {
-                            filetype = 'application/dicom';
-                        } else {
-                            filetype = file.type;
-                        }
-                        const dataView = new DataView(e.target['result']);
-                        const postDataStart = dashes + boundary + crlf + 'Content-Disposition: form-data;' + 'name=\"file\";' + 'filename=\"' + encodeURIComponent(file.name) + '\"' + crlf + 'Content-Type: ' + filetype + crlf + crlf;
-                        const postDataEnd = crlf + dashes + boundary + dashes;
-                        const size = postDataStart.length + dataView.byteLength + postDataEnd.length;
-                        const uint8Array = new Uint8Array(size);
-                        let i = 0;
-                        for (; i < postDataStart.length; i++) {
-                            uint8Array[i] = postDataStart.charCodeAt(i) & 0xFF;
-                        }
+                    let xmlHttpRequest = new XMLHttpRequest();
+                    //Some AJAX-y stuff - callbacks, handlers etc.
+                    xmlHttpRequest.open('POST', `../aets/${$this._selectedAe}/rs/studies`, true);
+                    let dashes = '--';
+                    let crlf = '\r\n';
+                    //Post with the correct MIME type (If the OS can identify one)
+                    if (file.type == '') {
+                        filetype = 'application/dicom';
+                    } else {
+                        filetype = file.type;
+                    }
+                    // const dataView = new DataView(e.target['result']);
+                    const postDataStart = dashes + boundary + crlf + 'Content-Disposition: form-data;' + 'name=\"file\";' + 'filename=\"' + encodeURIComponent(file.name) + '\"' + crlf + 'Content-Type: ' + filetype + crlf + crlf;
+                    const postDataEnd = crlf + dashes + boundary + dashes;
+/*                    const size = postDataStart.length + dataView.byteLength + postDataEnd.length;
+                    const uint8Array = new Uint8Array(size);
+                    let i = 0;
+                    for (; i < postDataStart.length; i++) {
+                        uint8Array[i] = postDataStart.charCodeAt(i) & 0xFF;
+                    }
 
-                        for (let j = 0; j < dataView.byteLength; i++, j++) {
-                            uint8Array[i] = dataView.getUint8(j);
-                        }
+                    for (let j = 0; j < dataView.byteLength; i++, j++) {
+                        uint8Array[i] = dataView.getUint8(j);
+                    }
 
-                        for (let j = 0; j < postDataEnd.length; i++, j++) {
-                            uint8Array[i] = postDataEnd.charCodeAt(j) & 0xFF;
+                    for (let j = 0; j < postDataEnd.length; i++, j++) {
+                        uint8Array[i] = postDataEnd.charCodeAt(j) & 0xFF;
+                    }*/
+                    // const payload = uint8Array.buffer;
+                    xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type=application/dicom;boundary=' + boundary + ';');
+                    xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
+                    xmlHttpRequest.upload.onprogress = function (e) {
+                        if (e.lengthComputable) {
+                            $this.percentComplete[file.name]['value'] = (e.loaded / e.total) * 100;
                         }
-                        const payload = uint8Array.buffer;
-                        xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type=application/dicom;boundary=' + boundary + ';');
-                        xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
-                        xmlHttpRequest.upload.onprogress = function (e) {
-                            if (e.lengthComputable) {
-                                $this.percentComplete[file.name]['value'] = (e.loaded / e.total) * 100;
-                            }
-                        };
-                        xmlHttpRequest.onreadystatechange = () => {
-                            if (xmlHttpRequest.readyState === 4) {
-                                if (xmlHttpRequest.status === 200) {
-                                    console.log('in response', JSON.parse(xmlHttpRequest.response));
-                                    $this.percentComplete[file.name]['showTicker'] = true;
-                                } else {
-                                    console.log('in respons error', xmlHttpRequest.status);
-                                    console.log('statusText', xmlHttpRequest.statusText);
-                                    $this.percentComplete[file.name]['value'] = 0;
-                                    $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + ' ' + xmlHttpRequest.statusText;
-                                }
-                            }
-                        };
-                        xmlHttpRequest.upload.onloadstart = function (e) {
-                            $this.percentComplete[file.name]['value'] = 0;
-                        };
-                        xmlHttpRequest.upload.onloadend = function (e) {
-                            if (xmlHttpRequest.status === 200){
-                                $this.percentComplete[file.name]['value'] = 100;
-                            }
-                        };
-                        //Send the binary data
-                        xmlHttpRequest.send(payload);
                     };
+                    xmlHttpRequest.onreadystatechange = () => {
+                        if (xmlHttpRequest.readyState === 4) {
+                            if (xmlHttpRequest.status === 200) {
+                                console.log('in response', JSON.parse(xmlHttpRequest.response));
+                                $this.percentComplete[file.name]['showTicker'] = true;
+                            } else {
+                                console.log('in respons error', xmlHttpRequest.status);
+                                console.log('statusText', xmlHttpRequest.statusText);
+                                $this.percentComplete[file.name]['value'] = 0;
+                                $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + ' ' + xmlHttpRequest.statusText;
+                            }
+                        }
+                    };
+                    xmlHttpRequest.upload.onloadstart = function (e) {
+                        $this.percentComplete[file.name]['value'] = 0;
+                    };
+                    xmlHttpRequest.upload.onloadend = function (e) {
+                        if (xmlHttpRequest.status === 200){
+                            $this.percentComplete[file.name]['value'] = 100;
+                        }
+                    };
+                    //Send the binary data
+                    xmlHttpRequest.send(new Blob([new Blob([postDataStart]),file, new Blob([postDataEnd])]));
+                    // };
                 }
             });
         }

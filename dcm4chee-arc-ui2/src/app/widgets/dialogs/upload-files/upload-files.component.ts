@@ -75,15 +75,13 @@ export class UploadFilesComponent implements OnInit {
                         break;
                 }
                 if(transfareSyntax || transfareSyntax === ""){
-                    console.log("file", file);
-                    console.log("filetype", file.type);
                     this.percentComplete[file.name] = {};
                     this.percentComplete[file.name]['value'] = 0;
                     $this.percentComplete[file.name]['showTicker'] = false;
-                    let reader = new FileReader();
+/*                    let reader = new FileReader();
                     // reader.readAsBinaryString(file);
                     reader.readAsArrayBuffer(file);
-                    reader.onload = function (e) {
+                    reader.onload = function (e) {*/
 
                         let xmlHttpRequest = new XMLHttpRequest();
                         //Some AJAX-y stuff - callbacks, handlers etc.
@@ -140,7 +138,7 @@ export class UploadFilesComponent implements OnInit {
                                 "vr": "OB",
                                 "BulkDataURI": "file/" + file.name
                             }
-                            transfareSyntax = ';transfer-syntax:' + transfareSyntax;
+                            transfareSyntax = ';transfer-syntax=' + transfareSyntax;
                         }
                         studyObject["00080060"] =  {
                             "vr":"CS",
@@ -148,11 +146,11 @@ export class UploadFilesComponent implements OnInit {
                                 $this.modality
                             ]
                         }
-                        const dataView = new DataView(e.target['result']);
+                        // const dataView = new DataView(e.target['result']);
                         const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(studyObject) + crlf;
                         const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + transfareSyntax + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
                         const postDataEnd = crlf + dashes + boundary + dashes;
-                        const size = postDataStart.length + dataView.byteLength + postDataEnd.length;
+/*                        const size = postDataStart.length + dataView.byteLength + postDataEnd.length;
                         const uint8Array = new Uint8Array(size);
                         let i = 0;
                         for (; i < postDataStart.length; i++) {
@@ -166,7 +164,7 @@ export class UploadFilesComponent implements OnInit {
                         for (let j = 0; j < postDataEnd.length; i++, j++) {
                             uint8Array[i] = postDataEnd.charCodeAt(j) & 0xFF;
                         }
-                        const payload = uint8Array.buffer;
+                        const payload = uint8Array.buffer;*/
                         xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type=application/dicom+json;boundary=' + boundary + ';');
                         xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
                         xmlHttpRequest.upload.onprogress = function (e) {
@@ -196,8 +194,9 @@ export class UploadFilesComponent implements OnInit {
                             }
                         };
                         //Send the binary data
-                        xmlHttpRequest.send(payload);
-                    };
+                        // xmlHttpRequest.send(payload);
+                    xmlHttpRequest.send(new Blob([new Blob([postDataStart]),file, new Blob([postDataEnd])]));
+                    // };
                 }else{
                     $this.mainservice.setMessage({
                         'title': 'Error',
