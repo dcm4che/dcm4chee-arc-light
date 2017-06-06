@@ -86,8 +86,6 @@ export class QueuesComponent {
         this.service.search(this.queueName, this.status, offset, this.limit)
             .map(res => res.json())
             .subscribe((res) => {
-                console.log('res2', res);
-                console.log('res', res.length);
                 if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
                         $this.cfpLoadingBar.complete();
