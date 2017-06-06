@@ -73,34 +73,24 @@ export class AppComponent {
                 );
         }
 
-        this.$http.get('../devicename')
-            .map(res => res.json())
-            .subscribe((res) => {
-                console.log('devicename', res);
-                $this.$http.get('../devices?dicomDeviceName=' + res.dicomDeviceName)
-                    .map(res => res.json())
-                    .subscribe(arc => {
-                        console.log('arch');
-                        $this.archive = arc[0];
-                    });
-            });
+        this.initGetDevicename(2);
 
         this.$http.get('../auth')
             .map(res => res.json())
             .subscribe(
-            (response) => {
-            $this.url  = response.url;
-            let host    = location.protocol + '//' + location.host;
+                    (response) => {
+                    $this.url  = response.url;
+                    let host    = location.protocol + '//' + location.host;
 
-            $this.logoutUrl = response.url + '/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
-                + encodeURIComponent(host + location.pathname);
-        }, (response) => {
-            // vex.dialog.alert("Error loading device names, please reload the page and try again!");
-            $this.url = '/auth';
-            let host = location.protocol + '//' + location.host;
-            $this.logoutUrl =  host + '/auth/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
-                + encodeURIComponent(host + location.pathname);
-        });
+                    $this.logoutUrl = response.url + '/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
+                        + encodeURIComponent(host + location.pathname);
+                }, (response) => {
+                    // vex.dialog.alert("Error loading device names, please reload the page and try again!");
+                    $this.url = '/auth';
+                    let host = location.protocol + '//' + location.host;
+                    $this.logoutUrl =  host + '/auth/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
+                        + encodeURIComponent(host + location.pathname);
+                });
 
 
     }
@@ -186,7 +176,25 @@ export class AppComponent {
         });
     }
 
-
+    initGetDevicename(retries){
+        let $this = this;
+        this.$http.get('../devicename')
+            .map(res => res.json())
+            .subscribe(
+                (res) => {
+                    console.log('devicename', res);
+                    $this.$http.get('../devices?dicomDeviceName=' + res.dicomDeviceName)
+                        .map(res => res.json())
+                        .subscribe(arc => {
+                            console.log('arch');
+                            $this.archive = arc[0];
+                        });
+                },(err)=>{
+                    if (retries)
+                        $this.initGetDevicename(retries - 1);
+                }
+            );
+    }
     sidenavopen = false;
 }
 

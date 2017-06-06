@@ -348,7 +348,7 @@ export class ExportComponent implements OnInit {
                 },
                 (res) => {
                     if (retries)
-                        this.initExporters(retries - 1);
+                        $this.initExporters(retries - 1);
                 });
     }
 }

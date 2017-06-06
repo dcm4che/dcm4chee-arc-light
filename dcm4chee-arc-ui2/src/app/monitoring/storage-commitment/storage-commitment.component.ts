@@ -32,7 +32,7 @@ export class StorageCommitmentComponent implements OnInit {
     _ = _;
 
     constructor(public $http: Http, public cfpLoadingBar: SlimLoadingBarService, public mainservice: AppService, public  service: StorageCommitmentService, public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig) {
-        this.initExporters(1);
+        this.initExporters(2);
         // this.init();
         let $this = this;
         if (!this.mainservice.user){
@@ -300,7 +300,7 @@ export class StorageCommitmentComponent implements OnInit {
      }*/
     initExporters(retries) {
         let $this = this;
-        this.$http.get('../stgcmt')
+        this.$http.get('../export')
             .map(res => res.json())
             .subscribe(
                 (res) => {

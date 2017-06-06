@@ -12,8 +12,14 @@
                 <div class="col-md-3 block-1-1">
                     <div class="row">
                         <label for="ExporterID" class="col-md-6 text-right control-label">Exporter ID:</label>
-                        <div class="col-md-6">
+<!--                        <div class="col-md-6">
                             <input id="ExporterID" type="text" [(ngModel)]="filters.ExporterID" class="col-md-12"/>
+                        </div>-->
+                        <div class="col-md-6">
+                            <select id="exporterID" name="reject" class="col-md-12" (change)="filters.ExporterID = $event.target.value">
+                                <option>*</option>
+                                <option *ngFor="let s of exporters" title="{{s.description}}" value="{{ s.id }}">{{ s.id }}</option>
+                            </select>
                         </div>
 <!--                        <div class="col-md-6">
                             <select id="ExporterID" name="reject" class="col-md-12" (change)="filters.ExporterID = $event.target.value">

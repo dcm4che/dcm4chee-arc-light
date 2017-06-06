@@ -148,6 +148,9 @@ export class StudiesService {
         ).map(res => {
             let resjson;
             try{
+                if(res.url && res.url.indexOf("auth/realms")){
+                    window.location = res.url;
+                }
                 resjson = res.json();
             }catch (e){
                 resjson = {};

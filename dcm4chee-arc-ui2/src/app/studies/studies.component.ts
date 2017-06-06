@@ -295,10 +295,10 @@ export class StudiesComponent implements OnDestroy{
         this.cfpLoadingBar.interval = 200;
         this.modalities = Globalvar.MODALITIES;
         console.log('modalities', this.modalities);
-        this.initAETs(1);
+        this.initAETs(2);
         this.initAttributeFilter('Patient', 1);
-        this.initExporters(1);
-        this.initRjNotes(1);
+        this.initExporters(2);
+        this.initRjNotes(2);
         // this.user = this.mainservice.user;
         if (!this.mainservice.user){
             // console.log("in if studies ajax");
@@ -3283,7 +3283,7 @@ export class StudiesComponent implements OnDestroy{
                     },
                     function (res) {
                         if (retries)
-                            this.initAETs(retries - 1);
+                            $this.initAETs(retries - 1);
                 });
         }
     }
@@ -3517,7 +3517,7 @@ export class StudiesComponent implements OnDestroy{
                 },
                 function (res) {
                     if (retries)
-                        this.initExporters(retries - 1);
+                        $this.initExporters(retries - 1);
                 });
     }
     showExporter(){
@@ -3548,7 +3548,7 @@ export class StudiesComponent implements OnDestroy{
                 },
                 function (res) {
                     if (retries)
-                        this.initRjNotes(retries - 1);
+                        $this.initRjNotes(retries - 1);
             });
     }
     showCheckBoxes(){
