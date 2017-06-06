@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.stow;
 
 import org.dcm4che3.data.*;
-import org.dcm4che3.imageio.codec.jpeg.JPEG;
 import org.dcm4che3.imageio.codec.jpeg.JPEGHeader;
 import org.dcm4che3.imageio.codec.mpeg.MPEGHeader;
 import org.dcm4che3.io.SAXReader;
@@ -54,10 +53,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.util.ByteUtils;
-import org.dcm4che3.util.StreamUtils;
-import org.dcm4che3.util.StringUtils;
-import org.dcm4che3.util.UIDUtils;
+import org.dcm4che3.util.*;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.store.StoreContext;
@@ -98,6 +94,24 @@ public class StowRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(StowRS.class);
     private static final String JBOSS_SERVER_TEMP = "${jboss.server.temp.dir}";
+    private static final int INIT_BUFFER_SIZE = 8192;
+    private static final int MAX_BUFFER_SIZE = 10485768;
+    private static final int[] IUIDS_TAGS = {
+            Tag.StudyInstanceUID,
+            Tag.SeriesInstanceUID,
+            Tag.SOPInstanceUID
+    };
+    private static final int[] IMAGE_PIXEL_TAGS = {
+            Tag.SamplesPerPixel,
+            Tag.PhotometricInterpretation,
+            Tag.Rows,
+            Tag.Columns,
+            Tag.BitsAllocated,
+            Tag.BitsStored,
+            Tag.HighBit,
+            Tag.PixelRepresentation
+    };
+    private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
 
     @Inject
     private StoreService service;
@@ -285,8 +299,9 @@ public class StowRS {
                 }
             }
         });
+        int instanceNumber = 0;
         for (Attributes instance : instances) {
-            storeDicomObject(session, instance);
+            storeDicomObject(session, instance, ++instanceNumber);
         }
 
         response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
@@ -383,12 +398,13 @@ public class StowRS {
         }
     }
 
-    private void storeDicomObject(StoreSession session, Attributes attrs) throws IOException {
+    private void storeDicomObject(StoreSession session, Attributes attrs, int instanceNumber) throws IOException {
         StoreContext ctx = service.newStoreContext(session);
         ctx.setAcceptedStudyInstanceUID(acceptedStudyInstanceUID);
-        ensureRequiredAttrs(attrs);
         try {
-            ctx.setReceiveTransferSyntax(MediaTypes.transferSyntaxOf(resolveBulkdataRefs(attrs)));
+            BulkDataWithMediaType bulkdataWithMediaType = resolveBulkdataRefs(attrs);
+            ctx.setReceiveTransferSyntax(MediaTypes.transferSyntaxOf(bulkdataWithMediaType.mediaType));
+            supplementAttrs(session, attrs, instanceNumber, bulkdataWithMediaType);
             service.store(ctx, attrs);
             studyInstanceUIDs.add(ctx.getStudyInstanceUID());
             sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
@@ -399,24 +415,65 @@ public class StowRS {
         }
     }
 
-    private void ensureRequiredAttrs(Attributes attrs) {
-        if (attrs.getString(Tag.StudyInstanceUID) == null)
-            attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
-        if (attrs.getString(Tag.SeriesInstanceUID) == null)
-            attrs.setString(Tag.SeriesInstanceUID, VR.UI, UIDUtils.createUID());
-        if (attrs.getString(Tag.SOPInstanceUID) == null)
-            attrs.setString(Tag.SOPInstanceUID, VR.UI, UIDUtils.createUID());
-
+    private void supplementAttrs(StoreSession session, Attributes attrs, int instanceNumber,
+                                 BulkDataWithMediaType bulkdata) throws DicomServiceException {
+        for (int tag : IUIDS_TAGS)
+            if (!attrs.containsValue(tag)) {
+                String uid = UIDUtils.createUID();
+                logSupplementMissing(session, tag, uid);
+                attrs.setString(tag, VR.UI, uid);
+            }
+        if (!attrs.containsValue(Tag.SOPClassUID)) {
+            String cuid = MediaTypes.sopClassOf(bulkdata.mediaType);
+            if (cuid == null)
+                throw missingAttribute(Tag.SOPClassUID);
+            logSupplementMissing(session, Tag.SOPClassUID, cuid +  " " + UID.nameOf(cuid));
+            attrs.setString(Tag.SOPClassUID, VR.UI, cuid);
+        }
+        if (!attrs.containsValue(Tag.InstanceCreationDate)) {
+            Date now = new Date();
+            logSupplementMissing(session, Tag.InstanceCreationDate, now);
+            attrs.setDate(Tag.InstanceCreationDateAndTime, now);
+        }
+        if (!attrs.containsValue(Tag.SeriesNumber)) {
+            logSupplementMissing(session, Tag.SeriesNumber, 999);
+            attrs.setInt(Tag.SeriesNumber, VR.IS, 999);
+        }
+        if (!attrs.containsValue(Tag.InstanceNumber)) {
+            logSupplementMissing(session, Tag.InstanceNumber, instanceNumber);
+            attrs.setInt(Tag.InstanceNumber, VR.IS, instanceNumber);
+        }
+        if (attrs.containsValue(Tag.PixelData)) {
+            parseBulkdata(session, bulkdata, attrs);
+            verifyImagePixelModule(attrs);
+        }
     }
 
-    private MediaType resolveBulkdataRefs(Attributes attrs) throws DicomServiceException {
-        final MediaType[] mediaType = { MediaType.APPLICATION_OCTET_STREAM_TYPE };
+    private void logSupplementMissing(StoreSession session, int tag, Object value) {
+        LOG.info("{}: Supplement Missing {} {} - {}", session, DICT.keywordOf(tag), TagUtils.toString(tag), value);
+    }
+
+    private void verifyImagePixelModule(Attributes attrs) throws DicomServiceException {
+        for (int tag : IMAGE_PIXEL_TAGS)
+            if (!attrs.containsValue(tag))
+                throw missingAttribute(tag);
+        if (attrs.getInt(Tag.SamplesPerPixel, 1) > 1 && !attrs.containsValue(Tag.PlanarConfiguration))
+            throw missingAttribute(Tag.PlanarConfiguration);
+    }
+
+    private static DicomServiceException missingAttribute(int tag) {
+        return new DicomServiceException(Status.IdentifierDoesNotMatchSOPClass,
+                "Missing " + DICT.keywordOf(tag) + " " + TagUtils.toString(tag));
+    }
+
+    private BulkDataWithMediaType resolveBulkdataRefs(Attributes attrs) throws DicomServiceException {
+        final BulkDataWithMediaType[] bulkdataWithMediaType = new BulkDataWithMediaType[1];
         try {
             attrs.accept(new Attributes.Visitor() {
                 @Override
                 public boolean visit(Attributes attrs, int tag, VR vr, Object value) throws Exception {
                     if (value instanceof BulkData) {
-                        resolveBulkdataRef(attrs, tag, vr, (BulkData) value, mediaType);
+                        bulkdataWithMediaType[0] = resolveBulkdataRef(attrs, tag, vr, (BulkData) value);
                     }
                     return true;
                 }
@@ -426,10 +483,10 @@ public class StowRS {
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e);
         }
-        return mediaType[0];
+        return bulkdataWithMediaType[0];
     }
 
-    private void resolveBulkdataRef(Attributes attrs, int tag, VR vr, BulkData bulkdata, MediaType[] mediaType)
+    private BulkDataWithMediaType resolveBulkdataRef(Attributes attrs, int tag, VR vr, BulkData bulkdata)
             throws IOException {
         BulkDataWithMediaType bulkdataWithMediaType = bulkdataMap.get(bulkdata.getURI());
         if (bulkdataWithMediaType == null)
@@ -437,31 +494,59 @@ public class StowRS {
         if (tag != Tag.PixelData || MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(bulkdataWithMediaType.mediaType)) {
             bulkdata.setURI(bulkdataWithMediaType.bulkData.getURI());
         } else {
-            readPixelHeader(bulkdataWithMediaType, attrs);
             Fragments frags = attrs.newFragments(tag, vr, 2);
             frags.add(ByteUtils.EMPTY_BYTES);
             frags.add(new BulkData(null, bulkdataWithMediaType.bulkData.getURI(), false));
-            mediaType[0] = bulkdataWithMediaType.mediaType;
         }
+        return bulkdataWithMediaType;
     }
 
-    private void readPixelHeader(BulkDataWithMediaType bulkdataWithMediaType, Attributes attrs) throws IOException {
-        byte[] b16384 = new byte[16384];
-        BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(bulkdataWithMediaType.bulkData.getFile().toPath()));
-        StreamUtils.readAvailable(bis, b16384, 0, 16384);
-        String type = bulkdataWithMediaType.mediaType.getType().toLowerCase();
-        String subtype = bulkdataWithMediaType.mediaType.getSubtype().toLowerCase();
-        if (type.equals("video") && subtype.equals("mpeg")) {
-            if (attrs.getString(Tag.SOPClassUID) == null)
-                attrs.setString(Tag.SOPClassUID, VR.UI, UID.VideoPhotographicImageStorage);
-            MPEGHeader mpegHeader = new MPEGHeader(b16384);
-            mpegHeader.toAttributes(attrs, Files.size(bulkdataWithMediaType.bulkData.getFile().toPath()));
-            return;
+    private enum CompressedPixelData {
+        JPEG {
+            @Override
+            boolean parseHeader(byte[] header, Attributes attrs, long flen) {
+                return new JPEGHeader(header, org.dcm4che3.imageio.codec.jpeg.JPEG.SOS).toAttributes(attrs) != null;
+            }
+        },
+        MPEG {
+            @Override
+            boolean parseHeader(byte[] header, Attributes attrs, long flen) {
+                return new MPEGHeader(header).toAttributes(attrs, flen) != null;
+            }
+        };
+
+        abstract boolean parseHeader(byte[] header, Attributes attrs, long flen);
+
+        static CompressedPixelData valueOf(MediaType mediaType) {
+            if (MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.IMAGE_JPEG_TYPE))
+                return JPEG;
+            if (MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_MPEG_TYPE))
+                return MPEG;
+            return null;
         }
-        if (attrs.getString(Tag.SOPClassUID) == null)
-            attrs.setString(Tag.SOPClassUID, VR.UI, UID.SecondaryCaptureImageStorage);
-        JPEGHeader jpegHeader = new JPEGHeader(b16384, JPEG.SOS);
-        jpegHeader.toAttributes(attrs);
+
+    }
+
+    private void parseBulkdata(StoreSession session, BulkDataWithMediaType bulkdata, Attributes attrs) {
+        CompressedPixelData compressedPixelData = CompressedPixelData.valueOf(bulkdata.mediaType);
+        if (compressedPixelData == null)
+            return;
+
+        File file = bulkdata.bulkData.getFile();
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
+            long flen = file.length();
+            byte[] header = ByteUtils.EMPTY_BYTES;
+            int rlen = 0;
+            int grow = INIT_BUFFER_SIZE;
+            while (rlen == header.length && rlen < MAX_BUFFER_SIZE) {
+                header = Arrays.copyOf(header, grow += rlen);
+                rlen += StreamUtils.readAvailable(bis, header, rlen, header.length - rlen);
+                if (compressedPixelData.parseHeader(header, attrs, flen))
+                    return;
+            }
+        } catch (Exception e) {
+        }
+        LOG.info("{}: Failed to parse bulkdata {} from {}", session, bulkdata.mediaType, bulkdata.bulkData.getURI());
     }
 
     private boolean spoolBulkdata(MultipartInputStream in, MediaType mediaType,
