@@ -4,7 +4,9 @@
   "type": "object",
   "required": [
     "dcmStorageID",
-    "dcmURI"
+    "dcmURI",
+    "dcmInstanceAvailability",
+    "dcmReadOnly"
   ],
   "properties": {
     "dcmStorageID": {
@@ -20,17 +22,23 @@
     "dcmDigestAlgorithm": {
       "title": "Digest Algorithm",
       "description": "Algorithm for generation of check sums: 'MD5' or 'SHA-1'",
-      "type": "string"
+      "type": "string",
+      "enum" : [
+        "MD5",
+        "SHA-1"
+      ]
     },
     "dcmInstanceAvailability": {
       "title": "Instance Availability",
       "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE. ONLINE if absent.",
-      "type": "string"
+      "type": "string",
+      "default": "ONLINE"
     },
     "dcmReadOnly": {
       "title": "Read Only",
-      "description": "Indicates if a Storage System is read only; false if absent.",
-      "type": "boolean"
+      "description": "Indicates if a Storage System is read only.",
+      "type": "boolean",
+      "default": false
     },
     "dcmStorageThreshold": {
       "title": "Storage Threshold",

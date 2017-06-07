@@ -2,6 +2,9 @@
   "title": "Archive HL7 Application",
   "description": "DICOM Archive HL7 Application related information",
   "type": "object",
+  "required": [
+    "hl7ScheduledProtocolCodeInOrder"
+  ],
   "properties": {
     "hl7PatientUpdateTemplateURI": {
       "title": "HL7 Patient Update Template URI",
@@ -20,8 +23,9 @@
     },
     "hl7ScheduledProtocolCodeInOrder": {
       "title": "HL7 Schedule Protocol Code in Order",
-      "description": "Specifies location of Scheduled Protocol Code in received HL7 Order message. Enumerated values: OBR_4_1, OBR_4_4. If absent, OBR_4_4 will be applied.",
+      "description": "Specifies location of Scheduled Protocol Code in received HL7 Order message. Enumerated values: OBR_4_1, OBR_4_4.",
       "type": "string",
+      "default": "OBR_4_4",
       "enum": [
         "OBR_4_1",
         "OBR_4_4"

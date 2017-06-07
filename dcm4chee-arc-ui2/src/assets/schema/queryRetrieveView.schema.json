@@ -3,7 +3,8 @@
   "description": "Specifies behavior on Rejection Note Stored",
   "type": "object",
   "required": [
-    "dcmQueryRetrieveViewID"
+    "dcmQueryRetrieveViewID",
+    "dcmHideNotRejectedInstances"
   ],
   "properties": {
     "dcmQueryRetrieveViewID": {
@@ -29,8 +30,9 @@
     },
     "dcmHideNotRejectedInstances": {
       "title": "Hide Not Rejected Instances",
-      "description": "Indicates if the Q/R Services shall hide instances not rejected by any reason; disabled if absent",
-      "type": "boolean"
+      "description": "Indicates if the Q/R Services shall hide instances not rejected by any reason.",
+      "type": "boolean",
+      "default": false
     }
   }
 }

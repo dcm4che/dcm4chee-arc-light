@@ -4,7 +4,8 @@
   "type": "object",
   "required": [
     "cn",
-    "dicomTransferSyntax"
+    "dicomTransferSyntax",
+    "dcmRulePriority"
   ],
   "properties": {
     "cn": {
@@ -20,8 +21,9 @@
     },
     "dcmRulePriority": {
       "title": "Rule Priority",
-      "description": "Rule Priority. 0 if absent.",
+      "description": "Rule Priority",
       "type": "integer",
+      "default" : 0,
       "minimum": 0
     },
     "dcmProperty": {

@@ -2,26 +2,36 @@
   "title": "dcm4che Transfer Capability",
   "description": "dcm4che proprietary Transfer Capability Attributes",
   "type": "object",
+  "required": [
+    "dcmRelationalQueries",
+    "dcmCombinedDateTimeMatching",
+    "dcmFuzzySemanticMatching",
+    "dcmTimezoneQueryAdjustment"
+  ],
   "properties": {
     "dcmRelationalQueries": {
       "title": "Relational Queries",
-      "description": "Enable/disable relational queries; disabled if absent",
-      "type": "boolean"
+      "description": "Enable/disable relational queries.",
+      "type": "boolean",
+      "default": false
     },
     "dcmCombinedDateTimeMatching": {
       "title": "Combined Date Time Matching",
-      "description": "Enable/disable combined date time matching; disabled if absent",
-      "type": "boolean"
+      "description": "Enable/disable combined date time matching.",
+      "type": "boolean",
+      "default": false
     },
     "dcmFuzzySemanticMatching": {
       "title": "Fuzzy Semantic Matching",
-      "description": "Enable/disable fuzzy semantic matching of person  names; disabled if absent",
-      "type": "boolean"
+      "description": "Enable/disable fuzzy semantic matching of person  names.",
+      "type": "boolean",
+      "default": false
     },
     "dcmTimezoneQueryAdjustment": {
       "title": "Timezone Query Adjustment",
-      "description": "Enable/disable timezone query adjustment; disabled if absent",
-      "type": "boolean"
+      "description": "Enable/disable timezone query adjustment",
+      "type": "boolean",
+      "default": false
     },
     "dcmStorageConformance": {
       "title": "Storage Conformance",

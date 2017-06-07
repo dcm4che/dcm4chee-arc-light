@@ -4,7 +4,44 @@
   "type": "object",
   "required": [
     "dcmFuzzyAlgorithmClass",
-    "dcmQueryRetrieveViewID"
+    "dcmQueryRetrieveViewID",
+    "dcmSeriesMetadataFetchSize",
+    "dcmPurgeInstanceRecordsFetchSize",
+    "dcmOverwritePolicy",
+    "dcmAcceptMissingPatientID",
+    "dcmAcceptConflictingPatientID",
+    "dcmValidateCallingAEHostname",
+    "dcmPersonNameComponentOrderInsensitiveMatching",
+    "dcmSendPendingCGet",
+    "dcmQueryFetchSize",
+    "dcmQidoMaxNumberOfResults",
+    "dcmIanOnTimeout",
+    "dcmIanTaskFetchSize",
+    "dcmFallbackCMoveSCPRetries",
+    "dcmExportTaskFetchSize",
+    "dcmPurgeStorageFetchSize",
+    "dcmDeleteStudyBatchSize",
+    "dcmDeletePatientOnDeleteLastStudy",
+    "dcmDeleteRejectedFetchSize",
+    "dcmLeadingCFindSCPQueryCacheSize",
+    "dcmAuditUnknownStudyInstanceUID",
+    "dcmAuditUnknownPatientID",
+    "dcmShowPatientInfoInSystemLog",
+    "dcmShowPatientInfoInAuditLog",
+    "hl7ScheduledProtocolCodeInOrder",
+    "dcmWadoSpoolDirectory",
+    "dcmStorePermissionCacheSize",
+    "dcmMergeMWLCacheSize",
+    "dcmStoreUpdateDBMaxRetries",
+    "dcmStoreUpdateDBMaxRetryDelay",
+    "dcmAllowRejectionForDataRetentionPolicyExpired",
+    "dcmAllowDeleteStudyPermanently",
+    "dcmStorePermissionServiceErrorCommentPattern",
+    "dcmStorePermissionServiceErrorCodePattern",
+    "hl7PSUMWL",
+    "hl7PSUOnTimeout",
+    "hl7PSUTaskFetchSize",
+    "hl7TrackChangedPatientID"
   ],
   "properties": {
     "dcmFuzzyAlgorithmClass": {
@@ -40,8 +77,9 @@
     },
     "dcmSeriesMetadataFetchSize": {
       "title": "Update Series Metadata Fetch Size",
-      "description": "Maximal number of Series scheduled for Metadata update fetched by one query; 100 if absent.",
+      "description": "Maximal number of Series scheduled for Metadata update fetched by one query.",
       "type": "integer",
+      "default" : 100,
       "minimum": 0,
       "exclusiveMinimum": true
     },
@@ -57,8 +95,9 @@
     },
     "dcmPurgeInstanceRecordsFetchSize": {
       "title": "Remove Instance Records Fetch Size",
-      "description": "Maximal number of Series scheduled for purging Instance Records from the DB fetched by one query; 100 if absent.",
+      "description": "Maximal number of Series scheduled for purging Instance Records from the DB fetched by one query.",
       "type": "integer",
+      "default" : 100,
       "minimum": 0,
       "exclusiveMinimum": true
     },
@@ -69,8 +108,9 @@
     },
     "dcmOverwritePolicy": {
       "title": "Overwrite Policy",
-      "description": "Overwrite Policy: NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES or SAME_SOURCE_AND_SERIES. NEVER if absent.",
+      "description": "Overwrite Policy: NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES or SAME_SOURCE_AND_SERIES.",
       "type": "string",
+      "default": "NEVER",
       "enum": [
         "NEVER",
         "ALWAYS",
@@ -81,8 +121,9 @@
     },
     "dcmAcceptMissingPatientID": {
       "title": "Accept Missing Patient ID",
-      "description": "Indicates if objects without Patient IDs shall be accepted and if a Patient ID shall be created. Enumerated values: YES, NO, CREATE. If absent, CREATE will be applied.",
+      "description": "Indicates if objects without Patient IDs shall be accepted and if a Patient ID shall be created. Enumerated values: YES, NO, CREATE.",
       "type": "string",
+      "default": "CREATE",
       "enum": [
         "YES",
         "NO",
@@ -91,8 +132,9 @@
     },
     "dcmAcceptConflictingPatientID": {
       "title": "Accept Conflicting Patient ID",
-      "description": "Indicates if objects with a Patient IDs which differs from the Patient ID in previous received objects of the Study shall be accepted. Enumerated values: YES, NO, MERGED(= accept prior Patient IDs). If absent, MERGED will be applied.",
+      "description": "Indicates if objects with a Patient IDs which differs from the Patient ID in previous received objects of the Study shall be accepted. Enumerated values: YES, NO, MERGED(= accept prior Patient IDs).",
       "type": "string",
+      "default": "MERGED",
       "enum": [
         "YES",
         "NO",
@@ -124,18 +166,21 @@
     },
     "dcmValidateCallingAEHostname": {
       "title": "Validate Calling AE Hostname",
-      "description": "Validate Calling AE Hostname or IP Address of Association requestors; disabled if absent",
-      "type": "boolean"
+      "description": "Validate Calling AE Hostname or IP Address of Association requestors.",
+      "type": "boolean",
+      "default": false
     },
     "dcmPersonNameComponentOrderInsensitiveMatching": {
       "title": "Person Name Component Order Insensitive Matching",
-      "description": "Indicates if name component order insensitive matching is performed on fuzzy semantic matching of person names; disabled if absent",
-      "type": "boolean"
+      "description": "Indicates if name component order insensitive matching is performed on fuzzy semantic matching of person names",
+      "type": "boolean",
+      "default": false
     },
     "dcmSendPendingCGet": {
       "title": "Send Pending C-Get",
-      "description": "Enables pending C-GET responses; disabled if absent",
-      "type": "boolean"
+      "description": "Enables pending C-GET responses",
+      "type": "boolean",
+      "default": false
     },
     "dcmSendPendingCMoveInterval": {
       "title": "Send Pending C-Move Interval",
@@ -160,14 +205,16 @@
     },
     "dcmQueryFetchSize": {
       "title": "Query Fetch Size",
-      "description": "Number of rows fetched from the database at once by the Query Service. 100 if absent",
+      "description": "Number of rows fetched from the database at once by the Query Service.",
       "type": "integer",
+      "default": 100,
       "minimum": 0
     },
     "dcmQidoMaxNumberOfResults": {
       "title": "Qido Max Number Of Results",
-      "description": "Maximal number of return results by QIDO-RS Service. 0 (=unlimited) if absent",
+      "description": "Maximal number of return results by QIDO-RS Service.",
       "type": "integer",
+      "default": 0,
       "minimum": 0
     },
     "dcmFwdMppsDestination": {
@@ -194,8 +241,9 @@
     },
     "dcmIanOnTimeout": {
       "title": "IAN On Timeout",
-      "description": "Specifies if the IAN is sent if the timeout for waiting on receive of instances referenced is exceeded; just stop check for completeness on timeout if absent",
-      "type": "boolean"
+      "description": "Specifies if the IAN is sent if the timeout for waiting on receive of instances referenced is exceeded.",
+      "type": "boolean",
+      "default": false
     },
     "dcmIanTaskPollingInterval": {
       "title": "IAN Task Polling Interval",
@@ -204,8 +252,9 @@
     },
     "dcmIanTaskFetchSize": {
       "title": "IAN Task Fetch Size",
-      "description": "Maximal number of IAN Tasks scheduled in one transaction; 100 if absent",
+      "description": "Maximal number of IAN Tasks scheduled in one transaction.",
       "type": "integer",
+      "default": 100,
       "minimum": 0,
       "exclusiveMinimum": true
     },
@@ -231,8 +280,9 @@
     },
     "dcmFallbackCMoveSCPRetries": {
       "title": "Fallback C-Move SCP Retries",
-      "description": "Maximal number of retries to retrieve not available objects from C-MOVE SCP configured by dcmFallbackCMoveSCP. -1 = forever. 0 if absent",
-      "type": "integer"
+      "description": "Maximal number of retries to retrieve not available objects from C-MOVE SCP configured by dcmFallbackCMoveSCP. -1 = forever.",
+      "type": "integer",
+      "default": 0
     },
     "dcmAltCMoveSCP": {
       "title": "Alternative C-Move SCP",
@@ -252,8 +302,9 @@
     },
     "dcmExportTaskFetchSize": {
       "title": "Export Task Fetch Size",
-      "description": "Maximal number of Export Tasks scheduled in one transaction; 5 if absent",
+      "description": "Maximal number of Export Tasks scheduled in one transaction.",
       "type": "integer",
+      "default": 5,
       "minimum": 0,
       "exclusiveMinimum": true
     },
@@ -264,22 +315,25 @@
     },
     "dcmPurgeStorageFetchSize": {
       "title": "Purge Storage Fetch Size",
-      "description": "Maximal number of objects to delete in one task; 100 if absent",
+      "description": "Maximal number of objects to delete in one task.",
       "type": "integer",
+      "default": 100,
       "minimum": 0,
       "exclusiveMinimum": true
     },
     "dcmDeleteStudyBatchSize": {
       "title": "Delete Study Batch Size",
-      "description": "number of studies to delete from the Storage System, if the usable space fall below configured Usable Space, before checking the usable space again; 10 if absent",
+      "description": "number of studies to delete from the Storage System, if the usable space fall below configured Usable Space, before checking the usable space again.",
       "type": "integer",
+      "default": 10,
       "minimum": 0,
       "exclusiveMinimum": true
     },
     "dcmDeletePatientOnDeleteLastStudy": {
       "title": "Delete Patient On Delete Last Study",
-      "description": "Specifies if a Patient shall be deleted on deletion of its last study; disabled if absent.",
-      "type": "boolean"
+      "description": "Specifies if a Patient shall be deleted on deletion of its last study.",
+      "type": "boolean",
+      "default": false
     },
     "dcmDeleteRejectedPollingInterval": {
       "title": "Delete Rejected Polling Interval",
@@ -288,14 +342,15 @@
     },
     "dcmDeleteRejectedFetchSize": {
       "title": "Delete Rejected Fetch Size",
-      "description": "Maximal number of rejected instances to delete from the DB in one task; 100 if absent",
+      "description": "Maximal number of rejected instances to delete from the DB in one task.",
       "type": "integer",
+      "default": 100,
       "minimum": 0,
       "exclusiveMinimum": true
     },
     "dcmMaxAccessTimeStaleness": {
       "title": "Maximum Access Time Staleness",
-      "description": "Maximal staleness of recorded study accession time in ISO-8601 duration format PnDTnHnMn.nS. update of the access time disabled, if absent.",
+      "description": "Maximal staleness of recorded study accession time in ISO-8601 duration format PnDTnHnMn.nS. Update of the access time disabled, if absent.",
       "type": "string"
     },
     "dcmAECacheStaleTimeout": {
@@ -310,8 +365,9 @@
     },
     "dcmLeadingCFindSCPQueryCacheSize": {
       "title": "Leading C-Find SCP Query Cache Size",
-      "description": "Maximum number of cached Patient and Study attributes fetched from leading C-Find SCP; 10 if absent",
+      "description": "Maximum number of cached Patient and Study attributes fetched from leading C-Find SCP.",
       "type": "integer",
+      "default": 10,
       "minimum": 0,
       "exclusiveMinimum": true
     },
@@ -332,19 +388,22 @@
     },
     "dcmAuditUnknownStudyInstanceUID": {
       "title": "Audit Unknown Study Instance UID",
-      "description": "Indicates study instance uid value to be sent in audit message when not known. If absent, '1.2.40.0.13.1.15.110.3.165.1' will be applied.",
+      "description": "Indicates study instance uid value to be sent in audit message when not known.",
       "type": "string",
+      "default": "1.2.40.0.13.1.15.110.3.165.1",
       "pattern": "^[0-2]((\\.0)|(\\.[1-9][0-9]*))*$"
     },
     "dcmAuditUnknownPatientID": {
       "title": "Audit Unknown Patient ID",
-      "description": "Indicates patient id value to be sent in audit message when not known. If absent, '<none>' will be applied.",
-      "type": "string"
+      "description": "Indicates patient id value to be sent in audit message when not known.",
+      "type": "string",
+      "default": "<none>"
     },
     "dcmShowPatientInfoInSystemLog": {
       "title": "Show Patient Info In System Log",
-      "description": "Specifies if Patient Information is shown as plain text or hashed in system logs. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID. PLAIN_TEXT if absent.",
+      "description": "Specifies if Patient Information is shown as plain text or hashed in system logs. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID.",
       "type": "string",
+      "default": "PLAIN_TEXT",
       "enum": [
         "PLAIN_TEXT",
         "HASH_NAME",
@@ -353,8 +412,9 @@
     },
     "dcmShowPatientInfoInAuditLog": {
       "title": "Show Patient Info In Audit Log",
-      "description": "Specifies if Patient Information is shown as plain text or hashed in emitted audit messages. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID. PLAIN_TEXT if absent.",
+      "description": "Specifies if Patient Information is shown as plain text or hashed in emitted audit messages. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID.",
       "type": "string",
+      "default": "PLAIN_TEXT",
       "enum": [
         "PLAIN_TEXT",
         "HASH_NAME",
@@ -383,8 +443,9 @@
     },
     "hl7ScheduledProtocolCodeInOrder": {
       "title": "HL7 Schedule Protocol Code in Order",
-      "description": "Specifies location of Scheduled Protocol Code in received HL7 Order message. Enumerated values: OBR_4_1, OBR_4_4. If absent, OBR_4_4 will be applied.",
+      "description": "Specifies location of Scheduled Protocol Code in received HL7 Order message. Enumerated values: OBR_4_1, OBR_4_4.",
       "type": "string",
+      "default": "OBR_4_4",
       "enum": [
         "OBR_4_1",
         "OBR_4_4"
@@ -420,8 +481,9 @@
     },
     "dcmWadoSpoolDirectory": {
       "title": "Wado-RS Spool Directory",
-      "description": "Path to Wado-RS spool directory used to aggregate uncompressed frames. If absent, aggregation done in temp directory.",
-      "type": "string"
+      "description": "Path to Wado-RS spool directory used to aggregate uncompressed frames.",
+      "type": "string",
+      "default": "${jboss.server.temp.dir}"
     },
     "dcmRejectExpiredStudiesPollingInterval": {
       "title": "Reject Expired Studies Polling Interval",
@@ -469,8 +531,9 @@
     },
     "dcmStorePermissionCacheSize": {
       "title": "Store Permission Cache Size",
-      "description": "Maximum number of cached responses from Storage Permission Service; 10 if absent",
+      "description": "Maximum number of cached responses from Storage Permission Service.",
       "type": "integer",
+      "default": 10,
       "minimum": 0,
       "exclusiveMinimum": true
     },
@@ -481,27 +544,31 @@
     },
     "dcmMergeMWLCacheSize": {
       "title": "Merge MWL Cache Size",
-      "description": "Maximum number of cached Request Attributes extracted from matching DICOM MWL items; 10 if absent",
+      "description": "Maximum number of cached Request Attributes extracted from matching DICOM MWL items.",
       "type": "integer",
+      "default": 10,
       "minimum": 0,
       "exclusiveMinimum": true
     },
     "dcmStoreUpdateDBMaxRetries": {
       "title": "Store Update DB Maximum Number of Retries",
-      "description": "Maximum number of retries to update the database on storage; 1 if absent",
+      "description": "Maximum number of retries to update the database on storage.",
       "type": "integer",
+      "default": 1,
       "minimum": 0
     },
     "dcmStoreUpdateDBMaxRetryDelay": {
       "title": "Store Update DB Maximum Delay of Retry",
-      "description": "Maximum delay in ms of retry to update the database on storage; 1000 if absent",
+      "description": "Maximum delay in ms of retry to update the database on storage.",
       "type": "integer",
+      "default": 1000,
       "minimum": 0
     },
     "dcmAllowRejectionForDataRetentionPolicyExpired": {
       "title": "Allow Rejection For Data Retention Policy Expired",
       "description": "Allow Rejection For Data Retention Policy Expired : NEVER, ALWAYS, STUDY_RETENTION_POLICY. If absent, STUDY_RETENTION_POLICY will be applied.",
       "type": "string",
+      "default": "STUDY_RETENTION_POLICY",
       "enum": [
         "NEVER",
         "ALWAYS",
@@ -510,8 +577,9 @@
     },
     "dcmAllowDeleteStudyPermanently": {
       "title": "Allow Delete Study permanently",
-      "description": "Allow to delete Study permanently. Enumerated values: ALWAYS, REJECTED (= only already rejected Studies). If absent, REJECTED will be applied.",
+      "description": "Allow to delete Study permanently. Enumerated values: ALWAYS, REJECTED (= only already rejected Studies).",
       "type": "string",
+      "default": "REJECTED",
       "enum": [
         "ALWAYS",
         "REJECTED"
@@ -539,13 +607,15 @@
     },
     "dcmStorePermissionServiceErrorCommentPattern": {
       "title": "Store Permission Service Error Comment Pattern",
-      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Comment. E.g. \"errorcomment\"\\s*:\\s*\"(.*)\". If absent, the Error Comment will be \"Storage denied\".",
-      "type": "string"
+      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Comment. E.g. \"errorcomment\"\\s*:\\s*\"(.*)\".",
+      "type": "string",
+      "default": "Storage denied."
     },
     "dcmStorePermissionServiceErrorCodePattern": {
       "title": "Store Permission Service Error Code Pattern",
       "description": "Regular Expression applied to responses from Store Permission Service to extract Error Code in hexadecimal. E.g. \"errorcode\"\\s*:\\s*\"(\\p{XDigit}{4})\". If absent, the Error Code will be 0124H (Not Authorized).",
-      "type": "string"
+      "type": "string",
+      "default": "0x0124"
     },
     "dcmRetrieveAET": {
       "title": "Retrieve AE Title",
@@ -658,8 +728,9 @@
     },
     "hl7PSUMWL": {
       "title": "HL7 Procedure Status Update MWL",
-      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay. Disabled, if absent.",
-      "type": "boolean"
+      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay.",
+      "type": "boolean",
+      "default": false
     },
     "hl7PSUTimeout": {
       "title": "HL7 Procedure Status Update Timeout",
@@ -668,8 +739,9 @@
     },
     "hl7PSUOnTimeout": {
       "title": "HL7 Procedure Status Update On Timeout",
-      "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded; just stop check for completeness on timeout if absent.",
-      "type": "boolean"
+      "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded.",
+      "type": "boolean",
+      "default": false
     },
     "hl7PSUTaskPollingInterval": {
       "title": "HL7 Procedure Status Update Task Polling Interval",
@@ -678,15 +750,17 @@
     },
     "hl7PSUTaskFetchSize": {
       "title": "HL7 Procedure Status Update Tasks Fetch Size",
-      "description": "Maximal number of HL7 Procedure Status Update Tasks fetched in one query; 100 if absent",
+      "description": "Maximal number of HL7 Procedure Status Update Tasks fetched in one query.",
       "type": "integer",
+      "default": 100,
       "minimum": 0,
       "exclusiveMinimum": true
     },
     "hl7TrackChangedPatientID": {
       "title": "HL7 Track Changed Patient ID",
-      "description": "Enable to keep track of the prior Patient ID on a change of the Patient ID by HL7 ADT^A47 or by the RESTful Patient Update Service. Enabled if absent.",
-      "type": "boolean"
+      "description": "Enable to keep track of the prior Patient ID on a change of the Patient ID by HL7 ADT^A47 or by the RESTful Patient Update Service.",
+      "type": "boolean",
+      "default": true
     },
     "dcmStorage": {
       "title": "Storage Descriptor",

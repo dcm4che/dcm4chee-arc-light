@@ -4,7 +4,9 @@
   "type": "object",
   "required": [
     "cn",
-    "dcmRetentionPeriod"
+    "dcmRetentionPeriod",
+    "dcmRulePriority",
+    "dcmExpireSeriesIndividually"
   ],
   "properties": {
     "cn": {
@@ -19,9 +21,10 @@
     },
     "dcmRulePriority": {
       "title": "Rule Priority",
-      "description": "Rule Priority. 0 if absent.",
+      "description": "Rule Priority.",
       "type": "integer",
-      "minimum": 0
+      "minimum": 0,
+      "default": 0
     },
     "dcmProperty": {
       "title": "Property",
@@ -33,8 +36,9 @@
     },
     "dcmExpireSeriesIndividually": {
       "title": "Expire Series Individually",
-      "description": "Indicates if series should be expired individually or not. If absent, it is false.",
-      "type": "boolean"
+      "description": "Indicates if series should be expired individually or not.",
+      "type": "boolean",
+      "default": false
     }
   }
 }

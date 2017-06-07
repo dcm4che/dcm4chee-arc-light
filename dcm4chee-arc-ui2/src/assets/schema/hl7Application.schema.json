@@ -4,7 +4,8 @@
   "type": "object",
   "required": [
     "hl7ApplicationName",
-    "dicomNetworkConnectionReference"
+    "dicomNetworkConnectionReference",
+    "hl7DefaultCharacterSet"
   ],
   "properties": {
     "hl7ApplicationName": {
@@ -38,8 +39,9 @@
     },
     "hl7DefaultCharacterSet": {
       "title": "Default Character Set",
-      "description": "Character Set used to decode received messages if not specified by MSH-18, ASCII if absent",
-      "type": "string"
+      "description": "Character Set used to decode received messages if not specified by MSH-18.",
+      "type": "string",
+      "default": "ASCII"
     },
     "dicomInstalled": {
       "title": "installed",

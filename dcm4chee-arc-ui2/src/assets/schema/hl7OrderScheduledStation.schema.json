@@ -4,7 +4,8 @@
   "type": "object",
   "required": [
     "cn",
-    "hl7OrderScheduledStationDeviceReference"
+    "hl7OrderScheduledStationDeviceReference",
+    "dcmRulePriority"
   ],
   "properties": {
     "cn": {
@@ -19,9 +20,10 @@
     },
     "dcmRulePriority": {
       "title": "Mapping Priority",
-      "description": "Mapping Priority. 0 if absent.",
+      "description": "Mapping Priority.",
       "type": "integer",
-      "minimum": 0
+      "minimum": 0,
+      "default": 0
     },
     "dcmProperty": {
       "title": "Conditions",

@@ -4,7 +4,10 @@
   "type": "object",
   "required": [
     "dcmQueueName",
-    "dcmJndiName"
+    "dcmJndiName",
+    "dcmRetryDelay",
+    "dcmRetryOnWarning",
+    "dcmRetryDelayMultiplier"
   ],
   "properties": {
     "dcmQueueName": {
@@ -24,14 +27,15 @@
     },
     "dcmMaxRetries": {
       "title": "Maximum Number of Retries",
-      "description": "Maximal number of retries to process tasks scheduled in a specific queue. 0 if absent.",
+      "description": "Maximal number of retries to process tasks scheduled in a specific queue.",
       "type": "integer",
       "minimum": 0
     },
     "dcmRetryDelay": {
       "title": "Retry Delay",
-      "description": "Delay to retry to process tasks scheduled in a specific queue in ISO-8601 duration format PnDTnHnMn.nS. PT1M if absent.",
-      "type": "string"
+      "description": "Delay to retry to process tasks scheduled in a specific queue in ISO-8601 duration format PnDTnHnMn.nS.",
+      "type": "string",
+      "default": "PT1M"
     },
     "dcmMaxRetryDelay": {
       "title": "Maximum Retry Delay",
@@ -40,14 +44,16 @@
     },
     "dcmRetryDelayMultiplier": {
       "title": "Retry Delay Multiplier",
-      "description": "Multiplier in % that will take effect on top of dcmRetryDelay with dcmMaxRetryDelay to be taken into account. 100 if absent.",
+      "description": "Multiplier in % that will take effect on top of dcmRetryDelay with dcmMaxRetryDelay to be taken into account.",
       "type": "integer",
-      "minimum": 100
+      "minimum": 100,
+      "default": 100
     },
     "dcmRetryOnWarning": {
       "title": "Retry on Warning",
-      "description": "Enables retries to process tasks not only on failure but also on a warning outcome status in a specific queue; disabled if absent.",
-      "type": "boolean"
+      "description": "Enables retries to process tasks not only on failure but also on a warning outcome status in a specific queue.",
+      "type": "boolean",
+      "default": false
     },
     "dcmPurgeQueueMessageCompletedDelay": {
       "title": "Delay for purging completed queue messages",

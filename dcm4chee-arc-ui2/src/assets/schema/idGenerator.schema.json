@@ -4,7 +4,8 @@
   "type": "object",
   "required": [
     "dcmIDGeneratorName",
-    "dcmIDGeneratorFormat"
+    "dcmIDGeneratorFormat",
+    "dcmIDGeneratorInitialValue"
   ],
   "properties": {
     "dcmIDGeneratorName": {
@@ -27,7 +28,8 @@
       "title": "ID Generator Initial Value",
       "description": "Initial value for sequence used by this ID Generator; 1 if absent",
       "type": "integer",
-      "minimum": 0
+      "minimum": 0,
+      "default": 1
     }
   }
 }

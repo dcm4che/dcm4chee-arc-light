@@ -5,7 +5,18 @@
   "required": [
     "cn",
     "dicomNetworkConnectionReference",
-    "dcmAuditRecordRepositoryDeviceReference"
+    "dcmAuditRecordRepositoryDeviceReference",
+    "dcmAuditFacility",
+    "dcmAuditSuccessSeverity",
+    "dcmAuditMinorFailureSeverity",
+    "dcmAuditSeriousFailureSeverity",
+    "dcmAuditMajorFailureSeverity",
+    "dcmAuditMessageID",
+    "dcmAuditMessageEncoding",
+    "dcmAuditMessageBOM",
+    "dcmAuditTimestampInUTC",
+    "dcmAuditMessageFormatXML",
+    "dcmAuditIncludeInstanceUID"
   ],
   "properties": {
     "cn": {
@@ -46,8 +57,9 @@
     },
     "dcmAuditFacility": {
       "title": "Syslog Facility",
-      "description": "RFC 5424 Syslog Facility string value of audit message; 'authpriv' if absent",
+      "description": "RFC 5424 Syslog Facility string value of audit message.",
       "type": "string",
+      "default": "authpriv",
       "enum": [
         "kern",
         "user",
@@ -77,8 +89,9 @@
     },
     "dcmAuditSuccessSeverity": {
       "title": "Syslog Severity - Success",
-      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 0 (Success); 'notice' if absent",
+      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 0 (Success).",
       "type": "string",
+      "default": "notice",
       "enum": [
         "emerg",
         "alert",
@@ -92,8 +105,9 @@
     },
     "dcmAuditMinorFailureSeverity": {
       "title": "Syslog Severity - Failure",
-      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 4 (Minor failure); 'warning' if absent",
+      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 4 (Minor failure).",
       "type": "string",
+      "default": "warning",
       "enum": [
         "emerg",
         "alert",
@@ -107,8 +121,9 @@
     },
     "dcmAuditSeriousFailureSeverity": {
       "title": "Syslog Severity - Failure",
-      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 8 (Serious failure); 'err' if absent",
+      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 8 (Serious failure).",
       "type": "string",
+      "default": "err",
       "enum": [
         "emerg",
         "alert",
@@ -122,8 +137,9 @@
     },
     "dcmAuditMajorFailureSeverity": {
       "title": "Syslog Severity - Major",
-      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 12 (Major failure); 'crit' if absent",
+      "description": "RFC 5424 Syslog Severity string value of audit message with Event Outcome Indicator 12 (Major failure).",
       "type": "string",
+      "default": "crit",
       "enum": [
         "emerg",
         "alert",
@@ -142,28 +158,33 @@
     },
     "dcmAuditMessageID": {
       "title": "Syslog Message ID",
-      "description": "RFC 5424 Syslog MSGID of audit message; DICOM+RFC3881 if absent",
-      "type": "string"
+      "description": "RFC 5424 Syslog MSGID of audit message.",
+      "type": "string",
+      "default": "DICOM+RFC3881"
     },
     "dcmAuditMessageEncoding": {
       "title": "Message Encoding",
-      "description": "Character encoding of RFC 5424 Syslog MSG part of audit message; UTF-8 if absent",
-      "type": "string"
+      "description": "Character encoding of RFC 5424 Syslog MSG part of audit message.",
+      "type": "string",
+      "default": "UTF-8"
     },
     "dcmAuditMessageBOM": {
       "title": "Message BOM",
       "description": "Enable/disable Unicode BOM prefix of RFC 5424 Syslog MSG part of audit message; include BOM if absent",
-      "type": "boolean"
+      "type": "boolean",
+      "default": true
     },
     "dcmAuditTimestampInUTC": {
       "title": "Timestamp in UTC",
-      "description": "Specify if RFC 5424 Syslog TIMESTAMP and the Event Date/Time of the audit message are specified in Coordinated Universal Time or in Local Time; use Local Time zone if absent",
-      "type": "boolean"
+      "description": "Specify if RFC 5424 Syslog TIMESTAMP and the Event Date/Time of the audit message are specified in Coordinated Universal Time. Default indicates it will be in Local Time zone.",
+      "type": "boolean",
+      "default": false
     },
     "dcmAuditMessageFormatXML": {
       "title": "Message Format XML",
-      "description": "Specify whether or not the XML audit message is formatted with linefeeds and indentation; disabled if absent",
-      "type": "boolean"
+      "description": "Specify whether or not the XML audit message is formatted with line feeds and indentation.",
+      "type": "boolean",
+      "default": false
     },
     "dcmAuditMessageSchemaURI": {
       "title": "Message Schema URI",
@@ -173,7 +194,8 @@
     "dcmAuditIncludeInstanceUID": {
       "title": "Include Instance UIDs",
       "description": "Indicates if Audit Log Message should contain optional Instance UIDs",
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     "dcmAuditLoggerSpoolDirectoryURI": {
       "title": "Spool Directory URI",

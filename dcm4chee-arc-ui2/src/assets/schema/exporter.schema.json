@@ -5,7 +5,8 @@
   "required": [
     "dcmExporterID",
     "dcmURI",
-    "dcmQueueName"
+    "dcmQueueName",
+    "dcmInstanceAvailability"
   ],
   "properties": {
     "dcmExporterID": {
@@ -60,8 +61,9 @@
     },
     "dcmInstanceAvailability": {
       "title": "Instance Availability",
-      "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE. ONLINE if absent.",
-      "type": "string"
+      "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE.",
+      "type": "string",
+      "default": "ONLINE"
     },
     "dcmSchedule": {
       "title": "Schedule",

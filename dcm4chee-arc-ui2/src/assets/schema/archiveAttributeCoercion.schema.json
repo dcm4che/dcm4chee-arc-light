@@ -5,7 +5,10 @@
   "required": [
     "cn",
     "dcmDIMSE",
-    "dicomTransferRole"
+    "dicomTransferRole",
+    "dcmRulePriority",
+    "dcmNoKeywords",
+    "dcmAttributeUpdatePolicy"
   ],
   "properties": {
     "cn": {
@@ -34,8 +37,9 @@
     },
     "dcmRulePriority": {
       "title": "Rule Priority",
-      "description": "Rule Priority. 0 if absent.",
+      "description": "Rule Priority.",
       "type": "integer",
+      "default" : 0,
       "minimum": 0
     },
     "dcmAETitle": {
@@ -69,8 +73,9 @@
     },
     "dcmNoKeywords": {
       "title": "No Keywords",
-      "description": "Indicates if keywords shall be omitted in generated DICOM XML or JSON presentations; false if absent",
-      "type": "boolean"
+      "description": "Indicates if keywords shall be omitted in generated DICOM XML or JSON presentations",
+      "type": "boolean",
+      "default": false
     },
     "dcmMergeMWLMatchingKey": {
       "title": "Merge MWL Matching Key",
@@ -100,8 +105,9 @@
     },
     "dcmAttributeUpdatePolicy": {
       "title": "Attribute Update Policy",
-      "description": "Specifies how attributes shall be updated with attributes fetched from Leading C-FIND SCP. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE. If absent, MERGE will be applied.",
+      "description": "Specifies how attributes shall be updated with attributes fetched from Leading C-FIND SCP. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE.",
       "type": "string",
+      "default": "MERGE",
       "enum": [
         "SUPPLEMENT",
         "MERGE",

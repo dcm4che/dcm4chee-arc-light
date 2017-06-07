@@ -2,12 +2,16 @@
   "title": "dcm4che Device Attributes",
   "description": "dcm4che proprietary Device Attributes",
   "type": "object",
+  "required": [
+    "dcmLimitOpenAssociations"
+  ],
   "properties": {
     "dcmLimitOpenAssociations": {
       "title": "Limit Open Associations",
-      "description": "Limit open DICOM connections; rejects Association requests if the limit is exceeded; 0 (=no limit) if absent",
+      "description": "Limit open DICOM connections; rejects Association requests if the limit is exceeded.",
       "type": "integer",
-      "minimum": 0
+      "minimum": 0,
+      "default": 0
     },
     "dcmTrustStoreURL": {
       "title": "Trust Store URL",
