@@ -2299,11 +2299,14 @@ div[tooltip]{
 	margin-left:-18px !important;
 	margin-top:-18px !important;
 	position:fixed !important;
-	.spinner-icon{
+	.spinner-icon, .spinner-icon md-progress-spinner{
 		width:36px !important;
 		height:36px !important;
 		border-width:3px !important;
 	}
+  .mat-progress-spinner path, .mat-spinner path{
+    stroke:$blue;
+  }
 }
 .orderbydateasc{
 	background:url("../img/orderbydateasc.png");
