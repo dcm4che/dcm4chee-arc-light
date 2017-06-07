@@ -308,7 +308,7 @@
     },
     "dcmCopyMoveUpdatePolicy": {
       "title": "Copy Move Update Policy",
-      "description": "Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. Enumerated values: SUPPLEMENT, OVERWRITE, MERGED, REPLACE. If absent, the attributes will not be updated.",
+      "description": "Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. If absent, the attributes will not be updated. Overwrites value specified on Device level.",
       "type": "string",
       "enum": [
         "SUPPLEMENT",
@@ -330,7 +330,7 @@
     },
     "hl7PSUDelay": {
       "title": "HL7 Procedure Status Update Delay",
-      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an HL7 Procedure Status Update for a received study is sent to configured HL7 receivers. If absent, HL7 Procedure Status Update is triggered by received MPPS.",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an HL7 Procedure Status Update for a received study is sent to configured HL7 receivers. If absent, HL7 Procedure Status Update is triggered by received MPPS. Overwrites value specified on Device level.",
       "type": "string"
     },
     "hl7PSUMWL": {

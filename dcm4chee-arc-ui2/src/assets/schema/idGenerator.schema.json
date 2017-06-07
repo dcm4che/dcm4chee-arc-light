@@ -10,7 +10,7 @@
   "properties": {
     "dcmIDGeneratorName": {
       "title": "ID Generator Name",
-      "description": "ID Generator Name. Enumerated values: PatientID, AccessionNumber, RequestedProcedureID, ScheduledProcedureStepID",
+      "description": "ID Generator Name.",
       "type": "string",
       "enum": [
         "PatientID",

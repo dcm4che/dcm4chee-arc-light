@@ -24,7 +24,7 @@
     },
     "hl7OrderControlStatus": {
       "title": "HL7 Order Control Status",
-      "description": "HL7 Order Control Status Code combinations. Enumerated values: NW_SC, NW_IP, CA_CA, DC_CA, XO_SC, XO_CM, SC_CM, SC_DC, SC_IP, SC_A",
+      "description": "HL7 Order Control Status Code combinations.",
       "type": "array",
       "items": {
         "type": "string",

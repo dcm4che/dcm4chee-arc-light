@@ -15,7 +15,7 @@
     },
     "dcmRejectionNoteType": {
       "title": "Rejection Note Type",
-      "description": "Type of Rejection Note. Enumerated values: REJECTED_FOR_QUALITY_REASONS, REJECTED_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY, DATA_RETENTION_POLICY_EXPIRED, REVOKE_REJECTION.",
+      "description": "Type of Rejection Note.",
       "type": "string",
       "enum": [
         "REJECTED_FOR_QUALITY_REASONS",
@@ -32,7 +32,7 @@
     },
     "dcmAcceptPreviousRejectedInstance": {
       "title": "Accept Previous Rejected Instance",
-      "description": "Specifies behavior on subsequent occurrence of instances rejected by a particular Rejection Note. Enumerated values: REJECT, RESTORE, IGNORE.",
+      "description": "Specifies behavior on subsequent occurrence of instances rejected by a particular Rejection Note.",
       "type": "string",
       "default": "REJECT",
       "enum": [

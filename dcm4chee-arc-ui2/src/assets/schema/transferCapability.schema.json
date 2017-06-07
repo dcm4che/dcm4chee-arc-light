@@ -20,8 +20,8 @@
       "pattern": "^[0-2]((\\.0)|(\\.[1-9][0-9]*))*$"
     },
     "dicomTransferRole": {
-      "title": "Transfer Role",
-      "description": "Either SCU or SCP",
+      "title": "DICOM Transfer Role",
+      "description": "DICOM Transfer Role.",
       "type": "string",
       "enum": [
         "SCP",
@@ -30,7 +30,7 @@
     },
     "dicomTransferSyntax": {
       "title": "Transfer Syntax",
-      "description": "Transfer syntax(es) that may be requested as an SCU or that are offered as an SCP",
+      "description": "Transfer syntax(es) that may be requested as an SCU or that are offered as an SCP.",
       "type": "array",
       "items": {
         "type": "string",

@@ -61,7 +61,7 @@
     },
     "dcmInstanceAvailability": {
       "title": "Instance Availability",
-      "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE.",
+      "description": "Instance Availability.",
       "type": "string",
       "default": "ONLINE",
       "enum": [

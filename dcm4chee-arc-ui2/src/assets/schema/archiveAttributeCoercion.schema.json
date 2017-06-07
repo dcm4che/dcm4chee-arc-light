@@ -18,7 +18,7 @@
     },
     "dcmDIMSE": {
       "title": "DIMSE",
-      "description": "DIMSE: 'C_STORE_RQ', 'C_FIND_RQ', 'C_FIND_RSP'",
+      "description": "DICOM Message Element.",
       "type": "string",
       "enum": [
         "C_STORE_RQ",
@@ -28,7 +28,7 @@
     },
     "dicomTransferRole": {
       "title": "DICOM Transfer Role",
-      "description": "Transfer role (either 'SCU' or 'SCP')",
+      "description": "DICOM Transfer Role.",
       "type": "string",
       "enum": [
         "SCU",
@@ -79,7 +79,7 @@
     },
     "dcmMergeMWLMatchingKey": {
       "title": "Merge MWL Matching Key",
-      "description": "Specifies attribute of received object to lookup MWL Item used to coerce request attributes. Enumerated values: AccessionNumber, StudyInstanceUID, ScheduledProcedureStepID. If absent, request attributes of received objects will not be coerced.",
+      "description": "Specifies attribute of received object to lookup MWL Item used to coerce request attributes. If absent, request attributes of received objects will not be coerced.",
       "type": "string",
       "enum": [
         "AccessionNumber",
@@ -105,7 +105,7 @@
     },
     "dcmAttributeUpdatePolicy": {
       "title": "Attribute Update Policy",
-      "description": "Specifies how attributes shall be updated with attributes fetched from Leading C-FIND SCP. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE.",
+      "description": "Specifies how attributes shall be updated with attributes fetched from Leading C-FIND SCP.",
       "type": "string",
       "default": "MERGE",
       "enum": [

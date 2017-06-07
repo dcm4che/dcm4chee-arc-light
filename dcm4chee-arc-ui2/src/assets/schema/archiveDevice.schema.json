@@ -404,7 +404,7 @@
     },
     "dcmShowPatientInfoInSystemLog": {
       "title": "Show Patient Info In System Log",
-      "description": "Specifies if Patient Information is shown as plain text or hashed in system logs. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID.",
+      "description": "Specifies if Patient Information is shown as plain text or hashed in system logs.",
       "type": "string",
       "default": "PLAIN_TEXT",
       "enum": [
@@ -415,7 +415,7 @@
     },
     "dcmShowPatientInfoInAuditLog": {
       "title": "Show Patient Info In Audit Log",
-      "description": "Specifies if Patient Information is shown as plain text or hashed in emitted audit messages. Enumerated values. PLAIN_TEXT, HASH_NAME, HASH_NAME_AND_ID.",
+      "description": "Specifies if Patient Information is shown as plain text or hashed in emitted audit messages.",
       "type": "string",
       "default": "PLAIN_TEXT",
       "enum": [
@@ -447,7 +447,7 @@
     },
     "hl7ScheduledProtocolCodeInOrder": {
       "title": "HL7 Schedule Protocol Code in Order",
-      "description": "Specifies location of Scheduled Protocol Code in received HL7 Order message. May be overwritten by configured values for particular Archive HL7 Application",
+      "description": "Specifies location of Scheduled Protocol Code in received HL7 Order message. May be overwritten by configured values for particular Archive HL7 Application.",
       "type": "string",
       "default": "OBR_4_4",
       "enum": [
@@ -457,7 +457,7 @@
     },
     "hl7ScheduledStationAETInOrder": {
       "title": "HL7 Schedule Station AET in Order",
-      "description": "Specifies location of Scheduled Station AE Title in received HL7 Order message. Enumerated values: ORC_18. Not effective for HL7 v2.5.1 OMI^O23 with IPC segment. If absent or no value is provided in the configured field, the Scheduled Station AE Title is selected according configured rules.",
+      "description": "Specifies location of Scheduled Station AE Title in received HL7 Order message. Not effective for HL7 v2.5.1 OMI^O23 with IPC segment. If absent or no value is provided in the configured field, the Scheduled Station AE Title is selected according configured rules. May be overwritten by configured values for particular Archive HL7 Application.",
       "type": "string",
       "enum": [
         "ORC_18"
@@ -692,7 +692,7 @@
     },
     "dcmCopyMoveUpdatePolicy": {
       "title": "Copy Move Update Policy",
-      "description": "Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. Enumerated values: SUPPLEMENT, OVERWRITE, MERGED, REPLACE. If absent, the attributes will not be updated.",
+      "description": "Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. If absent, the attributes will not be updated. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "enum": [
         "SUPPLEMENT",
@@ -725,7 +725,7 @@
     },
     "hl7PSUDelay": {
       "title": "HL7 Procedure Status Update Delay",
-      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an HL7 Procedure Status Update for a received study is sent to configured HL7 receivers. If absent, HL7 Procedure Status Update is triggered by received MPPS.",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an HL7 Procedure Status Update for a received study is sent to configured HL7 receivers. If absent, HL7 Procedure Status Update is triggered by received MPPS. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string"
     },
     "hl7PSUMWL": {

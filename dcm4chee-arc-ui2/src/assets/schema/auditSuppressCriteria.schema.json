@@ -29,7 +29,7 @@
     },
     "dcmAuditEventActionCode": {
       "title": "Event Action Code",
-      "description": "RFC 3881 Audit Event Action Type code. Enumerated values: C, R, U, D, E",
+      "description": "RFC 3881 Audit Event Action Type code.",
       "type": "array",
       "items": {
         "type": "string",
@@ -44,7 +44,7 @@
     },
     "dcmAuditEventOutcomeIndicator": {
       "title": "Event Outcome Indicator",
-      "description": "RFC 3881 Audit Event Outcome Indicator. Enumerated values: 0, 4, 8, 12",
+      "description": "RFC 3881 Audit Event Outcome Indicator.",
       "type": "array",
       "items": {
         "type": "string",
