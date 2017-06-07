@@ -7,6 +7,7 @@ import {Checkbox} from '../helpers/form/checkboxes';
 import {ArrayElement} from '../helpers/form/array-element';
 import {DropdownList} from '../helpers/form/dropdown-list';
 import {InputNumber} from '../helpers/form/input-number';
+import {WindowRefService} from "../helpers/window-ref.service";
 
 @Injectable()
 export class DeviceConfiguratorService{
@@ -55,10 +56,10 @@ export class DeviceConfiguratorService{
         console.log('this.device', this.device);
     }
     getDevice(devicename){
-        return this.$http.get('../devices/' + devicename).map(device => device.json());
+        return this.$http.get('../devices/' + devicename).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     }
     getSchema(schema){
-        return this.$http.get('./assets/schema/' + schema).map(device => device.json());
+        return this.$http.get('./assets/schema/' + schema).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     };
     getSchemaFromPath(schema, schemaparam){
         let paramArray = schemaparam.split('.');
@@ -191,14 +192,14 @@ export class DeviceConfiguratorService{
         if (_.hasIn(this.device, 'dicomDeviceName') && this.device.dicomDeviceName != ''){
             console.log('paginationtitle', this.pagination[1].title);
             console.log('this.device.dicomDeviceName', this.device.dicomDeviceName);
-            return this.$http.put('../devices/' + this.device.dicomDeviceName, this.device).map(device => device.json());
+            return this.$http.put('../devices/' + this.device.dicomDeviceName, this.device).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
         }else{
             return null;
         }
     }
     createDevice(){
         if (_.hasIn(this.device, 'dicomDeviceName') && this.device.dicomDeviceName != ''){
-            return this.$http.post('../devices/' + this.device.dicomDeviceName, this.device).map(device => device.json());
+            return this.$http.post('../devices/' + this.device.dicomDeviceName, this.device).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
         }else{
             return null;
         }

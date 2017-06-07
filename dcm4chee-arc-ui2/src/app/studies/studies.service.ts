@@ -3,6 +3,7 @@ import {Http, Headers} from '@angular/http';
 import {DatePipe} from '@angular/common';
 import * as _ from 'lodash';
 import {Observable} from 'rxjs';
+import {WindowRefService} from "../helpers/window-ref.service";
 declare var DCM4CHE: any;
 declare var window: any;
 
@@ -135,7 +136,12 @@ export class StudiesService {
             url + '/patients' + this._config(params),
             {
                 headers:  new Headers({'Accept': 'application/dicom+json'})
-            }).map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+            }).map(res => {let resjson; try{
+            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+            if(pattern.exec(res.url)){
+                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+            }
+            resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
     };
 
     queryStudies = function(url, params) {
@@ -148,8 +154,9 @@ export class StudiesService {
         ).map(res => {
             let resjson;
             try{
-                if(res.url && res.url.indexOf("auth/realms")){
-                    window.location = res.url;
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 }
                 resjson = res.json();
             }catch (e){
@@ -178,7 +185,12 @@ export class StudiesService {
             {
                 headers:  new Headers({'Accept': 'application/dicom+json'})
             }
-        ).map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+        ).map(res => {let resjson; try{
+            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+            if(pattern.exec(res.url)){
+                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+            }
+            resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
     };
 
     querySeries = function(url, studyIUID, params) {
@@ -187,7 +199,12 @@ export class StudiesService {
             {
                 headers:  new Headers({'Accept': 'application/dicom+json'})
             }
-        ).map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+        ).map(res => {let resjson; try{
+            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+            if(pattern.exec(res.url)){
+                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+            }
+            resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
     };
 
     queryInstances = function(url, studyIUID, seriesIUID, params) {
@@ -199,7 +216,12 @@ export class StudiesService {
             {
                 headers:  new Headers({'Accept': 'application/dicom+json'})
             }
-        ).map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+        ).map(res => {let resjson; try{
+            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+            if(pattern.exec(res.url)){
+                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+            }
+            resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
     };
 
     getPatientIod(){
@@ -207,7 +229,12 @@ export class StudiesService {
         if (this._patientIod) {
             return Observable.of(this._patientIod);
         } else {
-            return this.$http.get('assets/iod/patient.iod.json').map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+            return this.$http.get('assets/iod/patient.iod.json').map(res => {let resjson; try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
         }
     };
     getStudyIod(){
@@ -215,7 +242,12 @@ export class StudiesService {
         if (this._studyIod) {
             return Observable.of(this._studyIod);
         } else {
-            return this.$http.get('assets/iod/study.iod.json').map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+            return this.$http.get('assets/iod/study.iod.json').map(res => {let resjson; try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
         }
     };
     getMwlIod(){
@@ -225,7 +257,12 @@ export class StudiesService {
         } else {
             return this.$http.get(
                 'assets/iod/mwl.iod.json'
-            ).map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+            ).map(res => {let resjson; try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
         }
     };
 

@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import {AppService} from '../../../app.service';
 import {Http} from '@angular/http';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
+import {WindowRefService} from "../../../helpers/window-ref.service";
 
 @Component({
   selector: 'app-create-ae',
@@ -76,7 +77,7 @@ export class CreateAeComponent {
             }else{
                 $this.cfpLoadingBar.start();
                 $this.$http.get('../devices/' + this.selectedDevice)
-                    .map(res => res.json())
+                    .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                     .subscribe((response) => {
                         $this.selctedDeviceObject = response;
                         // $scope.selctedDeviceObject.dicomNetworkConnection;

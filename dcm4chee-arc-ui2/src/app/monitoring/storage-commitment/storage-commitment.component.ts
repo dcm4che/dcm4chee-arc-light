@@ -7,6 +7,7 @@ import {MdDialogConfig, MdDialog, MdDialogRef} from '@angular/material';
 import * as _ from 'lodash';
 import {AppService} from '../../app.service';
 import {StorageCommitmentService} from './storage-commitment.service';
+import {WindowRefService} from "../../helpers/window-ref.service";
 
 @Component({
   selector: 'app-storage-commitment',
@@ -95,7 +96,7 @@ export class StorageCommitmentComponent implements OnInit {
         let $this = this;
         $this.cfpLoadingBar.start();
         this.service.search(this.filters, offset)
-            .map(res => res.json())
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
                 console.log('res2', res);
                 console.log('res', res.length);
@@ -216,7 +217,7 @@ export class StorageCommitmentComponent implements OnInit {
                 }else{
 
                     this.service.flush(parameters.result.select, parameters.result.date)
-                        .map(res => res.json())
+                        .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                         .subscribe((res) => {
                             console.log('resflush', res);
                             $this.mainservice.setMessage({
@@ -291,7 +292,7 @@ export class StorageCommitmentComponent implements OnInit {
      let $this = this;
      $this.cfpLoadingBar.start();
      this.$http.get("../monitor/export")
-     .map(res => res.json())
+     .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
      .subscribe((res) => {
      $this.exportTasks = res;
      // $this.queueName = res[0].name;
@@ -301,7 +302,7 @@ export class StorageCommitmentComponent implements OnInit {
     initExporters(retries) {
         let $this = this;
         this.$http.get('../export')
-            .map(res => res.json())
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe(
                 (res) => {
                     console.log('res', res);

@@ -7,6 +7,7 @@ import {AppService} from '../app.service';
 import {MdDialog, MdDialogConfig, MdDialogRef} from '@angular/material';
 import {CreateAeComponent} from '../widgets/dialogs/create-ae/create-ae.component';
 import {DevicesService} from '../devices/devices.service';
+import {WindowRefService} from "../helpers/window-ref.service";
 
 @Component({
   selector: 'app-ae-list',
@@ -97,7 +98,7 @@ export class AeListComponent{
         }
         let $this = this;
         this.$http.get('../aes' + urlParam)
-            .map(res => res.json())
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((response) => {
                 $this.aes = response;
                 $this.cfpLoadingBar.complete();
@@ -145,7 +146,7 @@ export class AeListComponent{
                 $this.$http.post(
                     '../aets/' + parameters.result.select + '/echo/' + ae,
                     {}
-                ).map(res => res.json())
+                ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                     .subscribe((response) => {
                         console.log('response', response);
                         if (_.hasIn(response, 'errorMessage') && response.errorMessage != '') {
@@ -224,7 +225,7 @@ export class AeListComponent{
                         });
                 }else{
                     $this.$http.get('../devices/' + device)
-                        .map(res => res.json())
+                        .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                         .subscribe(
                             (res) => {
                                 console.log('res', res);
@@ -428,7 +429,7 @@ export class AeListComponent{
                 '../aes'
                 // './assets/dummydata/aes.json'
             )
-                .map(res => res.json())
+                .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                 .subscribe((response) => {
                     $this.aes = response;
                     if ($this.mainservice.global && !$this.mainservice.global.aes){
@@ -452,7 +453,7 @@ export class AeListComponent{
         let $this = this;
         this.$http.get(
             '../aets'
-        ).map(res => res.json())
+        ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((response) => {
                 $this.aets = response;
 
@@ -469,7 +470,7 @@ export class AeListComponent{
             this.$http.get(
                 '../devices'
                 // './assets/dummydata/devices.json'
-            ).map(res => res.json())
+            ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                 .subscribe((response) => {
                     $this.devices = response;
                 }, (err) => {

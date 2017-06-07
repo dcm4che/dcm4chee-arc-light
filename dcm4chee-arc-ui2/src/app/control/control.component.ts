@@ -6,6 +6,7 @@ import {AppService} from '../app.service';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {MessagingComponent} from '../widgets/messaging/messaging.component';
 import {ControlService} from './control.service';
+import {WindowRefService} from "../helpers/window-ref.service";
 
 @Component({
     selector: 'app-control',
@@ -24,7 +25,7 @@ export class ControlComponent {
     fetchStatus() {
         let $this = this;
         this.$http.get('/dcm4chee-arc/ctrl/status')
-            .map(response => response.json())
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe( (res) => {
                 $this.status = res['status'];
                 $this.message = '';

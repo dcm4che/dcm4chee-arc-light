@@ -4,6 +4,7 @@ import {Http} from '@angular/http';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import * as _ from 'lodash';
 import {AppService} from '../../app.service';
+import {WindowRefService} from "../window-ref.service";
 
 @Component({
   selector: 'file-attribute-list',
@@ -33,7 +34,7 @@ export class FileAttributeListComponent implements OnInit {
             '/metadata';
         let $this = this;
         this.$http.get(url)
-            .map(response => response.json())
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((response) => {
                 let attrs = response[0];
                 console.log('attrs', attrs);

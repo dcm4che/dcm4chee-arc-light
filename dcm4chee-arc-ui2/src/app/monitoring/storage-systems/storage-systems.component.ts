@@ -7,6 +7,7 @@ import {AppService} from '../../app.service';
 import * as _ from 'lodash';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {StorageSystemsService} from './storage-systems.service';
+import {WindowRefService} from "../../helpers/window-ref.service";
 
 @Component({
   selector: 'app-storage-systems',
@@ -94,7 +95,7 @@ export class StorageSystemsComponent implements OnInit {
         let $this = this;
         $this.cfpLoadingBar.start();
         this.service.search(this.filters, offset)
-            .map(res => res.json())
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
                 if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
@@ -241,7 +242,7 @@ export class StorageSystemsComponent implements OnInit {
                 }else{
 
                     this.service.flush(parameters.result.select, parameters.result.date)
-                        .map(res => res.json())
+                        .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                         .subscribe((res) => {
                             console.log('resflush', res);
                             $this.mainservice.setMessage({
@@ -304,7 +305,7 @@ export class StorageSystemsComponent implements OnInit {
         let $this = this;
         this.$http.get(
             '../aets'
-        ).map(res => res.json())
+        ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((response) => {
                 $this.aets = response;
 
@@ -317,7 +318,7 @@ export class StorageSystemsComponent implements OnInit {
      let $this = this;
      $this.cfpLoadingBar.start();
      this.$http.get("../monitor/export")
-     .map(res => res.json())
+     .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
      .subscribe((res) => {
      $this.exportTasks = res;
      // $this.queueName = res[0].name;
@@ -327,7 +328,7 @@ export class StorageSystemsComponent implements OnInit {
 /*    initExporters(retries) {
         let $this = this;
         this.$http.get("../storage")
-            .map(res => res.json())
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe(
                 (res) => {
                     console.log("res",res);

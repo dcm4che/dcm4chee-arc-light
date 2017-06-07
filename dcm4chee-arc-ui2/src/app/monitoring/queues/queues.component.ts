@@ -8,6 +8,7 @@ import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
 import {DatePipe} from '@angular/common';
 import * as _ from 'lodash';
+import {WindowRefService} from "../../helpers/window-ref.service";
 
 @Component({
   selector: 'app-queues',
@@ -84,7 +85,7 @@ export class QueuesComponent {
         let $this = this;
         $this.cfpLoadingBar.start();
         this.service.search(this.queueName, this.status, offset, this.limit)
-            .map(res => res.json())
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
                 if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
@@ -215,7 +216,7 @@ export class QueuesComponent {
             if (result){
                 $this.cfpLoadingBar.start();
                 this.service.flush(this.queueName, this.status, this.before)
-                    .map(res => res.json())
+                    .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                     .subscribe((res) => {
                         console.log('resflush', res);
                         $this.mainservice.setMessage({
@@ -253,7 +254,7 @@ export class QueuesComponent {
         let $this = this;
         $this.cfpLoadingBar.start();
         this.$http.get('../queue')
-            .map(res => res.json())
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
             $this.queues = res;
             $this.queueName = res[0].name;

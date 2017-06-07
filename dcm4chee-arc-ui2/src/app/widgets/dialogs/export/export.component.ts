@@ -3,6 +3,7 @@ import {MdDialogRef} from '@angular/material';
 import {AppService} from '../../../app.service';
 import {Http} from '@angular/http';
 import * as _ from 'lodash';
+import {WindowRefService} from "../../../helpers/window-ref.service";
 
 @Component({
     selector: 'app-export',
@@ -108,7 +109,7 @@ export class ExportDialogComponent{
         this.$http.get(
             '../aes'
         )
-        .map(res => res.json())
+        .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
         .subscribe((response) => {
             $this.aes = response;
             $this._result.selectedAet = $this._result.selectedAet || $this.aes[0].dicomAETitle;

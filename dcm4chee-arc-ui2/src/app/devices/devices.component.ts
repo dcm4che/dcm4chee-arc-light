@@ -9,6 +9,7 @@ import {DevicesService} from './devices.service';
 import {HostListener} from '@angular/core';
 import {CreateExporterComponent} from '../widgets/dialogs/create-exporter/create-exporter.component';
 import {Router} from '@angular/router';
+import {WindowRefService} from "../helpers/window-ref.service";
 
 @Component({
   selector: 'app-devices',
@@ -90,7 +91,7 @@ export class DevicesComponent {
         }
         this.$http.get(
             '../devices' + urlParam
-        ).map(res => res.json())
+        ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
         .subscribe((response) => {
             $this.devices = response;
             $this.cfpLoadingBar.complete();
@@ -193,7 +194,7 @@ export class DevicesComponent {
                     $this.$http.get(
                         '../devices/' + devicename.dicomDeviceName
                     )
-                    .map(res => res.json())
+                    .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                     .subscribe(
                         (device) => {
                             console.log('response', device);
@@ -282,7 +283,7 @@ export class DevicesComponent {
                 '../aes'
                 // './assets/dummydata/aes.json'
             )
-                .map(res => res.json())
+                .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                 .subscribe((response) => {
                     $this.aes = response;
                     if ($this.mainservice.global && !$this.mainservice.global.aes){
@@ -312,7 +313,7 @@ export class DevicesComponent {
             this.$http.get(
                 '../devices'
                 // './assets/dummydata/devices.json'
-            ).map(res => res.json())
+            ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                 .subscribe((response) => {
                     console.log('getdevices response', response);
                     console.log('global', $this.mainservice.global);
