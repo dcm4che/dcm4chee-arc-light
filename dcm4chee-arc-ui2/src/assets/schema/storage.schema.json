@@ -21,7 +21,7 @@
     },
     "dcmDigestAlgorithm": {
       "title": "Digest Algorithm",
-      "description": "Algorithm for generation of check sums: 'MD5' or 'SHA-1'",
+      "description": "Algorithm for generation of check sums.",
       "type": "string",
       "enum" : [
         "MD5",
