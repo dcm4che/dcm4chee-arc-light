@@ -7,7 +7,8 @@
     "dcmJndiName",
     "dcmRetryDelay",
     "dcmRetryOnWarning",
-    "dcmRetryDelayMultiplier"
+    "dcmRetryDelayMultiplier",
+    "dcmMaxRetries"
   ],
   "properties": {
     "dcmQueueName": {
@@ -29,7 +30,8 @@
       "title": "Maximum Number of Retries",
       "description": "Maximal number of retries to process tasks scheduled in a specific queue.",
       "type": "integer",
-      "minimum": 0
+      "minimum": 0,
+      "default": 0
     },
     "dcmRetryDelay": {
       "title": "Retry Delay",
