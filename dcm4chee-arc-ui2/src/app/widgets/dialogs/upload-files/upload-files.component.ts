@@ -19,6 +19,7 @@ export class UploadFilesComponent implements OnInit {
     percentComplete: any;
     selectedSopClass;
     modality;
+    description;
     showFileList = false;
     isImage = false;
     imageType = [
@@ -55,6 +56,7 @@ export class UploadFilesComponent implements OnInit {
         let $this = this;
         let boundary = Math.random().toString().substr(2);
         let filetype;
+        let descriptionPart;
         this.showFileList = true;
         // this.fileList = this.file;
         if (this.fileList) {
@@ -64,13 +66,16 @@ export class UploadFilesComponent implements OnInit {
                     case "image/jpeg":
                         transfareSyntax = "1.2.840.10008.1.2.4.50";
                         $this.modality = $this.selectedSopClass.modality;
+                        descriptionPart = "Image";
                         break;
                     case "video/mpeg":
                         transfareSyntax = "1.2.840.10008.1.2.4.100";
+                        descriptionPart = "Video";
                         $this.modality = "XC";
                         break;
                     case "application/pdf":
                         transfareSyntax = "";
+                        descriptionPart = "PDF";
                         $this.modality = "DOC";
                         break;
                 }
@@ -146,6 +151,15 @@ export class UploadFilesComponent implements OnInit {
                             "vr":"CS",
                             "Value":[
                                 $this.modality
+                            ]
+                        };
+                        if(!$this.description || $this.description === ""){
+                         $this.description = "Imported " + descriptionPart;
+                        }
+                        studyObject["0008103E"] =  {
+                            "vr":"LO",
+                            "Value":[
+                                $this.description
                             ]
                         }
                         // const dataView = new DataView(e.target['result']);

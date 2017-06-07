@@ -12,7 +12,8 @@
                     <md-option *ngFor="let type of imageType" [value]="type" title="{{type.description}}">{{ type.title }}</md-option>
                 </md-select>
             </ng-container>
-            <label>Chose a File to upload:</label>
+            <label title="Series Description">Description:</label><input type="text" [(ngModel)]="description"><br>
+            <label>Chose a File to upload:</label><br>
             <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  accept="image/jpeg,video/mpeg,application/pdf">
             <div md-dialog-content>
                 <ng-container *ngIf="showFileList">

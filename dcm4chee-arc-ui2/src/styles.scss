@@ -805,6 +805,11 @@ md-dialog-container{
     //margin-bottom: 10px;
     margin-top: 20px;
   }
+  input[type=text]{
+    margin:5px 0;
+    border: 1px solid #ccc;
+    padding:3px 7px;
+  }
   md-select{
     width:100%;
   }
