@@ -90,6 +90,7 @@ export class UploadDicomComponent implements OnInit{
                     this.percentComplete[file.name] = {};
                     this.percentComplete[file.name]['value'] = 0;
                     $this.percentComplete[file.name]['showTicker'] = false;
+                    $this.percentComplete[file.name]['showLoader'] = true;
 /*                    let reader = new FileReader();
                     // reader.readAsBinaryString(file);
                     reader.readAsArrayBuffer(file);
@@ -135,10 +136,12 @@ export class UploadDicomComponent implements OnInit{
                         if (xmlHttpRequest.readyState === 4) {
                             if (xmlHttpRequest.status === 200) {
                                 console.log('in response', JSON.parse(xmlHttpRequest.response));
+                                $this.percentComplete[file.name]['showLoader'] = false;
                                 $this.percentComplete[file.name]['showTicker'] = true;
                             } else {
                                 console.log('in respons error', xmlHttpRequest.status);
                                 console.log('statusText', xmlHttpRequest.statusText);
+                                $this.percentComplete[file.name]['showLoader'] = false;
                                 $this.percentComplete[file.name]['value'] = 0;
                                 $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + ' ' + xmlHttpRequest.statusText;
                             }
@@ -149,6 +152,7 @@ export class UploadDicomComponent implements OnInit{
                     };
                     xmlHttpRequest.upload.onloadend = function (e) {
                         if (xmlHttpRequest.status === 200){
+                            $this.percentComplete[file.name]['showLoader'] = false;
                             $this.percentComplete[file.name]['value'] = 100;
                         }
                     };
@@ -167,9 +171,6 @@ export class UploadDicomComponent implements OnInit{
         // dialogRef.close("ok");
     }
     close(dialogRef){
-        if (this.xmlHttpRequest){
-            this.xmlHttpRequest.abort();
-        }
         dialogRef.close(null);
     }
     onChange(newValue) {

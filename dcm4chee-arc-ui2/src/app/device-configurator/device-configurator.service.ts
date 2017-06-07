@@ -223,9 +223,6 @@ export class DeviceConfiguratorService{
         return string || '';
     }
     convertSchemaToForm(device, schema, params){
-        console.log('device=', device);
-        console.log('schema=', schema);
-        console.log('params=', params);
         let $this = this;
         let form = [];
         if (_.hasIn(schema, 'type')){

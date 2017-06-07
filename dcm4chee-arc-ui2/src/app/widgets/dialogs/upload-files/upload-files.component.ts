@@ -76,24 +76,26 @@ export class UploadFilesComponent implements OnInit {
                 }
                 if(transfareSyntax || transfareSyntax === ""){
                     this.percentComplete[file.name] = {};
-                    this.percentComplete[file.name]['value'] = 0;
+                    // this.percentComplete[file.name]['value'] = 0;
+
                     $this.percentComplete[file.name]['showTicker'] = false;
+                    $this.percentComplete[file.name]['showLoader'] = true;
 /*                    let reader = new FileReader();
                     // reader.readAsBinaryString(file);
                     reader.readAsArrayBuffer(file);
                     reader.onload = function (e) {*/
 
-                        let xmlHttpRequest = new XMLHttpRequest();
+                        $this.xmlHttpRequest = new XMLHttpRequest();
                         //Some AJAX-y stuff - callbacks, handlers etc.
-                        xmlHttpRequest.open('POST', `../aets/${$this._selectedAe}/rs/studies`, true);
+                        $this.xmlHttpRequest.open('POST', `../aets/${$this._selectedAe}/rs/studies`, true);
                         let dashes = '--';
                         let crlf = '\r\n';
                         //Post with the correct MIME type (If the OS can identify one)
-                        let studyObject = _.cloneDeep($this._dicomObject.attrs);
-/*                        studyObject = studyObject.filter((attr,i)=>{
-                                console.log("attr",attr);
-                                console.log("i",i);
-                            });*/
+                        let studyObject  = _.pickBy($this._dicomObject.attrs,(o,i)=>{
+                            console.log("o",o);
+                            console.log("i",i);
+                                return (i.toString().indexOf("777") === -1);
+                        })
                         if(file.type === "application/pdf"){
                             studyObject["00420011"] = {
                                 "vr": "OB",
@@ -165,37 +167,41 @@ export class UploadFilesComponent implements OnInit {
                             uint8Array[i] = postDataEnd.charCodeAt(j) & 0xFF;
                         }
                         const payload = uint8Array.buffer;*/
-                        xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type=application/dicom+json;boundary=' + boundary + ';');
-                        xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
-                        xmlHttpRequest.upload.onprogress = function (e) {
+                        $this.xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type=application/dicom+json;boundary=' + boundary + ';');
+                        $this.xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
+                        $this.xmlHttpRequest.upload.onprogress = function (e) {
                             if (e.lengthComputable) {
                                 $this.percentComplete[file.name]['value'] = (e.loaded / e.total) * 100;
                             }
                         };
-                        xmlHttpRequest.onreadystatechange = () => {
-                            if (xmlHttpRequest.readyState === 4) {
-                                if (xmlHttpRequest.status === 200) {
-                                    console.log('in response', JSON.parse(xmlHttpRequest.response));
+                        $this.xmlHttpRequest.onreadystatechange = () => {
+                            if ($this.xmlHttpRequest.readyState === 4) {
+                                if ($this.xmlHttpRequest.status === 200) {
+                                    console.log('in response', JSON.parse($this.xmlHttpRequest.response));
+                                    $this.percentComplete[file.name]['showLoader'] = false;
                                     $this.percentComplete[file.name]['showTicker'] = true;
                                 } else {
-                                    console.log('in respons error', xmlHttpRequest.status);
-                                    console.log('statusText', xmlHttpRequest.statusText);
+                                    $this.percentComplete[file.name]['showLoader'] = false;
+                                    console.log('in respons error', $this.xmlHttpRequest.status);
+                                    console.log('statusText', $this.xmlHttpRequest.statusText);
                                     $this.percentComplete[file.name]['value'] = 0;
-                                    $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + ' ' + xmlHttpRequest.statusText;
+                                    $this.percentComplete[file.name]['status'] = $this.xmlHttpRequest.status + ' ' + $this.xmlHttpRequest.statusText;
                                 }
                             }
+                            // $this.percentComplete[file.name]['showLoader'] = true;
                         };
-                        xmlHttpRequest.upload.onloadstart = function (e) {
-                            $this.percentComplete[file.name]['value'] = 0;
+                        $this.xmlHttpRequest.upload.onloadstart = function (e) {
+                            $this.percentComplete[file.name]['value'] = 1;
                         };
-                        xmlHttpRequest.upload.onloadend = function (e) {
-                            if (xmlHttpRequest.status === 200) {
+                        $this.xmlHttpRequest.upload.onloadend = function (e) {
+                            if ($this.xmlHttpRequest.status === 200) {
+                            $this.percentComplete[file.name]['showLoader'] = false;
                                 $this.percentComplete[file.name]['value'] = 100;
                             }
                         };
                         //Send the binary data
-                        // xmlHttpRequest.send(payload);
-                    xmlHttpRequest.send(new Blob([new Blob([postDataStart]),file, new Blob([postDataEnd])]));
+                        // $this.xmlHttpRequest.send(payload);
+                    $this.xmlHttpRequest.send(new Blob([new Blob([postDataStart]),file, new Blob([postDataEnd])]));
                     // };
                 }else{
                     $this.mainservice.setMessage({
