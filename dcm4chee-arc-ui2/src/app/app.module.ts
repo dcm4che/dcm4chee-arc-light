@@ -59,6 +59,7 @@ import { FileUploadModule} from 'ng2-file-upload';
 import { StorageSystemsComponent } from './monitoring/storage-systems/storage-systems.component';
 import {StorageSystemsService} from './monitoring/storage-systems/storage-systems.service';
 import {UploadDicomService} from './widgets/dialogs/upload-dicom/upload-dicom.service';
+import {WindowRefService} from "./helpers/window-ref.service";
 
 @NgModule({
     declarations: [
@@ -159,7 +160,8 @@ import {UploadDicomService} from './widgets/dialogs/upload-dicom/upload-dicom.se
         StorageSystemsService,
         CreateExporterService,
         DeviceConfiguratorService,
-        UploadDicomService
+        UploadDicomService,
+        WindowRefService
     ],
     bootstrap: [AppComponent]
 })

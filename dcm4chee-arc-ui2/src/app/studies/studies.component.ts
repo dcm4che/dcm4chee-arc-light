@@ -21,6 +21,7 @@ import {DatePipe} from '@angular/common';
 import {ExportDialogComponent} from '../widgets/dialogs/export/export.component';
 import {UploadDicomComponent} from '../widgets/dialogs/upload-dicom/upload-dicom.component';
 import {UploadFilesComponent} from "../widgets/dialogs/upload-files/upload-files.component";
+import {WindowRefService} from "../helpers/window-ref.service";
 
 @Component({
     selector: 'app-studies',
@@ -720,7 +721,7 @@ export class StudiesComponent implements OnDestroy{
                 $this.$http.delete(
                     '../reject/' + re.reject + '?' + $this.mainservice.param(params)
                 )
-                    .map(res => res.json())
+                    .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                     .subscribe(
                     (res) => {
                         console.log('in res', res);
@@ -2864,6 +2865,10 @@ export class StudiesComponent implements OnDestroy{
                                         console.log('in map1', res);
                                         let resjson;
                                         try {
+                                            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                            if(pattern.exec(res.url)){
+                                                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                            }
                                             resjson = res.json();
                                         } catch (e) {
                                             resjson = {};
@@ -2996,6 +3001,10 @@ export class StudiesComponent implements OnDestroy{
                                                         .map(res => {
                                                             let resjson;
                                                             try {
+                                                                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                                if(pattern.exec(res.url)){
+                                                                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                                }
                                                                 resjson = res.json();
                                                             } catch (e) {
                                                                 resjson = {};
@@ -3258,7 +3267,12 @@ export class StudiesComponent implements OnDestroy{
         if (!this.aes){
             let $this = this;
            this.$http.get('../aets')
-                .map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+                .map(res => {let resjson; try{
+                    let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                    if(pattern.exec(res.url)){
+                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                    }
+                    resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
                 .subscribe(
                     function (res) {
                         console.log('before call getAes', res, 'this user=', $this.user);
@@ -3324,7 +3338,12 @@ export class StudiesComponent implements OnDestroy{
     initAttributeFilter(entity, retries) {
         let $this = this;
        this.$http.get('../attribute-filter/' + entity)
-            .map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+            .map(res => {let resjson; try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
             .subscribe(
                 function (res) {
                     if (entity === 'Patient' && res.dcmTag){
@@ -3363,7 +3382,12 @@ export class StudiesComponent implements OnDestroy{
                 {},
                 headers
             )
-            .map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+            .map(res => {let resjson; try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
             .subscribe(
             (response) => {
                 // console.log("response",response);
@@ -3506,7 +3530,12 @@ export class StudiesComponent implements OnDestroy{
     initExporters(retries) {
         let $this = this;
        this.$http.get('../export')
-            .map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+            .map(res => {let resjson; try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
             .subscribe(
                 function (res) {
                     $this.exporters = res;
@@ -3530,7 +3559,12 @@ export class StudiesComponent implements OnDestroy{
     initRjNotes(retries) {
         let $this = this;
        this.$http.get('../reject')
-            .map(res => {let resjson; try{resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+            .map(res => {let resjson; try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
             .subscribe(
                 function (res) {
                     let rjnotes = res;

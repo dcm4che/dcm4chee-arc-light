@@ -7,6 +7,7 @@ import 'rxjs/add/operator/catch';
 import {Http} from '@angular/http';
 import {ProductLabellingComponent} from './widgets/dialogs/product-labelling/product-labelling.component';
 import {HostListener} from '@angular/core';
+import {WindowRefService} from "./helpers/window-ref.service";
 // import {DCM4CHE} from "./constants/dcm4-che";
 // declare var $:JQueryStatic;
 // import * as vex from "vex-js";
@@ -76,7 +77,8 @@ export class AppComponent {
         this.initGetDevicename(2);
 
         this.$http.get('../auth')
-            .map(res => res.json())
+            .map(res => {
+                let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe(
                     (response) => {
                     $this.url  = response.url;
@@ -179,12 +181,12 @@ export class AppComponent {
     initGetDevicename(retries){
         let $this = this;
         this.$http.get('../devicename')
-            .map(res => res.json())
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe(
                 (res) => {
                     console.log('devicename', res);
                     $this.$http.get('../devices?dicomDeviceName=' + res.dicomDeviceName)
-                        .map(res => res.json())
+                        .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                         .subscribe(arc => {
                             console.log('arch');
                             $this.archive = arc[0];

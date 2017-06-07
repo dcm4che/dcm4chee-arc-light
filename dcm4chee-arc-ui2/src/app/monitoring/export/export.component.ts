@@ -8,6 +8,7 @@ import * as _ from 'lodash';
 import {AppService} from '../../app.service';
 import {ExportService} from './export.service';
 import {ExportDialogComponent} from '../../widgets/dialogs/export/export.component';
+import {WindowRefService} from "../../helpers/window-ref.service";
 
 @Component({
   selector: 'app-export',
@@ -96,7 +97,7 @@ export class ExportComponent implements OnInit {
         let $this = this;
         $this.cfpLoadingBar.start();
         this.service.search(this.filters, offset)
-            .map(res => res.json())
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
                 console.log('res2', res);
                 console.log('res', res.length);
@@ -324,7 +325,7 @@ export class ExportComponent implements OnInit {
         let $this = this;
         $this.cfpLoadingBar.start();
         this.$http.get("../monitor/export")
-            .map(res => res.json())
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
                 $this.exportTasks = res;
                 // $this.queueName = res[0].name;
@@ -334,7 +335,7 @@ export class ExportComponent implements OnInit {
     initExporters(retries) {
         let $this = this;
         this.$http.get('../export')
-            .map(res => res.json())
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe(
                 (res) => {
                     console.log('res', res);

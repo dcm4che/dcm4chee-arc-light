@@ -8,6 +8,7 @@ import {Observable} from 'rxjs';
 import {AppService} from '../app.service';
 import {ControlService} from '../control/control.service';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
+import {WindowRefService} from "../helpers/window-ref.service";
 
 @Component({
   selector: 'app-device-configurator',
@@ -215,7 +216,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         }, 1);
                     } else {*/
                         if (params['device'] == '[new_device]') {
-                            $this.$http.get('./assets/schema/device.schema.json').map(data => data.json()).subscribe((schema) => {
+                            $this.$http.get('./assets/schema/device.schema.json').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;}).subscribe((schema) => {
                                 $this.showform = false;
                                 $this.device = {};
                                 $this.service.device = {};
@@ -233,7 +234,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
 
                             Observable.combineLatest(
                                 $this.service.getDevice(params['device']),
-                                $this.$http.get('./assets/schema/device.schema.json').map(data => data.json())
+                                $this.$http.get('./assets/schema/device.schema.json').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                             ).subscribe(deviceschema => {
                                 $this.service.device = deviceschema[0];
                                 $this.service.schema = deviceschema[1];
