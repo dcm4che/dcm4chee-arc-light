@@ -82,8 +82,8 @@ public class QueryQueues {
                 for (QueueDescriptor queueDesc : ext.getQueueDescriptors()) {
                     JsonWriter writer = new JsonWriter(gen);
                     gen.writeStartObject();
-                    writer.writeNotNull("name", queueDesc.getQueueName());
-                    writer.writeNotNull("description", queueDesc.getDescription());
+                    writer.writeNotNullOrDef("name", queueDesc.getQueueName(), null);
+                    writer.writeNotNullOrDef("description", queueDesc.getDescription(), null);
                     gen.writeEnd();
                 }
                 gen.writeEnd();

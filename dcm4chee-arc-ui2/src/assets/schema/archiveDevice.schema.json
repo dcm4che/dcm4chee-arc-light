@@ -29,15 +29,16 @@
     "dcmShowPatientInfoInSystemLog",
     "dcmShowPatientInfoInAuditLog",
     "hl7ScheduledProtocolCodeInOrder",
+    "dcmBulkDataSpoolDirectory",
     "dcmWadoSpoolDirectory",
+    "dcmStowSpoolDirectory",
+    "dcmAuditSpoolDirectory",
     "dcmStorePermissionCacheSize",
     "dcmMergeMWLCacheSize",
     "dcmStoreUpdateDBMaxRetries",
     "dcmStoreUpdateDBMaxRetryDelay",
     "dcmAllowRejectionForDataRetentionPolicyExpired",
     "dcmAllowDeleteStudyPermanently",
-    "dcmStorePermissionServiceErrorCommentPattern",
-    "dcmStorePermissionServiceErrorCodePattern",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
     "hl7PSUTaskFetchSize",
@@ -85,7 +86,7 @@
     },
     "dcmPurgeInstanceRecordsDelay": {
       "title": "Remove Instance Records Delay",
-      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB. If absent, Instance Records will never be purged.",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB. If absent, Instance Records will never be purged. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string"
     },
     "dcmPurgeInstanceRecordsPollingInterval": {
@@ -108,7 +109,7 @@
     },
     "dcmOverwritePolicy": {
       "title": "Overwrite Policy",
-      "description": "Overwrite Policy: NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES or SAME_SOURCE_AND_SERIES.",
+      "description": "Overwrite Policy for the whole Archive Device. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "default": "NEVER",
       "enum": [
@@ -121,7 +122,7 @@
     },
     "dcmAcceptMissingPatientID": {
       "title": "Accept Missing Patient ID",
-      "description": "Indicates if objects without Patient IDs shall be accepted and if a Patient ID shall be created. Enumerated values: YES, NO, CREATE.",
+      "description": "Indicates if objects without Patient IDs shall be accepted and if a Patient ID shall be created. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "default": "CREATE",
       "enum": [
@@ -132,7 +133,7 @@
     },
     "dcmAcceptConflictingPatientID": {
       "title": "Accept Conflicting Patient ID",
-      "description": "Indicates if objects with a Patient IDs which differs from the Patient ID in previous received objects of the Study shall be accepted. Enumerated values: YES, NO, MERGED(= accept prior Patient IDs).",
+      "description": "Indicates if objects with a Patient IDs which differs from the Patient ID in previous received objects of the Study shall be accepted. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "default": "MERGED",
       "enum": [
@@ -143,8 +144,9 @@
     },
     "dcmBulkDataSpoolDirectory": {
       "title": "Bulk Data Spool Directory",
-      "description": "Path to Bulk Data Spool Directory",
-      "type": "string"
+      "description": "Path to Bulk Data Spool Directory. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "string",
+      "default": "${jboss.server.temp.dir}"
     },
     "dcmHideSPSWithStatusFromMWL": {
       "title": "Hide SPS with Status",
@@ -166,19 +168,19 @@
     },
     "dcmValidateCallingAEHostname": {
       "title": "Validate Calling AE Hostname",
-      "description": "Validate Calling AE Hostname or IP Address of Association requestors.",
+      "description": "Validate Calling AE Hostname or IP Address of Association requestors. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },
     "dcmPersonNameComponentOrderInsensitiveMatching": {
       "title": "Person Name Component Order Insensitive Matching",
-      "description": "Indicates if name component order insensitive matching is performed on fuzzy semantic matching of person names",
+      "description": "Indicates if name component order insensitive matching is performed on fuzzy semantic matching of person names. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },
     "dcmSendPendingCGet": {
       "title": "Send Pending C-Get",
-      "description": "Enables pending C-GET responses",
+      "description": "Enables pending C-GET responses. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },
@@ -212,7 +214,7 @@
     },
     "dcmQidoMaxNumberOfResults": {
       "title": "Qido Max Number Of Results",
-      "description": "Maximal number of return results by QIDO-RS Service.",
+      "description": "Maximal number of return results by QIDO-RS Service. 0 = no limitation. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "integer",
       "default": 0,
       "minimum": 0
@@ -241,7 +243,7 @@
     },
     "dcmIanOnTimeout": {
       "title": "IAN On Timeout",
-      "description": "Specifies if the IAN is sent if the timeout for waiting on receive of instances referenced is exceeded.",
+      "description": "Specifies if the IAN is sent if the timeout for waiting on receive of instances referenced is exceeded. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },
@@ -373,8 +375,9 @@
     },
     "dcmAuditSpoolDirectory": {
       "title": "Audit Spool Directory",
-      "description": "Path to Audit Service Spool Directory used to aggregate Audit Messages. If absent, audit messages written to temporary location in server",
-      "type": "string"
+      "description": "Path to Audit Service Spool Directory.",
+      "type": "string",
+      "default": "${jboss.server.temp.dir}"
     },
     "dcmAuditPollingInterval": {
       "title": "Audit Polling Interval",
@@ -424,7 +427,8 @@
     "dcmStowSpoolDirectory": {
       "title": "STOW-RS Spool Directory",
       "description": "Path to Directory used by STOW-RS Service to spool Bulkdata of XML/JSON Metadata and Bulk Data Request Messages.",
-      "type": "string"
+      "type": "string",
+      "default": "${jboss.server.temp.dir}"
     },
     "hl7PatientUpdateTemplateURI": {
       "title": "HL7 Patient Update Template URI",
@@ -443,7 +447,7 @@
     },
     "hl7ScheduledProtocolCodeInOrder": {
       "title": "HL7 Schedule Protocol Code in Order",
-      "description": "Specifies location of Scheduled Protocol Code in received HL7 Order message. Enumerated values: OBR_4_1, OBR_4_4.",
+      "description": "Specifies location of Scheduled Protocol Code in received HL7 Order message. May be overwritten by configured values for particular Archive HL7 Application",
       "type": "string",
       "default": "OBR_4_4",
       "enum": [
@@ -566,7 +570,7 @@
     },
     "dcmAllowRejectionForDataRetentionPolicyExpired": {
       "title": "Allow Rejection For Data Retention Policy Expired",
-      "description": "Allow Rejection For Data Retention Policy Expired : NEVER, ALWAYS, STUDY_RETENTION_POLICY. If absent, STUDY_RETENTION_POLICY will be applied.",
+      "description": "Allow Rejection For Data Retention Policy Expired. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "default": "STUDY_RETENTION_POLICY",
       "enum": [
@@ -577,7 +581,7 @@
     },
     "dcmAllowDeleteStudyPermanently": {
       "title": "Allow Delete Study permanently",
-      "description": "Allow to delete Study permanently. Enumerated values: ALWAYS, REJECTED (= only already rejected Studies).",
+      "description": "Allow to delete Study permanently. REJECTED = only already rejected Studies. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "default": "REJECTED",
       "enum": [
@@ -607,15 +611,13 @@
     },
     "dcmStorePermissionServiceErrorCommentPattern": {
       "title": "Store Permission Service Error Comment Pattern",
-      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Comment. E.g. \"errorcomment\"\\s*:\\s*\"(.*)\".",
-      "type": "string",
-      "default": "Storage denied."
+      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Comment. E.g. \"errorcomment\"\\s*:\\s*\"(.*)\". If absent, \"Storage denied.\" will be used as Error Comment. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "string"
     },
     "dcmStorePermissionServiceErrorCodePattern": {
       "title": "Store Permission Service Error Code Pattern",
-      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Code in hexadecimal. E.g. \"errorcode\"\\s*:\\s*\"(\\p{XDigit}{4})\". If absent, the Error Code will be 0124H (Not Authorized).",
-      "type": "string",
-      "default": "0x0124"
+      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Code in hexadecimal. E.g. \"errorcode\"\\s*:\\s*\"(\\p{XDigit}{4})\". If absent, the Error Code will be 0124H (Not Authorized). May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "string"
     },
     "dcmRetrieveAET": {
       "title": "Retrieve AE Title",
@@ -728,18 +730,18 @@
     },
     "hl7PSUMWL": {
       "title": "HL7 Procedure Status Update MWL",
-      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay.",
+      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },
     "hl7PSUTimeout": {
       "title": "HL7 Procedure Status Update Timeout",
-      "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent.",
+      "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string"
     },
     "hl7PSUOnTimeout": {
       "title": "HL7 Procedure Status Update On Timeout",
-      "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded.",
+      "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "boolean",
       "default": false
     },

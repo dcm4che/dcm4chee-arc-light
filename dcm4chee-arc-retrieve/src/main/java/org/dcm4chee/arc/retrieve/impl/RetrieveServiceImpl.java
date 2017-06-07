@@ -870,7 +870,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             if (returnKeys.length == 0)
                 returnKeys = patAndStudyTags(aeExt.getArchiveDeviceExtension());
             coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP, returnKeys,
-                    rule.attributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
+                    rule.getAttributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
         }
         return coercion;
     }

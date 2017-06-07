@@ -92,10 +92,10 @@ public class QueryRejectionNotes {
                     Code code = rjNote.getRejectionNoteCode();
                     JsonWriter writer = new JsonWriter(gen);
                     gen.writeStartObject();
-                    writer.writeNotNull("label", rjNote.getRejectionNoteLabel());
-                    writer.writeNotNull("codeValue", code.getCodeValue());
-                    writer.writeNotNull("codingSchemeDesignator", code.getCodingSchemeDesignator());
-                    writer.writeNotNull("codeMeaning", code.getCodeMeaning());
+                    writer.writeNotNullOrDef("label", rjNote.getRejectionNoteLabel(), null);
+                    writer.writeNotNullOrDef("codeValue", code.getCodeValue(), null);
+                    writer.writeNotNullOrDef("codingSchemeDesignator", code.getCodingSchemeDesignator(), null);
+                    writer.writeNotNullOrDef("codeMeaning", code.getCodeMeaning(), null);
                     gen.writeEnd();
                 }
                 gen.writeEnd();

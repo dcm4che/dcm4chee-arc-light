@@ -93,7 +93,6 @@ import java.util.*;
 public class StowRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(StowRS.class);
-    private static final String JBOSS_SERVER_TEMP = "${jboss.server.temp.dir}";
     private static final int INIT_BUFFER_SIZE = 8192;
     private static final int MAX_BUFFER_SIZE = 10485768;
     private static final int[] IUIDS_TAGS = {
@@ -570,9 +569,8 @@ public class StowRS {
     }
 
     private java.nio.file.Path spoolDirectoryRoot() throws IOException {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         return  Files.createDirectories(Paths.get(StringUtils.replaceSystemProperties(
-                StringUtils.maskNull(arcDev != null ? arcDev.getStowSpoolDirectory() : null, JBOSS_SERVER_TEMP))));
+                device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getStowSpoolDirectory())));
     }
 
     private Attributes mkSOPRefWithRetrieveURL(StoreContext ctx) {

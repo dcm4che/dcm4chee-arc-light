@@ -257,8 +257,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     public ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder() {
         return hl7ScheduledProtocolCodeInOrder != null
                 ? hl7ScheduledProtocolCodeInOrder
-                : StringUtils.maskNull(getArchiveDeviceExtension().getHl7ScheduledProtocolCodeInOrder(),
-                    ScheduledProtocolCodeInOrder.OBR_4_4);
+                : getArchiveDeviceExtension().getHl7ScheduledProtocolCodeInOrder();
     }
 
     public ScheduledStationAETInOrder getHl7ScheduledStationAETInOrder() {

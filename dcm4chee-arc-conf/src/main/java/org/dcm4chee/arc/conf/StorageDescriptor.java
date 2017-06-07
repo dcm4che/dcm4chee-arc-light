@@ -17,7 +17,7 @@ public final class StorageDescriptor {
     private String storageURIStr;
     private URI storageURI;
     private String digestAlgorithm;
-    private Availability instanceAvailability;
+    private Availability instanceAvailability = Availability.ONLINE;
     private String externalRetrieveAETitle;
     private boolean readOnly;
     private StorageThreshold storageThreshold;

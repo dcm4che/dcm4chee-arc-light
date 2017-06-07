@@ -63,7 +63,12 @@
       "title": "Instance Availability",
       "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE.",
       "type": "string",
-      "default": "ONLINE"
+      "default": "ONLINE",
+      "enum": [
+        "ONLINE",
+        "NEARLINE",
+        "OFFLINE"
+      ]
     },
     "dcmSchedule": {
       "title": "Schedule",

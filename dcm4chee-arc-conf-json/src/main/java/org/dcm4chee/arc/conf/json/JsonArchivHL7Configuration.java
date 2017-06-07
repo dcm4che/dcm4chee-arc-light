@@ -26,14 +26,14 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
             return;
 
         writer.writeStartObject("dcmArchiveHL7Application");
-        writer.writeNotNull("hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
-        writer.writeNotNull("hl7ImportReportTemplateURI", ext.getImportReportTemplateURI());
-        writer.writeNotNull("hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI());
-        writer.writeNotNull("hl7LogFilePattern", ext.getHl7LogFilePattern());
-        writer.writeNotNull("hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern());
-        writer.writeNotNull("dicomAETitle", ext.getAETitle());
-        writer.writeNotNull("hl7ScheduledProtocolCodeInOrder", ext.getHl7ScheduledProtocolCodeInOrder());
-        writer.writeNotNull("hl7ScheduledStationAETInOrder", ext.getHl7ScheduledStationAETInOrder());
+        writer.writeNotNullOrDef("hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
+        writer.writeNotNullOrDef("hl7ImportReportTemplateURI", ext.getImportReportTemplateURI(), null);
+        writer.writeNotNullOrDef("hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI(), null);
+        writer.writeNotNullOrDef("hl7LogFilePattern", ext.getHl7LogFilePattern(), null);
+        writer.writeNotNullOrDef("hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern(), null);
+        writer.writeNotNullOrDef("dicomAETitle", ext.getAETitle(), null);
+        writer.writeNotNullOrDef("hl7ScheduledProtocolCodeInOrder", ext.getHl7ScheduledProtocolCodeInOrder(), null);
+        writer.writeNotNullOrDef("hl7ScheduledStationAETInOrder", ext.getHl7ScheduledStationAETInOrder(), null);
         JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
         JsonArchiveConfiguration.writeScheduledStations(writer, ext.getHL7OrderScheduledStations());
         JsonArchiveConfiguration.writeHL7OrderSPSStatus(writer, ext.getHL7OrderSPSStatuses());

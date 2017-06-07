@@ -1,18 +1,20 @@
 package org.dcm4chee.arc.conf;
 
+import java.util.Objects;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2015
  */
 public class QueueDescriptor {
 
-    private static final int DEFAULT_RETRY_DELAY = 60;
+    public static final Duration DEFAULT_RETRY_DELAY = Duration.parse("PT1M");
 
     private String queueName;
     private String jndiName;
     private String description;
     private int maxRetries = 0;
-    private Duration retryDelay;
+    private Duration retryDelay = DEFAULT_RETRY_DELAY;
     private Duration maxRetryDelay;
     private int retryDelayMultiplier = 100;
     private boolean retryOnWarning;
@@ -65,7 +67,7 @@ public class QueueDescriptor {
         if (retry > maxRetries)
             return -1L;
 
-        long delay = retryDelay != null ? retryDelay.getSeconds() : DEFAULT_RETRY_DELAY;
+        long delay = retryDelay.getSeconds();
         while (--retry > 0)
             delay = delay * retryDelayMultiplier / 100;
 
@@ -73,7 +75,7 @@ public class QueueDescriptor {
     }
 
     public void setRetryDelay(Duration retryDelay) {
-        this.retryDelay = retryDelay;
+        this.retryDelay = Objects.requireNonNull(retryDelay, "RetryDelay");
     }
 
     public Duration getMaxRetryDelay() {

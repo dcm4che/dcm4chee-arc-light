@@ -13,10 +13,12 @@
     "dcmAuditMajorFailureSeverity",
     "dcmAuditMessageID",
     "dcmAuditMessageEncoding",
+    "dcmAuditMessageSchemaURI",
     "dcmAuditMessageBOM",
     "dcmAuditTimestampInUTC",
     "dcmAuditMessageFormatXML",
-    "dcmAuditIncludeInstanceUID"
+    "dcmAuditIncludeInstanceUID",
+    "dcmAuditLoggerRetryInterval"
   ],
   "properties": {
     "cn": {
@@ -160,7 +162,7 @@
       "title": "Syslog Message ID",
       "description": "RFC 5424 Syslog MSGID of audit message.",
       "type": "string",
-      "default": "DICOM+RFC3881"
+      "default": "IHE+RFC-3881"
     },
     "dcmAuditMessageEncoding": {
       "title": "Message Encoding",
@@ -189,7 +191,8 @@
     "dcmAuditMessageSchemaURI": {
       "title": "Message Schema URI",
       "description": "URI of DICOM Audit Message Schema referenced in audit message",
-      "type": "string"
+      "type": "string",
+      "default": "http://www.dcm4che.org/DICOM/audit-message.rnc"
     },
     "dcmAuditIncludeInstanceUID": {
       "title": "Include Instance UIDs",
@@ -204,8 +207,10 @@
     },
     "dcmAuditLoggerRetryInterval": {
       "title": "Retry Interval",
-      "description": "Retry interval in s to re-sent messages which could not delivered to the record repository; do no retry to re-sent messages if absent",
-      "type": "string"
+      "description": "Retry interval in s to re-sent messages which could not delivered to the record repository; 0 = do no retry to re-sent messages",
+      "type": "integer",
+      "default": 0,
+      "minimum": 0
     },
     "dicomInstalled": {
       "title": "installed",

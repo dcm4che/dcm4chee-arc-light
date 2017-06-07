@@ -77,127 +77,140 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             return;
 
         writer.writeStartObject("dcmArchiveDevice");
-        writer.writeNotNull("dcmFuzzyAlgorithmClass", arcDev.getFuzzyAlgorithmClass());
+        writer.writeNotNullOrDef("dcmFuzzyAlgorithmClass", arcDev.getFuzzyAlgorithmClass(), null);
         writer.writeNotEmpty("dcmSeriesMetadataStorageID", arcDev.getSeriesMetadataStorageIDs());
-        writer.writeNotNull("dcmSeriesMetadataDelay", arcDev.getSeriesMetadataDelay());
-        writer.writeNotNull("dcmSeriesMetadataPollingInterval", arcDev.getSeriesMetadataPollingInterval());
+        writer.writeNotNullOrDef("dcmSeriesMetadataDelay", arcDev.getSeriesMetadataDelay(), null);
+        writer.writeNotNullOrDef("dcmSeriesMetadataPollingInterval", arcDev.getSeriesMetadataPollingInterval(), null);
         writer.writeNotDef("dcmSeriesMetadataFetchSize", arcDev.getSeriesMetadataFetchSize(), 100);
-        writer.writeNotNull("dcmPurgeInstanceRecordsDelay", arcDev.getPurgeInstanceRecordsDelay());
-        writer.writeNotNull("dcmPurgeInstanceRecordsPollingInterval",
-                arcDev.getPurgeInstanceRecordsPollingInterval());
+        writer.writeNotNullOrDef("dcmPurgeInstanceRecordsDelay", arcDev.getPurgeInstanceRecordsDelay(), null);
+        writer.writeNotNullOrDef("dcmPurgeInstanceRecordsPollingInterval",
+                arcDev.getPurgeInstanceRecordsPollingInterval(), null);
         writer.writeNotDef("dcmPurgeInstanceRecordsFetchSize",
                 arcDev.getPurgeInstanceRecordsFetchSize(), 100);
-        writer.writeNotNull("dcmQueryRetrieveViewID", arcDev.getQueryRetrieveViewID());
-        writer.writeNotNull("dcmOverwritePolicy", arcDev.getOverwritePolicy());
-        writer.writeNotNull("dcmBulkDataSpoolDirectory", arcDev.getBulkDataSpoolDirectory());
+        writer.writeNotNullOrDef("dcmQueryRetrieveViewID", arcDev.getQueryRetrieveViewID(), null);
+        writer.writeNotNullOrDef("dcmOverwritePolicy", arcDev.getOverwritePolicy(), OverwritePolicy.NEVER);
+        writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory",
+                arcDev.getBulkDataSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcDev.getHideSPSWithStatusFrom());
         writer.writeNotDef("dcmPersonNameComponentOrderInsensitiveMatching",
                 arcDev.isPersonNameComponentOrderInsensitiveMatching(), false);
         writer.writeNotDef("dcmSendPendingCGet", arcDev.isSendPendingCGet(), false);
-        writer.writeNotNull("dcmSendPendingCMoveInterval", arcDev.getSendPendingCMoveInterval());
+        writer.writeNotNullOrDef("dcmSendPendingCMoveInterval", arcDev.getSendPendingCMoveInterval(), null);
         writer.writeNotEmpty("dcmWadoSupportedSRClasses", arcDev.getWadoSupportedSRClasses());
-        writer.writeNotNull("dcmWadoSR2HtmlTemplateURI", arcDev.getWadoSR2HtmlTemplateURI());
-        writer.writeNotNull("dcmWadoSR2TextTemplateURI", arcDev.getWadoSR2TextTemplateURI());
+        writer.writeNotNullOrDef("dcmWadoSR2HtmlTemplateURI", arcDev.getWadoSR2HtmlTemplateURI(), null);
+        writer.writeNotNullOrDef("dcmWadoSR2TextTemplateURI", arcDev.getWadoSR2TextTemplateURI(), null);
         writer.writeNotDef("dcmQueryFetchSize", arcDev.getQueryFetchSize(), 100);
         writer.writeNotDef("dcmQidoMaxNumberOfResults", arcDev.getQidoMaxNumberOfResults(), 0);
         writer.writeNotEmpty("dcmFwdMppsDestination", arcDev.getMppsForwardDestinations());
         writer.writeNotEmpty("dcmIanDestination", arcDev.getIanDestinations());
-        writer.writeNotNull("dcmIanDelay", arcDev.getIanDelay());
-        writer.writeNotNull("dcmIanTimeout", arcDev.getIanTimeout());
+        writer.writeNotNullOrDef("dcmIanDelay", arcDev.getIanDelay(), null);
+        writer.writeNotNullOrDef("dcmIanTimeout", arcDev.getIanTimeout(), null);
         writer.writeNotDef("dcmIanOnTimeout", arcDev.isIanOnTimeout(), false);
-        writer.writeNotNull("dcmIanTaskPollingInterval", arcDev.getIanTaskPollingInterval());
+        writer.writeNotNullOrDef("dcmIanTaskPollingInterval", arcDev.getIanTaskPollingInterval(), null);
         writer.writeNotDef("dcmIanTaskFetchSize", arcDev.getIanTaskFetchSize(), 100);
-        writer.writeNotNull("dcmFallbackCMoveSCP", arcDev.getFallbackCMoveSCP());
-        writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcDev.getFallbackCMoveSCPDestination());
+        writer.writeNotNullOrDef("dcmFallbackCMoveSCP", arcDev.getFallbackCMoveSCP(), null);
+        writer.writeNotNullOrDef("dcmFallbackCMoveSCPDestination", arcDev.getFallbackCMoveSCPDestination(), null);
         writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcDev.getFallbackCMoveSCPRetries(), 0);
-        writer.writeNotNull("dcmFallbackCMoveSCPLeadingCFindSCP", arcDev.getFallbackCMoveSCPLeadingCFindSCP());
-        writer.writeNotNull("dcmAltCMoveSCP", arcDev.getAlternativeCMoveSCP());
-        writer.writeNotNull("dcmExportTaskPollingInterval", arcDev.getExportTaskPollingInterval());
+        writer.writeNotNullOrDef("dcmFallbackCMoveSCPLeadingCFindSCP", arcDev.getFallbackCMoveSCPLeadingCFindSCP(), null);
+        writer.writeNotNullOrDef("dcmAltCMoveSCP", arcDev.getAlternativeCMoveSCP(), null);
+        writer.writeNotNullOrDef("dcmExportTaskPollingInterval", arcDev.getExportTaskPollingInterval(), null);
         writer.writeNotDef("dcmExportTaskFetchSize", arcDev.getExportTaskFetchSize(), 5);
-        writer.writeNotNull("dcmPurgeStoragePollingInterval", arcDev.getPurgeStoragePollingInterval());
+        writer.writeNotNullOrDef("dcmPurgeStoragePollingInterval", arcDev.getPurgeStoragePollingInterval(), null);
         writer.writeNotDef("dcmPurgeStorageFetchSize", arcDev.getPurgeStorageFetchSize(), 100);
         writer.writeNotDef("dcmDeleteStudyBatchSize", arcDev.getDeleteStudyBatchSize(), 10);
         writer.writeNotDef("dcmDeletePatientOnDeleteLastStudy", arcDev.isDeletePatientOnDeleteLastStudy(), false);
-        writer.writeNotNull("dcmDeleteRejectedPollingInterval", arcDev.getDeleteRejectedPollingInterval());
+        writer.writeNotNullOrDef("dcmDeleteRejectedPollingInterval", arcDev.getDeleteRejectedPollingInterval(), null);
         writer.writeNotDef("dcmDeleteRejectedFetchSize", arcDev.getDeleteRejectedFetchSize(), 100);
-        writer.writeNotNull("dcmMaxAccessTimeStaleness", arcDev.getMaxAccessTimeStaleness());
-        writer.writeNotNull("dcmAECacheStaleTimeout", arcDev.getAECacheStaleTimeout());
-        writer.writeNotNull("dcmLeadingCFindSCPQueryCacheStaleTimeout",
-                arcDev.getLeadingCFindSCPQueryCacheStaleTimeout());
+        writer.writeNotNullOrDef("dcmMaxAccessTimeStaleness", arcDev.getMaxAccessTimeStaleness(), null);
+        writer.writeNotNullOrDef("dcmAECacheStaleTimeout", arcDev.getAECacheStaleTimeout(), null);
+        writer.writeNotNullOrDef("dcmLeadingCFindSCPQueryCacheStaleTimeout",
+                arcDev.getLeadingCFindSCPQueryCacheStaleTimeout(), null);
         writer.writeNotDef("dcmLeadingCFindSCPQueryCacheSize", arcDev.getLeadingCFindSCPQueryCacheSize(), 10);
-        writer.writeNotNull("dcmAuditSpoolDirectory", arcDev.getAuditSpoolDirectory());
-        writer.writeNotNull("dcmAuditPollingInterval", arcDev.getAuditPollingInterval());
-        writer.writeNotNull("dcmAuditAggregateDuration", arcDev.getAuditAggregateDuration());
-        writer.writeNotNull("dcmStowSpoolDirectory", arcDev.getStowSpoolDirectory());
-        writer.writeNotNull("hl7PatientUpdateTemplateURI", arcDev.getPatientUpdateTemplateURI());
-        writer.writeNotNull("hl7ImportReportTemplateURI", arcDev.getImportReportTemplateURI());
-        writer.writeNotNull("hl7ScheduleProcedureTemplateURI", arcDev.getScheduleProcedureTemplateURI());
-        writer.writeNotNull("hl7LogFilePattern", arcDev.getHl7LogFilePattern());
-        writer.writeNotNull("hl7ErrorLogFilePattern", arcDev.getHl7ErrorLogFilePattern());
-        writer.writeNotNull("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI());
-        writer.writeNotNull("dcmPurgeQueueMessagePollingInterval", arcDev.getPurgeQueueMessagePollingInterval());
-        writer.writeNotNull("dcmWadoSpoolDirectory", arcDev.getWadoSpoolDirectory());
-        writer.writeNotNull("dcmRejectExpiredStudiesPollingInterval", arcDev.getRejectExpiredStudiesPollingInterval());
-        writer.writeNotNull("dcmRejectExpiredStudiesPollingStartTime",
-                arcDev.getRejectExpiredStudiesPollingStartTime());
+        writer.writeNotNullOrDef("dcmAuditSpoolDirectory",
+                arcDev.getAuditSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
+        writer.writeNotNullOrDef("dcmAuditPollingInterval", arcDev.getAuditPollingInterval(), null);
+        writer.writeNotNullOrDef("dcmAuditAggregateDuration", arcDev.getAuditAggregateDuration(), null);
+        writer.writeNotNullOrDef("dcmStowSpoolDirectory",
+                arcDev.getStowSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
+        writer.writeNotNullOrDef("hl7PatientUpdateTemplateURI", arcDev.getPatientUpdateTemplateURI(), null);
+        writer.writeNotNullOrDef("hl7ImportReportTemplateURI", arcDev.getImportReportTemplateURI(), null);
+        writer.writeNotNullOrDef("hl7ScheduleProcedureTemplateURI", arcDev.getScheduleProcedureTemplateURI(), null);
+        writer.writeNotNullOrDef("hl7LogFilePattern", arcDev.getHl7LogFilePattern(), null);
+        writer.writeNotNullOrDef("hl7ErrorLogFilePattern", arcDev.getHl7ErrorLogFilePattern(), null);
+        writer.writeNotNullOrDef("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI(), null);
+        writer.writeNotNullOrDef("dcmPurgeQueueMessagePollingInterval",
+                arcDev.getPurgeQueueMessagePollingInterval(), null);
+        writer.writeNotNullOrDef("dcmWadoSpoolDirectory",
+                arcDev.getWadoSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
+        writer.writeNotNullOrDef("dcmRejectExpiredStudiesPollingInterval",
+                arcDev.getRejectExpiredStudiesPollingInterval(), null);
+        writer.writeNotNullOrDef("dcmRejectExpiredStudiesPollingStartTime",
+                arcDev.getRejectExpiredStudiesPollingStartTime(), null);
         writer.writeNotDef("dcmRejectExpiredStudiesFetchSize", arcDev.getRejectExpiredStudiesFetchSize(), 0);
         writer.writeNotDef("dcmRejectExpiredSeriesFetchSize", arcDev.getRejectExpiredSeriesFetchSize(), 0);
-        writer.writeNotNull("dcmRejectExpiredStudiesAETitle", arcDev.getRejectExpiredStudiesAETitle());
-        writer.writeNotNull("dcmFallbackCMoveSCPStudyOlderThan", arcDev.getFallbackCMoveSCPStudyOlderThan());
-        writer.writeNotNull("dcmStorePermissionServiceURL", arcDev.getStorePermissionServiceURL());
-        writer.writeNotNull("dcmStorePermissionServiceResponsePattern",
-                arcDev.getStorePermissionServiceResponsePattern());
-        writer.writeNotNull("dcmStorePermissionCacheStaleTimeout", arcDev.getStorePermissionCacheStaleTimeout());
+        writer.writeNotNullOrDef("dcmRejectExpiredStudiesAETitle", arcDev.getRejectExpiredStudiesAETitle(), null);
+        writer.writeNotNullOrDef("dcmFallbackCMoveSCPStudyOlderThan", arcDev.getFallbackCMoveSCPStudyOlderThan(), null);
+        writer.writeNotNullOrDef("dcmStorePermissionServiceURL", arcDev.getStorePermissionServiceURL(), null);
+        writer.writeNotNullOrDef("dcmStorePermissionServiceResponsePattern",
+                arcDev.getStorePermissionServiceResponsePattern(), null);
+        writer.writeNotNullOrDef("dcmStorePermissionCacheStaleTimeout", arcDev.getStorePermissionCacheStaleTimeout(), null);
         writer.writeNotDef("dcmStorePermissionCacheSize", arcDev.getStorePermissionCacheSize(), 10);
-        writer.writeNotNull("dcmMergeMWLCacheStaleTimeout",
-                arcDev.getMergeMWLCacheStaleTimeout());
+        writer.writeNotNullOrDef("dcmMergeMWLCacheStaleTimeout",
+                arcDev.getMergeMWLCacheStaleTimeout(), null);
         writer.writeNotDef("dcmMergeMWLCacheSize",
                 arcDev.getMergeMWLCacheSize(), 10);
         writer.writeNotDef("dcmStoreUpdateDBMaxRetries", arcDev.getStoreUpdateDBMaxRetries(), 1);
         writer.writeNotDef("dcmStoreUpdateDBMaxRetryDelay", arcDev.getStoreUpdateDBMaxRetryDelay(), 1000);
-        writer.writeNotNull("dcmAllowRejectionForDataRetentionPolicyExpired",
-                arcDev.getAllowRejectionForDataRetentionPolicyExpired());
-        writer.writeNotNull("dcmAcceptMissingPatientID", arcDev.getAcceptMissingPatientID());
-        writer.writeNotNull("dcmAllowDeleteStudyPermanently", arcDev.getAllowDeleteStudyPermanently());
-        writer.writeNotNull("dcmStorePermissionServiceExpirationDatePattern",
-                arcDev.getStorePermissionServiceExpirationDatePattern());
-        writer.writeNotNull("dcmShowPatientInfoInSystemLog", arcDev.getShowPatientInfoInSystemLog());
-        writer.writeNotNull("dcmShowPatientInfoInAuditLog", arcDev.getShowPatientInfoInAuditLog());
-        writer.writeNotNull("dcmPurgeStgCmtCompletedDelay", arcDev.getPurgeStgCmtCompletedDelay());
-        writer.writeNotNull("dcmPurgeStgCmtPollingInterval", arcDev.getPurgeStgCmtPollingInterval());
-        writer.writeNotNull("dcmDefaultCharacterSet", arcDev.getDefaultCharacterSet());
-        writer.writeNotNull("dcmStorePermissionServiceErrorCommentPattern",
-                arcDev.getStorePermissionServiceErrorCommentPattern());
-        writer.writeNotNull("dcmStorePermissionServiceErrorCodePattern",
-                arcDev.getStorePermissionServiceErrorCodePattern());
+        writer.writeNotNullOrDef("dcmAllowRejectionForDataRetentionPolicyExpired",
+                arcDev.getAllowRejectionForDataRetentionPolicyExpired(),
+                AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY);
+        writer.writeNotNullOrDef("dcmAcceptMissingPatientID", arcDev.getAcceptMissingPatientID(), AcceptMissingPatientID.CREATE);
+        writer.writeNotNullOrDef("dcmAllowDeleteStudyPermanently", arcDev.getAllowDeleteStudyPermanently(), null);
+        writer.writeNotNullOrDef("dcmStorePermissionServiceExpirationDatePattern",
+                arcDev.getStorePermissionServiceExpirationDatePattern(), null);
+        writer.writeNotNullOrDef("dcmShowPatientInfoInSystemLog",
+                arcDev.getShowPatientInfoInSystemLog(), ShowPatientInfo.PLAIN_TEXT);
+        writer.writeNotNullOrDef("dcmShowPatientInfoInAuditLog",
+                arcDev.getShowPatientInfoInAuditLog(), ShowPatientInfo.PLAIN_TEXT);
+        writer.writeNotNullOrDef("dcmPurgeStgCmtCompletedDelay", arcDev.getPurgeStgCmtCompletedDelay(), null);
+        writer.writeNotNullOrDef("dcmPurgeStgCmtPollingInterval", arcDev.getPurgeStgCmtPollingInterval(), null);
+        writer.writeNotNullOrDef("dcmDefaultCharacterSet", arcDev.getDefaultCharacterSet(), null);
+        writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCommentPattern",
+                arcDev.getStorePermissionServiceErrorCommentPattern(), null);
+        writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCodePattern",
+                arcDev.getStorePermissionServiceErrorCodePattern(), null);
         writer.writeNotEmpty("dcmRetrieveAET", arcDev.getRetrieveAETitles());
-        writer.writeNotNull("dcmExternalRetrieveAEDestination", arcDev.getExternalRetrieveAEDestination());
-        writer.writeNotNull("dcmXDSiImagingDocumentSourceAETitle", arcDev.getXDSiImagingDocumentSourceAETitle());
-        writer.writeNotNull("dcmRemapRetrieveURL", arcDev.getRemapRetrieveURL());
+        writer.writeNotNullOrDef("dcmExternalRetrieveAEDestination", arcDev.getExternalRetrieveAEDestination(), null);
+        writer.writeNotNullOrDef("dcmXDSiImagingDocumentSourceAETitle", arcDev.getXDSiImagingDocumentSourceAETitle(), null);
+        writer.writeNotNullOrDef("dcmRemapRetrieveURL", arcDev.getRemapRetrieveURL(), null);
         writer.writeNotDef("dcmValidateCallingAEHostname", arcDev.isValidateCallingAEHostname(), false);
-        writer.writeNotNull("hl7PSUSendingApplication", arcDev.getHl7PSUSendingApplication());
+        writer.writeNotNullOrDef("hl7PSUSendingApplication", arcDev.getHl7PSUSendingApplication(), null);
         writer.writeNotEmpty("hl7PSUReceivingApplication", arcDev.getHl7PSUReceivingApplications());
-        writer.writeNotNull("hl7PSUDelay", arcDev.getHl7PSUDelay());
-        writer.writeNotNull("hl7PSUTimeout", arcDev.getHl7PSUTimeout());
+        writer.writeNotNullOrDef("hl7PSUDelay", arcDev.getHl7PSUDelay(), null);
+        writer.writeNotNullOrDef("hl7PSUTimeout", arcDev.getHl7PSUTimeout(), null);
         writer.writeNotDef("hl7PSUOnTimeout", arcDev.isHl7PSUOnTimeout(), false);
-        writer.writeNotNull("hl7PSUTaskPollingInterval", arcDev.getHl7PSUTaskPollingInterval());
+        writer.writeNotNullOrDef("hl7PSUTaskPollingInterval", arcDev.getHl7PSUTaskPollingInterval(), null);
         writer.writeNotDef("hl7PSUTaskFetchSize", arcDev.getHl7PSUTaskFetchSize(), 100);
         writer.writeNotDef("hl7PSUMWL", arcDev.isHl7PSUMWL(), false);
-        writer.writeNotNull("dcmAcceptConflictingPatientID", arcDev.getAcceptConflictingPatientID());
-        writer.writeNotNull("dcmAuditRecordRepositoryURL", arcDev.getAuditRecordRepositoryURL());
-        writer.writeNotNull("dcmElasticSearchURL", arcDev.getElasticSearchURL());
-        writer.writeNotNull("dcmAudit2JsonFhirTemplateURI", arcDev.getAudit2JsonFhirTemplateURI());
-        writer.writeNotNull("dcmAudit2XmlFhirTemplateURI", arcDev.getAudit2XmlFhirTemplateURI());
-        writer.writeNotNull("dcmCopyMoveUpdatePolicy", arcDev.getCopyMoveUpdatePolicy());
+        writer.writeNotNullOrDef("dcmAcceptConflictingPatientID",
+                arcDev.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
+        writer.writeNotNullOrDef("dcmAuditRecordRepositoryURL", arcDev.getAuditRecordRepositoryURL(), null);
+        writer.writeNotNullOrDef("dcmElasticSearchURL", arcDev.getElasticSearchURL(), null);
+        writer.writeNotNullOrDef("dcmAudit2JsonFhirTemplateURI", arcDev.getAudit2JsonFhirTemplateURI(), null);
+        writer.writeNotNullOrDef("dcmAudit2XmlFhirTemplateURI", arcDev.getAudit2XmlFhirTemplateURI(), null);
+        writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy", arcDev.getCopyMoveUpdatePolicy(), null);
         writer.writeNotDef("hl7TrackChangedPatientID", arcDev.isHl7TrackChangedPatientID(), true);
-        writer.writeNotNull("dcmInvokeImageDisplayPatientURL", arcDev.getInvokeImageDisplayPatientURL());
-        writer.writeNotNull("dcmInvokeImageDisplayStudyURL", arcDev.getInvokeImageDisplayStudyURL());
-        writer.writeNotNull("hl7ADTSendingApplication", arcDev.getHl7ADTSendingApplication());
+        writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcDev.getInvokeImageDisplayPatientURL(), null);
+        writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcDev.getInvokeImageDisplayStudyURL(), null);
+        writer.writeNotNullOrDef("hl7ADTSendingApplication", arcDev.getHl7ADTSendingApplication(), null);
         writer.writeNotEmpty("hl7ADTReceivingApplication", arcDev.getHl7ADTReceivingApplication());
-        writer.writeNotNull("hl7ScheduledProtocolCodeInOrder", arcDev.getHl7ScheduledProtocolCodeInOrder());
-        writer.writeNotNull("hl7ScheduledStationAETInOrder", arcDev.getHl7ScheduledStationAETInOrder());
-        writer.writeNotNull("dcmAuditUnknownStudyInstanceUID", arcDev.getAuditUnknownStudyInstanceUID());
-        writer.writeNotNull("dcmAuditUnknownPatientID", arcDev.getAuditUnknownPatientID());
+        writer.writeNotNullOrDef("hl7ScheduledProtocolCodeInOrder",
+                arcDev.getHl7ScheduledProtocolCodeInOrder(), ScheduledProtocolCodeInOrder.OBR_4_4);
+        writer.writeNotNullOrDef("hl7ScheduledStationAETInOrder", arcDev.getHl7ScheduledStationAETInOrder(), null);
+        writer.writeNotNullOrDef("dcmAuditUnknownStudyInstanceUID",
+                arcDev.getAuditUnknownStudyInstanceUID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);
+        writer.writeNotNullOrDef("dcmAuditUnknownPatientID",
+                arcDev.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
         writer.writeNotEmpty("dcmDiffStudiesIncludefieldAll",
                 TagUtils.toHexStrings(arcDev.getDiffStudiesIncludefieldAll()));
         writeAttributeFilters(writer, arcDev);
@@ -238,19 +251,19 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
     public void writeAttributeFilter(JsonWriter writer, Entity entity, AttributeFilter attributeFilter) {
         writer.writeStartObject();
-        writer.writeNotNull("dcmEntity", entity.name());
+        writer.writeNotNullOrDef("dcmEntity", entity.name(), null);
         writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(attributeFilter.getSelection()));
-        writer.writeNotNull("dcmCustomAttribute1", attributeFilter.getCustomAttribute1());
-        writer.writeNotNull("dcmCustomAttribute2", attributeFilter.getCustomAttribute2());
-        writer.writeNotNull("dcmCustomAttribute3", attributeFilter.getCustomAttribute3());
-        writer.writeNotNull("dcmAttributeUpdatePolicy",
-                attributeFilter.getAttributeUpdatePolicy());
+        writer.writeNotNullOrDef("dcmCustomAttribute1", attributeFilter.getCustomAttribute1(), null);
+        writer.writeNotNullOrDef("dcmCustomAttribute2", attributeFilter.getCustomAttribute2(), null);
+        writer.writeNotNullOrDef("dcmCustomAttribute3", attributeFilter.getCustomAttribute3(), null);
+        writer.writeNotNullOrDef("dcmAttributeUpdatePolicy",
+                attributeFilter.getAttributeUpdatePolicy(), null);
         writer.writeEnd();
     }
 
     public void writeMetadataFilter(JsonWriter writer, String filter, MetadataFilter metadataFilter) {
         writer.writeStartObject();
-        writer.writeNotNull("dcmMetadataFilterName", filter);
+        writer.writeNotNullOrDef("dcmMetadataFilterName", filter, null);
         writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(metadataFilter.getSelection()));
         writer.writeEnd();
     }
@@ -259,15 +272,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmStorage");
         for (StorageDescriptor st : storageDescriptorList) {
             writer.writeStartObject();
-            writer.writeNotNull("dcmStorageID", st.getStorageID());
-            writer.writeNotNull("dcmURI", st.getStorageURIStr());
-            writer.writeNotNull("dcmDigestAlgorithm", st.getDigestAlgorithm());
-            writer.writeNotNull("dcmInstanceAvailability", st.getInstanceAvailability());
+            writer.writeNotNullOrDef("dcmStorageID", st.getStorageID(), null);
+            writer.writeNotNullOrDef("dcmURI", st.getStorageURIStr(), null);
+            writer.writeNotNullOrDef("dcmDigestAlgorithm", st.getDigestAlgorithm(), null);
+            writer.writeNotNullOrDef("dcmInstanceAvailability", st.getInstanceAvailability(), Availability.ONLINE);
             writer.writeNotDef("dcmReadOnly", st.isReadOnly(), false);
-            writer.writeNotNull("dcmStorageThreshold", st.getStorageThreshold());
+            writer.writeNotNullOrDef("dcmStorageThreshold", st.getStorageThreshold(), null);
             writer.writeNotEmpty("dcmDeleterThreshold", st.getDeleterThresholdsAsStrings());
             writer.writeNotEmpty("dcmProperty", descriptorProperties(st.getProperties()));
-            writer.writeNotNull("dcmExternalRetrieveAET", st.getExternalRetrieveAETitle());
+            writer.writeNotNullOrDef("dcmExternalRetrieveAET", st.getExternalRetrieveAETitle(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -285,7 +298,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmQueryRetrieveView");
         for (QueryRetrieveView qrv : queryRetrieveViewList) {
             writer.writeStartObject();
-            writer.writeNotNull("dcmQueryRetrieveViewID", qrv.getViewID());
+            writer.writeNotNullOrDef("dcmQueryRetrieveViewID", qrv.getViewID(), null);
             writer.writeNotEmpty("dcmShowInstancesRejectedByCode", qrv.getShowInstancesRejectedByCodes());
             writer.writeNotEmpty("dcmHideRejectionNoteWithCode", qrv.getHideRejectionNotesWithCodes());
             writer.writeNotDef("dcmHideNotRejectedInstances", qrv.isHideNotRejectedInstances(), false);
@@ -298,15 +311,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmQueue");
         for (QueueDescriptor qd : queueDescriptorsList) {
             writer.writeStartObject();
-            writer.writeNotNull("dcmQueueName", qd.getQueueName());
-            writer.writeNotNull("dcmJndiName", qd.getJndiName());
-            writer.writeNotNull("dicomDescription", qd.getDescription());
+            writer.writeNotNullOrDef("dcmQueueName", qd.getQueueName(), null);
+            writer.writeNotNullOrDef("dcmJndiName", qd.getJndiName(), null);
+            writer.writeNotNullOrDef("dicomDescription", qd.getDescription(), null);
             writer.writeNotDef("dcmMaxRetries", qd.getMaxRetries(), 0);
-            writer.writeNotNull("dcmRetryDelay", qd.getRetryDelay());
-            writer.writeNotNull("dcmMaxRetryDelay", qd.getMaxRetryDelay());
+            writer.writeNotNullOrDef("dcmRetryDelay", qd.getRetryDelay(), QueueDescriptor.DEFAULT_RETRY_DELAY);
+            writer.writeNotNullOrDef("dcmMaxRetryDelay", qd.getMaxRetryDelay(), null);
             writer.writeNotDef("dcmRetryDelayMultiplier", qd.getRetryDelayMultiplier(), 100);
             writer.writeNotDef("dcmRetryOnWarning", qd.isRetryOnWarning(), false);
-            writer.writeNotNull("dcmPurgeQueueMessageCompletedDelay", qd.getPurgeQueueMessageCompletedDelay());
+            writer.writeNotNullOrDef("dcmPurgeQueueMessageCompletedDelay", qd.getPurgeQueueMessageCompletedDelay(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -316,16 +329,16 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmExporter");
         for (ExporterDescriptor ed : exportDescriptorList) {
             writer.writeStartObject();
-            writer.writeNotNull("dcmExporterID", ed.getExporterID());
-            writer.writeNotNull("dcmURI", ed.getExportURI());
-            writer.writeNotNull("dcmQueueName", ed.getQueueName());
-            writer.writeNotNull("dicomDescription", ed.getDescription());
-            writer.writeNotNull("dicomAETitle", ed.getAETitle());
-            writer.writeNotNull("dcmStgCmtSCP", ed.getStgCmtSCPAETitle());
+            writer.writeNotNullOrDef("dcmExporterID", ed.getExporterID(), null);
+            writer.writeNotNullOrDef("dcmURI", ed.getExportURI(), null);
+            writer.writeNotNullOrDef("dcmQueueName", ed.getQueueName(), null);
+            writer.writeNotNullOrDef("dicomDescription", ed.getDescription(), null);
+            writer.writeNotNullOrDef("dicomAETitle", ed.getAETitle(), null);
+            writer.writeNotNullOrDef("dcmStgCmtSCP", ed.getStgCmtSCPAETitle(), null);
             writer.writeNotEmpty("dcmIanDestination", ed.getIanDestinations());
             writer.writeNotEmpty("dcmRetrieveAET", ed.getRetrieveAETitles());
-            writer.writeNotNull("dcmRetrieveLocationUID", ed.getRetrieveLocationUID());
-            writer.writeNotNull("dcmInstanceAvailability", ed.getInstanceAvailability());
+            writer.writeNotNullOrDef("dcmRetrieveLocationUID", ed.getRetrieveLocationUID(), null);
+            writer.writeNotNullOrDef("dcmInstanceAvailability", ed.getInstanceAvailability(), Availability.ONLINE);
             writer.writeNotEmpty("dcmSchedule", ed.getSchedules());
             writer.writeNotEmpty("dcmProperty", descriptorProperties(ed.getProperties()));
             writer.writeEnd();
@@ -337,12 +350,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmExportRule");
         for (ExportRule er : exportRuleList) {
             writer.writeStartObject();
-            writer.writeNotNull("cn", er.getCommonName());
-            writer.writeNotNull("dcmEntity", er.getEntity());
+            writer.writeNotNullOrDef("cn", er.getCommonName(), null);
+            writer.writeNotNullOrDef("dcmEntity", er.getEntity(), null);
             writer.writeNotEmpty("dcmExporterID", er.getExporterIDs());
             writer.writeNotEmpty("dcmProperty", toStrings(er.getConditions().getMap()));
             writer.writeNotEmpty("dcmSchedule", er.getSchedules());
-            writer.writeNotNull("dcmDuration", er.getExportDelay());
+            writer.writeNotNullOrDef("dcmDuration", er.getExportDelay(), null);
             writer.writeNotDef("dcmExportPreviousEntity", er.isExportPreviousEntity(), false);
             writer.writeEnd();
         }
@@ -354,8 +367,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmArchiveCompressionRule");
         for (ArchiveCompressionRule acr : archiveCompressionRuleList) {
             writer.writeStartObject();
-            writer.writeNotNull("cn", acr.getCommonName());
-            writer.writeNotNull("dicomTransferSyntax", acr.getTransferSyntax());
+            writer.writeNotNullOrDef("cn", acr.getCommonName(), null);
+            writer.writeNotNullOrDef("dicomTransferSyntax", acr.getTransferSyntax(), null);
             writer.writeNotDef("dcmRulePriority", acr.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(acr.getConditions().getMap()));
             writer.writeNotEmpty("dcmImageWriteParam", acr.getImageWriteParams());
@@ -368,8 +381,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmStoreAccessControlIDRule");
         for (StoreAccessControlIDRule acr : rules) {
             writer.writeStartObject();
-            writer.writeNotNull("cn", acr.getCommonName());
-            writer.writeNotNull("dcmStoreAccessControlID", acr.getStoreAccessControlID());
+            writer.writeNotNullOrDef("cn", acr.getCommonName(), null);
+            writer.writeNotNullOrDef("dcmStoreAccessControlID", acr.getStoreAccessControlID(), null);
             writer.writeNotDef("dcmRulePriority", acr.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(acr.getConditions().getMap()));
             writer.writeEnd();
@@ -390,20 +403,20 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmArchiveAttributeCoercion");
         for (ArchiveAttributeCoercion aac : archiveAttributeCoercionList) {
             writer.writeStartObject();
-            writer.writeNotNull("cn", aac.getCommonName());
-            writer.writeNotNull("dcmDIMSE", aac.getDIMSE());
-            writer.writeNotNull("dicomTransferRole", aac.getRole());
+            writer.writeNotNullOrDef("cn", aac.getCommonName(), null);
+            writer.writeNotNullOrDef("dcmDIMSE", aac.getDIMSE(), null);
+            writer.writeNotNullOrDef("dicomTransferRole", aac.getRole(), null);
             writer.writeNotDef("dcmRulePriority", aac.getPriority(), 0);
             writer.writeNotEmpty("dcmAETitle", aac.getAETitles());
             writer.writeNotEmpty("dcmHostname", aac.getHostNames());
             writer.writeNotEmpty("dcmSOPClass", aac.getSOPClasses());
             writer.writeNotDef("dcmNoKeywords", aac.isNoKeywords(), false);
-            writer.writeNotNull("dcmURI", aac.getXSLTStylesheetURI());
-            writer.writeNotNull("dcmLeadingCFindSCP", aac.getLeadingCFindSCP());
+            writer.writeNotNullOrDef("dcmURI", aac.getXSLTStylesheetURI(), null);
+            writer.writeNotNullOrDef("dcmLeadingCFindSCP", aac.getLeadingCFindSCP(), null);
             writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(aac.getLeadingCFindSCPReturnKeys()));
-            writer.writeNotNull("dcmMergeMWLMatchingKey", aac.getMergeMWLMatchingKey());
-            writer.writeNotNull("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI());
-            writer.writeNotNull("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy());
+            writer.writeNotNullOrDef("dcmMergeMWLMatchingKey", aac.getMergeMWLMatchingKey(), null);
+            writer.writeNotNullOrDef("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI(), null);
+            writer.writeNotNullOrDef("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -413,13 +426,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmRejectionNote");
         for (RejectionNote rn : rejectionNoteList) {
             writer.writeStartObject();
-            writer.writeNotNull("dcmRejectionNoteLabel", rn.getRejectionNoteLabel());
-            writer.writeNotNull("dcmRejectionNoteType", rn.getRejectionNoteType());
-            writer.writeNotNull("dcmRejectionNoteCode", rn.getRejectionNoteCode());
-            writer.writeNotNull("dcmAcceptPreviousRejectedInstance", rn.getAcceptPreviousRejectedInstance());
+            writer.writeNotNullOrDef("dcmRejectionNoteLabel", rn.getRejectionNoteLabel(), null);
+            writer.writeNotNullOrDef("dcmRejectionNoteType", rn.getRejectionNoteType(), null);
+            writer.writeNotNullOrDef("dcmRejectionNoteCode", rn.getRejectionNoteCode(), null);
+            writer.writeNotNullOrDef("dcmAcceptPreviousRejectedInstance",
+                    rn.getAcceptPreviousRejectedInstance(), RejectionNote.AcceptPreviousRejectedInstance.REJECT);
             writer.writeNotEmpty("dcmOverwritePreviousRejection", rn.getOverwritePreviousRejection());
-            writer.writeNotNull("dcmDeleteRejectedInstanceDelay", rn.getDeleteRejectedInstanceDelay());
-            writer.writeNotNull("dcmDeleteRejectionNoteDelay", rn.getDeleteRejectionNoteDelay());
+            writer.writeNotNullOrDef("dcmDeleteRejectedInstanceDelay", rn.getDeleteRejectedInstanceDelay(), null);
+            writer.writeNotNullOrDef("dcmDeleteRejectionNoteDelay", rn.getDeleteRejectionNoteDelay(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -430,8 +444,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmStudyRetentionPolicy");
         for (StudyRetentionPolicy srp : studyRetentionPolicies) {
             writer.writeStartObject();
-            writer.writeNotNull("cn", srp.getCommonName());
-            writer.writeNotNull("dcmRetentionPeriod", srp.getRetentionPeriod());
+            writer.writeNotNullOrDef("cn", srp.getCommonName(), null);
+            writer.writeNotNullOrDef("dcmRetentionPeriod", srp.getRetentionPeriod(), null);
             writer.writeNotDef("dcmRulePriority", srp.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(srp.getConditions().getMap()));
             writer.writeNotDef("dcmExpireSeriesIndividually", srp.isExpireSeriesIndividually(), false);
@@ -444,7 +458,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("hl7ForwardRule");
         for (HL7ForwardRule rule : rules) {
             writer.writeStartObject();
-            writer.writeNotNull("cn", rule.getCommonName());
+            writer.writeNotNullOrDef("cn", rule.getCommonName(), null);
             writer.writeNotEmpty("hl7FwdApplicationName", rule.getDestinations());
             writer.writeNotEmpty("dcmProperty", toStrings(rule.getConditions().getMap()));
             writer.writeEnd();
@@ -456,8 +470,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("hl7OrderScheduledStation");
         for (HL7OrderScheduledStation station : stations) {
             writer.writeStartObject();
-            writer.writeNotNull("cn", station.getCommonName());
-            writer.writeNotNull("hl7OrderScheduledStationDeviceReference", station.getDeviceName());
+            writer.writeNotNullOrDef("cn", station.getCommonName(), null);
+            writer.writeNotNullOrDef("hl7OrderScheduledStationDeviceReference", station.getDeviceName(), null);
             writer.writeNotDef("dcmRulePriority", station.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(station.getConditions().getMap()));
             writer.writeEnd();
@@ -469,7 +483,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("hl7OrderSPSStatus");
         for (Map.Entry<SPSStatus, HL7OrderSPSStatus> entry : hl7OrderSPSStatusMap.entrySet()) {
             writer.writeStartObject();
-            writer.writeNotNull("dcmSPSStatus", entry.getKey());
+            writer.writeNotNullOrDef("dcmSPSStatus", entry.getKey(), null);
             writer.writeNotEmpty("hl7OrderControlStatus", entry.getValue().getOrderControlStatusCodes());
             writer.writeEnd();
         }
@@ -480,8 +494,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeStartArray("dcmRSForwardRule");
         for (RSForwardRule rule : rules) {
             writer.writeStartObject();
-            writer.writeNotNull("cn", rule.getCommonName());
-            writer.writeNotNull("dcmURI", rule.getBaseURI());
+            writer.writeNotNullOrDef("cn", rule.getCommonName(), null);
+            writer.writeNotNullOrDef("dcmURI", rule.getBaseURI(), null);
             writer.writeNotEmpty("dcmRSOperation", rule.getRSOperations());
             writer.writeEnd();
         }
@@ -498,8 +512,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
 
     private void writeIDGenerator(JsonWriter writer, IDGenerator generator) {
         writer.writeStartObject();
-        writer.writeNotNull("dcmIDGeneratorName", generator.getName());
-        writer.writeNotNull("dcmIDGeneratorFormat", generator.getFormat());
+        writer.writeNotNullOrDef("dcmIDGeneratorName", generator.getName(), null);
+        writer.writeNotNullOrDef("dcmIDGeneratorFormat", generator.getFormat(), null);
         writer.writeNotDef("dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
         writer.writeEnd();
     }
@@ -514,62 +528,62 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmObjectStorageID", arcAE.getObjectStorageIDs());
         writer.writeNotDef("dcmObjectStorageCount", arcAE.getObjectStorageCount(), 1);
         writer.writeNotEmpty("dcmMetadataStorageID", arcAE.getMetadataStorageIDs());
-        writer.writeNotNull("dcmSeriesMetadataDelay", arcAE.getSeriesMetadataDelay());
-        writer.writeNotNull("dcmPurgeInstanceRecordsDelay", arcAE.getPurgeInstanceRecordsDelay());
-        writer.writeNotNull("dcmStoreAccessControlID", arcAE.getStoreAccessControlID());
+        writer.writeNotNullOrDef("dcmSeriesMetadataDelay", arcAE.getSeriesMetadataDelay(), null);
+        writer.writeNotNullOrDef("dcmPurgeInstanceRecordsDelay", arcAE.getPurgeInstanceRecordsDelay(), null);
+        writer.writeNotNullOrDef("dcmStoreAccessControlID", arcAE.getStoreAccessControlID(), null);
         writer.writeNotEmpty("dcmAccessControlID", arcAE.getAccessControlIDs());
-        writer.writeNotNull("dcmOverwritePolicy", arcAE.getOverwritePolicy());
-        writer.writeNotNull("dcmQueryRetrieveViewID", arcAE.getQueryRetrieveViewID());
-        writer.writeNotNull("dcmBulkDataSpoolDirectory", arcAE.getBulkDataSpoolDirectory());
+        writer.writeNotNullOrDef("dcmOverwritePolicy", arcAE.getOverwritePolicy(), null);
+        writer.writeNotNullOrDef("dcmQueryRetrieveViewID", arcAE.getQueryRetrieveViewID(), null);
+        writer.writeNotNullOrDef("dcmBulkDataSpoolDirectory", arcAE.getBulkDataSpoolDirectory(), null);
         writer.writeNotEmpty("dcmHideSPSWithStatusFromMWL", arcAE.getHideSPSWithStatusFromMWL());
         writer.writeNotNull("dcmPersonNameComponentOrderInsensitiveMatching",
                 arcAE.getPersonNameComponentOrderInsensitiveMatching());
         writer.writeNotNull("dcmSendPendingCGet", arcAE.getSendPendingCGet());
-        writer.writeNotNull("dcmSendPendingCMoveInterval", arcAE.getSendPendingCMoveInterval());
-        writer.writeNotNull("dcmWadoSR2HtmlTemplateURI", arcAE.getWadoSR2HtmlTemplateURI());
-        writer.writeNotNull("dcmWadoSR2TextTemplateURI", arcAE.getWadoSR2TextTemplateURI());
-        writer.writeNotDef("dcmQidoMaxNumberOfResults", arcAE.getQidoMaxNumberOfResults(), 0);
+        writer.writeNotNullOrDef("dcmSendPendingCMoveInterval", arcAE.getSendPendingCMoveInterval(), null);
+        writer.writeNotNullOrDef("dcmWadoSR2HtmlTemplateURI", arcAE.getWadoSR2HtmlTemplateURI(), null);
+        writer.writeNotNullOrDef("dcmWadoSR2TextTemplateURI", arcAE.getWadoSR2TextTemplateURI(), null);
+        writer.writeNotNullOrDef("dcmQidoMaxNumberOfResults", arcAE.getQidoMaxNumberOfResults(), null);
         writer.writeNotEmpty("dcmFwdMppsDestination", arcAE.getMppsForwardDestinations());
         writer.writeNotEmpty("dcmIanDestination", arcAE.getIanDestinations());
-        writer.writeNotNull("dcmIanDelay", arcAE.getIanDelay());
-        writer.writeNotNull("dcmIanTimeout", arcAE.getIanTimeout());
+        writer.writeNotNullOrDef("dcmIanDelay", arcAE.getIanDelay(), null);
+        writer.writeNotNullOrDef("dcmIanTimeout", arcAE.getIanTimeout(), null);
         writer.writeNotNull("dcmIanOnTimeout", arcAE.getIanOnTimeout());
-        writer.writeNotNull("dcmFallbackCMoveSCP", arcAE.getFallbackCMoveSCP());
-        writer.writeNotNull("dcmFallbackCMoveSCPDestination", arcAE.getFallbackCMoveSCPDestination());
+        writer.writeNotNullOrDef("dcmFallbackCMoveSCP", arcAE.getFallbackCMoveSCP(), null);
+        writer.writeNotNullOrDef("dcmFallbackCMoveSCPDestination", arcAE.getFallbackCMoveSCPDestination(), null);
         writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcAE.getFallbackCMoveSCPRetries(), 0);
-        writer.writeNotNull("dcmFallbackCMoveSCPLeadingCFindSCP", arcAE.getFallbackCMoveSCPLeadingCFindSCP());
-        writer.writeNotNull("dcmAltCMoveSCP", arcAE.getAlternativeCMoveSCP());
-        writer.writeNotNull("dcmFallbackCMoveSCPStudyOlderThan", arcAE.getFallbackCMoveSCPStudyOlderThan());
-        writer.writeNotNull("dcmStorePermissionServiceURL", arcAE.getStorePermissionServiceURL());
-        writer.writeNotNull("dcmStorePermissionServiceResponsePattern",
-                arcAE.getStorePermissionServiceResponsePattern());
-        writer.writeNotNull("dcmAllowRejectionForDataRetentionPolicyExpired",
-                arcAE.getAllowRejectionForDataRetentionPolicyExpired());
+        writer.writeNotNullOrDef("dcmFallbackCMoveSCPLeadingCFindSCP", arcAE.getFallbackCMoveSCPLeadingCFindSCP(), null);
+        writer.writeNotNullOrDef("dcmAltCMoveSCP", arcAE.getAlternativeCMoveSCP(), null);
+        writer.writeNotNullOrDef("dcmFallbackCMoveSCPStudyOlderThan", arcAE.getFallbackCMoveSCPStudyOlderThan(), null);
+        writer.writeNotNullOrDef("dcmStorePermissionServiceURL", arcAE.getStorePermissionServiceURL(), null);
+        writer.writeNotNullOrDef("dcmStorePermissionServiceResponsePattern",
+                arcAE.getStorePermissionServiceResponsePattern(), null);
+        writer.writeNotNullOrDef("dcmAllowRejectionForDataRetentionPolicyExpired",
+                arcAE.getAllowRejectionForDataRetentionPolicyExpired(), null);
         writer.writeNotEmpty("dcmAcceptedUserRole", arcAE.getAcceptedUserRoles());
-        writer.writeNotNull("dcmAcceptMissingPatientID", arcAE.getAcceptMissingPatientID());
-        writer.writeNotNull("dcmAllowDeleteStudyPermanently", arcAE.getAllowDeleteStudyPermanently());
-        writer.writeNotNull("dcmStorePermissionServiceExpirationDatePattern",
-                arcAE.getStorePermissionServiceExpirationDatePattern());
-        writer.writeNotNull("dcmDefaultCharacterSet", arcAE.getDefaultCharacterSet());
-        writer.writeNotNull("dcmStorePermissionServiceErrorCommentPattern",
-                arcAE.getStorePermissionServiceErrorCommentPattern());
-        writer.writeNotNull("dcmStorePermissionServiceErrorCodePattern",
-                arcAE.getStorePermissionServiceErrorCodePattern());
+        writer.writeNotNullOrDef("dcmAcceptMissingPatientID", arcAE.getAcceptMissingPatientID(), null);
+        writer.writeNotNullOrDef("dcmAllowDeleteStudyPermanently", arcAE.getAllowDeleteStudyPermanently(), null);
+        writer.writeNotNullOrDef("dcmStorePermissionServiceExpirationDatePattern",
+                arcAE.getStorePermissionServiceExpirationDatePattern(), null);
+        writer.writeNotNullOrDef("dcmDefaultCharacterSet", arcAE.getDefaultCharacterSet(), null);
+        writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCommentPattern",
+                arcAE.getStorePermissionServiceErrorCommentPattern(), null);
+        writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCodePattern",
+                arcAE.getStorePermissionServiceErrorCodePattern(), null);
         writer.writeNotEmpty("dcmRetrieveAET", arcAE.getRetrieveAETitles());
-        writer.writeNotNull("dcmExternalRetrieveAEDestination",
-                arcAE.getExternalRetrieveAEDestination());
+        writer.writeNotNullOrDef("dcmExternalRetrieveAEDestination",
+                arcAE.getExternalRetrieveAEDestination(), null);
         writer.writeNotEmpty("dcmAcceptedMoveDestination", arcAE.getAcceptedMoveDestinations());
         writer.writeNotNull("dcmValidateCallingAEHostname", arcAE.getValidateCallingAEHostname());
-        writer.writeNotNull("hl7PSUSendingApplication", arcAE.getHl7PSUSendingApplication());
+        writer.writeNotNullOrDef("hl7PSUSendingApplication", arcAE.getHl7PSUSendingApplication(), null);
         writer.writeNotEmpty("hl7PSUReceivingApplication", arcAE.getHl7PSUReceivingApplications());
-        writer.writeNotNull("hl7PSUDelay", arcAE.getHl7PSUDelay());
-        writer.writeNotNull("hl7PSUTimeout", arcAE.getHl7PSUTimeout());
+        writer.writeNotNullOrDef("hl7PSUDelay", arcAE.getHl7PSUDelay(), null);
+        writer.writeNotNullOrDef("hl7PSUTimeout", arcAE.getHl7PSUTimeout(), null);
         writer.writeNotNull("hl7PSUOnTimeout", arcAE.getHl7PSUOnTimeout());
         writer.writeNotNull("hl7PSUMWL", arcAE.getHl7PSUMWL());
-        writer.writeNotNull("dcmAcceptConflictingPatientID", arcAE.getAcceptConflictingPatientID());
-        writer.writeNotNull("dcmCopyMoveUpdatePolicy", arcAE.getCopyMoveUpdatePolicy());
-        writer.writeNotNull("dcmInvokeImageDisplayPatientURL", arcAE.getInvokeImageDisplayPatientURL());
-        writer.writeNotNull("dcmInvokeImageDisplayStudyURL", arcAE.getInvokeImageDisplayStudyURL());
+        writer.writeNotNullOrDef("dcmAcceptConflictingPatientID", arcAE.getAcceptConflictingPatientID(), null);
+        writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy", arcAE.getCopyMoveUpdatePolicy(), null);
+        writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcAE.getInvokeImageDisplayPatientURL(), null);
+        writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcAE.getInvokeImageDisplayStudyURL(), null);
         writer.writeNotEmpty("dcmDiffStudiesIncludefieldAll",
                 TagUtils.toHexStrings(arcAE.getDiffStudiesIncludefieldAll()));
         writeExportRule(writer, arcAE.getExportRules());

@@ -3,20 +3,7 @@
   "description": "DICOM Archive Network AE related information",
   "type": "object",
   "required": [
-    "dcmObjectStorageCount",
-    "dcmOverwritePolicy",
-    "dcmAcceptMissingPatientID",
-    "dcmAcceptConflictingPatientID",
-    "dcmPersonNameComponentOrderInsensitiveMatching",
-    "dcmSendPendingCGet",
-    "dcmQidoMaxNumberOfResults",
-    "dcmIanOnTimeout",
-    "dcmAllowRejectionForDataRetentionPolicyExpired",
-    "dcmAllowDeleteStudyPermanently",
-    "dcmStorePermissionServiceErrorCommentPattern",
-    "dcmStorePermissionServiceErrorCodePattern",
-    "hl7PSUMWL",
-    "hl7PSUOnTimeout"
+    "dcmObjectStorageCount"
   ],
   "properties": {
     "dcmObjectStorageID": {
@@ -82,9 +69,8 @@
     },
     "dcmOverwritePolicy": {
       "title": "Overwrite Policy",
-      "description": "Overwrite Policy: NEVER, ALWAYS, SAME_SOURCE, SAME_SERIES or SAME_SOURCE_AND_SERIES.",
+      "description": "Overwrite Policy for Objects received by this AE. Overwrites value specified on Device level.",
       "type": "string",
-      "default": "NEVER",
       "enum": [
         "NEVER",
         "ALWAYS",
@@ -95,9 +81,8 @@
     },
     "dcmAcceptMissingPatientID": {
       "title": "Accept Missing Patient ID",
-      "description": "Indicates if objects without Patient IDs shall be accepted and if a Patient ID shall be created. Enumerated values: YES, NO, CREATE.",
+      "description": "Indicates if objects without Patient IDs shall be accepted and if a Patient ID shall be created. Overwrites value specified on Device level.",
       "type": "string",
-      "default": "CREATE",
       "enum": [
         "YES",
         "NO",
@@ -106,9 +91,8 @@
     },
     "dcmAcceptConflictingPatientID": {
       "title": "Accept Conflicting Patient ID",
-      "description": "Indicates if objects with a Patient IDs which differs from the Patient ID in previous received objects of the Study shall be accepted. Enumerated values: YES, NO, MERGED(= accept prior Patient IDs).",
+      "description": "Indicates if objects with a Patient IDs which differs from the Patient ID in previous received objects of the Study shall be accepted. Overwrites value specified on Device level.",
       "type": "string",
-      "default": "MERGED",
       "enum": [
         "YES",
         "NO",
@@ -122,7 +106,7 @@
     },
     "dcmBulkDataSpoolDirectory": {
       "title": "Bulk Data Spool Directory",
-      "description": "Path to Bulk Data Spool Directory",
+      "description": "Path to Bulk Data Spool Directory. Overwrites value specified on Device level.",
       "type": "string"
     },
     "dcmHideSPSWithStatusFromMWL": {
@@ -145,20 +129,18 @@
     },
     "dcmValidateCallingAEHostname": {
       "title": "Validate Calling AE Hostname",
-      "description": "Validate Calling AE Hostname or IP Address of Association requestors for this AE; use value configured on Device level, if absent",
+      "description": "Validate Calling AE Hostname or IP Address of Association requestors for this AE. Overwrites value specified on Device level.",
       "type": "boolean"
     },
     "dcmPersonNameComponentOrderInsensitiveMatching": {
       "title": "Person Name Component Order Insensitive Matching",
-      "description": "Indicates if name component order insensitive matching is performed on fuzzy semantic matching of person names.",
-      "type": "boolean",
-      "default": false
+      "description": "Indicates if name component order insensitive matching is performed on fuzzy semantic matching of person names by this AE. Overwrites value specified on Device level.",
+      "type": "boolean"
     },
     "dcmSendPendingCGet": {
       "title": "Send Pending C-Get",
-      "description": "Enables pending C-GET responses.",
-      "type": "boolean",
-      "default": false
+      "description": "Enables pending C-GET responses. Overwrites value specified on Device level.",
+      "type": "boolean"
     },
     "dcmSendPendingCMoveInterval": {
       "title": "Send Pending C-Move Interval",
@@ -177,9 +159,8 @@
     },
     "dcmQidoMaxNumberOfResults": {
       "title": "Qido Max Number Of Results",
-      "description": "Maximal number of return results by QIDO-RS Service.",
+      "description": "Maximal number of return results by QIDO-RS Service. 0 = unlimited. Overwrites value specified on Device level.",
       "type": "integer",
-      "default": 0,
       "minimum": 0
     },
     "dcmFwdMppsDestination": {
@@ -206,9 +187,8 @@
     },
     "dcmIanOnTimeout": {
       "title": "IAN On Timeout",
-      "description": "Specifies if the IAN is sent if the timeout for waiting on receive of instances referenced is exceeded.",
-      "type": "boolean",
-      "default": false
+      "description": "Specifies if the IAN is sent if the timeout for waiting on receive of instances referenced is exceeded. Overwrites value specified on Device level.",
+      "type": "boolean"
     },
     "dcmFallbackCMoveSCP": {
       "title": "Fallback C-Move SCP",
@@ -258,9 +238,8 @@
     },
     "dcmAllowRejectionForDataRetentionPolicyExpired": {
       "title": "Allow Rejection For Data Retention Policy Expired",
-      "description": "Allow Rejection For Data Retention Policy Expired : NEVER, ALWAYS, STUDY_RETENTION_POLICY.",
+      "description": "Allow Rejection For Data Retention Policy Expired. Overwrites value specified on Device level.",
       "type": "string",
-      "default": "STUDY_RETENTION_POLICY",
       "enum": [
         "NEVER",
         "ALWAYS",
@@ -277,9 +256,8 @@
     },
     "dcmAllowDeleteStudyPermanently": {
       "title": "Allow Delete Study permanently",
-      "description": "Allow to delete Study permanently. Enumerated values: ALWAYS, REJECTED (= only already rejected Studies). If absent, REJECTED will be applied.",
+      "description": "Allow to delete Study permanently. REJECTED = only already rejected Studies. Overwrites value specified on Device level.",
       "type": "string",
-      "default": "REJECTED",
       "enum": [
         "ALWAYS",
         "REJECTED"
@@ -297,15 +275,13 @@
     },
     "dcmStorePermissionServiceErrorCommentPattern": {
       "title": "Store Permission Service Error Comment Pattern",
-      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Comment. E.g. \"errorcomment\"\\s*:\\s*\"(.*)\".",
-      "type": "string",
-      "default": "Storage denied."
+      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Comment. E.g. \"errorcomment\"\\s*:\\s*\"(.*)\". Overwrites value specified on Device level.",
+      "type": "string"
     },
     "dcmStorePermissionServiceErrorCodePattern": {
       "title": "Store Permission Service Error Code Pattern",
-      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Code in hexadecimal. E.g. \"errorcode\"\\s*:\\s*\"(\\p{XDigit}{4})\".",
-      "type": "string",
-      "default": "0x0124"
+      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Code in hexadecimal. E.g. \"errorcode\"\\s*:\\s*\"(\\p{XDigit}{4})\". Overwrites value specified on Device level.",
+      "type": "string"
     },
     "dcmRetrieveAET": {
       "title": "Retrieve AE Title",
@@ -359,22 +335,19 @@
     },
     "hl7PSUMWL": {
       "title": "HL7 Procedure Status Update MWL",
-      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay.",
       "type": "boolean",
-      "default": false
+      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay. Overwrites value specified on Device level."
     },
     "hl7PSUTimeout": {
       "title": "HL7 Procedure Status Update Timeout",
-      "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent.",
+      "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS. Overwrites value specified on Device level.",
       "type": "string"
     },
     "hl7PSUOnTimeout": {
       "title": "HL7 Procedure Status Update On Timeout",
-      "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded.",
-      "type": "boolean",
-      "default": false
-    }
-  ,
+      "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
     "dcmExportRule": {
       "title": "Export Rule",
       "description": "Export Rule",

@@ -101,13 +101,13 @@ public class QueryAETs {
         JsonWriter writer = new JsonWriter(gen);
         gen.writeStartObject();
         gen.write("title", aet);
-        writer.writeNotNull("description", ae.getDescription());
+        writer.writeNotNullOrDef("description", ae.getDescription(), null);
         if (arcAE != null) {
             if (arcAE.getQueryRetrieveView() != null && arcAE.getQueryRetrieveView().isHideNotRejectedInstances())
                 writer.writeNotNull("dcmHideNotRejectedInstances", arcAE.getQueryRetrieveView().isHideNotRejectedInstances());
             else {
-                writer.writeNotNull("dcmInvokeImageDisplayPatientURL", arcAE.invokeImageDisplayPatientURL());
-                writer.writeNotNull("dcmInvokeImageDisplayStudyURL", arcAE.invokeImageDisplayStudyURL());
+                writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcAE.invokeImageDisplayPatientURL(), null);
+                writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcAE.invokeImageDisplayStudyURL(), null);
             }
             writer.writeNotEmpty("dcmAcceptedUserRole", arcAE.getAcceptedUserRoles());
         }

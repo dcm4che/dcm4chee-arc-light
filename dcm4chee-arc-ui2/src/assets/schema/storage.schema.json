@@ -32,7 +32,12 @@
       "title": "Instance Availability",
       "description": "Instance Availability: ONLINE, NEARLINE or OFFLINE. ONLINE if absent.",
       "type": "string",
-      "default": "ONLINE"
+      "default": "ONLINE",
+      "enum": [
+        "ONLINE",
+        "NEARLINE",
+        "OFFLINE"
+      ]
     },
     "dcmReadOnly": {
       "title": "Read Only",

@@ -82,8 +82,8 @@ public class QueryExporters {
                 for (ExporterDescriptor exporter : ext.getExporterDescriptors()) {
                     JsonWriter writer = new JsonWriter(gen);
                     gen.writeStartObject();
-                    writer.writeNotNull("id", exporter.getExporterID());
-                    writer.writeNotNull("description", exporter.getDescription());
+                    writer.writeNotNullOrDef("id", exporter.getExporterID(), null);
+                    writer.writeNotNullOrDef("description", exporter.getDescription(), null);
                     gen.writeEnd();
                 }
                 gen.writeEnd();

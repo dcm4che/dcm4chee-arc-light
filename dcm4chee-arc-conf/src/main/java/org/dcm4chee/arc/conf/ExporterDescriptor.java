@@ -63,7 +63,7 @@ public class ExporterDescriptor {
     private String[] ianDestinations = {};
     private String[] retrieveAETitles = {};
     private String retrieveLocationUID;
-    private Availability instanceAvailability;
+    private Availability instanceAvailability = Availability.ONLINE;
     private String stgCmtSCPAETitle;
     private ScheduleExpression[] schedules = {};
     private final Map<String, String> properties = new HashMap<>();

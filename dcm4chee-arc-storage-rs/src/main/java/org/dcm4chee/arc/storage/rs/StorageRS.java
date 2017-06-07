@@ -119,13 +119,13 @@ public class StorageRS {
                     gen.writeStartObject();
                     gen.write("dcmStorageID", desc.getStorageID());
                     gen.write("dcmURI", desc.getStorageURIStr());
-                    writer.writeNotNull("dcmDigestAlgorithm", desc.getDigestAlgorithm());
-                    writer.writeNotNull("dcmInstanceAvailability", desc.getInstanceAvailability());
+                    writer.writeNotNullOrDef("dcmDigestAlgorithm", desc.getDigestAlgorithm(), null);
+                    writer.writeNotNullOrDef("dcmInstanceAvailability", desc.getInstanceAvailability(), null);
                     writer.writeNotDef("dcmReadOnly", desc.isReadOnly(), false);
                     if (desc.getStorageThreshold() != null)
                         gen.write("storageThreshold", desc.getStorageThreshold().getMinUsableDiskSpace());
                     writeDeleterThresholds(writer, gen, desc.getDeleterThresholds());
-                    writer.writeNotNull("dcmExternalRetrieveAET", desc.getExternalRetrieveAETitle());
+                    writer.writeNotNullOrDef("dcmExternalRetrieveAET", desc.getExternalRetrieveAETitle(), null);
                     writer.writeNotEmpty("dcmProperty", descriptorProperties(desc.getProperties()));
                     writer.writeNotEmpty("dicomAETitle", ss.aets.toArray(new String[ss.aets.size()]));
                     writer.writeNotEmpty("usages", ss.usages.toArray(new String[ss.usages.size()]));

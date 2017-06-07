@@ -87,7 +87,6 @@ import java.util.*;
 public class WadoRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(WadoRS.class);
-    private static final String JBOSS_SERVER_TEMP = "${jboss.server.temp.dir}";
 
     @Inject
     private RetrieveService service;
@@ -872,9 +871,8 @@ public class WadoRS {
     }
 
     private java.nio.file.Path spoolDirectoryRoot() throws IOException {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         return  Files.createDirectories(Paths.get(StringUtils.replaceSystemProperties(
-                StringUtils.maskNull(arcDev.getWadoSpoolDirectory(), JBOSS_SERVER_TEMP))));
+                device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getWadoSpoolDirectory())));
     }
 
     private java.nio.file.Path spoolDirectory(int[] frameList) throws IOException {

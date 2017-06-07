@@ -66,7 +66,7 @@ public class ArchiveAttributeCoercion {
     private int[] leadingCFindSCPReturnKeys = {};
     private MergeMWLMatchingKey mergeMWLMatchingKey;
     private String mergeMWLTemplateURI;
-    private Attributes.UpdatePolicy attributeUpdatePolicy;
+    private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.MERGE;
 
     public ArchiveAttributeCoercion() {
     }
@@ -181,10 +181,6 @@ public class ArchiveAttributeCoercion {
 
     public Attributes.UpdatePolicy getAttributeUpdatePolicy() {
         return attributeUpdatePolicy;
-    }
-
-    public Attributes.UpdatePolicy attributeUpdatePolicy() {
-        return StringUtils.maskNull(attributeUpdatePolicy, Attributes.UpdatePolicy.MERGE);
     }
 
     public void setAttributeUpdatePolicy(Attributes.UpdatePolicy attributeUpdatePolicy) {

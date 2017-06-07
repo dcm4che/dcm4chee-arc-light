@@ -56,7 +56,6 @@ import java.util.regex.Pattern;
  * @since Jul 2015
  */
 public class ArchiveAEExtension extends AEExtension {
-    private static final String JBOSS_SERVER_TEMP_DIR = "${jboss.server.temp.dir}";
     private String defaultCharacterSet;
     private String[] objectStorageIDs = {};
     private int objectStorageCount = 1;
@@ -86,7 +85,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String fallbackCMoveSCPStudyOlderThan;
     private String externalRetrieveAEDestination;
     private String alternativeCMoveSCP;
-    private int qidoMaxNumberOfResults;
+    private Integer qidoMaxNumberOfResults;
     private SPSStatus[] hideSPSWithStatusFromMWL = {};
     private String storePermissionServiceURL;
     private Pattern storePermissionServiceResponsePattern;
@@ -210,7 +209,7 @@ public class ArchiveAEExtension extends AEExtension {
     public OverwritePolicy overwritePolicy() {
         return overwritePolicy != null
                 ? overwritePolicy
-                : StringUtils.maskNull(getArchiveDeviceExtension().getOverwritePolicy(), OverwritePolicy.NEVER);
+                : getArchiveDeviceExtension().getOverwritePolicy();
     }
 
     public AcceptMissingPatientID getAcceptMissingPatientID() {
@@ -242,8 +241,7 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public File getBulkDataSpoolDirectoryFile() {
-        return new File(StringUtils.replaceSystemProperties(
-                StringUtils.maskNull(bulkDataSpoolDirectory(), JBOSS_SERVER_TEMP_DIR)));
+        return new File(StringUtils.replaceSystemProperties(bulkDataSpoolDirectory()));
     }
 
     public String getQueryRetrieveViewID() {
@@ -504,17 +502,17 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getFallbackCMoveSCPStudyOlderThan();
     }
 
-    public int getQidoMaxNumberOfResults() {
+    public Integer getQidoMaxNumberOfResults() {
         return qidoMaxNumberOfResults;
     }
 
-    public void setQidoMaxNumberOfResults(int qidoMaxNumberOfResults) {
+    public void setQidoMaxNumberOfResults(Integer qidoMaxNumberOfResults) {
         this.qidoMaxNumberOfResults = qidoMaxNumberOfResults;
     }
 
     public int qidoMaxNumberOfResults() {
-        return qidoMaxNumberOfResults > 0
-                ? qidoMaxNumberOfResults
+        return qidoMaxNumberOfResults != null
+                ? qidoMaxNumberOfResults.intValue()
                 : getArchiveDeviceExtension().getQidoMaxNumberOfResults();
     }
 

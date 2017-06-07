@@ -92,7 +92,6 @@ import java.util.*;
 @ApplicationScoped
 public class AuditService {
     private final Logger LOG = LoggerFactory.getLogger(AuditService.class);
-    private final String JBOSS_SERVER_TEMP = "${jboss.server.temp.dir}";
     private final String studyDate = "StudyDate";
     private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
 
@@ -283,9 +282,8 @@ public class AuditService {
         AuditInfo auditInfo = ctx.getHttpRequest() != null ? createAuditInfoForQIDO(ctx) : createAuditInfoForFIND(ctx);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
             if (auditLogger.isInstalled()) {
-                Path directory = Paths.get(StringUtils.replaceSystemProperties(auditAggregate
-                                ? arcDev.getAuditSpoolDirectory() + "/" + auditLogger.getCommonName().replaceAll(" ", "_")
-                                : JBOSS_SERVER_TEMP));
+                Path directory = Paths.get(StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()),
+                                auditLogger.getCommonName().replaceAll(" ", "_"));
                 try {
                     Files.createDirectories(directory);
                     Path file = Files.createTempFile(directory, String.valueOf(eventType), null);
@@ -781,7 +779,7 @@ public class AuditService {
             Sequence success = eventInfo.getSequence(Tag.ReferencedSOPSequence);
             String pID = eventInfo.getString(Tag.PatientID) != null ? getPID(eventInfo) : arcDev.auditUnknownPatientID();
             String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
-                    ? buildStrings(eventInfo.getStrings(Tag.StudyInstanceUID)) : arcDev.auditUnknownStudyInstanceUID();
+                    ? buildStrings(eventInfo.getStrings(Tag.StudyInstanceUID)) : arcDev.getAuditUnknownStudyInstanceUID();
             if (failed != null && !failed.isEmpty()) {
                 Set<String> failureReasons = new HashSet<>();
                 Set<AuditInfo> aiSet = new HashSet<>();
@@ -1015,9 +1013,8 @@ public class AuditService {
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
             if (auditLogger.isInstalled()) {
-                Path dir = Paths.get(StringUtils.replaceSystemProperties(auditAggregate
-                        ? arcDev.getAuditSpoolDirectory() + "/" + auditLogger.getCommonName().replaceAll(" ", "_")
-                        : JBOSS_SERVER_TEMP));
+                Path dir = Paths.get(StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()),
+                        auditLogger.getCommonName().replaceAll(" ", "_"));
                 try {
                     Files.createDirectories(dir);
                     Path file = Files.createTempFile(dir, eventType, null);
@@ -1045,9 +1042,8 @@ public class AuditService {
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
             if (auditLogger.isInstalled()) {
-                Path dir = Paths.get(StringUtils.replaceSystemProperties(auditAggregate
-                        ? arcDev.getAuditSpoolDirectory() + "/" + auditLogger.getCommonName().replaceAll(" ", "_")
-                        : JBOSS_SERVER_TEMP));
+                Path dir = Paths.get(StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()),
+                        auditLogger.getCommonName().replaceAll(" ", "_"));
                 Path file = dir.resolve(fileName);
                 boolean append = Files.exists(file);
                 try {

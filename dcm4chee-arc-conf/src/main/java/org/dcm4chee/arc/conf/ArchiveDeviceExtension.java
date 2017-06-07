@@ -62,6 +62,10 @@ import java.util.regex.Pattern;
  */
 public class ArchiveDeviceExtension extends DeviceExtension {
 
+    public static final String AUDIT_UNKNOWN_STUDY_INSTANCE_UID = "1.2.40.0.13.1.15.110.3.165.1";
+    public static final String AUDIT_UNKNOWN_PATIENT_ID = "<none>";
+    public static final String JBOSS_SERVER_TEMP_DIR = "${jboss.server.temp.dir}";
+
     private String defaultCharacterSet;
     private String fuzzyAlgorithmClass;
     private String[] seriesMetadataStorageIDs = {};
@@ -71,10 +75,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration purgeInstanceRecordsDelay;
     private Duration purgeInstanceRecordsPollingInterval;
     private int purgeInstanceRecordsFetchSize = 100;
-    private OverwritePolicy overwritePolicy;
-    private ShowPatientInfo showPatientInfoInSystemLog;
-    private ShowPatientInfo showPatientInfoInAuditLog;
-    private String bulkDataSpoolDirectory;
+    private OverwritePolicy overwritePolicy = OverwritePolicy.NEVER;
+    private ShowPatientInfo showPatientInfoInSystemLog = ShowPatientInfo.PLAIN_TEXT;
+    private ShowPatientInfo showPatientInfoInAuditLog = ShowPatientInfo.PLAIN_TEXT;
+    private String bulkDataSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
     private String queryRetrieveViewID;
     private boolean validateCallingAEHostname = false;
     private boolean sendPendingCGet = false;
@@ -114,11 +118,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration aeCacheStaleTimeout;
     private Duration leadingCFindSCPQueryCacheStaleTimeout;
     private int leadingCFindSCPQueryCacheSize = 10;
-    private String auditSpoolDirectory;
+    private String auditSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
     private Duration auditPollingInterval;
     private Duration auditAggregateDuration;
-    private String stowSpoolDirectory;
-    private String wadoSpoolDirectory;
+    private String stowSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
+    private String wadoSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
     private Duration purgeQueueMessagePollingInterval;
     private Duration purgeStgCmtPollingInterval;
     private Duration purgeStgCmtCompletedDelay;
@@ -142,10 +146,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int mergeMWLCacheSize = 10;
     private int storeUpdateDBMaxRetries = 1;
     private int storeUpdateDBMaxRetryDelay = 1000;
-    private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
-    private AcceptMissingPatientID acceptMissingPatientID;
-    private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
-    private AcceptConflictingPatientID acceptConflictingPatientID;
+    private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired =
+            AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY;
+    private AcceptMissingPatientID acceptMissingPatientID = AcceptMissingPatientID.CREATE;
+    private AllowDeleteStudyPermanently allowDeleteStudyPermanently = AllowDeleteStudyPermanently.REJECTED;
+    private AcceptConflictingPatientID acceptConflictingPatientID = AcceptConflictingPatientID.MERGED;
     private String[] retrieveAETitles = {};
     private String remapRetrieveURL;
     private String remapRetrieveURLClientHost;
@@ -167,10 +172,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String invokeImageDisplayStudyURL;
     private String[] hl7ADTReceivingApplication = {};
     private String hl7ADTSendingApplication;
-    private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
+    private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder = ScheduledProtocolCodeInOrder.OBR_4_4;
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
-    private String auditUnknownStudyInstanceUID;
-    private String auditUnknownPatientID;
+    private String auditUnknownStudyInstanceUID = AUDIT_UNKNOWN_STUDY_INSTANCE_UID;
+    private String auditUnknownPatientID = AUDIT_UNKNOWN_PATIENT_ID;
     private int[] diffStudiesIncludefieldAll = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
@@ -275,7 +280,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setBulkDataSpoolDirectory(String bulkDataSpoolDirectory) {
-        this.bulkDataSpoolDirectory = bulkDataSpoolDirectory;
+        this.bulkDataSpoolDirectory = Objects.requireNonNull(bulkDataSpoolDirectory, "BulkDataSpoolDirectory");
     }
 
     public String[] getSeriesMetadataStorageIDs() {
@@ -677,7 +682,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setAuditSpoolDirectory(String auditSpoolDirectory) {
-        this.auditSpoolDirectory = auditSpoolDirectory;
+        this.auditSpoolDirectory = Objects.requireNonNull(auditSpoolDirectory, "AuditSpoolDirectory");
     }
 
     public Duration getAuditPollingInterval() {
@@ -697,7 +702,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public boolean isAuditAggregate() {
-        return auditSpoolDirectory != null && auditPollingInterval != null && auditAggregateDuration != null;
+        return auditPollingInterval != null && auditAggregateDuration != null;
     }
 
     public String getStowSpoolDirectory() {
@@ -705,7 +710,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setStowSpoolDirectory(String stowSpoolDirectory) {
-        this.stowSpoolDirectory = stowSpoolDirectory;
+        this.stowSpoolDirectory = Objects.requireNonNull(stowSpoolDirectory, "StowSpoolDirectory");
     }
 
     public String getWadoSpoolDirectory() {
@@ -713,7 +718,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setWadoSpoolDirectory(String wadoSpoolDirectory) {
-        this.wadoSpoolDirectory = wadoSpoolDirectory;
+        this.wadoSpoolDirectory = Objects.requireNonNull(wadoSpoolDirectory, "WadoSpoolDirectory");
     }
 
     public String getHl7LogFilePattern() {
@@ -1513,10 +1518,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setAuditUnknownStudyInstanceUID(String auditUnknownStudyInstanceUID) {
         this.auditUnknownStudyInstanceUID = auditUnknownStudyInstanceUID;
-    }
-
-    public String auditUnknownStudyInstanceUID() {
-        return StringUtils.maskNull(auditUnknownStudyInstanceUID, "1.2.40.0.13.1.15.110.3.165.1");
     }
 
     public String getAuditUnknownPatientID() {

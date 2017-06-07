@@ -68,14 +68,14 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
             return;
 
         attrs.get("objectclass").add("dcmArchiveHL7Application");
-        LdapUtils.storeNotNull(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI());
-        LdapUtils.storeNotNull(attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI());
-        LdapUtils.storeNotNull(attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI());
-        LdapUtils.storeNotNull(attrs, "hl7LogFilePattern", ext.getHl7LogFilePattern());
-        LdapUtils.storeNotNull(attrs, "hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern());
-        LdapUtils.storeNotNull(attrs, "dicomAETitle", ext.getAETitle());
-        LdapUtils.storeNotNull(attrs, "hl7ScheduledProtocolCodeInOrder", ext.getHl7ScheduledProtocolCodeInOrder());
-        LdapUtils.storeNotNull(attrs, "hl7ScheduledStationAETInOrder", ext.getHl7ScheduledStationAETInOrder());
+        LdapUtils.storeNotNullOrDef(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(attrs, "hl7LogFilePattern", ext.getHl7LogFilePattern(), null);
+        LdapUtils.storeNotNullOrDef(attrs, "hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern(), null);
+        LdapUtils.storeNotNullOrDef(attrs, "dicomAETitle", ext.getAETitle(), null);
+        LdapUtils.storeNotNullOrDef(attrs, "hl7ScheduledProtocolCodeInOrder", ext.getHl7ScheduledProtocolCodeInOrder(), null);
+        LdapUtils.storeNotNullOrDef(attrs, "hl7ScheduledStationAETInOrder", ext.getHl7ScheduledStationAETInOrder(), null);
     }
 
     @Override
@@ -140,19 +140,19 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
             mods.add(new ModificationItem(DirContext.ADD_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveHL7Application")));
         }
-        LdapUtils.storeDiff(mods, "hl7PatientUpdateTemplateURI",
-                aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI());
-        LdapUtils.storeDiff(mods, "hl7ImportReportTemplateURI",
-                aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI());
-        LdapUtils.storeDiff(mods, "hl7ScheduleProcedureTemplateURI",
+        LdapUtils.storeDiffObject(mods, "hl7PatientUpdateTemplateURI",
+                aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI(), null);
+        LdapUtils.storeDiffObject(mods, "hl7ImportReportTemplateURI",
+                aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI(), null);
+        LdapUtils.storeDiffObject(mods, "hl7ScheduleProcedureTemplateURI",
                 aa.getScheduleProcedureTemplateURI(),
-                bb.getScheduleProcedureTemplateURI());
-        LdapUtils.storeDiff(mods, "hl7LogFilePattern", aa.getHl7LogFilePattern(), bb.getHl7LogFilePattern());
-        LdapUtils.storeDiff(mods, "hl7ErrorLogFilePattern", aa.getHl7ErrorLogFilePattern(), bb.getHl7ErrorLogFilePattern());
-        LdapUtils.storeDiff(mods, "dicomAETitle", aa.getAETitle(), bb.getAETitle());
-        LdapUtils.storeDiff(mods, "hl7ScheduledProtocolCodeInOrder", aa.getHl7ScheduledProtocolCodeInOrder(),
-                bb.getHl7ScheduledProtocolCodeInOrder());
-        LdapUtils.storeDiff(mods, "hl7ScheduledStationAETInOrder", aa.getHl7ScheduledStationAETInOrder(), bb.getHl7ScheduledStationAETInOrder());
+                bb.getScheduleProcedureTemplateURI(), null);
+        LdapUtils.storeDiffObject(mods, "hl7LogFilePattern", aa.getHl7LogFilePattern(), bb.getHl7LogFilePattern(), null);
+        LdapUtils.storeDiffObject(mods, "hl7ErrorLogFilePattern", aa.getHl7ErrorLogFilePattern(), bb.getHl7ErrorLogFilePattern(), null);
+        LdapUtils.storeDiffObject(mods, "dicomAETitle", aa.getAETitle(), bb.getAETitle(), null);
+        LdapUtils.storeDiffObject(mods, "hl7ScheduledProtocolCodeInOrder", aa.getHl7ScheduledProtocolCodeInOrder(),
+                bb.getHl7ScheduledProtocolCodeInOrder(), null);
+        LdapUtils.storeDiffObject(mods, "hl7ScheduledStationAETInOrder", aa.getHl7ScheduledStationAETInOrder(), bb.getHl7ScheduledStationAETInOrder(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveHL7Application")));
