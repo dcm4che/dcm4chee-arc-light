@@ -75,26 +75,7 @@ export class AppComponent {
         }
 
         this.initGetDevicename(2);
-
-        this.$http.get('../auth')
-            .map(res => {
-                let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
-            .subscribe(
-                    (response) => {
-                    $this.url  = response.url;
-                    let host    = location.protocol + '//' + location.host;
-
-                    $this.logoutUrl = response.url + '/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
-                        + encodeURIComponent(host + location.pathname);
-                }, (response) => {
-                    // vex.dialog.alert("Error loading device names, please reload the page and try again!");
-                    $this.url = '/auth';
-                    let host = location.protocol + '//' + location.host;
-                    $this.logoutUrl =  host + '/auth/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
-                        + encodeURIComponent(host + location.pathname);
-                });
-
-
+        this.initGetAuth(2)
     }
 
     progress(){
@@ -177,7 +158,31 @@ export class AppComponent {
             }
         });
     }
+    initGetAuth(retries){
+        let $this = this;
+        this.$http.get('../auth')
+            .map(res => {
+                let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            .subscribe(
+                (response) => {
+                    $this.url  = response.url;
+                    let host    = location.protocol + '//' + location.host;
 
+                    $this.logoutUrl = response.url + '/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
+                        + encodeURIComponent(host + location.pathname);
+                }, (response) => {
+                    // vex.dialog.alert("Error loading device names, please reload the page and try again!");
+                    if (retries){
+                        $this.initGetAuth(retries - 1);
+                    }else{
+                        $this.url = '/auth';
+                        let host = location.protocol + '//' + location.host;
+                        $this.logoutUrl =  host + '/auth/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
+                            + encodeURIComponent(host + location.pathname);
+                    }
+                });
+
+    }
     initGetDevicename(retries){
         let $this = this;
         this.$http.get('../devicename')
