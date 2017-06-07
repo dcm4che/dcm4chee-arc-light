@@ -143,12 +143,14 @@ export class AeListComponent{
             if (result){
                 console.log('result', result);
                 console.log('result', parameters.result);
+                $this.cfpLoadingBar.start();
                 $this.$http.post(
                     '../aets/' + parameters.result.select + '/echo/' + ae,
                     {}
                 ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                     .subscribe((response) => {
                         console.log('response', response);
+                        $this.cfpLoadingBar.complete();
                         if (_.hasIn(response, 'errorMessage') && response.errorMessage != '') {
                             $this.mainservice.setMessage({
                                 'title': 'Error ',
@@ -169,6 +171,7 @@ export class AeListComponent{
                             });
                         }
                     }, err => {
+                        $this.cfpLoadingBar.complete();
                         console.log('error', err);
                         $this.mainservice.setMessage({
                             'title': 'Error ' + err.status,
