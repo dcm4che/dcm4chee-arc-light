@@ -391,15 +391,15 @@
                         </button>
                         <div class="optionlist" id="showoptionlist" *ngIf="showoptionlist">
                             <ul>
-                                <!--                 <li [ngClass]="{active:filter.orderby === ''}" (click)="filter.orderby = '';showoptionlist=false;orderbytext = 'Order by ...'">Order by ...</li>
-                                                <li [ngClass]="{active:filter.orderby === 'PatientName'}" (click)="filter.orderby = 'PatientName';showoptionlist=false;orderbytext = 'Patient patient._VALUE name &darr;'">Patient patient._VALUE name &darr; <span class="glyphicon glyphicon-sort-by-alphabet"></span> <span class="orderbydateasc"></span></li>
-                                                <li [ngClass]="{active:filter.orderby === '-PatientName'}" (click)="filter.orderby = '-PatientName';showoptionlist=false;orderbytext = 'Patient patient._VALUE name &uarr;'">Patient patient._VALUE name &uarr;<span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></li>
-                                                <li [ngClass]="{active:filter.orderby === 'StudyDate,StudyTime'}" (click)="filter.orderby = 'StudyDate,StudyTime';showoptionlist=false;orderbytext = 'study._VALUE study._VALUE date &darr;'">study._VALUE study._VALUE date &darr; <span class="orderbydatedesc"></span></li>
-                                                <li [ngClass]="{active:filter.orderby === '-StudyDate,-StudyTime'}" (click)="filter.orderby = '-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'study._VALUE study._VALUE date &uarr;'">study._VALUE study._VALUE date &uarr;</li>
-                                                <li [ngClass]="{active:filter.orderby === 'PatientName,StudyDate,StudyTime'}" (click)="filter.orderby = 'PatientName,StudyDate,StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &darr; and study._VALUE date &darr;'">study._VALUE patient._VALUE name &darr; and study._VALUE date &darr;</li>
-                                                <li [ngClass]="{active:filter.orderby === 'PatientName,-StudyDate,-StudyTime'}" (click)="filter.orderby = 'PatientName,-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &darr; and study._VALUE date &uarr;'">study._VALUE patient._VALUE name &darr; and study._VALUE date &uarr;</li>
-                                                <li [ngClass]="{active:filter.orderby === '-PatientName,StudyDate,StudyTime'}" (click)="filter.orderby = '-PatientName,StudyDate,StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &uarr; and study._VALUE date &darr;'">study._VALUE patient._VALUE name &uarr; and study._VALUE date &darr;</li>
-                                                <li [ngClass]="{active:filter.orderby === '-PatientName,-StudyDate,-StudyTime'}" (click)="filter.orderby = '-PatientName,-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &uarr; and study._VALUE date &uarr;'">study._VALUE patient._VALUE name &uarr; and study._VALUE date &uarr;</li> -->
+                                <!--                 <li [ngClass]="{active:filter.orderby === ''}" (click)="$event.preventDefault();filter.orderby = '';showoptionlist=false;orderbytext = 'Order by ...'">Order by ...</li>
+                                                <li [ngClass]="{active:filter.orderby === 'PatientName'}" (click)="$event.preventDefault();filter.orderby = 'PatientName';showoptionlist=false;orderbytext = 'Patient patient._VALUE name &darr;'">Patient patient._VALUE name &darr; <span class="glyphicon glyphicon-sort-by-alphabet"></span> <span class="orderbydateasc"></span></li>
+                                                <li [ngClass]="{active:filter.orderby === '-PatientName'}" (click)="$event.preventDefault();filter.orderby = '-PatientName';showoptionlist=false;orderbytext = 'Patient patient._VALUE name &uarr;'">Patient patient._VALUE name &uarr;<span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></li>
+                                                <li [ngClass]="{active:filter.orderby === 'StudyDate,StudyTime'}" (click)="$event.preventDefault();filter.orderby = 'StudyDate,StudyTime';showoptionlist=false;orderbytext = 'study._VALUE study._VALUE date &darr;'">study._VALUE study._VALUE date &darr; <span class="orderbydatedesc"></span></li>
+                                                <li [ngClass]="{active:filter.orderby === '-StudyDate,-StudyTime'}" (click)="$event.preventDefault();filter.orderby = '-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'study._VALUE study._VALUE date &uarr;'">study._VALUE study._VALUE date &uarr;</li>
+                                                <li [ngClass]="{active:filter.orderby === 'PatientName,StudyDate,StudyTime'}" (click)="$event.preventDefault();filter.orderby = 'PatientName,StudyDate,StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &darr; and study._VALUE date &darr;'">study._VALUE patient._VALUE name &darr; and study._VALUE date &darr;</li>
+                                                <li [ngClass]="{active:filter.orderby === 'PatientName,-StudyDate,-StudyTime'}" (click)="$event.preventDefault();filter.orderby = 'PatientName,-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &darr; and study._VALUE date &uarr;'">study._VALUE patient._VALUE name &darr; and study._VALUE date &uarr;</li>
+                                                <li [ngClass]="{active:filter.orderby === '-PatientName,StudyDate,StudyTime'}" (click)="$event.preventDefault();filter.orderby = '-PatientName,StudyDate,StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &uarr; and study._VALUE date &darr;'">study._VALUE patient._VALUE name &uarr; and study._VALUE date &darr;</li>
+                                                <li [ngClass]="{active:filter.orderby === '-PatientName,-StudyDate,-StudyTime'}" (click)="$event.preventDefault();filter.orderby = '-PatientName,-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &uarr; and study._VALUE date &uarr;'">study._VALUE patient._VALUE name &uarr; and study._VALUE date &uarr;</li> -->
                                 <li *ngFor="let order of orderby; let i = index;" [ngClass]="{active:filter.orderby === order.value}" (click)="showoptionlist = false; filter.orderby = order.value; orderbytext = order.label; filterMode = order.mode;extendedFilter(false);fireQueryOnChange(order)" title="{{filterMode}}" [innerHtml]="order.label"></li>
                             </ul>
                         </div>
@@ -622,10 +622,10 @@
                     <div class="th">
                     </div>
                     <div style="width:14%" class="th" >Patient Name
-                        <a href="" class="order_arrow" (click)="filter.orderby = 'PatientName';morePatients !== undefined ? queryPatients(0) : queryStudies(0)">
+                        <a href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = 'PatientName';morePatients !== undefined ? queryPatients(0) : queryStudies(0)">
                             <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
                         </a>
-                        <a href="" class="order_arrow" (click)="filter.orderby = '-PatientName';morePatients !== undefined ? queryPatients(0) : queryStudies(0)">
+                        <a href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = '-PatientName';morePatients !== undefined ? queryPatients(0) : queryStudies(0)">
                             <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
                         </a>
                     </div>
@@ -662,10 +662,10 @@
                         study Instance UID
                     </div>
                     <div class="th">study Date
-                        <a href="" class="order_arrow" (click)="filter.orderby = 'StudyDate,StudyTime';queryStudies(0)">
+                        <a href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = 'StudyDate,StudyTime';queryStudies(0)">
                             <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
                         </a>
-                        <a href="" class="order_arrow" (click)="filter.orderby = '-StudyDate,-StudyTime';queryStudies(0)">
+                        <a href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = '-StudyDate,-StudyTime';queryStudies(0)">
                             <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
                         </a>
                     </div>
@@ -849,10 +849,10 @@
                                 <div class="td_cell txt hover_cell" >
                                     <div *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" tooltip="{{study._VALUE.attrs['00080020'].Value[0]}}">
                                         {{(study._VALUE.attrs['00080020'].Value[0] | formatDA) || '&nbsp;'}}
-                                        <a *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" href="" class="order_arrow" (click)="filter.orderby = 'StudyDate,StudyTime';queryStudies(0)" title="Order study by Date (descending)">
+                                        <a *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = 'StudyDate,StudyTime';queryStudies(0)" title="Order study by Date (descending)">
                                             <span class="glyphicon glyphicon-triangle-top" aria-hidden="true" ></span>
                                         </a>
-                                        <a *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" href="" class="order_arrow" (click)="filter.orderby = '-StudyDate,-StudyTime';queryStudies(0)" title="Order study by Date (ascending)">
+                                        <a *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = '-StudyDate,-StudyTime';queryStudies(0)" title="Order study by Date (ascending)">
                                             <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
                                         </a>
                                     </div>
