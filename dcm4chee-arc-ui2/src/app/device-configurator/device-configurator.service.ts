@@ -81,7 +81,6 @@ export class DeviceConfiguratorService{
 
             return currentschemaposition;
         }else{
-            //TODO that means that in the schema thare is a $ref
             return null;
         }
     };
@@ -96,8 +95,6 @@ export class DeviceConfiguratorService{
             }else{
                 let newValue = {};
                 this.setWith(newValue, value);
-                //TODO observe,change becous of bug when the device is new
-                // _.setWith(this.device, devicereff, newValue, Object);
                 _.set(this.device,  devicereff,  newValue);
             }
         }else{
@@ -370,7 +367,7 @@ export class DeviceConfiguratorService{
                                         {key: 'True',  value: true},
                                         {key: 'False',  value: false}
                                     ];
-                                    if (value != undefined && value != ''){
+                                    if ((value != undefined && value != '') || value === false){
                                         //true
                                         if (value === true){
                                             options[0]['active'] = true;
