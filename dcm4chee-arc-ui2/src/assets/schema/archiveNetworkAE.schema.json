@@ -270,7 +270,7 @@
     },
     "dcmDefaultCharacterSet": {
       "title": "Default Character Set",
-      "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by the Network AE.",
+      "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by this Network AE.",
       "type": "string"
     },
     "dcmStorePermissionServiceErrorCommentPattern": {
@@ -285,7 +285,7 @@
     },
     "dcmRetrieveAET": {
       "title": "Retrieve AE Title",
-      "description": "AE Title associated with Network AE",
+      "description": "Specifies Retrieve AE Titles associated with DICOM objects received by this Network AE. Overwrites value specified on Device level.",
       "type": "array",
       "items": {
         "type": "string"
@@ -298,12 +298,12 @@
     },
     "dcmInvokeImageDisplayPatientURL": {
       "title": "Invoke Image Display Patient URL",
-      "description": "URL to launch external Image Display for a Patient. {} will be replaced by the Patient ID formatted as HL7 CX data type. E.g.: http://display:8080/IHEInvokeImageDisplay?requestType=PATIENT&patientID={}",
+      "description": "URL to launch external Image Display for a Patient. {} will be replaced by the Patient ID formatted as HL7 CX data type. E.g.: http://display:8080/IHEInvokeImageDisplay?requestType=PATIENT&patientID={}. Overwrites value specified on Device level.",
       "type": "string"
     },
     "dcmInvokeImageDisplayStudyURL": {
       "title": "Invoke Image Display Study URL",
-      "description": "URL to launch external Image Display for a Study. {} will be replaced by the Study Instance UID. E.g.: http://display:8080/IHEInvokeImageDisplay?requestType=STUDY&studyUID={}",
+      "description": "URL to launch external Image Display for a Study. {} will be replaced by the Study Instance UID. E.g.: http://display:8080/IHEInvokeImageDisplay?requestType=STUDY&studyUID={}. Overwrites value specified on Device level.",
       "type": "string"
     },
     "dcmCopyMoveUpdatePolicy": {
@@ -350,7 +350,7 @@
     },
     "dcmExportRule": {
       "title": "Export Rule",
-      "description": "Export Rule",
+      "description": "Export Rules. Supplements Export Rules specified on Device level.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {
@@ -359,7 +359,7 @@
     },
     "dcmRSForwardRule": {
       "title": "RESTful Forward Rule",
-      "description": "RESTful Forward Rule",
+      "description": "RESTful Forward Rules. Supplements RESTful Forward rules specified on Device level.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {
@@ -367,8 +367,8 @@
       }
     },
     "dcmArchiveCompressionRule": {
-      "title": "Archive Compression rule",
-      "description": "Archive Compression rule",
+      "title": "Compression rule",
+      "description": "Compression rules. Supplements Compression rules specified on Device level.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {
@@ -376,8 +376,8 @@
       }
     },
     "dcmArchiveAttributeCoercion": {
-      "title": "Archive Attribute Coercion",
-      "description": "Archive Attribute Coercion of received/sent DIMSE",
+      "title": "Attribute Coercion",
+      "description": "Attribute Coercion of received/sent DIMSE. Supplements Attribute Coercions specified on Device level.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {
@@ -386,7 +386,7 @@
     },
     "dcmStudyRetentionPolicy": {
       "title": "Study Retention Policy",
-      "description": "Study Retention Policy",
+      "description": "Study Retention Policies. Supplements Study Retention Policies specified on Device level.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {

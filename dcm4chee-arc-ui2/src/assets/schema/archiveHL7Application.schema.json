@@ -3,21 +3,27 @@
   "description": "DICOM Archive HL7 Application related information",
   "type": "object",
   "required": [
+    "dicomAETitle"
   ],
   "properties": {
+    "dicomAETitle": {
+      "title": "AE Title",
+      "description": "Archive AE Title associated with this HL7 Application.",
+      "type": "string"
+    },
     "hl7PatientUpdateTemplateURI": {
       "title": "HL7 Patient Update Template URI",
-      "description": "Specifies URI for the style sheet used by HL7v2 Patient Update Service.",
+      "description": "Specifies URI for the style sheet used by HL7v2 Patient Update Service. Overwrites value specified on Device level.",
       "type": "string"
     },
     "hl7ImportReportTemplateURI": {
       "title": "HL7 Import Report Template URI",
-      "description": "Specifies URI for the style sheet to transcode received HL7 ORU^R01 to DICOM SR.",
+      "description": "Specifies URI for the style sheet to transcode received HL7 ORU^R01 to DICOM SR. Overwrites value specified on Device level.",
       "type": "string"
     },
     "hl7ScheduleProcedureTemplateURI": {
       "title": "HL7 Schedule Procedure Template URI",
-      "description": "Specifies URI for the style sheet to transcode received HL7 ORM^O01, OMI^O23, OMG^O19 to DICOM MWL items.",
+      "description": "Specifies URI for the style sheet to transcode received HL7 ORM^O01, OMI^O23, OMG^O19 to DICOM MWL items. Overwrites value specified on Device level.",
       "type": "string"
     },
     "hl7ScheduledProtocolCodeInOrder": {
@@ -39,22 +45,17 @@
     },
     "hl7LogFilePattern": {
       "title": "HL7 Log File Pattern",
-      "description": "Path to HL7 messages which will be captured exactly as received. If absent, there is no logging.",
+      "description": "Path to HL7 messages which will be captured exactly as received. If absent, there is no logging. Overwrites value specified on Device level.",
       "type": "string"
     },
     "hl7ErrorLogFilePattern": {
       "title": "HL7 Error Log File Pattern",
-      "description": "Path to HL7 messages which will be captured exactly as received, when processing of HL7 messages fails. If absent, there is no logging.",
-      "type": "string"
-    },
-    "dicomAETitle": {
-      "title": "AE Title",
-      "description": "Associated AE Title.",
+      "description": "Path to HL7 messages which will be captured exactly as received, when processing of HL7 messages fails. If absent, there is no logging. Overwrites value specified on Device level.",
       "type": "string"
     },
     "hl7ForwardRule": {
       "title": "HL7 Forward Rule",
-      "description": "HL7 Forward Rule",
+      "description": "HL7 Forward Rule. Supplements values specified on Device level.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {
@@ -63,7 +64,7 @@
     },
     "hl7OrderScheduledStation": {
       "title": "Scheduled Station for HL7 Order",
-      "description": "Scheduled Station selected on MWL HL7 Order Feed",
+      "description": "Scheduled Station selected on MWL HL7 Order Feed. Supplements values specified on Device level.",
       "type": "array",
       "titleKey":"{cn}",
       "items" : {
@@ -72,7 +73,7 @@
     },
     "hl7OrderSPSStatus": {
       "title": "SPS Status for HL7 Order",
-      "description": "Specifies SPS Status of DICOM MWL items created/updated on received HL7 ORM^O01, OMI^O23, OMG^O19 messages",
+      "description": "Specifies SPS Status of DICOM MWL items created/updated on received HL7 ORM^O01, OMI^O23, OMG^O19 messages. Overwrites values specified on Device level.",
       "type": "array",
       "titleKey":"{dcmSPSStatus}",
       "items" : {
