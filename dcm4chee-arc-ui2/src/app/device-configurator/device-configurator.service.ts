@@ -580,8 +580,6 @@ export class DeviceConfiguratorService{
                             }
                             break;
                         case 'integer':
-                            // code block
-
                             form.push(
                                 new InputNumber({
                                     key: i,
