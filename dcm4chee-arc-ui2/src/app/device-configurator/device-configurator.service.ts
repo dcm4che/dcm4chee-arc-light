@@ -141,7 +141,8 @@ export class DeviceConfiguratorService{
             return null;
         });*/
         _.forEach(device, (m, i) => {
-            if (m === null || m === '' || (_.isArray(m) && m.length === 0)){
+            console.log("isnanne",isNaN(m));
+            if (m === null || (_.isNumber(m) && _.isNaN(m)) || m === '' || (_.isArray(m) && m.length === 0)){
                 delete device[i];
             }
         });
@@ -155,8 +156,11 @@ export class DeviceConfiguratorService{
             if (_.isString(obj) && obj != '' && obj2 === ''){
                 return obj2;
             }
-            if (_.isNumber(obj) && obj && (obj2 == '' || !obj2)){
-                return '';
+            if (_.isNumber(obj) && obj && ((obj2 === '' || !obj2)) && obj2 != 0){
+                return NaN;
+            }
+            if (_.isNumber(obj2)){
+                return obj2;
             }
             //Updating array
             if (_.isArray(obj) && _.isArray(obj2)){

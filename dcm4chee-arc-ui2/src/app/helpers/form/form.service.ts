@@ -126,8 +126,8 @@ export class FormService{
                 default:
                     if (element.key){
                         if (element['type'] === 'number'){
-                            group[element.key] = validation ? $this._fb.control(element.value, validation)
-                                : $this._fb.control(element.value);
+                            group[element.key] = validation ? $this._fb.control(element.value || NaN, validation)
+                                : $this._fb.control(element.value || NaN);
                         }else{
                             group[element.key] = validation ? $this._fb.control(element.value || '', validation)
                                 : $this._fb.control(element.value || '');
