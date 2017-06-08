@@ -837,7 +837,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getPurgeInstanceRecordsDelay(),
                 bb.getPurgeInstanceRecordsDelay(), null);
         LdapUtils.storeDiffObject(mods, "dcmStoreAccessControlID", aa.getStoreAccessControlID(), bb.getStoreAccessControlID(), null);
-        LdapUtils.storeDiff(mods, "dcmAccessControlIDs", aa.getAccessControlIDs(), bb.getAccessControlIDs());
+        LdapUtils.storeDiff(mods, "dcmAccessControlID", aa.getAccessControlIDs(), bb.getAccessControlIDs());
         LdapUtils.storeDiffObject(mods, "dcmOverwritePolicy", aa.getOverwritePolicy(), bb.getOverwritePolicy(), null);
         LdapUtils.storeDiffObject(mods, "dcmBulkDataSpoolDirectory",
                 aa.getBulkDataSpoolDirectory(), bb.getBulkDataSpoolDirectory(), null);
