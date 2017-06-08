@@ -705,7 +705,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCP", ext.getFallbackCMoveSCP(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCPDestination", ext.getFallbackCMoveSCPDestination(), null);
-        LdapUtils.storeNotDef(attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries(), 0);
+        LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries());
         LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCPLeadingCFindSCP", ext.getFallbackCMoveSCPLeadingCFindSCP(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP(), null);
         storeNotEmptyTags(attrs, "dcmDiffStudiesIncludefieldAll", ext.getDiffStudiesIncludefieldAll());
@@ -768,7 +768,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setSendPendingCMoveInterval(toDuration(attrs.get("dcmSendPendingCMoveInterval"), null));
         ext.setFallbackCMoveSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCP"), null));
         ext.setFallbackCMoveSCPDestination(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPDestination"), null));
-        ext.setFallbackCMoveSCPRetries(LdapUtils.intValue(attrs.get("dcmFallbackCMoveSCPRetries"), 0));
+        ext.setFallbackCMoveSCPRetries(LdapUtils.intValue(attrs.get("dcmFallbackCMoveSCPRetries"), null));
         ext.setFallbackCMoveSCPLeadingCFindSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPLeadingCFindSCP"), null));
         ext.setAlternativeCMoveSCP(LdapUtils.stringValue(attrs.get("dcmAltCMoveSCP"), null));
         ext.setDiffStudiesIncludefieldAll(tags(attrs.get("dcmDiffStudiesIncludefieldAll")));
@@ -851,8 +851,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCP", aa.getFallbackCMoveSCP(), bb.getFallbackCMoveSCP(), null);
         LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPDestination",
                 aa.getFallbackCMoveSCPDestination(), bb.getFallbackCMoveSCPDestination(), null);
-        LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCPRetries",
-                aa.getFallbackCMoveSCPRetries(), bb.getFallbackCMoveSCPRetries(),  0);
+        LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPRetries",
+                aa.getFallbackCMoveSCPRetries(), bb.getFallbackCMoveSCPRetries(),  null);
         LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPLeadingCFindSCP",
                 aa.getFallbackCMoveSCPLeadingCFindSCP(), bb.getFallbackCMoveSCPLeadingCFindSCP(), null);
         LdapUtils.storeDiffObject(mods, "dcmAltCMoveSCP", aa.getAlternativeCMoveSCP(), bb.getAlternativeCMoveSCP(), null);

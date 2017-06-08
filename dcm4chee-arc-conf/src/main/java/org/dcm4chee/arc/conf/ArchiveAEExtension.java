@@ -78,7 +78,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Duration ianDelay;
     private Duration ianTimeout;
     private Boolean ianOnTimeout;
-    private int fallbackCMoveSCPRetries;
+    private Integer fallbackCMoveSCPRetries;
     private String fallbackCMoveSCP;
     private String fallbackCMoveSCPDestination;
     private String fallbackCMoveSCPLeadingCFindSCP;
@@ -454,17 +454,17 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getFallbackCMoveSCPLeadingCFindSCP();
     }
 
-    public void setFallbackCMoveSCPRetries(int fallbackCMoveSCPRetries) {
+    public void setFallbackCMoveSCPRetries(Integer fallbackCMoveSCPRetries) {
         this.fallbackCMoveSCPRetries = fallbackCMoveSCPRetries;
     }
 
-    public int getFallbackCMoveSCPRetries() {
+    public Integer getFallbackCMoveSCPRetries() {
         return fallbackCMoveSCPRetries;
     }
 
     public int fallbackCMoveSCPRetries() {
-        return fallbackCMoveSCPRetries > 0
-                ? fallbackCMoveSCPRetries
+        return fallbackCMoveSCPRetries != null
+                ? fallbackCMoveSCPRetries.intValue()
                 : getArchiveDeviceExtension().getFallbackCMoveSCPRetries();
     }
 
