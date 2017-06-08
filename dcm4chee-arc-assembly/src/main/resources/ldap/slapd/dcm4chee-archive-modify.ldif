@@ -306,7 +306,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.60 NAME 'dcmDeletePatientOnDeleteLas
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.61 NAME 'dcmStoreAccessControlID'
-  DESC 'AccessContolID assigned to Studies received by this AE'
+  DESC 'AccessControlID assigned to Studies received by this AE'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -628,7 +628,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.125 NAME 'dcmMergeMWLMatchingKey'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.126 NAME 'dcmMergeMWLTemplateURI'
-  DESC 'Specifies URI for the style sheet to coerce request attributes of received objects from matching DICOM MWL items. Only effectiv, if dcmMergeMWLMatchingKey is specified.'
+  DESC 'Specifies URI for the style sheet to coerce request attributes of received objects from matching DICOM MWL items. Only effective, if dcmMergeMWLMatchingKey is specified.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
@@ -667,7 +667,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.133 NAME 'dcmRSOperation'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.134 NAME 'dcmMetadataFilterName'
-  DESC 'Metadata Filter Name referenced by propritary "includefields" Query Parameter of WADO-RS Metadata requests'
+  DESC 'Metadata Filter Name referenced by proprietary "includefields" Query Parameter of WADO-RS Metadata requests'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
@@ -1214,6 +1214,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.22 NAME 'hl7ForwardRule'
     cn $
     hl7FwdApplicationName )
   MAY (
+    hl7ApplicationName $
     dcmProperty ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.23 NAME 'dcmStoreAccessControlIDRule'
   DESC 'Store Access Control ID Rule'
