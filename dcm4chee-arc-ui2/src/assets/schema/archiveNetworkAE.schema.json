@@ -228,12 +228,27 @@
     },
     "dcmStorePermissionServiceURL": {
       "title": "Store Permission Service URL",
-      "description": "URL of Store Permission Service which will be invoked on receive of the first object of a study. {<dicomTag>} will be replaced by the value of the attribute in the object. E.g. http://host.name/storage-permission/study/{0020000D}?patientId={00100020}&patientIdIssuer={00100021}&studyDescription={00081030}",
+      "description": "URL of Store Permission Service which will be invoked on receive of the first object of a study. {<dicomTag>} will be replaced by the value of the attribute in the object. E.g. http://host.name/storage-permission/study/{0020000D}?patientId={00100020}&patientIdIssuer={00100021}&studyDescription={00081030,urlencoded}. Overwrites value specified on Device level.",
       "type": "string"
     },
     "dcmStorePermissionServiceResponsePattern": {
       "title": "Store Permission Service Response Pattern",
-      "description": "Regular Expression applied to responses from Store Permission Service to determine agreement for storage. E.g. \"validation\"\\s*:\\s*\"true\" . If absent, every success response will be treated as agreement for storage.",
+      "description": "Regular Expression applied to responses from Store Permission Service to determine agreement for storage. E.g. \"validation\"\\s*:\\s*\"true\". Overwrites value specified on Device level.",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceExpirationDatePattern": {
+      "title": "Store Permission Service Expiration Date Pattern",
+      "description": "Regular Expression applied to responses from Store Permission Service to extract the initial Study Expiration Date. E.g. \"expirationdate\"\\s*:\\s*\"([0-9]{8})\". Overwrites value specified on Device level.",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceErrorCommentPattern": {
+      "title": "Store Permission Service Error Comment Pattern",
+      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Comment. E.g. \"errorcomment\"\\s*:\\s*\"(.*)\". Overwrites value specified on Device level.",
+      "type": "string"
+    },
+    "dcmStorePermissionServiceErrorCodePattern": {
+      "title": "Store Permission Service Error Code Pattern",
+      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Code in hexadecimal. E.g. \"errorcode\"\\s*:\\s*\"(\\p{XDigit}{4})\". Overwrites value specified on Device level.",
       "type": "string"
     },
     "dcmAllowRejectionForDataRetentionPolicyExpired": {
@@ -263,24 +278,9 @@
         "REJECTED"
       ]
     },
-    "dcmStorePermissionServiceExpirationDatePattern": {
-      "title": "Store Permission Service Expiration Date Pattern",
-      "description": "Regular Expression applied to responses from Store Permission Service to extract the initial Study Expiration Date. E.g. \"expirationdate\"\\s*:\\s*\"([0-9]{8})\". If absent, locally configured Study Retention Policy Rules will be applied.",
-      "type": "string"
-    },
     "dcmDefaultCharacterSet": {
       "title": "Default Character Set",
-      "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by this Network AE.",
-      "type": "string"
-    },
-    "dcmStorePermissionServiceErrorCommentPattern": {
-      "title": "Store Permission Service Error Comment Pattern",
-      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Comment. E.g. \"errorcomment\"\\s*:\\s*\"(.*)\". Overwrites value specified on Device level.",
-      "type": "string"
-    },
-    "dcmStorePermissionServiceErrorCodePattern": {
-      "title": "Store Permission Service Error Code Pattern",
-      "description": "Regular Expression applied to responses from Store Permission Service to extract Error Code in hexadecimal. E.g. \"errorcode\"\\s*:\\s*\"(\\p{XDigit}{4})\". Overwrites value specified on Device level.",
+      "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by this Network AE. Overwrites value specified on Device level.",
       "type": "string"
     },
     "dcmRetrieveAET": {
@@ -293,7 +293,7 @@
     },
     "dcmExternalRetrieveAEDestination": {
       "title": "External Retrieve AE Destination",
-      "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE.",
+      "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE. Overwrites value specified on Device level.",
       "type": "string"
     },
     "dcmInvokeImageDisplayPatientURL": {
@@ -319,12 +319,12 @@
     },
     "hl7PSUSendingApplication": {
       "title": "HL7 Procedure Status Update Sending Application",
-      "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. HL7 Procedure Status Update disabled, if absent.",
+      "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. Overwrites value specified on Device level.",
       "type": "string"
     },
     "hl7PSUReceivingApplication": {
       "title": "HL7 Procedure Status Update Receiving Application",
-      "description": "Application|Facility name of Receiving Application for HL7 Procedure Status Update.",
+      "description": "Application|Facility name of Receiving Application for HL7 Procedure Status Update. Overwrites value specified on Device level.",
       "type": "array",
       "items" : { "type": "string" }
     },
@@ -335,8 +335,8 @@
     },
     "hl7PSUMWL": {
       "title": "HL7 Procedure Status Update MWL",
-      "type": "boolean",
-      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay. Overwrites value specified on Device level."
+      "description": "Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay. Overwrites value specified on Device level.",
+      "type": "boolean"
     },
     "hl7PSUTimeout": {
       "title": "HL7 Procedure Status Update Timeout",

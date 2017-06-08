@@ -520,12 +520,12 @@
     },
     "dcmStorePermissionServiceURL": {
       "title": "Store Permission Service URL",
-      "description": "URL of Store Permission Service which will be invoked on receive of the first object of a study. {<dicomTag>} will be replaced by the value of the attribute in the object. E.g. http://host.name/storage-permission/study/{0020000D}?patientId={00100020}&patientIdIssuer={00100021}&studyDescription={00081030}",
+      "description": "URL of Store Permission Service which will be invoked on receive of the first object of a study by any AE. {<dicomTag>} will be replaced by the value of the attribute in the object. E.g. http://host.name/storage-permission/study/{0020000D}?patientId={00100020}&patientIdIssuer={00100021}&studyDescription={00081030,urlencoded}. May be overwritten by configured value for particular Archive Network AEs.",
       "type": "string"
     },
     "dcmStorePermissionServiceResponsePattern": {
       "title": "Store Permission Service Response Pattern",
-      "description": "Regular Expression applied to responses from Store Permission Service to determine agreement for storage. E.g. \"validation\"\\s*:\\s*\"true\" . If absent, every success response will be treated as agreement for storage.",
+      "description": "Regular Expression applied to responses from Store Permission Service to determine agreement for storage. E.g. \"validation\"\\s*:\\s*\"true\" . If absent, every success response will be treated as agreement for storage. May be overwritten by configured value for particular Archive Network AEs.",
       "type": "string"
     },
     "dcmStorePermissionCacheStaleTimeout": {
@@ -591,7 +591,7 @@
     },
     "dcmStorePermissionServiceExpirationDatePattern": {
       "title": "Store Permission Service Expiration Date Pattern",
-      "description": "Regular Expression applied to responses from Store Permission Service to extract the initial Study Expiration Date. E.g. \"expirationdate\"\\s*:\\s*\"([0-9]{8})\". If absent, locally configured Study Retention Policy Rules will be applied.",
+      "description": "Regular Expression applied to responses from Store Permission Service to extract the initial Study Expiration Date. E.g. \"expirationdate\"\\s*:\\s*\"([0-9]{8})\". If absent, locally configured Study Retention Policy Rules will be applied. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string"
     },
     "dcmPurgeStgCmtCompletedDelay": {
@@ -606,7 +606,7 @@
     },
     "dcmDefaultCharacterSet": {
       "title": "Default Character Set",
-      "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by the Network AE.",
+      "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by any AE. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string"
     },
     "dcmStorePermissionServiceErrorCommentPattern": {
@@ -714,12 +714,12 @@
     },
     "hl7PSUSendingApplication": {
       "title": "HL7 Procedure Status Update Sending Application",
-      "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. HL7 Procedure Status Update disabled, if absent.",
+      "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. HL7 Procedure Status Update disabled, if absent. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string"
     },
     "hl7PSUReceivingApplication": {
       "title": "HL7 Procedure Status Update Receiving Application",
-      "description": "Application|Facility name of Receiving Application for HL7 Procedure Status Update.",
+      "description": "Application|Facility name of Receiving Application for HL7 Procedure Status Update. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "array",
       "items" : { "type": "string" }
     },
