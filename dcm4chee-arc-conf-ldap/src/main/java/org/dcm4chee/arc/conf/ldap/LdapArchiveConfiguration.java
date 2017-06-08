@@ -711,7 +711,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeNotEmptyTags(attrs, "dcmDiffStudiesIncludefieldAll", ext.getDiffStudiesIncludefieldAll());
         LdapUtils.storeNotNullOrDef(attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI(), null);
-        LdapUtils.storeNotDef(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 0);
+        LdapUtils.storeNotNull(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults());
         LdapUtils.storeNotEmpty(attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
         LdapUtils.storeNotEmpty(attrs, "dcmIanDestination", ext.getIanDestinations());
         LdapUtils.storeNotNullOrDef(attrs, "dcmIanDelay", ext.getIanDelay(), null);
@@ -774,7 +774,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDiffStudiesIncludefieldAll(tags(attrs.get("dcmDiffStudiesIncludefieldAll")));
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
         ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
-        ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), 100));
+        ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), null));
         ext.setMppsForwardDestinations(LdapUtils.stringArray(attrs.get("dcmFwdMppsDestination")));
         ext.setIanDestinations(LdapUtils.stringArray(attrs.get("dcmIanDestination")));
         ext.setIanDelay(toDuration(attrs.get("dcmIanDelay"), null));
@@ -861,8 +861,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getWadoSR2HtmlTemplateURI(), bb.getWadoSR2HtmlTemplateURI(), null);
         LdapUtils.storeDiffObject(mods, "dcmWadoSR2TextTemplateURI",
                 aa.getWadoSR2TextTemplateURI(), bb.getWadoSR2TextTemplateURI(), null);
-        LdapUtils.storeDiff(mods, "dcmQidoMaxNumberOfResults",
-                aa.getQidoMaxNumberOfResults(), bb.getQidoMaxNumberOfResults(), 100);
+        LdapUtils.storeDiffObject(mods, "dcmQidoMaxNumberOfResults",
+                aa.getQidoMaxNumberOfResults(), bb.getQidoMaxNumberOfResults(), null);
         LdapUtils.storeDiff(mods, "dcmFwdMppsDestination",
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
         LdapUtils.storeDiff(mods, "dcmIanDestination", aa.getIanDestinations(), bb.getIanDestinations());

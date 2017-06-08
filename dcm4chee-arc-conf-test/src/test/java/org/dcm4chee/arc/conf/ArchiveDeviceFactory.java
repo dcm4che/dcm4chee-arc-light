@@ -1406,7 +1406,7 @@ class ArchiveDeviceFactory {
         ext.addRejectionNote(retentionExpired);
         ext.addRejectionNote(createRejectionNote("Revoke Rejection",
                 RejectionNote.Type.REVOKE_REJECTION,
-                REVOKE_REJECTION, null,
+                REVOKE_REJECTION, RejectionNote.AcceptPreviousRejectedInstance.REJECT,
                 REJECTION_CODES));
         ext.setHideSPSWithStatusFrom(HIDE_SPS_WITH_STATUS_FROM_MWL);
 

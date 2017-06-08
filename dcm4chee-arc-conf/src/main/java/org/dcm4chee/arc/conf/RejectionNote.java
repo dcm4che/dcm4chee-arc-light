@@ -63,7 +63,8 @@ public class RejectionNote {
     private Code rejectionNoteCode;
     private int seriesNumber;
     private int instanceNumber;
-    private AcceptPreviousRejectedInstance acceptPreviousRejectedInstance;
+    private AcceptPreviousRejectedInstance acceptPreviousRejectedInstance =
+            AcceptPreviousRejectedInstance.REJECT;
     private Code[] overwritePreviousRejection = {};
     private Duration deleteRejectedInstanceDelay;
     private Duration deleteRejectionNoteDelay;
