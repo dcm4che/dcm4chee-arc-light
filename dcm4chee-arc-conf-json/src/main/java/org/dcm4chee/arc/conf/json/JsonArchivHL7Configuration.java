@@ -34,6 +34,7 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
         writer.writeNotNullOrDef("dicomAETitle", ext.getAETitle(), null);
         writer.writeNotNullOrDef("hl7ScheduledProtocolCodeInOrder", ext.getHl7ScheduledProtocolCodeInOrder(), null);
         writer.writeNotNullOrDef("hl7ScheduledStationAETInOrder", ext.getHl7ScheduledStationAETInOrder(), null);
+        writer.writeNotEmpty("hl7NoPatientCreateMessageType", ext.getHl7NoPatientCreateMessageTypes());
         JsonArchiveConfiguration.writeHL7ForwardRules(writer, ext.getHL7ForwardRules());
         JsonArchiveConfiguration.writeScheduledStations(writer, ext.getHL7OrderScheduledStations());
         JsonArchiveConfiguration.writeHL7OrderSPSStatus(writer, ext.getHL7OrderSPSStatuses());
@@ -82,6 +83,9 @@ public class JsonArchivHL7Configuration implements JsonHL7ConfigurationExtension
                     break;
                 case "hl7ScheduledStationAETInOrder":
                     ext.setHl7ScheduledStationAETInOrder(ScheduledStationAETInOrder.valueOf(reader.stringValue()));
+                    break;
+                case "hl7NoPatientCreateMessageType":
+                    ext.setHl7NoPatientCreateMessageTypes(reader.stringArray());
                     break;
                 case "hl7ForwardRule":
                     JsonArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), reader);

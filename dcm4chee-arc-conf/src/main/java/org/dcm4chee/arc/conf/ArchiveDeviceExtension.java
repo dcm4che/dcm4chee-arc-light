@@ -196,6 +196,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final ArrayList<StudyRetentionPolicy> studyRetentionPolicies = new ArrayList<>();
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
+    private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
 
     private transient FuzzyStr fuzzyStr;
 
@@ -1025,6 +1026,21 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7PSUMWL = hl7PSUMWL;
     }
 
+    public String[] getHl7NoPatientCreateMessageTypes() {
+        return hl7NoPatientCreateMessageTypes.toArray(
+                new String[hl7NoPatientCreateMessageTypes.size()]);
+    }
+
+    public void setHl7NoPatientCreateMessageTypes(String... messageTypes) {
+        hl7NoPatientCreateMessageTypes.clear();
+        for (String messageType : messageTypes)
+            hl7NoPatientCreateMessageTypes.add(messageType);
+    }
+
+    public boolean isHl7NoPatientCreateMessageType(String messageType) {
+        return hl7NoPatientCreateMessageTypes.contains(messageType);
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         AttributeFilter filter = attributeFilters.get(entity);
         if (filter == null)
@@ -1679,6 +1695,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7OrderScheduledStations.addAll(arcdev.hl7OrderScheduledStations);
         hl7OrderSPSStatuses.clear();
         hl7OrderSPSStatuses.putAll(arcdev.hl7OrderSPSStatuses);
+        hl7NoPatientCreateMessageTypes.clear();
+        hl7NoPatientCreateMessageTypes.addAll(arcdev.hl7NoPatientCreateMessageTypes);
         compressionRules.clear();
         compressionRules.addAll(arcdev.compressionRules);
         studyRetentionPolicies.clear();

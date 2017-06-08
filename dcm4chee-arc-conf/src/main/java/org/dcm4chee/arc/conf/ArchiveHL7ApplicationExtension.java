@@ -66,6 +66,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
+    private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
 
     public ArchiveDeviceExtension getArchiveDeviceExtension() {
         return hl7App.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
@@ -88,6 +89,8 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7OrderScheduledStations.addAll(arcapp.hl7OrderScheduledStations);
         hl7OrderSPSStatuses.clear();
         hl7OrderSPSStatuses.putAll(arcapp.hl7OrderSPSStatuses);
+        hl7NoPatientCreateMessageTypes.clear();
+        hl7NoPatientCreateMessageTypes.addAll(arcapp.hl7NoPatientCreateMessageTypes);
     }
 
     public String getAETitle() {
@@ -161,6 +164,23 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     public String hl7ErrorLogFilePattern() {
         return hl7ErrorLogFilePattern != null ? hl7ErrorLogFilePattern
                 : getArchiveDeviceExtension().getHl7ErrorLogFilePattern();
+    }
+
+    public String[] getHl7NoPatientCreateMessageTypes() {
+        return hl7NoPatientCreateMessageTypes.toArray(
+                new String[hl7NoPatientCreateMessageTypes.size()]);
+    }
+
+    public void setHl7NoPatientCreateMessageTypes(String... messageTypes) {
+        hl7NoPatientCreateMessageTypes.clear();
+        for (String messageType : messageTypes)
+            hl7NoPatientCreateMessageTypes.add(messageType);
+    }
+
+    public boolean isHl7NoPatientCreateMessageType(String messageType) {
+        return hl7NoPatientCreateMessageTypes.isEmpty()
+            ? getArchiveDeviceExtension().isHl7NoPatientCreateMessageType(messageType)
+            : hl7NoPatientCreateMessageTypes.contains(messageType);
     }
 
     public void removeHL7ForwardRule(HL7ForwardRule rule) {

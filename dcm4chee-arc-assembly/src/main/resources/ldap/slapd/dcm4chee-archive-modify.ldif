@@ -873,6 +873,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.175 NAME 'dcmDiffStudiesIncludefield
   DESC 'DICOM Tag as hex string of Attributes beeing compared by the DIFF-RS service with Query Parameter includefield=all. Use QIDO-RS STUDY Returned Attributes, if absent.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.176 NAME 'hl7NoPatientCreateMessageType'
+  DESC 'Message Type(s) (MessageType^TriggerEvent) of HL7 messages which are only processed, if there is already a Patient record in the database, which Patient ID matches the Patient ID in the PID or MRG segment of the message. Thus no new Patient record will be created by messages of the specified types.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 -
 delete: olcObjectClasses
 -
@@ -956,6 +961,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7ScheduledStationAETInOrder $
     hl7LogFilePattern $
     hl7ErrorLogFilePattern $
+    hl7NoPatientCreateMessageType $
     dcmUnzipVendorDataToURI $
     dcmPurgeQueueMessagePollingInterval $
     dcmPurgeQueueMessageFetchSize $
@@ -1079,6 +1085,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.11 NAME 'dcmArchiveHL7Application'
      hl7ScheduledStationAETInOrder $
      hl7LogFilePattern $
      hl7ErrorLogFilePattern $
+     hl7NoPatientCreateMessageType $
      dicomAETitle ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
   DESC 'Storage Descriptor'

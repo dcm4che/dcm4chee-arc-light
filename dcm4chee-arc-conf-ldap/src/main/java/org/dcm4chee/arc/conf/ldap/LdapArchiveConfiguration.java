@@ -205,6 +205,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "hl7ScheduledProtocolCodeInOrder",
                 ext.getHl7ScheduledProtocolCodeInOrder(), ScheduledProtocolCodeInOrder.OBR_4_4);
         LdapUtils.storeNotNullOrDef(attrs, "hl7ScheduledStationAETInOrder", ext.getHl7ScheduledStationAETInOrder(), null);
+        LdapUtils.storeNotEmpty(attrs, "hl7NoPatientCreateMessageType", ext.getHl7NoPatientCreateMessageTypes());
         LdapUtils.storeNotNullOrDef(attrs, "dcmAuditUnknownStudyInstanceUID",
                 ext.getAuditUnknownStudyInstanceUID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);
         LdapUtils.storeNotNullOrDef(attrs, "dcmAuditUnknownPatientID",
@@ -346,6 +347,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("hl7ScheduledProtocolCodeInOrder"), ScheduledProtocolCodeInOrder.OBR_4_4));
         ext.setHl7ScheduledStationAETInOrder(LdapUtils.enumValue(ScheduledStationAETInOrder.class,
                 attrs.get("hl7ScheduledStationAETInOrder"), null));
+        ext.setHl7NoPatientCreateMessageTypes(LdapUtils.stringArray(attrs.get("hl7NoPatientCreateMessageType")));
         ext.setAuditUnknownStudyInstanceUID(LdapUtils.stringValue(
                 attrs.get("dcmAuditUnknownStudyInstanceUID"), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID));
         ext.setAuditUnknownPatientID(LdapUtils.stringValue(
@@ -584,6 +586,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ScheduledProtocolCodeInOrder.OBR_4_4);
         LdapUtils.storeDiffObject(mods, "hl7ScheduledStationAETInOrder",
                 aa.getHl7ScheduledStationAETInOrder(), bb.getHl7ScheduledStationAETInOrder(), null);
+        LdapUtils.storeDiff(mods, "hl7NoPatientCreateMessageType",
+                aa.getHl7NoPatientCreateMessageTypes(), bb.getHl7NoPatientCreateMessageTypes());
         LdapUtils.storeDiffObject(mods, "dcmAuditUnknownStudyInstanceUID",
                 aa.getAuditUnknownStudyInstanceUID(), bb.getAuditUnknownStudyInstanceUID(),
                 ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);
