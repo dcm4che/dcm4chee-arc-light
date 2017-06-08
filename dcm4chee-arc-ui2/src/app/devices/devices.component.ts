@@ -159,6 +159,7 @@ export class DevicesComponent {
             });
         }
     };
+
     cloneDevice(devicename){
         let headers = new Headers({ 'Content-Type': 'application/json' });
         let deviceNameList = this.devices.map(res => {

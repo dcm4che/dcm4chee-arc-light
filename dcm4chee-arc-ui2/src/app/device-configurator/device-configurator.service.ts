@@ -385,7 +385,8 @@ export class DeviceConfiguratorService{
                                         description: m.description,
                                         options: options,
                                         order: (5 + newOrderSuffix),
-                                        validation: validation
+                                        validation: validation,
+                                        value:value
                                     })
                                 );
                             }

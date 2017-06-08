@@ -22,6 +22,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     showform;
     params = [];
     recentParams;
+    inClone;
     submitValue;
     constructor(
         private route: ActivatedRoute,
@@ -44,6 +45,11 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         let $this = this;
         this.cfpLoadingBar.start();
         let deviceClone = _.cloneDeep(this.service.device);
+
+        if(this.inClone){
+            let clonePart =  _.cloneDeep(_.get(this.service.device, this.recentParams.clone));
+            _.set(this.service.device,  this.recentParams.devicereff,  clonePart);
+        }
         this.service.addChangesToDevice(value, this.recentParams.devicereff);
         if (_.hasIn(this.recentParams, 'schema')){
             let newSchema = this.service.getSchemaFromPath(this.service.schema, this.recentParams['schema']);
@@ -169,6 +175,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         let $this = this;
         let form;
         this.params = $this.service.pagination;
+        this.inClone = false;
         $this.cfpLoadingBar.start();
         this.route.params
             .subscribe((params) => {
@@ -253,6 +260,14 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                         $this.showform = true;
                                     }, 1);
                                 }
+                            },(err)=>{
+                                console.log("error",err);
+                                $this.cfpLoadingBar.complete();
+                                $this.mainservice.setMessage({
+                                    'title': 'Error',
+                                    'text': "Error",
+                                    'status': 'error'
+                                });
                             });
                         }
                     // }
@@ -449,6 +464,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         let newSchema = $this.service.getSchemaFromPath($this.service.schema, params['schema']);
         if (_.hasIn(params, 'clone')){
             newModel = _.get(this.service.device, params['clone']);
+            this.inClone = true;
         }else{
             newModel = _.get(this.service.device, params['devicereff']);
         }
