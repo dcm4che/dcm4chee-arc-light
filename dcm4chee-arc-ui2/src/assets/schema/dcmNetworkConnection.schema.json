@@ -7,13 +7,22 @@
     "dcmTLSNeedClientAuth",
     "dcmTLSProtocol",
     "dcmTCPBacklog",
+    "dcmTCPConnectTimeout",
     "dcmTCPCloseDelay",
+    "dcmTCPSendBufferSize",
+    "dcmTCPReceiveBufferSize",
     "dcmTCPNoDelay",
     "dcmSendPDULength",
     "dcmReceivePDULength",
     "dcmMaxOpsPerformed",
     "dcmMaxOpsInvoked",
-    "dcmPackPDV"
+    "dcmPackPDV",
+    "dcmAARQTimeout",
+    "dcmAAACTimeout",
+    "dcmARRPTimeout",
+    "dcmResponseTimeout",
+    "dcmRetrieveTimeout",
+    "dcmIdleTimeout"
   ],
   "properties": {
     "dcmProtocol": {
@@ -54,18 +63,17 @@
     },
     "dcmTCPBacklog": {
       "title": "TCP Backlog",
-      "description": "Maximum queue length for incoming TCP connections.",
+      "description": "Maximum queue length for incoming TCP connections. 0 = unlimited",
       "type": "integer",
       "default": 50,
-      "minimum": 0,
-      "exclusiveMinimum": true
+      "minimum": 0
     },
     "dcmTCPConnectTimeout": {
       "title": "TCP Connect Timeout",
-      "description": "TCP connect timeout in ms; no timeout if absent",
+      "description": "TCP connect timeout in ms; 0 = no timeout.",
       "type": "integer",
-      "minimum": 0,
-      "exclusiveMinimum": true
+      "default": 0,
+      "minimum": 0
     },
     "dcmTCPCloseDelay": {
       "title": "TCP Close Delay",
@@ -76,21 +84,23 @@
     },
     "dcmTCPSendBufferSize": {
       "title": "TCP Send Buffer Size",
-      "description": "TCP send buffer size; use system defaults if absent",
+      "description": "TCP send buffer size; 0 = use system defaults.",
       "type": "integer",
-      "minimum": 1024
+      "default": 0,
+      "minimum": 0
     },
     "dcmTCPReceiveBufferSize": {
       "title": "TCP Receive Buffer Size",
-      "description": "TCP receive buffer size; use system defaults if absent",
-      "type": "string",
-      "minimum": 1024
+      "description": "TCP receive buffer size; 0 = use system defaults",
+      "type": "integer",
+      "default": 0,
+      "minimum": 0
     },
     "dcmTCPNoDelay": {
       "title": "TCP No Delay",
       "description": "Enable/disable TCP_NODELAY (disable/enable Nagle algorithm).",
       "type": "boolean",
-      "default": false
+      "default": true
     },
     "dcmBindAddress": {
       "title": "Bind Address",
@@ -146,45 +156,45 @@
     },
     "dcmAARQTimeout": {
       "title": "AA-RQ Timeout",
-      "description": "Timeout in ms for receive of A-ASSOCIATE-RQ PDU after TCP connect; no timeout if absent",
+      "description": "Timeout in ms for receive of A-ASSOCIATE-RQ PDU after TCP connect; 0 = no timeout.",
       "type": "integer",
-      "minimum": 0,
-      "exclusiveMinimum": true
+      "default": 0,
+      "minimum": 0
     },
     "dcmAAACTimeout": {
       "title": "AA-AC Timeout",
-      "description": "Timeout in ms for receive of A-ASSOCIATE-AC PDU after send of A-ASSOCIATE-RQ PDU; no timeout if absent",
+      "description": "Timeout in ms for receive of A-ASSOCIATE-AC PDU after send of A-ASSOCIATE-RQ PDU; 0 = no timeout.",
       "type": "integer",
-      "minimum": 0,
-      "exclusiveMinimum": true
+      "default": 0,
+      "minimum": 0
     },
     "dcmARRPTimeout": {
       "title": "AR-RP Timeout",
-      "description": "Timeout in ms for receive of A-RELEASE-RP PDU after send of A-RELEASE-RQ PDU; no timeout if absent",
+      "description": "Timeout in ms for receive of A-RELEASE-RP PDU after send of A-RELEASE-RQ PDU; 0 = no timeout.",
       "type": "integer",
-      "minimum": 0,
-      "exclusiveMinimum": true
+      "default": 0,
+      "minimum": 0
     },
     "dcmResponseTimeout": {
       "title": "Response Timeout",
-      "description": "Timeout in ms for receive of response message; no timeout if absent",
+      "description": "Timeout in ms for receive of response message; 0 = no timeout.",
       "type": "integer",
-      "minimum": 0,
-      "exclusiveMinimum": true
+      "default": 0,
+      "minimum": 0
     },
     "dcmRetrieveTimeout": {
       "title": "Retrieve Timeout",
-      "description": "Timeout in ms for receive of C-GET-RSP or C-MOVE-RSP; no timeout if absent",
+      "description": "Timeout in ms for receive of C-GET-RSP or C-MOVE-RSP; 0 = no timeout.",
       "type": "integer",
-      "minimum": 0,
-      "exclusiveMinimum": true
+      "default": 0,
+      "minimum": 0
     },
     "dcmIdleTimeout": {
       "title": "Idle Timeout",
-      "description": "Indicates aborting of idle Associations after specified timeout in ms; no timeout if absent",
+      "description": "Indicates aborting of idle Associations after specified timeout in ms; 0 = no timeout.",
       "type": "integer",
-      "minimum": 0,
-      "exclusiveMinimum": true
+      "default": 0,
+      "minimum": 0
     }
   }
 }
