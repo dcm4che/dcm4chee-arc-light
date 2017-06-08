@@ -7,22 +7,13 @@
     "dcmTLSNeedClientAuth",
     "dcmTLSProtocol",
     "dcmTCPBacklog",
-    "dcmTCPConnectTimeout",
     "dcmTCPCloseDelay",
-    "dcmTCPSendBufferSize",
-    "dcmTCPReceiveBufferSize",
     "dcmTCPNoDelay",
     "dcmSendPDULength",
     "dcmReceivePDULength",
     "dcmMaxOpsPerformed",
     "dcmMaxOpsInvoked",
-    "dcmPackPDV",
-    "dcmAARQTimeout",
-    "dcmAAACTimeout",
-    "dcmARRPTimeout",
-    "dcmResponseTimeout",
-    "dcmRetrieveTimeout",
-    "dcmIdleTimeout"
+    "dcmPackPDV"
   ],
   "properties": {
     "dcmProtocol": {
@@ -72,10 +63,9 @@
     },
     "dcmTCPConnectTimeout": {
       "title": "TCP Connect Timeout",
-      "description": "TCP connect timeout in ms; 0 = no timeout.",
+      "description": "TCP connect timeout in ms; no timeout if absent",
       "type": "integer",
-      "default": 0,
-      "minimum": 0
+      "minimum": 100
     },
     "dcmTCPCloseDelay": {
       "title": "TCP Close Delay",
@@ -86,17 +76,15 @@
     },
     "dcmTCPSendBufferSize": {
       "title": "TCP Send Buffer Size",
-      "description": "TCP send buffer size; 0 = use system defaults.",
+      "description": "TCP send buffer size; use system defaults if absent",
       "type": "integer",
-      "default": 0,
-      "minimum": 0
+      "minimum": 1024
     },
     "dcmTCPReceiveBufferSize": {
       "title": "TCP Receive Buffer Size",
-      "description": "TCP receive buffer size; 0 = use system defaults",
+      "description": "TCP receive buffer size; use system defaults if absent",
       "type": "integer",
-      "default": 0,
-      "minimum": 0
+      "minimum": 1024
     },
     "dcmTCPNoDelay": {
       "title": "TCP No Delay",
@@ -158,45 +146,39 @@
     },
     "dcmAARQTimeout": {
       "title": "AA-RQ Timeout",
-      "description": "Timeout in ms for receive of A-ASSOCIATE-RQ PDU after TCP connect; 0 = no timeout.",
+      "description": "Timeout in ms for receive of A-ASSOCIATE-RQ PDU after TCP connect; no timeout if absent",
       "type": "integer",
-      "default": 0,
-      "minimum": 0
+      "minimum": 100
     },
     "dcmAAACTimeout": {
       "title": "AA-AC Timeout",
-      "description": "Timeout in ms for receive of A-ASSOCIATE-AC PDU after send of A-ASSOCIATE-RQ PDU; 0 = no timeout.",
+      "description": "Timeout in ms for receive of A-ASSOCIATE-AC PDU after send of A-ASSOCIATE-RQ PDU; no timeout if absent",
       "type": "integer",
-      "default": 0,
-      "minimum": 0
+      "minimum": 100
     },
     "dcmARRPTimeout": {
       "title": "AR-RP Timeout",
-      "description": "Timeout in ms for receive of A-RELEASE-RP PDU after send of A-RELEASE-RQ PDU; 0 = no timeout.",
+      "description": "Timeout in ms for receive of A-RELEASE-RP PDU after send of A-RELEASE-RQ PDU; no timeout if absent",
       "type": "integer",
-      "default": 0,
-      "minimum": 0
+      "minimum": 100
     },
     "dcmResponseTimeout": {
       "title": "Response Timeout",
-      "description": "Timeout in ms for receive of response message; 0 = no timeout.",
+      "description": "Timeout in ms for receive of response message; no timeout if absent",
       "type": "integer",
-      "default": 0,
-      "minimum": 0
+      "minimum": 100
     },
     "dcmRetrieveTimeout": {
       "title": "Retrieve Timeout",
-      "description": "Timeout in ms for receive of C-GET-RSP or C-MOVE-RSP; 0 = no timeout.",
+      "description": "Timeout in ms for receive of C-GET-RSP or C-MOVE-RSP; no timeout if absent",
       "type": "integer",
-      "default": 0,
-      "minimum": 0
+      "minimum": 100
     },
     "dcmIdleTimeout": {
       "title": "Idle Timeout",
-      "description": "Indicates aborting of idle Associations after specified timeout in ms; 0 = no timeout.",
+      "description": "Indicates aborting of idle Associations after specified timeout in ms; no timeout if absent",
       "type": "integer",
-      "default": 0,
-      "minimum": 0
+      "minimum": 100
     }
   }
 }

@@ -18,9 +18,9 @@
     },
     "dicomPort": {
       "title": "Port",
-      "description": "TCP/UDP port that a service is listening on. 0 = this network connection is only used for outbound connections",
+      "description": "TCP/UDP port that a service is listening on. May be missing if this network connection is only used for outbound connections",
       "type": "integer",
-      "minimum": 0,
+      "minimum": 1,
       "maximum": 99999
     },
     "dicomTLSCipherSuite": {
