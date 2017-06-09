@@ -143,7 +143,6 @@ dcmAuditSourceTypeCode: 4
 dcmAuditRecordRepositoryDeviceReference: dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmAuditLogger
 dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmAuditMessageSchemaURI: http://www.dcm4che.org/DICOM/audit-message.rnc
 cn: Audit Logger
 
 dn: cn=syslog,dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -314,7 +313,6 @@ dcmAuditSourceTypeCode: 4
 dcmAuditRecordRepositoryDeviceReference: dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmAuditLogger
 dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmAuditMessageSchemaURI: http://www.dcm4che.org/DICOM/audit-message.rnc
 cn: Audit Logger
 
 dn: dcmEntity=Study,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -367,7 +365,6 @@ objectClass: dcmAttributeFilter
 dcmAttributeUpdatePolicy: MERGE
 
 dn: dcmStorageID=fs1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmInstanceAvailability: ONLINE
 dcmProperty: pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}
 dcmProperty: checkMountFile=NO_MOUNT
 dcmDigestAlgorithm: MD5
@@ -539,6 +536,7 @@ dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Config
 hl7DefaultCharacterSet: 8859/1
 objectClass: hl7Application
 objectClass: dcmArchiveHL7Application
+dicomAETitle: DCM4CHEE
 dicomNetworkConnectionReference: cn=hl7,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 hl7AcceptedMessageType: ADT^A01
 hl7AcceptedMessageType: ADT^A02
@@ -724,7 +722,6 @@ dn: dcmRejectionNoteLabel=Patient Safety,dicomDeviceName=dcm4chee-arc,cn=Devices
 dcmRejectionNoteLabel: Patient Safety
 dcmRejectionNoteType: REJECTED_FOR_PATIENT_SAFETY_REASONS
 dcmRejectionNoteCode: (113037, DCM, "Rejected for Patient Safety Reasons")
-dcmAcceptPreviousRejectedInstance: REJECT
 objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
 
@@ -883,7 +880,6 @@ dn: dcmRejectionNoteLabel=Incorrect MWL Entry,dicomDeviceName=dcm4chee-arc,cn=De
 dcmRejectionNoteLabel: Incorrect MWL Entry
 dcmRejectionNoteType: INCORRECT_MODALITY_WORKLIST_ENTRY
 dcmRejectionNoteCode: (113038, DCM, "Incorrect Modality Worklist Entry")
-dcmAcceptPreviousRejectedInstance: REJECT
 objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
 dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")

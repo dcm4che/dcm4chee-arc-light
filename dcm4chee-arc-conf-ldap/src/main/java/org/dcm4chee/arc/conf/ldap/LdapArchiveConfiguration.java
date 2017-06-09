@@ -191,7 +191,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "hl7PSUTaskPollingInterval", ext.getHl7PSUTaskPollingInterval(), null);
         LdapUtils.storeNotDef(attrs, "hl7PSUTaskFetchSize", ext.getHl7PSUTaskFetchSize(), 100);
         LdapUtils.storeNotDef(attrs, "hl7PSUMWL", ext.isHl7PSUMWL(), false);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAcceptConflictingPatientID", ext.getAcceptConflictingPatientID(), null);
+        LdapUtils.storeNotNullOrDef(attrs, "dcmAcceptConflictingPatientID",
+                ext.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
         LdapUtils.storeNotNullOrDef(attrs, "dcmAuditRecordRepositoryURL", ext.getAuditRecordRepositoryURL(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmElasticSearchURL", ext.getElasticSearchURL(), null);
         LdapUtils.storeNotNullOrDef(attrs,"dcmAudit2JsonFhirTemplateURI", ext.getAudit2JsonFhirTemplateURI(), null);
@@ -743,7 +744,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "hl7PSUTimeout", ext.getHl7PSUTimeout(), null);
         LdapUtils.storeNotNullOrDef(attrs, "hl7PSUOnTimeout", ext.getHl7PSUOnTimeout(), null);
         LdapUtils.storeNotNullOrDef(attrs, "hl7PSUMWL", ext.getHl7PSUMWL(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAcceptConflictingPatientID", ext.getAcceptConflictingPatientID(), null);
+        LdapUtils.storeNotNullOrDef(attrs, "dcmAcceptConflictingPatientID",
+                ext.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
         LdapUtils.storeNotNullOrDef(attrs, "dcmCopyMoveUpdatePolicy", ext.getCopyMoveUpdatePolicy(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL(), null);
@@ -794,7 +796,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAcceptedUserRoles(LdapUtils.stringArray(attrs.get("dcmAcceptedUserRole")));
         ext.setAcceptMissingPatientID(
                 LdapUtils.enumValue(AcceptMissingPatientID.class, attrs.get("dcmAcceptMissingPatientID"), null));
-        ext.setAllowDeleteStudyPermanently(LdapUtils.enumValue(AllowDeleteStudyPermanently.class, attrs.get("dcmAllowDeleteStudyPermanently"), null));
+        ext.setAllowDeleteStudyPermanently(
+                LdapUtils.enumValue(AllowDeleteStudyPermanently.class, attrs.get("dcmAllowDeleteStudyPermanently"), null));
         ext.setStorePermissionServiceExpirationDatePattern(toPattern(attrs.get("dcmStorePermissionServiceExpirationDatePattern")));
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
         ext.setStorePermissionServiceErrorCommentPattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCommentPattern")));
@@ -810,7 +813,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7PSUOnTimeout(LdapUtils.booleanValue(attrs.get("hl7PSUOnTimeout"), null));
         ext.setHl7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), null));
         ext.setAcceptConflictingPatientID(
-                LdapUtils.enumValue(AcceptConflictingPatientID.class, attrs.get("dcmAcceptConflictingPatientID"), null));
+                LdapUtils.enumValue(AcceptConflictingPatientID.class, attrs.get("dcmAcceptConflictingPatientID"),
+                        AcceptConflictingPatientID.MERGED));
         ext.setCopyMoveUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmCopyMoveUpdatePolicy"), null));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
         ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
@@ -903,7 +907,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(mods, "hl7PSUTimeout", aa.getHl7PSUTimeout(), bb.getHl7PSUTimeout(), null);
         LdapUtils.storeDiffObject(mods, "hl7PSUOnTimeout", aa.getHl7PSUOnTimeout(), bb.getHl7PSUOnTimeout(), null);
         LdapUtils.storeDiffObject(mods, "hl7PSUMWL", aa.getHl7PSUMWL(), bb.getHl7PSUMWL(), null);
-        LdapUtils.storeDiffObject(mods, "dcmAcceptConflictingPatientID", aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(), null);
+        LdapUtils.storeDiffObject(mods, "dcmAcceptConflictingPatientID",
+                aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
         LdapUtils.storeDiffObject(mods, "dcmCopyMoveUpdatePolicy", aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy(), null);
         LdapUtils.storeDiffObject(mods, "dcmInvokeImageDisplayPatientURL", aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeDiffObject(mods, "dcmInvokeImageDisplayStudyURL", aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL(), null);

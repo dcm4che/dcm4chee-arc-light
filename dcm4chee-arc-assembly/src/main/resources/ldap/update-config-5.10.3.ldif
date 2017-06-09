@@ -26,7 +26,7 @@ dcmDiffStudiesIncludefieldAll: 0020000D
 dcmDiffStudiesIncludefieldAll: 00200010
 dcmDiffStudiesIncludefieldAll: 00201206
 dcmDiffStudiesIncludefieldAll: 00201208
-_
+-
 
 dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
@@ -35,4 +35,7 @@ hl7AcceptedMessageType: ADT^A11
 hl7AcceptedMessageType: ADT^A12
 hl7AcceptedMessageType: ADT^A13
 hl7AcceptedMessageType: ADT^A38
+-
+add: dicomAETitle
+dicomAETitle: DCM4CHEE
 -

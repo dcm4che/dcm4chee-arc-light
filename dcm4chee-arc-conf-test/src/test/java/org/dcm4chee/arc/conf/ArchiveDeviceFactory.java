@@ -1247,6 +1247,7 @@ class ArchiveDeviceFactory {
 
         HL7Application hl7App = new HL7Application("*");
         ArchiveHL7ApplicationExtension hl7AppExt = new ArchiveHL7ApplicationExtension();
+        hl7AppExt.setAETitle("DCM4CHEE");
         hl7App.addHL7ApplicationExtension(hl7AppExt);
         hl7App.setAcceptedMessageTypes(HL7_MESSAGE_TYPES);
         hl7App.setHL7DefaultCharacterSet("8859/1");
