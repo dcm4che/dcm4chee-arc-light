@@ -284,11 +284,7 @@ public class IocmRS {
                 patientService.updatePatient(ctx);
             else {
                 ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
-                if (arcAE.getArchiveDeviceExtension().isHl7TrackChangedPatientID()
-                        && !patientID.getID().equals(bodyPatientID.getID()))
-                    patientService.trackPriorPatient(ctx);
-                else
-                    patientService.changePatientID(ctx);
+                patientService.changePatientID(ctx);
             }
             forwardRS(HttpMethod.PUT, RSOperation.UpdatePatient, arcAE, attrs);
             String msgType = ctx.getEventActionCode() == AuditMessages.EventActionCode.Create

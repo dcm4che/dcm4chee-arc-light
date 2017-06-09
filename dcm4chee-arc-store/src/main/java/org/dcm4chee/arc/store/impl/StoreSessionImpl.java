@@ -43,6 +43,7 @@ package org.dcm4chee.arc.store.impl;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Series;
@@ -68,32 +69,58 @@ class StoreSessionImpl implements StoreSession {
     private static final AtomicInteger prevSerialNo = new AtomicInteger();
 
     private final int serialNo;
-    private final Association as;
-    private final HttpServletRequest httpRequest;
-    private final ApplicationEntity ae;
-    private final String calledAET;
-    private final Socket socket;
-    private final HL7Segment msh;
+    private ApplicationEntity ae;
+    private Association as;
+    private HttpServletRequest httpRequest;
+    private HL7Application hl7App;
+    private String calledAET;
+    private Socket socket;
+    private HL7Segment msh;
     private final StoreService storeService;
     private final Map<String, Storage> storageMap = new HashMap<>();
     private Study cachedStudy;
     private final Map<String,Series> seriesCache = new HashMap<>();
-    private Map<Long,UIDMap> uidMapCache = new HashMap<>();
+    private final Map<Long,UIDMap> uidMapCache = new HashMap<>();
     private Map<String, String> uidMap;
     private String objectStorageID;
     private String metadataStorageID;
 
-    StoreSessionImpl(HttpServletRequest httpRequest, String pathParam, Association as, ApplicationEntity ae,
-                            Socket socket, HL7Segment msh, StoreService storeService) {
+    StoreSessionImpl(StoreService storeService) {
         this.serialNo = prevSerialNo.incrementAndGet();
-        this.httpRequest = httpRequest;
-        this.as = as;
-        this.ae = ae;
-        this.socket = socket;
-        this.msh = msh;
         this.storeService = storeService;
-        this.uidMapCache = new HashMap<>();
-        this.calledAET = as != null ? as.getCalledAET() : httpRequest != null ? pathParam : ae.getAETitle();
+    }
+
+
+    void setApplicationEntity(ApplicationEntity ae) {
+        this.ae = ae;
+        this.calledAET = ae.getAETitle();
+    }
+
+    void setHttpRequest(HttpServletRequest httpRequest) {
+        this.httpRequest = httpRequest;
+    }
+
+    void setHL7Application(HL7Application hl7App) {
+        this.hl7App = hl7App;
+    }
+
+    void setCalledAET(String calledAET) {
+        this.calledAET = calledAET;
+    }
+
+    void setSocket(Socket socket) {
+        this.socket = socket;
+    }
+
+    public void setMSH(HL7Segment msh) {
+        this.msh = msh;
+    }
+
+    void setAssociation(Association as) {
+        this.as = as;
+        this.ae = as.getApplicationEntity();
+        this.socket = as.getSocket();
+        this.calledAET = as.getCalledAET();
     }
 
     @Override
@@ -119,6 +146,11 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public HL7Segment getHL7MessageHeader() {
         return msh;
+    }
+
+    @Override
+    public HL7Application getLocalHL7Application() {
+        return hl7App;
     }
 
     @Override

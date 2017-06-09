@@ -43,6 +43,7 @@ package org.dcm4chee.arc.store;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
@@ -69,6 +70,8 @@ public interface StoreSession extends Closeable {
     Socket getSocket();
 
     HL7Segment getHL7MessageHeader();
+
+    HL7Application getLocalHL7Application();
 
     ApplicationEntity getLocalApplicationEntity();
 

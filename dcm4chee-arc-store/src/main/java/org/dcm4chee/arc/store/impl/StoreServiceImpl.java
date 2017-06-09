@@ -51,6 +51,7 @@ import org.dcm4che3.imageio.codec.TransferSyntaxType;
 import org.dcm4che3.io.*;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
+import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
@@ -120,22 +121,35 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public StoreSession newStoreSession(Association as) {
-        return new StoreSessionImpl(null, null, as, as.getApplicationEntity(), as.getSocket(), null, this);
+        StoreSessionImpl session = new StoreSessionImpl(this);
+        session.setAssociation(as);
+        return session;
     }
 
     @Override
-    public StoreSession newStoreSession(HttpServletRequest httpRequest, String pathParam, ApplicationEntity ae) {
-        return new StoreSessionImpl(httpRequest, pathParam, null, ae, null, null, this);
+    public StoreSession newStoreSession(HttpServletRequest httpRequest, String aet, ApplicationEntity ae) {
+        StoreSessionImpl session = new StoreSessionImpl(this);
+        session.setHttpRequest(httpRequest);
+        session.setApplicationEntity(ae);
+        session.setCalledAET(aet);
+        return session;
     }
 
     @Override
     public StoreSession newStoreSession(ApplicationEntity ae) {
-        return new StoreSessionImpl(null, null, null, ae, null, null, this);
+        StoreSessionImpl session = new StoreSessionImpl(this);
+        session.setApplicationEntity(ae);
+        return session;
     }
 
     @Override
-    public StoreSession newStoreSession(Socket socket, HL7Segment msh, ApplicationEntity ae) {
-        return new StoreSessionImpl(null, null, null, ae, socket, msh, this);
+    public StoreSession newStoreSession(HL7Application hl7App, Socket socket, HL7Segment msh, ApplicationEntity ae) {
+        StoreSessionImpl session = new StoreSessionImpl(this);
+        session.setApplicationEntity(ae);
+        session.setSocket(socket);
+        session.setMSH(msh);
+        session.setHL7Application(hl7App);
+        return session;
     }
 
     @Override

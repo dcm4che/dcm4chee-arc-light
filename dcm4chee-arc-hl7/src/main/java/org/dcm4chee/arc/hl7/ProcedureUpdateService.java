@@ -91,7 +91,8 @@ public class ProcedureUpdateService extends AbstractHL7Service {
     @Override
     protected void process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
         Patient pat = PatientUpdateService.updatePatient(hl7App, s, msg, patientService);
-        updateProcedure(hl7App, s, msg, pat);
+        if (pat != null)
+            updateProcedure(hl7App, s, msg, pat);
     }
 
     private void updateProcedure(HL7Application hl7App, Socket s, UnparsedHL7Message msg, Patient pat)

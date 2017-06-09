@@ -72,6 +72,8 @@ public interface PatientMgtContext {
 
     String getRemoteHostName();
 
+    boolean isNoPatientCreate();
+
     IDWithIssuer getPatientID();
 
     Attributes getAttributes();

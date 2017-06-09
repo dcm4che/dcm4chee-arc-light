@@ -82,8 +82,8 @@ class ImportReportService extends AbstractHL7Service {
 
     @Override
     protected void process(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
-        PatientUpdateService.updatePatient(hl7App, s, msg, patientService);
-        importReport(hl7App, s, msg);
+        if (PatientUpdateService.updatePatient(hl7App, s, msg, patientService) != null)
+            importReport(hl7App, s, msg);
     }
 
     private void importReport(HL7Application hl7App, Socket s, UnparsedHL7Message msg) throws Exception {
@@ -114,7 +114,7 @@ class ImportReportService extends AbstractHL7Service {
                     attrs.setString(Tag.StudyInstanceUID, VR.UI, suids.get(0));
                     break;
                 default:
-                    mstore(s, ae, msh, attrs, suids);
+                    mstore(hl7App, s, ae, msh, attrs, suids);
                     return;
             }
         }
@@ -123,11 +123,12 @@ class ImportReportService extends AbstractHL7Service {
         if (!attrs.containsValue(Tag.SeriesInstanceUID))
             attrs.setString(Tag.SeriesInstanceUID, VR.UI,
                     UIDUtils.createNameBasedUID(attrs.getBytes(Tag.SOPInstanceUID)));
-        store(s, ae, msh, attrs);
+        store(hl7App, s, ae, msh, attrs);
     }
 
-    private void store(Socket s, ApplicationEntity ae, HL7Segment msh, Attributes attrs) throws IOException {
-        try (StoreSession session = storeService.newStoreSession(s, msh, ae)) {
+    private void store(HL7Application hl7App, Socket s, ApplicationEntity ae, HL7Segment msh, Attributes attrs)
+            throws IOException {
+        try (StoreSession session = storeService.newStoreSession(hl7App, s, msh, ae)) {
             StoreContext ctx = storeService.newStoreContext(session);
             ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
             ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
@@ -136,7 +137,8 @@ class ImportReportService extends AbstractHL7Service {
         }
     }
 
-    private void mstore(Socket s, ApplicationEntity ae, HL7Segment msh, Attributes attrs, List<String> suids)
+    private void mstore(HL7Application hl7app, Socket s, ApplicationEntity ae, HL7Segment msh, Attributes attrs,
+                        List<String> suids)
             throws IOException {
         int n = suids.size();
         Sequence seq = attrs.newSequence(Tag.IdenticalDocumentsSequence, n);
@@ -149,7 +151,7 @@ class ImportReportService extends AbstractHL7Service {
             attrs.setString(Tag.StudyInstanceUID, VR.UI, refStudy.getString(Tag.StudyInstanceUID));
             attrs.setString(Tag.SeriesInstanceUID, VR.UI, refSeries.getString(Tag.SeriesInstanceUID));
             attrs.setString(Tag.SOPInstanceUID, VR.UI, refSOP.getString(Tag.ReferencedSOPInstanceUID));
-            store(s, ae, msh, attrs);
+            store(hl7app, s, ae, msh, attrs);
             seq.add(i, refStudy);
         }
     }

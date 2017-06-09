@@ -67,7 +67,7 @@ class PatientUpdateService extends AbstractHL7Service {
         HL7Segment msh = msg.msh();
         String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
         Attributes attrs = SAXTransformer.transform(msg.data(), hl7cs, arcHL7App.patientUpdateTemplateURI(), null);
-        PatientMgtContext ctx = patientService.createPatientMgtContextHL7(s, msh);
+        PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msh);
         ctx.setAttributes(attrs);
         if (ctx.getPatientID() == null)
             throw new HL7Exception(HL7Exception.AR, "Missing PID-3");
@@ -79,9 +79,7 @@ class PatientUpdateService extends AbstractHL7Service {
         if (ctx.getPreviousPatientID() == null)
             throw new HL7Exception(HL7Exception.AR, "Missing MRG-1");
         return "ADT^A47".equals(msh.getMessageType())
-                ? arcHL7App.getArchiveDeviceExtension().isHl7TrackChangedPatientID()
-                    ? patientService.trackPriorPatient(ctx)
-                    : patientService.changePatientID(ctx)
+                ? patientService.changePatientID(ctx)
                 : patientService.mergePatient(ctx);
     }
 }
