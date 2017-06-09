@@ -12,11 +12,6 @@
       "description": "Arbitrary/Meaningful name of the HL7 Forward Rule",
       "type": "string"
     },
-    "hl7ApplicationName": {
-      "title": "HL7 Sending Application",
-      "description": "HL7 Sending Application and Facility name (Application|Facility) in forwarded HL7 Message. If absent, use original Sending Application and Facility from received HL7 Message.",
-      "type": "string"
-    },
     "hl7FwdApplicationName": {
       "title": "HL7 Forward Application Name",
       "description": "HL7 Forward Destination Application and Facility name (Application|Facility)",

@@ -1215,7 +1215,6 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.22 NAME 'hl7ForwardRule'
     cn $
     hl7FwdApplicationName )
   MAY (
-    hl7ApplicationName $
     dcmProperty ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.23 NAME 'dcmStoreAccessControlIDRule'
   DESC 'Store Access Control ID Rule'
