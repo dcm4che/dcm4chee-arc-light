@@ -144,7 +144,7 @@ public class HL7SenderImpl implements HL7Sender {
             throws Exception {
         LOG.warn("HL7 message being sent is : ", hl7msg);
         HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
-        HL7Application sender = hl7Dev.getHL7Application(sendingApplication + '|' + sendingFacility);
+        HL7Application sender = hl7Dev.getHL7Application(sendingApplication + '|' + sendingFacility, true);
         HL7Application receiver = hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
         try (MLLPConnection conn = sender.connect(receiver)) {
             conn.writeMessage(hl7msg);

@@ -29,6 +29,14 @@
         "type": "string"
       }
     },
+    "hl7OtherApplicationName": {
+      "title": "Other HL7 Application Name",
+      "description": "Additional HL7 Application and Facility name (Application|Facility) - will also accept HL7 messages with such Receiving Application and Facility name",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "hl7AcceptedMessageType": {
       "title": "Accepted Message Type",
       "description": "Message Type(s) (MessageType^TriggerEvent) of accepted messages",
