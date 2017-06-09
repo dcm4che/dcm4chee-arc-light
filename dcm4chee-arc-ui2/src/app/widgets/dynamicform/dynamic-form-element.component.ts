@@ -214,6 +214,7 @@ export class DynamicFormElementComponent{
                                 'status': 'info'
                             });
                         }
+                        //TODO If removed element is refferenced than traverse the device and change thous refferences
                     }else{
                         if (elementFound){
                            let pathObject = $this.extractIndexFromPath(formelement.options[_.toInteger(i) - 1].currentElementUrl);

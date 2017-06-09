@@ -129,8 +129,12 @@ export class FormService{
                             group[element.key] = validation ? $this._fb.control(element.value || NaN, validation)
                                 : $this._fb.control(element.value || NaN);
                         }else{
-                            group[element.key] = validation ? $this._fb.control(element.value || '', validation)
-                                : $this._fb.control(element.value || '');
+                            let tempValue = "";
+                            if(element.value || element.value === false){
+                                tempValue = element.value;
+                            }
+                            group[element.key] = validation ? $this._fb.control(tempValue, validation)
+                                : $this._fb.control(tempValue);
                         }
                     }
             }

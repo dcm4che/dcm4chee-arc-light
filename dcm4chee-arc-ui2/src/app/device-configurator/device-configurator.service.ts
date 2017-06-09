@@ -142,7 +142,7 @@ export class DeviceConfiguratorService{
         });*/
         _.forEach(device, (m, i) => {
             console.log("isnanne",isNaN(m));
-            if (m === null || (_.isNumber(m) && _.isNaN(m)) || m === '' || (_.isArray(m) && m.length === 0)){
+            if (m === null || (_.isNumber(m) && _.isNaN(m)) || m === '' || (_.isArray(m) && m.length === 0) || m === "inherent"){
                 delete device[i];
             }
         });
@@ -180,7 +180,7 @@ export class DeviceConfiguratorService{
                 return obj2;
             }
             if ((obj === true || obj === false) && (obj2 === 'inherent' || obj2 === false || obj2 === true)){
-                return (obj2 === 'inherent') ? null : obj2;
+                return (obj2 === 'inherent') ? "inherent" : obj2;
             }
         }
         return null;
@@ -345,13 +345,28 @@ export class DeviceConfiguratorService{
                                     }
                                 }
                             }else{
-                                if (i === 'dicomInstalled' && _.hasIn(params, 'devicereff') && _.hasIn(params, 'schema')){
+                                // if (i === 'dicomInstalled' && _.hasIn(params, 'devicereff') && _.hasIn(params, 'schema')){
+                                if(required){
+                                    options = [
+                                        {key: 'True',  value: true},
+                                        {key: 'False',  value: false}
+                                    ];
+                                    if (value === true || value === false){
+                                        //true
+                                        if (value === true){
+                                            options[0]['active'] = true;
+                                        }else{
+                                            //false
+                                            options[1]['active'] = true;
+                                        }
+                                    }
+                                }else{
                                     options = [
                                         {key: 'True',  value: true},
                                         {key: 'False',  value: false},
-                                        {key: 'Inherited',  value: 'inherent'},
+                                        {key: 'Unchecked',  value: 'inherent'},
                                     ];
-                                    if (value != undefined && value != ''){
+                                    if (value === true || value === false){
                                         //true
                                         if (value === true){
                                             options[0]['active'] = true;
@@ -363,7 +378,8 @@ export class DeviceConfiguratorService{
                                         //Inherited
                                         options[2]['active'] = true;
                                     }
-                                }else{
+                                }
+/*                                }else{
                                     options = [
                                         {key: 'True',  value: true},
                                         {key: 'False',  value: false}
@@ -377,7 +393,7 @@ export class DeviceConfiguratorService{
                                             options[1]['active'] = true;
                                         }
                                     }
-                                }
+                                }*/
                                 form.push(
                                     new RadioButtons({
                                         key: i,
@@ -389,6 +405,17 @@ export class DeviceConfiguratorService{
                                         value:value
                                     })
                                 );
+/*                                form.push(
+                                    new DropdownList({
+                                        key: i,
+                                        label: m.title,
+                                        description: m.description,
+                                        options: options,
+                                        order: (5 + newOrderSuffix),
+                                        validation: validation,
+                                        value: value
+                                    }),
+                                );*/
                             }
                             break;
                         case 'array':
