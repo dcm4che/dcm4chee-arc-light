@@ -12,7 +12,8 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "format": "dicomDeviceName"
     },
     "dicomInstalled": {
       "title": "installed",

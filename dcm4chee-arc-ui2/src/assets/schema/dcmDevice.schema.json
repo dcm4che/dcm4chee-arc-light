@@ -20,7 +20,7 @@
     },
     "dcmTrustStoreType": {
       "title": "Trust Store Type",
-      "description": "Key Store Type of Trust Store specified by dcmTrustStoreURL. JKS or PKCS12",
+      "description": "Key Store Type of Trust Store specified by dcmTrustStoreURL.",
       "type":"string",
       "enum": [ "JKS", "PKCS12" ]
     },
@@ -41,7 +41,7 @@
     },
     "dcmKeyStoreType": {
       "title": "Key Store Type",
-      "description": "Key Store Type of Key Store specified by Key Store URL. JKS or PKCS12",
+      "description": "Key Store Type of Key Store specified by Key Store URL.",
       "type": "string",
       "enum": [ "JKS", "PKCS12"]
 
