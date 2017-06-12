@@ -188,7 +188,7 @@ class StudyQuery extends AbstractQuery {
         if (results.get(QStudy.study.failedRetrieves) != 0)
             attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
                     results.get(QStudy.study.failedRetrieves));
-        if (results.get(QStudy.study.accessControlID) != null)
+        if (!results.get(QStudy.study.accessControlID).equals("*"))
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
                     results.get(QStudy.study.accessControlID));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,

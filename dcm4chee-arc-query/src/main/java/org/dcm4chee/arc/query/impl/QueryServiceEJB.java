@@ -241,8 +241,9 @@ public class QueryServiceEJB {
         if (result.get(QStudy.study.failedRetrieves) != 0)
             attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.FailedRetrievesOfStudy, VR.US,
                     result.get(QStudy.study.failedRetrieves));
-        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
-                result.get(QStudy.study.accessControlID));
+        if (!result.get(QStudy.study.accessControlID).equals("*"))
+            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
+                    result.get(QStudy.study.accessControlID));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,
                 result.get(QStudy.study.storageIDs));
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesReceiveDateTime, VR.DT,

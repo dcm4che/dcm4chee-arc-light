@@ -77,7 +77,7 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
         if (studyInfo.getExpirationDate() != null)
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyExpirationDate, VR.DA,
                     studyInfo.getExpirationDate());
-        if (studyInfo.getAccessControlID() != null)
+        if (!studyInfo.getAccessControlID().equals("*"))
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
                     studyInfo.getAccessControlID());
 
