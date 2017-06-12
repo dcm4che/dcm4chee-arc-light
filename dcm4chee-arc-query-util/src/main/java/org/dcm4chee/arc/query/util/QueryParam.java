@@ -71,7 +71,7 @@ public class QueryParam {
     private String externalRetrieveAETNot;
 
     public QueryParam(ApplicationEntity ae) {
-        this.arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        this.arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
         this.arcDev = arcAE.getArchiveDeviceExtension();
         this.qrView = arcAE.getQueryRetrieveView();
     }
