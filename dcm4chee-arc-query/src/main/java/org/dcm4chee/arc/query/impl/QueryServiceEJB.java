@@ -633,7 +633,7 @@ public class QueryServiceEJB {
                 if (this.availability.compareTo(availability) < 0)
                     this.availability = availability;
             }
-            if (modality != null)
+            if (!modality.equals("*"))
                 mods.add(modality);
             for (String cuid : StringUtils.split(sopClassesInSeries, '\\'))
                 cuids.add(cuid);
