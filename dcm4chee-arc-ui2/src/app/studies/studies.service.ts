@@ -143,7 +143,27 @@ export class StudiesService {
             }
             resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
     };
-
+    queryDiffs = function(url, params) {
+        console.log('in querystudies');
+        return this.$http.get(
+            url + this._config(params),
+            {
+                headers:  new Headers({'Accept': 'application/dicom+json'})
+            }
+        ).map(res => {
+            let resjson;
+            try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json();
+            }catch (e){
+                resjson = {};
+            }
+            return resjson;
+        });
+    };
     queryStudies = function(url, params) {
         console.log('in querystudies');
         return this.$http.get(

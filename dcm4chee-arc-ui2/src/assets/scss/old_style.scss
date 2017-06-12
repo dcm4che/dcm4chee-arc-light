@@ -1904,6 +1904,23 @@ table{
 	    float: left;
 	    padding: 11px 17px 16px;
 	    width: 221px;
+      position: relative;
+      md-select{
+        width:95%;
+      }
+      .swap_icon{
+        position: absolute;
+        right: 25px;
+        width: 25px;
+        height: 25px;
+        display: block;
+        top: 27px;
+        color:#a6a6a6;
+          &:hover{
+            cursor: pointer;
+            color: $blue;
+          }
+      }
 	 //    .btn {
 		//     margin-top: 5px;
 		//     width: 184px;
@@ -1959,6 +1976,11 @@ table{
 							label{
 		    					text-indent: 15px;
 							}
+                            .material-icons{
+                              font-size:15px;
+                              position:relative;
+                              top:2px;
+                            }
 		    			}
 		    		}
 		    	}

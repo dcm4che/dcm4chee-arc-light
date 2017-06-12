@@ -68,7 +68,6 @@
                     </div>
                 </div>
                 <div class="body">
-
                     <ng-container *ngIf="clipboard.action === 'merge'">
                         <div class="block" *ngFor="let value of clipboard.patients">
                             {{ value.PatientID }}
@@ -117,19 +116,9 @@
                     <div class="row">
                         <label class="col-md-6 text-right control-label">AET:</label>
                         <div class=" col-md-6">
-<!--                            <select
-                                    id="aet"
-                                    [ngModel]="aetmodel"
-                                    class="col-md-12"
-                                    (ngModelChange)="onChange($event, 'aetmodel')"
-                            >
-                                <option [ngValue]="ae" [attr.selected]="(ae.title == aetmodel.title)?'':null" (click)="setTrash()" title="{{ae.description}}" *ngFor="let ae of aes" >{{ae.title}}</option>
-                            </select>-->
                             <md-select [(ngModel)]="aetmodel" (ngModelChange)="onChange($event, 'aetmodel')">
                                 <md-option *ngFor="let ae of aes" [value]="ae" title="{{ae.description}}">{{ ae.title }}</md-option>
                             </md-select>
-
-                            <!--<p-dropdown [options]="aes" [(ngModel)]="aetmodel"></p-dropdown>-->
                         </div>
                     </div>
                     <div class="row">
@@ -152,7 +141,7 @@
                     </div>
                 </div>
                 <div class="col-md-3 block-1-1">
-                    <div class="row" *ngIf="filterMode === 'mwl'||filterMode === 'study'">
+                    <div class="row" *ngIf="filterMode === 'mwl' || filterMode === 'study' || filterMode === 'diff'">
                         <div class="col-md-6">
                             <input id="AccessionNumber" type="text" [(ngModel)]="filter.AccessionNumber" placeholder="Accession number" title="Accession number" class="col-md-12" />
                         </div>
@@ -160,14 +149,14 @@
                             <input id="LocalNamespaceEntityID" type="text" [disabled]="disabled.LocalNamespaceEntityID" [(ngModel)]="filter['IssuerOfAccessionNumberSequence.LocalNamespaceEntityID']" placeholder="Issuer of accession number" title="Issuer of accession number" class="col-md-12"  (keyup)="conditionWarning($event, !filter.AccessionNumber, 'Accession Number is empty, set first the Accession Number!')" (click)="conditionWarning($event, !filter.AccessionNumber, 'Accession Number is empty, set first the Accession Number!')"/>
                         </div>
                     </div>
-                    <div class="row" *ngIf="filterMode === 'mwl'||filterMode === 'study'">
+                    <div class="row" *ngIf="filterMode === 'mwl'||filterMode === 'study' || filterMode === 'diff'">
                         <div class="col-md-6" *ngIf="filterMode === 'mwl'" >
                             <input id="ScheduledStationAETitle" type="text" [(ngModel)]="filter['ScheduledProcedureStepSequence.ScheduledStationAETitle']" placeholder="Scheduled Station AE Title" title="Scheduled Station AE Title" class="col-md-12 clearable" />
                         </div>
-                        <div class="col-md-6" *ngIf="filterMode === 'study'">
+                        <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                             <input id="ReferringPhysicianName" type="text" [(ngModel)]="filter.ReferringPhysicianName" placeholder="Referring physician name" title="Referring physician name" class="col-md-12" />
                         </div>
-                        <div class="col-md-6" *ngIf="filterMode === 'study'">
+                        <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                             <input id="Modality" type="text" size="5"  [(ngModel)]="filter.ModalitiesInStudy" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
                             <div class="modality_selector [hidden]" *ngIf="showModalitySelector">
                                 <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
@@ -285,7 +274,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3 block-1-2" *ngIf="filterMode === 'study'">
+                <div class="col-md-3 block-1-2" *ngIf="filterMode === 'study' || filterMode === 'diff' || filterMode === 'diff'">
                     <div class="row">
                         <label for="StudyDateFrom" class="col-md-12">Study Date / Time:</label>
 
@@ -383,6 +372,17 @@
                             <option value="-PatientName,StudyDate,StudyTime">Order by patient._VALUE name &uarr; and study._VALUE date &darr;</option>
                             <option value="-PatientName,-StudyDate,-StudyTime">Order by patient._VALUE name &uarr; and study._VALUE date &uarr;</option>
                         </select> -->
+                <div class="row col-md-12" title="AE Title of first C-FIND SCP" *ngIf="filterMode === 'diff'">
+                    <md-select [(ngModel)]="aet1" placeholder="Primary AET" floatPlaceholder="never">
+                        <md-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</md-option>
+                    </md-select>
+                </div>
+                <i title="Switch the primary and secondary AET" (click)="swapDiff()" *ngIf="filterMode === 'diff'"  class="swap_icon material-icons">swap_vert</i>
+                <div class="row col-md-12" title="AE Title of second C-FIND SCP" *ngIf="filterMode === 'diff'">
+                    <md-select [(ngModel)]="aet2" placeholder="Secondary AET" floatPlaceholder="never">
+                        <md-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</md-option>
+                    </md-select>
+                </div>
                 <div class="orderbyblock" [ngClass]="{notrash:trashaktive==false}">
                     <div class="btn-group" role="group" >
                         <button id="showoptionlistbutton" type="button" class="btn btn-default selectedorderbutton" (click)="showoptionlist = !showoptionlist" >
@@ -391,16 +391,7 @@
                         </button>
                         <div class="optionlist" id="showoptionlist" *ngIf="showoptionlist">
                             <ul>
-                                <!--                 <li [ngClass]="{active:filter.orderby === ''}" (click)="$event.preventDefault();filter.orderby = '';showoptionlist=false;orderbytext = 'Order by ...'">Order by ...</li>
-                                                <li [ngClass]="{active:filter.orderby === 'PatientName'}" (click)="$event.preventDefault();filter.orderby = 'PatientName';showoptionlist=false;orderbytext = 'Patient patient._VALUE name &darr;'">Patient patient._VALUE name &darr; <span class="glyphicon glyphicon-sort-by-alphabet"></span> <span class="orderbydateasc"></span></li>
-                                                <li [ngClass]="{active:filter.orderby === '-PatientName'}" (click)="$event.preventDefault();filter.orderby = '-PatientName';showoptionlist=false;orderbytext = 'Patient patient._VALUE name &uarr;'">Patient patient._VALUE name &uarr;<span class="glyphicon glyphicon-sort-by-alphabet-alt"></span></li>
-                                                <li [ngClass]="{active:filter.orderby === 'StudyDate,StudyTime'}" (click)="$event.preventDefault();filter.orderby = 'StudyDate,StudyTime';showoptionlist=false;orderbytext = 'study._VALUE study._VALUE date &darr;'">study._VALUE study._VALUE date &darr; <span class="orderbydatedesc"></span></li>
-                                                <li [ngClass]="{active:filter.orderby === '-StudyDate,-StudyTime'}" (click)="$event.preventDefault();filter.orderby = '-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'study._VALUE study._VALUE date &uarr;'">study._VALUE study._VALUE date &uarr;</li>
-                                                <li [ngClass]="{active:filter.orderby === 'PatientName,StudyDate,StudyTime'}" (click)="$event.preventDefault();filter.orderby = 'PatientName,StudyDate,StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &darr; and study._VALUE date &darr;'">study._VALUE patient._VALUE name &darr; and study._VALUE date &darr;</li>
-                                                <li [ngClass]="{active:filter.orderby === 'PatientName,-StudyDate,-StudyTime'}" (click)="$event.preventDefault();filter.orderby = 'PatientName,-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &darr; and study._VALUE date &uarr;'">study._VALUE patient._VALUE name &darr; and study._VALUE date &uarr;</li>
-                                                <li [ngClass]="{active:filter.orderby === '-PatientName,StudyDate,StudyTime'}" (click)="$event.preventDefault();filter.orderby = '-PatientName,StudyDate,StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &uarr; and study._VALUE date &darr;'">study._VALUE patient._VALUE name &uarr; and study._VALUE date &darr;</li>
-                                                <li [ngClass]="{active:filter.orderby === '-PatientName,-StudyDate,-StudyTime'}" (click)="$event.preventDefault();filter.orderby = '-PatientName,-StudyDate,-StudyTime';showoptionlist=false;orderbytext = 'study._VALUE patient._VALUE name &uarr; and study._VALUE date &uarr;'">study._VALUE patient._VALUE name &uarr; and study._VALUE date &uarr;</li> -->
-                                <li *ngFor="let order of orderby; let i = index;" [ngClass]="{active:filter.orderby === order.value}" (click)="showoptionlist = false; filter.orderby = order.value; orderbytext = order.label; filterMode = order.mode;extendedFilter(false);fireQueryOnChange(order)" title="{{filterMode}}" [innerHtml]="order.label"></li>
+                                <li *ngFor="let order of orderby; let i = index;" [ngClass]="{active:filter.orderby === order.value}" (click)="showoptionlist = false; filter.orderby = order.value; orderbytext = order.label; filterMode = order.mode;extendedFilter(false);fireQueryOnChange(order)" title="{{order.title}}" [innerHtml]="order.label"></li>
                             </ul>
                         </div>
                         <!--                 <button class="btn btn-default" type="button">Go!</button>
@@ -415,6 +406,9 @@
                         <button *ngIf="filterMode==='mwl'" type="button" class="btn btn-default executebutton btn-info"  id="querymwl" (click)="queryMWL(0);patientmode=false" title="Query MWL">
                             <span class="glyphicon glyphicon-refresh"></span>
                         </button>
+                        <button *ngIf="filterMode==='diff'" type="button" class="btn btn-default executebutton btn-info"  id="querydiffs" (click)="queryDiffs(0);patientmode=false" title="Query Diff">
+                            <span class="glyphicon glyphicon-refresh"></span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -423,16 +417,16 @@
         <div class="row filter hidden_filters" [hidden]="!advancedConfig">
             <div class="col-md-3 block-2-1">
                 <div class="row">
-                    <div class="col-md-6" *ngIf="filterMode === 'study'">
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <input id="InstitutionName" type="text" [(ngModel)]="filter.InstitutionName" placeholder="Institution Name" title="Institution Name" class="col-md-12" />
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study'">
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <input id="SendingApplicationEntityTitleOfSeries" type="text" [(ngModel)]="filter.SendingApplicationEntityTitleOfSeries" placeholder="Sending Application Entity Title of Series" title="Sending Application Entity Title of Series" class="col-md-12 clearable" />
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study'">
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <input id="InstitutionalDepartmentName" type="text" [(ngModel)]="filter.InstitutionalDepartmentName" placeholder="Institutional Department Name" title="Institutional Department Name" class="col-md-12 clearable" />
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study'">
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <input id="StationName" type="text" [(ngModel)]="filter.StationName" placeholder="Station Name" title="Station Name" class="col-md-12" />
                     </div>
                     <div class="col-md-6" *ngIf="filterMode === 'patient'">
@@ -456,10 +450,10 @@
                     <!--<div class="col-md-6" *ngIf="filterMode === 'mwl'">
                         <input id="ScheduledProcedureStepSequence" type="text" [(ngModel)]="filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate']" placeholder="SPS Description" title="Scheduled Procedure Step Description" class="col-md-12" />
                     </div>-->
-                    <div class="col-md-6" *ngIf="filterMode === 'study'">
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <input id="SOPClassesInStudy" type="text" [(ngModel)]="filter.SOPClassesInStudy" placeholder="SOP classes in study" title="SOP classes in study" class="col-md-12 clearable" />
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study'">
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <input id="SeriesDescription" type="text" [(ngModel)]="filter.SeriesDescription" placeholder="Series Description" title="Series Description" class="col-md-12 clearable" />
                     </div>
                 </div>
@@ -509,29 +503,29 @@
                 <!-- </div> -->
                 <div class="row">
 
-                    <div class="col-md-6" *ngIf="filterMode === 'study'">
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <label title="Show only expired studies">
                             <input type="checkbox" [(ngModel)]="filter.expired"> Only expired studies
                         </label>
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study'">
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <label title="Show only incomplete studies"  >
                             <input type="checkbox" [(ngModel)]="filter.incomplete"> Only incomplete studies
                         </label>
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study'">
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <input id="StudyID" type="text" [(ngModel)]="filter.StudyID" placeholder="StudyID" title="study._VALUE ID" class="col-md-12" />
                     </div>
                     <div class="col-md-6" *ngIf="filterMode === 'mwl'">
                         <input id="ScheduledPerformingPhysicianName" type="text" [(ngModel)]="filter['ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName']" placeholder="Scheduled Performing Physician's Name" title="Scheduled Performing Physician's Name" class="col-md-12" />
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'mwl'">
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff' || filterMode === 'mwl'">
                         <input id="StudyInstanceUID" type="text" [(ngModel)]="filter.StudyInstanceUID" placeholder="Study Instance UID" title="study._VALUE instance UID" class="col-md-12 clearable" />
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study'">
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <input id="StudyDescription" type="text" [(ngModel)]="filter.StudyDescription" placeholder="Study Description" title="study._VALUE description" class="col-md-12" />
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study'">
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <input id="BodyPartExamined" type="text" [(ngModel)]="filter.BodyPartExamined" placeholder="Body Part Examined" title="Body Part Examined" class="col-md-12 clearable" />
                     </div>
                     <div class="col-md-6" *ngIf="filterMode === 'patient'">
@@ -553,14 +547,14 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 block-2-1" *ngIf="filterMode === 'study'">
+            <div class="col-md-3 block-2-1" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                 <div class="row">
-<!--                    <div class="col-md-6" *ngIf="filterMode === 'study'" ng-init="ExternalRetrieveAETchecked = false">
+<!--                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'" ng-init="ExternalRetrieveAETchecked = false">
                         <label title="Show only studies failed to be retrieved">
                             <input type="checkbox" [(ngModel)]="ExternalRetrieveAETchecked" (change)="filter.ExternalRetrieveAET = '';filter['ExternalRetrieveAET!'] = ''">Not retrieveable from external retrieve AET
                         </label>
                     </div>-->
-                    <div class="col-md-6" *ngIf="filterMode === 'study'">
+                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <div class="input-group">
                             <span class="checkboxpart">
                                 <!--<input type="checkbox" aria-label="Checkbox for following text input"> No-->
@@ -570,7 +564,7 @@
                             <input class="col-md-12 clearable inputpart" id="ExternalRetrieveAET!" *ngIf="ExternalRetrieveAETchecked" type="text" [(ngModel)]="filter['ExternalRetrieveAET!']" placeholder="External retrieve AET" title="Not retrievable from external retrieve AET"/>
                         </div>
                     </div>
-                    <!--<div class="col-md-6" *ngIf="filterMode === 'study' && ExternalRetrieveAETchecked">-->
+                    <!--<div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff' && ExternalRetrieveAETchecked">-->
                     <!--</div>-->
                     <div class="col-md-6">
                         <label title="Show only studies failed to be retrieved">
@@ -578,14 +572,14 @@
                         </label>
                     </div>
                 </div>
-                <div class="row" *ngIf="filterMode === 'study'">
+                <div class="row" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                     <div class="col-md-12">
                           <label>
                             Study created date/time:
                           </label>
                     </div>
                 </div>
-                <div class="row" *ngIf="filterMode === 'study'">
+                <div class="row" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                     <div class="col-md-6">
                         <p-calendar (ngModelChange)="studyReceiveDateTimeChanged($event,'from')" [(ngModel)]="StudyReceiveDateTime.from" dateFormat="yy-mm-dd"  showTime="showTime" hourFormat="24" placeholder="from"></p-calendar>
                     </div>
@@ -726,7 +720,7 @@
                     <div style="width:6%" class="th" title="Scheduled Station AE Title">SS AE Title</div>
                 </div>
             </div>
-            <div class="headerbuttons" *ngIf="filterMode != 'mwl' && isRole('admin')">
+            <div class="headerbuttons" *ngIf="filterMode != 'mwl' && filterMode != 'diff' && isRole('admin')">
                 <button title="Toggle checkboxes for selection" class="activate_checkboxes" (click)="showCheckBoxes()"><i class="material-icons">playlist_add_check</i></button>
                 <div class="movegroup">
                     <button [ngClass]="{'disabled':selected.hasPatient===true}" title="Copy selected studies/series/instances to clipboard" class="copyselected" (click)="ctrlC()"><i class="material-icons">content_copy</i></button>
@@ -746,7 +740,7 @@
     <!--</div>-->
 <!--</pre>-->
         <div class="repeat0" contextmenu-item='patient._VALUE' *ngFor="let patient of patients | getKey">
-            <div class="more_menu_content">
+            <div class="more_menu_content" *ngIf="filterMode != 'diff'">
                 <div class="more_menu_study" [ngClass]="{show_checkboxes:showCheckboxes}">
                     <div class="colcell">
                         <div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.' || ''"> </div>
@@ -800,7 +794,7 @@
             <div class="repeat1" *ngFor="let study of patients[patient._KEY].studies | getKey" contextmenu-item="study">
                 <div class="tbody">
                     <div class="tr_row">
-                        <div class="more_menu_content">
+                        <div class="more_menu_content" *ngIf="filterMode != 'diff'">
                             <div class="more_menu_study" [ngClass]="{show_checkboxes:showCheckboxes}">
                                 <div class="colcell" [innerHtml]="study._VALUE.offset+1+'.'"> </div>
                                 <div class="exeq_buttons">
@@ -841,8 +835,10 @@
                                     <a (click)="$event.preventDefault();study._VALUE.showAttributes = !study._VALUE.showAttributes" href="" title="Show Attributes">
                                         <span class="glyphicon glyphicon-th-list"></span>
                                     </a>
-                                    <a *ngIf="!(isRole('admin') && study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && !(study._VALUE.series)" (click)="$event.preventDefault();querySeries(study._VALUE,0)" href="" title="Show Series">&#9658;</a>
-                                    <a *ngIf="!(isRole('admin') && study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && study._VALUE.series" (click)="$event.preventDefault();study._VALUE.series = null" href="" title="Hide Series">&#9660;</a>
+                                    <ng-container *ngIf="filterMode != 'diff'">
+                                        <a *ngIf="!(isRole('admin') && study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && !(study._VALUE.series)" (click)="$event.preventDefault();querySeries(study._VALUE,0)" href="" title="Show Series">&#9658;</a>
+                                        <a *ngIf="!(isRole('admin') && study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && study._VALUE.series" (click)="$event.preventDefault();study._VALUE.series = null" href="" title="Hide Series">&#9660;</a>
+                                    </ng-container>
                                 </div>
                                 <div style="width:10.4%" class="td_cell txt hover_cell"><div tooltip="{{study._VALUE.attrs['00200010'].Value[0]}}" *ngIf="study._VALUE.attrs['00200010'] && study._VALUE.attrs['00200010'].Value && study._VALUE.attrs['00200010'].Value[0]">{{(study._VALUE.attrs['00200010'].Value[0]) || '&nbsp;'}}</div></div>
                                 <div  style="width:17.3%" class="td_cell txt hover_cell"><div *ngIf="study._VALUE.attrs['0020000D'] && study._VALUE.attrs['0020000D'].Value && study._VALUE.attrs['0020000D'].Value[0]" tooltip="{{study._VALUE.attrs['0020000D'].Value[0]}}">{{study._VALUE.attrs['0020000D'].Value[0] | trim:30}}</div></div>
@@ -1156,6 +1152,20 @@
                     [disabled]="!morePatients"
                     (click)="queryPatients(patients[0].offset+limit);addEffect('right')"
                     title="Next Patients">
+                <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+            </button> 
+        </div>
+        <div class="arrows_block" *ngIf="(moreStudies || (patients[0] && patients[0].studies && patients[0].studies[0] && patients[0].studies[0].offset != 0)) && filterMode === 'diff'" >
+            <button class="btn btn-link btn-xs"
+                    [disabled]="!patients[0] || !patients[0].studies || !patients[0].studies[0] || patients[0].studies[0].offset === 0"
+                    (click)="queryDiffs(patients[0].studies[0].offset-limit);addEffect('left')"
+                    title="Previous Studies">
+                <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+            </button>
+            <button class="btn btn-link btn-xs"
+                    [disabled]="!moreStudies"
+                    (click)="queryDiffs(patients[0].studies[0].offset+limit);addEffect('right')"
+                    title="Next Studies">
                 <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
             </button> 
         </div>

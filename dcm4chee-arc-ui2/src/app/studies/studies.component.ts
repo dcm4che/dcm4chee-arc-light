@@ -108,7 +108,8 @@ export class StudiesComponent implements OnDestroy{
     }
     _ = _;
     jsonHeader = new Headers({ 'Content-Type': 'application/json' });
-
+    aet1;
+    aet2;
     studyDateChanged(){
         console.log('on studydate changed', this.studyDate);
         if (this.studyDate.from === '' && this.studyDate.to === ''){
@@ -657,6 +658,115 @@ export class StudiesComponent implements OnDestroy{
             }
         );
     }
+    queryDiff(queryParameters, offset){
+        let $this = this;
+        if (offset < 0 || offset === undefined) offset = 0;
+        this.cfpLoadingBar.start();
+        this.service.queryDiffs(
+            $this.diffUrl(),
+            queryParameters
+        ).subscribe(
+            (res) => {
+
+                $this.patients = [];
+                //           $this.studies = [];
+                $this.morePatients = undefined;
+                $this.moreStudies = undefined;
+                if (_.size(res) > 0) {
+                    //Add number of patient related studies manuelly hex(00201200) => dec(2101760)
+                    let index = 0;
+                    while ($this.attributeFilters.Patient.dcmTag[index] && ($this.attributeFilters.Patient.dcmTag[index] < 2101760)) {
+                        index++;
+                    }
+                    $this.attributeFilters.Patient.dcmTag.splice(index, 0, 2101760);
+
+                    let pat, study, patAttrs, tags = $this.attributeFilters.Patient.dcmTag;
+                    console.log('res', res);
+                    res.forEach(function (studyAttrs, index) {
+                        patAttrs = {};
+                        $this.extractAttrs(studyAttrs, tags, patAttrs);
+                        if (!(pat && _.isEqual(pat.attrs, patAttrs))) { //angular.equals replaced with Rx.helpers.defaultComparer
+                            pat = {
+                                attrs: patAttrs,
+                                studies: [],
+                                showAttributes: false
+                            };
+                            // $this.$apply(function () {
+                            $this.patients.push(pat);
+                            // });
+                        }
+                        study = {
+                            patient: pat,
+                            offset: offset + index,
+                            moreSeries: false,
+                            attrs: studyAttrs,
+                            series: null,
+                            showAttributes: false,
+                            fromAllStudies: false,
+                            selected: false
+                        };
+                        pat.studies.push(study);
+                        $this.extendedFilter(false);
+                        //                   $this.studies.push(study); //sollte weg kommen
+                    });
+                    if ($this.moreStudies = (res.length > $this.limit)) {
+                        pat.studies.pop();
+                        if (pat.studies.length === 0) {
+                            $this.patients.pop();
+                        }
+                        // this.studies.pop();
+                    }
+                    console.log('patients=', $this.patients[0]);
+                    // $this.mainservice.setMessage({
+                    //     "title": "Info",
+                    //     "text": "Test",
+                    //     "status": "info"
+                    // });
+                    // sessionStorage.setItem("patients", $this.patients);
+                    // $this.mainservice.setGlobal({patients:this.patients,moreStudies:$this.moreStudies});
+                    // $this.mainservice.setGlobal({studyThis:$this});
+                    console.log('global set', $this.mainservice.global);
+                    $this.cfpLoadingBar.complete();
+
+                } else {
+                    console.log('in else setmsg');
+                    $this.patients = [];
+
+                    $this.mainservice.setMessage({
+                        'title': 'Info',
+                        'text': 'No matching Studies found!',
+                        'status': 'info'
+                    });
+                    $this.cfpLoadingBar.complete();
+                }
+                // setTimeout(function(){
+                //     togglePatientsHelper("hide");
+                // }, 1000);
+                $this.cfpLoadingBar.complete();
+            },(err)=>{
+                $this.cfpLoadingBar.complete();
+                $this.mainservice.setMessage({
+                    'title': 'Error ' + err.status,
+                    'text': err.statusText,
+                    'status': 'error'
+                });
+            }
+        );
+    };
+    swapDiff(){
+        let tempAet = this.aet1;
+        this.aet1 = this.aet2;
+        this.aet2 = tempAet;
+        this.queryDiffs(0);
+    }
+    queryDiffs(offset){
+        this.queryMode = 'queryDiff';
+        this.moreMWL = undefined;
+        this.morePatients = undefined;
+        let $this = this;
+        let queryParameters = this.createQueryParams(offset, this.limit + 1, this.createStudyFilterParams());
+        this.queryDiff(queryParameters, offset);
+    };
     queryStudies(offset) {
         this.queryMode = 'queryStudies';
         this.moreMWL = undefined;
@@ -1965,6 +2075,10 @@ export class StudiesComponent implements OnDestroy{
                 this.patientmode = false;
                 this.queryMWL(0);
                 break;
+            case 'diff':
+                this.patientmode = false;
+                this.getAllAes(0);
+                break;
         }
     }
     fireRightQuery(){
@@ -2187,6 +2301,17 @@ export class StudiesComponent implements OnDestroy{
     };
     viewInstance(inst) {
         this.select_show = false;
+        if(this.isVideo(inst.attrs)){
+            console.log("isvideo");
+        }else{
+
+        }
+        this.$http.head(this.renderURL(inst)).subscribe((res)=>{
+/*            console.log("res",res);
+            console.log("res",res.headers.get("content-type"));*/
+            let contentType = res.headers.get("content-type");
+            // if(contentType === )
+        });
         window.open(this.renderURL(inst));
     };
     select(object, modus, keys, fromcheckbox){
@@ -2550,6 +2675,12 @@ export class StudiesComponent implements OnDestroy{
     rsURL() {
         return '../aets/' + this.aet + '/rs';
     }
+    diffUrl(){
+        if(!this.aet1){
+            this.aet1 = this.aet;
+        }
+        return `../aets/${this.aet}/diff/${this.aet1}/${this.aet2}/studies`;
+    }
     studyURL(attrs) {
         return this.rsURL() + '/studies/' + attrs['0020000D'].Value[0];
     }
@@ -2560,12 +2691,12 @@ export class StudiesComponent implements OnDestroy{
         return this.seriesURL(attrs) + '/instances/' + attrs['00080018'].Value[0];
     }
     createPatientFilterParams() {
-        let filter = Object.assign({}, this.filter); //?? angular.extend to Object.assign whe have to test if it works like in angular1
+        let filter = Object.assign({}, this.filter);
         console.log('filter', filter);
         return filter;
     }
     createStudyFilterParams() {
-        let filter = Object.assign({}, this.filter); //?? angular.extend to Object.assign whe have to test if it works like in angular1
+        let filter = Object.assign({}, this.filter);
         this.appendFilter(filter, 'StudyDate', this.studyDate, /-/g);
         this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate, /-/g);
         this.appendFilter(filter, 'StudyTime', this.studyTime, /:/g);
@@ -3300,6 +3431,43 @@ export class StudiesComponent implements OnDestroy{
                             $this.initAETs(retries - 1);
                 });
         }
+    }
+    getAllAes(retries) {
+        let $this = this;
+        this.$http.get('../aes')
+            .map(res => {let resjson; try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
+            .subscribe(
+                function (res) {
+                    console.log('before call getAes', res, 'this user=', $this.user);
+                    $this.allAes = res;
+                    // $this.aes = $this.service.getAes($this.user, res);
+/*                    console.log('aes', $this.aes);
+                    // $this.aesdropdown = $this.aes;
+                    $this.aes.map((ae, i) => {
+                        console.log('in map ae', ae);
+                        console.log('in map i', i);
+                        console.log('aesi=', $this.aes[i]);
+                        $this.aesdropdown.push({label: ae.title, value: ae.title});
+                        $this.aes[i]['label'] = ae.title;
+                        $this.aes[i]['value'] = ae.value;
+
+                    });
+                    console.log('$this.aes after map', $this.aes);
+                    $this.aet = $this.aes[0].title.toString();
+                    if (!$this.aetmodel){
+                        $this.aetmodel = $this.aes[0];
+                    }*/
+                    // $this.mainservice.setGlobal({aet:$this.aet,aetmodel:$this.aetmodel,aes:$this.aes, aesdropdown:$this.aesdropdown});
+                },
+                function (res) {
+                    if (retries)
+                        $this.getAllAes(retries - 1);
+            });
     }
     testSetObject() {
         this.aetmodel = {
