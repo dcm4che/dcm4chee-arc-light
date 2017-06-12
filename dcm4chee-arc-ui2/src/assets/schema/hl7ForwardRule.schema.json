@@ -17,9 +17,9 @@
       "description": "HL7 Forward Destination Application and Facility name (Application|Facility)",
       "type": "array",
       "items": {
-        "type": "string",
-        "format": "hl7ApplicationName"
-      }
+        "type": "string"
+      },
+      "format": "hl7ApplicationName"
     },
     "dcmProperty": {
       "title": "Property",
