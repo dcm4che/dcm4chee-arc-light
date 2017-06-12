@@ -202,8 +202,9 @@
     },
     "dcmAuditLoggerSpoolDirectoryURI": {
       "title": "Spool Directory URI",
-      "description": "URI of spool directory used to store messages which could not delivered to the record repository; use system temporary directory if absent",
-      "type": "string"
+      "description": "URI of spool directory used to store messages which could not delivered to the record repository.",
+      "type": "string",
+      "default": "${jboss.server.temp.dir}"
     },
     "dcmAuditLoggerRetryInterval": {
       "title": "Retry Interval",
