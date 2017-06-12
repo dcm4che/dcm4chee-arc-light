@@ -9,7 +9,8 @@
     "dicomAETitle": {
       "title": "AE Title",
       "description": "Archive AE Title associated with this HL7 Application.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmArchiveAETitle"
     },
     "hl7PatientUpdateTemplateURI": {
       "title": "HL7 Patient Update Template URI",

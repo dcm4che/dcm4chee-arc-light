@@ -18,7 +18,8 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "format": "dcmRejectionNoteCode"
     },
     "dcmHideRejectionNoteWithCode": {
       "title": "Hide Rejection Note With Code",
@@ -26,7 +27,8 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "format": "dcmRejectionNoteCode"
     },
     "dcmHideNotRejectedInstances": {
       "title": "Hide Not Rejected Instances",

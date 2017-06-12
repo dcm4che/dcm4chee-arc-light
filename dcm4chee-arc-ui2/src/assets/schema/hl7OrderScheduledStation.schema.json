@@ -16,7 +16,8 @@
     "hl7OrderScheduledStationDeviceReference": {
       "title": "Scheduled Station Device Reference",
       "description": "The DN of a dicomDeviceObject referenced by hl7OrderScheduledStation",
-      "type": "string"
+      "type": "string",
+      "format": "dicomDeviceName"
     },
     "dcmRulePriority": {
       "title": "Mapping Priority",

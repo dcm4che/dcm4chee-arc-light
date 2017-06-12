@@ -22,7 +22,8 @@
     "dcmQueueName": {
       "title": "Queue Name",
       "description": "JMS Queue Name",
-      "type": "string"
+      "type": "string",
+      "format" : "dcmQueueName"
     },
     "dicomDescription": {
       "title": "Exporter Description",
@@ -32,18 +33,21 @@
     "dicomAETitle": {
       "title": "Application Entity (AE) title",
       "description": "Application Entity (AE) title",
-      "type": "string"
+      "type": "string",
+      "format": "dcmArchiveAETitle"
     },
     "dcmStgCmtSCP": {
       "title": "Storage Commitment SCP AE Title",
       "description": "AE Title of external Storage Commitment SCP used to verify export to another archive.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmAETitle"
     },
     "dcmIanDestination": {
       "title": "Ian Destination",
       "description": "Destination to send IAN N-CREATE RQ",
       "type": "array",
-      "items" : { "type": "string" }
+      "items" : { "type": "string" },
+      "format": "dcmAETitle"
     },
     "dcmRetrieveAET": {
       "title": "Retrieve AE Title",
@@ -51,7 +55,8 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "format": "dcmArchiveAETitle"
     },
     "dcmRetrieveLocationUID": {
       "title": "Retrieve Location UID",

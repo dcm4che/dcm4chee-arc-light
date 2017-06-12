@@ -64,7 +64,8 @@
       "type": "array",
       "items" : {
         "type": "string"
-      }
+      },
+      "format": "dcmStorageID"
     },
     "dcmSeriesMetadataDelay": {
       "title": "Aggregate Series Metadata Delay",
@@ -105,7 +106,8 @@
     "dcmQueryRetrieveViewID": {
       "title": "Query/Retrieve View ID",
       "description": "Query/Retrieve View Identifier",
-      "type": "string"
+      "type": "string",
+      "format": "dcmQueryRetrieveViewID"
     },
     "dcmOverwritePolicy": {
       "title": "Overwrite Policy",
@@ -223,13 +225,15 @@
       "title": "Mpps Forward Destination",
       "description": "Destination to forward MPPS N-CREATE RQ and N-SET RQ",
       "type": "array",
-      "items" : { "type": "string" }
+      "items" : { "type": "string" },
+      "format": "dcmAETitle"
     },
     "dcmIanDestination": {
       "title": "Ian Destination",
       "description": "Destination to send IAN N-CREATE RQ",
       "type": "array",
-      "items" : { "type": "string" }
+      "items" : { "type": "string" },
+      "format": "dcmAETitle"
     },
     "dcmIanDelay": {
       "title": "IAN Delay",
@@ -263,12 +267,14 @@
     "dcmFallbackCMoveSCP": {
       "title": "Fallback C-Move SCP",
       "description": "AE Title of external C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not managed by this archive",
-      "type": "string"
+      "type": "string",
+      "format": "dcmAETitle"
     },
     "dcmFallbackCMoveSCPDestination": {
       "title": "Fallback C-Move SCP Destination",
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP",
-      "type": "string"
+      "type": "string",
+      "format": "dcmArchiveAETitle"
     },
     "dcmFallbackCMoveSCPStudyOlderThan": {
       "title": "Fallback C-Move SCP Study Older Than",
@@ -278,7 +284,8 @@
     "dcmFallbackCMoveSCPLeadingCFindSCP": {
       "title": "Fallback C-Move SCP Leading C-Find SCP",
       "description": "AE Title of external C-FIND SCP for Verification of Number of Instances retrieved from external C-MOVE SCP specified by dcmFallbackCMoveSCP.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmAETitle"
     },
     "dcmFallbackCMoveSCPRetries": {
       "title": "Fallback C-Move SCP Retries",
@@ -289,7 +296,8 @@
     "dcmAltCMoveSCP": {
       "title": "Alternative C-Move SCP",
       "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage",
-      "type": "string"
+      "type": "string",
+      "format": "dcmAETitle"
     },
     "dcmDiffStudiesIncludefieldAll": {
       "title": "Diff Studies Attributes",
@@ -524,7 +532,8 @@
     "dcmRejectExpiredStudiesAETitle": {
       "title": "Reject Expired Studies AE Title",
       "description": "AE Title of Local Application Entity performing the automatic rejection of expired Studies and Series. If absent, neither expired Studies nor Series will be rejected automatically.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmArchiveAETitle"
     },
     "dcmStorePermissionServiceURL": {
       "title": "Store Permission Service URL",
@@ -633,17 +642,20 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "format": "dcmArchiveAETitle"
     },
     "dcmExternalRetrieveAEDestination": {
       "title": "External Retrieve AE Destination",
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE. May be overwritten by configured values for particular Archive Network AEs.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmArchiveAETitle"
     },
     "dcmXDSiImagingDocumentSourceAETitle": {
       "title": "XDS-I Imaging Document Source AE Title",
       "description": "AE Title of local Application Entity associated with XDS-I Imaging Document Source.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmArchiveAETitle"
     },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",

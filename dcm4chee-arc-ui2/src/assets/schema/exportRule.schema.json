@@ -31,7 +31,8 @@
       "title": "Exporter ID",
       "description": "Exporter ID",
       "type": "array",
-      "items" : { "type": "string" }
+      "items" : { "type": "string" },
+      "format": "dcmExporterID"
     },
     "dcmExportPreviousEntity": {
       "title": "Export Previous Entity",

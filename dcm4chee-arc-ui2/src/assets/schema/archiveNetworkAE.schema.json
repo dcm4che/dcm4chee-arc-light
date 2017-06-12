@@ -12,7 +12,8 @@
       "type": "array",
       "items" : {
         "type": "string"
-      }
+      },
+      "format": "dcmStorageID"
     },
     "dcmObjectStorageCount": {
       "title": "Object Storage Count",
@@ -27,7 +28,8 @@
       "type": "array",
       "items" : {
         "type": "string"
-      }
+      },
+      "format": "dcmStorageID"
     },
     "dcmSeriesMetadataDelay": {
       "title": "Aggregate Series Metadata Delay",
@@ -167,13 +169,15 @@
       "title": "Mpps Forward Destination",
       "description": "Destination to forward MPPS N-CREATE RQ and N-SET RQ",
       "type": "array",
-      "items" : { "type": "string" }
+      "items" : { "type": "string" },
+      "format": "dcmAETitle"
     },
     "dcmIanDestination": {
       "title": "Ian Destination",
       "description": "Destination to send IAN N-CREATE RQ",
       "type": "array",
-      "items" : { "type": "string" }
+      "items" : { "type": "string" },
+      "format": "dcmAETitle"
     },
     "dcmIanDelay": {
       "title": "IAN Delay",
@@ -193,7 +197,8 @@
     "dcmFallbackCMoveSCP": {
       "title": "Fallback C-Move SCP",
       "description": "AE Title of external C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not managed by this archive",
-      "type": "string"
+      "type": "string",
+      "format": "dcmAETitle"
     },
     "dcmFallbackCMoveSCPStudyOlderThan": {
       "title": "Fallback C-Move SCP Study Older Than",
@@ -203,12 +208,14 @@
     "dcmFallbackCMoveSCPDestination": {
       "title": "Fallback C-Move SCP Destination",
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP",
-      "type": "string"
+      "type": "string",
+      "format": "dcmArchiveAETitle"
     },
     "dcmFallbackCMoveSCPLeadingCFindSCP": {
       "title": "Fallback C-Move SCP Leading C-Find SCP",
       "description": "AE Title of external C-FIND SCP for Verification of Number of Instances retrieved from external C-MOVE SCP specified by dcmFallbackCMoveSCP.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmAETitle"
     },
     "dcmFallbackCMoveSCPRetries": {
       "title": "Fallback C-Move SCP Retries",
@@ -218,7 +225,8 @@
     "dcmAltCMoveSCP": {
       "title": "Alternative C-Move SCP",
       "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage",
-      "type": "string"
+      "type": "string",
+      "format": "dcmAETitle"
     },
     "dcmDiffStudiesIncludefieldAll": {
       "title": "Diff Studies Attributes",
@@ -289,12 +297,14 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "format": "dcmArchiveAETitle"
     },
     "dcmExternalRetrieveAEDestination": {
       "title": "External Retrieve AE Destination",
       "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to external retrieve AE. Overwrites value specified on Device level.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmArchiveAETitle"
     },
     "dcmInvokeImageDisplayPatientURL": {
       "title": "Invoke Image Display Patient URL",
