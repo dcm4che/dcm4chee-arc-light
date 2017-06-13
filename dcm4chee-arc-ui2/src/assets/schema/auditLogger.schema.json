@@ -18,7 +18,8 @@
     "dcmAuditTimestampInUTC",
     "dcmAuditMessageFormatXML",
     "dcmAuditIncludeInstanceUID",
-    "dcmAuditLoggerRetryInterval"
+    "dcmAuditLoggerRetryInterval",
+    "dcmAuditLoggerSpoolDirectoryURI"
   ],
   "properties": {
     "cn": {
