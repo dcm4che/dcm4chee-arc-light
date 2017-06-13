@@ -205,7 +205,7 @@
       "title": "Spool Directory URI",
       "description": "URI of spool directory used to store messages which could not delivered to the record repository.",
       "type": "string",
-      "default": "${jboss.server.temp.dir}"
+      "default": "${jboss.server.temp.url}"
     },
     "dcmAuditLoggerRetryInterval": {
       "title": "Retry Interval",
