@@ -762,6 +762,9 @@ md-dialog-container{
     }
   }
 }
+.aesfilter{
+  padding-left:7px;
+}
 .main_content.deviceconfig{
   float: left;
   width:100%;
@@ -1376,4 +1379,8 @@ md-dialog-container{
 }
 .more_menu_content.activemenu{
   overflow: visible;
+}
+.diff_border{
+  border-bottom:1px solid #ff6471;
+  overflow: hidden !important;
 }

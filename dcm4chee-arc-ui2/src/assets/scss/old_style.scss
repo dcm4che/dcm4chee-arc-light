@@ -789,13 +789,15 @@ table{
 			margin-top: 1px;
 		}
 	    &.fixed{
-			background: rgba(244,246,248,1);
+/*			background: rgba(244,246,248,1);
 			background: -moz-linear-gradient(left, rgba(244,246,248,1) 0%, rgba(224,230,234,1) 100%);
 			background: -webkit-linear-gradient(left, rgba(244,246,248,1) 0%, rgba(224,230,234,1) 100%);
 			background: -o-linear-gradient(left, rgba(244,246,248,1) 0%, rgba(224,230,234,1) 100%);
 			background: -ms-linear-gradient(left, rgba(244,246,248,1) 0%, rgba(224,230,234,1) 100%);
 			background: linear-gradient(to right, rgba(244,246,248,1) 0%, rgba(224,230,234,1) 100%);
-			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f4f6f8', endColorstr='#e0e6ea', GradientType=1 );	    	top:-25px;
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f4f6f8', endColorstr='#e0e6ea', GradientType=1 );	*/
+            background: white;
+            top:-25px;
 	    	padding-top:100px;
 	    }
 	    & > .header_block {
@@ -1960,6 +1962,9 @@ table{
 				    margin-right: 6px;
 				    overflow: hidden;
 				    width: 116px;
+                  .material-icons{
+                    position: absolute;
+                  }
 		    	}
 		    	.optionlist{
 		    		ul{

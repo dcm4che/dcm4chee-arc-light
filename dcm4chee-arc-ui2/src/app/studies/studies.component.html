@@ -1,14 +1,12 @@
 <!--<button (click)="debugpre = !debugpre" style="position:fixed;top:0;left:100px;color:black;z-index: 99999999;">Show debug</button>
 <pre *ngIf="debugpre" style="position: absolute;width:70%;top:0;z-index: 9999999;">
     <div style="float:left;width:50%">
-        clipboard: {{ clipboard | json}}
+        patients: {{ patients | json}}
     &lt;!&ndash;aetmodel:{{aetmodel|json}}&ndash;&gt;
     </div>
     <div style="float:left;width:50%">
-        select: {{ selected | json}}
     &lt;!&ndash;aes:{{aes|json}}&ndash;&gt;
     </div>
-    <button (click)="testSetObject()">testSetObject</button>
 </pre>-->
 <div class="main_content studies">
     <div *ngIf="user">
@@ -650,12 +648,12 @@
 
                     </div>
                     <div class="th">
-                        study ID
+                        Study ID
                     </div>
                     <div class="th"  style="width:16.6%">
-                        study Instance UID
+                        Study Instance UID
                     </div>
-                    <div class="th">study Date
+                    <div class="th">Study Date
                         <a href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = 'StudyDate,StudyTime';queryStudies(0)">
                             <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
                         </a>
@@ -663,11 +661,11 @@
                             <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
                         </a>
                     </div>
-                    <div style="width:5%" class="th">study Time</div>
+                    <div style="width:5%" class="th">Study Time</div>
                     <div class="th" title="Referring Physician's Name">R. Physician's Name</div>
                     <div class="th">Accession Number</div>
                     <div style="width:5%" class="th">Modalities</div>
-                    <div style="width:16.3%" class="th">study Description</div>
+                    <div style="width:16.3%" class="th">Study Description</div>
                     <div style="width:3%" class="th">#S</div>
                     <div style="width:3%" class="th">#I</div>
                 </div>
@@ -708,7 +706,7 @@
                         Requested Procedure ID
                     </div>
                     <div class="th"  style="width:16.6%">
-                        study Instance UID
+                        Study Instance UID
                     </div>
                     <div class="th" title="Scheduled Procedure Step Start Date">SPS Start Date
                     </div>
@@ -772,8 +770,12 @@
                           <a class="table_btn" (click)="$event.preventDefault();patient._VALUE.showAttributes = !patient._VALUE.showAttributes" href="" title="Show Attributes">
                               <span class="glyphicon glyphicon-th-list"></span>
                           </a>
-                          <a *ngIf="isRole('admin') && !(patient._VALUE.studies || patient._VALUE.mwls)" class="table_btn"  (click)="queryAllStudiesOfPatient(patient._VALUE,0, $event)" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
-                          <a *ngIf="isRole('admin') && (patient._VALUE.studies)" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].studies = null" href="" title="Hide Studies">&#9660;</a>
+                          <a *ngIf="isRole('admin') && !(patient._VALUE.studies || patient._VALUE.mwls) && filterMode != 'diff'" class="table_btn"  (click)="queryAllStudiesOfPatient(patient._VALUE,0, $event)" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
+                          <a *ngIf="isRole('admin') && (patient._VALUE.studies) && filterMode != 'diff'" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].studies = null" href="" title="Hide Studies">&#9660;</a>
+
+                          <a *ngIf="isRole('admin') && !patients[patient._KEY].showStudies && filterMode === 'diff'" class="table_btn"  (click)="$event.preventDefault();patients[patient._KEY].showStudies = true" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
+                          <a *ngIf="isRole('admin') && patients[patient._KEY].showStudies && filterMode === 'diff'" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].showStudies = false" href="" title="Hide Studies">&#9660;</a>
+
                           <a class="table_btn" *ngIf="!patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = true" href="" title="Show MWLs">&#9658;</a>
                           <a class="table_btn" *ngIf="patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = false" href="" title="Hide MWLs">&#9660;</a>
                       </div>
@@ -791,7 +793,8 @@
                     <attribute-list *ngIf="patient._VALUE.attrs" [attrs]="patient._VALUE.attrs"></attribute-list>
                 </div>
             </div>
-            <div class="repeat1" *ngFor="let study of patients[patient._KEY].studies | getKey" contextmenu-item="study">
+            <ng-container *ngIf="patients[patient._KEY].showStudies">
+                <div class="repeat1" *ngFor="let study of patients[patient._KEY].studies | getKey" contextmenu-item="study">
                 <div class="tbody">
                     <div class="tr_row">
                         <div class="more_menu_content" *ngIf="filterMode != 'diff'">
@@ -840,30 +843,64 @@
                                         <a *ngIf="!(isRole('admin') && study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && study._VALUE.series" (click)="$event.preventDefault();study._VALUE.series = null" href="" title="Hide Series">&#9660;</a>
                                     </ng-container>
                                 </div>
-                                <div style="width:10.4%" class="td_cell txt hover_cell"><div tooltip="{{study._VALUE.attrs['00200010'].Value[0]}}" *ngIf="study._VALUE.attrs['00200010'] && study._VALUE.attrs['00200010'].Value && study._VALUE.attrs['00200010'].Value[0]">{{(study._VALUE.attrs['00200010'].Value[0]) || '&nbsp;'}}</div></div>
-                                <div  style="width:17.3%" class="td_cell txt hover_cell"><div *ngIf="study._VALUE.attrs['0020000D'] && study._VALUE.attrs['0020000D'].Value && study._VALUE.attrs['0020000D'].Value[0]" tooltip="{{study._VALUE.attrs['0020000D'].Value[0]}}">{{study._VALUE.attrs['0020000D'].Value[0] | trim:30}}</div></div>
-                                <div class="td_cell txt hover_cell" >
-                                    <div *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" tooltip="{{study._VALUE.attrs['00080020'].Value[0]}}">
-                                        {{(study._VALUE.attrs['00080020'].Value[0] | formatDA) || '&nbsp;'}}
-                                        <a *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = 'StudyDate,StudyTime';queryStudies(0)" title="Order study by Date (descending)">
-                                            <span class="glyphicon glyphicon-triangle-top" aria-hidden="true" ></span>
-                                        </a>
-                                        <a *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = '-StudyDate,-StudyTime';queryStudies(0)" title="Order study by Date (ascending)">
-                                            <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
-                                        </a>
+                                <ng-container *ngIf="filterMode != 'diff'">
+                                    <div style="width:10.4%" class="td_cell txt hover_cell"><div tooltip="{{study._VALUE.attrs['00200010'].Value[0]}}" *ngIf="study._VALUE.attrs['00200010'] && study._VALUE.attrs['00200010'].Value && study._VALUE.attrs['00200010'].Value[0]">{{(study._VALUE.attrs['00200010'].Value[0]) || '&nbsp;'}}</div></div>
+                                    <div  style="width:17.3%" class="td_cell txt hover_cell"><div *ngIf="study._VALUE.attrs['0020000D'] && study._VALUE.attrs['0020000D'].Value && study._VALUE.attrs['0020000D'].Value[0]" tooltip="{{study._VALUE.attrs['0020000D'].Value[0]}}">{{study._VALUE.attrs['0020000D'].Value[0] | trim:30}}</div></div>
+                                    <div class="td_cell txt hover_cell" >
+                                        <div *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" tooltip="{{study._VALUE.attrs['00080020'].Value[0]}}">
+                                            {{(study._VALUE.attrs['00080020'].Value[0] | formatDA) || '&nbsp;'}}
+                                            <a *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = 'StudyDate,StudyTime';queryStudies(0)" title="Order study by Date (descending)">
+                                                <span class="glyphicon glyphicon-triangle-top" aria-hidden="true" ></span>
+                                            </a>
+                                            <a *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = '-StudyDate,-StudyTime';queryStudies(0)" title="Order study by Date (ascending)">
+                                                <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                                <div style="width:5.1%" class="td_cell hover_cell" ><div *ngIf="study._VALUE.attrs['00080030'] && study._VALUE.attrs['00080030'].Value && study._VALUE.attrs['00080030'].Value[0]" [innerHtml]="(study._VALUE.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'"></div></div>
-                                <div style="width:10.2%" class="td_cell txt hover_cell"  >
-                                    <div *ngIf="study._VALUE.attrs['00080090'] && study._VALUE.attrs['00080090'].Value && study._VALUE.attrs['00080090'].Value[0] && study._VALUE.attrs['00080090'].Value[0].Alphabetic" tooltip="{{study._VALUE.attrs['00080090'].Value[0].Alphabetic}}">{{(study._VALUE.attrs['00080090'].Value[0].Alphabetic|trim:18) || '&nbsp;'}}</div>
-                                </div>
-                                <div class="td_cell txt hover_cell" ><div *ngIf="study._VALUE.attrs['00080050'] && study._VALUE.attrs['00080050'].Value && study._VALUE.attrs['00080050'].Value[0]" tooltip="{{study._VALUE.attrs['00080050'].Value[0]}}"  >{{(study._VALUE.attrs['00080050'].Value[0]) || '&nbsp;'}}</div></div>
-                                <div style="width:5.2%" class="td_cell hover_cell">
-                                    <div [innerHtml]="(study._VALUE.attrs['00080061'] | formatAttributeValue) || '&nbsp;'" *ngIf="study._VALUE.attrs['00080061'] && study._VALUE.attrs['00080061'].Value">&nbsp;</div>
-                                </div>
-                                <div style="width:17%" class="td_cell txt hover_cell" ><div tooltip="{{study._VALUE.attrs['00081030'].Value[0]}}" *ngIf="study._VALUE.attrs['00081030'] && study._VALUE.attrs['00081030'].Value && study._VALUE.attrs['00081030'].Value[0]">{{(study._VALUE.attrs['00081030'].Value[0] | trim:38) || '&nbsp;'}}</div></div>
-                                <div style="width:3%" class="td_cell txt hover_cell"  ><div *ngIf="study._VALUE.attrs['00201206'] && study._VALUE.attrs['00201206'].Value && study._VALUE.attrs['00201206'].Value[0]" tooltip="{{study._VALUE.attrs['00201206'].Value[0]}}">{{(study._VALUE.attrs['00201206'].Value[0]) || '&nbsp;'}}</div></div>
-                                <div style="width:3%" class="td_cell txt hover_cell" ><div *ngIf="study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0]" tooltip="{{study._VALUE.attrs['00201208'].Value[0]}}">{{(study._VALUE.attrs['00201208'].Value[0]) || '&nbsp;'}}</div></div>
+                                    <div style="width:5.1%" class="td_cell hover_cell" ><div *ngIf="study._VALUE.attrs['00080030'] && study._VALUE.attrs['00080030'].Value && study._VALUE.attrs['00080030'].Value[0]" [innerHtml]="(study._VALUE.attrs['00080030'].Value[0] | formatTM) || '&nbsp;'"></div></div>
+                                    <div style="width:10.2%" class="td_cell txt hover_cell"  >
+                                        <div *ngIf="study._VALUE.attrs['00080090'] && study._VALUE.attrs['00080090'].Value && study._VALUE.attrs['00080090'].Value[0] && study._VALUE.attrs['00080090'].Value[0].Alphabetic" tooltip="{{study._VALUE.attrs['00080090'].Value[0].Alphabetic}}">{{(study._VALUE.attrs['00080090'].Value[0].Alphabetic|trim:18) || '&nbsp;'}}</div>
+                                    </div>
+                                    <div class="td_cell txt hover_cell" ><div *ngIf="study._VALUE.attrs['00080050'] && study._VALUE.attrs['00080050'].Value && study._VALUE.attrs['00080050'].Value[0]" tooltip="{{study._VALUE.attrs['00080050'].Value[0]}}"  >{{(study._VALUE.attrs['00080050'].Value[0]) || '&nbsp;'}}</div></div>
+                                    <div style="width:5.2%" class="td_cell hover_cell">
+                                        <div [innerHtml]="(study._VALUE.attrs['00080061'] | formatAttributeValue) || '&nbsp;'" *ngIf="study._VALUE.attrs['00080061'] && study._VALUE.attrs['00080061'].Value">&nbsp;</div>
+                                    </div>
+                                    <div style="width:17%" class="td_cell txt hover_cell" ><div tooltip="{{study._VALUE.attrs['00081030'].Value[0]}}" *ngIf="study._VALUE.attrs['00081030'] && study._VALUE.attrs['00081030'].Value && study._VALUE.attrs['00081030'].Value[0]">{{(study._VALUE.attrs['00081030'].Value[0] | trim:38) || '&nbsp;'}}</div></div>
+                                    <div style="width:3%" class="td_cell txt hover_cell"  ><div *ngIf="study._VALUE.attrs['00201206'] && study._VALUE.attrs['00201206'].Value && study._VALUE.attrs['00201206'].Value[0]" tooltip="{{study._VALUE.attrs['00201206'].Value[0]}}">{{(study._VALUE.attrs['00201206'].Value[0]) || '&nbsp;'}}</div></div>
+                                    <div style="width:3%" class="td_cell txt hover_cell" ><div *ngIf="study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0]" tooltip="{{study._VALUE.attrs['00201208'].Value[0]}}">{{(study._VALUE.attrs['00201208'].Value[0]) || '&nbsp;'}}</div></div>
+                                </ng-container>
+                                <ng-container *ngIf="filterMode === 'diff'">
+                                    <div style="width:10.4%" class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}">
+                                        <div tooltip="{{study._VALUE.diffHeaders['00200010'].value}}" *ngIf="study._VALUE.attrs['00200010'] && study._VALUE.attrs['00200010'].Value && study._VALUE.attrs['00200010'].Value[0]">{{(study._VALUE.diffHeaders["00200010"].value| trim:18) || '&nbsp;'}}</div>
+                                    </div>
+                                    <div  style="width:17.3%" class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}">
+                                        <div *ngIf="study._VALUE.attrs['0020000D'] && study._VALUE.attrs['0020000D'].Value && study._VALUE.attrs['0020000D'].Value[0]" tooltip="{{study._VALUE.diffHeaders['00200010'].value}}">{{study._VALUE.diffHeaders["00200010"].value | trim:30}}</div>
+                                    </div>
+                                    <div class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}">
+                                        <div *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" tooltip="{{study._VALUE.diffHeaders['00080020'].value}}">
+                                            {{(study._VALUE.diffHeaders['00080020'].value| trim:10) || '&nbsp;'}}
+                                            <a *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = 'StudyDate,StudyTime';queryStudies(0)" title="Order study by Date (descending)">
+                                                <span class="glyphicon glyphicon-triangle-top" aria-hidden="true" ></span>
+                                            </a>
+                                            <a *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = '-StudyDate,-StudyTime';queryStudies(0)" title="Order study by Date (ascending)">
+                                                <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div style="width:5.1%" class="td_cell hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}">
+                                        <div *ngIf="study._VALUE.attrs['00080030'] && study._VALUE.attrs['00080030'].Value && study._VALUE.attrs['00080030'].Value[0]" [innerHtml]="(study._VALUE.diffHeaders['00080030'].value| trim:9) || '&nbsp;'"></div>
+                                    </div>
+                                    <div style="width:10.2%" class="td_cell txt hover_cell"  [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}">
+                                        <div *ngIf="study._VALUE.attrs['00080090'] && study._VALUE.attrs['00080090'].Value && study._VALUE.attrs['00080090'].Value[0] && study._VALUE.attrs['00080090'].Value[0].Alphabetic" tooltip="{{study._VALUE.diffHeaders['00080090'].value}}">{{(study._VALUE.diffHeaders['00080090'].value|trim:18) || '&nbsp;'}}</div>
+                                    </div>
+                                    <div class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}"><div *ngIf="study._VALUE.attrs['00080050'] && study._VALUE.attrs['00080050'].Value && study._VALUE.attrs['00080050'].Value[0]" tooltip="{{study._VALUE.diffHeaders['00080050'].value}}"  >{{study._VALUE.diffHeaders['00080050'].value|| '&nbsp;'}}</div></div>
+                                    <div style="width:5.2%" class="td_cell hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}">
+                                        <div [innerHtml]="(study._VALUE.diffHeaders['00080061'].value| trim:9) || '&nbsp;'" tooltip="study._VALUE.diffHeaders['00080061'].value" *ngIf="study._VALUE.attrs['00080061'] && study._VALUE.attrs['00080061'].Value">&nbsp;</div>
+                                    </div>
+                                    <div style="width:17%" class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}"><div tooltip="{{study._VALUE.diffHeaders['00081030'].value}}" *ngIf="study._VALUE.attrs['00081030'] && study._VALUE.attrs['00081030'].Value && study._VALUE.attrs['00081030'].Value[0]">{{(study._VALUE.diffHeaders['00081030'].value | trim:38) || '&nbsp;'}}</div></div>
+                                    <div style="width:3%" class="td_cell txt hover_cell"  [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}"><div *ngIf="study._VALUE.attrs['00201206'] && study._VALUE.attrs['00201206'].Value && study._VALUE.attrs['00201206'].Value[0]" tooltip="{{study._VALUE.diffHeaders['00201206'].value}}">{{(study._VALUE.diffHeaders['00201206'].value | trim:5) || '&nbsp;'}}</div></div>
+                                    <div style="width:3%" class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}"><div *ngIf="study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0]" tooltip="{{study._VALUE.diffHeaders['00201208'].value}}">{{(study._VALUE.diffHeaders['00201208'].value | trim:5) || '&nbsp;'}}</div></div>
+                                </ng-container>
                             </div>
                             <div class="td_row">
                                 <div class="tr_row"  *ngIf="study._VALUE.showAttributes">
@@ -1034,6 +1071,7 @@
                     </div>
                 </div>
             </div>
+            </ng-container>
             <ng-container *ngIf="patient._VALUE.mwls && patient._VALUE.showmwls">
             <div class="repeat1" *ngFor="let mwl of patient._VALUE.mwls | getKey" >
                 <div class="tbody">

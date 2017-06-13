@@ -22,6 +22,9 @@ import {ExportDialogComponent} from '../widgets/dialogs/export/export.component'
 import {UploadDicomComponent} from '../widgets/dialogs/upload-dicom/upload-dicom.component';
 import {UploadFilesComponent} from "../widgets/dialogs/upload-files/upload-files.component";
 import {WindowRefService} from "../helpers/window-ref.service";
+import {FormatAttributeValuePipe} from "../pipes/format-attribute-value.pipe";
+import {FormatDAPipe} from "../pipes/format-da.pipe";
+import {FormatTMPipe} from "../pipes/format-tm.pipe";
 
 @Component({
     selector: 'app-studies',
@@ -661,6 +664,26 @@ export class StudiesComponent implements OnDestroy{
     queryDiff(queryParameters, offset){
         let $this = this;
         if (offset < 0 || offset === undefined) offset = 0;
+        let haederCodes = [
+            "00200010",
+            "0020000D",
+            "00080020",
+            "00080030",
+            "00080090",
+            "00080050",
+            "00080061",
+            "00081030",
+            "00201206",
+            "00201208"
+        ];
+        if(!this.aet2) {
+            this.mainservice.setMessage({
+                'title': 'Warning',
+                'text': "Secondary AET is empty!",
+                'status': 'warning'
+            });
+            return;
+        }
         this.cfpLoadingBar.start();
         this.service.queryDiffs(
             $this.diffUrl(),
@@ -689,12 +712,18 @@ export class StudiesComponent implements OnDestroy{
                             pat = {
                                 attrs: patAttrs,
                                 studies: [],
-                                showAttributes: false
+                                showAttributes: false,
+                                showStudies:true
                             };
                             // $this.$apply(function () {
                             $this.patients.push(pat);
                             // });
                         }
+                        let showBorder = false;
+                        let diffHeaders = {};
+                        _.forEach(haederCodes,(m)=>{
+                            diffHeaders[m] = $this.getDiffHeader(studyAttrs,m);
+                        });
                         study = {
                             patient: pat,
                             offset: offset + index,
@@ -703,7 +732,9 @@ export class StudiesComponent implements OnDestroy{
                             series: null,
                             showAttributes: false,
                             fromAllStudies: false,
-                            selected: false
+                            selected: false,
+                            showBorder:false,
+                            diffHeaders:diffHeaders
                         };
                         pat.studies.push(study);
                         $this.extendedFilter(false);
@@ -716,15 +747,6 @@ export class StudiesComponent implements OnDestroy{
                         }
                         // this.studies.pop();
                     }
-                    console.log('patients=', $this.patients[0]);
-                    // $this.mainservice.setMessage({
-                    //     "title": "Info",
-                    //     "text": "Test",
-                    //     "status": "info"
-                    // });
-                    // sessionStorage.setItem("patients", $this.patients);
-                    // $this.mainservice.setGlobal({patients:this.patients,moreStudies:$this.moreStudies});
-                    // $this.mainservice.setGlobal({studyThis:$this});
                     console.log('global set', $this.mainservice.global);
                     $this.cfpLoadingBar.complete();
 
@@ -753,6 +775,115 @@ export class StudiesComponent implements OnDestroy{
             }
         );
     };
+    getDiffHeader(study,code){
+        let value;
+        let sqValue;
+        if(_.hasIn(study,[code,"Value",0])){
+            if(study[code].vr === "PN"){
+                if(_.hasIn(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0,"Alphabetic"])){
+                    value =  _.get(study,[code,"Value",0,"Alphabetic"]);
+                    sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0,"Alphabetic"]);
+                    if(value === sqValue){
+                        return {
+                            value: value,
+                            showBorder:false
+                        }
+                    }else{
+                        return {
+                            value: value + "/" + sqValue,
+                            showBorder:true
+                        }
+                    }
+                }
+            }else{
+                //00200010
+                switch(code) {
+                    case "00080061":
+                        value = new FormatAttributeValuePipe().transform(study[code]);
+                        // value = _.get(study,[code,"Value", 0]);
+                        if(_.hasIn(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0])){
+                            sqValue = new FormatAttributeValuePipe().transform(_.get(study,["04000561","Value",0,"04000550","Value",0,code]));
+                            // sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code, "Value",0]);
+                            if(value === sqValue){
+                                return {
+                                    value: value,
+                                    showBorder:false
+                                }
+                            }else{
+                                return {
+                                    value: value + "/" + sqValue,
+                                    showBorder:true
+                                }
+                            }
+                        }
+                        break;
+                    case "00080020":
+                        value = new FormatDAPipe().transform(_.get(study,[code,"Value",0]));
+                        // value = _.get(study,[code,"Value",0]);
+                        if(_.hasIn(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0])){
+                            sqValue = new FormatDAPipe().transform(_.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0]));
+                            // sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0]);
+                            if(value === sqValue){
+                                return {
+                                    value: value,
+                                    showBorder:false
+                                }
+                            }else{
+                                return {
+                                    value: value + "/" + sqValue,
+                                    showBorder:true
+                                }
+                            }
+                        }
+                        break;
+                    case "00080030":
+                        value = new FormatTMPipe().transform(_.get(study,[code,"Value",0]));
+                        // value = _.get(study,[code,"Value",0]);
+                        if(_.hasIn(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0])){
+                            sqValue = new FormatTMPipe().transform(_.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0]));
+                            // sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0]);
+                            if(value === sqValue){
+                                return {
+                                    value: value,
+                                    showBorder:false
+                                }
+                            }else{
+                                return {
+                                    value: value + "/" + sqValue,
+                                    showBorder:true
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        if(_.hasIn(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0])){
+                            value = _.get(study,[code,"Value",0]);
+                            sqValue = _.get(study,["04000561","Value",0,"04000550","Value",0,code,"Value",0]);
+                            if(value === sqValue){
+                                return {
+                                    value: value,
+                                    showBorder:false
+                                }
+                            }else{
+                                return {
+                                    value: value + "/" + sqValue,
+                                    showBorder:true
+                                }
+                            }
+                        }
+                }
+            }
+            return {
+                value: study[code].Value[0],
+                showBorder:false
+            }
+        }else{
+            return {
+                value: "",
+                showBorder:false
+            }
+        }
+    }
     swapDiff(){
         let tempAet = this.aet1;
         this.aet1 = this.aet2;
@@ -2077,6 +2208,10 @@ export class StudiesComponent implements OnDestroy{
                 break;
             case 'diff':
                 this.patientmode = false;
+                this.patients = [];
+                this.moreMWL = false;
+                this.moreStudies = false;
+                this.morePatients = false;
                 this.getAllAes(0);
                 break;
         }
@@ -2679,7 +2814,15 @@ export class StudiesComponent implements OnDestroy{
         if(!this.aet1){
             this.aet1 = this.aet;
         }
-        return `../aets/${this.aet}/diff/${this.aet1}/${this.aet2}/studies`;
+        if(!this.aet2){
+            this.mainservice.setMessage({
+                'title': 'Warning',
+                'text': "Secondary AET is empty!",
+                'status': 'warning'
+            });
+        }else{
+            return `../aets/${this.aet}/diff/${this.aet1}/${this.aet2}/studies`;
+        }
     }
     studyURL(attrs) {
         return this.rsURL() + '/studies/' + attrs['0020000D'].Value[0];
