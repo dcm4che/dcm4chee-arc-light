@@ -17,7 +17,8 @@
     "dcmRetentionPeriod": {
       "title": "Study Retention Period",
       "description": "Study Retention Period in ISO-8601 period format PnYnMnD or PnW",
-      "type": "string"
+      "type": "string",
+      "format": "dcmPeriod"
     },
     "dcmRulePriority": {
       "title": "Rule Priority",

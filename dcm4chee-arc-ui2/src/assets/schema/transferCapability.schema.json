@@ -17,7 +17,8 @@
       "title": "SOP Class",
       "description": "SOP Class UID",
       "type": "string",
-      "pattern": "^[0-2]((\\.0)|(\\.[1-9][0-9]*))*$"
+      "pattern": "^[0-2]((\\.0)|(\\.[1-9][0-9]*))*$",
+      "format": "dcmSOPClass"
     },
     "dicomTransferRole": {
       "title": "DICOM Transfer Role",
@@ -34,7 +35,8 @@
       "type": "array",
       "items": {
         "type": "string",
-        "pattern": "^[0-2]((\\.0)|(\\.[1-9][0-9]*))*$"
+        "pattern": "^[0-2]((\\.0)|(\\.[1-9][0-9]*))*$",
+        "format": "dcmTransferSyntax"
       }
     },
     "dcmTransferCapability": {

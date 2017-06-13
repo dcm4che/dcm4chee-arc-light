@@ -64,7 +64,8 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "format": "dcmSOPClass"
     },
     "dcmURI": {
       "title": "URI",
@@ -101,7 +102,8 @@
       "title": "Leading C-FIND SCP return keys",
       "description": "DICOM Tag as hex string of attributes fetched from external C-FIND SCP for Attribute Coercion. If absent, all Patient and Study Attributes extracted into the DB - configured by the Patient and Study Attribute Filter - are fetched.",
       "type": "array",
-      "items" : { "type": "string" }
+      "items" : { "type": "string" },
+      "format": "dcmTag"
     },
     "dcmAttributeUpdatePolicy": {
       "title": "Attribute Update Policy",

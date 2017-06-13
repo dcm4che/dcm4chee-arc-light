@@ -54,12 +54,14 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "format": "dcmSchedule"
     },
     "dcmDuration": {
       "title": "Duration",
       "description": "Duration in ISO-8601 duration format PnDTnHnMn.nS",
-      "type": "string"
+      "type": "string",
+      "format": "dcmDuration"
     }
   }
 }

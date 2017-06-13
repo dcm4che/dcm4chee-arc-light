@@ -81,7 +81,8 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "format": "dcmSchedule"
     },
     "dcmProperty": {
       "title": "Property",

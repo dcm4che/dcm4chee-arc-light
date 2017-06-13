@@ -34,12 +34,14 @@
     "dcmSeriesMetadataDelay": {
       "title": "Aggregate Series Metadata Delay",
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for storing aggregated Series Metadata on storage of objects received by this AE. Overwrites value specified on Device level.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmDuration"
     },
     "dcmPurgeInstanceRecordsDelay": {
       "title": "Purge Instance Records Delay",
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB received by this AE. Overwrites value specified on Device level.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmDuration"
     },
     "dcmStoreAccessControlID": {
       "title": "Store Access Control ID",
@@ -147,7 +149,8 @@
     "dcmSendPendingCMoveInterval": {
       "title": "Send Pending C-Move Interval",
       "description": "Interval of pending C-MOVE responses in ISO-8601 duration format PnDTnHnMn.nS; disabled if absent",
-      "type": "string"
+      "type": "string",
+      "format": "dcmDuration"
     },
     "dcmWadoSR2HtmlTemplateURI": {
       "title": "Wado SR2 Html Template URI",
@@ -182,12 +185,14 @@
     "dcmIanDelay": {
       "title": "IAN Delay",
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an IAN for a received study is sent to configured IAN destinations. If absent, IANs are triggered by received MPPS",
-      "type": "string"
+      "type": "string",
+      "format": "dcmDuration"
     },
     "dcmIanTimeout": {
       "title": "IAN Timeout",
       "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent",
-      "type": "string"
+      "type": "string",
+      "format": "dcmDuration"
     },
     "dcmIanOnTimeout": {
       "title": "IAN On Timeout",
@@ -230,9 +235,10 @@
     },
     "dcmDiffStudiesIncludefieldAll": {
       "title": "Diff Studies Attributes",
-      "description": "DICOM Tag as hex string of Attributes beeing compared by the DIFF-RS service with Query Parameter includefield=all. Use value configured on Device level, if absent.",
+      "description": "DICOM Tag as hex string of Attributes being compared by the DIFF-RS service with Query Parameter includefield=all. Use value configured on Device level, if absent.",
       "type": "array",
-      "items" : { "type": "string" }
+      "items" : { "type": "string" },
+      "format": "dcmTag"
     },
     "dcmStorePermissionServiceURL": {
       "title": "Store Permission Service URL",
@@ -341,7 +347,8 @@
     "hl7PSUDelay": {
       "title": "HL7 Procedure Status Update Delay",
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an HL7 Procedure Status Update for a received study is sent to configured HL7 receivers. If absent, HL7 Procedure Status Update is triggered by received MPPS. Overwrites value specified on Device level.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmDuration"
     },
     "hl7PSUMWL": {
       "title": "HL7 Procedure Status Update MWL",
@@ -351,7 +358,8 @@
     "hl7PSUTimeout": {
       "title": "HL7 Procedure Status Update Timeout",
       "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS. Overwrites value specified on Device level.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmDuration"
     },
     "hl7PSUOnTimeout": {
       "title": "HL7 Procedure Status Update On Timeout",

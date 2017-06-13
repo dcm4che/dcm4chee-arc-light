@@ -52,12 +52,14 @@
     "dcmDeleteRejectedInstanceDelay": {
       "title": "Delete Rejected Instance Delay",
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which instances rejected by a particular Rejection Note are deleted. Infinite if absent.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmDuration"
     },
     "dcmDeleteRejectionNoteDelay": {
       "title": "Delete Rejection Note Delay",
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which particular Rejection Notes are deleted. Infinite if absent.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmDuration"
     }
   }
 }

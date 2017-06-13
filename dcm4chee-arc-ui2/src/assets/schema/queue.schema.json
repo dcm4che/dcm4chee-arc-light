@@ -37,12 +37,14 @@
       "title": "Retry Delay",
       "description": "Delay to retry to process tasks scheduled in a specific queue in ISO-8601 duration format PnDTnHnMn.nS.",
       "type": "string",
-      "default": "PT1M"
+      "default": "PT1M",
+      "format": "dcmDuration"
     },
     "dcmMaxRetryDelay": {
       "title": "Maximum Retry Delay",
       "description": "Maximal Delay to retry to process tasks scheduled in a specific queue in ISO-8601 duration format PnDTnHnMn.nS. Infinite if absent.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmDuration"
     },
     "dcmRetryDelayMultiplier": {
       "title": "Retry Delay Multiplier",
@@ -60,7 +62,8 @@
     "dcmPurgeQueueMessageCompletedDelay": {
       "title": "Delay for purging completed queue messages",
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which completed queue messages are purged. If absent, there is no deletion for that particular queue",
-      "type": "string"
+      "type": "string",
+      "format": "dcmDuration"
     }
   }
 }
