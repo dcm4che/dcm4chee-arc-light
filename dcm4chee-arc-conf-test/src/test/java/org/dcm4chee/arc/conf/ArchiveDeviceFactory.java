@@ -926,6 +926,7 @@ class ArchiveDeviceFactory {
     static final String MERGE_MWL = "${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl";
     static final String AUDIT2JSONFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl";
     static final String AUDIT2XMLFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl";
+    static final String AUDIT_LOGGER_SPOOL_DIR_URI = "${jboss.server.temp.url}";
     static final String PIX_CONSUMER = "DCM4CHEE|DCM4CHEE";
 
     static final String PIX_MANAGER = "HL7RCV|DCM4CHEE";
@@ -1230,6 +1231,7 @@ class ArchiveDeviceFactory {
         auditLogger.addConnection(syslog);
         auditLogger.setAuditSourceTypeCodes("4");
         auditLogger.setAuditRecordRepositoryDevice(arrDevice);
+        auditLogger.setSpoolDirectoryURI(AUDIT_LOGGER_SPOOL_DIR_URI);
         ext.addAuditLogger(auditLogger);
         device.addDeviceExtension(ext);
     }
