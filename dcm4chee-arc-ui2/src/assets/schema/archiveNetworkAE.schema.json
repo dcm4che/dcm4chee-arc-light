@@ -106,7 +106,8 @@
     "dcmQueryRetrieveViewID": {
       "title": "Query/Retrieve View ID",
       "description": "Query/Retrieve View Identifier",
-      "type": "string"
+      "type": "string",
+      "format": "dcmQueryRetrieveViewID"
     },
     "dcmBulkDataSpoolDirectory": {
       "title": "Bulk Data Spool Directory",

@@ -96,7 +96,8 @@
     "dcmLeadingCFindSCP": {
       "title": "Leading C-FIND SCP",
       "description": "AE Title of external C-FIND SCP for Attribute Coercion with Patient and Study attributes fetched from this AE.",
-      "type": "string"
+      "type": "string",
+      "format": "dcmAETitle"
     },
     "dcmTag": {
       "title": "Leading C-FIND SCP return keys",
