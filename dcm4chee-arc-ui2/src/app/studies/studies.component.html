@@ -793,7 +793,7 @@
                     <attribute-list *ngIf="patient._VALUE.attrs" [attrs]="patient._VALUE.attrs"></attribute-list>
                 </div>
             </div>
-            <ng-container *ngIf="patients[patient._KEY].showStudies">
+            <ng-container *ngIf="patients[patient._KEY].showStudies || filterMode === 'study'">
                 <div class="repeat1" *ngFor="let study of patients[patient._KEY].studies | getKey" contextmenu-item="study">
                 <div class="tbody">
                     <div class="tr_row">
