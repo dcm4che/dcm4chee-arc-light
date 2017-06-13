@@ -34,7 +34,7 @@
         "type": "string"
       }
     },
-    "dcmAuditRecordRepositoryDeviceName": {
+    "dcmAuditRecordRepositoryDeviceReference": {
       "title": "Audit Record Repository Device Name",
       "description": "Device Name of Audit Record Repository to which Audit Messages are sent",
       "type": "string",
