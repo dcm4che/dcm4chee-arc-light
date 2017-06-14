@@ -980,7 +980,7 @@
                                                         <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('instance', instance._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitment">
                                                             <span class="glyphicon glyphicon-ok"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" href="{{downloadURL(instance._VALUE)}}" title="Download Uncompressed DICOM Object">
+                                                        <a class="hiddenbuttons" *ngIf="!instance._VALUE.video" href="{{downloadURL(instance._VALUE)}}" title="Download Uncompressed DICOM Object">
                                                             <span class="glyphicon glyphicon-save"></span>
                                                         </a>
                                                         <a class="hiddenbuttons" href="{{downloadURL(instance._VALUE, '*')}}" title="Download DICOM Object">
