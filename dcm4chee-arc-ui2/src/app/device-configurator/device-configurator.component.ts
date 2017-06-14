@@ -41,6 +41,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
 
     }
     submitFunction(value){
+        let extensionAdded = false;
+        let form;
         console.log('in submit');
         let $this = this;
         this.cfpLoadingBar.start();
@@ -55,6 +57,21 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             let newSchema = this.service.getSchemaFromPath(this.service.schema, this.recentParams['schema']);
             let title = this.service.getPaginationTitleFromModel(value, newSchema);
             this.service.pagination[this.service.pagination.length - 1].title = title;
+
+            //Adding archive extension to the network ae if the device has archive extension
+            if(
+                _.hasIn(this.service.device,"dcmArchiveDevice") &&
+                this.recentParams.schema === "properties.dicomNetworkAE" &&
+                _.hasIn(this.service.device,"dicomNetworkAE") &&
+                this.service.device.dicomNetworkAE.length > 0
+            ){
+                _.forEach(this.service.device.dicomNetworkAE, (m,i)=>{
+                    if(!_.hasIn(m,"dcmArchiveNetworkAE")){
+                        this.service.device.dicomNetworkAE[i]["dcmArchiveNetworkAE"] = {};
+                        extensionAdded = true;
+                    }
+                });
+            }
         }
         if (_.hasIn(this.service.pagination, '[1].title') && this.service.pagination[1].title === '[new_device]'){
             if (this.service.createDevice()){
@@ -69,8 +86,6 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                             });
                             try {
                                 $this.recentParams = {};
-/*                                $this.service.pagination[this.service.pagination.length-1].title = value.dicomDeviceName;
-                                $this.service.pagination[this.service.pagination.length-1].url = `/device/edit/${value.dicomDeviceName}`;*/
                                 $this.service.pagination = $this.params = [
                                     {
                                         url: '/device/devicelist',
@@ -131,6 +146,20 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                 'text': 'Device saved successfully!',
                                 'status': 'info'
                             });
+                            if(extensionAdded){
+                                // $this.setFormFromParameters($this.recentParams, form);
+                                $this.deleteForm();
+                                $this.showform = false;
+                                let url = window.location.hash.substr(1);
+                                if(url){
+                                    setTimeout(() => {
+                                        $this.router.navigateByUrl('blank').then(() => {
+                                            $this.router.navigateByUrl(url);
+                                            $this.showform = true;
+                                        });
+                                    });
+                                }
+                            }
                             $this.controlService.reloadArchive().subscribe((res) => {
                                 console.log('res', res);
                                 // $this.message = 'Reload successful';
@@ -211,17 +240,6 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     } else {
                         $this.service.pagination.push(newPaginationObject);
                     }
-/*                    if ($this.service.device && params['device'] === $this.service.device.dicomDeviceName && $this.service.schema) {
-                        $this.deleteForm();
-                        $this.showform = false;
-                        $this.model = $this.service.device;
-                        form = $this.service.convertSchemaToForm($this.service.device, $this.service.schema, params);
-                        $this.formObj = form;
-                        setTimeout(()=> {
-                            $this.showform = true;
-                            $this.cfpLoadingBar.complete();
-                        }, 1);
-                    } else {*/
                         if (params['device'] == '[new_device]') {
                             $this.$http.get('./assets/schema/device.schema.json').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;}).subscribe((schema) => {
                                 $this.showform = false;
@@ -281,181 +299,11 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     'text': 'Parent didn\'t exist, save first the parent',
                     'status': 'error'
                 });
-                    $this.router.navigateByUrl($this.service.pagination[$this.service.pagination.length - 1].url);
-                    $this.cfpLoadingBar.complete();
+                $this.router.navigateByUrl($this.service.pagination[$this.service.pagination.length - 1].url);
+                $this.cfpLoadingBar.complete();
             }
             });
-        // this.model = {};
-        // this.model = {
-        //     brave:"greatTEST",
-        //     firstName:"SelamTEST",
-        //     emailAddress:"testemail@htall.deEST",
-        //     arraytest:[{testkey:"testkeyfrommodelTSETS"}]
-        // };
-        // this.formObj = [];
-/*        this.formObj = [
-            new DropdownList({
-                key: 'brave',
-                label: 'Bravery Rating',
-                options: [
-                    {key: 'solid',  value: 'Solid'},
-                    {key: 'great',  value: 'Great'},
-                    {key: 'good',   value: 'Good'},
-                    {key: 'unproven', value: 'Unproven'}
-                ],
-                order: 3
-            }),
-            new InputText({
-                key: 'firstName',
-                label: 'First name',
-                description:'Testdescriptionfirstname',
-                required: true,
-                order: 1
-            }),
-            new InputText({
-                key: 'emailAddress',
-                label: 'Email',
-                type: 'email',
-                order: 2
-            }),
-            new Checkbox({
-                key: 'testcheckbox2',
-                label: 'Testcheckbox2',
-                options: [
-                    {key: '1Test1',  value: '1test1', active:false},
-                    {key: '1Test2',  value: '1test2', active:true},
-                    {key: '1Test3',  value: '1test3', active:true},
-                ]
-            }),
-            new ArrayElement({
-                key: 'arrsingleelement',
-                label: 'TestArray',
-                type: 'text',
-                value: []
-            }),
-            new RadioButtons({
-                key: 'testradio',
-                label: 'Testradi label',
-                value:'installed',
-                options: [
-                    {key: 'True',  value: true},
-                    {key: 'False',  value: false},
-                ]
-            }),
-            new Checkbox({
-                key: 'testcheckbox',
-                label: 'Testcheckbox',
-                options: [
-                    {key: 'Test1',  value: 'test1', active:true},
-                    {key: 'Test2',  value: 'test2', active:false},
-                    {key: 'Test3',  value: 'test3', active:true},
-                ]
-            }),
-            new ArrayElement({
-                key: 'arrsingleelement2',
-                label: 'TestArray2',
-                type: 'number',
-                value: []
-            }),
-            new ArrayObject({
-                key: 'arraytest',
-                label: 'Array test',
-                order:4,
-                options: [{
-                    element:[
-                        new InputText({
-                            key:'testkey',
-                            label:'Test label',
-                            description:"TestDescription",
-                            type:'text'
-                        }),
-                        new InputText({
-                            key:'testke2y',
-                            label:'Test label2',
-                            type:'text',
-                            value:"testval"
-                        })
-                        ,
-                        new ArrayElement({
-                            key: 'arrsingleelement3',
-                            label: 'TestArray2',
-                            type: 'number',
-                            value: [1]
-                        })
-                        ,
-                        new DropdownList({
-                            key: 'brave2',
-                            label: 'Bravery Rating2',
-                            value:'great',
-                            options: [
-                                {key: 'solid',  value: 'Solid'},
-                                {key: 'great',  value: 'Great'},
-                                {key: 'good',   value: 'Good'},
-                                {key: 'unproven', value: 'Unproven'}
-                            ]
-                        }),
-                        new ArrayObject({
-                            key: 'arraytestsub',
-                            label: 'Array test',
-                            order:4,
-                            options: [{
-                                element:[
-                                    new InputText({
-                                        key:'testkeysub',
-                                        label:'Test labelsub',
-                                        type:'text'
-                                    }),
-                                    new InputText({
-                                        key:'testke2ysub',
-                                        label:'Test label2sub',
-                                        type:'text',
-                                        value:"testval"
-                                    })
-                                    ,
-                                    new DropdownList({
-                                        key: 'brave2',
-                                        label: 'Bravery Rating2',
-                                        value:'great',
-                                        options: [
-                                            {key: 'solid',  value: 'Solid'},
-                                            {key: 'great',  value: 'Great'},
-                                            {key: 'good',   value: 'Good'},
-                                            {key: 'unproven', value: 'Unproven'}
-                                        ]
-                                    })
-                                ]
-                            }]
-                        })
-                    ]
-                }
-                ,{
-                    element:[
-                        new InputText({
-                            key:'testkey',
-                            label:'Test labelOBJECT',
-                            type:'text'
-                        }),
-                        new InputText({
-                            key:'testke2y',
-                            label:'Test label2',
-                            type:'text'
-                        })
-                        ,
-                        new DropdownList({
-                            key: 'brave2',
-                            label: 'Bravery Rating2',
-                            options: [
-                                {key: 'solid',  value: 'Solid'},
-                                {key: 'great',  value: 'Great'},
-                                {key: 'good',   value: 'Good'},
-                                {key: 'unproven', value: 'Unproven'}
-                            ]
-                        })
-                    ]
-                }
-                ]
-            })
-        ]*/
+
     }
 
     setFormFromParameters(params, form){
@@ -476,6 +324,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             }
         }
         let title = $this.service.getPaginationTitleFromModel(newModel, newSchema);
+
         let newPaginationObject = {
             url: '/device/edit/' + params['device'] + '/' + params['devicereff'] + '/' + params['schema'],
             // title:_.replace(newTitle,lastreff,''),

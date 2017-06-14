@@ -625,6 +625,11 @@ export class DeviceConfiguratorService{
                             );
                             break;
                         default:
+                            if(_.hasIn(device,i) && _.size(value) < 1){
+                                value = 1;
+                            }else{
+                                value =  _.size(value);
+                            }
                             let url = '/device/edit/' + params.device;
                                 url = url +  ((params.devicereff) ? '/' + params.devicereff + '.' + i : '/' + i);
                                 url = url +  ((params.schema) ? '/' + params.schema + '.' + propertiesPath + '.' + i : '/properties.' + i);
@@ -636,7 +641,7 @@ export class DeviceConfiguratorService{
                                     url: url,
                                     devicereff: (params.devicereff) ? params.devicereff + '.' + i : i,
                                     order: (1 + newOrderSuffix),
-                                    value: _.size(value)
+                                    value: value
                                 });
                     }
                 });
