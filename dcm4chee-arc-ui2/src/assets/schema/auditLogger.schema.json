@@ -22,7 +22,7 @@
   "properties": {
     "cn": {
       "title": "Name",
-      "description": "Arbitrary/Meaningful name for the Network Connection object",
+      "description": "Arbitrary/Meaningful name for the Audit Logger object",
       "type": "string"
     },
     "dicomNetworkConnectionReference": {
