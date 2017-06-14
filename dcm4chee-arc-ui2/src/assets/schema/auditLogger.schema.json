@@ -5,7 +5,7 @@
   "required": [
     "cn",
     "dicomNetworkConnectionReference",
-    "dcmAuditRecordRepositoryDeviceReference",
+    "dcmAuditRecordRepositoryDeviceName",
     "dcmAuditFacility",
     "dcmAuditSuccessSeverity",
     "dcmAuditMinorFailureSeverity",
@@ -17,9 +17,7 @@
     "dcmAuditMessageBOM",
     "dcmAuditTimestampInUTC",
     "dcmAuditMessageFormatXML",
-    "dcmAuditIncludeInstanceUID",
-    "dcmAuditLoggerRetryInterval",
-    "dcmAuditLoggerSpoolDirectoryURI"
+    "dcmAuditIncludeInstanceUID"
   ],
   "properties": {
     "cn": {
@@ -204,16 +202,14 @@
     },
     "dcmAuditLoggerSpoolDirectoryURI": {
       "title": "Spool Directory URI",
-      "description": "URI of spool directory used to store messages which could not delivered to the record repository.",
-      "type": "string",
-      "default": "${jboss.server.temp.url}"
+      "description": "URI of spool directory used to store messages which could not delivered to the record repository; use system temporary directory if absent.",
+      "type": "string"
     },
     "dcmAuditLoggerRetryInterval": {
       "title": "Retry Interval",
-      "description": "Retry interval in s to re-sent messages which could not delivered to the record repository; 0 = do no retry to re-sent messages",
+      "description": "Retry interval in s to re-sent messages which could not delivered to the record repository; do no retry to re-sent messages if absent",
       "type": "integer",
-      "default": 0,
-      "minimum": 0
+      "minimum": 1
     },
     "dicomInstalled": {
       "title": "installed",
