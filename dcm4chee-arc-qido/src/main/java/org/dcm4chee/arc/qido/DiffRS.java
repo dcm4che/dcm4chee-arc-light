@@ -225,7 +225,7 @@ public class DiffRS {
             return false;
 
         Attributes other = findSCU.queryStudy(as2, match.getString(Tag.StudyInstanceUID), returnKeys);
-        Attributes modified = new Attributes(match);
+        Attributes modified = new Attributes(match.size());
         if (other == null) {
             modified.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, 0);
             modified.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, 0);
