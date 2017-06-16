@@ -793,7 +793,7 @@
                     <attribute-list *ngIf="patient._VALUE.attrs" [attrs]="patient._VALUE.attrs"></attribute-list>
                 </div>
             </div>
-            <ng-container *ngIf="patients[patient._KEY].showStudies || filterMode === 'study'">
+            <ng-container *ngIf="patients[patient._KEY].showStudies || filterMode != 'diff'">
                 <div class="repeat1" *ngFor="let study of patients[patient._KEY].studies | getKey" contextmenu-item="study">
                 <div class="tbody">
                     <div class="tr_row">
@@ -1088,6 +1088,9 @@
                                     </a>
                                     <a *ngIf="isRole('admin')" (click)="$event.preventDefault();deleteMWL(mwl._VALUE)" href="" title="Delete mwl">
                                         <span class="glyphicon glyphicon-remove"></span>
+                                    </a>
+                                    <a (click)="$event.preventDefault();upload(mwl._VALUE)" *ngIf="isRole('admin')" href="" title="Upload file">
+                                        <i class="material-icons">file_upload</i>
                                     </a>
                                 </div>
                                 <div style="width:10.4%" class="td_cell txt hover_cell" ><div *ngIf="mwl._VALUE.attrs['00401001'] && mwl._VALUE.attrs['00401001'].Value && mwl._VALUE.attrs['00401001'].Value[0]" tooltip="{{mwl._VALUE.attrs['00401001'].Value[0]}}">{{(mwl._VALUE.attrs['00401001'].Value[0] | trim:19) || '&nbsp;' }}</div></div>
