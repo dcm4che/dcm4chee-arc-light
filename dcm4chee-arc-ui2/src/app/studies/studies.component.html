@@ -873,10 +873,10 @@
                                     <div style="width:10.4%" class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}">
                                         <div tooltip="{{study._VALUE.diffHeaders['00200010'].value}}" *ngIf="study._VALUE.attrs['00200010'] && study._VALUE.attrs['00200010'].Value && study._VALUE.attrs['00200010'].Value[0]">{{(study._VALUE.diffHeaders["00200010"].value| trim:18) || '&nbsp;'}}</div>
                                     </div>
-                                    <div  style="width:17.3%" class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}">
+                                    <div  style="width:17.3%" class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['0020000D'].showBorder}">
                                         <div *ngIf="study._VALUE.attrs['0020000D'] && study._VALUE.attrs['0020000D'].Value && study._VALUE.attrs['0020000D'].Value[0]" tooltip="{{study._VALUE.diffHeaders['00200010'].value}}">{{study._VALUE.diffHeaders["00200010"].value | trim:30}}</div>
                                     </div>
-                                    <div class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}">
+                                    <div class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00080020'].showBorder}">
                                         <div *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" tooltip="{{study._VALUE.diffHeaders['00080020'].value}}">
                                             {{(study._VALUE.diffHeaders['00080020'].value| trim:10) || '&nbsp;'}}
                                             <a *ngIf="study._VALUE.attrs['00080020'] && study._VALUE.attrs['00080020'].Value && study._VALUE.attrs['00080020'].Value[0]" href="" class="order_arrow" (click)="$event.preventDefault();filter.orderby = 'StudyDate,StudyTime';queryStudies(0)" title="Order study by Date (descending)">
@@ -887,19 +887,19 @@
                                             </a>
                                         </div>
                                     </div>
-                                    <div style="width:5.1%" class="td_cell hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}">
+                                    <div style="width:5.1%" class="td_cell hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00080030'].showBorder}">
                                         <div *ngIf="study._VALUE.attrs['00080030'] && study._VALUE.attrs['00080030'].Value && study._VALUE.attrs['00080030'].Value[0]" [innerHtml]="(study._VALUE.diffHeaders['00080030'].value| trim:9) || '&nbsp;'"></div>
                                     </div>
-                                    <div style="width:10.2%" class="td_cell txt hover_cell"  [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}">
+                                    <div style="width:10.2%" class="td_cell txt hover_cell"  [ngClass]="{diff_border: study._VALUE.diffHeaders['00080090'].showBorder}">
                                         <div *ngIf="study._VALUE.attrs['00080090'] && study._VALUE.attrs['00080090'].Value && study._VALUE.attrs['00080090'].Value[0] && study._VALUE.attrs['00080090'].Value[0].Alphabetic" tooltip="{{study._VALUE.diffHeaders['00080090'].value}}">{{(study._VALUE.diffHeaders['00080090'].value|trim:18) || '&nbsp;'}}</div>
                                     </div>
-                                    <div class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}"><div *ngIf="study._VALUE.attrs['00080050'] && study._VALUE.attrs['00080050'].Value && study._VALUE.attrs['00080050'].Value[0]" tooltip="{{study._VALUE.diffHeaders['00080050'].value}}"  >{{study._VALUE.diffHeaders['00080050'].value|| '&nbsp;'}}</div></div>
-                                    <div style="width:5.2%" class="td_cell hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}">
+                                    <div class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00080050'].showBorder}"><div *ngIf="study._VALUE.attrs['00080050'] && study._VALUE.attrs['00080050'].Value && study._VALUE.attrs['00080050'].Value[0]" tooltip="{{study._VALUE.diffHeaders['00080050'].value}}"  >{{study._VALUE.diffHeaders['00080050'].value|| '&nbsp;'}}</div></div>
+                                    <div style="width:5.2%" class="td_cell hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00080061'].showBorder}">
                                         <div [innerHtml]="(study._VALUE.diffHeaders['00080061'].value| trim:9) || '&nbsp;'" tooltip="study._VALUE.diffHeaders['00080061'].value" *ngIf="study._VALUE.attrs['00080061'] && study._VALUE.attrs['00080061'].Value">&nbsp;</div>
                                     </div>
-                                    <div style="width:17%" class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}"><div tooltip="{{study._VALUE.diffHeaders['00081030'].value}}" *ngIf="study._VALUE.attrs['00081030'] && study._VALUE.attrs['00081030'].Value && study._VALUE.attrs['00081030'].Value[0]">{{(study._VALUE.diffHeaders['00081030'].value | trim:38) || '&nbsp;'}}</div></div>
-                                    <div style="width:3%" class="td_cell txt hover_cell"  [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}"><div *ngIf="study._VALUE.attrs['00201206'] && study._VALUE.attrs['00201206'].Value && study._VALUE.attrs['00201206'].Value[0]" tooltip="{{study._VALUE.diffHeaders['00201206'].value}}">{{(study._VALUE.diffHeaders['00201206'].value | trim:5) || '&nbsp;'}}</div></div>
-                                    <div style="width:3%" class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00200010'].showBorder}"><div *ngIf="study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0]" tooltip="{{study._VALUE.diffHeaders['00201208'].value}}">{{(study._VALUE.diffHeaders['00201208'].value | trim:5) || '&nbsp;'}}</div></div>
+                                    <div style="width:17%" class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00081030'].showBorder}"><div tooltip="{{study._VALUE.diffHeaders['00081030'].value}}" *ngIf="study._VALUE.attrs['00081030'] && study._VALUE.attrs['00081030'].Value && study._VALUE.attrs['00081030'].Value[0]">{{(study._VALUE.diffHeaders['00081030'].value | trim:38) || '&nbsp;'}}</div></div>
+                                    <div style="width:3%" class="td_cell txt hover_cell"  [ngClass]="{diff_border: study._VALUE.diffHeaders['00201206'].showBorder}"><div *ngIf="study._VALUE.attrs['00201206'] && study._VALUE.attrs['00201206'].Value && study._VALUE.attrs['00201206'].Value[0]" tooltip="{{study._VALUE.diffHeaders['00201206'].value}}">{{(study._VALUE.diffHeaders['00201206'].value | trim:5) || '&nbsp;'}}</div></div>
+                                    <div style="width:3%" class="td_cell txt hover_cell" [ngClass]="{diff_border: study._VALUE.diffHeaders['00201208'].showBorder}"><div *ngIf="study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0]" tooltip="{{study._VALUE.diffHeaders['00201208'].value}}">{{(study._VALUE.diffHeaders['00201208'].value | trim:5) || '&nbsp;'}}</div></div>
                                 </ng-container>
                             </div>
                             <div class="td_row">
