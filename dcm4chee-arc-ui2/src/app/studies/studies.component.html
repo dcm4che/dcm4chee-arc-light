@@ -811,7 +811,7 @@
                                     <a class="hiddenbuttons" (click)="$event.preventDefault();exportStudy(study._VALUE)" *ngIf="showExporter() && isRole('admin')" href="" title="Export study">
                                         <span class="glyphicon glyphicon-export"></span>
                                     </a>
-                                    <a class="hiddenbuttons" (click)="$event.preventDefault();upload(study._VALUE)" *ngIf="isRole('admin')" href="" title="Upload file">
+                                    <a class="hiddenbuttons" (click)="$event.preventDefault();upload(study._VALUE,'study')" *ngIf="isRole('admin')" href="" title="Upload file">
                                         <i class="material-icons">file_upload</i>
                                     </a>
                                     <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('study', study._VALUE)" *ngIf="isRole('admin')" href="" title="Verify storage commitment">
@@ -1089,7 +1089,7 @@
                                     <a *ngIf="isRole('admin')" (click)="$event.preventDefault();deleteMWL(mwl._VALUE)" href="" title="Delete mwl">
                                         <span class="glyphicon glyphicon-remove"></span>
                                     </a>
-                                    <a (click)="$event.preventDefault();upload(mwl._VALUE)" *ngIf="isRole('admin')" href="" title="Upload file">
+                                    <a (click)="$event.preventDefault();upload(mwl._VALUE,'mwl')" *ngIf="isRole('admin')" href="" title="Upload file">
                                         <i class="material-icons">file_upload</i>
                                     </a>
                                 </div>

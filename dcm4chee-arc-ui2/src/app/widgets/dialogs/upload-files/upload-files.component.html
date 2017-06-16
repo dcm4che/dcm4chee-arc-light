@@ -20,9 +20,9 @@
                     <div class="upload_state" *ngFor="let file of fileList">
                         {{file.name |trim:62}}
                         <span class="text-danger" *ngIf="percentComplete[file.name] && percentComplete[file.name].status">Error {{percentComplete[file.name].status}}</span>
-                        <span class="upload_ticker" *ngIf="percentComplete[file.name].showLoader && !percentComplete[file.name].showTicker"><i class="fa fa-circle-o-notch fa-spin"></i></span>
-                        <span class="upload_ticker"  *ngIf="percentComplete[file.name].showTicker"><i class="material-icons">check</i></span>
-                        <div>
+                        <span class="upload_ticker" *ngIf="percentComplete[file.name] && percentComplete[file.name].showLoader && !percentComplete[file.name].showTicker"><i class="fa fa-circle-o-notch fa-spin"></i></span>
+                        <span class="upload_ticker"  *ngIf="percentComplete[file.name] && percentComplete[file.name].showTicker"><i class="material-icons">check</i></span>
+                        <div *ngIf="percentComplete[file.name]">
                             <md-progress-bar color="primary" mode="determinate" [value]="percentComplete[file.name].value"></md-progress-bar>
                         </div>
                     </div>
