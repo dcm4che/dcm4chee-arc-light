@@ -865,6 +865,11 @@ export class StudiesComponent implements OnDestroy{
                             showBorder:true
                         }
                     }
+                }else{
+                    return {
+                        value: study[code].Value[0].Alphabetic,
+                        showBorder:false
+                    }
                 }
             }else{
                 //00200010
