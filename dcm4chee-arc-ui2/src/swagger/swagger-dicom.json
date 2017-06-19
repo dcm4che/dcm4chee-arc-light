@@ -119,8 +119,7 @@
             "name": "limit",
             "in": "query",
             "description": "limit={maximumResults}",
-            "type": "integer",
-            "default": 50
+            "type": "integer"
           }
         ],
         "responses": {
