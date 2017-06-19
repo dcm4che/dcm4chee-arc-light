@@ -92,16 +92,11 @@
         <DicomAttribute tag="00081110" vr="SQ"/>
         <!--Study Instance UID-->
         <xsl:value-of select="$suid"/>
-        <!--Requested Procedure Description-->
-        <DicomAttribute tag="00321060" vr="LO">
-          <Value number="1"><xsl:value-of select="field[4]/component"/></Value>
-        </DicomAttribute>
-        <!--Requested Procedure Code Sequence-->
-        <xsl:call-template name="codeItem">
-          <xsl:with-param name="sqtag">00321064</xsl:with-param>
-          <xsl:with-param name="code"><xsl:value-of select="field[4]"/></xsl:with-param>
-          <xsl:with-param name="scheme"><xsl:value-of select="field[4]/component[2]"/></xsl:with-param>
-          <xsl:with-param name="meaning"><xsl:value-of select="field[4]/component"/></xsl:with-param>
+        <!--Requested Procedure Description and Code Sequence-->
+        <xsl:call-template name="ce2codeItemWithDesc">
+          <xsl:with-param name="descTag" select="'00321060'"/>
+          <xsl:with-param name="seqTag" select="'00321064'"/>
+          <xsl:with-param name="codedEntry" select="field[4]"/>
         </xsl:call-template>
         <!--Requested Procedure ID-->
         <DicomAttribute tag="00401001" vr="SH"/>
@@ -224,11 +219,9 @@
         <xsl:with-param name="meaning">Procedure Code</xsl:with-param>
       </xsl:call-template>
       <!--Concept Code Sequence-->
-      <xsl:call-template name="codeItem">
-        <xsl:with-param name="sqtag">0040A168</xsl:with-param>
-        <xsl:with-param name="code"><xsl:value-of select="field[4]"/></xsl:with-param>
-        <xsl:with-param name="scheme"><xsl:value-of select="field[4]/component[2]"/></xsl:with-param>
-        <xsl:with-param name="meaning"><xsl:value-of select="field[4]/component"/></xsl:with-param>
+      <xsl:call-template name="ce2codeItem">
+        <xsl:with-param name="seqTag" select="'0040A168'"/>
+        <xsl:with-param name="codedEntry" select="field[4]"/>
       </xsl:call-template>
     </Item>
   </xsl:template>
@@ -330,10 +323,10 @@
       <DicomAttribute tag="0040A040" vr="CS"><Value number="1">CONTAINER</Value></DicomAttribute>
       <!--Concept Name Code Sequence-->
       <xsl:call-template name="codeItem">
-        <xsl:with-param name="sqtag">0040A043</xsl:with-param>
-        <xsl:with-param name="code"><xsl:value-of select="$hcode"/></xsl:with-param>
-        <xsl:with-param name="scheme">DCM</xsl:with-param>
-        <xsl:with-param name="meaning"><xsl:value-of select="$hname"/></xsl:with-param>
+        <xsl:with-param name="sqtag" select="'0040A043'"/>
+        <xsl:with-param name="code" select="$hcode"/>
+        <xsl:with-param name="scheme" select="'DCM'"/>
+        <xsl:with-param name="meaning" select="$hname"/>
       </xsl:call-template>
       <!--Continuity Of Content-->
       <DicomAttribute tag="0040A050" vr="CS"><Value number="1">SEPARATE</Value></DicomAttribute>
@@ -346,10 +339,10 @@
           <DicomAttribute tag="0040A040" vr="CS"><Value number="1">TEXT</Value></DicomAttribute>
           <!--Concept Name Code Sequence-->
           <xsl:call-template name="codeItem">
-            <xsl:with-param name="sqtag">0040A043</xsl:with-param>
-            <xsl:with-param name="code"><xsl:value-of select="$ecode"/></xsl:with-param>
-            <xsl:with-param name="scheme">DCM</xsl:with-param>
-            <xsl:with-param name="meaning"><xsl:value-of select="$ename"/></xsl:with-param>
+            <xsl:with-param name="sqtag" select="'0040A043'"/>
+            <xsl:with-param name="code" select="$ecode"/>
+            <xsl:with-param name="scheme" select="'DCM'"/>
+            <xsl:with-param name="meaning" select="$ename"/>
           </xsl:call-template>
           <!--Text Value-->
           <DicomAttribute tag="0040A160" vr="UT">
