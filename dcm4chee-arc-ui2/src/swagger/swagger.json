@@ -27,8 +27,8 @@
       "description": "Invoke DIMSE Service on remote AE"
     },
     {
-      "name": "ECHO-RS",
-      "description": "DICOM Verification"
+      "name": "DIFF-RS",
+      "description": "Compare Studies in external Archive"
     },
     {
       "name": "EXPORT-RS",
@@ -37,10 +37,6 @@
     {
       "name": "STGCMT-RS",
       "description": "Storage Commitment"
-    },
-    {
-      "name": "DIFF-RS",
-      "description": "Compare Studies in external Archive"
     },
     {
       "name": "IOCM-RS",
@@ -1301,7 +1297,6 @@
         "tags": [
           "CONFIG-RS",
           "IOCM-RS",
-          "ECHO-RS",
           "EXPORT-RS",
           "STGCMT-RS"
         ],
@@ -1323,10 +1318,10 @@
         }
       }
     },
-    "/aets/{aet}/echo/{remoteAET}": {
+    "/aets/{aet}/dimse/{externalAET}": {
       "post": {
         "tags": [
-          "ECHO-RS"
+          "DIMSE-RS"
         ],
         "summary": "Verify DICOM Connection",
         "operationId": "verifyConnection",
@@ -1334,14 +1329,14 @@
           {
             "name": "aet",
             "in": "path",
-            "description": "Archive AE Title",
+            "description": "Archive AE Title used as Calling AET",
             "required": true,
             "type": "string"
           },
           {
-            "name": "remoteAET",
+            "name": "externalAET",
             "in": "path",
-            "description": "Remote AE Title",
+            "description": "AE Title of C-ECHO SCP",
             "required": true,
             "type": "string"
           }
@@ -1354,7 +1349,7 @@
             }
           },
           "404": {
-            "description": "Remote AE Title not found"
+            "description": "External AE Title not found"
           },
           "default": {
             "description": "unexpected error"
@@ -1439,6 +1434,9 @@
           "204": {
             "description": "no matching patient found"
           },
+          "404": {
+            "description": "External AE Title not found"
+          },
           "default": {
             "description": "unexpected error"
           }
@@ -1521,6 +1519,9 @@
           },
           "204": {
             "description": "no matching study found"
+          },
+          "404": {
+            "description": "External AE Title not found"
           },
           "default": {
             "description": "unexpected error"
@@ -1612,6 +1613,9 @@
           "204": {
             "description": "no matching series found"
           },
+          "404": {
+            "description": "External AE Title not found"
+          },
           "default": {
             "description": "unexpected error"
           }
@@ -1701,6 +1705,237 @@
           },
           "204": {
             "description": "no matching instances found"
+          },
+          "404": {
+            "description": "External AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/diff/{originalAET}/studies": {
+      "get": {
+        "tags": [
+          "DIMSE-RS",
+          "DIFF-RS"
+        ],
+        "summary": "Compare Studies",
+        "operationId": "CompareStudies",
+        "produces": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for querying for Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "originalAET",
+            "in": "path",
+            "description": "AE Title of second C-FIND SCP to query for Studies returned from externalAET",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "missing",
+            "in": "query",
+            "description": "include Studies missing at originalAET",
+            "type": "string",
+            "enum": [
+              "no",
+              "yes",
+              "only"
+            ],
+            "default": "no"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "includefield",
+            "in": "query",
+            "description": "includefield={attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "comparefield",
+            "in": "query",
+            "description": "comparefield={attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "offset={skippedResults}",
+            "type": "integer",
+            "default": 0
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "limit={maximumResults}",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "no different study found"
+          },
+          "200": {
+            "description": "different/missing studies found",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "External AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/diff/{originalAET}/studies/count": {
+      "get": {
+        "tags": [
+          "DIMSE-RS",
+          "DIFF-RS"
+        ],
+        "summary": "Count different Studies",
+        "operationId": "CountDifferentStudies",
+        "produces": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for querying for Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "originalAET",
+            "in": "path",
+            "description": "AE Title of second C-FIND SCP to query for Studies returned from externalAET",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "missing",
+            "in": "query",
+            "description": "include Studies missing at originalAET",
+            "type": "string",
+            "enum": [
+              "no",
+              "yes",
+              "only"
+            ],
+            "default": "no"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "includefield",
+            "in": "query",
+            "description": "includefield={attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "comparefield",
+            "in": "query",
+            "description": "comparefield={attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "required": [
+                "count"
+              ],
+              "properties": {
+                "count": {
+                  "title": "Number of different or missing studies",
+                  "type": "integer"
+                },
+                "missing": {
+                  "title": "Number of missing studies",
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "External AE Title not found"
           },
           "default": {
             "description": "unexpected error"
@@ -2908,96 +3143,6 @@
           },
           "404": {
             "description": "series not found"
-          },
-          "default": {
-            "description": "unexpected error"
-          }
-        }
-      }
-    },
-    "/aets/{aet}/diff/{aet1}/{aet2}/studies": {
-      "get": {
-        "tags": [
-          "DIFF-RS"
-        ],
-        "summary": "Compare Studies",
-        "operationId": "CompareStudies",
-        "produces": [
-          "application/dicom+json",
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "aet",
-            "in": "path",
-            "description": "Archive AE Title used as Calling AET for querying for Studies",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "aet1",
-            "in": "path",
-            "description": "AE Title of first C-FIND SCP to query for Studies",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "aet2",
-            "in": "path",
-            "description": "AE Title of second C-FIND SCP to query for Studies returned from the first C-FIND SCP",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "{attributeID}",
-            "in": "query",
-            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "includefield",
-            "in": "query",
-            "description": "includefield={attributeID}",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "fuzzymatching",
-            "in": "query",
-            "description": "fuzzy semantic matching of person names",
-            "type": "boolean",
-            "default": false
-          },
-          {
-            "name": "offset",
-            "in": "query",
-            "description": "offset={skippedResults}",
-            "type": "integer",
-            "default": 0
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "limit={maximumResults}",
-            "type": "integer"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "no different study found"
-          },
-          "200": {
-            "description": "different/missing studies found",
-            "schema": {
-              "type": "file"
-            }
           },
           "default": {
             "description": "unexpected error"
