@@ -202,9 +202,12 @@ public class DiffRS {
                     writer.write(dimseRSP.getDataset());
                     int remaining = parseInt(limit, -1);
                     try {
-                        while ((remaining < 0 || remaining-- > 0) && dimseRSP.next())
-                            if (diff(dimseRSP, returnKeys))
+                        while (dimseRSP.next())
+                            if (diff(dimseRSP, returnKeys)) {
                                 writer.write(dimseRSP.getDataset());
+                                if (remaining > 0 && --remaining == 0)
+                                    break;
+                            }
                     } catch (Exception e) {
                         writer.write(toAttributes(e));
                         LOG.info("Failure on query for matching studies:\\n", e);
