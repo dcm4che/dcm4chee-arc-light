@@ -67,7 +67,7 @@ import java.io.Writer;
  * @since Feb 2016
  */
 @RequestScoped
-@Path("aets/{AETitle}/echo/{RemoteAET}")
+@Path("aets/{AETitle}/dimse/{RemoteAET}")
 public class EchoRS {
 
     @Inject

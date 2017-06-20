@@ -79,7 +79,7 @@ import static org.dcm4che3.util.ByteUtils.EMPTY_INTS;
  * @since May 2017
  */
 @RequestScoped
-@Path("aets/{AETitle}/diff/{RemoteAETitle1}/{RemoteAETitle2}")
+@Path("aets/{AETitle}/dimse/{ExternalAET}/diff/{OriginalAET}")
 @ValidUriInfo(type = QueryAttributes.class)
 public class DiffRS {
 
@@ -113,11 +113,11 @@ public class DiffRS {
     @PathParam("AETitle")
     private String aet;
 
-    @PathParam("RemoteAETitle1")
-    private String remoteAET1;
+    @PathParam("ExternalAET")
+    private String externalAET;
 
-    @PathParam("RemoteAETitle2")
-    private String remoteAET2;
+    @PathParam("OriginalAET")
+    private String originalAET;
 
     @QueryParam("offset")
     @Pattern(regexp = "0|([1-9]\\d{0,4})")
@@ -152,8 +152,8 @@ public class DiffRS {
             }
         });
         ApplicationEntity localAE = getApplicationEntity();
-        as1 = findSCU.openAssociation(localAE, remoteAET1);
-        as2 = findSCU.openAssociation(localAE, remoteAET2);
+        as1 = findSCU.openAssociation(localAE, externalAET);
+        as2 = findSCU.openAssociation(localAE, originalAET);
         ArchiveAEExtension arcAE = localAE.getAEExtension(ArchiveAEExtension.class);
         Attributes keys = new QueryAttributes(uriInfo).getQueryKeys(DEF_INCLUDE_FIELDS,
                 arcAE != null ? arcAE.diffStudiesIncludefieldAll() : EMPTY_INTS);
@@ -240,9 +240,9 @@ public class DiffRS {
         Attributes item = new Attributes();
         sq.add(item);
         item.newSequence(Tag.ModifiedAttributesSequence, 1).add(modified);
-        item.setString(Tag.SourceOfPreviousValues, VR.LO, remoteAET2);
+        item.setString(Tag.SourceOfPreviousValues, VR.LO, originalAET);
         item.setDate(Tag.AttributeModificationDateTime, VR.DT, new Date());
-        item.setString(Tag.ModifyingSystem, VR.LO, remoteAET1);
+        item.setString(Tag.ModifyingSystem, VR.LO, externalAET);
         item.setString(Tag.ReasonForTheAttributeModification, VR.CS, "DIFFS");
         return true;
     }
