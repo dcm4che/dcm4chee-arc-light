@@ -137,14 +137,15 @@ public class ProcedureUpdateService extends AbstractHL7Service {
                 List<String> ssNames = new ArrayList<>();
                 Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(socket.getLocalAddress().getHostName(), msh, attrs);
                 for (Device device : devices) {
-                    ssNames.add(device.getDeviceName());
+                    if (device.getStationName() != null)
+                        ssNames.add(device.getStationName());
                     for (String ae : device.getApplicationAETitles())
                         ssAETs.add(ae);
                 }
-                if (!ssAETs.isEmpty()) {
-                    sps.setString(Tag.ScheduledStationName, VR.SH, ssNames.toArray(new String[ssNames.size()]));
+                if (!ssAETs.isEmpty())
                     sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
-                }
+                if (!ssNames.isEmpty())
+                    sps.setString(Tag.ScheduledStationName, VR.SH, ssNames.toArray(new String[ssNames.size()]));
             }
             String orderControlStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
             List<String> ordercontrolStatusCodes = new ArrayList<>();
