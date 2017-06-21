@@ -59,14 +59,12 @@ public class AttributesBuilder {
         this.attrs = attrs;
     }
 
-    public void setString(String attrPath, String... ss) {
-        int[] tagPath = TagUtils.parseTagPath(attrPath);
+    public void setString(int[] tagPath, String... ss) {
         int tag = tagPath[tagPath.length-1];
         nestedKeys(tagPath).setString(tag, DICT.vrOf(tag), ss);
     }
 
-    public void setNull(String attrPath) {
-        int[] tagPath = TagUtils.parseTagPath(attrPath);
+    public void setNull(int[] tagPath) {
         int tag = tagPath[tagPath.length-1];
         nestedKeys(tagPath).setNull(tag, DICT.vrOf(tag));
     }

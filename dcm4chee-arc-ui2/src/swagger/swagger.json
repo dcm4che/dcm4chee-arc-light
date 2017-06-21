@@ -1878,16 +1878,6 @@
             "collectionFormat": "multi"
           },
           {
-            "name": "includefield",
-            "in": "query",
-            "description": "includefield={attributeID}",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
             "name": "comparefield",
             "in": "query",
             "description": "comparefield={attributeID}",

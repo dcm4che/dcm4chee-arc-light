@@ -127,11 +127,21 @@ public class DiffRS {
     @Pattern(regexp = "[1-9]\\d{0,4}")
     private String limit;
 
+    @QueryParam("different")
+    @Pattern(regexp = "true|false")
+    private String different;
+
+    @QueryParam("missing")
+    @Pattern(regexp = "true|false")
+    private String missing;
+
     @Inject
     private CFindSCU findSCU;
 
     private Association as1;
     private Association as2;
+    private boolean includeDifferent;
+    private boolean includeMissing;
 
     @Override
     public String toString() {
@@ -143,6 +153,18 @@ public class DiffRS {
     @Path("/studies")
     @Produces("application/dicom+json,application/json")
     public void searchForStudiesJSON(@Suspended AsyncResponse ar) throws Exception {
+        search(ar, false);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/count")
+    @Produces("application/json")
+    public void countDiffs(@Suspended AsyncResponse ar) throws Exception {
+        search(ar, true);
+    }
+
+    private void search(@Suspended AsyncResponse ar, boolean count) throws Exception {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         ar.register(new CompletionCallback() {
             @Override
@@ -155,15 +177,26 @@ public class DiffRS {
         as1 = findSCU.openAssociation(localAE, externalAET);
         as2 = findSCU.openAssociation(localAE, originalAET);
         ArchiveAEExtension arcAE = localAE.getAEExtension(ArchiveAEExtension.class);
-        Attributes keys = new QueryAttributes(uriInfo).getQueryKeys(DEF_INCLUDE_FIELDS,
-                arcAE != null ? arcAE.diffStudiesIncludefieldAll() : EMPTY_INTS);
+        QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
+        int[] includeAllTags = arcAE != null ? arcAE.diffStudiesIncludefieldAll() : DEF_INCLUDE_FIELDS;
+        Attributes keys = queryAttributes.getQueryKeys(DEF_INCLUDE_FIELDS, includeAllTags);
+        int[] compareKeys = queryAttributes.getCompareKeys(DEF_INCLUDE_FIELDS, includeAllTags);
         int[] returnKeys = keys.tags();
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
         DimseRSP dimseRSP = findSCU.queryStudies(as1, keys);
+        if (count) {
+            int[] counts = new int[2];
+            while (dimseRSP.next()) {
+                diff(dimseRSP, compareKeys, returnKeys, counts);
+            }
+            ar.resume(Response.ok("{\"missing\":" + counts[0] + ",\"different\":" + counts[1] + "}").build());
+        }
+        includeMissing = missing != null && Boolean.parseBoolean(missing);
+        includeDifferent = different == null || Boolean.parseBoolean(different);
         int skip = parseInt(offset, 0);
         while (dimseRSP.next()) {
-            if (diff(dimseRSP, returnKeys) && skip-- == 0) {
-                ar.resume(Response.ok(entity(dimseRSP, returnKeys)).build());
+            if (diff(dimseRSP, compareKeys, returnKeys, null) && skip-- == 0) {
+                ar.resume(Response.ok(entity(dimseRSP, compareKeys, returnKeys)).build());
                 return;
             }
         }
@@ -192,7 +225,7 @@ public class DiffRS {
         return ae;
     }
 
-    private Object entity(final DimseRSP dimseRSP, final int[] returnKeys) {
+    private Object entity(final DimseRSP dimseRSP, final int[] compareKeys, final int[] returnKeys) {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
@@ -203,7 +236,7 @@ public class DiffRS {
                     int remaining = parseInt(limit, -1);
                     try {
                         while (dimseRSP.next())
-                            if (diff(dimseRSP, returnKeys)) {
+                            if (diff(dimseRSP, compareKeys, returnKeys, null)) {
                                 writer.write(dimseRSP.getDataset());
                                 if (remaining > 0 && --remaining == 0)
                                     break;
@@ -222,7 +255,7 @@ public class DiffRS {
         return null;
     }
 
-    private boolean diff(DimseRSP dimseRSP, int[] returnKeys) throws Exception {
+    private boolean diff(DimseRSP dimseRSP, int[] compareKeys, int[] returnKeys, int[] counts) throws Exception {
         Attributes match = dimseRSP.getDataset();
         if (match == null)
             return false;
@@ -230,10 +263,25 @@ public class DiffRS {
         Attributes other = findSCU.queryStudy(as2, match.getString(Tag.StudyInstanceUID), returnKeys);
         Attributes modified = new Attributes(match.size());
         if (other == null) {
+            if (counts != null) {
+                counts[0]++;
+                return true;
+            }
+            if (!includeMissing)
+                return false;
+
             modified.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, 0);
             modified.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, 0);
-        } else if (!other.testUpdateSelected(Attributes.UpdatePolicy.MERGE, match, modified, returnKeys)
+        } else if (!other.testUpdateSelected(Attributes.UpdatePolicy.MERGE, match, modified, compareKeys)
                 || modified.isEmpty())
+            return false;
+
+        if (counts != null) {
+            counts[1]++;
+            return true;
+        }
+
+        if (!includeDifferent)
             return false;
 
         Sequence sq = match.newSequence(Tag.OriginalAttributesSequence, 1);
