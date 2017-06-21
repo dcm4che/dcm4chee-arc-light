@@ -1750,15 +1750,17 @@
             "type": "string"
           },
           {
+            "name": "different",
+            "in": "query",
+            "description": "include Studies different at originalAET",
+            "type": "boolean",
+            "default": "yes"
+          },
+          {
             "name": "missing",
             "in": "query",
             "description": "include Studies missing at originalAET",
-            "type": "string",
-            "enum": [
-              "no",
-              "yes",
-              "only"
-            ],
+            "type": "boolean",
             "default": "no"
           },
           {
@@ -1866,18 +1868,6 @@
             "type": "string"
           },
           {
-            "name": "missing",
-            "in": "query",
-            "description": "include Studies missing at originalAET",
-            "type": "string",
-            "enum": [
-              "no",
-              "yes",
-              "only"
-            ],
-            "default": "no"
-          },
-          {
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
@@ -1920,11 +1910,12 @@
             "description": "successful operation",
             "schema": {
               "required": [
-                "count"
+                "different",
+                "missing"
               ],
               "properties": {
                 "count": {
-                  "title": "Number of different or missing studies",
+                  "title": "Number of different studies",
                   "type": "integer"
                 },
                 "missing": {
