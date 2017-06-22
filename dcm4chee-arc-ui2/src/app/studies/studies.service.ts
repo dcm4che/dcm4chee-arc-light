@@ -77,7 +77,7 @@ export class StudiesService {
                 if(endAes.length === 0){
                     this.mainservice.setMessage({
                         'title': "Error",
-                        'text': "Accepted User Roles in the AETs are missing, add at least on role per AET (ArchiveDevice -> AET -> Archive Network AE -> Accepted User Role)",
+                        'text': "Accepted User Roles in the AETs are missing, add at least one role per AET (ArchiveDevice -> AET -> Archive Network AE -> Accepted User Role)",
                         'status': "Error"
                     });
                 }
@@ -85,7 +85,7 @@ export class StudiesService {
             }else{
                 this.mainservice.setMessage({
                     'title': "Error",
-                    'text': "No AEt found, place use the device-configurator or the LDAP-Browser to configure one!",
+                    'text': "No AETs found, please use the device-configurator or the LDAP-Browser to configure one!",
                     'status': "Error"
                 });
             }
