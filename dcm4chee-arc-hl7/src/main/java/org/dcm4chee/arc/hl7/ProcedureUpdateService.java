@@ -129,6 +129,18 @@ public class ProcedureUpdateService extends AbstractHL7Service {
         Sequence spsItems = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
         boolean result = false;
         for (Attributes sps : spsItems) {
+            String orderControlStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
+            List<String> ordercontrolStatusCodes = new ArrayList<>();
+            for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses()) {
+                result = false;
+                ordercontrolStatusCodes.addAll(Arrays.asList(hl7OrderSPSStatus.getOrderControlStatusCodes()));
+                if (ordercontrolStatusCodes.contains(orderControlStatus)) {
+                    sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, hl7OrderSPSStatus.getSPSStatus().toString());
+                    result = true;
+                }
+                if (result)
+                    break;
+            }
             if ("SCHEDULED".equals(sps.getString(Tag.ScheduledProcedureStepStatus))
                     && !sps.containsValue(Tag.ScheduledProcedureStepStartDate))
                 sps.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
@@ -146,18 +158,6 @@ public class ProcedureUpdateService extends AbstractHL7Service {
                     sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
                 if (!ssNames.isEmpty())
                     sps.setString(Tag.ScheduledStationName, VR.SH, ssNames.toArray(new String[ssNames.size()]));
-            }
-            String orderControlStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
-            List<String> ordercontrolStatusCodes = new ArrayList<>();
-            for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses()) {
-                result = false;
-                ordercontrolStatusCodes.addAll(Arrays.asList(hl7OrderSPSStatus.getOrderControlStatusCodes()));
-                if (ordercontrolStatusCodes.contains(orderControlStatus)) {
-                    sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, hl7OrderSPSStatus.getSPSStatus().toString());
-                    result = true;
-                }
-                if (result)
-                    break;
             }
         }
         return result;
