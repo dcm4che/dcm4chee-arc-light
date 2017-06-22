@@ -222,19 +222,19 @@
           <!-- Code Value -->
           <DicomAttribute tag="00080100" vr="SH">
             <Value number="1">
-              <xsl:value-of select="substring($code/text(),1,16)"/>
+              <xsl:value-of select="substring($code,1,16)"/>
             </Value>
           </DicomAttribute>
           <!-- Coding Scheme Designator -->
           <DicomAttribute tag="00080102" vr="SH">
             <Value number="1">
-              <xsl:value-of select="substring($scheme/text(),1,16)"/>
+              <xsl:value-of select="substring($scheme,1,16)"/>
             </Value>
           </DicomAttribute>
           <!-- Code Meaning -->
           <DicomAttribute tag="00080104" vr="LO">
             <Value number="1">
-              <xsl:value-of select="substring($meaning/text(),1,64)"/>
+              <xsl:value-of select="substring($meaning,1,64)"/>
             </Value>
           </DicomAttribute>
         </Item>
