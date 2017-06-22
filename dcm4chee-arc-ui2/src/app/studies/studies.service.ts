@@ -4,6 +4,7 @@ import {DatePipe} from '@angular/common';
 import * as _ from 'lodash';
 import {Observable} from 'rxjs';
 import {WindowRefService} from "../helpers/window-ref.service";
+import {AppService} from "../app.service";
 declare var DCM4CHE: any;
 declare var window: any;
 
@@ -14,7 +15,11 @@ export class StudiesService {
     private _studyIod;
     integerVr = ['DS', 'FL', 'FD', 'IS', 'SL', 'SS', 'UL', 'US'];
 
-    constructor(public $http: Http, public datePipe: DatePipe) { }
+    constructor(
+        public $http: Http,
+        public datePipe: DatePipe,
+        public mainservice:AppService
+    ) { }
 
     get studyIod() {
         return this._studyIod;
@@ -53,20 +58,37 @@ export class StudiesService {
         }else{
             let endAes = [];
             let valid;
-            aes.forEach((ae, i) => {
-                valid = false;
-                user.roles.forEach((user, i) => {
-                    ae.dcmAcceptedUserRole.forEach((aet, j) => {
-                        if (user === aet){
-                            valid = true;
+            if(aes){
+                aes.forEach((ae, i) => {
+                    valid = false;
+                    user.roles.forEach((user, i) => {
+                        if(ae.dcmAcceptedUserRole){
+                            ae.dcmAcceptedUserRole.forEach((aet, j) => {
+                                if (user === aet){
+                                    valid = true;
+                                }
+                            });
                         }
                     });
+                    if (valid){
+                        endAes.push(ae);
+                    }
                 });
-                if (valid){
-                    endAes.push(ae);
+                if(endAes.length === 0){
+                    this.mainservice.setMessage({
+                        'title': "Error",
+                        'text': "Accepted User Roles in the AETs are missing, add at least on role per AET (ArchiveDevice -> AET -> Archive Network AE -> Accepted User Role)",
+                        'status': "Error"
+                    });
                 }
-            });
-            return endAes;
+                return endAes;
+            }else{
+                this.mainservice.setMessage({
+                    'title': "Error",
+                    'text': "No AEt found, place use the device-configurator or the LDAP-Browser to configure one!",
+                    'status': "Error"
+                });
+            }
         }
     }
     _config = function(params) {
