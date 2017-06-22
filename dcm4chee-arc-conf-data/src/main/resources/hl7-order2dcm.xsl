@@ -181,7 +181,6 @@
     <xsl:call-template name="cn2pnAttr">
       <xsl:with-param name="tag" select="'00400006'"/>
       <xsl:with-param name="cn" select="field[34]"/>
-      <xsl:with-param name="cn26" select="field[34]/subcomponent"/>
     </xsl:call-template>
     <!-- Scheduled Protocol Step Description and Code Sequence -->
     <xsl:call-template name="ce2codeItemWithDesc">
