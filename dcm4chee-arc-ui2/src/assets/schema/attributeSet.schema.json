@@ -8,7 +8,7 @@
   ],
   "properties": {
     "dicomDescription": {
-      "title": "Attribute Set  Description",
+      "title": "Attribute Set Description",
       "description": "Unconstrained text description of this Attribute Set",
       "type": "string"
     },

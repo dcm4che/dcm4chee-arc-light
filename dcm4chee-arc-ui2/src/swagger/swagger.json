@@ -800,6 +800,42 @@
         }
       }
     },
+    "/attribute-set/{type}": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Get Attribute Set",
+        "operationId": "getAttributeSet",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "description": "type of Attribute Sets to return",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "DIFF_RS",
+              "WADO_RS"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "attributeSets.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/monitor/associations": {
       "get": {
         "tags": [
