@@ -87,7 +87,7 @@ public class QueryAttributeSets {
                     ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
                     if (arcDev != null) {
                         Map<String, AttributeSet> attrSet = arcDev.getAttributeSet(attrSetType);
-                        if (attrSet.size() == 0) {
+                        if (!attrSet.isEmpty()) {
                             gen.writeStartArray();
                             for (Map.Entry<String, AttributeSet> entry : attrSet.entrySet()) {
                                 JsonWriter writer = new JsonWriter(gen);
@@ -100,16 +100,14 @@ public class QueryAttributeSets {
                             gen.writeEnd();
                         }
                         else
-                            throw new WebApplicationException(getResponse(
-                                    "No Attribute set found for the type : " + type, Response.Status.NOT_FOUND));
+                            throw new NotFoundException("No Attribute set found for the type : " + type);
                     } else
-                        throw new WebApplicationException(getResponse(
-                                "Archive Device Extension not present for the device : " + device.getDeviceName(),
-                                Response.Status.NOT_FOUND));
+                        throw new NotFoundException("Archive Device Extension not present for the device : " + device.getDeviceName());
                 } catch (IllegalArgumentException e) {
                     throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.BAD_REQUEST));
-                }
-                catch (Exception e) {
+                } catch (NotFoundException e) {
+                    throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
+                } catch (Exception e) {
                     throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
                 }
                 gen.flush();
