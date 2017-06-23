@@ -176,11 +176,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private String auditUnknownStudyInstanceUID = AUDIT_UNKNOWN_STUDY_INSTANCE_UID;
     private String auditUnknownPatientID = AUDIT_UNKNOWN_PATIENT_ID;
-    private int[] diffStudiesIncludefieldAll = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
-    private final Map<String,MetadataFilter> metadataFilters = new HashMap<>();
+    private final Map<AttributeSet.Type,Map<String,AttributeSet>> attributeSet = new EnumMap<>(AttributeSet.Type.class);
     private final EnumMap<IDGenerator.Name,IDGenerator> idGenerators = new EnumMap<>(IDGenerator.Name.class);
     private final Map<String, QueryRetrieveView> queryRetrieveViewMap = new HashMap<>();
     private final Map<String, StorageDescriptor> storageDescriptorMap = new HashMap<>();
@@ -1057,20 +1056,25 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return attributeFilters;
     }
 
-    public MetadataFilter getMetadataFilter(String name) {
-        return metadataFilters.get(name);
+    public void addAttributeSet(AttributeSet tags) {
+        Map<String, AttributeSet> map = attributeSet.get(tags.getType());
+        if (map == null)
+            attributeSet.put(tags.getType(), map = new LinkedHashMap<>());
+        map.put(tags.getName(), tags);
     }
 
-    public void addMetadataFilter(MetadataFilter filter) {
-        metadataFilters.put(filter.getName(), filter);
+    public void removeAttributeSet(AttributeSet tags) {
+        Map<String, AttributeSet> map = attributeSet.get(tags.getType());
+        if (map != null)
+            map.remove(tags.getName());
     }
 
-    public void removeMetadataFilter(MetadataFilter filter) {
-        metadataFilters.remove(filter.getName());
+    public Map<AttributeSet.Type, Map<String, AttributeSet>> getAttributeSet() {
+        return attributeSet;
     }
 
-    public Map<String, MetadataFilter> getMetadataFilters() {
-        return metadataFilters;
+    public Map<String, AttributeSet> getAttributeSet(AttributeSet.Type type) {
+        return StringUtils.maskNull(attributeSet.get(type), Collections.emptyMap());
     }
 
     public IDGenerator getIDGenerator(IDGenerator.Name name) {
@@ -1548,14 +1552,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return StringUtils.maskNull(auditUnknownPatientID, "<none>");
     }
 
-    public int[] getDiffStudiesIncludefieldAll() {
-        return diffStudiesIncludefieldAll;
-    }
-
-    public void setDiffStudiesIncludefieldAll(int[] diffStudiesIncludefieldAll) {
-        this.diffStudiesIncludefieldAll = diffStudiesIncludefieldAll;
-    }
-
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -1672,11 +1668,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7ScheduledStationAETInOrder = arcdev.hl7ScheduledStationAETInOrder;
         auditUnknownStudyInstanceUID = arcdev.auditUnknownStudyInstanceUID;
         auditUnknownPatientID = arcdev.auditUnknownPatientID;
-        diffStudiesIncludefieldAll = arcdev.diffStudiesIncludefieldAll;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
-        metadataFilters.clear();
-        metadataFilters.putAll(arcdev.metadataFilters);
+        attributeSet.clear();
+        attributeSet.putAll(arcdev.attributeSet);
         idGenerators.clear();
         idGenerators.putAll(arcdev.idGenerators);
         storageDescriptorMap.clear();

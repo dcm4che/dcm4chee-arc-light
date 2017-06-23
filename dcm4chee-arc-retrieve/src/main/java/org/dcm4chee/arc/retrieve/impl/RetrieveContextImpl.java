@@ -49,7 +49,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.MetadataFilter;
+import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.CodeEntity;
 import org.dcm4chee.arc.entity.Location;
@@ -112,7 +112,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private volatile String[] fallbackMoveRSPFailedIUIDs = {};
     private Date patientUpdatedTime;
     private boolean retryFailedRetrieve;
-    private MetadataFilter metadataFilter;
+    private AttributeSet metadataFilter;
 
     RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle,
                         QueryRetrieveView qrView) {
@@ -615,12 +615,12 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public MetadataFilter getMetadataFilter() {
+    public AttributeSet getMetadataFilter() {
         return metadataFilter;
     }
 
     @Override
-    public void setMetadataFilter(MetadataFilter metadataFilter) {
+    public void setMetadataFilter(AttributeSet metadataFilter) {
         this.metadataFilter = metadataFilter;
     }
 

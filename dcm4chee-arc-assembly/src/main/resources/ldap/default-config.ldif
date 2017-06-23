@@ -60,26 +60,6 @@ dcmWadoSR2HtmlTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl
 dicomManufacturerModelName: dcm4chee-arc
 dcmOverwritePolicy: SAME_SOURCE
 dcmSendPendingCGet: TRUE
-dcmDiffStudiesIncludefieldAll: 00080020
-dcmDiffStudiesIncludefieldAll: 00080030
-dcmDiffStudiesIncludefieldAll: 00080050
-dcmDiffStudiesIncludefieldAll: 00080051
-dcmDiffStudiesIncludefieldAll: 00080061
-dcmDiffStudiesIncludefieldAll: 00080090
-dcmDiffStudiesIncludefieldAll: 00081030
-dcmDiffStudiesIncludefieldAll: 00081032
-dcmDiffStudiesIncludefieldAll: 00100010
-dcmDiffStudiesIncludefieldAll: 00100020
-dcmDiffStudiesIncludefieldAll: 00100021
-dcmDiffStudiesIncludefieldAll: 00100030
-dcmDiffStudiesIncludefieldAll: 00100040
-dcmDiffStudiesIncludefieldAll: 00101010
-dcmDiffStudiesIncludefieldAll: 00101020
-dcmDiffStudiesIncludefieldAll: 00101030
-dcmDiffStudiesIncludefieldAll: 0020000D
-dcmDiffStudiesIncludefieldAll: 00200010
-dcmDiffStudiesIncludefieldAll: 00201206
-dcmDiffStudiesIncludefieldAll: 00201208
 dcmQueryRetrieveViewID: hideRejected
 dcmAudit2JsonFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl
 dicomDeviceName: dcm4chee-arc
@@ -141,6 +121,7 @@ cn: syslog
 dn: cn=Audit Logger,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmAuditSourceTypeCode: 4
 dcmAuditRecordRepositoryDeviceReference: dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAuditLoggerSpoolDirectoryURI: ${jboss.server.temp.url}
 objectClass: dcmAuditLogger
 dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Audit Logger
@@ -311,6 +292,7 @@ objectClass: dcmAttributeFilter
 dn: cn=Audit Logger,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmAuditSourceTypeCode: 4
 dcmAuditRecordRepositoryDeviceReference: dicomDeviceName=logstash,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAuditLoggerSpoolDirectoryURI: ${jboss.server.temp.url}
 objectClass: dcmAuditLogger
 dicomNetworkConnectionReference: cn=syslog,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Audit Logger
@@ -725,7 +707,112 @@ dcmRejectionNoteCode: (113037, DCM, "Rejected for Patient Safety Reasons")
 objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
 
-dn: dcmMetadataFilterName=AttributeFilters,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmRejectionNoteLabel=Revoke Rejection,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmRejectionNoteLabel: Revoke Rejection
+dcmRejectionNoteType: REVOKE_REJECTION
+dcmRejectionNoteCode: (REVOKE_REJECTION, 99DCM4CHEE, "Restore rejected Instances")
+objectClass: dcmRejectionNote
+dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
+dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
+dcmOverwritePreviousRejection: (113038, DCM, "Incorrect Modality Worklist Entry")
+dcmOverwritePreviousRejection: (113039, DCM, "Data Retention Policy Expired")
+
+dn: dcmIDGeneratorName=RequestedProcedureID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmIDGeneratorName: RequestedProcedureID
+dcmIDGeneratorFormat: RP-%08d
+objectClass: dcmIDGenerator
+
+dn: dcmRejectionNoteLabel=Retention Expired,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmRejectionNoteLabel: Retention Expired
+dcmRejectionNoteType: DATA_RETENTION_POLICY_EXPIRED
+dcmRejectionNoteCode: (113039, DCM, "Data Retention Policy Expired")
+dcmAcceptPreviousRejectedInstance: RESTORE
+objectClass: dcmRejectionNote
+dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
+dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
+dcmOverwritePreviousRejection: (113038, DCM, "Incorrect Modality Worklist Entry")
+dcmDeleteRejectedInstanceDelay: P1D
+dcmDeleteRejectionNoteDelay: P1D
+
+dn: dcmRejectionNoteLabel=Incorrect MWL Entry,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmRejectionNoteLabel: Incorrect MWL Entry
+dcmRejectionNoteType: INCORRECT_MODALITY_WORKLIST_ENTRY
+dcmRejectionNoteCode: (113038, DCM, "Incorrect Modality Worklist Entry")
+objectClass: dcmRejectionNote
+dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
+dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
+
+dn: dcmIDGeneratorName=ScheduledProcedureStepID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmIDGeneratorName: ScheduledProcedureStepID
+dcmIDGeneratorFormat: SPS-%08d
+objectClass: dcmIDGenerator
+
+dn: dcmAttributeSetName=all+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeSetName: all
+dicomDescription: Patient and Study attributes
+dcmTag: 00080020
+dcmTag: 00080030
+dcmTag: 00080050
+dcmTag: 00080051
+dcmTag: 00080090
+dcmTag: 00081030
+dcmTag: 00081032
+dcmTag: 00100010
+dcmTag: 00100020
+dcmTag: 00100021
+dcmTag: 00100030
+dcmTag: 00100040
+dcmTag: 00101010
+dcmTag: 00101020
+dcmTag: 00101030
+dcmTag: 0020000D
+dcmTag: 00200010
+dcmTag: 00201206
+dcmTag: 00201208
+dcmAttributeSetType: DIFF_RS
+objectClass: dcmAttributeSet
+
+dn: dcmAttributeSetName=accno+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeSetName: accno
+dicomDescription: Accession Number
+dcmTag: 00080050
+dcmTag: 00080051
+dcmAttributeSetType: DIFF_RS
+objectClass: dcmAttributeSet
+
+dn: dcmAttributeSetName=study+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeSetName: study
+dicomDescription: Only Study attributes
+dcmTag: 00080020
+dcmTag: 00080030
+dcmTag: 00080050
+dcmTag: 00080051
+dcmTag: 00080090
+dcmTag: 00081030
+dcmTag: 00081032
+dcmTag: 00101010
+dcmTag: 00101020
+dcmTag: 00101030
+dcmTag: 0020000D
+dcmTag: 00200010
+dcmTag: 00201206
+dcmTag: 00201208
+dcmAttributeSetType: DIFF_RS
+objectClass: dcmAttributeSet
+
+dn: dcmAttributeSetName=patient+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeSetName: patient
+dicomDescription: Only Patient attributes
+dcmTag: 00100010
+dcmTag: 00100020
+dcmTag: 00100021
+dcmTag: 00100030
+dcmTag: 00100040
+dcmAttributeSetType: DIFF_RS
+objectClass: dcmAttributeSet
+
+dn: dcmAttributeSetName=AttributeFilters+dcmAttributeSetType=WADO_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeSetName: AttributeFilters
 dcmTag: 00080005
 dcmTag: 00080008
 dcmTag: 00080012
@@ -846,48 +933,8 @@ dcmTag: 00700081
 dcmTag: 00700082
 dcmTag: 00700083
 dcmTag: 00700084
-objectClass: dcmMetadataFilter
-dcmMetadataFilterName: AttributeFilters
-
-dn: dcmRejectionNoteLabel=Revoke Rejection,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmRejectionNoteLabel: Revoke Rejection
-dcmRejectionNoteType: REVOKE_REJECTION
-dcmRejectionNoteCode: (REVOKE_REJECTION, 99DCM4CHEE, "Restore rejected Instances")
-objectClass: dcmRejectionNote
-dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
-dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
-dcmOverwritePreviousRejection: (113038, DCM, "Incorrect Modality Worklist Entry")
-dcmOverwritePreviousRejection: (113039, DCM, "Data Retention Policy Expired")
-
-dn: dcmIDGeneratorName=RequestedProcedureID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmIDGeneratorName: RequestedProcedureID
-dcmIDGeneratorFormat: RP-%08d
-objectClass: dcmIDGenerator
-
-dn: dcmRejectionNoteLabel=Retention Expired,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmRejectionNoteLabel: Retention Expired
-dcmRejectionNoteType: DATA_RETENTION_POLICY_EXPIRED
-dcmRejectionNoteCode: (113039, DCM, "Data Retention Policy Expired")
-dcmAcceptPreviousRejectedInstance: RESTORE
-objectClass: dcmRejectionNote
-dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
-dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
-dcmOverwritePreviousRejection: (113038, DCM, "Incorrect Modality Worklist Entry")
-dcmDeleteRejectedInstanceDelay: P1D
-dcmDeleteRejectionNoteDelay: P1D
-
-dn: dcmRejectionNoteLabel=Incorrect MWL Entry,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmRejectionNoteLabel: Incorrect MWL Entry
-dcmRejectionNoteType: INCORRECT_MODALITY_WORKLIST_ENTRY
-dcmRejectionNoteCode: (113038, DCM, "Incorrect Modality Worklist Entry")
-objectClass: dcmRejectionNote
-dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
-dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
-
-dn: dcmIDGeneratorName=ScheduledProcedureStepID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmIDGeneratorName: ScheduledProcedureStepID
-dcmIDGeneratorFormat: SPS-%08d
-objectClass: dcmIDGenerator
+dcmAttributeSetType: WADO_RS
+objectClass: dcmAttributeSet
 
 dn: cn=RT Dose Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.2

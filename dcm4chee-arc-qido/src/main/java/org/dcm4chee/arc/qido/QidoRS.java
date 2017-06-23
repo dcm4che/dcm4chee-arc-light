@@ -97,7 +97,7 @@ public class QidoRS {
             Tag.PatientSex,
     };
 
-    private final static int[] STUDY_FIELDS = {
+    final static int[] STUDY_FIELDS = {
             Tag.StudyDate,
             Tag.StudyTime,
             Tag.AccessionNumber,

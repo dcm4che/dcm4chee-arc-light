@@ -45,7 +45,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.MetadataFilter;
+import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.CodeEntity;
 import org.dcm4chee.arc.entity.Location;
@@ -249,9 +249,9 @@ public interface RetrieveContext extends Closeable {
 
     void setPatientUpdatedTime(Date patientUpdatedTime);
 
-    MetadataFilter getMetadataFilter();
+    AttributeSet getMetadataFilter();
 
-    void setMetadataFilter(MetadataFilter metadataFilter);
+    void setMetadataFilter(AttributeSet metadataFilter);
 
     boolean isUpdateSeriesMetadata();
 

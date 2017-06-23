@@ -57,6 +57,8 @@ import java.net.URI;
 import java.time.LocalTime;
 import java.time.Period;
 import java.util.EnumSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static org.dcm4che3.net.TransferCapability.Role.SCP;
 import static org.dcm4che3.net.TransferCapability.Role.SCU;
@@ -337,20 +339,21 @@ class ArchiveDeviceFactory {
             Tag.StudyInstanceUID,
             Tag.StudyID
     };
-    static final int[] DIFF_STUDIES_INCLUDE_FIELDS_ALL = {
-            Tag.StudyDate,
-            Tag.StudyTime,
-            Tag.AccessionNumber,
-            Tag.IssuerOfAccessionNumberSequence,
-            Tag.ModalitiesInStudy,
-            Tag.ReferringPhysicianName,
-            Tag.StudyDescription,
-            Tag.ProcedureCodeSequence,
+    static final int[] DIFF_PAT_ATTRS = {
             Tag.PatientName,
             Tag.PatientID,
             Tag.IssuerOfPatientID,
             Tag.PatientBirthDate,
             Tag.PatientSex,
+    };
+    static final int[] DIFF_STUDY_ATTRS = {
+            Tag.StudyDate,
+            Tag.StudyTime,
+            Tag.AccessionNumber,
+            Tag.IssuerOfAccessionNumberSequence,
+            Tag.ReferringPhysicianName,
+            Tag.StudyDescription,
+            Tag.ProcedureCodeSequence,
             Tag.PatientAge,
             Tag.PatientSize,
             Tag.PatientWeight,
@@ -358,6 +361,10 @@ class ArchiveDeviceFactory {
             Tag.StudyID,
             Tag.NumberOfStudyRelatedSeries,
             Tag.NumberOfStudyRelatedInstances
+    };
+    static final int[] DIFF_ACCESSION_NUMBER = {
+            Tag.AccessionNumber,
+            Tag.IssuerOfAccessionNumberSequence,
     };
     static final int[] MPPS_ATTRS = {
             Tag.SpecificCharacterSet,
@@ -1025,6 +1032,7 @@ class ArchiveDeviceFactory {
 
     static {
         System.setProperty("jboss.server.data.url", "file:///opt/wildfly/standalone/data");
+        System.setProperty("jboss.server.temp.url", "file:///opt/wildfly/standalone/tmp");
     }
 
     public static Device createARRDevice(String name, Connection.Protocol protocol, int port, ConfigType configType) {
@@ -1339,8 +1347,6 @@ class ArchiveDeviceFactory {
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
         ext.setAttributeFilter(Entity.MWL, new AttributeFilter(MWL_ATTRS));
 
-        ext.setDiffStudiesIncludefieldAll(DIFF_STUDIES_INCLUDE_FIELDS_ALL);
-
         ext.addHL7OrderScheduledStation(newScheduledStation(unknown));
 
         if (configType == configType.TEST) {
@@ -1383,7 +1389,16 @@ class ArchiveDeviceFactory {
         for (HL7OrderSPSStatus hl7OrderSPSStatus : HL7_ORDER_SPS_STATUSES)
             ext.addHL7OrderSPSStatus(hl7OrderSPSStatus);
 
-        ext.addMetadataFilter(createMetadataFilter());
+        ext.addAttributeSet(newAttributeSet(AttributeSet.Type.DIFF_RS,
+                "all", "Patient and Study attributes", union(DIFF_PAT_ATTRS, DIFF_STUDY_ATTRS)));
+        ext.addAttributeSet(newAttributeSet(AttributeSet.Type.DIFF_RS,
+                "patient", "Only Patient attributes", DIFF_PAT_ATTRS));
+        ext.addAttributeSet(newAttributeSet(AttributeSet.Type.DIFF_RS,
+                "study", "Only Study attributes", DIFF_STUDY_ATTRS));
+        ext.addAttributeSet(newAttributeSet(AttributeSet.Type.DIFF_RS,
+                "accno", "Accession Number", DIFF_ACCESSION_NUMBER));
+        ext.addAttributeSet(newAttributeSet(AttributeSet.Type.WADO_RS,
+                "AttributeFilters", null, union(PATIENT_ATTRS, STUDY_ATTRS, SERIES_ATTRS, INSTANCE_ATTRS)));
 
         ext.addRejectionNote(createRejectionNote("Quality",
                 RejectionNote.Type.REJECTED_FOR_QUALITY_REASONS,
@@ -1542,16 +1557,27 @@ class ArchiveDeviceFactory {
         }
     }
 
-    private static MetadataFilter createMetadataFilter() {
-        MetadataFilter filter = new MetadataFilter("AttributeFilters");
-        int[] tags = new int[PATIENT_ATTRS.length + STUDY_ATTRS.length + SERIES_ATTRS.length + INSTANCE_ATTRS.length - 3];
-        int destPos = 0;
-        System.arraycopy(PATIENT_ATTRS, 0, tags, destPos, PATIENT_ATTRS.length);
-        System.arraycopy(STUDY_ATTRS, 1, tags, destPos += PATIENT_ATTRS.length, STUDY_ATTRS.length - 1);
-        System.arraycopy(SERIES_ATTRS, 1, tags, destPos += STUDY_ATTRS.length - 1, SERIES_ATTRS.length - 1);
-        System.arraycopy(INSTANCE_ATTRS, 1, tags, destPos += SERIES_ATTRS.length - 1, INSTANCE_ATTRS.length - 1);
-        filter.setSelection(tags);
-        return filter;
+    private static AttributeSet newAttributeSet(AttributeSet.Type type, String name, String desc, int[] tags) {
+        AttributeSet attributeSet = new AttributeSet();
+        attributeSet.setType(type);
+        attributeSet.setName(name);
+        attributeSet.setDescription(desc);
+        attributeSet.setSelection(tags);
+        return attributeSet;
+    }
+
+    private static int[] union(int[]... srcs) {
+        Set<Integer> c = new TreeSet<>();
+        for (int[] src : srcs)
+            for (int i : src)
+                c.add(i);
+
+        int[] a = new int[c.size()];
+        int j = 0;
+        for (int i : c)
+            a[j++] = i;
+
+        return a;
     }
 
     private static AttributeFilter newAttributeFilter(int[] patientAttrs, Attributes.UpdatePolicy attrUpdate) {

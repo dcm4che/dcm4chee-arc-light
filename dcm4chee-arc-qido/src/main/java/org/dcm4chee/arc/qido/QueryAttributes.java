@@ -60,10 +60,8 @@ public class QueryAttributes {
 
     private final Attributes keys = new Attributes();
     private final AttributesBuilder builder = new AttributesBuilder(keys);
-    private boolean compareAll;
     private boolean includeAll;
 
-    private final SortedSet<Integer> compareFields = new TreeSet<>();
     private final ArrayList<OrderByTag> orderByTags = new ArrayList<>();
     private boolean orderByPatientName;
 
@@ -73,14 +71,12 @@ public class QueryAttributes {
             String key = entry.getKey();
             switch (key) {
                 case "includefield":
-                    addIncludeTag(entry.getValue(), false);
-                    break;
-                case "comparefield":
-                    addIncludeTag(entry.getValue(), true);
+                    addIncludeTag(entry.getValue());
                     break;
                 case "orderby":
                     addOrderByTag(entry.getValue());
                     break;
+                case "comparefield":
                 case "different":
                 case "missing":
                 case "offset":
@@ -103,25 +99,25 @@ public class QueryAttributes {
         }
     }
 
-    private void addIncludeTag(List<String> includefields, boolean comparefield) {
+    private void addIncludeTag(List<String> includefields) {
         for (String s : includefields) {
             if (s.equals("all")) {
-                if (comparefield)
-                    compareAll = true;
                 includeAll = true;
                 break;
             }
-            for (String field : StringUtils.split(s, ',')) {
+            for (String field : StringUtils.split(s, ','))
                 try {
                     int[] tagPath = TagUtils.parseTagPath(field);
-                    if (comparefield)
-                        compareFields.add(tagPath[0]);
-                    builder.setNull(tagPath);
+                    builder.setNullIfAbsent(tagPath);
                 } catch (IllegalArgumentException e2) {
-                    throw new IllegalArgumentException((comparefield ? "comparefield=" : "includefield=") + s);
+                    throw new IllegalArgumentException("includefield=" + s);
                 }
-            }
         }
+    }
+
+    public void addReturnTags(int[] tags) {
+        for (int tag : tags)
+            builder.setNullIfAbsent(tag);
     }
 
     private void addOrderByTag(List<String> orderby) {
@@ -140,30 +136,12 @@ public class QueryAttributes {
         }
     }
 
+    public boolean isIncludeAll() {
+        return includeAll;
+    }
+
     public Attributes getQueryKeys() {
         return keys;
-    }
-
-    public Attributes getQueryKeys(int[] defIncludeFields, int[] includeAllTags) {
-        Attributes queryKeys = new Attributes(includeAllTags.length);
-        for (int tag : includeAll ? includeAllTags : defIncludeFields)
-            queryKeys.setNull(tag, DICT.vrOf(tag));
-        queryKeys.addAll(keys);
-        return queryKeys;
-    }
-
-    public int[] getCompareKeys(int[] defIncludeFields, int[] includeAllTags) {
-        if (compareAll)
-            return includeAllTags;
-
-        if (compareFields.isEmpty())
-            return defIncludeFields;
-
-        int[] tags = new int[compareFields.size()];
-        int i = 0;
-        for (Iterator<Integer> iter = compareFields.iterator(); iter.hasNext();)
-            tags[i++] = iter.next();
-        return tags;
     }
 
     public Attributes getReturnKeys(int[] includetags) {

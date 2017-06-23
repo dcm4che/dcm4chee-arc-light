@@ -49,7 +49,7 @@ import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.MetadataFilter;
+import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -365,11 +365,12 @@ public class WadoRS {
         }
     }
 
-    private MetadataFilter getMetadataFilter(String name) {
+    private AttributeSet getMetadataFilter(String name) {
         if (name == null)
             return null;
 
-        MetadataFilter filter = device.getDeviceExtension(ArchiveDeviceExtension.class).getMetadataFilter(name);
+        AttributeSet filter = device.getDeviceExtension(ArchiveDeviceExtension.class)
+                .getAttributeSet(AttributeSet.Type.WADO_RS).get(name);
         if (filter == null)
             LOG.info("No Metadata filter configured for includefields={}", name);
         return filter;

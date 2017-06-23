@@ -47,7 +47,10 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DimseRSP;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.AttributeSet;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -71,8 +74,8 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
-
-import static org.dcm4che3.util.ByteUtils.EMPTY_INTS;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -84,22 +87,6 @@ import static org.dcm4che3.util.ByteUtils.EMPTY_INTS;
 public class DiffRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiffRS.class);
-
-    private static final int[] DEF_INCLUDE_FIELDS = {
-            Tag.StudyDate,
-            Tag.StudyTime,
-            Tag.AccessionNumber,
-            Tag.ModalitiesInStudy,
-            Tag.ReferringPhysicianName,
-            Tag.PatientName,
-            Tag.PatientID,
-            Tag.PatientBirthDate,
-            Tag.PatientSex,
-            Tag.StudyID,
-            Tag.StudyInstanceUID,
-            Tag.NumberOfStudyRelatedSeries,
-            Tag.NumberOfStudyRelatedInstances
-    };
 
     @Context
     private HttpServletRequest request;
@@ -135,6 +122,9 @@ public class DiffRS {
     @Pattern(regexp = "true|false")
     private String missing;
 
+    @QueryParam("comparefield")
+    private List<String> comparefields;
+
     @Inject
     private CFindSCU findSCU;
 
@@ -166,6 +156,11 @@ public class DiffRS {
 
     private void search(@Suspended AsyncResponse ar, boolean count) throws Exception {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
+        int[] compareKeys = addReturnTags(queryAttributes);
+        Attributes keys = queryAttributes.getQueryKeys();
+        int[] returnKeys = keys.tags();
+        keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
         ar.register(new CompletionCallback() {
             @Override
             public void onComplete(Throwable throwable) {
@@ -176,13 +171,6 @@ public class DiffRS {
         ApplicationEntity localAE = getApplicationEntity();
         as1 = findSCU.openAssociation(localAE, externalAET);
         as2 = findSCU.openAssociation(localAE, originalAET);
-        ArchiveAEExtension arcAE = localAE.getAEExtension(ArchiveAEExtension.class);
-        QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
-        int[] includeAllTags = arcAE != null ? arcAE.diffStudiesIncludefieldAll() : DEF_INCLUDE_FIELDS;
-        Attributes keys = queryAttributes.getQueryKeys(DEF_INCLUDE_FIELDS, includeAllTags);
-        int[] compareKeys = queryAttributes.getCompareKeys(DEF_INCLUDE_FIELDS, includeAllTags);
-        int[] returnKeys = keys.tags();
-        keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
         DimseRSP dimseRSP = findSCU.queryStudies(as1, keys);
         if (count) {
             int[] counts = new int[2];
@@ -201,6 +189,49 @@ public class DiffRS {
             }
         }
         ar.resume(Response.noContent().build());
+    }
+
+    private int[] addReturnTags(QueryAttributes queryAttributes) {
+        ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+        Map<String, AttributeSet> attributeSetMap = arcdev.getAttributeSet(AttributeSet.Type.DIFF_RS);
+        AttributeSet allTags = attributeSetMap.get("all");
+        if (!queryAttributes.isIncludeAll())
+            queryAttributes.addReturnTags(QidoRS.STUDY_FIELDS);
+        else if (allTags != null)
+            queryAttributes.addReturnTags(allTags.getSelection());
+        else {
+            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection());
+            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Study).getSelection());
+        }
+        int[] compareKeys = compareKeys();
+        queryAttributes.addReturnTags(compareKeys);
+        return compareKeys;
+    }
+
+    private int[] compareKeys() {
+        if (comparefields == null || comparefields.isEmpty())
+            return QidoRS.STUDY_FIELDS;
+
+        int size = comparefields.size();
+        if (size == 1) {
+            ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            Map<String, AttributeSet> attributeSetMap = arcdev.getAttributeSet(AttributeSet.Type.DIFF_RS);
+            AttributeSet attributeSet = attributeSetMap.get(comparefields.get(0));
+            if (attributeSet != null) {
+                return attributeSet.getSelection();
+            }
+        }
+        int[] compareKeys = new int[size];
+        for (int i = 0; i < size; i++) {
+            try {
+                compareKeys[i] = TagUtils.forName(comparefields.get(i));
+            } catch (IllegalArgumentException e2) {
+                String message = "comparefield=" + comparefields.get(i);
+                throw new WebApplicationException(message,
+                        Response.status(Response.Status.BAD_REQUEST).encoding(message).build());
+            }
+        }
+        return compareKeys;
     }
 
     private void safeRelease(Association as) {

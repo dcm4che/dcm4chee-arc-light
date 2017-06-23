@@ -691,13 +691,13 @@
         "$ref": "attributeFilter.schema.json"
       }
     },
-    "dcmMetadataFilter": {
-      "title": "Metadata Filter",
-      "description": "Named Attribute Filter for WADO-RS Metadata requests.",
+    "dcmAttributeSet": {
+      "title": "Attribute Set",
+      "description": "Named Attribute Set for Query Parameter 'comparefield' of DIFF-RS and Query Parameter 'includefields' of WADO-RS Metadata requests.",
       "type": "array",
-      "titleKey":"{dcmMetadataFilterName}",
+      "titleKey":"{dcmAttributeSetType}:{dcmAttributeSetName}",
       "items" : {
-        "$ref": "metadataFilter.schema.json"
+        "$ref": "attributeSet.schema.json"
       }
     },
     "dcmRemapRetrieveURL": {

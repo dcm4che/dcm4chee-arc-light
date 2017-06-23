@@ -664,7 +664,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.133 NAME 'dcmRSOperation'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.134 NAME 'dcmMetadataFilterName'
-  DESC 'Metadata Filter Name referenced by proprietary "includefields" Query Parameter of WADO-RS Metadata requests'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
@@ -867,7 +867,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.174 NAME 'dcmQueryFetchSize'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.175 NAME 'dcmDiffStudiesIncludefieldAll'
-  DESC 'DICOM Tag as hex string of Attributes beeing compared by the DIFF-RS service with Query Parameter includefield=all. Use QIDO-RS STUDY Returned Attributes, if absent.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.176 NAME 'hl7NoPatientCreateMessageType'
@@ -875,6 +875,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.176 NAME 'hl7NoPatientCreateMessageT
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.177 NAME 'dcmAttributeSetType'
+  DESC 'Specifies if this Attribute Set is used by Query Parameter "comparefield" of DIFF-RS or by Query Parameter "includefields" of WADO-RS requests. Enumerated values: DIFF_RS, WADO_RS'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.178 NAME 'dcmAttributeSetName'
+  DESC 'Name used by Query Parameter "comparefield" of DIFF-RS requests and by Query Parameter "includefields" of WADO-RS Metadata requests to refer this Attribute Set.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1233,7 +1243,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.25 NAME 'dcmRSForwardRule'
   MAY (
     dcmRSOperation ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.26 NAME 'dcmMetadataFilter'
-  DESC 'Named Attribute Filter for WADO-RS Metadata requests'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   SUP top STRUCTURAL
   MUST (
     dcmMetadataFilterName $
@@ -1253,3 +1263,12 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.28 NAME 'hl7OrderSPSStatus'
   MUST (
     dcmSPSStatus $
     hl7OrderControlStatus ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.29 NAME 'dcmAttributeSet'
+  DESC 'Named Attribute Set for Query Parameter "comparefield" of DIFF-RS and Query Parameter "includefields" of WADO-RS Metadata requests.'
+  SUP top STRUCTURAL
+  MUST (
+    dcmAttributeSetType $
+    dcmAttributeSetName $
+    dcmTag )
+  MAY (
+    dicomDescription ) )

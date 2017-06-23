@@ -106,7 +106,6 @@ public class ArchiveAEExtension extends AEExtension {
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
     private String invokeImageDisplayPatientURL;
     private String invokeImageDisplayStudyURL;
-    private int[] diffStudiesIncludefieldAll = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -936,20 +935,6 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getInvokeImageDisplayStudyURL();
     }
 
-    public int[] getDiffStudiesIncludefieldAll() {
-        return diffStudiesIncludefieldAll;
-    }
-
-    public void setDiffStudiesIncludefieldAll(int[] diffStudiesIncludefieldAll) {
-        this.diffStudiesIncludefieldAll = diffStudiesIncludefieldAll;
-    }
-
-    public int[] diffStudiesIncludefieldAll() {
-        return diffStudiesIncludefieldAll.length > 0
-                ? diffStudiesIncludefieldAll
-                : getArchiveDeviceExtension().getDiffStudiesIncludefieldAll();
-    }
-
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -1001,7 +986,6 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
         invokeImageDisplayPatientURL = aeExt.invokeImageDisplayPatientURL;
         invokeImageDisplayStudyURL = aeExt.invokeImageDisplayStudyURL;
-        diffStudiesIncludefieldAll = aeExt.diffStudiesIncludefieldAll;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

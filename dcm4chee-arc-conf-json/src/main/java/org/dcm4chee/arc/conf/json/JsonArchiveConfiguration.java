@@ -212,8 +212,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getAuditUnknownStudyInstanceUID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);
         writer.writeNotNullOrDef("dcmAuditUnknownPatientID",
                 arcDev.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
-        writer.writeNotEmpty("dcmDiffStudiesIncludefieldAll",
-                TagUtils.toHexStrings(arcDev.getDiffStudiesIncludefieldAll()));
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -228,7 +226,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeIDGenerators(writer, arcDev);
         writeHL7ForwardRules(writer, arcDev.getHL7ForwardRules());
         writeRSForwardRules(writer, arcDev.getRSForwardRules());
-        writeMetadataFilters(writer, arcDev);
+        writeAttributeSet(writer, arcDev);
         writeScheduledStations(writer, arcDev.getHL7OrderScheduledStations());
         writeHL7OrderSPSStatus(writer, arcDev.getHL7OrderSPSStatuses());
         writer.writeEnd();
@@ -242,10 +240,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    protected void writeMetadataFilters(JsonWriter writer, ArchiveDeviceExtension arcDev) {
-        writer.writeStartArray("dcmMetadataFilter");
-        for (Map.Entry<String, MetadataFilter> entry : arcDev.getMetadataFilters().entrySet()) {
-            writeMetadataFilter(writer, entry.getKey(), entry.getValue());
+    protected void writeAttributeSet(JsonWriter writer, ArchiveDeviceExtension arcDev) {
+        writer.writeStartArray("dcmAttributeSet");
+        for (Map<String, AttributeSet> map : arcDev.getAttributeSet().values()) {
+            for (AttributeSet attributeSet : map.values()) {
+                writeAttributeSet(writer, attributeSet);
+            }
         }
         writer.writeEnd();
     }
@@ -262,10 +262,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    public void writeMetadataFilter(JsonWriter writer, String filter, MetadataFilter metadataFilter) {
+    public void writeAttributeSet(JsonWriter writer, AttributeSet attributeSet) {
         writer.writeStartObject();
-        writer.writeNotNullOrDef("dcmMetadataFilterName", filter, null);
-        writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(metadataFilter.getSelection()));
+        writer.writeNotNullOrDef("dcmAttributeSetType", attributeSet.getType(), null);
+        writer.writeNotNullOrDef("dcmAttributeSetName", attributeSet.getName(), null);
+        writer.writeNotNullOrDef("dicomDescription", attributeSet.getDescription(), null);
+        writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(attributeSet.getSelection()));
         writer.writeEnd();
     }
 
@@ -585,8 +587,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy", arcAE.getCopyMoveUpdatePolicy(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcAE.getInvokeImageDisplayPatientURL(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcAE.getInvokeImageDisplayStudyURL(), null);
-        writer.writeNotEmpty("dcmDiffStudiesIncludefieldAll",
-                TagUtils.toHexStrings(arcAE.getDiffStudiesIncludefieldAll()));
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
@@ -946,9 +946,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmAuditUnknownPatientID":
                     arcDev.setAuditUnknownPatientID(reader.stringValue());
                     break;
-                case "dcmDiffStudiesIncludefieldAll":
-                    arcDev.setDiffStudiesIncludefieldAll(TagUtils.fromHexStrings(reader.stringArray()));
-                    break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
                     break;
@@ -991,8 +988,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmRSForwardRule":
                     loadRSForwardRules(arcDev.getRSForwardRules(), reader);
                     break;
-                case "dcmMetadataFilter":
-                    loadMetadataFilterListFrom(arcDev, reader);
+                case "dcmAttributeSet":
+                    loadAttributeSetFrom(arcDev, reader);
                     break;
                 case "hl7OrderScheduledStation":
                     loadScheduledStations(arcDev.getHL7OrderScheduledStations(), reader, config);
@@ -1043,26 +1040,32 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private void loadMetadataFilterListFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
+   private void loadAttributeSetFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
             reader.expect(JsonParser.Event.START_OBJECT);
-            MetadataFilter mf = new MetadataFilter();
+            AttributeSet attributeSet = new AttributeSet();
             while (reader.next() == JsonParser.Event.KEY_NAME) {
                 switch (reader.getString()) {
-                    case "dcmMetadataFilterName":
-                        mf.setName(reader.stringValue());
+                    case "dcmAttributeSetType":
+                        attributeSet.setType(AttributeSet.Type.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmAttributeSetName":
+                        attributeSet.setName(reader.stringValue());
+                        break;
+                    case "dicomDescription":
+                        attributeSet.setDescription(reader.stringValue());
                         break;
                     case "dcmTag":
-                        mf.setSelection(TagUtils.fromHexStrings(reader.stringArray()));
+                        attributeSet.setSelection(TagUtils.fromHexStrings(reader.stringArray()));
                         break;
                     default:
                         reader.skipUnknownProperty();
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            arcDev.addMetadataFilter(mf);
+            arcDev.addAttributeSet(attributeSet);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
@@ -1801,9 +1804,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmInvokeImageDisplayStudyURL":
                     arcAE.setInvokeImageDisplayStudyURL(reader.stringValue());
-                    break;
-                case "dcmDiffStudiesIncludefieldAll":
-                    arcAE.setDiffStudiesIncludefieldAll(TagUtils.fromHexStrings(reader.stringArray()));
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

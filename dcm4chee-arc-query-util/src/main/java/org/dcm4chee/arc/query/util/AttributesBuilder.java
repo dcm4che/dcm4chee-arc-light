@@ -64,9 +64,11 @@ public class AttributesBuilder {
         nestedKeys(tagPath).setString(tag, DICT.vrOf(tag), ss);
     }
 
-    public void setNull(int[] tagPath) {
+    public void setNullIfAbsent(int... tagPath) {
         int tag = tagPath[tagPath.length-1];
-        nestedKeys(tagPath).setNull(tag, DICT.vrOf(tag));
+        Attributes item = nestedKeys(tagPath);
+        if (!item.contains(tag))
+            item.setNull(tag, DICT.vrOf(tag));
     }
 
     private Attributes nestedKeys(int[] tags) {

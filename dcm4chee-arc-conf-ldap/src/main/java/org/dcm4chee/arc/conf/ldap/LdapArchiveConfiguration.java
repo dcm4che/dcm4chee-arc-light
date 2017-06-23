@@ -100,7 +100,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCPLeadingCFindSCP", ext.getFallbackCMoveSCPLeadingCFindSCP(), null);
         LdapUtils.storeNotDef(attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries(), 0);
         LdapUtils.storeNotNullOrDef(attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP(), null);
-        storeNotEmptyTags(attrs, "dcmDiffStudiesIncludefieldAll", ext.getDiffStudiesIncludefieldAll());
         LdapUtils.storeNotNullOrDef(attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
@@ -242,7 +241,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setFallbackCMoveSCPRetries(LdapUtils.intValue(attrs.get("dcmFallbackCMoveSCPRetries"), 0));
         ext.setFallbackCMoveSCPLeadingCFindSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPLeadingCFindSCP"), null));
         ext.setAlternativeCMoveSCP(LdapUtils.stringValue(attrs.get("dcmAltCMoveSCP"), null));
-        ext.setDiffStudiesIncludefieldAll(tags(attrs.get("dcmDiffStudiesIncludefieldAll")));
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
         ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
@@ -413,7 +411,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPLeadingCFindSCP",
                 aa.getFallbackCMoveSCPLeadingCFindSCP(), bb.getFallbackCMoveSCPLeadingCFindSCP(), null);
         LdapUtils.storeDiffObject(mods, "dcmAltCMoveSCP", aa.getAlternativeCMoveSCP(), bb.getAlternativeCMoveSCP(), null);
-        storeDiffTags(mods, "dcmDiffStudiesIncludefieldAll", aa.getDiffStudiesIncludefieldAll(), bb.getDiffStudiesIncludefieldAll());
         LdapUtils.storeDiffObject(mods, "dcmWadoSR2HtmlTemplateURI",
                 aa.getWadoSR2HtmlTemplateURI(), bb.getWadoSR2HtmlTemplateURI(), null);
         LdapUtils.storeDiffObject(mods, "dcmWadoSR2TextTemplateURI",
@@ -622,7 +619,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeIDGenerators(deviceDN, arcDev);
         storeHL7ForwardRules(arcDev.getHL7ForwardRules(), deviceDN, config);
         storeRSForwardRules(arcDev.getRSForwardRules(), deviceDN);
-        storeMetadataFilter(deviceDN, arcDev);
+        storeAttributeSet(deviceDN, arcDev);
         storeScheduledStations(arcDev.getHL7OrderScheduledStations(), deviceDN, config);
         storeHL7OrderSPSStatus(arcDev.getHL7OrderSPSStatuses(), deviceDN, config);
     }
@@ -648,7 +645,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadIDGenerators(arcdev, deviceDN);
         loadHL7ForwardRules(arcdev.getHL7ForwardRules(), deviceDN, config);
         loadRSForwardRules(arcdev.getRSForwardRules(), deviceDN);
-        loadMetadataFilters(arcdev, deviceDN);
+        loadAttributeSet(arcdev, deviceDN);
         loadScheduledStations(arcdev.getHL7OrderScheduledStations(), deviceDN, config);
         loadHL7OrderSPSStatus(arcdev.getHL7OrderSPSStatuses(), deviceDN, config);
     }
@@ -682,7 +679,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeIDGenerators(aa, bb, deviceDN);
         mergeHL7ForwardRules(aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), deviceDN, config);
         mergeRSForwardRules(aa.getRSForwardRules(), bb.getRSForwardRules(), deviceDN);
-        mergeMetadataFilters(aa, bb, deviceDN);
+        mergeAttributeSet(aa, bb, deviceDN);
         mergeScheduledStations(aa.getHL7OrderScheduledStations(), bb.getHL7OrderScheduledStations(), deviceDN, config);
         mergeHL7OrderSPSStatus(aa.getHL7OrderSPSStatuses(), bb.getHL7OrderSPSStatuses(), deviceDN, config);
     }
@@ -713,7 +710,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries());
         LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCPLeadingCFindSCP", ext.getFallbackCMoveSCPLeadingCFindSCP(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP(), null);
-        storeNotEmptyTags(attrs, "dcmDiffStudiesIncludefieldAll", ext.getDiffStudiesIncludefieldAll());
         LdapUtils.storeNotNullOrDef(attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI(), null);
         LdapUtils.storeNotNull(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults());
@@ -777,7 +773,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setFallbackCMoveSCPRetries(LdapUtils.intValue(attrs.get("dcmFallbackCMoveSCPRetries"), null));
         ext.setFallbackCMoveSCPLeadingCFindSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPLeadingCFindSCP"), null));
         ext.setAlternativeCMoveSCP(LdapUtils.stringValue(attrs.get("dcmAltCMoveSCP"), null));
-        ext.setDiffStudiesIncludefieldAll(tags(attrs.get("dcmDiffStudiesIncludefieldAll")));
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
         ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), null));
@@ -864,7 +859,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPLeadingCFindSCP",
                 aa.getFallbackCMoveSCPLeadingCFindSCP(), bb.getFallbackCMoveSCPLeadingCFindSCP(), null);
         LdapUtils.storeDiffObject(mods, "dcmAltCMoveSCP", aa.getAlternativeCMoveSCP(), bb.getAlternativeCMoveSCP(), null);
-        storeDiffTags(mods, "dcmDiffStudiesIncludefieldAll", aa.getDiffStudiesIncludefieldAll(), bb.getDiffStudiesIncludefieldAll());
         LdapUtils.storeDiffObject(mods, "dcmWadoSR2HtmlTemplateURI",
                 aa.getWadoSR2HtmlTemplateURI(), bb.getWadoSR2HtmlTemplateURI(), null);
         LdapUtils.storeDiffObject(mods, "dcmWadoSR2TextTemplateURI",
@@ -974,13 +968,25 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void storeMetadataFilter(String deviceDN, ArchiveDeviceExtension arcDev)
+    private void storeAttributeSet(String deviceDN, ArchiveDeviceExtension arcDev)
             throws NamingException {
-        for (Map.Entry<String, MetadataFilter> entry : arcDev.getMetadataFilters().entrySet()) {
-            config.createSubcontext(
-                    LdapUtils.dnOf("dcmMetadataFilterName", entry.getKey(), deviceDN),
-                    storeTo(entry.getValue(), entry.getKey(), new BasicAttributes(true)));
+        for (Map<String, AttributeSet> map : arcDev.getAttributeSet().values()) {
+            for (AttributeSet attributeSet : map.values()) {
+                config.createSubcontext(
+                        LdapUtils.dnOf("dcmAttributeSetType", attributeSet.getType().name(),
+                                "dcmAttributeSetName", attributeSet.getName(), deviceDN),
+                        storeTo(attributeSet, new BasicAttributes(true)));
+            }
         }
+    }
+
+    private Attributes storeTo(AttributeSet attributeSet, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmAttributeSet");
+        attrs.put("dcmAttributeSetType", attributeSet.getType().name());
+        attrs.put("dcmAttributeSetName", attributeSet.getName());
+        LdapUtils.storeNotNullOrDef(attrs, "dicomDescription", attributeSet.getDescription(), null);
+        storeNotEmptyTags(attrs, "dcmTag", attributeSet.getSelection());
+        return attrs;
     }
 
     private static Attributes storeTo(AttributeFilter filter, Entity entity,  BasicAttributes attrs) {
@@ -991,13 +997,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "dcmCustomAttribute2", filter.getCustomAttribute2(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmCustomAttribute3", filter.getCustomAttribute3(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmAttributeUpdatePolicy", filter.getAttributeUpdatePolicy(), null);
-        return attrs;
-    }
-
-    private static Attributes storeTo(MetadataFilter filter, String filterName,  BasicAttributes attrs) {
-        attrs.put("objectclass", "dcmMetadataFilter");
-        attrs.put("dcmMetadataFilterName", filterName);
-        storeNotEmptyTags(attrs, "dcmTag", filter.getSelection());
         return attrs;
     }
 
@@ -1044,17 +1043,19 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void loadMetadataFilters(ArchiveDeviceExtension device, String deviceDN)
-            throws NamingException {
-        NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=dcmMetadataFilter)");
+    private void loadAttributeSet(ArchiveDeviceExtension device, String deviceDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=dcmAttributeSet)");
         try {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
-                MetadataFilter filter = new MetadataFilter();
-                filter.setName(LdapUtils.stringValue(attrs.get("dcmMetadataFilterName"), null));
-                filter.setSelection(tags(attrs.get("dcmTag")));
-                device.addMetadataFilter(filter);
+                AttributeSet attributeSet = new AttributeSet();
+                attributeSet.setType(
+                        LdapUtils.enumValue(AttributeSet.Type.class, attrs.get("dcmAttributeSetType"), null));
+                attributeSet.setName(LdapUtils.stringValue(attrs.get("dcmAttributeSetName"), null));
+                attributeSet.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
+                attributeSet.setSelection(tags(attrs.get("dcmTag")));
+                device.addAttributeSet(attributeSet);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -1113,21 +1114,29 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void mergeMetadataFilters(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev,
+    private void mergeAttributeSet(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev,
                                        String deviceDN) throws NamingException {
-        for (String filterName : prev.getMetadataFilters().keySet())
-            if (!arcDev.getMetadataFilters().containsKey(filterName))
-                config.destroySubcontext(LdapUtils.dnOf("dcmMetadataFilterName", filterName, deviceDN));
-        for (Map.Entry<String, MetadataFilter> entry : arcDev.getMetadataFilters().entrySet()) {
-            String filterName = entry.getKey();
-            String dn = LdapUtils.dnOf("dcmMetadataFilterName", filterName, deviceDN);
-            MetadataFilter prevFilter = prev.getMetadataFilters().get(filterName);
-            if (prevFilter == null)
-                config.createSubcontext(dn,
-                        storeTo(entry.getValue(), filterName, new BasicAttributes(true)));
-            else
-                config.modifyAttributes(dn,
-                        storeDiffs(prevFilter, entry.getValue(), new ArrayList<ModificationItem>()));
+        for (Map.Entry<AttributeSet.Type, Map<String, AttributeSet>> prevEntry : prev.getAttributeSet().entrySet()) {
+            AttributeSet.Type type = prevEntry.getKey();
+            Map<String, AttributeSet> map = arcDev.getAttributeSet(type);
+            for (String name : prevEntry.getValue().keySet()) {
+                if (!map.containsKey(name))
+                    config.destroySubcontext(LdapUtils.dnOf("dcmAttributeSetType", type.name(),
+                                "dcmAttributeSetName", name, deviceDN));
+            }
+        }
+        for (Map.Entry<AttributeSet.Type, Map<String, AttributeSet>> entry : arcDev.getAttributeSet().entrySet()) {
+            Map<String, AttributeSet> prevMap = arcDev.getAttributeSet(entry.getKey());
+            for (AttributeSet attributeSet : entry.getValue().values()) {
+                String dn = LdapUtils.dnOf("dcmAttributeSetType", attributeSet.getType().name(),
+                        "dcmAttributeSetName", attributeSet.getName(), deviceDN);
+                AttributeSet prevAttributeSet = prevMap.get(attributeSet.getName());
+                if (prevAttributeSet == null)
+                    config.createSubcontext(dn, storeTo(attributeSet, new BasicAttributes(true)));
+                else
+                    config.modifyAttributes(dn,
+                            storeDiffs(prevAttributeSet, attributeSet, new ArrayList<ModificationItem>()));
+            }
         }
     }
 
@@ -1162,9 +1171,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
-    private List<ModificationItem> storeDiffs(MetadataFilter prev, MetadataFilter filter,
+    private List<ModificationItem> storeDiffs(AttributeSet prev, AttributeSet attributeSet,
                                               List<ModificationItem> mods) {
-        storeDiffTags(mods, "dcmTag", prev.getSelection(), filter.getSelection());
+        LdapUtils.storeDiffObject(mods, "dicomDescription",
+                prev.getDescription(), attributeSet.getDescription(), null);
+        storeDiffTags(mods, "dcmTag", prev.getSelection(), attributeSet.getSelection());
         return mods;
     }
 
