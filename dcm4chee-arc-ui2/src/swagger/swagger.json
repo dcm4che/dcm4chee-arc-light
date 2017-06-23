@@ -501,9 +501,7 @@
             "in": "body",
             "description": "updated device vendor data",
             "required": true,
-            "schema": {
-              "type": "file"
-            }
+            "type": "file"
           }
         ],
         "responses": {
