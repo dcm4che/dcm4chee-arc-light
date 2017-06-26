@@ -14,6 +14,7 @@
       <xsl:apply-templates select="PV1"/>
       <xsl:apply-templates select="ORC[1]"/>
       <xsl:apply-templates select="OBR[1]"/>
+      <xsl:apply-templates select="TQ1[1]"/>
       <!-- Scheduled Procedure Step Sequence -->
       <DicomAttribute tag="00400100" vr="SQ">
         <xsl:apply-templates select="ORC" mode="sps"/>
@@ -93,6 +94,11 @@
         </Value>
       </DicomAttribute>
     </xsl:if>
+  </xsl:template>
+  <xsl:template match="TQ1[1]">
+    <xsl:call-template name="procedurePriority">
+      <xsl:with-param name="priority" select="field[9]"/>
+    </xsl:call-template>
   </xsl:template>
   <xsl:template match="OBR[1]">
     <!-- Medical Alerts -->
