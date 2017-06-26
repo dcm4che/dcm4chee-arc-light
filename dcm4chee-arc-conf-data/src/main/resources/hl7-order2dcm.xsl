@@ -130,22 +130,17 @@
       <xsl:with-param name="vr" select="'SH'"/>
       <xsl:with-param name="val" select="string(field[19]/text())"/>
     </xsl:call-template>
-    <!-- Reason for the Requested Procedure -->
-    <xsl:call-template name="attr">
-      <xsl:with-param name="tag" select="'00401002'"/>
-      <xsl:with-param name="vr" select="'LO'"/>
-      <xsl:with-param name="val" select="substring(field[31]/component[1],1,64)"/>
+    <!-- Reason for the Requested Procedure Code and Sequence -->
+    <xsl:call-template name="ce2codeItemWithDesc">
+      <xsl:with-param name="descTag" select="'00401002'"/>
+      <xsl:with-param name="seqTag" select="'0040100A'"/>
+      <xsl:with-param name="codedEntry" select="field[31]"/>
     </xsl:call-template>
     <!-- Patient Transport Arrangements -->
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'00401004'"/>
       <xsl:with-param name="vr" select="'LO'"/>
       <xsl:with-param name="val" select="substring(field[30]/text(),1,64)"/>
-    </xsl:call-template>
-    <!-- Reason for Requested Procedure Code Sequence -->
-    <xsl:call-template name="ce2codeItem">
-      <xsl:with-param name="seqTag" select="'0040100A'"/>
-      <xsl:with-param name="codedEntry" select="field[30]"/>
     </xsl:call-template>
   </xsl:template>
   <xsl:template match="ORC" mode="sps">
