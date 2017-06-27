@@ -359,12 +359,18 @@ export class AeListComponent{
 /*                                    $this.$http.delete(
                                         "../unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle
                                     ).subscribe((response) => {
-                                        $this.mainservice.setMessage({
-                                            "title": "Error",
-                                            "text": "Aet couldn't be registered!",
-                                            "status": "error"
-                                        });
                                     });*/
+                                    let msg = err.statusText;
+                                    try{
+                                        msg = JSON.parse(err._body).errorMessage;
+                                    }catch (e){
+
+                                    }
+                                    $this.mainservice.setMessage({
+                                        "title": "Error",
+                                        "text": msg,
+                                        "status": "error"
+                                    });
                                 });
                     }else{
                         re.device.dicomNetworkAE =  re.device.dicomNetworkAE || [];
