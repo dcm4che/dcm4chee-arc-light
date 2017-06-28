@@ -42,18 +42,16 @@ package org.dcm4chee.arc.query.scp;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.net.Commands;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicQueryTask;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.query.Query;
+import org.dcm4chee.arc.query.QueryContext;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,50 +66,53 @@ public class ArchiveQueryTask extends BasicQueryTask {
     private static final Logger LOG = LoggerFactory.getLogger(ArchiveQueryTask.class);
 
     private final Query query;
-    private final QueryRetrieveLevel2 qrLevel;
+    private Transaction transaction;
 
-    public ArchiveQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, Query query,
-                            QueryRetrieveLevel2 qrLevel) throws DicomServiceException {
+    public ArchiveQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, Query query) {
         super(as, pc, rq, keys);
         this.query = query;
-        this.qrLevel = qrLevel;
         setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
     }
 
     @Override
     public void run() {
-        Transaction transaction = query.beginTransaction();
         try {
             query.initQuery();
-            query.setFetchSize(getQueryFetchSize(as));
+            QueryContext ctx = query.getQueryContext();
+            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+            ArchiveDeviceExtension arcdev = arcAE.getArchiveDeviceExtension();
+            int queryMaxNumberOfResults = arcAE.queryMaxNumberOfResults();
+            if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
+                    && query.count() > queryMaxNumberOfResults) {
+                throw new DicomServiceException(Status.UnableToProcess, "Request entity too large");
+            }
+            transaction = query.beginTransaction();
+            query.setFetchSize(arcdev.getQueryFetchSize());
             query.executeQuery();
             super.run();
+        } catch (DicomServiceException e) {
+            writeDimseRSP(e);
         } catch (Exception e) {
-            try {
-                Attributes rsp = Commands.mkRSP(rq, Status.UnableToCalculateNumberOfMatches, Dimse.C_FIND_RQ);
-                rsp.setString(Tag.ErrorComment, VR.LO, StringUtils.truncate(e.getMessage(), 64));
-                as.writeDimseRSP(pc, rsp, null);
-            } catch (IOException e1) {
-                // handled by Association
-            }
-            close();
+            writeDimseRSP(new DicomServiceException(Status.UnableToProcess, e));
         } finally {
-            try {
-                transaction.commit();
-            } catch (Exception e) {
-                LOG.warn("Failed to commit transaction:\n{}", e);
-            }
+            if (transaction != null)
+                try {
+                    transaction.commit();
+                } catch (Exception e) {
+                    LOG.warn("Failed to commit transaction:\n{}", e);
+                }
+            query.close();
         }
     }
 
-    private int getQueryFetchSize(Association as) {
-        return as.getApplicationEntity().getDevice().getDeviceExtension(ArchiveDeviceExtension.class)
-                .getQueryFetchSize();
-    }
-
-    @Override
-    protected void close() {
-        query.close();
+    private void writeDimseRSP(DicomServiceException e) {
+        int msgId = rq.getInt(Tag.MessageID, -1);
+        Attributes rsp = e.mkRSP(Dimse.C_FIND_RSP.commandField(), msgId);
+        try {
+            as.writeDimseRSP(pc, rsp, null);
+        } catch (IOException e1) {
+            // handled by Association
+        }
     }
 
     @Override
@@ -140,7 +141,7 @@ public class ArchiveQueryTask extends BasicQueryTask {
             return null;
         Attributes adjust = query.adjust(match);
         adjust.addSelected(keys, null, Tag.QueryRetrieveLevel);
-        switch (qrLevel) {
+        switch (query.getQueryContext().getQueryRetrieveLevel()) {
             case STUDY:
                 return (adjust.getInt(Tag.NumberOfStudyRelatedInstances, -1) == 0) ? null : adjust;
             case SERIES:

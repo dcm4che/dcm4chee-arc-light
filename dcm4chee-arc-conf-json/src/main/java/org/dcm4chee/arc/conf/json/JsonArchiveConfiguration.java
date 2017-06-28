@@ -100,6 +100,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmWadoSR2HtmlTemplateURI", arcDev.getWadoSR2HtmlTemplateURI(), null);
         writer.writeNotNullOrDef("dcmWadoSR2TextTemplateURI", arcDev.getWadoSR2TextTemplateURI(), null);
         writer.writeNotDef("dcmQueryFetchSize", arcDev.getQueryFetchSize(), 100);
+        writer.writeNotDef("dcmQueryMaxNumberOfResults", arcDev.getQueryMaxNumberOfResults(), 0);
         writer.writeNotDef("dcmQidoMaxNumberOfResults", arcDev.getQidoMaxNumberOfResults(), 0);
         writer.writeNotEmpty("dcmFwdMppsDestination", arcDev.getMppsForwardDestinations());
         writer.writeNotEmpty("dcmIanDestination", arcDev.getIanDestinations());
@@ -545,6 +546,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmSendPendingCMoveInterval", arcAE.getSendPendingCMoveInterval(), null);
         writer.writeNotNullOrDef("dcmWadoSR2HtmlTemplateURI", arcAE.getWadoSR2HtmlTemplateURI(), null);
         writer.writeNotNullOrDef("dcmWadoSR2TextTemplateURI", arcAE.getWadoSR2TextTemplateURI(), null);
+        writer.writeNotNull("dcmQueryMaxNumberOfResults", arcAE.getQueryMaxNumberOfResults());
         writer.writeNotNull("dcmQidoMaxNumberOfResults", arcAE.getQidoMaxNumberOfResults());
         writer.writeNotEmpty("dcmFwdMppsDestination", arcAE.getMppsForwardDestinations());
         writer.writeNotEmpty("dcmIanDestination", arcAE.getIanDestinations());
@@ -671,6 +673,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmQueryFetchSize":
                     arcDev.setQueryFetchSize(reader.intValue());
+                    break;
+                case "dcmQueryMaxNumberOfResults":
+                    arcDev.setQueryMaxNumberOfResults(reader.intValue());
                     break;
                 case "dcmQidoMaxNumberOfResults":
                     arcDev.setQidoMaxNumberOfResults(reader.intValue());
@@ -1695,6 +1700,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoSR2TextTemplateURI":
                     arcAE.setWadoSR2TextTemplateURI(reader.stringValue());
+                    break;
+                case "dcmQueryMaxNumberOfResults":
+                    arcAE.setQueryMaxNumberOfResults(reader.intValue());
                     break;
                 case "dcmQidoMaxNumberOfResults":
                     arcAE.setQidoMaxNumberOfResults(reader.intValue());

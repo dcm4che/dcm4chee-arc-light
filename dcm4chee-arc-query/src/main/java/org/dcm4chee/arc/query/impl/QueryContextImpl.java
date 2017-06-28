@@ -196,6 +196,14 @@ class QueryContextImpl implements QueryContext {
     }
 
     @Override
+    public boolean containsUniqueKey() {
+        return patientIDs.length > 0
+                || queryKeys.containsValue(Tag.StudyInstanceUID)
+                || qrLevel.compareTo(QueryRetrieveLevel2.SERIES) >= 0 && (queryKeys.containsValue(Tag.SeriesInstanceUID)
+                || qrLevel == QueryRetrieveLevel2.IMAGE && queryKeys.containsValue(Tag.SOPInstanceUID));
+    }
+
+    @Override
     public boolean isOrderByPatientName() {
         return orderByPatientName;
     }

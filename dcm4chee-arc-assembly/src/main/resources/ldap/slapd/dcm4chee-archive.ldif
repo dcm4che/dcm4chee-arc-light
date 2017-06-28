@@ -885,6 +885,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.178 NAME 'dcmAttributeSetName'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.179 NAME 'dcmQueryMaxNumberOfResults'
+  DESC 'Maximal number of return results by C-FIND SCP. If the the number of matches extends the limit, the C-FIND request will be refused. 0 (=unlimited) if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -918,6 +923,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmWadoSR2HtmlTemplateURI $
     dcmWadoSR2TextTemplateURI $
     dcmQueryFetchSize $
+    dcmQueryMaxNumberOfResults $
     dcmQidoMaxNumberOfResults $
     dcmFwdMppsDestination $
     dcmIanDestination $
@@ -1034,6 +1040,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmSendPendingCMoveInterval $
     dcmWadoSR2HtmlTemplateURI $
     dcmWadoSR2TextTemplateURI $
+    dcmQueryMaxNumberOfResults $
     dcmQidoMaxNumberOfResults $
     dcmFwdMppsDestination $
     dcmIanDestination $

@@ -163,7 +163,13 @@
       "description": "Specifies URI for the style sheet used to render structured reports to plain text",
       "type": "string"
     },
-    "dcmQidoMaxNumberOfResults": {
+    "dcmQueryMaxNumberOfResults": {
+      "title": "Query Max Number Of Results",
+      "description": "Maximal number of return results by C-FIND SCP. If the the number of matches extends the limit, the C-FIND request will be refused. 0 = no limitation. Overwrites value specified on Device level.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "Overwrites value specified on Device level.": {
       "title": "Qido Max Number Of Results",
       "description": "Maximal number of return results by QIDO-RS Service. 0 = unlimited. Overwrites value specified on Device level.",
       "type": "integer",

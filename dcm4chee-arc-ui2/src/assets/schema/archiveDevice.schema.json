@@ -14,6 +14,7 @@
     "dcmPersonNameComponentOrderInsensitiveMatching",
     "dcmSendPendingCGet",
     "dcmQueryFetchSize",
+    "dcmQueryMaxNumberOfResults",
     "dcmQidoMaxNumberOfResults",
     "dcmIanOnTimeout",
     "dcmIanTaskFetchSize",
@@ -218,6 +219,13 @@
       "description": "Number of rows fetched from the database at once by the Query Service.",
       "type": "integer",
       "default": 100,
+      "minimum": 0
+    },
+    "dcmQueryMaxNumberOfResults": {
+      "title": "Query Max Number Of Results",
+      "description": "Maximal number of return results by C-FIND SCP. If the the number of matches extends the limit, the C-FIND request will be refused. 0 = no limitation. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "integer",
+      "default": 0,
       "minimum": 0
     },
     "dcmQidoMaxNumberOfResults": {

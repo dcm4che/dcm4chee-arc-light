@@ -95,6 +95,8 @@ public interface QueryContext {
 
     void setReturnKeys(Attributes returnKeys);
 
+    boolean containsUniqueKey();
+
     boolean isOrderByPatientName();
 
     void setOrderByPatientName(boolean orderByPatientName);

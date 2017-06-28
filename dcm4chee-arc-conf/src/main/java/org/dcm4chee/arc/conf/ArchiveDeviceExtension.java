@@ -85,6 +85,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration sendPendingCMoveInterval;
     private boolean personNameComponentOrderInsensitiveMatching = false;
     private int queryFetchSize = 100;
+    private int queryMaxNumberOfResults = 0;
     private int qidoMaxNumberOfResults = 0;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
@@ -558,6 +559,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setQueryFetchSize(int queryFetchSize) {
        this.queryFetchSize = greaterOrEqualsZero(queryFetchSize, "queryFetchSize");
+    }
+
+    public int getQueryMaxNumberOfResults() {
+        return queryMaxNumberOfResults;
+    }
+
+    public void setQueryMaxNumberOfResults(int queryMaxNumberOfResults) {
+        this.queryMaxNumberOfResults = queryMaxNumberOfResults;
     }
 
     public int getQidoMaxNumberOfResults() {
@@ -1582,6 +1591,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         importReportTemplateURI = arcdev.importReportTemplateURI;
         scheduleProcedureTemplateURI = arcdev.scheduleProcedureTemplateURI;
         queryFetchSize = arcdev.queryFetchSize;
+        queryMaxNumberOfResults = arcdev.queryMaxNumberOfResults;
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;
         queryRetrieveViewMap.clear();
         queryRetrieveViewMap.putAll(arcdev.queryRetrieveViewMap);

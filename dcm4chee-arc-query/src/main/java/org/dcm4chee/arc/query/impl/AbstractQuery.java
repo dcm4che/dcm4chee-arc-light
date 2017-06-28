@@ -45,6 +45,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
@@ -75,6 +76,11 @@ abstract class AbstractQuery implements Query {
 
     public void initQuery() {
         query = newHibernateQuery();
+    }
+
+    @Override
+    public QueryContext getQueryContext() {
+        return context;
     }
 
     @Override

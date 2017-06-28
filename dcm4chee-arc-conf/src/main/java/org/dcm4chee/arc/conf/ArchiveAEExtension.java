@@ -85,6 +85,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String fallbackCMoveSCPStudyOlderThan;
     private String externalRetrieveAEDestination;
     private String alternativeCMoveSCP;
+    private Integer queryMaxNumberOfResults;
     private Integer qidoMaxNumberOfResults;
     private SPSStatus[] hideSPSWithStatusFromMWL = {};
     private String storePermissionServiceURL;
@@ -499,6 +500,20 @@ public class ArchiveAEExtension extends AEExtension {
         return fallbackCMoveSCPStudyOlderThan != null
                 ? fallbackCMoveSCPStudyOlderThan
                 : getArchiveDeviceExtension().getFallbackCMoveSCPStudyOlderThan();
+    }
+
+    public Integer getQueryMaxNumberOfResults() {
+        return queryMaxNumberOfResults;
+    }
+
+    public void setQueryMaxNumberOfResults(Integer queryMaxNumberOfResults) {
+        this.queryMaxNumberOfResults = queryMaxNumberOfResults;
+    }
+
+    public int queryMaxNumberOfResults() {
+        return queryMaxNumberOfResults != null
+                ? queryMaxNumberOfResults.intValue()
+                : getArchiveDeviceExtension().getQueryMaxNumberOfResults();
     }
 
     public Integer getQidoMaxNumberOfResults() {
@@ -965,6 +980,7 @@ public class ArchiveAEExtension extends AEExtension {
         fallbackCMoveSCPRetries = aeExt.fallbackCMoveSCPRetries;
         externalRetrieveAEDestination = aeExt.externalRetrieveAEDestination;
         alternativeCMoveSCP = aeExt.alternativeCMoveSCP;
+        queryMaxNumberOfResults = aeExt.queryMaxNumberOfResults;
         qidoMaxNumberOfResults = aeExt.qidoMaxNumberOfResults;
         hideSPSWithStatusFromMWL = aeExt.hideSPSWithStatusFromMWL;
         fallbackCMoveSCPStudyOlderThan = aeExt.fallbackCMoveSCPStudyOlderThan;
