@@ -44,14 +44,13 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.hibernate.StatelessSession;
+import org.hibernate.Transaction;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -76,6 +75,11 @@ abstract class AbstractQuery implements Query {
 
     public void initQuery() {
         query = newHibernateQuery();
+    }
+
+    @Override
+    public Transaction beginTransaction() {
+        return session.beginTransaction();
     }
 
     protected abstract HibernateQuery<Tuple> newHibernateQuery();

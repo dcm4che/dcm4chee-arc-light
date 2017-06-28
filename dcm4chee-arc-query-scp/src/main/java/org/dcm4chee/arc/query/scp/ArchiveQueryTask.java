@@ -42,20 +42,30 @@ package org.dcm4chee.arc.query.scp;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Commands;
+import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicQueryTask;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.query.Query;
+import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
 public class ArchiveQueryTask extends BasicQueryTask {
+    private static final Logger LOG = LoggerFactory.getLogger(ArchiveQueryTask.class);
 
     private final Query query;
     private final QueryRetrieveLevel2 qrLevel;
@@ -65,14 +75,33 @@ public class ArchiveQueryTask extends BasicQueryTask {
         super(as, pc, rq, keys);
         this.query = query;
         this.qrLevel = qrLevel;
+        setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
+    }
+
+    @Override
+    public void run() {
+        Transaction transaction = query.beginTransaction();
         try {
             query.initQuery();
             query.setFetchSize(getQueryFetchSize(as));
             query.executeQuery();
+            super.run();
         } catch (Exception e) {
-            throw new DicomServiceException(Status.UnableToCalculateNumberOfMatches, e);
+            try {
+                Attributes rsp = Commands.mkRSP(rq, Status.UnableToCalculateNumberOfMatches, Dimse.C_FIND_RQ);
+                rsp.setString(Tag.ErrorComment, VR.LO, StringUtils.truncate(e.getMessage(), 64));
+                as.writeDimseRSP(pc, rsp, null);
+            } catch (IOException e1) {
+                // handled by Association
+            }
+            close();
+        } finally {
+            try {
+                transaction.commit();
+            } catch (Exception e) {
+                LOG.warn("Failed to commit transaction:\n{}", e);
+            }
         }
-        setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
     }
 
     private int getQueryFetchSize(Association as) {

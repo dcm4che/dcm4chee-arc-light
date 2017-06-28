@@ -62,6 +62,8 @@ import org.dcm4chee.arc.query.util.QueryParam;
 import org.hibernate.Session;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -474,6 +476,7 @@ public class QueryServiceEJB {
     }
 
 
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryParam queryParam) {
         StudyQueryAttributesBuilder builder = new StudyQueryAttributesBuilder();
         for (Tuple tuple : new HibernateQuery<Void>(em.unwrap(Session.class))
@@ -514,6 +517,7 @@ public class QueryServiceEJB {
                 queryParam.getHideRejectionNotesWithCode(), queryParam.getShowInstancesRejectedByCode());
     }
 
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView,
                                                                 CodeEntity[] hideRejectionNotesWithCode,
                                                                 CodeEntity[] showInstancesRejectedByCode) {
