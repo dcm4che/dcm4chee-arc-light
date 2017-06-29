@@ -59,6 +59,7 @@ import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
+import org.hibernate.Transaction;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.slf4j.Logger;
@@ -380,6 +381,7 @@ public class QidoRS {
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, includetags, model);
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         Query query = model.createQuery(service, ctx);
+        Transaction transaction = null;
         try {
             query.initQuery();
             query.setFetchSize(arcAE.getArchiveDeviceExtension().getQueryFetchSize());
@@ -412,7 +414,7 @@ public class QidoRS {
                     list.add(model.getPk().asc());
                 query.orderBy(list.toArray(new OrderSpecifier<?>[list.size()]));
             }
-
+            transaction = query.beginTransaction();
             query.executeQuery();
             if (!query.hasMoreMatches())
                 return Response.noContent().build();
@@ -423,6 +425,12 @@ public class QidoRS {
 
             return builder.entity(output.entity(this, method, query, model)).build();
         } finally {
+            if (transaction != null)
+                try {
+                    transaction.commit();
+                } catch (Exception e) {
+                    LOG.warn("Failed to commit transaction:\n{}", e);
+                }
             query.close();
         }
     }
