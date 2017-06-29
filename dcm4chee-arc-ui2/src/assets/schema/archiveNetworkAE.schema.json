@@ -169,7 +169,7 @@
       "type": "integer",
       "minimum": 0
     },
-    "Overwrites value specified on Device level.": {
+    "dcmQidoMaxNumberOfResults": {
       "title": "Qido Max Number Of Results",
       "description": "Maximal number of return results by QIDO-RS Service. 0 = unlimited. Overwrites value specified on Device level.",
       "type": "integer",
