@@ -612,8 +612,6 @@ export class DeviceConfiguratorService{
                             }
                             break;
                         case 'integer':
-                            console.log("i",i);
-                            console.log("parseFloat(value)",parseFloat(value));
                             form.push(
                                 new InputNumber({
                                     key: i,
