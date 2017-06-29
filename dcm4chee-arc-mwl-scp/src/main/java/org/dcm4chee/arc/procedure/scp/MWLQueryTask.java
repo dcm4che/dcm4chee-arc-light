@@ -41,32 +41,37 @@
 package org.dcm4chee.arc.procedure.scp;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicQueryTask;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.query.Query;
+import org.dcm4chee.arc.query.QueryContext;
+import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jun 2016
  */
 public class MWLQueryTask extends BasicQueryTask {
+    private static final Logger LOG = LoggerFactory.getLogger(MWLQueryTask.class);
+
     private final Query query;
+    private Transaction transaction;
 
     public MWLQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, Query query)
             throws DicomServiceException {
         super(as, pc, rq, keys);
         this.query = query;
-        try {
-            query.initQuery();
-            query.setFetchSize(getQueryFetchSize(as));
-            query.executeQuery();
-        } catch (Exception e) {
-            throw new DicomServiceException(Status.UnableToCalculateNumberOfMatches, e);
-        }
         setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
     }
 
@@ -76,8 +81,37 @@ public class MWLQueryTask extends BasicQueryTask {
     }
 
     @Override
-    protected void close() {
-        query.close();
+    public void run() {
+        try {
+            query.initQuery();
+            QueryContext ctx = query.getQueryContext();
+            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+            ArchiveDeviceExtension arcdev = arcAE.getArchiveDeviceExtension();
+            transaction = query.beginTransaction();
+            query.setFetchSize(arcdev.getQueryFetchSize());
+            query.executeQuery();
+            super.run();
+        } catch (Exception e) {
+            writeDimseRSP(new DicomServiceException(Status.UnableToProcess, e));
+        } finally {
+            if (transaction != null)
+                try {
+                    transaction.commit();
+                } catch (Exception e) {
+                    LOG.warn("Failed to commit transaction:\n{}", e);
+                }
+            query.close();
+        }
+    }
+
+    private void writeDimseRSP(DicomServiceException e) {
+        int msgId = rq.getInt(Tag.MessageID, -1);
+        Attributes rsp = e.mkRSP(Dimse.C_FIND_RSP.commandField(), msgId);
+        try {
+            as.writeDimseRSP(pc, rsp, null);
+        } catch (IOException e1) {
+            // handled by Association
+        }
     }
 
     @Override
