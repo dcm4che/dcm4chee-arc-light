@@ -126,8 +126,14 @@ export class FormService{
                 default:
                     if (element.key){
                         if (element['type'] === 'number'){
-                            group[element.key] = validation ? $this._fb.control(element.value || NaN, validation)
-                                : $this._fb.control(element.value || NaN);
+                            let localValue;
+                            if(element.value || element.value === 0){
+                                localValue = element.value;
+                            }else{
+                                localValue = NaN;
+                            }
+                            group[element.key] = validation ? $this._fb.control(localValue, validation)
+                                : $this._fb.control(localValue);
                         }else{
                             let tempValue = "";
                             if(element.value || element.value === false){
