@@ -889,7 +889,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.178 NAME 'dcmAttributeSetName'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.179 NAME 'dcmQueryMaxNumberOfResults'
-  DESC 'Maximal number of return results by C-FIND SCP. If the the number of matches extends the limit, the C-FIND request will be refused. 0 (=unlimited) if absent'
+  DESC 'Maximal number of return results by C-FIND SCP. If the number of matches extends the limit, the C-FIND request will be refused. 0 (=unlimited) if absent'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )

@@ -165,7 +165,7 @@
     },
     "dcmQueryMaxNumberOfResults": {
       "title": "Query Max Number Of Results",
-      "description": "Maximal number of return results by C-FIND SCP. If the the number of matches extends the limit, the C-FIND request will be refused. 0 = no limitation. Overwrites value specified on Device level.",
+      "description": "Maximal number of return results by C-FIND SCP. If the number of matches extends the limit, the C-FIND request will be refused. 0 = no limitation. Overwrites value specified on Device level.",
       "type": "integer",
       "minimum": 0
     },
