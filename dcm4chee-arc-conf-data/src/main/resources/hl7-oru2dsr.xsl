@@ -21,8 +21,6 @@
     </NativeDicomModel>
   </xsl:template>
   <xsl:template name="const-attrs">
-    <!-- Specific Character Set -->
-    <DicomAttribute tag="00080005" vr="CS"><Value number="1">ISO_IR 100</Value></DicomAttribute>
     <!--SOP Class UID-->
     <DicomAttribute tag="00080016" vr="UI"><Value number="1">1.2.840.10008.5.1.4.1.1.88.11</Value></DicomAttribute>
     <!--Study Date-->

@@ -7,9 +7,6 @@
 
   <xsl:template match="/hl7">
     <NativeDicomModel>
-      <DicomAttribute tag="00080005" vr="CS">
-        <Value number="1">ISO_IR 100</Value>
-      </DicomAttribute>
       <xsl:apply-templates select="PID"/>
       <xsl:apply-templates select="PV1"/>
       <xsl:apply-templates select="ORC[1]"/>
