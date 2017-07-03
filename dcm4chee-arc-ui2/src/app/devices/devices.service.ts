@@ -12,34 +12,38 @@ export class DevicesService {
         device.dcmArchiveDevice.dcmExporter.push(exporter);
         return device;
     }
-    changeAetOnClone(device){
+    changeAetOnClone(device,aes){
         if (_.hasIn(device, 'dicomNetworkAE') && _.size(device.dicomNetworkAE) > 0){
             _.forEach(device.dicomNetworkAE, (m, i) => {
-                console.log('m', m);
-                console.log('i', i);
                 if (_.hasIn(m, 'dicomAETitle')){
-                    if (_.endsWith(m.dicomAETitle, '_CLONE')){
-                        m.dicomAETitle = m.dicomAETitle + '(1)';
-                    }else{
-                        if (_.endsWith(m.dicomAETitle, ')')){
-
-                            let split = _.split(m.dicomAETitle,  '(');
-                            let index = _.last(split);
-                            split.pop();
-                            index = _.replace(index, ')', '');
-                            let indexInt = _.parseInt(index);
-                            console.log('index', index);
-                            console.log('index', indexInt);
-                            m.dicomAETitle = split + '(' + _.add(indexInt, 1) + ')';
-                        }else{
-
-                            m.dicomAETitle = m.dicomAETitle + '_CLONE';
-                        }
-                    }
-
+                    m.dicomAETitle = this.getNewAETitle(m.dicomAETitle, aes);
                 }
             });
         }
 
+    }
+    getNewAETitle(dicomAETitle, aes){
+        let newAeTitle;
+        if (_.endsWith(dicomAETitle, '_CLONE')){
+            newAeTitle = dicomAETitle + '(1)';
+        }else{
+            if (_.endsWith(dicomAETitle, ')')){
+
+                let split = _.split(dicomAETitle,  '(');
+                let index = _.last(split);
+                split.pop();
+                index = _.replace(index, ')', '');
+                let indexInt = _.parseInt(index);
+                newAeTitle = split + '(' + _.add(indexInt, 1) + ')';
+            }else{
+
+                newAeTitle = dicomAETitle + '_CLONE';
+            }
+        }
+        if(aes && _.findIndex(aes, function(o) { return (_.hasIn(o,"dicomAETitle") && o["dicomAETitle"] == newAeTitle); }) > -1){
+            return this.getNewAETitle(newAeTitle,aes);
+        }else{
+            return newAeTitle;
+        }
     }
 }

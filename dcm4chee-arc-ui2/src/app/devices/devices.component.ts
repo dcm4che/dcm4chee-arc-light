@@ -199,7 +199,7 @@ export class DevicesComponent {
                     .subscribe(
                         (device) => {
                             console.log('response', device);
-                            $this.service.changeAetOnClone(device);
+                            $this.service.changeAetOnClone(device,$this.aes);
                             console.log('device afterchange', device);
                             device.dicomDeviceName = parameters.result.input;
                             $this.$http.post('../devices/' + parameters.result.input, device, headers)
@@ -212,6 +212,27 @@ export class DevicesComponent {
                                             'status': 'info'
                                         });
                                         $this.getDevices();
+                                        $this.$http.get(
+                                            '../aes'
+                                            // './assets/dummydata/aes.json'
+                                        )
+                                            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+                                            .subscribe((response) => {
+                                                $this.aes = response;
+                                                if ($this.mainservice.global && !$this.mainservice.global.aes){
+                                                    let global = _.cloneDeep($this.mainservice.global);
+                                                    global.aes = response;
+                                                    $this.mainservice.setGlobal(global);
+                                                }else{
+                                                    if ($this.mainservice.global && $this.mainservice.global.aes){
+                                                        $this.mainservice.global.aes = response;
+                                                    }else{
+                                                        $this.mainservice.setGlobal({aes: response});
+                                                    }
+                                                }
+                                            }, (response) => {
+                                                // vex.dialog.alert("Error loading aes, please reload the page and try again!");
+                                            });
                                     },
                                     err => {
                                         console.log('error');
