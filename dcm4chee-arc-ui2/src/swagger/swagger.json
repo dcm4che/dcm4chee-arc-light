@@ -1751,6 +1751,216 @@
         }
       }
     },
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/export/dicom:{destinationAET}": {
+      "get": {
+        "tags": [
+          "DIMSE-RS"
+        ],
+        "summary": "Export Study external",
+        "operationId": "ExportStudyExternal",
+        "produces": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET connecting to C-MOVE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-MOVE SCP from which the Study is exported",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "destinationAET",
+            "in": "path",
+            "description": "AE Title of STORE-SCP to which the Study is exported",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "206": {
+            "description": "One or more Failures",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "External AE Title or Destination AET not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/export/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "DIMSE-RS"
+        ],
+        "summary": "Export Series external",
+        "operationId": "ExportSeriesExternal",
+        "produces": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET connecting to C-MOVE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-MOVE SCP from which the Series is exported",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "destinationAET",
+            "in": "path",
+            "description": "AE Title of STORE-SCP to which the Series is exported",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "206": {
+            "description": "One or more Failures",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "External AE Title or Destination AET not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/export/dicom:{destinationAET}": {
+      "get": {
+        "tags": [
+          "DIMSE-RS"
+        ],
+        "summary": "Export Instance external",
+        "operationId": "ExportInstanceExternal",
+        "produces": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET connecting to C-MOVE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-MOVE SCP from which the Instance is exported",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "destinationAET",
+            "in": "path",
+            "description": "AE Title of STORE-SCP to which the Instance is exported",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SOPInstanceUID",
+            "in": "path",
+            "description": "SOP Instance UID for a single SOP Instance",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "206": {
+            "description": "One or more Failures",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "External AE Title or Destination AET not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/dimse/{externalAET}/diff/{originalAET}/studies": {
       "get": {
         "tags": [
