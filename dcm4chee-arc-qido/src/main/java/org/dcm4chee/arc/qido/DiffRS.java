@@ -293,26 +293,26 @@ public class DiffRS {
 
         Attributes other = findSCU.queryStudy(as2, match.getString(Tag.StudyInstanceUID), returnKeys);
         Attributes modified = new Attributes(match.size());
-        if (other == null) {
-            if (counts != null) {
+        if (counts != null) {
+            if (other == null)
                 counts[0]++;
-                return true;
-            }
+            else if (other.testUpdateSelected(Attributes.UpdatePolicy.MERGE, match, modified, compareKeys)
+                    && !modified.isEmpty())
+                counts[1]++;
+            else
+                return false;
+
+            return true;
+        }
+        if (other == null) {
             if (!includeMissing)
                 return false;
 
             modified.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, 0);
             modified.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, 0);
-        } else if (!other.testUpdateSelected(Attributes.UpdatePolicy.MERGE, match, modified, compareKeys)
+        } else if (!includeDifferent
+                || !other.testUpdateSelected(Attributes.UpdatePolicy.MERGE, match, modified, compareKeys)
                 || modified.isEmpty())
-            return false;
-
-        if (counts != null) {
-            counts[1]++;
-            return true;
-        }
-
-        if (!includeDifferent)
             return false;
 
         Sequence sq = match.newSequence(Tag.OriginalAttributesSequence, 1);
