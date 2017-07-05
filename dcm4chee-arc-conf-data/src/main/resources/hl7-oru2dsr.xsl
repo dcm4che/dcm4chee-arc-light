@@ -73,7 +73,7 @@
     </DicomAttribute>
     <xsl:variable name="seriesuid"
                   select="normalize-space(../OBX[field[3]/component='Series Instance UID'][1]/field[5])"/>
-    <!-- Study Instance UID -->
+    <!-- Series Instance UID -->
     <DicomAttribute tag="0020000E" vr="UI">
       <Value number="1"><xsl:value-of select="$seriesuid"/></Value>
     </DicomAttribute>
@@ -84,12 +84,14 @@
     <!--Referenced Request Sequence-->
     <DicomAttribute tag="0040A370" vr="SQ">
       <Item number="1">
+        <!-- Study Instance UID -->
+        <DicomAttribute tag="0020000D" vr="UI">
+          <Value number="1"><xsl:value-of select="$suid"/></Value>
+        </DicomAttribute>
         <!--Accession Number-->
         <DicomAttribute tag="00080050" vr="SH"/>
         <!--Referenced Study Sequence-->
         <DicomAttribute tag="00081110" vr="SQ"/>
-        <!--Study Instance UID-->
-        <xsl:value-of select="$suid"/>
         <!--Requested Procedure Description and Code Sequence-->
         <xsl:call-template name="ce2codeItemWithDesc">
           <xsl:with-param name="descTag" select="'00321060'"/>
@@ -184,7 +186,7 @@
     </Item>
   </xsl:template>
   <xsl:template match="OBR" mode="obsctx">
-    <xsl:if test="field[32]/component">
+    <xsl:if test="field[32]">
       <Item number="1">
         <!--Relationship Type-->
         <DicomAttribute tag="0040A010" vr="CS"><Value number="1">HAS OBS CONTEXT</Value></DicomAttribute>
