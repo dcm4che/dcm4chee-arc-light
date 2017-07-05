@@ -2897,7 +2897,7 @@ export class StudiesComponent implements OnDestroy{
                 'status': 'warning'
             });
         }else{
-            return `../aets/${this.aet}/diff/${this.aet1}/${this.aet2}/studies`;
+            return `../aets/${this.aet}/dimse/${this.aet1}/diff/${this.aet2}/studies`;
         }
     }
     studyURL(attrs) {
