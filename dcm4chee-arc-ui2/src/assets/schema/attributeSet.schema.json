@@ -33,7 +33,7 @@
       "description": "Title of this Attribute Set.",
       "type": "string"
     },
-    "dcmAttributeSetID": {
+    "dcmAttributeSetNumber": {
       "title": "Attribute Set Number",
       "description": "Number used to order Attribute Sets.",
       "type": "integer"
