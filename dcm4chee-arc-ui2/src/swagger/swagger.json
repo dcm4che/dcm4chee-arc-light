@@ -1776,7 +1776,7 @@
       }
     },
     "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/export/dicom:{destinationAET}": {
-      "get": {
+      "post": {
         "tags": [
           "DIMSE-RS"
         ],
@@ -1935,7 +1935,7 @@
       }
     },
     "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/export/dicom:{destinationAET}": {
-      "get": {
+      "post": {
         "tags": [
           "DIMSE-RS"
         ],
