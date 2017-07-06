@@ -57,7 +57,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -86,15 +86,16 @@ public class QueryAttributeSets {
                     AttributeSet.Type attrSetType = AttributeSet.Type.valueOf(type);
                     ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
                     if (arcDev != null) {
-                        Map<String, AttributeSet> attrSet = arcDev.getAttributeSet(attrSetType);
-                        if (!attrSet.isEmpty()) {
+                        List<AttributeSet> processedAttrSets = toInstalledSortedAttrSet(arcDev.getAttributeSet(attrSetType));
+                        if (!processedAttrSets.isEmpty()) {
                             gen.writeStartArray();
-                            for (Map.Entry<String, AttributeSet> entry : attrSet.entrySet()) {
+                            for (AttributeSet attrSet : processedAttrSets) {
                                 JsonWriter writer = new JsonWriter(gen);
                                 gen.writeStartObject();
-                                writer.writeNotNullOrDef("type", entry.getValue().getType().name(), null);
-                                writer.writeNotNullOrDef("id", entry.getValue().getID(), null);
-                                writer.writeNotNullOrDef("description", entry.getValue().getDescription(), null);
+                                writer.writeNotNullOrDef("type", attrSet.getType().name(), null);
+                                writer.writeNotNullOrDef("id", attrSet.getID(), null);
+                                writer.writeNotNullOrDef("description", attrSet.getDescription(), null);
+                                writer.writeNotNullOrDef("title", attrSet.getTitle(), null);
                                 gen.writeEnd();
                             }
                             gen.writeEnd();
@@ -118,5 +119,13 @@ public class QueryAttributeSets {
     private Response getResponse(String errorMessage, Response.Status status) {
         Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
         return Response.status(status).entity(entity).build();
+    }
+
+    private List<AttributeSet> toInstalledSortedAttrSet(Map<String, AttributeSet> attrSets) {
+        attrSets.values().removeIf(attrSet -> !attrSet.isInstalled());
+        List<AttributeSet> attributeSets = new ArrayList<>();
+        attributeSets.addAll(attrSets.values());
+        Collections.sort(attributeSets);
+        return attributeSets;
     }
 }
