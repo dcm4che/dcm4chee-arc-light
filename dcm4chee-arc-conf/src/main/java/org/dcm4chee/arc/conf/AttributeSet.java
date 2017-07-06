@@ -44,13 +44,17 @@ import java.util.Arrays;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jun 2017
  */
-public class AttributeSet {
+public class AttributeSet implements Comparable<AttributeSet> {
+
     public enum Type { DIFF_RS, WADO_RS }
 
     private Type type;
-    private String name;
+    private String id;
+    private String title;
     private String description;
+    private int number;
     private int[] selection;
+    private boolean installed = true;
 
     public Type getType() {
         return type;
@@ -60,12 +64,20 @@ public class AttributeSet {
         this.type = type;
     }
 
-    public String getName() {
-        return name;
+    public String getID() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setID(String id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
@@ -76,11 +88,32 @@ public class AttributeSet {
         this.description = description;
     }
 
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
     public int[] getSelection() {
         return selection;
     }
 
     public void setSelection(int[] selection) {
         Arrays.sort(this.selection = selection);
+    }
+
+    public boolean isInstalled() {
+        return installed;
+    }
+
+    public void setInstalled(boolean installed) {
+        this.installed = installed;
+    }
+
+    @Override
+    public int compareTo(AttributeSet other) {
+        return number - other.number;
     }
 }

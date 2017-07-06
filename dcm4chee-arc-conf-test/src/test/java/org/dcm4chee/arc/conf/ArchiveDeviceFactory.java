@@ -1390,15 +1390,30 @@ class ArchiveDeviceFactory {
             ext.addHL7OrderSPSStatus(hl7OrderSPSStatus);
 
         ext.addAttributeSet(newAttributeSet(AttributeSet.Type.DIFF_RS,
-                "all", "Patient and Study attributes", union(DIFF_PAT_ATTRS, DIFF_STUDY_ATTRS)));
+                1, "study",
+                "Study attributes",
+                "Compares only Study attributes",
+                DIFF_STUDY_ATTRS));
         ext.addAttributeSet(newAttributeSet(AttributeSet.Type.DIFF_RS,
-                "patient", "Only Patient attributes", DIFF_PAT_ATTRS));
+                2, "patient",
+                "Patient attributes",
+                "Compares only Patient attributes",
+                DIFF_PAT_ATTRS));
         ext.addAttributeSet(newAttributeSet(AttributeSet.Type.DIFF_RS,
-                "study", "Only Study attributes", DIFF_STUDY_ATTRS));
+                3, "accno",
+                "Request attributes",
+                "Compares Request attributes",
+                DIFF_ACCESSION_NUMBER));
         ext.addAttributeSet(newAttributeSet(AttributeSet.Type.DIFF_RS,
-                "accno", "Accession Number", DIFF_ACCESSION_NUMBER));
+                4, "all",
+                "Patient and Study attributes",
+                "Compares Patient and Study attributes",
+                union(DIFF_PAT_ATTRS, DIFF_STUDY_ATTRS)));
         ext.addAttributeSet(newAttributeSet(AttributeSet.Type.WADO_RS,
-                "AttributeFilters", null, union(PATIENT_ATTRS, STUDY_ATTRS, SERIES_ATTRS, INSTANCE_ATTRS)));
+                0, "AttributeFilters",
+                null,
+                null,
+                union(PATIENT_ATTRS, STUDY_ATTRS, SERIES_ATTRS, INSTANCE_ATTRS)));
 
         ext.addRejectionNote(createRejectionNote("Quality",
                 RejectionNote.Type.REJECTED_FOR_QUALITY_REASONS,
@@ -1557,10 +1572,12 @@ class ArchiveDeviceFactory {
         }
     }
 
-    private static AttributeSet newAttributeSet(AttributeSet.Type type, String name, String desc, int[] tags) {
+    private static AttributeSet newAttributeSet(AttributeSet.Type type, int number, String id, String title, String desc, int[] tags) {
         AttributeSet attributeSet = new AttributeSet();
         attributeSet.setType(type);
-        attributeSet.setName(name);
+        attributeSet.setID(id);
+        attributeSet.setTitle(title);
+        attributeSet.setNumber(number);
         attributeSet.setDescription(desc);
         attributeSet.setSelection(tags);
         return attributeSet;

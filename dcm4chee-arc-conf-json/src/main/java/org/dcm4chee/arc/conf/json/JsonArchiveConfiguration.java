@@ -266,7 +266,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     public void writeAttributeSet(JsonWriter writer, AttributeSet attributeSet) {
         writer.writeStartObject();
         writer.writeNotNullOrDef("dcmAttributeSetType", attributeSet.getType(), null);
-        writer.writeNotNullOrDef("dcmAttributeSetName", attributeSet.getName(), null);
+        writer.writeNotNullOrDef("dcmAttributeSetID", attributeSet.getID(), null);
         writer.writeNotNullOrDef("dicomDescription", attributeSet.getDescription(), null);
         writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(attributeSet.getSelection()));
         writer.writeEnd();
@@ -1056,8 +1056,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmAttributeSetType":
                         attributeSet.setType(AttributeSet.Type.valueOf(reader.stringValue()));
                         break;
-                    case "dcmAttributeSetName":
-                        attributeSet.setName(reader.stringValue());
+                    case "dcmAttributeSetID":
+                        attributeSet.setID(reader.stringValue());
                         break;
                     case "dicomDescription":
                         attributeSet.setDescription(reader.stringValue());

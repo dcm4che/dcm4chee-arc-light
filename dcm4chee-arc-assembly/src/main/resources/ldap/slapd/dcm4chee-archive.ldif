@@ -880,13 +880,24 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.177 NAME 'dcmAttributeSetType'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.178 NAME 'dcmAttributeSetName'
-  DESC 'Name used by Query Parameter "comparefield" of DIFF-RS requests and by Query Parameter "includefields" of WADO-RS Metadata requests to refer this Attribute Set.'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.178 NAME 'dcmAttributeSetID'
+  DESC 'Value used by Query Parameter "comparefield" of DIFF-RS requests and by Query Parameter "includefields" of WADO-RS Metadata requests to refer this Attribute Set.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.179 NAME 'dcmQueryMaxNumberOfResults'
   DESC 'Maximal number of return results by C-FIND SCP. If the number of matches extends the limit, the C-FIND request will be refused. 0 (=unlimited) if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.180 NAME 'dcmAttributeSetTitle'
+  DESC 'Attribute Set Title'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.181 NAME 'dcmAttributeSetNumber'
+  DESC 'Attribute Set Number used to order Attribute Sets.'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -1275,7 +1286,10 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.29 NAME 'dcmAttributeSet'
   SUP top STRUCTURAL
   MUST (
     dcmAttributeSetType $
-    dcmAttributeSetName $
+    dcmAttributeSetID $
     dcmTag )
   MAY (
-    dicomDescription ) )
+    dcmAttributeSetNumber $
+    dcmAttributeSetTitle $
+    dicomDescription $
+    dicomInstalled ) )

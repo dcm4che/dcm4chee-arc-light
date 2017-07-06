@@ -110,7 +110,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "dcmUnzipVendorDataToURI", ext.getUnzipVendorDataToURI(), null);
         LdapUtils.storeNotEmpty(attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
         LdapUtils.storeNotDef(attrs, "dcmQueryFetchSize", ext.getQueryFetchSize(), 100);
-        LdapUtils.storeNotDef(attrs, "dcmQueryMaxNumberOfResults", ext.getQueryMaxNumberOfResults(), 100);
+        LdapUtils.storeNotDef(attrs, "dcmQueryMaxNumberOfResults", ext.getQueryMaxNumberOfResults(), 0);
         LdapUtils.storeNotDef(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 100);
         LdapUtils.storeNotEmpty(attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
         LdapUtils.storeNotEmpty(attrs, "dcmIanDestination", ext.getIanDestinations());
@@ -982,7 +982,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             for (AttributeSet attributeSet : map.values()) {
                 config.createSubcontext(
                         LdapUtils.dnOf("dcmAttributeSetType", attributeSet.getType().name(),
-                                "dcmAttributeSetName", attributeSet.getName(), deviceDN),
+                                "dcmAttributeSetID", attributeSet.getID(), deviceDN),
                         storeTo(attributeSet, new BasicAttributes(true)));
             }
         }
@@ -991,8 +991,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private Attributes storeTo(AttributeSet attributeSet, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmAttributeSet");
         attrs.put("dcmAttributeSetType", attributeSet.getType().name());
-        attrs.put("dcmAttributeSetName", attributeSet.getName());
+        attrs.put("dcmAttributeSetID", attributeSet.getID());
+        LdapUtils.storeNotNullOrDef(attrs, "dcmAttributeSetTitle", attributeSet.getTitle(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dicomDescription", attributeSet.getDescription(), null);
+        LdapUtils.storeNotDef(attrs, "dcmAttributeSetNumber", attributeSet.getNumber(), 0);
+        LdapUtils.storeNotDef(attrs, "dicomInstalled", attributeSet.isInstalled(), true);
         storeNotEmptyTags(attrs, "dcmTag", attributeSet.getSelection());
         return attrs;
     }
@@ -1060,8 +1063,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 AttributeSet attributeSet = new AttributeSet();
                 attributeSet.setType(
                         LdapUtils.enumValue(AttributeSet.Type.class, attrs.get("dcmAttributeSetType"), null));
-                attributeSet.setName(LdapUtils.stringValue(attrs.get("dcmAttributeSetName"), null));
+                attributeSet.setID(LdapUtils.stringValue(attrs.get("dcmAttributeSetID"), null));
+                attributeSet.setTitle(LdapUtils.stringValue(attrs.get("dcmAttributeSetTitle"), null));
                 attributeSet.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
+                attributeSet.setNumber(LdapUtils.intValue(attrs.get("dcmAttributeSetNumber"), 0));
+                attributeSet.setInstalled(LdapUtils.booleanValue(attrs.get("dicomInstalled"), true));
                 attributeSet.setSelection(tags(attrs.get("dcmTag")));
                 device.addAttributeSet(attributeSet);
             }
@@ -1130,15 +1136,15 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             for (String name : prevEntry.getValue().keySet()) {
                 if (!map.containsKey(name))
                     config.destroySubcontext(LdapUtils.dnOf("dcmAttributeSetType", type.name(),
-                                "dcmAttributeSetName", name, deviceDN));
+                                "dcmAttributeSetID", name, deviceDN));
             }
         }
         for (Map.Entry<AttributeSet.Type, Map<String, AttributeSet>> entry : arcDev.getAttributeSet().entrySet()) {
             Map<String, AttributeSet> prevMap = arcDev.getAttributeSet(entry.getKey());
             for (AttributeSet attributeSet : entry.getValue().values()) {
                 String dn = LdapUtils.dnOf("dcmAttributeSetType", attributeSet.getType().name(),
-                        "dcmAttributeSetName", attributeSet.getName(), deviceDN);
-                AttributeSet prevAttributeSet = prevMap.get(attributeSet.getName());
+                        "dcmAttributeSetID", attributeSet.getID(), deviceDN);
+                AttributeSet prevAttributeSet = prevMap.get(attributeSet.getID());
                 if (prevAttributeSet == null)
                     config.createSubcontext(dn, storeTo(attributeSet, new BasicAttributes(true)));
                 else
@@ -1181,8 +1187,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private List<ModificationItem> storeDiffs(AttributeSet prev, AttributeSet attributeSet,
                                               List<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(mods, "dcmAttributeSetTitle",
+                prev.getTitle(), attributeSet.getTitle(), null);
         LdapUtils.storeDiffObject(mods, "dicomDescription",
                 prev.getDescription(), attributeSet.getDescription(), null);
+        LdapUtils.storeDiff(mods, "dcmAttributeSetNumber",
+                prev.getNumber(), attributeSet.getNumber(), 0);
+        LdapUtils.storeDiff(mods, "dicomInstalled",
+                prev.isInstalled(), attributeSet.isInstalled(), true);
         storeDiffTags(mods, "dcmTag", prev.getSelection(), attributeSet.getSelection());
         return mods;
     }
@@ -2360,7 +2372,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private List<ModificationItem> storeDiffs(IDGenerator prev, IDGenerator generator,
                                               ArrayList<ModificationItem> mods) {
-//        LdapUtils.storeDiffObject(mods, "dcmIDGeneratorName", prev.getName(), generator.getName());
+//        LdapUtils.storeDiffObject(mods, "dcmIDGeneratorName", prev.getId(), generator.getId());
         LdapUtils.storeDiffObject(mods, "dcmIDGeneratorFormat", prev.getFormat(), generator.getFormat(), null);
         LdapUtils.storeDiff(mods, "dcmIDGeneratorInitialValue", prev.getInitialValue(), generator.getInitialValue(), 1);
         return mods;

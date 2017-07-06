@@ -93,7 +93,7 @@ public class QueryAttributeSets {
                                 JsonWriter writer = new JsonWriter(gen);
                                 gen.writeStartObject();
                                 writer.writeNotNullOrDef("type", entry.getValue().getType().name(), null);
-                                writer.writeNotNullOrDef("name", entry.getValue().getName(), null);
+                                writer.writeNotNullOrDef("id", entry.getValue().getID(), null);
                                 writer.writeNotNullOrDef("description", entry.getValue().getDescription(), null);
                                 gen.writeEnd();
                             }

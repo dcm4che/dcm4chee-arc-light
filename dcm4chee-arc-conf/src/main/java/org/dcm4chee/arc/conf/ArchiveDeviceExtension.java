@@ -1069,13 +1069,13 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         Map<String, AttributeSet> map = attributeSet.get(tags.getType());
         if (map == null)
             attributeSet.put(tags.getType(), map = new LinkedHashMap<>());
-        map.put(tags.getName(), tags);
+        map.put(tags.getID(), tags);
     }
 
     public void removeAttributeSet(AttributeSet tags) {
         Map<String, AttributeSet> map = attributeSet.get(tags.getType());
         if (map != null)
-            map.remove(tags.getName());
+            map.remove(tags.getID());
     }
 
     public Map<AttributeSet.Type, Map<String, AttributeSet>> getAttributeSet() {

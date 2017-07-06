@@ -1345,9 +1345,9 @@ dcmIDGeneratorName: ScheduledProcedureStepID
 dcmIDGeneratorFormat: SPS-%08d
 objectClass: dcmIDGenerator
 
-dn: dcmAttributeSetName=all+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmAttributeSetName: all
-dicomDescription: Patient and Study attributes
+dn: dcmAttributeSetID=all+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeSetTitle: Patient and Study attributes
+dicomDescription: Compares Patient and Study attributes
 dcmTag: 00080020
 dcmTag: 00080030
 dcmTag: 00080050
@@ -1368,19 +1368,23 @@ dcmTag: 00200010
 dcmTag: 00201206
 dcmTag: 00201208
 dcmAttributeSetType: DIFF_RS
+dcmAttributeSetID: all
 objectClass: dcmAttributeSet
+dcmAttributeSetNumber: 4
 
-dn: dcmAttributeSetName=accno+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmAttributeSetName: accno
-dicomDescription: Accession Number
+dn: dcmAttributeSetID=accno+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeSetTitle: Request attributes
+dicomDescription: Compares Request attributes
 dcmTag: 00080050
 dcmTag: 00080051
 dcmAttributeSetType: DIFF_RS
+dcmAttributeSetID: accno
 objectClass: dcmAttributeSet
+dcmAttributeSetNumber: 3
 
-dn: dcmAttributeSetName=study+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmAttributeSetName: study
-dicomDescription: Only Study attributes
+dn: dcmAttributeSetID=study+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeSetTitle: Study attributes
+dicomDescription: Compares only Study attributes
 dcmTag: 00080020
 dcmTag: 00080030
 dcmTag: 00080050
@@ -1396,21 +1400,24 @@ dcmTag: 00200010
 dcmTag: 00201206
 dcmTag: 00201208
 dcmAttributeSetType: DIFF_RS
+dcmAttributeSetID: study
 objectClass: dcmAttributeSet
+dcmAttributeSetNumber: 1
 
-dn: dcmAttributeSetName=patient+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmAttributeSetName: patient
-dicomDescription: Only Patient attributes
+dn: dcmAttributeSetID=patient+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeSetTitle: Patient attributes
+dicomDescription: Compares only Patient attributes
 dcmTag: 00100010
 dcmTag: 00100020
 dcmTag: 00100021
 dcmTag: 00100030
 dcmTag: 00100040
 dcmAttributeSetType: DIFF_RS
+dcmAttributeSetID: patient
 objectClass: dcmAttributeSet
+dcmAttributeSetNumber: 2
 
-dn: dcmAttributeSetName=AttributeFilters+dcmAttributeSetType=WADO_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmAttributeSetName: AttributeFilters
+dn: dcmAttributeSetID=AttributeFilters+dcmAttributeSetType=WADO_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmTag: 00080005
 dcmTag: 00080008
 dcmTag: 00080012
@@ -1532,6 +1539,7 @@ dcmTag: 00700082
 dcmTag: 00700083
 dcmTag: 00700084
 dcmAttributeSetType: WADO_RS
+dcmAttributeSetID: AttributeFilters
 objectClass: dcmAttributeSet
 
 dn: cn=RT Dose Storage SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
