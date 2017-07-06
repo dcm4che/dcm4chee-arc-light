@@ -316,13 +316,6 @@
       "type": "string",
       "format": "dcmAETitle"
     },
-    "dcmDiffStudiesIncludefieldAll": {
-      "title": "Diff Studies Attributes",
-      "description": "DICOM Tag as hex string of Attributes being compared by the DIFF-RS service with Query Parameter includefield=all. Use QIDO-RS STUDY Returned Attributes, if absent.",
-      "type": "array",
-      "items" : { "type": "string" },
-      "format": "dcmTag"
-    },
     "dcmExportTaskPollingInterval": {
       "title": "Export Task Polling Interval",
       "description": "Export Task Polling Interval in ISO-8601 duration format PnDTnHnMn.nS",
@@ -703,7 +696,7 @@
       "title": "Attribute Set",
       "description": "Named Attribute Set for Query Parameter 'comparefield' of DIFF-RS and Query Parameter 'includefields' of WADO-RS Metadata requests.",
       "type": "array",
-      "titleKey":"{dcmAttributeSetType}:{dcmAttributeSetName}",
+      "titleKey":"{dcmAttributeSetType}:{dcmAttributeSetID}",
       "items" : {
         "$ref": "attributeSet.schema.json"
       }
