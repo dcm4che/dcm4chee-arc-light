@@ -41,8 +41,12 @@
 package org.dcm4chee.arc.retrieve.scu;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Association;
+import org.dcm4che3.net.DimseRSP;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 
@@ -59,4 +63,8 @@ public interface CMoveSCU {
     void forwardMoveRQ(
             RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
             String otherCMoveSCP, String otherMoveDest) throws DicomServiceException;
+
+    Association openAssociation(ApplicationEntity localAE, String calledAET) throws Exception;
+
+    DimseRSP cmove(Association as, int priority, String destAET, String... iuids) throws Exception;
 }

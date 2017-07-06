@@ -43,14 +43,15 @@ package org.dcm4chee.arc.retrieve.scu.impl;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.RetrieveTask;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
@@ -59,8 +60,6 @@ import org.dcm4chee.arc.store.scu.CStoreForwardSCU;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.EnumSet;
 
 /**
@@ -127,6 +126,44 @@ public class CMoveSCUImpl implements CMoveSCU {
         } catch (Exception e) {
             throw new DicomServiceException(Status.UnableToPerformSubOperations, e);
         }
+    }
+
+    @Override
+    public Association openAssociation(ApplicationEntity localAE, String calledAET) throws Exception {
+        return localAE.connect(aeCache.get(calledAET), createAARQ());
+    }
+
+    private AAssociateRQ createAARQ() {
+        AAssociateRQ aarq = new AAssociateRQ();
+        aarq.addPresentationContext(new PresentationContext(
+                1, UID.StudyRootQueryRetrieveInformationModelMOVE, UID.ImplicitVRLittleEndian));
+        return aarq;
+    }
+
+    @Override
+    public DimseRSP cmove(Association as, int priority, String destAET, String... iuids) throws Exception {
+        return as.cmove(
+                UID.StudyRootQueryRetrieveInformationModelMOVE,
+                priority,
+                createKeys(destAET, iuids),
+                UID.ImplicitVRLittleEndian,
+                destAET);
+    }
+
+    private Attributes createKeys(String destAET, String[] iuids) {
+        int n = iuids.length;
+        if (n == 0)
+            throw new IllegalArgumentException("Missing UIDs");
+
+        Attributes keys = new Attributes(n + 1);
+        keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.values()[n].name());
+        keys.setString(Tag.StudyInstanceUID, VR.UI, iuids[0]);
+        if (n > 1) {
+            keys.setString(Tag.SeriesInstanceUID, VR.UI, iuids[1]);
+            if (n > 2)
+                keys.setString(Tag.SOPInstanceUID, VR.UI, iuids[2]);
+        }
+        return keys;
     }
 
     private Association openAssociation(RetrieveContext ctx, PresentationContext pc, String otherCMoveSCP)

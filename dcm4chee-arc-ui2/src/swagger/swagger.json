@@ -1506,6 +1506,14 @@
             "type": "string"
           },
           {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
@@ -1597,6 +1605,14 @@
             "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
           },
           {
             "name": "{attributeID}",
@@ -1692,6 +1708,14 @@
             "type": "string"
           },
           {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
@@ -1759,7 +1783,6 @@
         "summary": "Export Study external",
         "operationId": "ExportStudyExternal",
         "produces": [
-          "application/dicom+json",
           "application/json"
         ],
         "parameters": [
@@ -1790,23 +1813,37 @@
             "description": "Study Instance UID for a single Study",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
           }
         ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "file"
+              "$ref": "export.schema.json"
             }
           },
           "206": {
             "description": "One or more Failures",
             "schema": {
-              "type": "file"
+              "$ref": "export.schema.json"
+            }
+          },
+          "502": {
+            "description": "C-MOVE SCP Failure",
+            "schema": {
+              "$ref": "export.schema.json"
             }
           },
           "404": {
-            "description": "External AE Title or Destination AET not found"
+            "description": "External AE Title not found"
           },
           "default": {
             "description": "unexpected error"
@@ -1822,7 +1859,6 @@
         "summary": "Export Series external",
         "operationId": "ExportSeriesExternal",
         "produces": [
-          "application/dicom+json",
           "application/json"
         ],
         "parameters": [
@@ -1860,23 +1896,37 @@
             "description": "Series Instance UID for a single Series",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
           }
         ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "file"
+              "$ref": "export.schema.json"
             }
           },
           "206": {
             "description": "One or more Failures",
             "schema": {
-              "type": "file"
+              "$ref": "export.schema.json"
+            }
+          },
+          "502": {
+            "description": "C-MOVE SCP Failure",
+            "schema": {
+              "$ref": "export.schema.json"
             }
           },
           "404": {
-            "description": "External AE Title or Destination AET not found"
+            "description": "External AE Title not found"
           },
           "default": {
             "description": "unexpected error"
@@ -1892,7 +1942,6 @@
         "summary": "Export Instance external",
         "operationId": "ExportInstanceExternal",
         "produces": [
-          "application/dicom+json",
           "application/json"
         ],
         "parameters": [
@@ -1937,23 +1986,37 @@
             "description": "SOP Instance UID for a single SOP Instance",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
           }
         ],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "file"
+              "$ref": "export.schema.json"
             }
           },
           "206": {
             "description": "One or more Failures",
             "schema": {
-              "type": "file"
+              "$ref": "export.schema.json"
+            }
+          },
+          "502": {
+            "description": "C-MOVE SCP Failure",
+            "schema": {
+              "$ref": "export.schema.json"
             }
           },
           "404": {
-            "description": "External AE Title or Destination AET not found"
+            "description": "External AE Title not found"
           },
           "default": {
             "description": "unexpected error"
@@ -2070,7 +2133,7 @@
               "type": "file"
             }
           },
-          "404": {
+         "404": {
             "description": "External AE Title not found"
           },
           "default": {
