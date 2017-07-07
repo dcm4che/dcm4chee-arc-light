@@ -1140,7 +1140,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             }
         }
         for (Map.Entry<AttributeSet.Type, Map<String, AttributeSet>> entry : arcDev.getAttributeSet().entrySet()) {
-            Map<String, AttributeSet> prevMap = arcDev.getAttributeSet(entry.getKey());
+            Map<String, AttributeSet> prevMap = prev.getAttributeSet(entry.getKey());
             for (AttributeSet attributeSet : entry.getValue().values()) {
                 String dn = LdapUtils.dnOf("dcmAttributeSetType", attributeSet.getType().name(),
                         "dcmAttributeSetID", attributeSet.getID(), deviceDN);

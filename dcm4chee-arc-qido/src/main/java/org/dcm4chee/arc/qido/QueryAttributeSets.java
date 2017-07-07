@@ -57,7 +57,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -84,39 +84,31 @@ public class QueryAttributeSets {
                 JsonGenerator gen = Json.createGenerator(out);
                 try {
                     AttributeSet.Type attrSetType = AttributeSet.Type.valueOf(type);
-                    ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-                    if (arcDev != null) {
-                        Map<String, AttributeSet> attrSet = arcDev.getAttributeSet(attrSetType);
-                        if (!attrSet.isEmpty()) {
-                            gen.writeStartArray();
-                            for (Map.Entry<String, AttributeSet> entry : attrSet.entrySet()) {
-                                JsonWriter writer = new JsonWriter(gen);
-                                gen.writeStartObject();
-                                writer.writeNotNullOrDef("type", entry.getValue().getType().name(), null);
-                                writer.writeNotNullOrDef("id", entry.getValue().getID(), null);
-                                writer.writeNotNullOrDef("description", entry.getValue().getDescription(), null);
-                                gen.writeEnd();
-                            }
-                            gen.writeEnd();
-                        }
-                        else
-                            throw new NotFoundException("No Attribute set found for the type : " + type);
-                    } else
-                        throw new NotFoundException("Archive Device Extension not present for the device : " + device.getDeviceName());
-                } catch (IllegalArgumentException e) {
-                    throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.BAD_REQUEST));
-                } catch (NotFoundException e) {
-                    throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
-                } catch (Exception e) {
-                    throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
+                    ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+                    gen.writeStartArray();
+                    for (AttributeSet attrSet : toInstalledSortedAttrSet(arcDev.getAttributeSet(attrSetType))) {
+                        JsonWriter writer = new JsonWriter(gen);
+                        gen.writeStartObject();
+                        writer.writeNotNullOrDef("type", attrSet.getType().name(), null);
+                        writer.writeNotNullOrDef("id", attrSet.getID(), null);
+                        writer.writeNotNullOrDef("description", attrSet.getDescription(), null);
+                        writer.writeNotNullOrDef("title", attrSet.getTitle(), null);
+                        gen.writeEnd();
+                    }
+                    gen.writeEnd();
+                } finally {
+                    gen.flush();
                 }
-                gen.flush();
             }
         };
     }
 
-    private Response getResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
+    private List<AttributeSet> toInstalledSortedAttrSet(Map<String, AttributeSet> attrSets) {
+        List<AttributeSet> list = new ArrayList<>(attrSets.size());
+        for (AttributeSet attrSet : attrSets.values())
+            if (attrSet.isInstalled())
+                list.add(attrSet);
+        Collections.sort(list);
+        return list;
     }
 }
