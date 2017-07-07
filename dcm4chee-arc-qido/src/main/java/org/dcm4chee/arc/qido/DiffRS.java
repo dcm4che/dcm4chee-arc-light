@@ -157,7 +157,8 @@ public class DiffRS {
     private void search(@Suspended AsyncResponse ar, boolean count) throws Exception {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
-        int[] compareKeys = addReturnTags(queryAttributes);
+        int[] compareKeys = compareKeys();
+        addReturnTags(queryAttributes, compareKeys);
         Attributes keys = queryAttributes.getQueryKeys();
         int[] returnKeys = keys.tags();
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
@@ -178,6 +179,7 @@ public class DiffRS {
                 diff(dimseRSP, compareKeys, returnKeys, counts);
             }
             ar.resume(Response.ok("{\"missing\":" + counts[0] + ",\"different\":" + counts[1] + "}").build());
+            return;
         }
         includeMissing = missing != null && Boolean.parseBoolean(missing);
         includeDifferent = different == null || Boolean.parseBoolean(different);
@@ -191,21 +193,21 @@ public class DiffRS {
         ar.resume(Response.noContent().build());
     }
 
-    private int[] addReturnTags(QueryAttributes queryAttributes) {
+    private void addReturnTags(QueryAttributes queryAttributes, int[] compareKeys) {
+        queryAttributes.addReturnTags(QidoRS.STUDY_FIELDS);
+        if (compareKeys != QidoRS.STUDY_FIELDS)
+            queryAttributes.addReturnTags(compareKeys);
         ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         Map<String, AttributeSet> attributeSetMap = arcdev.getAttributeSet(AttributeSet.Type.DIFF_RS);
-        AttributeSet allTags = attributeSetMap.get("all");
-        if (!queryAttributes.isIncludeAll())
-            queryAttributes.addReturnTags(QidoRS.STUDY_FIELDS);
-        else if (allTags != null)
-            queryAttributes.addReturnTags(allTags.getSelection());
-        else {
-            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection());
-            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Study).getSelection());
+        if (queryAttributes.isIncludeAll()) {
+            AttributeSet allTags = attributeSetMap.get("all");
+            if (allTags != null)
+                queryAttributes.addReturnTags(allTags.getSelection());
+            else {
+                queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection());
+                queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Study).getSelection());
+            }
         }
-        int[] compareKeys = compareKeys();
-        queryAttributes.addReturnTags(compareKeys);
-        return compareKeys;
     }
 
     private int[] compareKeys() {
