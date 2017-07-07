@@ -40,19 +40,18 @@
 
 package org.dcm4chee.arc.query.scu.impl;
 
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
+import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4chee.arc.Cache;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -72,7 +71,7 @@ public class CFindSCUImpl implements CFindSCU {
     @Override
     public Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID, int[] returnKeys)
             throws Exception {
-        Association as = openAssociation(localAE, calledAET);
+        Association as = openAssociation(localAE, calledAET, EnumSet.noneOf(QueryOption.class));
         try {
             return queryStudy(as, studyIUID, returnKeys);
         } finally {
@@ -82,8 +81,9 @@ public class CFindSCUImpl implements CFindSCU {
     }
 
     @Override
-    public Association openAssociation(ApplicationEntity localAE, String calledAET) throws Exception {
-        return localAE.connect(aeCache.get(calledAET), createAARQ());
+    public Association openAssociation(ApplicationEntity localAE, String calledAET, EnumSet<QueryOption> queryOptions)
+            throws Exception {
+        return localAE.connect(aeCache.get(calledAET), createAARQ(queryOptions));
     }
 
     @Override
@@ -127,10 +127,12 @@ public class CFindSCUImpl implements CFindSCU {
         return keys;
     }
 
-    private AAssociateRQ createAARQ() {
+    private AAssociateRQ createAARQ(EnumSet<QueryOption> queryOptions) {
         AAssociateRQ aarq = new AAssociateRQ();
         aarq.addPresentationContext(new PresentationContext(
                 1, UID.StudyRootQueryRetrieveInformationModelFIND, UID.ImplicitVRLittleEndian));
+        aarq.addExtendedNegotiation(new ExtendedNegotiation(UID.StudyRootQueryRetrieveInformationModelFIND,
+                QueryOption.toExtendedNegotiationInformation(queryOptions)));
         return aarq;
     }
 }

@@ -44,7 +44,10 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.DimseRSP;
+import org.dcm4che3.net.QueryOption;
 import org.dcm4chee.arc.Cache;
+
+import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -54,7 +57,7 @@ public interface CFindSCU {
     Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID, int[] returnKeys)
             throws Exception;
 
-    Association openAssociation(ApplicationEntity localAE, String calledAET) throws Exception;
+    Association openAssociation(ApplicationEntity localAE, String calledAET, EnumSet<QueryOption> queryOptions) throws Exception;
 
     Attributes queryStudy(Association as, String studyIUID, int[] returnKeys) throws Exception;
 

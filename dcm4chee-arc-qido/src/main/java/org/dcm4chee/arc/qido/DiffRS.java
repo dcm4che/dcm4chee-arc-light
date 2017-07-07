@@ -38,15 +38,9 @@
 
 package org.dcm4chee.arc.qido;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONWriter;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.Device;
-import org.dcm4che3.net.DimseRSP;
+import org.dcm4che3.net.*;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
@@ -74,6 +68,7 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -105,6 +100,10 @@ public class DiffRS {
 
     @PathParam("OriginalAET")
     private String originalAET;
+
+    @QueryParam("fuzzymatching")
+    @Pattern(regexp = "true|false")
+    private String fuzzymatching;
 
     @QueryParam("offset")
     @Pattern(regexp = "0|([1-9]\\d{0,4})")
@@ -170,8 +169,15 @@ public class DiffRS {
             }
         });
         ApplicationEntity localAE = getApplicationEntity();
-        as1 = findSCU.openAssociation(localAE, externalAET);
-        as2 = findSCU.openAssociation(localAE, originalAET);
+        EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
+        if (Boolean.parseBoolean(fuzzymatching))
+            queryOptions.add(QueryOption.FUZZY);
+        as1 = findSCU.openAssociation(localAE, externalAET, queryOptions);
+        as2 = findSCU.openAssociation(localAE, originalAET, queryOptions);
+        if (!as1.getQueryOptionsFor(UID.StudyRootQueryRetrieveInformationModelFIND)
+                .contains(QueryOption.DATETIME))
+            if (keys.containsValue(Tag.StudyTime))
+                keys.setNull(Tag.StudyTime, VR.TM);
         DimseRSP dimseRSP = findSCU.queryStudies(as1, keys);
         if (count) {
             int[] counts = new int[2];
