@@ -294,27 +294,25 @@ public class DiffRS {
             return false;
 
         Attributes other = findSCU.queryStudy(as2, match.getString(Tag.StudyInstanceUID), returnKeys);
-        Attributes modified = new Attributes(match.size());
         if (counts != null) {
             if (other == null)
                 counts[0]++;
-            else if (other.testUpdateSelected(Attributes.UpdatePolicy.MERGE, match, modified, compareKeys)
-                    && !modified.isEmpty())
+            else if (other.diff(match, compareKeys,null) > 0)
                 counts[1]++;
             else
                 return false;
 
             return true;
         }
+        Attributes modified = new Attributes(match.size());
         if (other == null) {
             if (!includeMissing)
                 return false;
 
+            modified = new Attributes(2);
             modified.setInt(Tag.NumberOfStudyRelatedSeries, VR.IS, 0);
             modified.setInt(Tag.NumberOfStudyRelatedInstances, VR.IS, 0);
-        } else if (!includeDifferent
-                || !other.testUpdateSelected(Attributes.UpdatePolicy.MERGE, match, modified, compareKeys)
-                || modified.isEmpty())
+        } else if (!includeDifferent || other.diff(match, compareKeys, modified) == 0)
             return false;
 
         Sequence sq = match.newSequence(Tag.OriginalAttributesSequence, 1);
