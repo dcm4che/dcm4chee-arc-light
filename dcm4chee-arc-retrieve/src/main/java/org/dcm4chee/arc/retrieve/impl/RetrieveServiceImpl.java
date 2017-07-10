@@ -771,7 +771,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     @Override
-    public void updateFailedSOPInstanceUIDList(RetrieveContext ctx) {
+    public void updateCompleteness(RetrieveContext ctx) {
         if (ctx.isRetryFailedRetrieve())
             ejb.updateCompleteness(ctx, completeness(ctx));
     }
@@ -784,7 +784,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         if (expected > 0) {
             int retrieved = ctx.completed() + ctx.warning();
             if (retrieved >= expected)
-                return null;
+                return Completeness.COMPLETE;
 
             LOG.warn("{}: Expected {} but actual retrieved {} objects of study{} from {}",
                     as, expected, retrieved, Arrays.toString(ctx.getStudyInstanceUIDs()), fallbackMoveSCP);

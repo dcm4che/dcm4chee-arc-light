@@ -265,7 +265,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
 
     private void updateFailedSOPInstanceUIDList() {
         if (ctx.getFallbackAssociation() != null)
-            ctx.getRetrieveService().updateFailedSOPInstanceUIDList(ctx);
+            ctx.getRetrieveService().updateCompleteness(ctx);
     }
 
     private void removeOutstandingRSP(InstanceLocations inst) {

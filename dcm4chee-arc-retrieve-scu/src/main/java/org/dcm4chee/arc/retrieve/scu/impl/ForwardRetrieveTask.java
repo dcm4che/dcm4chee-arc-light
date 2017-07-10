@@ -56,7 +56,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -253,7 +252,7 @@ abstract class ForwardRetrieveTask implements RetrieveTask {
         @Override
         protected void onFinished() {
             ctx.getRetrieveService().waitForPendingCStoreForward(ctx);
-            ctx.getRetrieveService().updateFailedSOPInstanceUIDList(ctx);
+            ctx.getRetrieveService().updateCompleteness(ctx);
             ctx.stopWritePendingRSP();
             writeFinalRSP();
             SafeClose.close(ctx);

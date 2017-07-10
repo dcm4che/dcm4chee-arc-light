@@ -111,7 +111,7 @@ public interface RetrieveService {
 
     void waitForPendingCMoveForward(RetrieveContext ctx);
 
-    void updateFailedSOPInstanceUIDList(RetrieveContext ctx);
+    void updateCompleteness(RetrieveContext ctx);
 
     Date getLastModifiedFromMatches(RetrieveContext ctx);
 
