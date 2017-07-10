@@ -776,9 +776,8 @@ public class RetrieveServiceImpl implements RetrieveService {
             try {
                 ejb.updateCompleteness(ctx, completeness(ctx));
             } catch (Exception e) {
-                LOG.error("Failed to update completeness of {}:\n{}",
-                        ctx.getQueryRetrieveLevel(),
-                        e);
+                LOG.warn("{}: failed to update completeness of {}\n",
+                        ctx.getRequestAssociation(), ctx.getQueryRetrieveLevel(), e);
             }
     }
 
