@@ -203,6 +203,7 @@ export class DynamicFormElementComponent{
                 let elementFound = false;
                 _.forEach(formelement.options, (m, i) => {
                     if (m === selected){
+                        let newAddUrl = formelement.options[formelement.options.length-1].url;
                         formelement.options.splice(i, 1);
                         let check = $this.deviceConfiguratorService.removePartFromDevice($this.extractIndexFromPath(selected.currentElementUrl));
                         if (check){
@@ -213,6 +214,7 @@ export class DynamicFormElementComponent{
                                 'text': `Click save if you want to remove "${selected.title}" permanently!`,
                                 'status': 'info'
                             });
+                            formelement.addUrl = newAddUrl;
                         }
                         //TODO If removed element is refferenced than traverse the device and change thous refferences
                     }else{
