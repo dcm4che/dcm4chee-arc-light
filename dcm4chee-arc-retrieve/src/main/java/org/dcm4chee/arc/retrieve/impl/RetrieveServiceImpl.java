@@ -773,7 +773,13 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Override
     public void updateCompleteness(RetrieveContext ctx) {
         if (ctx.isRetryFailedRetrieve())
-            ejb.updateCompleteness(ctx, completeness(ctx));
+            try {
+                ejb.updateCompleteness(ctx, completeness(ctx));
+            } catch (Exception e) {
+                LOG.error("Failed to update completeness of {}:\n{}",
+                        ctx.getQueryRetrieveLevel(),
+                        e);
+            }
     }
 
     private Completeness completeness(RetrieveContext ctx) {
