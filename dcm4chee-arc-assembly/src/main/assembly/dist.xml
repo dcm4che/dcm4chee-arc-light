@@ -81,6 +81,7 @@
     </dependencySet>
     <dependencySet>
       <outputDirectory>ldap</outputDirectory>
+      <outputFileNameMapping>vendor-data.zip</outputFileNameMapping>
       <includes>
         <include>org.dcm4che.dcm4chee-arc:dcm4chee-arc-conf-data</include>
       </includes>
