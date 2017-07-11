@@ -15,9 +15,7 @@ dcmHideSPSWithStatusFromMWL: CANCELLED
 dcmHideSPSWithStatusFromMWL: DISCONTINUED
 dcmHideSPSWithStatusFromMWL: COMPLETED
 -
-delete: dicomVendorData
--
-add: dicomVendorData
+replace: dicomVendorData
 dicomVendorData:< file:vendor-data.zip
 -
 
@@ -33,7 +31,6 @@ dcmCombinedDateTimeMatching: TRUE
 dcmRelationalQueries: TRUE
 cn: Modality Worklist Information Model - FIND SCP
 dicomTransferSyntax: 1.2.840.10008.1.2
--
 
 dn: dcmEntity=MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
@@ -108,7 +105,6 @@ dcmTag: 00402017
 dcmTag: 00402400
 dcmEntity: MWL
 objectClass: dcmAttributeFilter
--
 
 dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify

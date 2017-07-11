@@ -5,9 +5,7 @@ changetype: modify
 replace: dicomSoftwareVersion
 dicomSoftwareVersion: 5.9.3
 -
-delete: dicomVendorData
--
-add: dicomVendorData
+replace: dicomVendorData
 dicomVendorData:< file:vendor-data.zip
 -
 

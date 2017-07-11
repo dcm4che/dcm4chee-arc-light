@@ -34,13 +34,11 @@ objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/StgCmtSCU
--
 
 dn: dcmQueueName=StgCmtSCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
 replace: dicomDescription
 dicomDescription: Storage Commitment SCP Tasks
--
 
 dn: cn=Storage Commitment Push Model SOP Class SCU,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
@@ -50,7 +48,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Storage Commitment Push Model SOP Class SCU
--
 
 dn: cn=Storage Commitment Push Model SOP Class SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
@@ -60,7 +57,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Storage Commitment Push Model SOP Class SCU
--
 
 dn: dcmQueueName=Export1,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify

@@ -17,7 +17,6 @@ objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/RSClient
--
 
 dn: dcmEntity=Series,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
@@ -155,13 +154,11 @@ dcmTag: 00700083
 dcmTag: 00700084
 objectClass: dcmMetadataFilter
 dcmMetadataFilterName: AttributeFilters
--
 
 dn: dicomAETitle=UNKNOWN,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 objectClass: dicomUniqueAETitle
 dicomAETitle: UNKNOWN
--
 
 dn: dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
@@ -169,7 +166,6 @@ dicomInstalled: TRUE
 dicomDeviceName: unknown
 objectClass: dicomDevice
 objectClass: dcmDevice
--
 
 dn: cn=dicom,dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
@@ -178,7 +174,6 @@ dicomPort: 104
 objectClass: dicomNetworkConnection
 objectClass: dcmNetworkConnection
 cn: dicom
--
 
 dn: dicomAETitle=UNKNOWN,dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
@@ -188,14 +183,12 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=unknown,cn=Devices,cn=
 dicomAETitle: UNKNOWN
 dicomAssociationAcceptor: TRUE
 dicomAssociationInitiator: TRUE
--
 
 dn: cn=Default Scheduled Station,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 hl7OrderScheduledStationDeviceReference: dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: hl7OrderScheduledStation
 cn: Default Scheduled Station
--
 
 dn: dcmSPSStatus=SCHEDULED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
@@ -204,25 +197,21 @@ hl7OrderControlStatus: NW_SC
 hl7OrderControlStatus: NW_IP
 hl7OrderControlStatus: XO_SC
 objectClass: hl7OrderSPSStatus
--
 
 dn: dcmSPSStatus=CANCELLED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dcmSPSStatus: CANCELLED
 hl7OrderControlStatus: CA_CA
 objectClass: hl7OrderSPSStatus
--
 
 dn: dcmSPSStatus=COMPLETED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dcmSPSStatus: COMPLETED
 hl7OrderControlStatus: XO_CM
 objectClass: hl7OrderSPSStatus
--
 
 dn: dcmSPSStatus=DISCONTINUED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dcmSPSStatus: DISCONTINUED
 hl7OrderControlStatus: DC_CA
 objectClass: hl7OrderSPSStatus
--

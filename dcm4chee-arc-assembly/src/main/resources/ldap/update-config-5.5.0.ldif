@@ -67,25 +67,21 @@ changetype: add
 dcmIDGeneratorName: PatientID
 dcmIDGeneratorFormat: P-%08d
 objectClass: dcmIDGenerator
--
 
 dn: dcmIDGeneratorName=AccessionNumber,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dcmIDGeneratorName: AccessionNumber
 dcmIDGeneratorFormat: A-%08d
 objectClass: dcmIDGenerator
--
 
 dn: dcmIDGeneratorName=RequestedProcedureID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dcmIDGeneratorName: RequestedProcedureID
 dcmIDGeneratorFormat: RP-%08d
 objectClass: dcmIDGenerator
--
 
 dn: dcmIDGeneratorName=ScheduledProcedureStepID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dcmIDGeneratorName: ScheduledProcedureStepID
 dcmIDGeneratorFormat: SPS-%08d
 objectClass: dcmIDGenerator
--

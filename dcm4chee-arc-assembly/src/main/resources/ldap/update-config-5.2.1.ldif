@@ -14,9 +14,7 @@ dcmLeadingCFindSCPQueryCacheStaleTimeout: PT5M
 add: dcmAECacheStaleTimeout
 dcmAECacheStaleTimeout: PT5M
 -
-delete: dicomVendorData
--
-add: dicomVendorData
+replace: dicomVendorData
 dicomVendorData:< file:vendor-data.zip
 -
 

@@ -11,9 +11,7 @@ dcmIanTaskPollingInterval: PT1M
 add: dcmPurgeQueueMessagePollingInterval
 dcmPurgeQueueMessagePollingInterval: PT1H
 -
-delete: dicomVendorData
--
-add: dicomVendorData
+replace: dicomVendorData
 dicomVendorData:< file:vendor-data.zip
 -
 

@@ -7,20 +7,20 @@ dicomSoftwareVersion: 5.10.5
 -
 delete: dcmDiffStudiesIncludefieldAll
 -
-delete: dicomVendorData
--
-add: dicomVendorData
+replace: dicomVendorData
 dicomVendorData:< file:vendor-data.zip
 -
 
 dn: cn=Audit Logger,dicomDeviceName=keycloak,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
 add: dcmAuditLoggerSpoolDirectoryURI
+dcmAuditLoggerSpoolDirectoryURI: ${jboss.server.temp.url}
 -
 
 dn: cn=Audit Logger,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
 add: dcmAuditLoggerSpoolDirectoryURI
+dcmAuditLoggerSpoolDirectoryURI: ${jboss.server.temp.url}
 -
 
 dn: dcmAttributeSetID=all+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -50,7 +50,6 @@ dcmAttributeSetType: DIFF_RS
 dcmAttributeSetID: all
 objectClass: dcmAttributeSet
 dcmAttributeSetNumber: 4
--
 
 dn: dcmAttributeSetID=accno+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
@@ -62,7 +61,6 @@ dcmAttributeSetType: DIFF_RS
 dcmAttributeSetID: accno
 objectClass: dcmAttributeSet
 dcmAttributeSetNumber: 3
--
 
 dn: dcmAttributeSetID=study+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
@@ -86,7 +84,6 @@ dcmAttributeSetType: DIFF_RS
 dcmAttributeSetID: study
 objectClass: dcmAttributeSet
 dcmAttributeSetNumber: 1
--
 
 dn: dcmAttributeSetID=patient+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
@@ -101,7 +98,6 @@ dcmAttributeSetType: DIFF_RS
 dcmAttributeSetID: patient
 objectClass: dcmAttributeSet
 dcmAttributeSetNumber: 2
--
 
 dn: dcmAttributeSetID=AttributeFilters+dcmAttributeSetType=WADO_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
@@ -228,9 +224,6 @@ dcmTag: 00700084
 dcmAttributeSetType: WADO_RS
 dcmAttributeSetID: AttributeFilters
 objectClass: dcmAttributeSet
--
 
 dn: dcmMetadataFilterName=AttributeFilters,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: delete
--
-
