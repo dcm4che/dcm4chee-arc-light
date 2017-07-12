@@ -174,7 +174,7 @@ public class WadoURI {
     private String frameNumber;
 
     @QueryParam("imageQuality")
-    @Pattern(regexp = "([1-9]\\d?})|100")
+    @Pattern(regexp = "([1-9]\\d?)|100")
     private String imageQuality;
 
     @QueryParam("presentationUID")
@@ -188,7 +188,7 @@ public class WadoURI {
 
     @Override
     public String toString() {
-        return request.getRequestURI() + '?' + request.getQueryString();
+        return request != null ? request.getRequestURI() + '?' + request.getQueryString() : null;
     }
 
     @GET
