@@ -492,12 +492,12 @@
     },
     "hl7LogFilePattern": {
       "title": "HL7 Log File Pattern",
-      "description": "Path to HL7 messages which will be captured exactly as received. If absent, there is no logging. May be overwritten by configured values for particular Archive HL7 Application. eg. ${jboss.server.data.dir}/hl7/${date,yyyy/MM/dd}/${SerialNo}-${MSH-9}.hl7",
+      "description": "Path to HL7 messages which will be captured exactly as received. If absent, there is no logging. May be overwritten by configured values for particular Archive HL7 Application.",
       "type": "string"
     },
     "hl7ErrorLogFilePattern": {
       "title": "HL7 Error Log File Pattern",
-      "description": "Path to HL7 messages which will be captured exactly as received, when processing of HL7 messages fails. If absent, there is no logging. May be overwritten by configured values for particular Archive HL7 Application. eg. ${jboss.server.data.dir}/hl7-error/${date,yyyy/MM/dd}/${SerialNo}-${MSH-9}.hl7",
+      "description": "Path to HL7 messages which will be captured exactly as received, when processing of HL7 messages fails. If absent, there is no logging. May be overwritten by configured values for particular Archive HL7 Application.",
       "type": "string"
     },
     "hl7NoPatientCreateMessageType": {
