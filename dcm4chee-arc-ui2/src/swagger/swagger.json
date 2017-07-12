@@ -1815,7 +1815,8 @@
     "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
-          "DIMSE-RS"
+          "DIMSE-RS",
+          "EXPORT-RS"
         ],
         "summary": "Export Study external",
         "operationId": "ExportStudyExternal",
@@ -1891,7 +1892,8 @@
     "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
-          "DIMSE-RS"
+          "DIMSE-RS",
+          "EXPORT-RS"
         ],
         "summary": "Export Series external",
         "operationId": "ExportSeriesExternal",
@@ -1974,7 +1976,8 @@
     "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
-          "DIMSE-RS"
+          "DIMSE-RS",
+          "EXPORT-RS"
         ],
         "summary": "Export Instance external",
         "operationId": "ExportInstanceExternal",
@@ -2054,6 +2057,279 @@
           },
           "404": {
             "description": "External AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{studyUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "post": {
+        "tags": [
+          "DIMSE-RS",
+          "IOCM-RS"
+        ],
+        "summary": "Reject Study external",
+        "operationId": "RejectStudyExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET connecting to C-FIND SCP and C-STORE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP which is queried for all Instances of the rejected Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "storescp",
+            "in": "query",
+            "description": "AE Title of C-STORE SCP to which the Rejection Note is send. If absent, the AE Title of C-FIND SCP will be used",
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "reject.schema.json"
+            }
+          },
+          "502": {
+            "description": "C-FIND-SCP or C-STORE SCP Failure",
+            "schema": {
+              "$ref": "reject.schema.json"
+            }
+          },
+          "404": {
+            "description": "Study not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{studyUID}/series/{seriesUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "post": {
+        "tags": [
+          "DIMSE-RS",
+          "IOCM-RS"
+        ],
+        "summary": "Reject Series external",
+        "operationId": "RejectSeriesExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET connecting to C-FIND SCP and C-STORE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP which is queried for all Instances of the rejected Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "seriesUID",
+            "in": "path",
+            "description": "Unique Identifier of the Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "storescp",
+            "in": "query",
+            "description": "AE Title of C-STORE SCP to which the Rejection Note is send. If absent, the AE Title of C-FIND SCP will be used",
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "reject.schema.json"
+            }
+          },
+          "502": {
+            "description": "C-FIND-SCP or C-STORE SCP Failure",
+            "schema": {
+              "$ref": "reject.schema.json"
+            }
+          },
+          "404": {
+            "description": "Series not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/reject/{codeValue}^{codingSchemeDesignator}": {
+      "post": {
+        "tags": [
+          "DIMSE-RS",
+          "IOCM-RS"
+        ],
+        "summary": "Reject Instance external",
+        "operationId": "RejectInstanceExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET connecting to C-FIND SCP and C-STORE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP which is queried for the rejected Instance",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "seriesUID",
+            "in": "path",
+            "description": "Unique Identifier of the Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "objectUID",
+            "in": "path",
+            "description": "Unique Identifier of the Object",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "storescp",
+            "in": "query",
+            "description": "AE Title of C-STORE SCP to which the Rejection Note is send. If absent, the AE Title of C-FIND SCP will be used",
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "reject.schema.json"
+            }
+          },
+          "502": {
+            "description": "C-FIND-SCP or C-STORE SCP Failure",
+            "schema": {
+              "$ref": "reject.schema.json"
+            }
+          },
+          "404": {
+            "description": "Instance not found"
           },
           "default": {
             "description": "unexpected error"
