@@ -1048,7 +1048,7 @@ class ArchiveDeviceFactory {
         return arrDevice ;
     }
 
-    public static Device createUnknownDevice(String name, String aet, String host, int port) {
+    public static Device createScheduledStation(String name, String aet, String host, int port) {
         Device device = new Device(name);
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setAssociationAcceptor(true);
@@ -1128,7 +1128,8 @@ class ArchiveDeviceFactory {
         return device;
     }
 
-    public static Device createArchiveDevice(String name, Device arrDevice, Device unknown, ConfigType configType) throws Exception {
+    public static Device createArchiveDevice(String name, Device arrDevice, Device scheduledStation, ConfigType configType)
+            throws Exception {
         Device device = new Device(name);
         String archiveHost = configType == ConfigType.DOCKER ? "archive-host" : "localhost";
         Connection dicom = new Connection("dicom", archiveHost, 11112);
@@ -1151,7 +1152,7 @@ class ArchiveDeviceFactory {
             device.addConnection(dicomTLS);
         }
 
-        addArchiveDeviceExtension(device, unknown, configType);
+        addArchiveDeviceExtension(device, scheduledStation, configType);
         addHL7DeviceExtension(device, configType, archiveHost);
         addAuditLoggerDeviceExtension(device, arrDevice, archiveHost);
         device.addDeviceExtension(new ImageReaderExtension(ImageReaderFactory.getDefault()));
@@ -1244,10 +1245,10 @@ class ArchiveDeviceFactory {
         device.addDeviceExtension(ext);
     }
 
-    static HL7OrderScheduledStation newScheduledStation(Device unknown) {
+    static HL7OrderScheduledStation newScheduledStation(Device scheduledStation) {
         HL7OrderScheduledStation ss = new HL7OrderScheduledStation();
         ss.setCommonName("Default Scheduled Station");
-        ss.setDevice(unknown);
+        ss.setDevice(scheduledStation);
         return ss;
     }
 
@@ -1283,7 +1284,7 @@ class ArchiveDeviceFactory {
         }
     }
 
-    private static void addArchiveDeviceExtension(Device device, Device unknown, ConfigType configType) {
+    private static void addArchiveDeviceExtension(Device device, Device scheduledStation, ConfigType configType) {
         ArchiveDeviceExtension ext = new ArchiveDeviceExtension();
         device.addDeviceExtension(ext);
         ext.setFuzzyAlgorithmClass("org.dcm4che3.soundex.ESoundex");
@@ -1347,7 +1348,7 @@ class ArchiveDeviceFactory {
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
         ext.setAttributeFilter(Entity.MWL, new AttributeFilter(MWL_ATTRS));
 
-        ext.addHL7OrderScheduledStation(newScheduledStation(unknown));
+        ext.addHL7OrderScheduledStation(newScheduledStation(scheduledStation));
 
         if (configType == configType.TEST) {
             ext.getAttributeFilter(Entity.Patient).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));

@@ -42,19 +42,11 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
-import org.dcm4che3.conf.api.DicomConfiguration;
-import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfiguration;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.SSLManagerFactory;
-import org.dcm4che3.util.ResourceLocator;
 import org.dcm4chee.arc.conf.json.JsonConfigurationProducer;
-import org.dcm4chee.arc.conf.ldap.LdapArchiveConfigurationFactory;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import javax.json.Json;
@@ -65,7 +57,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.KeyStore;
 
 import static org.dcm4chee.arc.conf.Assert.assertDeviceEquals;
 import static org.junit.Assert.assertNotNull;
@@ -80,8 +71,8 @@ public class ArchiveDeviceJsonConfigurationTest {
     public void testJsonPersist() throws Exception {
         Device arrDevice = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
                 ArchiveDeviceFactory.ConfigType.TEST);
-        Device unknownDevice = ArchiveDeviceFactory.createUnknownDevice("unknown", "UNKNOWN", "localhost", 104);
-        Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice, unknownDevice,
+        Device scheduledStation = ArchiveDeviceFactory.createScheduledStation("scheduledstation", "SCHEDULEDSTATION", "localhost", 104);
+        Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice, scheduledStation,
                 ArchiveDeviceFactory.ConfigType.TEST);
         JsonConfiguration jsonConfig = JsonConfigurationProducer.newJsonConfiguration();
         Path path = Paths.get("target/device.json");
@@ -102,8 +93,8 @@ public class ArchiveDeviceJsonConfigurationTest {
             if (name.equals("logstash"))
                 return ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
                     ArchiveDeviceFactory.ConfigType.TEST);
-            if (name.equals("unknown"))
-                return ArchiveDeviceFactory.createUnknownDevice("unknown", "UNKNOWN", "localhost", 104);
+            if (name.equals("scheduledstation"))
+                return ArchiveDeviceFactory.createScheduledStation("scheduledstation", "SCHEDULEDSTATION", "localhost", 104);
             else
                 throw new ConfigurationNotFoundException("Unknown Device: " + name);
         }

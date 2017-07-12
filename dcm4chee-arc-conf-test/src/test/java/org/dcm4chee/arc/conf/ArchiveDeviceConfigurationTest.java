@@ -113,11 +113,11 @@ public class ArchiveDeviceConfigurationTest {
                         "localhost", 2576, 12576), register);
         }
         Device arrDevice = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514, configType);
-        Device unknown = ArchiveDeviceFactory.createUnknownDevice("unknown", "UNKNOWN", "localhost", 104);
+        Device scheduledStation = ArchiveDeviceFactory.createScheduledStation("scheduledstation", "SCHEDULEDSTATION", "localhost", 104);
         config.persist(arrDevice, register);
-        config.persist(unknown, register);
+        config.persist(scheduledStation, register);
 
-        Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice, unknown, configType);
+        Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice, scheduledStation, configType);
         X509Certificate cacert = (X509Certificate) keyStore.getCertificate("cacert");
         String deviceRef = config.deviceRef("dcm4chee-arc");
         arc.setAuthorizedNodeCertificates(deviceRef, cacert);
@@ -134,7 +134,7 @@ public class ArchiveDeviceConfigurationTest {
         config.unregisterAETitle("DCM4CHEE");
         config.unregisterAETitle("DCM4CHEE_ADMIN");
         config.unregisterAETitle("DCM4CHEE_TRASH");
-        config.unregisterAETitle("UNKNOWN");
+        config.unregisterAETitle("SCHEDULEDSTATION");
         hl7Config.unregisterHL7Application("HL7RCV|DCM4CHEE");
         for (String aet : ArchiveDeviceFactory.OTHER_AES)
             config.unregisterAETitle(aet);
@@ -148,7 +148,7 @@ public class ArchiveDeviceConfigurationTest {
             config.removeDevice("keycloak", null);
         } catch (ConfigurationNotFoundException e) {}
         try {
-            config.removeDevice("unknown", null);
+            config.removeDevice("scheduledstation", null);
         } catch (ConfigurationNotFoundException e) {}
         try {
             config.removeDevice("hl7rcv", null);
