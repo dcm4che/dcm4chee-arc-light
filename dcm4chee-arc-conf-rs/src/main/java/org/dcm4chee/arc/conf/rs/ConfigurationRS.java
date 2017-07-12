@@ -51,6 +51,7 @@ import org.dcm4che3.conf.json.JsonConfiguration;
 import org.dcm4che3.net.ApplicationEntityInfo;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DeviceInfo;
+import org.dcm4che3.net.HL7ApplicationInfo;
 import org.dcm4che3.util.ByteUtils;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -172,7 +173,31 @@ public class ConfigurationRS {
                     JsonGenerator gen = Json.createGenerator(out);
                     gen.writeStartArray();
                     for (ApplicationEntityInfo aetInfo : aetInfos)
-                        jsonConf.writeTo(aetInfo, gen, false);
+                        jsonConf.writeTo(aetInfo, gen);
+                    gen.writeEnd();
+                    gen.flush();
+                }
+            };
+        } catch (Exception e) {
+            throw new WebApplicationException(getResponseAsTextPlain(e));
+        }
+    }
+
+    @GET
+    @NoCache
+    @Path("/hl7apps")
+    @Produces("application/json")
+    public StreamingOutput listHL7Apps() throws Exception {
+        try {
+            HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
+            final HL7ApplicationInfo[] hl7AppInfos = hl7Conf.listHL7AppInfos(new HL7ApplicationInfoBuilder(uriInfo).hl7AppInfo);
+            return new StreamingOutput() {
+                @Override
+                public void write(OutputStream out) throws IOException, WebApplicationException {
+                    JsonGenerator gen = Json.createGenerator(out);
+                    gen.writeStartArray();
+                    for (HL7ApplicationInfo hl7AppInfo : hl7AppInfos)
+                        jsonConf.writeTo(hl7AppInfo, gen);
                     gen.writeEnd();
                     gen.flush();
                 }
@@ -490,6 +515,28 @@ public class ConfigurationRS {
 
         static String[] toStrings(Map.Entry<String, List<String>> entry) {
             return entry.getValue().toArray(new String[entry.getValue().size()]);
+        }
+
+        static String toString(Map.Entry<String, List<String>> entry) {
+            return entry.getValue().get(0);
+        }
+    }
+
+    private static class HL7ApplicationInfoBuilder {
+        final HL7ApplicationInfo hl7AppInfo = new HL7ApplicationInfo();
+
+        HL7ApplicationInfoBuilder(UriInfo info) {
+            MultivaluedMap<String, String> map = info.getQueryParameters();
+            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                switch (entry.getKey()) {
+                    case "dicomDeviceName":
+                        hl7AppInfo.setDeviceName(toString(entry));
+                        break;
+                    case "hl7ApplicationName":
+                        hl7AppInfo.setHl7ApplicationName(toString(entry));
+                        break;
+                }
+            }
         }
 
         static String toString(Map.Entry<String, List<String>> entry) {
