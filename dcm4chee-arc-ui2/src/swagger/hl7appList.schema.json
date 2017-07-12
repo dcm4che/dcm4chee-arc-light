@@ -32,7 +32,7 @@
       },
       "dicomInstalled": {
         "title": "installed",
-        "description": "True if the AE is installed on network. If not present, information about the installed status of the AE is inherited from the device",
+        "description": "True if the HL7 Application is installed on network. If not present, information about the installed status of the HL7 Application is inherited from the device",
         "type": "boolean"
       },
       "dicomNetworkConnection": {
