@@ -572,7 +572,7 @@
           {
             "name": "dicomDescription",
             "in": "query",
-            "description": "Device Description",
+            "description": "AE Description",
             "type": "string"
           },
           {
@@ -679,6 +679,43 @@
           },
           "404": {
             "description": "AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/hl7apps": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List HL7 Applications",
+        "operationId": "listHL7Applications",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name",
+            "type": "string"
+          },
+          {
+            "name": "hl7ApplicationName",
+            "in": "query",
+            "description": "HL7 Application and Facility name (Application|Facility)",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HL7 Application list",
+            "schema": {
+              "$ref": "hl7appList.schema.json"
+            }
           },
           "default": {
             "description": "unexpected error"
