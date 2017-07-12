@@ -60,7 +60,6 @@ import org.dcm4chee.arc.study.StudyMgtContext;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
 import java.util.HashSet;
 
@@ -76,10 +75,8 @@ public class AuditTriggerObserver {
     private AuditService auditService;
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
-        if (auditService.hasAuditLoggers()) {
-            AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forApplicationActivity(event);
-            auditService.spoolApplicationActivity(et, event.getRequest());
-        }
+        if (auditService.hasAuditLoggers())
+            auditService.spoolApplicationActivity(event);
     }
 
     public void onStore(@Observes StoreContext ctx) {
@@ -98,11 +95,8 @@ public class AuditTriggerObserver {
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
         if (auditService.hasAuditLoggers()) {
-            HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forBeginTransfer(ctx);
-            String etFile = null;
-            for (AuditServiceUtils.EventType eventType : et)
-                etFile = String.valueOf(eventType);
-            auditService.spoolRetrieve(etFile, ctx, ctx.getMatches());
+            AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forBeginTransfer(ctx);
+            auditService.spoolRetrieve(et, ctx, ctx.getMatches());
         }
     }
 
@@ -111,12 +105,8 @@ public class AuditTriggerObserver {
             HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forDicomInstTransferred(ctx);
             if (ctx.failedSOPInstanceUIDs().length > 0)
                 auditService.spoolPartialRetrieve(ctx, et);
-            else {
-                String etFile = null;
-                for (AuditServiceUtils.EventType eventType : et)
-                    etFile = String.valueOf(eventType);
-                auditService.spoolRetrieve(etFile, ctx, ctx.getMatches());
-            }
+            else
+                auditService.spoolRetrieve(et.iterator().next(), ctx, ctx.getMatches());
         }
     }
 
@@ -138,20 +128,12 @@ public class AuditTriggerObserver {
     public void onConnection(@Observes ConnectionEvent event) {
         switch (event.getType()) {
             case ESTABLISHED:
-                onConnectionEstablished(event.getConnection(), event.getRemoteConnection(), event.getSocket());
-                break;
             case FAILED:
-                onConnectionFailed(event.getConnection(), event.getRemoteConnection(), event.getSocket(),
-                        event.getException());
+            case REJECTED_BLACKLISTED:
+            case ACCEPTED:
                 break;
             case REJECTED:
                 onConnectionRejected(event.getConnection(), event.getSocket(), event.getException());
-                break;
-            case REJECTED_BLACKLISTED:
-                onConnectionRejectedBlacklisted(event.getConnection(), event.getSocket());
-                break;
-            case ACCEPTED:
-                onConnectionAccepted(event.getConnection(), event.getSocket());
                 break;
         }
     }
@@ -179,20 +161,9 @@ public class AuditTriggerObserver {
             auditService.spoolStgCmt(stgCmtEventInfo);
     }
 
-    private void onConnectionEstablished(Connection conn, Connection remoteConn, Socket s) {
-    }
-
-    private void onConnectionFailed(Connection conn, Connection remoteConn, Socket s, Throwable e) {
-    }
-
-    private void onConnectionRejectedBlacklisted(Connection conn, Socket s) {
-    }
-
     private void onConnectionRejected(Connection conn, Socket s, Throwable e) {
         if (auditService.hasAuditLoggers())
             auditService.spoolConnectionRejected(conn, s, e);
     }
 
-    private void onConnectionAccepted(Connection conn, Socket s) {
-    }
 }
