@@ -1,11 +1,5 @@
 <div class="main_content ctrl monitoring">
-    <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/queues" routerLinkActive="active">Queues</a></li>
-        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/export" routerLinkActive="active">Export</a></li>
-        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/associations" routerLinkActive="active">Associations</a></li>
-        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-commitment" routerLinkActive="active">Storage commitments</a></li>
-        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-systems" routerLinkActive="active">Storage systems</a></li>
-    </ul>
+    <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
 <!--        <h3>Archive</h3>
         <p [innerHtml]="status === 'STARTED' ? 'Archive is running' : 'Archive is not running'"></p>

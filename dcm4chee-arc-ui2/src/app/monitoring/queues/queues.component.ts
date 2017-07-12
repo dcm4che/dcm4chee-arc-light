@@ -12,8 +12,7 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 
 @Component({
   selector: 'app-queues',
-  templateUrl: './queues.component.html',
-  styleUrls: ['./queues.component.css']
+  templateUrl: './queues.component.html'
 })
 export class QueuesComponent {
     matches = [];

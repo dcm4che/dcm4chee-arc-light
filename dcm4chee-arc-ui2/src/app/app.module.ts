@@ -60,6 +60,7 @@ import { StorageSystemsComponent } from './monitoring/storage-systems/storage-sy
 import {StorageSystemsService} from './monitoring/storage-systems/storage-systems.service';
 import {UploadDicomService} from './widgets/dialogs/upload-dicom/upload-dicom.service';
 import {WindowRefService} from "./helpers/window-ref.service";
+import { MonitoringTabsComponent } from './monitoring/monitoring-tabs.component';
 
 @NgModule({
     declarations: [
@@ -99,7 +100,8 @@ import {WindowRefService} from "./helpers/window-ref.service";
         AeListComponent,
         UtcPipe,
         CustomValidatorDirective,
-        StorageSystemsComponent
+        StorageSystemsComponent,
+        MonitoringTabsComponent
 
     ],
     imports: [
