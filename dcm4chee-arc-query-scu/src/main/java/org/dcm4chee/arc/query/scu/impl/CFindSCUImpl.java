@@ -44,6 +44,7 @@ import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
+import org.dcm4che3.net.pdu.AAssociateRQAC;
 import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4chee.arc.Cache;
@@ -61,6 +62,7 @@ import java.util.EnumSet;
 public class CFindSCUImpl implements CFindSCU {
 
     private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
+    private static final int PCID = 1;
 
     @Inject
     private Device device;
@@ -69,11 +71,13 @@ public class CFindSCUImpl implements CFindSCU {
     private IApplicationEntityCache aeCache;
 
     @Override
-    public Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID, int[] returnKeys)
+    public Attributes queryStudy(ApplicationEntity localAE, String calledAET,
+                                 int priority, String studyIUID, int[] returnKeys)
             throws Exception {
-        Association as = openAssociation(localAE, calledAET, EnumSet.noneOf(QueryOption.class));
+        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFIND,
+                EnumSet.noneOf(QueryOption.class));
         try {
-            return queryStudy(as, studyIUID, returnKeys);
+            return queryStudy(as, priority, studyIUID, returnKeys);
         } finally {
             as.waitForOutstandingRSP();
             as.release();
@@ -81,35 +85,50 @@ public class CFindSCUImpl implements CFindSCU {
     }
 
     @Override
-    public Association openAssociation(ApplicationEntity localAE, String calledAET, EnumSet<QueryOption> queryOptions)
+    public Association openAssociation(ApplicationEntity localAE, String calledAET,
+                                       String cuid, EnumSet<QueryOption> queryOptions)
             throws Exception {
-        return localAE.connect(aeCache.get(calledAET), createAARQ(queryOptions));
+        return localAE.connect(aeCache.get(calledAET), createAARQ(cuid, queryOptions));
     }
 
     @Override
-    public Attributes queryStudy(Association as, String studyIUID, int[] returnKeys) throws Exception {
-        DimseRSP rsp = queryStudies(as, mkQueryStudyKeys(studyIUID, returnKeys));
+    public Attributes queryStudy(Association as, int priority, String studyIUID, int[] returnKeys) throws Exception {
+        DimseRSP rsp = query(as, priority, mkQueryStudyKeys(studyIUID, returnKeys), 0);
         rsp.next();
         return rsp.getDataset();
     }
 
     @Override
-    public DimseRSP queryStudies(Association as, Attributes keys) throws Exception {
-        return as.cfind(UID.StudyRootQueryRetrieveInformationModelFIND, Priority.NORMAL,
-                keys, UID.ImplicitVRLittleEndian, 0);
+    public DimseRSP query(Association as, int priority, Attributes keys, int autoCancel) throws Exception {
+        AAssociateRQ aarq = as.getAAssociateRQ();
+        String cuid = aarq.getPresentationContext(PCID).getAbstractSyntax();
+        if (QueryOption.toOptions(aarq.getExtNegotiationFor(cuid)).contains(QueryOption.DATETIME)
+                && !as.getQueryOptionsFor(cuid).contains(QueryOption.DATETIME))
+            keys.accept(nullifyTM, true);
+        return as.cfind(cuid, priority, keys, UID.ImplicitVRLittleEndian, autoCancel);
     }
 
+    private static Attributes.Visitor nullifyTM = new Attributes.Visitor(){
+        @Override
+        public boolean visit(Attributes attrs, int tag, VR vr, Object value) throws Exception {
+            if (vr == VR.TM && value != Value.NULL)
+                attrs.setNull(tag, VR.TM);
+
+            return true;
+        }
+    };
+
     @Override
-    public Attributes queryStudy(
-            ApplicationEntity localAE, String calledAET, String studyIUID, int[] returnKeys,
-            Cache<String, Attributes> cache) {
+    public Attributes queryStudy(ApplicationEntity localAE, String calledAET,
+                                 int priority, String studyIUID, int[] returnKeys,
+                                 Cache<String, Attributes> cache) {
         Cache.Entry<Attributes> entry = cache.getEntry(studyIUID);
         Attributes newAttrs;
         if (entry != null) {
             newAttrs = entry.value();
         } else {
             try {
-                newAttrs = queryStudy(localAE, calledAET, studyIUID, returnKeys);
+                newAttrs = queryStudy(localAE, calledAET, priority, studyIUID, returnKeys);
             } catch (Exception e) {
                 newAttrs = null;
             }
@@ -127,12 +146,12 @@ public class CFindSCUImpl implements CFindSCU {
         return keys;
     }
 
-    private AAssociateRQ createAARQ(EnumSet<QueryOption> queryOptions) {
+    private AAssociateRQ createAARQ(String cuid, EnumSet<QueryOption> queryOptions) {
         AAssociateRQ aarq = new AAssociateRQ();
-        aarq.addPresentationContext(new PresentationContext(
-                1, UID.StudyRootQueryRetrieveInformationModelFIND, UID.ImplicitVRLittleEndian));
-        aarq.addExtendedNegotiation(new ExtendedNegotiation(UID.StudyRootQueryRetrieveInformationModelFIND,
-                QueryOption.toExtendedNegotiationInformation(queryOptions)));
+        aarq.addPresentationContext(new PresentationContext(PCID, cuid, UID.ImplicitVRLittleEndian));
+        if (queryOptions != null)
+            aarq.addExtendedNegotiation(new ExtendedNegotiation(cuid,
+                    QueryOption.toExtendedNegotiationInformation(queryOptions)));
         return aarq;
     }
 }

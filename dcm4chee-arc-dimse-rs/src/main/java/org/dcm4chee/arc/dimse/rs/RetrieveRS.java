@@ -36,7 +36,7 @@
  *
  */
 
-package org.dcm4chee.arc.retrieve.rs;
+package org.dcm4chee.arc.dimse.rs;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -53,6 +53,7 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -83,9 +84,8 @@ public class RetrieveRS {
     private String externalAET;
 
     @QueryParam("priority")
-    @Min(0)
-    @Max(2)
-    private int priority;
+    @Pattern(regexp = "0|1|2")
+    private String priority;
 
     @Inject
     private CMoveSCU moveSCU;
@@ -125,12 +125,20 @@ public class RetrieveRS {
         return export(destinationAET, studyUID, seriesUID, objectUID);
     }
 
+    private int priority() {
+        return parseInt(priority, 0);
+    }
+
+    private static int parseInt(String s, int defval) {
+        return s != null ? Integer.parseInt(s) : defval;
+    }
+
     private Response export(String destAET, String... uids) throws Exception {
         LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity localAE = getApplicationEntity();
         Association as = moveSCU.openAssociation(localAE, externalAET);
         try {
-            final DimseRSP rsp = moveSCU.cmove(as, priority, destAET, uids);
+            final DimseRSP rsp = moveSCU.cmove(as, priority(), destAET, uids);
             while (rsp.next());
             Attributes cmd = rsp.getCommand();
             return status(cmd).entity(entity(cmd)).build();

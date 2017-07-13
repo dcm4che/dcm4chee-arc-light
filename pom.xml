@@ -429,7 +429,7 @@
     <module>dcm4chee-arc-conf-test</module>
     <module>dcm4chee-arc-ctrl</module>
     <module>dcm4chee-arc-delete</module>
-    <module>dcm4chee-arc-echo-rs</module>
+    <module>dcm4chee-arc-dimse-rs</module>
     <module>dcm4chee-arc-entity</module>
     <module>dcm4chee-arc-export</module>
     <module>dcm4chee-arc-export-mgt</module>
@@ -461,7 +461,6 @@
     <module>dcm4chee-arc-query-util</module>
     <module>dcm4chee-arc-realm-rs</module>
     <module>dcm4chee-arc-retrieve</module>
-    <module>dcm4chee-arc-retrieve-rs</module>
     <module>dcm4chee-arc-retrieve-scp</module>
     <module>dcm4chee-arc-retrieve-scu</module>
     <module>dcm4chee-arc-retrieve-xdsi</module>

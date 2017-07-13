@@ -2434,6 +2434,14 @@
             "in": "query",
             "description": "limit={maximumResults}",
             "type": "integer"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
           }
         ],
         "responses": {
@@ -2515,6 +2523,14 @@
             "description": "fuzzy semantic matching of person names",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
           }
         ],
         "responses": {

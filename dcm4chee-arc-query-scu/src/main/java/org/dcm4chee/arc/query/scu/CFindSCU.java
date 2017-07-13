@@ -54,16 +54,18 @@ import java.util.EnumSet;
  * @since May 2016
  */
 public interface CFindSCU {
-    Attributes queryStudy(ApplicationEntity localAE, String calledAET, String studyIUID, int[] returnKeys)
+    Attributes queryStudy(ApplicationEntity localAE, String calledAET, int priority, String studyIUID, int[] returnKeys)
             throws Exception;
 
-    Association openAssociation(ApplicationEntity localAE, String calledAET, EnumSet<QueryOption> queryOptions) throws Exception;
+    Association openAssociation(
+            ApplicationEntity localAE, String cuid, String calledAET, EnumSet<QueryOption> queryOptions)
+            throws Exception;
 
-    Attributes queryStudy(Association as, String studyIUID, int[] returnKeys) throws Exception;
+    Attributes queryStudy(Association as, int priority, String studyIUID, int[] returnKeys) throws Exception;
 
-    DimseRSP queryStudies(Association as, Attributes keys) throws Exception;
+    DimseRSP query(Association as, int priority, Attributes keys, int autocancel) throws Exception;
 
     Attributes queryStudy(
-            ApplicationEntity localAE, String calledAET, String studyIUID, int[] returnKeys,
+            ApplicationEntity localAE, String calledAET, int priority, String studyIUID, int[] returnKeys,
             Cache<String, Attributes> cache);
 }

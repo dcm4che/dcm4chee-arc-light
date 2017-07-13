@@ -36,7 +36,7 @@
  *
  */
 
-package org.dcm4chee.arc.qido;
+package org.dcm4chee.arc.query.util;
 
 import com.querydsl.core.types.Order;
 import org.dcm4che3.data.Attributes;
@@ -81,6 +81,7 @@ public class QueryAttributes {
                 case "missing":
                 case "offset":
                 case "limit":
+                case "priority":
                 case "withoutstudies":
                 case "fuzzymatching":
                 case "returnempty":
@@ -167,8 +168,8 @@ public class QueryAttributes {
     }
 
     public static class OrderByTag {
-        final int tag;
-        final Order order;
+        public final int tag;
+        public final Order order;
 
         private OrderByTag(int tag, Order order) {
             this.tag = tag;

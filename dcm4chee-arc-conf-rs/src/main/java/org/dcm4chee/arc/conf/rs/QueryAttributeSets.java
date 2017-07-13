@@ -1,6 +1,5 @@
 /*
- *  ** BEGIN LICENSE BLOCK *****
- *  Version: MPL 1./GPL 2.0/LGPL 2.1
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  *  The contents of this file are subject to the Mozilla Public License Version
  *  1.1 (the "License"); you may not use this file except in compliance with
@@ -17,7 +16,7 @@
  *
  *  The Initial Developer of the Original Code is
  *  J4Care.
- *  Portions created by the Initial Developer are Copyright (C) 2017
+ *  Portions created by the Initial Developer are Copyright (C) 2015-2017
  *  the Initial Developer. All Rights Reserved.
  *
  *  Contributor(s):
@@ -35,11 +34,9 @@
  *  the provisions above, a recipient may use your version of this file under
  *  the terms of any one of the MPL, the GPL or the LGPL.
  *
- *  ** END LICENSE BLOCK *****
- *
  */
 
-package org.dcm4chee.arc.qido;
+package org.dcm4chee.arc.conf.rs;
 
 import org.dcm4che3.conf.json.JsonConfiguration;
 import org.dcm4che3.conf.json.JsonWriter;
@@ -49,15 +46,20 @@ import org.dcm4chee.arc.conf.AttributeSet;
 import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
-import javax.ws.rs.*;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -82,23 +84,20 @@ public class QueryAttributeSets {
             @Override
             public void write(OutputStream out) throws IOException {
                 JsonGenerator gen = Json.createGenerator(out);
-                try {
-                    AttributeSet.Type attrSetType = AttributeSet.Type.valueOf(type);
-                    ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-                    gen.writeStartArray();
-                    for (AttributeSet attrSet : toInstalledSortedAttrSet(arcDev.getAttributeSet(attrSetType))) {
-                        JsonWriter writer = new JsonWriter(gen);
-                        gen.writeStartObject();
-                        writer.writeNotNullOrDef("type", attrSet.getType().name(), null);
-                        writer.writeNotNullOrDef("id", attrSet.getID(), null);
-                        writer.writeNotNullOrDef("description", attrSet.getDescription(), null);
-                        writer.writeNotNullOrDef("title", attrSet.getTitle(), null);
-                        gen.writeEnd();
-                    }
+                AttributeSet.Type attrSetType = AttributeSet.Type.valueOf(type);
+                ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+                gen.writeStartArray();
+                for (AttributeSet attrSet : toInstalledSortedAttrSet(arcDev.getAttributeSet(attrSetType))) {
+                    JsonWriter writer = new JsonWriter(gen);
+                    gen.writeStartObject();
+                    writer.writeNotNullOrDef("type", attrSet.getType().name(), null);
+                    writer.writeNotNullOrDef("id", attrSet.getID(), null);
+                    writer.writeNotNullOrDef("description", attrSet.getDescription(), null);
+                    writer.writeNotNullOrDef("title", attrSet.getTitle(), null);
                     gen.writeEnd();
-                } finally {
-                    gen.flush();
                 }
+                gen.writeEnd();
+                gen.flush();
             }
         };
     }

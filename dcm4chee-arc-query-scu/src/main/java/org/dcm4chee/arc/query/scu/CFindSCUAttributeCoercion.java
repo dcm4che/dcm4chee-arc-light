@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Priority;
 import org.dcm4chee.arc.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +81,7 @@ public class CFindSCUAttributeCoercion implements AttributesCoercion {
     @Override
     public void coerce(Attributes attrs, Attributes modified) {
         String studyIUID = attrs.getString(Tag.StudyInstanceUID);
-        Attributes newAttrs = cfindSCU.queryStudy(localAE, calledAET, studyIUID, returnKeys, queryCache);
+        Attributes newAttrs = cfindSCU.queryStudy(localAE, calledAET, Priority.NORMAL, studyIUID, returnKeys, queryCache);
         if (newAttrs != null)
             attrs.update(attributeUpdatePolicy, newAttrs, modified);
         else

@@ -36,7 +36,7 @@
  *
  */
 
-package org.dcm4chee.arc.qido;
+package org.dcm4chee.arc.dimse.rs;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONWriter;
@@ -46,6 +46,8 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.dcm4chee.arc.query.util.QIDO;
+import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -124,6 +126,10 @@ public class DiffRS {
     @QueryParam("comparefield")
     private List<String> comparefields;
 
+    @QueryParam("priority")
+    @Pattern(regexp = "0|1|2")
+    private String priority;
+
     @Inject
     private CFindSCU findSCU;
 
@@ -153,7 +159,7 @@ public class DiffRS {
         search(ar, true);
     }
 
-    private void search(@Suspended AsyncResponse ar, boolean count) throws Exception {
+    private void search(AsyncResponse ar, boolean count) throws Exception {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
         int[] compareKeys = compareKeys();
@@ -172,13 +178,9 @@ public class DiffRS {
         EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
         if (Boolean.parseBoolean(fuzzymatching))
             queryOptions.add(QueryOption.FUZZY);
-        as1 = findSCU.openAssociation(localAE, externalAET, queryOptions);
-        as2 = findSCU.openAssociation(localAE, originalAET, queryOptions);
-        if (!as1.getQueryOptionsFor(UID.StudyRootQueryRetrieveInformationModelFIND)
-                .contains(QueryOption.DATETIME))
-            if (keys.containsValue(Tag.StudyTime))
-                keys.setNull(Tag.StudyTime, VR.TM);
-        DimseRSP dimseRSP = findSCU.queryStudies(as1, keys);
+        as1 = findSCU.openAssociation(localAE, externalAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
+        as2 = findSCU.openAssociation(localAE, originalAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
+        DimseRSP dimseRSP = findSCU.query(as1, priority(), keys, 0);
         if (count) {
             int[] counts = new int[2];
             while (dimseRSP.next()) {
@@ -189,7 +191,7 @@ public class DiffRS {
         }
         includeMissing = missing != null && Boolean.parseBoolean(missing);
         includeDifferent = different == null || Boolean.parseBoolean(different);
-        int skip = parseInt(offset, 0);
+        int skip = offset();
         while (dimseRSP.next()) {
             if (diff(dimseRSP, compareKeys, returnKeys, null) && skip-- == 0) {
                 ar.resume(Response.ok(entity(dimseRSP, compareKeys, returnKeys)).build());
@@ -200,8 +202,8 @@ public class DiffRS {
     }
 
     private void addReturnTags(QueryAttributes queryAttributes, int[] compareKeys) {
-        queryAttributes.addReturnTags(QidoRS.STUDY_FIELDS);
-        if (compareKeys != QidoRS.STUDY_FIELDS)
+        queryAttributes.addReturnTags(QIDO.STUDY.includetags);
+        if (compareKeys != QIDO.STUDY.includetags)
             queryAttributes.addReturnTags(compareKeys);
         ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         Map<String, AttributeSet> attributeSetMap = arcdev.getAttributeSet(AttributeSet.Type.DIFF_RS);
@@ -218,7 +220,7 @@ public class DiffRS {
 
     private int[] compareKeys() {
         if (comparefields == null || comparefields.isEmpty())
-            return QidoRS.STUDY_FIELDS;
+            return QIDO.STUDY.includetags;
 
         int size = comparefields.size();
         if (size == 1) {
@@ -251,6 +253,18 @@ public class DiffRS {
             }
     }
 
+    private int offset() {
+        return parseInt(offset, 0);
+    }
+
+    private int limit() {
+        return parseInt(limit, 0);
+    }
+
+    private int priority() {
+        return parseInt(priority, 0);
+    }
+
     private static int parseInt(String s, int defval) {
         return s != null ? Integer.parseInt(s) : defval;
     }
@@ -272,12 +286,12 @@ public class DiffRS {
                     JSONWriter writer = new JSONWriter(gen);
                     gen.writeStartArray();
                     writer.write(dimseRSP.getDataset());
-                    int remaining = parseInt(limit, -1);
+                    int remaining = limit();
                     try {
                         while (dimseRSP.next())
                             if (diff(dimseRSP, compareKeys, returnKeys, null)) {
                                 writer.write(dimseRSP.getDataset());
-                                if (remaining > 0 && --remaining == 0)
+                                if (limit != null && --remaining == 0)
                                     break;
                             }
                     } catch (Exception e) {
@@ -299,7 +313,7 @@ public class DiffRS {
         if (match == null)
             return false;
 
-        Attributes other = findSCU.queryStudy(as2, match.getString(Tag.StudyInstanceUID), returnKeys);
+        Attributes other = findSCU.queryStudy(as2, priority(), match.getString(Tag.StudyInstanceUID), returnKeys);
         if (counts != null) {
             if (other == null)
                 counts[0]++;

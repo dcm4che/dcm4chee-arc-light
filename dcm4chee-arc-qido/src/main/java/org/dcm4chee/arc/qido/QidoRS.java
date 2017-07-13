@@ -91,84 +91,6 @@ public class QidoRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(QidoRS.class);
 
-    private final static int[] PATIENT_FIELDS = {
-            Tag.PatientName,
-            Tag.PatientID,
-            Tag.PatientBirthDate,
-            Tag.PatientSex,
-    };
-
-    final static int[] STUDY_FIELDS = {
-            Tag.StudyDate,
-            Tag.StudyTime,
-            Tag.AccessionNumber,
-            Tag.ModalitiesInStudy,
-            Tag.ReferringPhysicianName,
-            Tag.PatientName,
-            Tag.PatientID,
-            Tag.PatientBirthDate,
-            Tag.PatientSex,
-            Tag.StudyID,
-            Tag.StudyInstanceUID,
-            Tag.NumberOfStudyRelatedSeries,
-            Tag.NumberOfStudyRelatedInstances
-    };
-
-    private final static int[] SERIES_FIELDS = {
-            Tag.Modality,
-            Tag.SeriesDescription,
-            Tag.SeriesNumber,
-            Tag.SeriesInstanceUID,
-            Tag.NumberOfSeriesRelatedInstances,
-            Tag.PerformedProcedureStepStartDate,
-            Tag.PerformedProcedureStepStartTime,
-            Tag.RequestAttributesSequence
-    };
-
-    private final static int[] INSTANCE_FIELDS = {
-            Tag.SOPClassUID,
-            Tag.SOPInstanceUID,
-            Tag.InstanceNumber,
-            Tag.Rows,
-            Tag.Columns,
-            Tag.BitsAllocated,
-            Tag.NumberOfFrames
-    };
-
-    private final static int[] MWL_FIELDS = {
-            Tag.AccessionNumber,
-            Tag.ReferringPhysicianName,
-            Tag.ReferencedStudySequence,
-            Tag.ReferencedPatientSequence,
-            Tag.PatientName,
-            Tag.PatientID,
-            Tag.PatientBirthDate,
-            Tag.PatientSex,
-            Tag.PatientWeight,
-            Tag.MedicalAlerts,
-            Tag.Allergies,
-            Tag.PregnancyStatus,
-            Tag.StudyInstanceUID,
-            Tag.RequestingPhysician,
-            Tag.RequestedProcedureDescription,
-            Tag.RequestedProcedureCodeSequence,
-            Tag.AdmissionID,
-            Tag.SpecialNeeds,
-            Tag.CurrentPatientLocation,
-            Tag.PatientState,
-            Tag.ScheduledProcedureStepSequence,
-            Tag.RequestedProcedureID,
-            Tag.RequestedProcedurePriority,
-            Tag.PatientTransportArrangements,
-            Tag.ConfidentialityConstraintOnPatientDataDescription
-    };
-
-    private final static int[] STUDY_SERIES_FIELDS = catAndSort(STUDY_FIELDS, SERIES_FIELDS);
-
-    private final static int[] STUDY_SERIES_INSTANCE_FIELDS = catAndSort(STUDY_SERIES_FIELDS, INSTANCE_FIELDS);
-
-    private final static int[] SERIES_INSTANCE_FIELDS = catAndSort(SERIES_FIELDS, INSTANCE_FIELDS);
-
     @Inject
     private QueryService service;
 
@@ -238,7 +160,7 @@ public class QidoRS {
     @Path("/patients")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForPatientsXML() throws Exception {
-        return search("SearchForPatients", Model.PATIENT, null, null, PATIENT_FIELDS, Output.DICOM_XML);
+        return search("SearchForPatients", Model.PATIENT, null, null, QIDO.PATIENT, Output.DICOM_XML);
     }
 
     @GET
@@ -246,7 +168,7 @@ public class QidoRS {
     @Path("/patients")
     @Produces("application/dicom+json,application/json")
     public Response searchForPatientsJSON() throws Exception {
-        return search("SearchForPatients", Model.PATIENT, null, null, PATIENT_FIELDS, Output.JSON);
+        return search("SearchForPatients", Model.PATIENT, null, null, QIDO.PATIENT, Output.JSON);
     }
 
     @GET
@@ -254,7 +176,7 @@ public class QidoRS {
     @Path("/studies")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForStudiesXML() throws Exception {
-        return search("SearchForStudies", Model.STUDY, null, null, STUDY_FIELDS, Output.DICOM_XML);
+        return search("SearchForStudies", Model.STUDY, null, null, QIDO.STUDY, Output.DICOM_XML);
     }
 
     @GET
@@ -262,7 +184,7 @@ public class QidoRS {
     @Path("/studies")
     @Produces("application/dicom+json,application/json")
     public Response searchForStudiesJSON() throws Exception {
-        return search("SearchForStudies", Model.STUDY, null, null, STUDY_FIELDS, Output.JSON);
+        return search("SearchForStudies", Model.STUDY, null, null, QIDO.STUDY, Output.JSON);
     }
 
     @GET
@@ -270,7 +192,7 @@ public class QidoRS {
     @Path("/series")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForSeriesXML() throws Exception {
-        return search("SearchForSeries", Model.SERIES, null, null, STUDY_SERIES_FIELDS, Output.DICOM_XML);
+        return search("SearchForSeries", Model.SERIES, null, null, QIDO.STUDY_SERIES, Output.DICOM_XML);
     }
 
     @GET
@@ -278,7 +200,7 @@ public class QidoRS {
     @Path("/series")
     @Produces("application/dicom+json,application/json")
     public Response searchForSeriesJSON() throws Exception {
-        return search("SearchForSeries", Model.SERIES, null, null, STUDY_SERIES_FIELDS, Output.JSON);
+        return search("SearchForSeries", Model.SERIES, null, null, QIDO.STUDY_SERIES, Output.JSON);
     }
 
     @GET
@@ -287,7 +209,7 @@ public class QidoRS {
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForSeriesOfStudyXML(
             @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
-        return search("SearchForStudySeries", Model.SERIES, studyInstanceUID, null, SERIES_FIELDS, Output.DICOM_XML);
+        return search("SearchForStudySeries", Model.SERIES, studyInstanceUID, null, QIDO.SERIES, Output.DICOM_XML);
     }
 
     @GET
@@ -296,7 +218,7 @@ public class QidoRS {
     @Produces("application/dicom+json,application/json")
     public Response searchForSeriesOfStudyJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
-        return search("SearchForStudySeries", Model.SERIES, studyInstanceUID, null, SERIES_FIELDS, Output.JSON);
+        return search("SearchForStudySeries", Model.SERIES, studyInstanceUID, null, QIDO.SERIES, Output.JSON);
     }
 
     @GET
@@ -304,7 +226,7 @@ public class QidoRS {
     @Path("/instances")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForInstancesXML() throws Exception {
-        return search("SearchForInstances", Model.INSTANCE, null, null, STUDY_SERIES_INSTANCE_FIELDS, Output.DICOM_XML);
+        return search("SearchForInstances", Model.INSTANCE, null, null, QIDO.STUDY_SERIES_INSTANCE, Output.DICOM_XML);
     }
 
     @GET
@@ -312,7 +234,7 @@ public class QidoRS {
     @Path("/instances")
     @Produces("application/dicom+json,application/json")
     public Response searchForInstancesJSON() throws Exception {
-        return search("SearchForInstances", Model.INSTANCE, null, null, STUDY_SERIES_INSTANCE_FIELDS, Output.JSON);
+        return search("SearchForInstances", Model.INSTANCE, null, null, QIDO.STUDY_SERIES_INSTANCE, Output.JSON);
     }
 
     @GET
@@ -322,7 +244,7 @@ public class QidoRS {
     public Response searchForInstancesOfStudyXML(
             @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
         return search("SearchForStudyInstances", Model.INSTANCE,
-                studyInstanceUID, null, SERIES_INSTANCE_FIELDS, Output.DICOM_XML);
+                studyInstanceUID, null, QIDO.SERIES_INSTANCE, Output.DICOM_XML);
     }
 
     @GET
@@ -332,7 +254,7 @@ public class QidoRS {
     public Response searchForInstancesOfStudyJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
         return search("SearchForStudyInstances", Model.INSTANCE,
-                studyInstanceUID, null, SERIES_INSTANCE_FIELDS, Output.JSON);
+                studyInstanceUID, null, QIDO.SERIES_INSTANCE, Output.JSON);
     }
 
     @GET
@@ -343,7 +265,7 @@ public class QidoRS {
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
         return search("SearchForStudySeriesInstances", Model.INSTANCE,
-                studyInstanceUID, seriesInstanceUID, INSTANCE_FIELDS, Output.DICOM_XML);
+                studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, Output.DICOM_XML);
     }
 
     @GET
@@ -354,7 +276,7 @@ public class QidoRS {
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
         return search("SearchForStudySeriesInstances", Model.INSTANCE,
-                studyInstanceUID, seriesInstanceUID, INSTANCE_FIELDS, Output.JSON);
+                studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, Output.JSON);
     }
 
     @GET
@@ -362,7 +284,7 @@ public class QidoRS {
     @Path("/mwlitems")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForSPSXML() throws Exception {
-        return search("SearchForSPS", Model.MWL, null, null, MWL_FIELDS, Output.DICOM_XML);
+        return search("SearchForSPS", Model.MWL, null, null, QIDO.MWL, Output.DICOM_XML);
     }
 
     @GET
@@ -370,15 +292,15 @@ public class QidoRS {
     @Path("/mwlitems")
     @Produces("application/dicom+json,application/json")
     public Response searchForSPSJSON() throws Exception {
-        return search("SearchForSPS", Model.MWL, null, null, MWL_FIELDS, Output.JSON);
+        return search("SearchForSPS", Model.MWL, null, null, QIDO.MWL, Output.JSON);
     }
 
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID,
-                            int[] includetags, Output output)
+                            QIDO qido, Output output)
             throws Exception {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
-        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, includetags, model);
+        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, qido.includetags, model);
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         Query query = model.createQuery(service, ctx);
         Transaction transaction = null;
@@ -472,14 +394,6 @@ public class QidoRS {
         return ctx;
     }
 
-
-    private static int[] catAndSort(int[] src1, int[] src2) {
-        int[] dest = new int[src1.length + src2.length];
-        System.arraycopy(src1, 0, dest, 0, src1.length);
-        System.arraycopy(src2, 0, dest, src1.length, src2.length);
-        Arrays.sort(dest);
-        return dest;
-    }
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
@@ -596,14 +510,14 @@ public class QidoRS {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                try (JsonGenerator gen = Json.createGenerator(out)) {
-                    JSONWriter writer = new JSONWriter(gen);
-                    gen.writeStartArray();
-                    for (Attributes match : matches) {
-                        writer.write(match);
-                    }
-                    gen.writeEnd();
+                JsonGenerator gen = Json.createGenerator(out);
+                JSONWriter writer = new JSONWriter(gen);
+                gen.writeStartArray();
+                for (Attributes match : matches) {
+                    writer.write(match);
                 }
+                gen.writeEnd();
+                gen.flush();
             }
         };
     }

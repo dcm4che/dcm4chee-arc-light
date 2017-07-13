@@ -827,7 +827,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         for (String studyIUID : ctx.getStudyInstanceUIDs()) {
             Attributes studyAttrs = null;
             try {
-                studyAttrs = cfindscu.queryStudy(localAE, findSCP, studyIUID,
+                studyAttrs = cfindscu.queryStudy(localAE, findSCP, Priority.NORMAL, studyIUID,
                         new int[] { Tag.NumberOfStudyRelatedInstances });
             } catch (Exception e) {
                 LOG.warn("Failed to query Study[{}] from {} - cannot verify number of retrieved objects from {}:\n",
