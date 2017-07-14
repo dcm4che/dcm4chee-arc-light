@@ -141,6 +141,10 @@ export class FormService{
                             }
                             group[element.key] = validation ? $this._fb.control(tempValue, validation)
                                 : $this._fb.control(tempValue);
+/*                            //Adding search to dropdown
+                            if(element.controlType === "buttondropdown"){
+                                group['search_'+element.key] = $this._fb.control('');
+                            }*/
                         }
                     }
             }

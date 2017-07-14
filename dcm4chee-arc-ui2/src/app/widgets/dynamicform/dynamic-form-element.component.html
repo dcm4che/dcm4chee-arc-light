@@ -23,10 +23,10 @@
                 <input class="simple_input number" *ngSwitchCase="'number'" [formControlName]="formelement.key" [id]="formelement.key" type="number" />
             </div>
             <div class="dropdown_parent" *ngIf="formelement.show || partSearch != ''">
-                <select class="dropdown" *ngSwitchCase="'dropdown'" [id]="formelement.key" [formControlName]="formelement.key">
-                    <option value="">-</option>
-                    <option *ngFor="let opt of formelement.options" [value]="opt.key" [selected]="opt.active">{{opt.value}}</option>
-                </select>
+                    <select class="dropdown" *ngSwitchCase="'dropdown'" [id]="formelement.key" [formControlName]="formelement.key">
+                        <option value="">-</option>
+                        <option *ngFor="let opt of formelement.options " [value]="opt.key" [selected]="opt.active">{{opt.value}}</option>
+                    </select>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <div class="radiobuttons_parent" *ngSwitchCase="'radio'">
@@ -76,8 +76,10 @@
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <div class="dropdown_button" *ngSwitchCase="'buttondropdown'">
+                    <!--<input class="dropdownSearch"  formControlName="{{'search_'+formelement.key}}" type="text" placeholder="Search..." >-->
                     <select [attr.disabled]="form.valid ? null:true" (change)="navigateTo($event.target.value)" *ngIf="formelement.options && formelement.options.length > 0">
                         <option [value]="">-</option>
+                        <!--<option *ngFor="let opt of formelement.options | search:form.controls['search_'+formelement.key].value" [value]="opt.url">{{opt.title}}</option>-->
                         <option *ngFor="let opt of formelement.options" [value]="opt.url">{{opt.title}}</option>
                     </select>
                     <a *ngIf="formelement.options && formelement.options.length > 0" [ngClass]="{'disabled':!form.valid}" class="button add" [routerLink]="[formelement.addUrl]" title="Add new {{formelement.label}}"><i class="material-icons">add</i></a>
