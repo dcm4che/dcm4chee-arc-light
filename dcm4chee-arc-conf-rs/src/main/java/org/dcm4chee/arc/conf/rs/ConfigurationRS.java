@@ -535,8 +535,15 @@ public class ConfigurationRS {
                     case "hl7ApplicationName":
                         hl7AppInfo.setHl7ApplicationName(toString(entry));
                         break;
+                    case "dicomApplicationCluster":
+                        hl7AppInfo.setApplicationClusters(toStrings(entry));
+                        break;
                 }
             }
+        }
+
+        static String[] toStrings(Map.Entry<String, List<String>> entry) {
+            return entry.getValue().toArray(new String[entry.getValue().size()]);
         }
 
         static String toString(Map.Entry<String, List<String>> entry) {
