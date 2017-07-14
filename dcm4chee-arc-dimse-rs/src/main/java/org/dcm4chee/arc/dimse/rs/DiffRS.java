@@ -205,16 +205,10 @@ public class DiffRS {
         queryAttributes.addReturnTags(QIDO.STUDY.includetags);
         if (compareKeys != QIDO.STUDY.includetags)
             queryAttributes.addReturnTags(compareKeys);
-        ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-        Map<String, AttributeSet> attributeSetMap = arcdev.getAttributeSet(AttributeSet.Type.DIFF_RS);
         if (queryAttributes.isIncludeAll()) {
-            AttributeSet allTags = attributeSetMap.get("all");
-            if (allTags != null)
-                queryAttributes.addReturnTags(allTags.getSelection());
-            else {
-                queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection());
-                queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Study).getSelection());
-            }
+            ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection());
+            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Study).getSelection());
         }
     }
 

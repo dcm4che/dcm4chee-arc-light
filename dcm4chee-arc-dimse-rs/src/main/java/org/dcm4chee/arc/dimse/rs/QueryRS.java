@@ -45,6 +45,8 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
@@ -183,6 +185,19 @@ public class QueryRS {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
         queryAttributes.addReturnTags(qido.includetags);
+        if (queryAttributes.isIncludeAll()) {
+            ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            switch (level) {
+                case IMAGE:
+                    queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Instance).getSelection());
+                case SERIES:
+                    queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Series).getSelection());
+                case STUDY:
+                    queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Study).getSelection());
+                case PATIENT:
+                    queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection());
+            }
+        }
         Attributes keys = queryAttributes.getQueryKeys();
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, level.name());
         if (studyInstanceUID != null)
