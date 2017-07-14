@@ -3235,15 +3235,20 @@ export class StudiesComponent implements OnDestroy{
                                                         m,
                                                         headers
                                                     )
-                                                      /*  .map(res => {
-                                                        let resjson;
-                                                        try {
-                                                            resjson = res.json();
-                                                        } catch (e) {
-                                                            resjson = {};
-                                                        }
-                                                        return resjson;
-                                                    })*/
+                                                        .map(res => {
+                                                            console.log('in map1', res);
+                                                            let resjson;
+                                                            try {
+                                                                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                                if(pattern.exec(res.url)){
+                                                                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                                }
+                                                                resjson = res.json();
+                                                            } catch (e) {
+                                                                resjson = {};
+                                                            }
+                                                            return resjson;
+                                                        })
                                                         .subscribe((response) => {
                                                             console.log('in then function', response);
                                                             $this.clipboard = {};
@@ -3286,15 +3291,20 @@ export class StudiesComponent implements OnDestroy{
                                             m,
                                             headers
                                         )
-/*                                            .map(res => {
-                                            let resjson;
-                                            try {
-                                                resjson = res.json();
-                                            } catch (e) {
-                                                resjson = {};
-                                            }
-                                            return resjson;
-                                        })*/
+                                            .map(res => {
+                                                console.log('in map1', res);
+                                                let resjson;
+                                                try {
+                                                    let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                    if(pattern.exec(res.url)){
+                                                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                    }
+                                                    resjson = res.json();
+                                                } catch (e) {
+                                                    resjson = {};
+                                                }
+                                                return resjson;
+                                            })
                                             .subscribe((response) => {
                                                 console.log('in then function');
                                                 $this.clipboard = {};
@@ -3331,15 +3341,20 @@ export class StudiesComponent implements OnDestroy{
                                         study,
                                         headers
                                     )
-/*                                        .map(res => {
+                                        .map(res => {
+                                            console.log('in map1', res);
                                             let resjson;
                                             try {
+                                                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                if(pattern.exec(res.url)){
+                                                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                }
                                                 resjson = res.json();
                                             } catch (e) {
                                                 resjson = {};
                                             }
                                             return resjson;
-                                        })*/
+                                        })
                                         .subscribe((response) => {
                                                 _.forEach($this.clipboard.otherObjects, function (m, i) {
                                                     console.log('m', m);
@@ -3399,15 +3414,20 @@ export class StudiesComponent implements OnDestroy{
                                             m,
                                             headers
                                         )
-      /*                                      .map(res => {
+                                            .map(res => {
+                                                console.log('in map1', res);
                                                 let resjson;
                                                 try {
+                                                    let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                                                    if(pattern.exec(res.url)){
+                                                        WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                                                    }
                                                     resjson = res.json();
                                                 } catch (e) {
                                                     resjson = {};
                                                 }
                                                 return resjson;
-                                            })*/
+                                            })
                                             .subscribe((response) => {
                                                 console.log('in then function');
                                                 $this.clipboard = {};
