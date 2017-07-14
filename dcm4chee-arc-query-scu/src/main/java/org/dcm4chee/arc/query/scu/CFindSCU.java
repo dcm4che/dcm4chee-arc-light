@@ -45,27 +45,28 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.DimseRSP;
 import org.dcm4che3.net.QueryOption;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.Cache;
 
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since May 2016
  */
 public interface CFindSCU {
-    Attributes queryStudy(ApplicationEntity localAE, String calledAET, int priority, String studyIUID, int[] returnKeys)
+    List<Attributes> find(ApplicationEntity localAE, String calledAET, int priority, QueryRetrieveLevel2 level,
+                          String studyIUID, String seriesIUID, String sopIUID, int... returnKeys)
             throws Exception;
 
     Association openAssociation(
             ApplicationEntity localAE, String cuid, String calledAET, EnumSet<QueryOption> queryOptions)
             throws Exception;
 
-    Attributes queryStudy(Association as, int priority, String studyIUID, int[] returnKeys) throws Exception;
+    List<Attributes> find(Association as, int priority, QueryRetrieveLevel2 level,
+                    String studyIUID, String seriesIUID, String sopIUID, int... returnKeys)
+            throws Exception;
 
     DimseRSP query(Association as, int priority, Attributes keys, int autocancel) throws Exception;
-
-    Attributes queryStudy(
-            ApplicationEntity localAE, String calledAET, int priority, String studyIUID, int[] returnKeys,
-            Cache<String, Attributes> cache);
 }

@@ -825,21 +825,22 @@ public class RetrieveServiceImpl implements RetrieveService {
         int expected = 0;
         ApplicationEntity localAE = ctx.getLocalApplicationEntity();
         for (String studyIUID : ctx.getStudyInstanceUIDs()) {
-            Attributes studyAttrs = null;
+            List<Attributes> studies;
             try {
-                studyAttrs = cfindscu.queryStudy(localAE, findSCP, Priority.NORMAL, studyIUID,
-                        new int[] { Tag.NumberOfStudyRelatedInstances });
+                studies = cfindscu.find(localAE, findSCP, Priority.NORMAL,
+                        QueryRetrieveLevel2.STUDY, studyIUID, null, null,
+                        Tag.NumberOfStudyRelatedInstances);
             } catch (Exception e) {
                 LOG.warn("Failed to query Study[{}] from {} - cannot verify number of retrieved objects from {}:\n",
                         studyIUID, findSCP, ctx.getFallbackAssociation().getRemoteAET(), e);
                 return -1;
             }
-            if (studyAttrs == null) {
+            if (studies.isEmpty()) {
                 LOG.warn("Study[{}] not found at {} - cannot verify number of retrieved objects from {}",
                         studyIUID, findSCP, ctx.getFallbackAssociation().getRemoteAET());
                 return -1;
             }
-            expected += studyAttrs.getInt(Tag.NumberOfStudyRelatedInstances, 0);
+            expected += studies.get(0).getInt(Tag.NumberOfStudyRelatedInstances, 0);
         }
         return expected;
     }

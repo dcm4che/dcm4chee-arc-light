@@ -40,12 +40,11 @@
 
 package org.dcm4chee.arc.store.scu.impl;
 
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.Dimse;
-import org.dcm4che3.net.Status;
+import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
@@ -60,6 +59,7 @@ import org.dcm4chee.arc.store.scu.CStoreSCU;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -73,6 +73,9 @@ public class CStoreSCUImpl implements CStoreSCU {
 
     @Inject @RetrieveEnd
     private Event<RetrieveContext> retrieveEnd;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
 
     private Association openAssociation(RetrieveContext ctx)
             throws DicomServiceException {
@@ -137,5 +140,34 @@ public class CStoreSCUImpl implements CStoreSCU {
         RetrieveTaskImpl retrieveTask = new RetrieveTaskImpl(ctx, as, retrieveStart, retrieveEnd);
         retrieveTask.setRequestAssociation(Dimse.C_GET_RQ, as, pc, rq);
         return retrieveTask;
+    }
+
+    @Override
+    public Attributes store(ApplicationEntity localAE, String calledAET, int priority, Attributes inst)
+            throws Exception {
+        String cuid = inst.getString(Tag.SOPClassUID);
+        String iuid = inst.getString(Tag.SOPInstanceUID);
+        Association as = localAE.connect(aeCache.get(calledAET), createAARQ(localAE, calledAET, cuid));
+        try {
+            DimseRSP rsp = as.cstore(cuid, iuid, priority, new DataWriterAdapter(inst),
+                    selectTransferSyntax(as.getTransferSyntaxesFor(cuid)));
+            rsp.next();
+            return rsp.getCommand();
+        } finally {
+            as.release();
+        }
+    }
+
+    private String selectTransferSyntax(Set<String> accepted) {
+        return accepted.contains(UID.ExplicitVRLittleEndian) ? UID.ExplicitVRLittleEndian : UID.ImplicitVRLittleEndian;
+    }
+
+    private AAssociateRQ createAARQ(ApplicationEntity localAE, String calledAET, String cuid) {
+        AAssociateRQ aarq = new AAssociateRQ();
+        if (!localAE.isMasqueradeCallingAETitle(calledAET))
+            aarq.setCallingAET(localAE.getAETitle());
+        aarq.addPresentationContextFor(cuid, UID.ExplicitVRLittleEndian);
+        aarq.addPresentationContextFor(cuid, UID.ImplicitVRLittleEndian);
+        return aarq;
     }
 }

@@ -41,6 +41,7 @@ package org.dcm4chee.arc.dimse.rs;
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
@@ -307,7 +308,9 @@ public class DiffRS {
         if (match == null)
             return false;
 
-        Attributes other = findSCU.queryStudy(as2, priority(), match.getString(Tag.StudyInstanceUID), returnKeys);
+        List<Attributes> matches = findSCU.find(as2, priority(), QueryRetrieveLevel2.STUDY,
+                match.getString(Tag.StudyInstanceUID), null, null, returnKeys);
+        Attributes other = !matches.isEmpty() ? matches.get(0) : null;
         if (counts != null) {
             if (other == null)
                 counts[0]++;

@@ -44,15 +44,17 @@ import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAssociateRQ;
-import org.dcm4che3.net.pdu.AAssociateRQAC;
 import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
-import org.dcm4chee.arc.Cache;
+import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -71,17 +73,25 @@ public class CFindSCUImpl implements CFindSCU {
     private IApplicationEntityCache aeCache;
 
     @Override
-    public Attributes queryStudy(ApplicationEntity localAE, String calledAET,
-                                 int priority, String studyIUID, int[] returnKeys)
+    public List<Attributes> find(ApplicationEntity localAE, String calledAET, int priority, QueryRetrieveLevel2 level,
+                           String studyIUID, String seriesIUID, String sopIUID, int... returnKeys)
             throws Exception {
-        Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFIND,
-                EnumSet.noneOf(QueryOption.class));
+         Association as = openAssociation(localAE, calledAET, UID.StudyRootQueryRetrieveInformationModelFIND,
+                queryOptions(level, studyIUID, seriesIUID));
         try {
-            return queryStudy(as, priority, studyIUID, returnKeys);
+            return find(as, priority, level, studyIUID, seriesIUID, sopIUID, returnKeys);
         } finally {
             as.waitForOutstandingRSP();
             as.release();
         }
+    }
+
+    private EnumSet<QueryOption> queryOptions(QueryRetrieveLevel2 level, String studyIUID, String seriesIUID) {
+        return level.compareTo(QueryRetrieveLevel2.STUDY) > 0
+                && (studyIUID == null || level.compareTo(QueryRetrieveLevel2.SERIES) > 0 && seriesIUID == null)
+                        ? EnumSet.of(QueryOption.RELATIONAL)
+                        : EnumSet.noneOf(QueryOption.class);
+
     }
 
     @Override
@@ -92,10 +102,22 @@ public class CFindSCUImpl implements CFindSCU {
     }
 
     @Override
-    public Attributes queryStudy(Association as, int priority, String studyIUID, int[] returnKeys) throws Exception {
-        DimseRSP rsp = query(as, priority, mkQueryStudyKeys(studyIUID, returnKeys), 0);
+    public List<Attributes> find(Association as, int priority, QueryRetrieveLevel2 level,
+                                 String studyIUID, String seriesIUID, String sopIUID, int... returnKeys)
+            throws Exception {
+        List<Attributes> list = new ArrayList<>();
+        DimseRSP rsp = query(as, priority, mkQueryKeys(level, studyIUID, seriesIUID, sopIUID, returnKeys), 0);
         rsp.next();
-        return rsp.getDataset();
+        Attributes match = rsp.getDataset();
+        while (rsp.next()) {
+            list.add(match);
+            match = rsp.getDataset();
+        }
+        Attributes cmd = rsp.getCommand();
+        int status = cmd.getInt(Tag.Status, -1);
+        if (status != Status.Success)
+            throw new DicomServiceException(status, cmd.getString(Tag.ErrorComment));
+        return list;
     }
 
     @Override
@@ -118,31 +140,19 @@ public class CFindSCUImpl implements CFindSCU {
         }
     };
 
-    @Override
-    public Attributes queryStudy(ApplicationEntity localAE, String calledAET,
-                                 int priority, String studyIUID, int[] returnKeys,
-                                 Cache<String, Attributes> cache) {
-        Cache.Entry<Attributes> entry = cache.getEntry(studyIUID);
-        Attributes newAttrs;
-        if (entry != null) {
-            newAttrs = entry.value();
-        } else {
-            try {
-                newAttrs = queryStudy(localAE, calledAET, priority, studyIUID, returnKeys);
-            } catch (Exception e) {
-                newAttrs = null;
-            }
-            cache.put(studyIUID, newAttrs);
-        }
-        return newAttrs;
-    }
-
-    private Attributes mkQueryStudyKeys(String studyIUID, int[] returnKeys) {
-        Attributes keys = new Attributes(returnKeys.length + 2);
-        keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
+    private Attributes mkQueryKeys(QueryRetrieveLevel2 level, String studyIUID, String seriesIUID, String sopIUID,
+                                   int... returnKeys) {
+        Attributes keys = new Attributes(returnKeys.length + 4);
+        keys.setString(Tag.QueryRetrieveLevel, VR.CS, level.name());
         for (int tag : returnKeys)
             keys.setNull(tag, DICT.vrOf(tag));
         keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+        if (seriesIUID != null) {
+            keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesIUID);
+            if (sopIUID != null) {
+                keys.setString(Tag.SOPInstanceUID, VR.UI, sopIUID);
+            }
+        }
         return keys;
     }
 

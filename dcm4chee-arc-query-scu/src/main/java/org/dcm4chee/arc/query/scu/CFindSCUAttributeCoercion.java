@@ -45,9 +45,12 @@ import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Priority;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -81,12 +84,29 @@ public class CFindSCUAttributeCoercion implements AttributesCoercion {
     @Override
     public void coerce(Attributes attrs, Attributes modified) {
         String studyIUID = attrs.getString(Tag.StudyInstanceUID);
-        Attributes newAttrs = cfindSCU.queryStudy(localAE, calledAET, Priority.NORMAL, studyIUID, returnKeys, queryCache);
+        Attributes newAttrs = queryStudy(studyIUID);
         if (newAttrs != null)
             attrs.update(attributeUpdatePolicy, newAttrs, modified);
         else
             LOG.warn("Failed to query Study[{}] from {} - do not coerce attributes", studyIUID, calledAET);
         if (next != null)
             next.coerce(attrs, modified);
+    }
+
+    private Attributes queryStudy(String studyIUID) {
+        Cache.Entry<Attributes> entry = queryCache.getEntry(studyIUID);
+        if (entry != null)
+            return entry.value();
+
+        Attributes newAttrs = null;
+        try {
+            List<Attributes> matches = cfindSCU.find(localAE, calledAET, Priority.NORMAL,
+                    QueryRetrieveLevel2.STUDY, studyIUID, null, null, returnKeys);
+            if (!matches.isEmpty())
+                newAttrs = matches.get(0);
+        } catch (Exception e) {
+        }
+        queryCache.put(studyIUID, newAttrs);
+        return newAttrs;
     }
 }

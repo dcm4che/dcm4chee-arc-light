@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.store.scu;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
@@ -57,4 +58,6 @@ public interface CStoreSCU {
     RetrieveTask newRetrieveTaskMOVE(Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx) throws DicomServiceException;
 
     RetrieveTask newRetrieveTaskGET(Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx) throws DicomServiceException;
+
+    Attributes store(ApplicationEntity localAE, String calledAET, int priority, Attributes inst) throws Exception;
 }
