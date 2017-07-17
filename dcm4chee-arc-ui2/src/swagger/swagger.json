@@ -708,6 +708,12 @@
             "in": "query",
             "description": "HL7 Application and Facility name (Application|Facility)",
             "type": "string"
+          },
+          {
+            "name": "dicomApplicationCluster",
+            "in": "query",
+            "description": "Application Cluster",
+            "type": "string"
           }
         ],
         "responses": {
