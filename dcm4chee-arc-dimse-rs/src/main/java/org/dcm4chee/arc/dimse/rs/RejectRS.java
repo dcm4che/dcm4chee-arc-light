@@ -38,11 +38,15 @@
 
 package org.dcm4chee.arc.dimse.rs;
 
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
+import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
+import org.dcm4che3.net.service.DicomService;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -159,95 +163,99 @@ public class RejectRS {
         if (rjNote == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
 
-        List<Attributes> matches = findSCU.find(localAE, externalAET, priority(), QueryRetrieveLevel2.IMAGE,
-                studyUID, seriesUID, objectUID,
-                Tag.SOPClassUID,
-                Tag.SOPInstanceUID,
-                Tag.StudyDate,
-                Tag.StudyTime,
-                Tag.AccessionNumber,
-                Tag.IssuerOfAccessionNumberSequence,
-                Tag.PatientID,
-                Tag.IssuerOfPatientID,
-                Tag.PatientName,
-                Tag.PatientBirthDate,
-                Tag.PatientSex,
-                Tag.StudyID,
-                Tag.StudyInstanceUID,
-                Tag.SeriesInstanceUID);
+        List<Attributes> matches = null;
+        try {
+            matches = findSCU.find(localAE, externalAET, priority(), QueryRetrieveLevel2.IMAGE,
+                    studyUID, seriesUID, objectUID,
+                    Tag.SOPClassUID,
+                    Tag.SOPInstanceUID,
+                    Tag.StudyDate,
+                    Tag.StudyTime,
+                    Tag.AccessionNumber,
+                    Tag.IssuerOfAccessionNumberSequence,
+                    Tag.PatientID,
+                    Tag.IssuerOfPatientID,
+                    Tag.PatientName,
+                    Tag.PatientBirthDate,
+                    Tag.PatientSex,
+                    Tag.StudyID,
+                    Tag.StudyInstanceUID,
+                    Tag.SeriesInstanceUID);
+        } catch (DicomServiceException e) {
+            return failed(e.getStatus(), e.getMessage(), null);
+        } catch (Exception e) {
+            return failed(Status.ProcessingFailure, e.getMessage(), null);
+        }
         if (matches.isEmpty())
             throw new WebApplicationException(Response.Status.NOT_FOUND);
 
-        KOSBuilder builder = new KOSBuilder(code, 999, 0);
+        KOSBuilder builder = new KOSBuilder(code, 999, 1);
+
         for (Attributes match : matches)
             builder.addInstanceRef(match);
 
-        return status(storeSCU.store(localAE, storescp(), priority(), builder.getAttributes())).build();
+        Attributes kos = builder.getAttributes();
+        try {
+            Attributes cmd = storeSCU.store(localAE, storescp(), priority(), kos);
+            int status = cmd.getInt(Tag.Status, -1);
+            String errorComment = cmd.getString(Tag.ErrorComment);
+            switch (status) {
+                case Status.Success:
+                case Status.CoercionOfDataElements:
+                case Status.ElementsDiscarded:
+                case Status.DataSetDoesNotMatchSOPClassWarning:
+                    return success(status, errorComment, matches);
+                default:
+                    return failed(status, errorComment, matches);
+            }
+        } catch (Exception e) {
+            return failed(Status.ProcessingFailure, e.getMessage(), matches);
+        }
+    }
+
+    private Response success(int status, String errorComment, List<Attributes> matches) {
+        return Response.ok(entity(status, errorComment, matches.size(), 0)).build();
+    }
+
+    private Response failed(int status, String errorComment, List<Attributes> matches) {
+        return Response.status(Response.Status.BAD_GATEWAY)
+                .header("Warning", warning(status))
+                .entity(entity(status, errorComment, 0, matches != null ? matches.size() : 0))
+                .build();
     }
 
     private String storescp() {
         return storescp != null ? storescp : externalAET;
     }
 
-    private Response.ResponseBuilder status(Attributes cmd) {
-        int status = cmd.getInt(Tag.Status, -1);
-        switch (status) {
-            case 0:
-                return Response.ok();
-            case Status.OneOrMoreFailures:
-                return Response.status(Response.Status.PARTIAL_CONTENT).header("Warning", warning(status));
-            default:
-                return Response.status(Response.Status.BAD_GATEWAY).header("Warning", warning(status));
-        }
-    }
-
     private String warning(int status) {
-        switch (status) {
-            case Status.OneOrMoreFailures:
-                return "B000: Sub-operations Complete - One or more Failures";
-            case Status.UnableToCalculateNumberOfMatches:
-                return "A701: Refused: Out of Resources - Unable to calculate number of matches";
-            case Status.UnableToPerformSubOperations:
-                return "A702: Refused: Out of Resources - Unable to perform sub-operations";
-            case Status.MoveDestinationUnknown:
-                return "A801: Refused: Move Destination unknown";
-            case Status.IdentifierDoesNotMatchSOPClass:
-                return "A900: Identifier does not match SOP Class";
-        }
         return TagUtils.shortToHexString(status)
-                + ((status & Status.UnableToProcess) == Status.UnableToProcess
-                    ? ": Unable to Process"
-                    : ": Unexpected status code");
+                + (status == Status.ProcessingFailure
+                ? ": Error: Processing Failure"
+                : (status & Status.OutOfResources) == Status.OutOfResources
+                ? ": Refused: Out of Resources"
+                : (status & Status.DataSetDoesNotMatchSOPClassError) == Status.DataSetDoesNotMatchSOPClassError
+                ? ": Error: Data Set does not match SOP Class"
+                : (status & Status.CannotUnderstand) == Status.CannotUnderstand
+                ? ": Cannot Understand"
+                : ": Unexpected status code");
     }
 
-    private Object entity(Attributes cmd) {
+    private Object entity(int status, String error, int rejected, int failed) {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                try (JsonGenerator gen = Json.createGenerator(out)) {
-                    gen.writeStartObject();
-                    gen.write("status", TagUtils.shortToHexString(cmd.getInt(Tag.Status, -1)));
-                    writeStringTo(cmd, Tag.ErrorComment, gen, "error");
-                    writeIntTo(cmd, Tag.NumberOfCompletedSuboperations, gen, "completed");
-                    writeIntTo(cmd, Tag.NumberOfWarningSuboperations, gen, "warning");
-                    writeIntTo(cmd, Tag.NumberOfFailedSuboperations, gen, "failed");
-                    gen.writeEnd();
-                }
+                JsonGenerator gen = Json.createGenerator(out);
+                JsonWriter writer = new JsonWriter(gen);
+                gen.writeStartObject();
+                gen.write("status", TagUtils.shortToHexString(status));
+                writer.writeNotNullOrDef("error", error, null);
+                writer.writeNotDef("rejected", rejected, 0);
+                writer.writeNotDef("failed", failed, 0);
+                gen.writeEnd();
+                gen.flush();
             }
         };
-    }
-
-    private static void writeStringTo(Attributes cmd, int tag, JsonGenerator gen, String name) {
-        String value = cmd.getString(tag);
-        if (value != null) {
-            gen.write(name, value);
-        }
-    }
-
-    private static void writeIntTo(Attributes cmd, int tag, JsonGenerator gen, String name) {
-        if (cmd.containsValue(tag)) {
-            gen.write(name, cmd.getInt(tag, -1));
-        }
     }
 
     private ApplicationEntity getApplicationEntity() {

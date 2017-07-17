@@ -650,9 +650,9 @@ public class StowRS {
                 return new StreamingOutput() {
                     @Override
                     public void write(OutputStream out) throws IOException {
-                        try (JsonGenerator gen = Json.createGenerator(out)){
-                            new JSONWriter(gen).write(response);
-                        }
+                        JsonGenerator gen = Json.createGenerator(out);
+                        new JSONWriter(gen).write(response);
+                        gen.flush();
                     }
                 };
             }

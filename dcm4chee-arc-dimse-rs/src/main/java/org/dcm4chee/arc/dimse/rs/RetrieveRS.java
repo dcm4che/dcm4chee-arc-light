@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.dimse.rs;
 
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.*;
@@ -186,30 +187,18 @@ public class RetrieveRS {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                try (JsonGenerator gen = Json.createGenerator(out)) {
-                    gen.writeStartObject();
-                    gen.write("status", TagUtils.shortToHexString(cmd.getInt(Tag.Status, -1)));
-                    writeStringTo(cmd, Tag.ErrorComment, gen, "error");
-                    writeIntTo(cmd, Tag.NumberOfCompletedSuboperations, gen, "completed");
-                    writeIntTo(cmd, Tag.NumberOfWarningSuboperations, gen, "warning");
-                    writeIntTo(cmd, Tag.NumberOfFailedSuboperations, gen, "failed");
-                    gen.writeEnd();
-                }
+                JsonGenerator gen = Json.createGenerator(out);
+                JsonWriter writer = new JsonWriter(gen);
+                gen.writeStartObject();
+                gen.write("status", TagUtils.shortToHexString(cmd.getInt(Tag.Status, -1)));
+                writer.writeNotNullOrDef("error", cmd.getString(Tag.ErrorComment), null);
+                writer.writeNotDef("completed", cmd.getInt(Tag.NumberOfCompletedSuboperations, -1), -1);
+                writer.writeNotDef("warning", cmd.getInt(Tag.NumberOfWarningSuboperations, -1), -1);
+                writer.writeNotDef("failed", cmd.getInt(Tag.NumberOfFailedSuboperations, -1), -1);
+                gen.writeEnd();
+                gen.flush();
             }
         };
-    }
-
-    private static void writeStringTo(Attributes cmd, int tag, JsonGenerator gen, String name) {
-        String value = cmd.getString(tag);
-        if (value != null) {
-            gen.write(name, value);
-        }
-    }
-
-    private static void writeIntTo(Attributes cmd, int tag, JsonGenerator gen, String name) {
-        if (cmd.containsValue(tag)) {
-            gen.write(name, cmd.getInt(tag, -1));
-        }
     }
 
     private ApplicationEntity getApplicationEntity() {
