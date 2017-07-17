@@ -22,6 +22,7 @@ import { UploadDicomComponent } from './dialogs/upload-dicom/upload-dicom.compon
 import { RemovePartSelectorComponent } from './dialogs/remove-part-selector/remove-part-selector.component';
 import { InfoComponent } from './dialogs/info/info.component';
 import { UploadFilesComponent } from './dialogs/upload-files/upload-files.component';
+import { SpecificCharPickerComponent } from './specific-char-picker/specific-char-picker.component';
 
 
 @NgModule({
@@ -53,5 +54,6 @@ export const WidgetsComponents = [
     UploadDicomComponent,
     RemovePartSelectorComponent,
     InfoComponent,
-    UploadFilesComponent
+    UploadFilesComponent,
+    SpecificCharPickerComponent
 ];

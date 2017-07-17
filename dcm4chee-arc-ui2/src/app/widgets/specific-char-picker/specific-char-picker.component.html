@@ -1,0 +1,6 @@
+<md-select [ngModel]="localModel" (ngModelChange)="modelChanged($event)" ngDefaultControl>
+    <ng-container *ngFor="let chargroup of specificChar">
+        <span title="{{chargroup.groupName}}" class="groupName">{{chargroup.groupName}}</span>
+        <md-option title="{{ char.title }} ({{char.value}})" *ngFor="let char of chargroup.groupValues" value="{{char.value}}">{{ char.title }}</md-option>
+    </ng-container>
+</md-select>

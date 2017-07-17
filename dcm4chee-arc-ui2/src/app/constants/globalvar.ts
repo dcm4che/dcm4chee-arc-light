@@ -219,4 +219,141 @@ export class Globalvar {
             }
         };
     }
+    public static get DICOM_SPECIFIC_CHAR(): any{
+        return [
+            {
+                groupName:"Single-Byte Character Sets",
+                groupValues:[
+                    {
+                        title:"Latin alphabet No. 1",
+                        value:"ISO_IR 100"
+                    },
+                    {
+                        title:"Latin alphabet No. 2",
+                        value:"ISO_IR 101"
+                    },
+                    {
+                        title:"Latin alphabet No. 3",
+                        value:"ISO_IR 109"
+                    },
+                    {
+                        title:"Latin alphabet No. 4",
+                        value:"ISO_IR 110"
+                    },
+                    {
+                        title:"Cyrillic",
+                        value:"ISO_IR 144"
+                    },
+                    {
+                        title:"Arabic",
+                        value:"ISO_IR 127"
+                    },
+                    {
+                        title:"Greek",
+                        value:"ISO_IR 126"
+                    },
+                    {
+                        title:"Hebrew",
+                        value:"ISO_IR 138"
+                    },
+                    {
+                        title:"Latin alphabet No. 5",
+                        value:"ISO_IR 148"
+                    },
+                    {
+                        title:"Japanese",
+                        value:"ISO_IR 13"
+                    },
+                    {
+                        title:"Thai",
+                        value:"ISO_IR 166"
+                    }
+                ]
+            },{
+                groupName:"Multi-Byte Character Sets Without Code Extensions",
+                groupValues:[
+                    {
+                        title:"Unicode in UTF-8",
+                        value:"ISO_IR 192"
+                    },{
+                        title:"GB18030",
+                        value:"GB18030"
+                    },{
+                        title:"GBK",
+                        value:"GBK"
+                    }
+                ]
+            },
+            {
+                groupName:"Single-Byte Character Sets with Code Extensions",
+                groupValues:[
+                    {
+                        title:"Default repertoire",
+                        value:"ISO 2022 IR 6"
+                    },{
+                        title:"Latin alphabet No. 1",
+                        value:"ISO 2022 IR 100"
+                    },
+                    {
+                        title:"Latin alphabet No. 2",
+                        value:"ISO 2022 IR 101"
+                    },
+                    {
+                        title:"Latin alphabet No. 3",
+                        value:"ISO 2022 IR 109"
+                    },
+                    {
+                        title:"Latin alphabet No. 4",
+                        value:"ISO 2022 IR 110"
+                    },
+                    {
+                        title:"Cyrillic",
+                        value:"ISO 2022 IR 144"
+                    },
+                    {
+                        title:"Arabic",
+                        value:"ISO 2022 IR 127"
+                    },
+                    {
+                        title:"Greek",
+                        value:"ISO 2022 IR 126"
+                    },
+                    {
+                        title:"Hebrew",
+                        value:"ISO 2022 IR 138"
+                    },
+                    {
+                        title:"Latin alphabet No. 5",
+                        value:"ISO 2022 IR 148"
+                    },
+                    {
+                        title:"Japanese",
+                        value:"ISO 2022 IR 13"
+                    },
+                    {
+                        title:"Thai",
+                        value:"ISO 2022 IR 166"
+                    }
+                ]
+            },{
+                groupName:"Multi-Byte Character Sets",
+                groupValues:[
+                    {
+                        title:"Japanese (Kanji)",
+                        value:"ISO 2022 IR 87"
+                    },{
+                        title:"Japanese (Supplementary Kanji set)",
+                        value:"ISO 2022 IR 159"
+                    },{
+                        title:"Korean",
+                        value:"ISO 2022 IR 149"
+                    },{
+                        title:"Simplified Chinese",
+                        value:"ISO 2022 IR 58"
+                    }
+                ]
+            }
+        ]
+
+    }
 }

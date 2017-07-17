@@ -80,4 +80,7 @@ export class IodFormGeneratorComponent implements OnInit {
     trackByFn(index, item) {
         return index; // or item.id
     }
+    charChange(event){
+        console.log("test in charchange",event);
+    }
 }

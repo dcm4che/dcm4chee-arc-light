@@ -84,6 +84,30 @@ md-progress-circle, [_nghost-nyg-8]{
     }
   }
 }
+iod-form-generator{
+  specific-char-picker{
+    width: 98%;
+    float: left;
+    md-select{
+      width:100%;
+    }
+  }
+}
+.groupName{
+  padding-left: 7px;
+  display: inline-block;
+  height: 30px;
+  float: left;
+  width: 100%;
+  line-height: 30px;
+  font-size: 15px;
+  font-weight: bold;
+  background: rgba(0, 0, 0, 0.63);
+  color: white;
+}
+#cdk-overlay-1,#cdk-overlay-3{
+  width:30%;
+}
 .ui-datepicker {
 
   select.ui-datepicker-month{
@@ -174,6 +198,7 @@ md-progress-circle, [_nghost-nyg-8]{
       display: inline-block;
     }
   }
+
   .ariod{
     float: left;
     width: 100%;
