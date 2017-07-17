@@ -1256,6 +1256,7 @@ class ArchiveDeviceFactory {
         device.addDeviceExtension(ext);
 
         HL7Application hl7App = new HL7Application("*");
+        hl7App.setDescription("Default HL7 Receiver");
         ArchiveHL7ApplicationExtension hl7AppExt = new ArchiveHL7ApplicationExtension();
         hl7AppExt.setAETitle("DCM4CHEE");
         hl7App.addHL7ApplicationExtension(hl7AppExt);
