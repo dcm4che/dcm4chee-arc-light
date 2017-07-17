@@ -1038,6 +1038,7 @@ dcmJndiName: jms/queue/MPPSSCU
 
 dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 hl7DefaultCharacterSet: 8859/1
+dicomDescription: Default HL7 Receiver
 objectClass: hl7Application
 objectClass: dcmArchiveHL7Application
 dicomAETitle: DCM4CHEE

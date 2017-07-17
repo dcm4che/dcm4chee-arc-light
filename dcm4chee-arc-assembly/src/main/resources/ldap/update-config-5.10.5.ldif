@@ -51,3 +51,9 @@ changetype: modify
 replace: hl7OrderScheduledStationDeviceReference
 hl7OrderScheduledStationDeviceReference: dicomDeviceName=scheduledstation,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 -
+
+dn: hl7ApplicationName=*,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomDescription
+dicomDescription: Default HL7 Receiver
+-
