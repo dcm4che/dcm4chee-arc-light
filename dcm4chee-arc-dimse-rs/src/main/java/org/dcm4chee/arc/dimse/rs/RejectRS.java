@@ -42,16 +42,13 @@ import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.UID;
-import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
-import org.dcm4che3.net.service.DicomService;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.KOSBuilder;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
@@ -59,6 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -87,6 +85,9 @@ public class RejectRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private Event<RejectionNoteSent> rejectionNoteSentEvent;
 
     @PathParam("AETitle")
     private String aet;
@@ -196,9 +197,13 @@ public class RejectRS {
 
         Attributes kos = builder.getAttributes();
         try {
-            Attributes cmd = storeSCU.store(localAE, storescp(), priority(), kos);
+            String remoteAET = storescp != null ? storescp : externalAET;
+            Attributes cmd = storeSCU.store(localAE, remoteAET, priority(), kos);
             int status = cmd.getInt(Tag.Status, -1);
             String errorComment = cmd.getString(Tag.ErrorComment);
+            boolean studyDeleted = seriesUID == null;
+            rejectionNoteSentEvent.fire(
+                    new RejectionNoteSent(request, aet, remoteAET, kos, studyDeleted, status, errorComment));
             switch (status) {
                 case Status.Success:
                 case Status.CoercionOfDataElements:
@@ -222,10 +227,6 @@ public class RejectRS {
                 .header("Warning", warning(status))
                 .entity(entity(status, errorComment, 0, matches != null ? matches.size() : 0))
                 .build();
-    }
-
-    private String storescp() {
-        return storescp != null ? storescp : externalAET;
     }
 
     private String warning(int status) {

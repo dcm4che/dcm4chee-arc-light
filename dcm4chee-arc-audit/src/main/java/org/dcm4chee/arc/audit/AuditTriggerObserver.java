@@ -45,6 +45,7 @@ import org.dcm4che3.net.Connection;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
@@ -60,7 +61,6 @@ import org.dcm4chee.arc.study.StudyMgtContext;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
 import java.util.HashSet;
 
@@ -194,5 +194,9 @@ public class AuditTriggerObserver {
     }
 
     private void onConnectionAccepted(Connection conn, Socket s) {
+    }
+
+    public void onRejectionNoteSent(@Observes RejectionNoteSent rejectionNoteSent) {
+        //TODO
     }
 }
