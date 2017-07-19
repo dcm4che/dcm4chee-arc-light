@@ -779,7 +779,7 @@ public class AuditService {
             Sequence success = eventInfo.getSequence(Tag.ReferencedSOPSequence);
             String pID = eventInfo.getString(Tag.PatientID) != null ? getPID(eventInfo) : arcDev.auditUnknownPatientID();
             String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
-                    ? buildStrings(eventInfo.getStrings(Tag.StudyInstanceUID)) : arcDev.getAuditUnknownStudyInstanceUID();
+                    ? buildStrings(eventInfo.getStrings(Tag.StudyInstanceUID)) : arcDev.auditUnknownStudyInstanceUID();
             if (failed != null && !failed.isEmpty()) {
                 Set<String> failureReasons = new HashSet<>();
                 Set<AuditInfo> aiSet = new HashSet<>();
