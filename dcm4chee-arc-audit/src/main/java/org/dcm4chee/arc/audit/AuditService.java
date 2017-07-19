@@ -51,11 +51,13 @@ import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
@@ -155,7 +157,7 @@ public class AuditService {
         LinkedHashSet<Object> objs = new LinkedHashSet<>();
         objs.add(new AuditInfo(new BuildAuditInfo.Builder().calledAET(getAET(device)).build()));
         if (req != null) {
-            String callingUser = req.getAttribute(keycloakClassName) != null ? getPreferredUsername(req) : req.getRemoteAddr();
+            String callingUser = getPreferredUsername(req);
             objs.add(new AuditInfo(
                     new BuildAuditInfo.Builder().callingAET(callingUser).callingHost(req.getRemoteAddr()).build()));
         }
@@ -179,6 +181,8 @@ public class AuditService {
     }
 
     void spoolInstancesDeleted(StoreContext ctx) {
+        if (isExternalRejectionSameSourceDest(ctx))
+            return;
         Attributes attrs = ctx.getAttributes();
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence))
@@ -190,6 +194,11 @@ public class AuditService {
         String eventType = ctx.getStoredInstance().getSeries().getStudy().getRejectionState()== RejectionState.COMPLETE
         ? String.valueOf(AuditServiceUtils.EventType.RJ_COMPLET) : String.valueOf(AuditServiceUtils.EventType.RJ_PARTIAL);
         writeSpoolFile(eventType, deleteObjs);
+    }
+
+    private boolean isExternalRejectionSameSourceDest(StoreContext ctx) {
+        StoreSession ss = ctx.getStoreSession();
+        return ctx.getRejectionNote() != null && ss.getHttpRequest() == null && ss.getCallingAET().equals(ss.getCalledAET());
     }
 
     void spoolStudyDeleted(StudyDeleteContext ctx) {
@@ -206,8 +215,68 @@ public class AuditService {
         writeSpoolFile(eventType, deleteObjs);
     }
 
+    void spoolExternalRejection(RejectionNoteSent rejectionNoteSent) throws ConfigurationException {
+        LinkedHashSet<Object> deleteObjs = new LinkedHashSet<>();
+        Attributes attrs = rejectionNoteSent.getRejectionNote();
+        Attributes codeItem = attrs.getSequence(Tag.ConceptNameCodeSequence).get(0);
+        Code code = new Code(codeItem.getString(Tag.CodeValue), codeItem.getString(Tag.CodingSchemeDesignator), null, "?");
+        RejectionNote rjNote = device.getDeviceExtension(ArchiveDeviceExtension.class).getRejectionNote(code);
+        HttpServletRequest req = rejectionNoteSent.getRequest();
+        String callingAET = req != null
+                ? getPreferredUsername(req)
+                : rejectionNoteSent.getLocalAET();
+        String calledAET = req != null
+                ? req.getRequestURI() : rejectionNoteSent.getRemoteAET();
+        String callingHost = req != null
+                ? req.getRemoteHost() : toHost(rejectionNoteSent.getLocalAET());
+        deleteObjs.add(new AuditInfo(new BuildAuditInfo.Builder()
+                .callingAET(callingAET)
+                .callingHost(callingHost)
+                .calledAET(calledAET)
+                .calledHost(toHost(rejectionNoteSent.getRemoteAET()))
+                .outcome(String.valueOf(rjNote.getRejectionNoteType()))
+                .studyDate(getSD(attrs))
+                .accNum(getAcc(attrs))
+                .studyUID(attrs.getString(Tag.StudyInstanceUID))
+                .pID(getPID(attrs))
+                .pName(pName(attrs))
+                .build()));
+        HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
+        for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence))
+            for (Attributes refSer : studyRef.getSequence(Tag.ReferencedSeriesSequence))
+                for (Attributes refSop : refSer.getSequence(Tag.ReferencedSOPSequence))
+                    buildSOPClassMap(sopClassMap, refSop.getString(Tag.ReferencedSOPClassUID),
+                            refSop.getString(Tag.ReferencedSOPInstanceUID));
+        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
+            deleteObjs.add(new AuditInfo(new BuildAuditInfo.Builder().sopCUID(entry.getKey())
+                    .sopIUID(String.valueOf(entry.getValue().size())).build()));
+        }
+        AuditServiceUtils.EventType clientET = rejectionNoteSent.isStudyDeleted()
+                ? AuditServiceUtils.EventType.PRMDLT_WEB
+                : AuditServiceUtils.EventType.RJ_PARTIAL;
+        writeSpoolFile(String.valueOf(clientET), deleteObjs);
+        if (rejectionNoteSent.getLocalAET().equals(rejectionNoteSent.getRemoteAET())) {
+            AuditServiceUtils.EventType serverET = rejectionNoteSent.isStudyDeleted()
+                    ? AuditServiceUtils.EventType.RJ_COMPLET
+                    : AuditServiceUtils.EventType.RJ_PARTIAL;
+            writeSpoolFile(String.valueOf(serverET), deleteObjs);
+        }
+    }
+    private String toHost(String aet) throws ConfigurationException {
+        ApplicationEntity ae = aeCache.findApplicationEntity(aet);
+        StringBuilder b = new StringBuilder();
+        if (ae != null) {
+            List<Connection> conns = ae.getConnections();
+            b.append(conns.get(0).getHostname());
+            for (int i = 1; i < conns.size(); i++)
+                b.append(';').append(conns.get(i).getHostname());
+        }
+        return b.toString();
+    }
+
+
     private BuildAuditInfo buildPermDeletionAuditInfoForWeb(HttpServletRequest req, StudyDeleteContext ctx, Study s, Patient p) {
-        String callingAET = req.getAttribute(keycloakClassName) != null ? getPreferredUsername(req) : req.getRemoteAddr();
+        String callingAET = getPreferredUsername(req);
         return new BuildAuditInfo.Builder().callingAET(callingAET).callingHost(req.getRemoteHost()).calledAET(req.getRequestURI())
                 .studyUID(s.getStudyInstanceUID()).accNum(s.getAccessionNumber())
                 .pID(getPID(p.getAttributes())).outcome(getOD(ctx.getException())).studyDate(s.getStudyDate())
@@ -237,8 +306,7 @@ public class AuditService {
         ParticipantObjectContainsStudy pocs = getPocs(dI.getField(AuditInfo.STUDY_UID));
         BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder(
                 getSopClasses(readerObj.getInstanceLines()), pocs)
-                .acc(eventType.eventClass == AuditServiceUtils.EventClass.PERM_DELETE
-                        ? getAccessions(dI.getField(AuditInfo.ACC_NUM)) : null).build();
+                .acc(getAccessions(dI.getField(AuditInfo.ACC_NUM))).build();
         BuildParticipantObjectIdentification poi1 = new BuildParticipantObjectIdentification.Builder(
                 dI.getField(AuditInfo.STUDY_UID), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,AuditMessages.ParticipantObjectTypeCodeRole.Report)
@@ -336,9 +404,7 @@ public class AuditService {
         return new AuditInfo(
                 new BuildAuditInfo.Builder()
                         .callingHost(ctx.getRemoteHostName())
-                        .callingAET(httpRequest.getAttribute(keycloakClassName) != null
-                                ? getPreferredUsername(httpRequest)
-                                : ctx.getRemoteHostName())
+                        .callingAET(getPreferredUsername(httpRequest))
                         .calledAET(httpRequest.getRequestURI())
                         .queryPOID(ctx.getSearchMethod())
                         .queryString(httpRequest.getRequestURI() + httpRequest.getQueryString())
@@ -412,8 +478,7 @@ public class AuditService {
                 attrs = i.getAttributes();
             String fileName = getFileName(AuditServiceUtils.EventType.WADO___URI, req.getRemoteAddr(),
                     rCtx.getLocalAETitle(), rCtx.getStudyInstanceUIDs()[0]);
-            String callingAET = req.getAttribute(keycloakClassName) != null
-                    ? getPreferredUsername(req) : req.getRemoteAddr();
+            String callingAET = getPreferredUsername(req);
             AuditInfo i = new AuditInfo(new BuildAuditInfo.Builder().callingHost(req.getRemoteAddr()).callingAET(callingAET)
                     .calledAET(req.getRequestURI()).studyUID(rCtx.getStudyInstanceUIDs()[0])
                     .accNum(getAcc(attrs)).pID(getPID(attrs)).pName(pName(attrs)).studyDate(getSD(attrs))
@@ -500,8 +565,7 @@ public class AuditService {
     void spoolRetrieve(String etFile, RetrieveContext ctx, Collection<InstanceLocations> il) {
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
         HttpServletRequest req = ctx.getHttpRequest();
-        String destAET = req != null ? req.getAttribute(keycloakClassName) != null
-                ? getPreferredUsername(req) : req.getRemoteAddr() : ctx.getDestinationAETitle();
+        String destAET = req != null ? getPreferredUsername(req) : ctx.getDestinationAETitle();
         String outcome = (etFile.substring(0, 8).equals("RTRV_BGN") && ctx.getException() != null) || etFile.substring(9, 10).equals("E")
                 ? getFailOutcomeDesc(ctx) : null;
         String warning = etFile.substring(9, 10).equals("P") && ctx.warning() != 0
@@ -596,9 +660,7 @@ public class AuditService {
             String hl7MessageType = null;
             HL7Segment msh = ctx.getHL7MessageHeader();
             if (ctx.getHttpRequest() != null) {
-                source = ctx.getHttpRequest().getAttribute(keycloakClassName) != null
-                        ? getPreferredUsername(ctx.getHttpRequest())
-                        : ctx.getHttpRequest().getRemoteAddr();
+                source = getPreferredUsername(ctx.getHttpRequest());
                 dest = ctx.getCalledAET();
             }
             if (msh != null) {
@@ -675,7 +737,7 @@ public class AuditService {
         Attributes attr = ctx.getAttributes();
         HttpServletRequest req  = ctx.getHttpRequest();
         BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName())
-                .callingAET(req.getAttribute(keycloakClassName) != null ? getPreferredUsername(req) : req.getRemoteAddr())
+                .callingAET(getPreferredUsername(req))
                 .calledAET(ctx.getCalledAET()).studyUID(ctx.getStudyInstanceUID())
                 .accNum(getAcc(attr)).pID(getPID(attr)).pName(pName(ctx.getPatient().getAttributes()))
                 .outcome(getOD(ctx.getException())).studyDate(getSD(attr)).build();
@@ -696,8 +758,7 @@ public class AuditService {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
-            String callingAET = ctx.getHttpRequest().getAttribute(keycloakClassName) != null
-                    ? getPreferredUsername(ctx.getHttpRequest()) : ctx.getHttpRequest().getRemoteAddr();
+            String callingAET = getPreferredUsername(ctx.getHttpRequest());
             Attributes sAttr = ctx.getAttributes();
             Attributes pAttr = ctx.getStudy() != null ? ctx.getStudy().getPatient().getAttributes() : null;
             BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest().getRemoteHost()).callingAET(callingAET)
@@ -765,9 +826,9 @@ public class AuditService {
     void spoolStgCmt(StgCmtEventInfo stgCmtEventInfo) {
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            String callingAET = stgCmtEventInfo.getRemoteAET() != null ? stgCmtEventInfo.getRemoteAET()
-                    : stgCmtEventInfo.getRequest() != null && stgCmtEventInfo.getRequest().getAttribute(keycloakClassName) != null
-                    ? getPreferredUsername(stgCmtEventInfo.getRequest()) : stgCmtEventInfo.getRequest().getRemoteHost();
+            String callingAET = stgCmtEventInfo.getRequest() != null
+                                    ? getPreferredUsername(stgCmtEventInfo.getRequest())
+                                    : stgCmtEventInfo.getRemoteAET();
             String calledAET = stgCmtEventInfo.getRequest() != null
                                 ? stgCmtEventInfo.getRequest().getRequestURI()
                                 : stgCmtEventInfo.getLocalAET();
@@ -869,8 +930,7 @@ public class AuditService {
         Attributes attr = ctx.getAttributes();
         String callingHost = ss.getRemoteHostName();
         String callingAET = ss.getCallingAET() != null ? ss.getCallingAET()
-                : req != null && req.getAttribute(keycloakClassName) != null
-                ? getPreferredUsername(req) : callingHost;
+                : req != null ? getPreferredUsername(req) : callingHost;
         if (callingAET == null && callingHost == null)
             callingAET = ss.toString();
         String outcome = null != ctx.getException() ? null != ctx.getRejectionNote()
@@ -911,9 +971,10 @@ public class AuditService {
     }
 
     private String getPreferredUsername(HttpServletRequest req) {
-        RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
-                req.getAttribute(KeycloakSecurityContext.class.getName());
-        return securityContext.getToken().getPreferredUsername();
+        return req.getAttribute(keycloakClassName) != null
+                ? ((RefreshableKeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName()))
+                .getToken().getPreferredUsername()
+                : req.getRemoteAddr();
     }
 
     private String getPID(Attributes attrs) {

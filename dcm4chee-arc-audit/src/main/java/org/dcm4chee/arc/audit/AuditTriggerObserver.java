@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.net.Connection;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
@@ -196,7 +197,8 @@ public class AuditTriggerObserver {
     private void onConnectionAccepted(Connection conn, Socket s) {
     }
 
-    public void onRejectionNoteSent(@Observes RejectionNoteSent rejectionNoteSent) {
-        //TODO
+    public void onRejectionNoteSent(@Observes RejectionNoteSent rejectionNoteSent) throws ConfigurationException {
+        if (auditService.hasAuditLoggers())
+            auditService.spoolExternalRejection(rejectionNoteSent);
     }
 }
