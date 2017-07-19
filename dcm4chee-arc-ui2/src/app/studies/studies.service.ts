@@ -92,7 +92,6 @@ export class StudiesService {
         }
     }
     _config = function(params) {
-        console.log('jquery params', jQuery.param(params));
         return '?' + jQuery.param(params);
     };
 
@@ -166,7 +165,7 @@ export class StudiesService {
             resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
     };
     queryDiffs = function(url, params) {
-        console.log('in querystudies');
+        params["missing"] = params["missing"] || true;
         return this.$http.get(
             url + this._config(params),
             {
