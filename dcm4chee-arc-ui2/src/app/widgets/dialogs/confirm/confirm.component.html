@@ -4,6 +4,11 @@
         <div class="content">
             <h3 [innerHtml]="parameters.content">
             </h3>
+            <div class="inputpart" *ngIf="parameters.pCalendar">
+                <ng-container *ngFor="let calendar of parameters.pCalendar;let index = index;">
+                    <p-calendar [(ngModel)]="parameters.result.pCalendar[index]" dateFormat="{{calendar.dateFormat}}" monthNavigator="{{calendar.monthNavigator}}" yearNavigator="{{calendar.yearNavigator}}" yearRange="{{calendar.yearRange}}" placeholder="{{calendar.placeholder}}"></p-calendar>
+                </ng-container>
+            </div>
             <div class="dropdownpart" *ngIf="parameters.select">
                 <select id="reject" name="reject" class="col-md-12" (change)="parameters.result.select = $event.target.value">
                     <option *ngFor="let s of parameters.select" title="{{s.title}}" value="{{ s.value }}">{{ s.label }}</option>

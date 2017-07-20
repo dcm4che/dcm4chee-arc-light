@@ -974,6 +974,76 @@ export class StudiesComponent implements OnDestroy{
         let queryParameters = this.createQueryParams(offset, this.limit + 1, this.createStudyFilterParams());
         this.queryDiff(queryParameters, offset);
     };
+    setExpiredDate(study){
+        this.setExpiredDateQuery(study,false);
+    }
+
+    dateToString(date){
+        return (
+            date.getFullYear() + '' +
+            ((date.getMonth() < 9) ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + '' +
+            ((date.getDate() < 10) ? '0' + date.getDate() : date.getDate())
+        );
+    }
+    setExpiredDateQuery(study, infinit){
+        let $this = this;
+        let expiredDate;
+        let yearRange = "1800:2100";
+        if(infinit){
+            expiredDate = new Date();
+            expiredDate.setDate(31);
+            expiredDate.setMonth(11);
+            expiredDate.setFullYear(9999);
+            yearRange = "2017:9999";
+        }else{
+            if(_.hasIn(study,"attrs.77771023.Value.0") && study["attrs"]["77771023"].Value[0] != ""){
+                console.log("va",study["77771023"].Value[0]);
+                let expiredDateString = study["attrs"]["77771023"].Value[0];
+                expiredDate = new Date(expiredDateString.substring(0, 4)+ '.' + expiredDateString.substring(4, 6) + '.' + expiredDateString.substring(6, 8));
+            }else{
+                expiredDate = new Date();
+            }
+        }
+        let parameters: any = {
+            content: 'Set expired date',
+            pCalendar: [{
+                dateFormat:"dd.mm.yy",
+                yearRange:yearRange,
+                monthNavigator:true,
+                yearNavigator:true,
+                placeholder:"Expired date"
+            }],
+            result: {pCalendar:[expiredDate]},
+            saveButton: 'SAVE'
+        };
+        this.confirm(parameters).subscribe(result => {
+            if(result){
+                $this.cfpLoadingBar.start();
+                let dateAsString = $this.dateToString(result.pCalendar[0]);
+                $this.service.setExpiredDate($this.aet, _.get(study,"attrs.0020000D.Value[0]"), dateAsString).subscribe(
+                    (res)=>{
+                        _.set(study,"attrs.77771023.Value[0]",$this.dateToString(result.pCalendar[0]));
+                        _.set(study,"attrs.77771023.vr","DA");
+                        $this.mainservice.setMessage( {
+                            'title': 'Info',
+                            'text': 'Expired date set successfully!',
+                            'status': 'info'
+                        });
+                        $this.cfpLoadingBar.complete();
+                    },
+                    (err)=>{
+                        $this.mainservice.setMessage({
+                            'title': 'Error ' + err.status,
+                            'text': err.statusText,
+                            'status': 'error'
+                        });
+                        $this.cfpLoadingBar.complete();
+                    }
+                );
+                // study["77771023"].Value[0] = result.pCalendar[0];
+            }
+        });
+    }
     queryStudies(offset) {
         this.queryMode = 'queryStudies';
         this.moreMWL = undefined;
