@@ -19,6 +19,7 @@ dn: dicomAETitle=UNKNOWN,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=
 changetype: delete
 
 dn: dicomAETitle=SCHEDULEDSTATION,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 objectClass: dicomUniqueAETitle
 dicomAETitle: SCHEDULEDSTATION
 
