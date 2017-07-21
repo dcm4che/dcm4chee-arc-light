@@ -395,10 +395,11 @@
   </xsl:template>
   <xsl:template name="ei2attr">
     <xsl:param name="tag"/>
+    <xsl:param name="vr"/>
     <xsl:param name="sqtag"/>
     <xsl:param name="ei"/>
     <xsl:if test="$ei/text()">
-      <DicomAttribute tag="{$tag}" vr="LO">
+      <DicomAttribute tag="{$tag}" vr="{$vr}">
         <Value number="1">
           <xsl:value-of select="$ei/text()"/>
         </Value>

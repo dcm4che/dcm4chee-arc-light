@@ -83,11 +83,11 @@ public class ProcedureServiceEJB {
         Attributes attrs = ctx.getAttributes();
         IssuerEntity issuerOfAccessionNumber = findOrCreateIssuer(
                 attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
-        updateStudyAndSeriesAttributes(ctx, issuerOfAccessionNumber);
         if (ctx.getHttpRequest() != null)
             updateProcedureForWeb(ctx, patient, attrs, issuerOfAccessionNumber);
         else
             updateProcedureForHL7(ctx, patient, attrs, issuerOfAccessionNumber);
+        updateStudyAndSeriesAttributes(ctx, issuerOfAccessionNumber);
     }
 
 
@@ -199,8 +199,9 @@ public class ProcedureServiceEJB {
 
     private void updateStudyAndSeriesAttributes(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber) {
         Attributes mwlAttr = ctx.getAttributes();
+        List<Series> seriesList = new ArrayList<>();
         try {
-            List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
+             seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
                     .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
             if (!seriesList.isEmpty()) {
                 Study study = seriesList.get(0).getStudy();
@@ -222,7 +223,10 @@ public class ProcedureServiceEJB {
                     }
                 }
             }
-        } catch (NoResultException e) {}
+        } finally {
+            if (!seriesList.isEmpty())
+                LOG.info("Study and series attributes updated successfully : " + ctx.getStudyInstanceUID());
+        }
     }
 
     private Attributes createRequestAttrs(Attributes mwlAttr, Attributes item) {
@@ -241,12 +245,11 @@ public class ProcedureServiceEJB {
 
     private void setRequestAttributes(Series series, Attributes attrs, FuzzyStr fuzzyStr, IssuerEntity issuerOfAccNum) {
         Sequence seq = attrs.getSequence(Tag.RequestAttributesSequence);
-        Collection<SeriesRequestAttributes> requestAttributes = series.getRequestAttributes();
-        requestAttributes.clear();
+        series.getRequestAttributes().clear();
         if (seq != null)
             for (Attributes item : seq) {
                 SeriesRequestAttributes request = new SeriesRequestAttributes(item, issuerOfAccNum, fuzzyStr);
-                requestAttributes.add(request);
+                series.getRequestAttributes().add(request);
             }
     }
 }

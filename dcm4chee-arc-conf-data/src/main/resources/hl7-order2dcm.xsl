@@ -64,12 +64,14 @@
     <!-- Placer Order Number -->
     <xsl:call-template name="ei2attr">
       <xsl:with-param name="tag" select="'00402016'"/>
+      <xsl:with-param name="vr" select="'LO'"/>
       <xsl:with-param name="sqtag" select="'00400026'"/>
       <xsl:with-param name="ei" select="field[2]"/>
     </xsl:call-template>
     <!-- Filler Order Number -->
     <xsl:call-template name="ei2attr">
       <xsl:with-param name="tag" select="'00402017'"/>
+      <xsl:with-param name="vr" select="'LO'"/>
       <xsl:with-param name="sqtag" select="'00400027'"/>
       <xsl:with-param name="ei" select="field[3]"/>
     </xsl:call-template>
@@ -231,10 +233,11 @@
       <xsl:with-param name="val" select="string(field[3]/text())"/>
     </xsl:call-template>
     <!-- Accession Number -->
-    <xsl:call-template name="attr">
+    <xsl:call-template name="ei2attr">
       <xsl:with-param name="tag" select="'00080050'"/>
       <xsl:with-param name="vr" select="'SH'"/>
-      <xsl:with-param name="val" select="string(field[1]/text())"/>
+      <xsl:with-param name="sqtag" select="'00080051'"/>
+      <xsl:with-param name="ei" select="field[1]"/>
     </xsl:call-template>
     <!-- Requested Procedure ID -->
     <xsl:call-template name="attr">
