@@ -41,13 +41,18 @@ package org.dcm4chee.arc.dimse.rs;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.*;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.event.InstancesRetrieved;
+import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -75,6 +80,9 @@ public class RetrieveRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private Event<InstancesRetrieved> instancesRetrievedEvent;
 
     @PathParam("AETitle")
     private String aet;
@@ -136,10 +144,12 @@ public class RetrieveRS {
         LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity localAE = getApplicationEntity();
         Association as = moveSCU.openAssociation(localAE, externalAET);
+        Attributes keys = toKeys(uids);
         try {
-            final DimseRSP rsp = moveSCU.cmove(as, priority(), destAET, uids);
+            final DimseRSP rsp = moveSCU.cmove(as, priority(), destAET, keys);
             while (rsp.next());
             Attributes cmd = rsp.getCommand();
+            instancesRetrievedEvent.fire(new InstancesRetrieved(request, aet, externalAET, destAET, keys, cmd));
             return status(cmd).entity(entity(cmd)).build();
         } finally {
             try {
@@ -148,6 +158,19 @@ public class RetrieveRS {
                 LOG.info("{}: Failed to release association:\\n", as, e);
             }
         }
+    }
+
+    private static Attributes toKeys(String[] iuids) {
+        int n = iuids.length;
+        Attributes keys = new Attributes(n + 1);
+        keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.values()[n].name());
+        keys.setString(Tag.StudyInstanceUID, VR.UI, iuids[0]);
+        if (n > 1) {
+            keys.setString(Tag.SeriesInstanceUID, VR.UI, iuids[1]);
+            if (n > 2)
+                keys.setString(Tag.SOPInstanceUID, VR.UI, iuids[2]);
+        }
+        return keys;
     }
 
     private Response.ResponseBuilder status(Attributes cmd) {

@@ -46,6 +46,7 @@ import org.dcm4che3.net.Connection;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.event.InstancesRetrieved;
 import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -200,5 +201,9 @@ public class AuditTriggerObserver {
     public void onRejectionNoteSent(@Observes RejectionNoteSent rejectionNoteSent) throws ConfigurationException {
         if (auditService.hasAuditLoggers())
             auditService.spoolExternalRejection(rejectionNoteSent);
+    }
+
+    public void onInstancesRetrieved(@Observes InstancesRetrieved instancesRetrieved) throws ConfigurationException {
+        //TODO
     }
 }

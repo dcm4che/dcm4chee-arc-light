@@ -50,7 +50,6 @@ import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
@@ -141,29 +140,13 @@ public class CMoveSCUImpl implements CMoveSCU {
     }
 
     @Override
-    public DimseRSP cmove(Association as, int priority, String destAET, String... iuids) throws Exception {
+    public DimseRSP cmove(Association as, int priority, String destAET, Attributes keys) throws Exception {
         return as.cmove(
                 UID.StudyRootQueryRetrieveInformationModelMOVE,
                 priority,
-                createKeys(destAET, iuids),
+                keys,
                 UID.ImplicitVRLittleEndian,
                 destAET);
-    }
-
-    private Attributes createKeys(String destAET, String[] iuids) {
-        int n = iuids.length;
-        if (n == 0)
-            throw new IllegalArgumentException("Missing UIDs");
-
-        Attributes keys = new Attributes(n + 1);
-        keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.values()[n].name());
-        keys.setString(Tag.StudyInstanceUID, VR.UI, iuids[0]);
-        if (n > 1) {
-            keys.setString(Tag.SeriesInstanceUID, VR.UI, iuids[1]);
-            if (n > 2)
-                keys.setString(Tag.SOPInstanceUID, VR.UI, iuids[2]);
-        }
-        return keys;
     }
 
     private Association openAssociation(RetrieveContext ctx, PresentationContext pc, String otherCMoveSCP)
