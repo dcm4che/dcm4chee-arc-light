@@ -56,7 +56,7 @@ import java.util.*;
 class AuditServiceUtils {
     enum EventClass {
         QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
-        STGCMT
+        STGCMT, INST_RETRIEVED
     }
     enum EventType {
         WADO___URI(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
@@ -97,6 +97,8 @@ class AuditServiceUtils {
         STG_CMT__E(EventClass.STGCMT, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
 
+        INST_RETRV(EventClass.INST_RETRIEVED, AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Read,
+                null, null, true, false, false, null),
 
         RJ_PARTIAL(EventClass.DELETE, AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Delete,
                 null, null, true, false, false, null),

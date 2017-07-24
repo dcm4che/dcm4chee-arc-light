@@ -204,6 +204,7 @@ public class AuditTriggerObserver {
     }
 
     public void onInstancesRetrieved(@Observes InstancesRetrieved instancesRetrieved) throws ConfigurationException {
-        //TODO
+        if (auditService.hasAuditLoggers())
+            auditService.spoolInstancesRetrieved(instancesRetrieved);
     }
 }
