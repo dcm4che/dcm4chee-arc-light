@@ -108,10 +108,6 @@ import java.util.*;
                 query="select st from Study st " +
                         "where st.expirationDate <= ?1"),
         @NamedQuery(
-                name = Study.FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID,
-                query = "select st from Study st " +
-                        "where st.accessControlID = ?1 and st.accessTime = ?2"),
-        @NamedQuery(
                 name=Study.STUDY_IUIDS_BY_ACCESSION_NUMBER,
                 query = "select st.studyInstanceUID from Study st " +
                         "where st.accessionNumber = ?1"),
@@ -156,7 +152,6 @@ public class Study {
     public static final String INCREMENT_FAILED_RETRIEVES = "Study.IncrementFailedRetrieves";
     public static final String COUNT_STUDIES_OF_PATIENT = "Study.CountStudiesOfPatient";
     public static final String GET_EXPIRED_STUDIES = "Study.GetExpiredStudies";
-    public static final String FIND_BY_ACCESS_TIME_AND_ACCESS_CONTROL_ID = "Study.FindByAccessTimeAndAccessControlID";
     public static final String STUDY_IUIDS_BY_ACCESSION_NUMBER = "Study.StudyIUIDsByAccessionNumber";
     public static final String FIND_PATIENT_ATTRS_BY_STUDY_UIDS = "Study.findPatientAttrsByStudyUIDs";
 
