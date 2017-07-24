@@ -250,8 +250,8 @@
       <xsl:with-param name="sqtag" select="$seqTag"/>
       <xsl:with-param name="code">
         <xsl:choose>
-          <xsl:when test="$offset"><xsl:value-of select="$codedEntry/component[$offset]"/></xsl:when>
-          <xsl:otherwise><xsl:value-of select="$codedEntry"/></xsl:otherwise>
+          <xsl:when test="$offset != 0"><xsl:value-of select="$codedEntry/component[$offset]"/></xsl:when>
+          <xsl:otherwise><xsl:value-of select="$codedEntry/text()"/></xsl:otherwise>
         </xsl:choose>
       </xsl:with-param>
       <xsl:with-param name="scheme" select="$codedEntry/component[$offset+2]"/>
