@@ -152,11 +152,18 @@
     <Item number="1">
       <xsl:choose>
         <xsl:when test="$hl7ScheduledStationAETInOrder = 'ORC_18'">
+          <xsl:variable name="ssaet" select="string(field[18]/text())" />
           <!-- Scheduled Station AE Title -->
           <xsl:call-template name="attr">
             <xsl:with-param name="tag" select="'00400001'"/>
             <xsl:with-param name="vr" select="'AE'"/>
-            <xsl:with-param name="val" select="string(field[18]/text())"/>
+            <xsl:with-param name="val" select="$ssaet"/>
+          </xsl:call-template>
+          <!-- Scheduled Station Name -->
+          <xsl:call-template name="attr">
+            <xsl:with-param name="tag" select="'00400010'"/>
+            <xsl:with-param name="vr" select="'SH'"/>
+            <xsl:with-param name="val" select="translate($ssaet, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')"/>
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise/>
