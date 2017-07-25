@@ -264,12 +264,13 @@
     <xsl:param name="seqTag"/>
     <xsl:param name="codedEntry"/>
     <xsl:param name="offset" select="0"/>
+    <xsl:variable name="desc" select="$codedEntry/component[$offset+1]/text()"/>
     <xsl:choose>
-        <xsl:when test="$codedEntry/component[$offset+1]/text() != ''">
+        <xsl:when test="$desc">
           <xsl:call-template name="attr">
             <xsl:with-param name="tag" select="$descTag"/>
             <xsl:with-param name="vr" select="'LO'"/>
-            <xsl:with-param name="val" select="substring($codedEntry/component[$offset+1]/text(),1,64)"/>
+            <xsl:with-param name="val" select="substring($desc,1,64)"/>
           </xsl:call-template>
           <xsl:call-template name="ce2codeItem">
             <xsl:with-param name="seqTag" select="$seqTag"/>
@@ -277,13 +278,13 @@
             <xsl:with-param name="offset" select="$offset"/>
           </xsl:call-template>
         </xsl:when>
-        <xsl:otherwise>
+        <xsl:when test="$offset = 0">
           <xsl:call-template name="attr">
             <xsl:with-param name="tag" select="$descTag"/>
             <xsl:with-param name="vr" select="'LO'"/>
             <xsl:with-param name="val" select="$codedEntry/text()"/>
           </xsl:call-template>
-        </xsl:otherwise>
+        </xsl:when>
     </xsl:choose>
   </xsl:template>
 
