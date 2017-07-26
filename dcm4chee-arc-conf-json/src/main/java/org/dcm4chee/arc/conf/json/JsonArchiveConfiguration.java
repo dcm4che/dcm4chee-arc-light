@@ -59,6 +59,7 @@ import java.net.URI;
 import java.time.LocalTime;
 import java.time.Period;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -232,7 +233,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writeAttributeFilters(JsonWriter writer, ArchiveDeviceExtension arcDev) {
+    protected void writeAttributeFilters(JsonWriter writer, ArchiveDeviceExtension arcDev) {
         writer.writeStartArray("dcmAttributeFilter");
         for (Map.Entry<Entity, AttributeFilter> entry : arcDev.getAttributeFilters().entrySet()) {
             writeAttributeFilter(writer, entry.getKey(), entry.getValue());
@@ -240,7 +241,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writeAttributeSet(JsonWriter writer, ArchiveDeviceExtension arcDev) {
+    protected void writeAttributeSet(JsonWriter writer, ArchiveDeviceExtension arcDev) {
         writer.writeStartArray("dcmAttributeSet");
         for (Map<String, AttributeSet> map : arcDev.getAttributeSet().values()) {
             for (AttributeSet attributeSet : map.values()) {
@@ -262,7 +263,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writeAttributeSet(JsonWriter writer, AttributeSet attributeSet) {
+    public void writeAttributeSet(JsonWriter writer, AttributeSet attributeSet) {
         writer.writeStartObject();
         writer.writeNotNullOrDef("dcmAttributeSetType", attributeSet.getType(), null);
         writer.writeNotNullOrDef("dcmAttributeSetID", attributeSet.getID(), null);
@@ -274,7 +275,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writeStorageDescriptor(JsonWriter writer, Collection<StorageDescriptor> storageDescriptorList) {
+    protected void writeStorageDescriptor(JsonWriter writer, Collection<StorageDescriptor> storageDescriptorList) {
         writer.writeStartArray("dcmStorage");
         for (StorageDescriptor st : storageDescriptorList) {
             writer.writeStartObject();
@@ -300,7 +301,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         return ss;
     }
 
-    private void writeQueryRetrieveView(JsonWriter writer, Collection<QueryRetrieveView> queryRetrieveViewList) {
+    protected void writeQueryRetrieveView(JsonWriter writer, Collection<QueryRetrieveView> queryRetrieveViewList) {
         writer.writeStartArray("dcmQueryRetrieveView");
         for (QueryRetrieveView qrv : queryRetrieveViewList) {
             writer.writeStartObject();
@@ -313,7 +314,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writeQueue(JsonWriter writer, Collection<QueueDescriptor> queueDescriptorsList) {
+    protected void writeQueue(JsonWriter writer, Collection<QueueDescriptor> queueDescriptorsList) {
         writer.writeStartArray("dcmQueue");
         for (QueueDescriptor qd : queueDescriptorsList) {
             writer.writeStartObject();
@@ -331,7 +332,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writeExporterDescriptor (JsonWriter writer, Collection<ExporterDescriptor> exportDescriptorList) {
+    protected void writeExporterDescriptor (JsonWriter writer, Collection<ExporterDescriptor> exportDescriptorList) {
         writer.writeStartArray("dcmExporter");
         for (ExporterDescriptor ed : exportDescriptorList) {
             writer.writeStartObject();
@@ -352,7 +353,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writeExportRule(JsonWriter writer, Collection<ExportRule> exportRuleList) {
+    protected void writeExportRule(JsonWriter writer, Collection<ExportRule> exportRuleList) {
         writer.writeStartArray("dcmExportRule");
         for (ExportRule er : exportRuleList) {
             writer.writeStartObject();
@@ -368,7 +369,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writeArchiveCompressionRules(
+    protected void writeArchiveCompressionRules(
             JsonWriter writer, Collection<ArchiveCompressionRule> archiveCompressionRuleList) {
         writer.writeStartArray("dcmArchiveCompressionRule");
         for (ArchiveCompressionRule acr : archiveCompressionRuleList) {
@@ -383,7 +384,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writeStoreAccessControlIDRules(JsonWriter writer, Collection<StoreAccessControlIDRule> rules) {
+    protected void writeStoreAccessControlIDRules(JsonWriter writer, Collection<StoreAccessControlIDRule> rules) {
         writer.writeStartArray("dcmStoreAccessControlIDRule");
         for (StoreAccessControlIDRule acr : rules) {
             writer.writeStartObject();
@@ -404,7 +405,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         return ss;
     }
 
-    private void writeArchiveAttributeCoercion(
+    protected void writeArchiveAttributeCoercion(
             JsonWriter writer, Collection<ArchiveAttributeCoercion> archiveAttributeCoercionList) {
         writer.writeStartArray("dcmArchiveAttributeCoercion");
         for (ArchiveAttributeCoercion aac : archiveAttributeCoercionList) {
@@ -423,13 +424,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmMergeMWLMatchingKey", aac.getMergeMWLMatchingKey(), null);
             writer.writeNotNullOrDef("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI(), null);
             writer.writeNotNullOrDef("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy(), null);
-            writer.writeNotNullOrDef("dcmSupplementFromDeviceReference", aac.getSupplementFromDevice(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
     }
 
-    private void writeRejectionNote(JsonWriter writer, Collection<RejectionNote> rejectionNoteList) {
+    protected void writeRejectionNote(JsonWriter writer, Collection<RejectionNote> rejectionNoteList) {
         writer.writeStartArray("dcmRejectionNote");
         for (RejectionNote rn : rejectionNoteList) {
             writer.writeStartObject();
@@ -446,7 +446,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writeStudyRetentionPolicy(
+    protected void writeStudyRetentionPolicy(
             JsonWriter writer, Collection<StudyRetentionPolicy> studyRetentionPolicies) {
         writer.writeStartArray("dcmStudyRetentionPolicy");
         for (StudyRetentionPolicy srp : studyRetentionPolicies) {
@@ -461,7 +461,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    static void writeHL7ForwardRules(JsonWriter writer, Collection<HL7ForwardRule> rules) {
+    protected static void writeHL7ForwardRules(JsonWriter writer, Collection<HL7ForwardRule> rules) {
         writer.writeStartArray("hl7ForwardRule");
         for (HL7ForwardRule rule : rules) {
             writer.writeStartObject();
@@ -473,7 +473,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    static void writeScheduledStations(JsonWriter writer, Collection<HL7OrderScheduledStation> stations) {
+    protected static void writeScheduledStations(JsonWriter writer, Collection<HL7OrderScheduledStation> stations) {
         writer.writeStartArray("hl7OrderScheduledStation");
         for (HL7OrderScheduledStation station : stations) {
             writer.writeStartObject();
@@ -486,7 +486,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    static void writeHL7OrderSPSStatus(JsonWriter writer, Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap) {
+    protected static void writeHL7OrderSPSStatus(JsonWriter writer, Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap) {
         writer.writeStartArray("hl7OrderSPSStatus");
         for (Map.Entry<SPSStatus, HL7OrderSPSStatus> entry : hl7OrderSPSStatusMap.entrySet()) {
             writer.writeStartObject();
@@ -497,7 +497,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private static void writeRSForwardRules(JsonWriter writer, Collection<RSForwardRule> rules) {
+    protected static void writeRSForwardRules(JsonWriter writer, Collection<RSForwardRule> rules) {
         writer.writeStartArray("dcmRSForwardRule");
         for (RSForwardRule rule : rules) {
             writer.writeStartObject();
@@ -509,7 +509,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
-    private void writeIDGenerators(JsonWriter writer, ArchiveDeviceExtension arcDev) {
+    protected void writeIDGenerators(JsonWriter writer, ArchiveDeviceExtension arcDev) {
         writer.writeStartArray("dcmIDGenerator");
         for (IDGenerator generator : arcDev.getIDGenerators().values()) {
              writeIDGenerator(writer, generator);
@@ -610,13 +610,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.next();
         reader.expect(JsonParser.Event.START_OBJECT);
         ArchiveDeviceExtension arcDev = new ArchiveDeviceExtension();
-        loadFrom(arcDev, reader, config);
+        loadFrom(arcDev, reader, device.listConnections(), config);
         device.addDeviceExtension(arcDev);
         reader.expect(JsonParser.Event.END_OBJECT);
         return true;
     }
 
-    private void loadFrom(ArchiveDeviceExtension arcDev, JsonReader reader,
+    private void loadFrom(ArchiveDeviceExtension arcDev, JsonReader reader, List<Connection> conns,
                           ConfigurationDelegate config) throws ConfigurationException {
         while (reader.next() == JsonParser.Event.KEY_NAME) {
             switch (reader.getString()) {
@@ -979,7 +979,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     loadStoreAccessControlIDRule(arcDev.getStoreAccessControlIDRules(), reader);
                     break;
                 case "dcmArchiveAttributeCoercion":
-                    loadArchiveAttributeCoercion(arcDev.getAttributeCoercions(), reader, config);
+                    loadArchiveAttributeCoercion(arcDev.getAttributeCoercions(), reader);
                     break;
                 case "dcmRejectionNote":
                     loadRejectionNoteFrom(arcDev, reader);
@@ -1371,8 +1371,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private void loadArchiveAttributeCoercion(Collection<ArchiveAttributeCoercion> coercions, JsonReader reader,
-                                              ConfigurationDelegate config) throws ConfigurationException {
+    private void loadArchiveAttributeCoercion(Collection<ArchiveAttributeCoercion> coercions, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -1421,9 +1420,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmAttributeUpdatePolicy":
                         aac.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
-                        break;
-                    case "dcmSupplementFromDeviceName":
-                        aac.setSupplementFromDevice(config.findDevice(reader.stringValue()));
                         break;
                     default:
                         reader.skipUnknownProperty();
@@ -1598,7 +1594,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private void loadRSForwardRules(Collection<RSForwardRule> rules, JsonReader reader) {
+    static void loadRSForwardRules(Collection<RSForwardRule> rules, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -1653,22 +1649,20 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     @Override
-    public boolean loadApplicationEntityExtension(Device device, ApplicationEntity ae, JsonReader reader,
-                                                  ConfigurationDelegate config) throws ConfigurationException {
+    public boolean loadApplicationEntityExtension(Device device, ApplicationEntity ae, JsonReader reader) {
         if (!reader.getString().equals("dcmArchiveNetworkAE"))
             return false;
 
         reader.next();
         reader.expect(JsonParser.Event.START_OBJECT);
         ArchiveAEExtension arcAE = new ArchiveAEExtension();
-        loadFrom(arcAE, reader, config);
+        loadFrom(arcAE, reader);
         ae.addAEExtension(arcAE);
         reader.expect(JsonParser.Event.END_OBJECT);
         return true;
     }
 
-    private void loadFrom(ArchiveAEExtension arcAE, JsonReader reader, ConfigurationDelegate config)
-            throws ConfigurationException {
+    private void loadFrom(ArchiveAEExtension arcAE, JsonReader reader) {
         while (reader.next() == JsonParser.Event.KEY_NAME) {
             switch (reader.getString()) {
                 case "dcmObjectStorageID":
@@ -1841,7 +1835,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     loadStoreAccessControlIDRule(arcAE.getStoreAccessControlIDRules(), reader);
                     break;
                 case "dcmArchiveAttributeCoercion":
-                    loadArchiveAttributeCoercion(arcAE.getAttributeCoercions(), reader, config);
+                    loadArchiveAttributeCoercion(arcAE.getAttributeCoercions(), reader);
                     break;
                 case "dcmStudyRetentionPolicy":
                     loadStudyRetentionPolicy(arcAE.getStudyRetentionPolicies(), reader);

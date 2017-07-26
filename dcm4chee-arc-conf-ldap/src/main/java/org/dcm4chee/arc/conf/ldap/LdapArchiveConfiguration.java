@@ -934,7 +934,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     @Override
-    protected void loadChilds(ApplicationEntity ae, String aeDN) throws NamingException, ConfigurationException {
+    protected void loadChilds(ApplicationEntity ae, String aeDN) throws NamingException {
         ArchiveAEExtension aeExt = ae.getAEExtension(ArchiveAEExtension.class);
         if (aeExt == null)
             return;
@@ -1076,7 +1076,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    static void loadHL7OrderSPSStatus(
+    protected static void loadHL7OrderSPSStatus(
             Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String deviceDN, LdapDicomConfiguration config)
             throws NamingException {
         NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=hl7OrderSPSStatus)");
@@ -1154,7 +1154,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    static void mergeHL7OrderSPSStatus(
+    protected static void mergeHL7OrderSPSStatus(
             Map<SPSStatus, HL7OrderSPSStatus> prev, Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String deviceDN,
             LdapDicomConfiguration config) throws NamingException {
         for (SPSStatus spsStatus : prev.keySet())
@@ -1620,7 +1620,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
 
-    static void storeHL7ForwardRules(
+    protected static void storeHL7ForwardRules(
             Collection<HL7ForwardRule> rules, String parentDN, LdapDicomConfiguration config)
             throws NamingException{
         for (HL7ForwardRule rule : rules) {
@@ -1631,7 +1631,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    static void storeScheduledStations(
+    protected static void storeScheduledStations(
             Collection<HL7OrderScheduledStation> stations, String parentDN, LdapDicomConfiguration config)
             throws NamingException{
         for (HL7OrderScheduledStation station : stations) {
@@ -1642,7 +1642,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    static void storeHL7OrderSPSStatus(
+    protected static void storeHL7OrderSPSStatus(
             Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (Map.Entry<SPSStatus, HL7OrderSPSStatus> entry : hl7OrderSPSStatusMap.entrySet()) {
@@ -1772,7 +1772,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    static void loadHL7ForwardRules(
+    protected static void loadHL7ForwardRules(
             Collection<HL7ForwardRule> rules, String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=hl7ForwardRule)");
@@ -1790,7 +1790,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    static void loadScheduledStations(
+    protected static void loadScheduledStations(
             Collection<HL7OrderScheduledStation> stations, String parentDN, LdapDicomConfiguration config)
             throws NamingException, ConfigurationException {
         NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=hl7OrderScheduledStation)");
@@ -1884,7 +1884,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    static void mergeHL7ForwardRules(Collection<HL7ForwardRule> prevRules, Collection<HL7ForwardRule> rules,
+    protected static void mergeHL7ForwardRules(Collection<HL7ForwardRule> prevRules, Collection<HL7ForwardRule> rules,
                String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (HL7ForwardRule prevRule : prevRules) {
@@ -1903,7 +1903,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    static void mergeScheduledStations(Collection<HL7OrderScheduledStation> prevStations, Collection<HL7OrderScheduledStation> stations,
+    protected static void mergeScheduledStations(Collection<HL7OrderScheduledStation> prevStations, Collection<HL7OrderScheduledStation> stations,
                                                  String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (HL7OrderScheduledStation prevRule : prevStations) {
@@ -2160,13 +2160,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "dcmAttributeUpdatePolicy",
                 coercion.getAttributeUpdatePolicy(), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
         LdapUtils.storeNotDef(attrs, "dcmRulePriority", coercion.getPriority(), 0);
-        LdapUtils.storeNotNullOrDef(
-                attrs, "dcmSupplementFromDeviceReference", config.deviceRef(coercion.getSupplementFromDeviceName()), null);
         return attrs;
     }
 
     private void loadAttributeCoercions(Collection<ArchiveAttributeCoercion> coercions, String parentDN)
-            throws NamingException, ConfigurationException {
+            throws NamingException {
         NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmArchiveAttributeCoercion)");
         try {
             while (ne.hasMore()) {
@@ -2192,8 +2190,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setAttributeUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
                         attrs.get("dcmAttributeUpdatePolicy"), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE));
                 coercion.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
-                coercion.setSupplementFromDevice(config.loadDevice(
-                        LdapUtils.stringValue(attrs.get("dcmSupplementFromDeviceReference"), null)));
                 coercions.add(coercion);
             }
         } finally {
@@ -2224,8 +2220,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.getAttributeUpdatePolicy(),
                 org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
         LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), coercion.getPriority(), 0);
-        LdapUtils.storeDiffObject(mods, "dcmSupplementFromDeviceReference",
-                prev.getSupplementFromDevice(), coercion.getSupplementFromDevice(), null);
         return mods;
     }
 
