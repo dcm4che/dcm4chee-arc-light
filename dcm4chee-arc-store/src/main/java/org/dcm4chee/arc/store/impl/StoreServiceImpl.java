@@ -60,6 +60,7 @@ import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.MergeMWLCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -451,22 +452,34 @@ class StoreServiceImpl implements StoreService {
             return;
 
         AttributesCoercion coercion = null;
+        coercion = coerceAttributesByXSL(ctx, rule, coercion);
+        coercion = mergeAttributesFromMWL(ctx, rule, coercion);
+        coercion = SupplementAssigningAuthorities.forInstance(rule.getSupplementFromDevice(), coercion);
+        if (coercion != null)
+            coercion.coerce(ctx.getAttributes(), ctx.getCoercedAttributes());
+    }
+
+    private AttributesCoercion coerceAttributesByXSL(
+            StoreContext ctx, ArchiveAttributeCoercion rule, AttributesCoercion next) {
         String xsltStylesheetURI = rule.getXSLTStylesheetURI();
         if (xsltStylesheetURI != null)
             try {
                 Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
-                coercion = new XSLTAttributesCoercion(tpls, null).includeKeyword(!rule.isNoKeywords());
+                return new XSLTAttributesCoercion(tpls, null).includeKeyword(!rule.isNoKeywords());
             } catch (TransformerConfigurationException e) {
-                LOG.error("{}: Failed to compile XSL: {}", session, xsltStylesheetURI, e);
+                LOG.error("{}: Failed to compile XSL: {}", ctx.getStoreSession(), xsltStylesheetURI, e);
             }
-        Attributes requestAttrs = queryMWL(ctx, rule);
-        if (requestAttrs != null) {
-            LOG.info("{}: Coerce Request Attributes from matching MWL item(s)", session);
-            coercion = new MergeAttributesCoercion(requestAttrs, coercion);
-        }
+        return next;
+    }
 
-        if (coercion != null)
-            coercion.coerce(ctx.getAttributes(), ctx.getCoercedAttributes());
+    private AttributesCoercion mergeAttributesFromMWL(
+            StoreContext ctx, ArchiveAttributeCoercion rule, AttributesCoercion next) {
+        Attributes requestAttrs = queryMWL(ctx, rule);
+        if (requestAttrs == null)
+            return next;
+
+        LOG.info("{}: Coerce Request Attributes from matching MWL item(s)", ctx.getStoreSession());
+        return new MergeAttributesCoercion(requestAttrs, next);
     }
 
     private Attributes queryMWL(StoreContext ctx, ArchiveAttributeCoercion rule) {
