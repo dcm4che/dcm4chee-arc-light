@@ -424,6 +424,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmMergeMWLMatchingKey", aac.getMergeMWLMatchingKey(), null);
             writer.writeNotNullOrDef("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI(), null);
             writer.writeNotNullOrDef("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy(), null);
+            writer.writeNotNullOrDef("dcmSupplementFromDeviceReference", aac.getSupplementFromDevice(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -979,7 +980,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     loadStoreAccessControlIDRule(arcDev.getStoreAccessControlIDRules(), reader);
                     break;
                 case "dcmArchiveAttributeCoercion":
-                    loadArchiveAttributeCoercion(arcDev.getAttributeCoercions(), reader);
+                    loadArchiveAttributeCoercion(arcDev.getAttributeCoercions(), reader, config);
                     break;
                 case "dcmRejectionNote":
                     loadRejectionNoteFrom(arcDev, reader);
@@ -1371,7 +1372,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private void loadArchiveAttributeCoercion(Collection<ArchiveAttributeCoercion> coercions, JsonReader reader) {
+    private void loadArchiveAttributeCoercion(Collection<ArchiveAttributeCoercion> coercions, JsonReader reader,
+                                              ConfigurationDelegate config) throws ConfigurationException {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -1420,6 +1422,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmAttributeUpdatePolicy":
                         aac.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmSupplementFromDeviceReference":
+                        aac.setSupplementFromDevice(config.findDevice(reader.stringValue()));
                         break;
                     default:
                         reader.skipUnknownProperty();
@@ -1649,20 +1654,22 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     @Override
-    public boolean loadApplicationEntityExtension(Device device, ApplicationEntity ae, JsonReader reader) {
+    public boolean loadApplicationEntityExtension(Device device, ApplicationEntity ae, JsonReader reader,
+                                                  ConfigurationDelegate config) throws ConfigurationException {
         if (!reader.getString().equals("dcmArchiveNetworkAE"))
             return false;
 
         reader.next();
         reader.expect(JsonParser.Event.START_OBJECT);
         ArchiveAEExtension arcAE = new ArchiveAEExtension();
-        loadFrom(arcAE, reader);
+        loadFrom(arcAE, reader, config);
         ae.addAEExtension(arcAE);
         reader.expect(JsonParser.Event.END_OBJECT);
         return true;
     }
 
-    private void loadFrom(ArchiveAEExtension arcAE, JsonReader reader) {
+    private void loadFrom(ArchiveAEExtension arcAE, JsonReader reader, ConfigurationDelegate config)
+        throws ConfigurationException {
         while (reader.next() == JsonParser.Event.KEY_NAME) {
             switch (reader.getString()) {
                 case "dcmObjectStorageID":
@@ -1835,7 +1842,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     loadStoreAccessControlIDRule(arcAE.getStoreAccessControlIDRules(), reader);
                     break;
                 case "dcmArchiveAttributeCoercion":
-                    loadArchiveAttributeCoercion(arcAE.getAttributeCoercions(), reader);
+                    loadArchiveAttributeCoercion(arcAE.getAttributeCoercions(), reader, config);
                     break;
                 case "dcmStudyRetentionPolicy":
                     loadStudyRetentionPolicy(arcAE.getStudyRetentionPolicies(), reader);

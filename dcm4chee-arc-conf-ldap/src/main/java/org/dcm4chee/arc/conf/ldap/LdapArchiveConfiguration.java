@@ -934,7 +934,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     @Override
-    protected void loadChilds(ApplicationEntity ae, String aeDN) throws NamingException {
+    protected void loadChilds(ApplicationEntity ae, String aeDN) throws NamingException, ConfigurationException {
         ArchiveAEExtension aeExt = ae.getAEExtension(ArchiveAEExtension.class);
         if (aeExt == null)
             return;
@@ -2160,11 +2160,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "dcmAttributeUpdatePolicy",
                 coercion.getAttributeUpdatePolicy(), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
         LdapUtils.storeNotDef(attrs, "dcmRulePriority", coercion.getPriority(), 0);
+        LdapUtils.storeNotNullOrDef(attrs, "dcmSupplementFromDeviceReference", config.deviceRef(coercion.getSupplementFromDeviceName()), null);
         return attrs;
     }
 
     private void loadAttributeCoercions(Collection<ArchiveAttributeCoercion> coercions, String parentDN)
-            throws NamingException {
+            throws NamingException, ConfigurationException {
         NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmArchiveAttributeCoercion)");
         try {
             while (ne.hasMore()) {
@@ -2190,6 +2191,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setAttributeUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
                         attrs.get("dcmAttributeUpdatePolicy"), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE));
                 coercion.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
+                if (attrs.get("dcmSupplementFromDeviceReference") != null)
+                    coercion.setSupplementFromDevice(config.loadDevice(
+                        LdapUtils.stringValue(attrs.get("dcmSupplementFromDeviceReference"), null)));
                 coercions.add(coercion);
             }
         } finally {
@@ -2220,6 +2224,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.getAttributeUpdatePolicy(),
                 org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
         LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), coercion.getPriority(), 0);
+        LdapUtils.storeDiffObject(mods, "dcmSupplementFromDeviceReference", prev.getSupplementFromDevice(), coercion.getSupplementFromDevice(), null);
         return mods;
     }
 
