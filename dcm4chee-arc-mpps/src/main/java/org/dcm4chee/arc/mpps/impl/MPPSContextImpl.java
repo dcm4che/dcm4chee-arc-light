@@ -87,10 +87,19 @@ public class MPPSContextImpl implements MPPSContext {
     }
 
     @Override
+    public String getCallingAET() {
+        return as.getCallingAET();
+    }
+
+    @Override
+    public String getRemoteHostName() {
+        return as.getSocket().getInetAddress().getHostName();
+    }
+
+    @Override
     public String getSopInstanceUID() {
         return sopInstanceUID;
     }
-
 
     @Override
     public void setSopInstanceUID(String sopInstanceUID) {

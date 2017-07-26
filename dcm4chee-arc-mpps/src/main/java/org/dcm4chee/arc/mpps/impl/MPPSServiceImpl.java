@@ -40,14 +40,27 @@
 
 package org.dcm4chee.arc.mpps.impl;
 
+import org.dcm4che3.data.AttributesCoercion;
+import org.dcm4che3.data.UID;
+import org.dcm4che3.io.TemplatesCache;
+import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Dimse;
+import org.dcm4che3.net.TransferCapability;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.entity.MPPS;
+import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.mpps.MPPSService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerConfigurationException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -55,6 +68,8 @@ import javax.inject.Inject;
  */
 @ApplicationScoped
 public class MPPSServiceImpl implements MPPSService {
+
+    static final Logger LOG = LoggerFactory.getLogger(MPPSServiceImpl.class);
 
     @Inject
     private MPPSServiceEJB ejb;
@@ -66,6 +81,7 @@ public class MPPSServiceImpl implements MPPSService {
 
     @Override
     public MPPS createMPPS(MPPSContext ctx) throws DicomServiceException {
+        coerceAttributes(ctx, Dimse.N_CREATE_RQ);
         return ejb.createMPPS(ctx);
     }
 
@@ -76,6 +92,37 @@ public class MPPSServiceImpl implements MPPSService {
 
     @Override
     public MPPS updateMPPS(MPPSContext ctx) throws DicomServiceException {
+        coerceAttributes(ctx, Dimse.N_SET_RQ);
         return ejb.updateMPPS(ctx);
+    }
+
+    private void coerceAttributes(MPPSContext ctx, Dimse dimse) {
+        ArchiveAttributeCoercion rule = ctx.getArchiveAEExtension().findAttributeCoercion(
+                ctx.getRemoteHostName(),
+                ctx.getCallingAET(),
+                TransferCapability.Role.SCU,
+                dimse,
+                UID.ModalityPerformedProcedureStepSOPClass);
+        if (rule == null)
+            return;
+
+        AttributesCoercion coercion = null;
+        coercion = coerceAttributesByXSL(ctx, rule, coercion);
+        coercion = SupplementAssigningAuthorities.forMPPS(rule.getSupplementFromDevice(), coercion);
+        if (coercion != null)
+            coercion.coerce(ctx.getAttributes(), null);
+    }
+
+    private AttributesCoercion coerceAttributesByXSL(
+            MPPSContext ctx, ArchiveAttributeCoercion rule, AttributesCoercion next) {
+        String xsltStylesheetURI = rule.getXSLTStylesheetURI();
+        if (xsltStylesheetURI != null)
+            try {
+                Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
+                return new XSLTAttributesCoercion(tpls, null).includeKeyword(!rule.isNoKeywords());
+            } catch (TransformerConfigurationException e) {
+                LOG.error("{}: Failed to compile XSL: {}", ctx, xsltStylesheetURI, e);
+            }
+        return next;
     }
 }

@@ -60,6 +60,10 @@ public interface MPPSContext {
 
     String getCalledAET();
 
+    String getCallingAET();
+
+    String getRemoteHostName();
+
     String getSopInstanceUID();
 
     void setSopInstanceUID(String sopInstanceUID);
