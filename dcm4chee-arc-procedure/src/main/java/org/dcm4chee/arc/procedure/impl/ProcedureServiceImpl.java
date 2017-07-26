@@ -48,7 +48,6 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.mpps.MPPSContext;
-import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.slf4j.Logger;
@@ -60,7 +59,6 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
-import java.util.Iterator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -78,9 +76,6 @@ public class ProcedureServiceImpl implements ProcedureService {
 
     @Inject
     private Event<ProcedureContext> procedureEvent;
-
-    @Inject
-    private PatientService patientService;
 
     @Override
     public ProcedureContext createProcedureContextHL7(Socket s, HL7Segment msh) {
