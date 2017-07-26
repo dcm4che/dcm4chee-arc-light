@@ -68,7 +68,7 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
 
     @Override
     public void coerce(Attributes attrs, Attributes modified) {
-        entity.coerce(this, attrs);
+        entity.supplement(this, attrs);
         if (next != null)
             next.coerce(attrs, modified);
     }
@@ -77,25 +77,25 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
     private enum Entity {
         Instance {
             @Override
-            void coerce(SupplementAssigningAuthorities coercion, Attributes attrs) {
-                coercion.coerceInstance(attrs);
+            void supplement(SupplementAssigningAuthorities coercion, Attributes attrs) {
+                coercion.supplementInstance(attrs);
             }
         },
         MPPS {
             @Override
-            void coerce(SupplementAssigningAuthorities coercion, Attributes attrs) {
-                coercion.coerceMPPS(attrs);
+            void supplement(SupplementAssigningAuthorities coercion, Attributes attrs) {
+                coercion.supplementMPPS(attrs);
             }
         };
 
-        abstract void coerce(SupplementAssigningAuthorities coercion, Attributes attrs);
+        abstract void supplement(SupplementAssigningAuthorities coercion, Attributes attrs);
     }
 
-    private void coerceInstance(Attributes attrs) {
+    private void supplementInstance(Attributes attrs) {
         //TODO
     }
 
-    private void coerceMPPS(Attributes attrs) {
+    private void supplementMPPS(Attributes attrs) {
         //TODO
     }
 
