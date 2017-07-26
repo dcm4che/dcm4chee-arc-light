@@ -1080,6 +1080,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.181 NAME 'dcmAttributeSetNumber'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.182 NAME 'dcmSupplementFromDeviceReference'
+   DESC 'The DN of a dicomDeviceObject from which Assigning Authorities and other information is taken to supplement received Composite Objects and MPPS.'
+   EQUALITY distinguishedNameMatch
+   SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
+   SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1392,7 +1398,8 @@ objectclass ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmMergeMWLTemplateURI $
     dcmLeadingCFindSCP $
     dcmTag $
-    dcmAttributeUpdatePolicy ) )
+    dcmAttributeUpdatePolicy $
+    dcmSupplementFromDeviceReference ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.19 NAME 'dcmRejectionNote'
   DESC 'Specifies behavior on Rejection Note Stored'

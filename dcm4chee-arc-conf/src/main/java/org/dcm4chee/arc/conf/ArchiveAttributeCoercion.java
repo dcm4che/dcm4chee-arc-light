@@ -41,8 +41,10 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 
 import java.util.Arrays;
@@ -67,6 +69,7 @@ public class ArchiveAttributeCoercion {
     private MergeMWLMatchingKey mergeMWLMatchingKey;
     private String mergeMWLTemplateURI;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.MERGE;
+    private Device supplementFromDevice;
 
     public ArchiveAttributeCoercion() {
     }
@@ -187,6 +190,20 @@ public class ArchiveAttributeCoercion {
         this.attributeUpdatePolicy = attributeUpdatePolicy;
     }
 
+    public final Device getSupplementFromDevice() {
+        return supplementFromDevice;
+    }
+
+    public String getSupplementFromDeviceName() {
+        if (supplementFromDevice == null)
+            throw new IllegalStateException("SupplementFromDevice not initialized");
+        return supplementFromDevice.getDeviceName();
+    }
+
+    public void setSupplementFromDevice(Device supplementFromDevice) {
+        this.supplementFromDevice = supplementFromDevice;
+    }
+
     public boolean match(String hostName, String aet, TransferCapability.Role role, Dimse dimse, String sopClass) {
         return this.role == role && this.dimse == dimse
                 && isEmptyOrContains(hostNames, hostName)
@@ -220,6 +237,8 @@ public class ArchiveAttributeCoercion {
                 + ", mergeMWLMatchingKey=" + mergeMWLMatchingKey
                 + ", mergeMWLTemplateURI=" + mergeMWLTemplateURI
                 + ", attributeUpdatePolicy=" + attributeUpdatePolicy
+                + ", supplementFromDeviceName="
+                + (supplementFromDevice != null ? supplementFromDevice.getDeviceName() : null)
                 + "]";
     }
 }
