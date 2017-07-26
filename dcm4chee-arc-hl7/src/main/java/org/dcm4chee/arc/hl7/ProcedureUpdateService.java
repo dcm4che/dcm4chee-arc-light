@@ -151,8 +151,7 @@ public class ProcedureUpdateService extends AbstractHL7Service {
                 for (Device device : devices) {
                     if (device.getStationName() != null)
                         ssNames.add(device.getStationName());
-                    for (String ae : device.getApplicationAETitles())
-                        ssAETs.add(ae);
+                    ssAETs.addAll(device.getApplicationAETitles());
                 }
                 if (!ssAETs.isEmpty())
                     sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
