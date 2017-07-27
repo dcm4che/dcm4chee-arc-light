@@ -534,7 +534,7 @@ public class AuditService {
                     .accNum(getAcc(attrs)).pID(getPID(attrs)).pName(pName(attrs)).studyDate(getSD(attrs))
                     .outcome(null != rCtx.getException() ? rCtx.getException().getMessage() : null).build());
             AuditInfo iI = new AuditInfo(
-                    new BuildAuditInfo.Builder().sopCUID(sopCUID(attrs)).sopIUID(rCtx.getSopInstanceUIDs()[0]).build());
+                    new BuildAuditInfo.Builder().sopCUID(sopCUID(attrs)).sopIUID(rCtx.getSopInstanceUIDs()[0]).mppsUID(" ").build());
             writeSpoolFileStoreOrWadoRetrieve(fileName, i, iI);
         }
     }
