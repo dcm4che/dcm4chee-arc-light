@@ -812,7 +812,7 @@ public class AuditService {
             Attributes sAttr = ctx.getAttributes();
             Attributes pAttr = ctx.getStudy() != null ? ctx.getStudy().getPatient().getAttributes() : null;
             BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest().getRemoteHost()).callingAET(callingAET)
-                    .calledAET(ctx.getApplicationEntity().getAETitle()).studyUID(ctx.getStudyInstanceUID()).accNum(getAcc(sAttr))
+                    .calledAET(ctx.getHttpRequest().getRequestURI()).studyUID(ctx.getStudyInstanceUID()).accNum(getAcc(sAttr))
                     .pID(getPID(pAttr)).pName(pName(pAttr)).outcome(getOD(ctx.getException())).studyDate(getSD(sAttr)).build();
             obj.add(new AuditInfo(i));
             writeSpoolFile(String.valueOf(eventType), obj);
