@@ -21,6 +21,7 @@
       "description": "DICOM Message Element.",
       "type": "string",
       "enum": [
+        "N_CREATE_RQ",
         "C_STORE_RQ",
         "C_FIND_RQ",
         "C_FIND_RSP"
