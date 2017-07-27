@@ -2160,7 +2160,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "dcmAttributeUpdatePolicy",
                 coercion.getAttributeUpdatePolicy(), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
         LdapUtils.storeNotDef(attrs, "dcmRulePriority", coercion.getPriority(), 0);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmSupplementFromDeviceReference", config.deviceRef(coercion.getSupplementFromDeviceName()), null);
+        if (coercion.getSupplementFromDevice() != null)
+            LdapUtils.storeNotNullOrDef(attrs, "dcmSupplementFromDeviceReference", config.deviceRef(coercion.getSupplementFromDeviceName()), null);
         return attrs;
     }
 

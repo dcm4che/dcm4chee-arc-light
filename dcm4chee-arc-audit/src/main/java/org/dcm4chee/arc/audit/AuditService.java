@@ -534,7 +534,7 @@ public class AuditService {
                     .accNum(getAcc(attrs)).pID(getPID(attrs)).pName(pName(attrs)).studyDate(getSD(attrs))
                     .outcome(null != rCtx.getException() ? rCtx.getException().getMessage() : null).build());
             AuditInfo iI = new AuditInfo(
-                    new BuildAuditInfo.Builder().sopCUID(sopCUID(attrs)).sopIUID(rCtx.getSopInstanceUIDs()[0]).build());
+                    new BuildAuditInfo.Builder().sopCUID(sopCUID(attrs)).sopIUID(rCtx.getSopInstanceUIDs()[0]).mppsUID(" ").build());
             writeSpoolFileStoreOrWadoRetrieve(fileName, i, iI);
         }
     }
@@ -812,7 +812,7 @@ public class AuditService {
             Attributes sAttr = ctx.getAttributes();
             Attributes pAttr = ctx.getStudy() != null ? ctx.getStudy().getPatient().getAttributes() : null;
             BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest().getRemoteHost()).callingAET(callingAET)
-                    .calledAET(ctx.getApplicationEntity().getAETitle()).studyUID(ctx.getStudyInstanceUID()).accNum(getAcc(sAttr))
+                    .calledAET(ctx.getHttpRequest().getRequestURI()).studyUID(ctx.getStudyInstanceUID()).accNum(getAcc(sAttr))
                     .pID(getPID(pAttr)).pName(pName(pAttr)).outcome(getOD(ctx.getException())).studyDate(getSD(sAttr)).build();
             obj.add(new AuditInfo(i));
             writeSpoolFile(String.valueOf(eventType), obj);

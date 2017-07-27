@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.conf;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
 import org.dcm4che3.imageio.codec.ImageReaderFactory;
 import org.dcm4che3.imageio.codec.ImageWriterFactory;
@@ -47,6 +48,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.net.audit.AuditRecordRepository;
+import org.dcm4che3.net.audit.AuditSuppressCriteria;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.imageio.ImageReaderExtension;
@@ -185,6 +187,14 @@ class ArchiveDeviceFactory {
         gen.setName(name);
         gen.setFormat(format);
         return gen;
+    }
+
+    private static AuditSuppressCriteria newAuditSuppressCriteria() {
+        AuditSuppressCriteria auditSuppressCriteria = new AuditSuppressCriteria("Audit Suppress Criteria");
+        auditSuppressCriteria.setEventIDs(AuditMessages.EventID.Query);
+        auditSuppressCriteria.setUserIDs("DCM4CHEE");
+        auditSuppressCriteria.setUserIsRequestor(true);
+        return auditSuppressCriteria;
     }
 
     static final int[] PATIENT_ATTRS = {
@@ -1241,6 +1251,7 @@ class ArchiveDeviceFactory {
         auditLogger.setAuditSourceTypeCodes("4");
         auditLogger.setAuditRecordRepositoryDevice(arrDevice);
         auditLogger.setSpoolDirectoryURI(AUDIT_LOGGER_SPOOL_DIR_URI);
+        auditLogger.getAuditSuppressCriteriaList().add(newAuditSuppressCriteria());
         ext.addAuditLogger(auditLogger);
         device.addDeviceExtension(ext);
     }
