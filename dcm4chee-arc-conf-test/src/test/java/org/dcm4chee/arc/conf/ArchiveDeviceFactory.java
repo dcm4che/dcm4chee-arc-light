@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.data.*;
 import org.dcm4che3.imageio.codec.ImageReaderFactory;
 import org.dcm4che3.imageio.codec.ImageWriterFactory;
@@ -1583,6 +1584,29 @@ class ArchiveDeviceFactory {
             storeAccessControlIDRule.setStoreAccessControlID("ACCESS_CONTROL_ID");
             ext.addStoreAccessControlIDRule(storeAccessControlIDRule);
         }
+    }
+
+    public static void addSupplementAttributeCoercions(Device arcDev, Device storescu, Device mppsscu) {
+        ArchiveDeviceExtension ext = arcDev.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveAttributeCoercion supplementComposite = createAttributeCoercion(
+                "Supplement Composite", Dimse.C_STORE_RQ, SCU, "SUPPLEMENT_COMPOSITE");
+        supplementComposite.setSupplementFromDevice(storescu);
+        ext.getAttributeCoercions().add(supplementComposite);
+
+        ArchiveAttributeCoercion supplementMPPS = createAttributeCoercion(
+                "Supplement MPPS", Dimse.N_CREATE_RQ, SCU, "SUPPLEMENT_MPPS");
+        supplementMPPS.setSOPClasses("1.2.840.10008.3.1.2.3.3");
+        supplementMPPS.setSupplementFromDevice(mppsscu);
+        ext.getAttributeCoercions().add(supplementMPPS);
+    }
+
+    private static ArchiveAttributeCoercion createAttributeCoercion(
+            String cn, Dimse dimse, TransferCapability.Role role, String aet) {
+        ArchiveAttributeCoercion coercion = new ArchiveAttributeCoercion(cn);
+        coercion.setAETitles(aet);
+        coercion.setRole(role);
+        coercion.setDIMSE(dimse);
+        return coercion;
     }
 
     private static AttributeSet newAttributeSet(AttributeSet.Type type, int number, String id, String title, String desc, int[] tags) {

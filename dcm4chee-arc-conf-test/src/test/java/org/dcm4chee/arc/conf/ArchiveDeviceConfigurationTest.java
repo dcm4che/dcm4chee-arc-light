@@ -118,6 +118,10 @@ public class ArchiveDeviceConfigurationTest {
         config.persist(scheduledStation, register);
 
         Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice, scheduledStation, configType);
+        if (configType == ArchiveDeviceFactory.ConfigType.SAMPLE)
+            ArchiveDeviceFactory.addSupplementAttributeCoercions(
+                    arc, config.findDevice("storescu"), config.findDevice("mppsscu"));
+
         X509Certificate cacert = (X509Certificate) keyStore.getCertificate("cacert");
         String deviceRef = config.deviceRef("dcm4chee-arc");
         arc.setAuthorizedNodeCertificates(deviceRef, cacert);
