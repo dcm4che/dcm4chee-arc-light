@@ -110,7 +110,8 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
     }
 
     private void supplementMPPS(Attributes attrs) {
-        //TODO
+        supplementIssuers(attrs);
+        supplementRequestIssuers(attrs.getSequence(Tag.ScheduledStepAttributesSequence));
     }
 
     private void supplementValue(Attributes attrs, int tag, VR vr, String... values) {
