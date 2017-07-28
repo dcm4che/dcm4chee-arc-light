@@ -148,14 +148,14 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
 
     private void supplementIssuers(Attributes attrs) {
         supplementIssuerOfPatientID(attrs);
-        if (attrs.containsValue(Tag.AdmissionID))
-            supplementIssuer(attrs, Tag.IssuerOfAdmissionIDSequence, device.getIssuerOfAdmissionID());
-        if (attrs.containsValue(Tag.ServiceEpisodeID))
-            supplementIssuer(attrs, Tag.IssuerOfServiceEpisodeID, device.getIssuerOfServiceEpisodeID());
-        if (attrs.containsValue(Tag.ContainerIdentifier))
-            supplementIssuer(attrs, Tag.IssuerOfTheContainerIdentifierSequence, device.getIssuerOfContainerIdentifier());
-        if (attrs.containsValue(Tag.SpecimenIdentifier))
-            supplementIssuer(attrs, Tag.IssuerOfTheSpecimenIdentifierSequence, device.getIssuerOfSpecimenIdentifier());
+        supplementIssuer(attrs, Tag.AdmissionID, Tag.IssuerOfAdmissionIDSequence,
+                device.getIssuerOfAdmissionID());
+        supplementIssuer(attrs, Tag.ServiceEpisodeID, Tag.IssuerOfServiceEpisodeID,
+                device.getIssuerOfServiceEpisodeID());
+        supplementIssuer(attrs, Tag.ContainerIdentifier, Tag.IssuerOfTheContainerIdentifierSequence,
+                device.getIssuerOfContainerIdentifier());
+        supplementIssuer(attrs, Tag.SpecimenIdentifier, Tag.IssuerOfTheSpecimenIdentifierSequence,
+                device.getIssuerOfSpecimenIdentifier());
     }
 
     private void supplementIssuerOfPatientID(Attributes attrs) {
@@ -188,8 +188,8 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
     }
 
 
-    private void supplementIssuer(Attributes attrs, int seqTag, Issuer issuer) {
-        if (issuer == null || attrs.containsValue(seqTag))
+    private void supplementIssuer(Attributes attrs, int idTag, int seqTag, Issuer issuer) {
+        if (issuer == null || !attrs.containsValue(idTag) || attrs.containsValue(seqTag))
             return;
 
         Attributes item = new Attributes(attrs.bigEndian(), 3);
@@ -213,12 +213,12 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
     }
 
     private void supplementRequestIssuers(Attributes rq) {
-        if (rq.containsValue(Tag.AccessionNumber))
-            supplementIssuer(rq, Tag.IssuerOfAccessionNumberSequence, device.getIssuerOfAccessionNumber());
-        if (rq.containsValue(Tag.PlacerOrderNumberImagingServiceRequest))
-            supplementIssuer( rq, Tag.OrderPlacerIdentifierSequence, device.getOrderPlacerIdentifier());
-        if (rq.containsValue(Tag.FillerOrderNumberImagingServiceRequest))
-            supplementIssuer(rq, Tag.OrderFillerIdentifierSequence, device.getOrderFillerIdentifier());
+        supplementIssuer(rq, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence,
+                device.getIssuerOfAccessionNumber());
+        supplementIssuer( rq, Tag.PlacerOrderNumberImagingServiceRequest, Tag.OrderPlacerIdentifierSequence,
+                device.getOrderPlacerIdentifier());
+        supplementIssuer(rq, Tag.FillerOrderNumberImagingServiceRequest, Tag.OrderFillerIdentifierSequence,
+                device.getOrderFillerIdentifier());
     }
 
     private void log(int tag, VR vr, Object value) {
