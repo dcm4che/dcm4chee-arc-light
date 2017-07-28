@@ -61,3 +61,10 @@ changetype: modify
 add: dicomDescription
 dicomDescription: Default HL7 Receiver
 -
+
+dn: cn=Suppress Query from own Archive AE,cn=Audit Logger,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAuditUserID: DCM4CHEE
+dcmAuditUserIsRequestor: TRUE
+dcmAuditEventID: (110112, DCM, "Query")
+objectClass: dcmAuditSuppressCriteria
+cn: Suppress Query from own Archive AE

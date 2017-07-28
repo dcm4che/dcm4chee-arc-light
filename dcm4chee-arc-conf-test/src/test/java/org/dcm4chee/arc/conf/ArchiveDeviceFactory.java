@@ -59,6 +59,7 @@ import org.dcm4che3.util.Property;
 import java.net.URI;
 import java.time.LocalTime;
 import java.time.Period;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -190,8 +191,8 @@ class ArchiveDeviceFactory {
         return gen;
     }
 
-    private static AuditSuppressCriteria newAuditSuppressCriteria() {
-        AuditSuppressCriteria auditSuppressCriteria = new AuditSuppressCriteria("Audit Suppress Criteria");
+    private static AuditSuppressCriteria suppressAuditQueryFromArchive() {
+        AuditSuppressCriteria auditSuppressCriteria = new AuditSuppressCriteria("Suppress Query from own Archive AE");
         auditSuppressCriteria.setEventIDs(AuditMessages.EventID.Query);
         auditSuppressCriteria.setUserIDs("DCM4CHEE");
         auditSuppressCriteria.setUserIsRequestor(true);
@@ -1165,7 +1166,7 @@ class ArchiveDeviceFactory {
 
         addArchiveDeviceExtension(device, scheduledStation, configType);
         addHL7DeviceExtension(device, configType, archiveHost);
-        addAuditLoggerDeviceExtension(device, arrDevice, archiveHost);
+        addAuditLoggerDeviceExtension(device, arrDevice, archiveHost, suppressAuditQueryFromArchive());
         device.addDeviceExtension(new ImageReaderExtension(ImageReaderFactory.getDefault()));
         device.addDeviceExtension(new ImageWriterExtension(ImageWriterFactory.getDefault()));
 
@@ -1241,8 +1242,9 @@ class ArchiveDeviceFactory {
         return coercion;
     }
 
-    private static void addAuditLoggerDeviceExtension(Device device, Device arrDevice, String archiveHost) {
-        Connection syslog = new Connection("syslog", archiveHost);
+    private static void addAuditLoggerDeviceExtension(Device device, Device arrDevice, String hostname,
+                                                      AuditSuppressCriteria... suppressCriteria) {
+        Connection syslog = new Connection("syslog", hostname);
         syslog.setClientBindAddress("0.0.0.0");
         syslog.setProtocol(Connection.Protocol.SYSLOG_UDP);
         device.addConnection(syslog);
@@ -1252,7 +1254,7 @@ class ArchiveDeviceFactory {
         auditLogger.setAuditSourceTypeCodes("4");
         auditLogger.setAuditRecordRepositoryDevice(arrDevice);
         auditLogger.setSpoolDirectoryURI(AUDIT_LOGGER_SPOOL_DIR_URI);
-        auditLogger.getAuditSuppressCriteriaList().add(newAuditSuppressCriteria());
+        auditLogger.getAuditSuppressCriteriaList().addAll(Arrays.asList(suppressCriteria));
         ext.addAuditLogger(auditLogger);
         device.addDeviceExtension(ext);
     }

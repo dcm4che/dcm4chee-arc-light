@@ -42,7 +42,8 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.net.Connection;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
@@ -63,7 +64,6 @@ import org.dcm4chee.arc.study.StudyMgtContext;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.net.Socket;
 import java.util.HashSet;
 
 
@@ -77,15 +77,18 @@ public class AuditTriggerObserver {
     @Inject
     private AuditService auditService;
 
+    @Inject
+    private Device device;
+
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
-        if (auditService.hasAuditLoggers()) {
+        if (deviceHasAuditLoggers()) {
             AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forApplicationActivity(event);
             auditService.spoolApplicationActivity(et, event.getRequest());
         }
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        if (auditService.hasAuditLoggers()) {
+        if (deviceHasAuditLoggers()) {
             if (ctx.getRejectionNote() != null)
                 auditService.spoolInstancesDeleted(ctx);
             else if (ctx.getStoredInstance() != null || ctx.getException() != null)
@@ -94,12 +97,12 @@ public class AuditTriggerObserver {
     }
 
     public void onQuery(@Observes QueryContext ctx) {
-        if (auditService.hasAuditLoggers())
+        if (deviceHasAuditLoggers())
             auditService.spoolQuery(ctx);
     }
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
-        if (auditService.hasAuditLoggers()) {
+        if (deviceHasAuditLoggers()) {
             HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forBeginTransfer(ctx);
             String etFile = null;
             for (AuditServiceUtils.EventType eventType : et)
@@ -109,7 +112,7 @@ public class AuditTriggerObserver {
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
-        if (auditService.hasAuditLoggers()) {
+        if (deviceHasAuditLoggers()) {
             HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forDicomInstTransferred(ctx);
             if (ctx.failedSOPInstanceUIDs().length > 0)
                 auditService.spoolPartialRetrieve(ctx, et);
@@ -123,48 +126,41 @@ public class AuditTriggerObserver {
     }
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
-        if (auditService.hasAuditLoggers())
+        if (deviceHasAuditLoggers())
             auditService.spoolInstanceStoredOrWadoRetrieve(null, ctx);
     }
 
     public void onStudyDeleted(@Observes StudyDeleteContext ctx) {
-        if (auditService.hasAuditLoggers())
+        if (deviceHasAuditLoggers())
             auditService.spoolStudyDeleted(ctx);
     }
 
     public void onExport(@Observes ExportContext ctx) {
-        if (auditService.hasAuditLoggers())
+        if (deviceHasAuditLoggers())
             auditService.spoolProvideAndRegister(ctx);
     }
 
     public void onConnection(@Observes ConnectionEvent event) {
-        switch (event.getType()) {
-            case ESTABLISHED:
-                onConnectionEstablished(event.getConnection(), event.getRemoteConnection(), event.getSocket());
-                break;
-            case FAILED:
-                onConnectionFailed(event.getConnection(), event.getRemoteConnection(), event.getSocket(),
-                        event.getException());
-                break;
-            case REJECTED:
-                onConnectionRejected(event.getConnection(), event.getSocket(), event.getException());
-                break;
-            case REJECTED_BLACKLISTED:
-                onConnectionRejectedBlacklisted(event.getConnection(), event.getSocket());
-                break;
-            case ACCEPTED:
-                onConnectionAccepted(event.getConnection(), event.getSocket());
-                break;
-        }
+        if (deviceHasAuditLoggers())
+            switch (event.getType()) {
+                case ESTABLISHED:
+                case FAILED:
+                case REJECTED_BLACKLISTED:
+                case ACCEPTED:
+                    break;
+                case REJECTED:
+                    auditService.spoolConnectionRejected(event);
+                    break;
+            }
     }
 
     public void onPatientUpdate(@Observes PatientMgtContext ctx) {
-        if (auditService.hasAuditLoggers())
+        if (deviceHasAuditLoggers())
             auditService.spoolPatientRecord(ctx);
     }
 
     public void onProcedureUpdate(@Observes ProcedureContext ctx) {
-        if (auditService.hasAuditLoggers())
+        if (deviceHasAuditLoggers())
             auditService.spoolProcedureRecord(ctx);
     }
 
@@ -172,39 +168,27 @@ public class AuditTriggerObserver {
         if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create))
             return;
 
-        if (auditService.hasAuditLoggers())
+        if (deviceHasAuditLoggers())
             auditService.spoolProcedureRecord(ctx);
     }
 
     public void onStorageCommit(@Observes StgCmtEventInfo stgCmtEventInfo) {
-        if (auditService.hasAuditLoggers())
+        if (deviceHasAuditLoggers())
             auditService.spoolStgCmt(stgCmtEventInfo);
     }
 
-    private void onConnectionEstablished(Connection conn, Connection remoteConn, Socket s) {
-    }
-
-    private void onConnectionFailed(Connection conn, Connection remoteConn, Socket s, Throwable e) {
-    }
-
-    private void onConnectionRejectedBlacklisted(Connection conn, Socket s) {
-    }
-
-    private void onConnectionRejected(Connection conn, Socket s, Throwable e) {
-        if (auditService.hasAuditLoggers())
-            auditService.spoolConnectionRejected(conn, s, e);
-    }
-
-    private void onConnectionAccepted(Connection conn, Socket s) {
-    }
-
     public void onRejectionNoteSent(@Observes RejectionNoteSent rejectionNoteSent) throws ConfigurationException {
-        if (auditService.hasAuditLoggers())
+        if (deviceHasAuditLoggers())
             auditService.spoolExternalRejection(rejectionNoteSent);
     }
 
     public void onInstancesRetrieved(@Observes InstancesRetrieved instancesRetrieved) throws ConfigurationException {
-        if (auditService.hasAuditLoggers())
+        if (deviceHasAuditLoggers())
             auditService.spoolInstancesRetrieved(instancesRetrieved);
+    }
+
+    private boolean deviceHasAuditLoggers() {
+        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
+        return ext != null && !ext.getAuditLoggers().isEmpty();
     }
 }

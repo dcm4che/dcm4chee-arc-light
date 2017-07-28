@@ -120,7 +120,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
             return;
 
         LdapArchiveConfiguration.loadHL7ForwardRules(ext.getHL7ForwardRules(), appDN, getDicomConfiguration());
-        LdapArchiveConfiguration.loadScheduledStations(ext.getHL7OrderScheduledStations(), appDN, getDicomConfiguration());
+        LdapArchiveConfiguration.loadScheduledStations(ext.getHL7OrderScheduledStations(), appDN, getDicomConfiguration(),
+                hl7App.getDevice());
         LdapArchiveConfiguration.loadHL7OrderSPSStatus(ext.getHL7OrderSPSStatuses(), appDN, getDicomConfiguration());
     }
 
