@@ -50,6 +50,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
@@ -78,7 +79,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-import java.net.Socket;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -103,12 +103,6 @@ public class AuditService {
 
     @Inject
     private IApplicationEntityCache aeCache;
-
-
-    boolean hasAuditLoggers() {
-        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
-        return ext != null && !ext.getAuditLoggers().isEmpty();
-    }
 
     private void aggregateAuditMessage(AuditLogger auditLogger, Path path) throws IOException {
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.fromFile(path);
@@ -369,10 +363,10 @@ public class AuditService {
         emitAuditMessage(ei, getApList(ap1, ap2, ap3), getPoiList(studyPOI), auditLogger);
     }
 
-    void spoolConnectionRejected(Connection conn, Socket s, Throwable e) {
+    void spoolConnectionRejected(ConnectionEvent event) {
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
-        BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(s.getRemoteSocketAddress().toString())
-                .calledHost(conn.getHostname()).outcome(e.getMessage()).build();
+        BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(event.getSocket().getRemoteSocketAddress().toString())
+                .calledHost(event.getConnection().getHostname()).outcome(event.getException().getMessage()).build();
         obj.add(new AuditInfo(i));
         String eventType = String.valueOf(AuditServiceUtils.EventType.CONN__RJCT);
         writeSpoolFile(eventType, obj);
@@ -399,7 +393,7 @@ public class AuditService {
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forQuery(ctx);
         AuditInfo auditInfo = ctx.getHttpRequest() != null ? createAuditInfoForQIDO(ctx) : createAuditInfoForFIND(ctx);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
-            if (auditLogger.isInstalled()) {
+            if (!isSpoolingSuppressed(eventType, ctx.getCallingAET(), auditLogger)) {
                 Path directory = Paths.get(StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()),
                                 auditLogger.getCommonName().replaceAll(" ", "_"));
                 try {
@@ -423,6 +417,22 @@ public class AuditService {
                 }
             }
         }
+    }
+
+    private boolean isSpoolingSuppressed(AuditServiceUtils.EventType eventType, String userID, AuditLogger auditLogger) {
+        return !auditLogger.isInstalled()
+                || (!auditLogger.getAuditSuppressCriteriaList().isEmpty()
+                    && auditLogger.isAuditMessageSuppressed(createMinimalAuditMsg(eventType, userID)));
+    }
+
+    private AuditMessage createMinimalAuditMsg(AuditServiceUtils.EventType eventType, String userID) {
+        AuditMessage msg = new AuditMessage();
+        msg.setEventIdentification(getEI(eventType, null, null));
+        ActiveParticipant ap = new ActiveParticipant();
+        ap.setUserID(userID);
+        ap.setUserIsRequestor(true);
+        msg.getActiveParticipant().add(ap);
+        return msg;
     }
 
     void auditAndProcessFile(AuditLogger auditLogger, Path file) {
