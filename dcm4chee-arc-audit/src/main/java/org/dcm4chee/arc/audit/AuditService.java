@@ -179,7 +179,7 @@ public class AuditService {
     }
 
     void spoolInstancesDeleted(StoreContext ctx) {
-        if (isExternalRejectionSameSourceDest(ctx))
+        if (isExternalRejectionSourceDestSame(ctx))
             return;
         Attributes attrs = ctx.getAttributes();
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
@@ -194,7 +194,7 @@ public class AuditService {
         writeSpoolFile(eventType, deleteObjs);
     }
 
-    private boolean isExternalRejectionSameSourceDest(StoreContext ctx) {
+    private boolean isExternalRejectionSourceDestSame(StoreContext ctx) {
         StoreSession ss = ctx.getStoreSession();
         return ctx.getRejectionNote() != null && ss.getHttpRequest() == null && ss.getCallingAET().equals(ss.getCalledAET());
     }
