@@ -53,6 +53,8 @@ import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.Property;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -71,6 +73,8 @@ import java.util.regex.Pattern;
  * @since Jul 2015
  */
 class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LdapArchiveConfiguration.class);
 
     @Override
     protected void storeTo(Device device, Attributes attrs) {
@@ -642,7 +646,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadExportRules(arcdev.getExportRules(), deviceDN);
         loadCompressionRules(arcdev.getCompressionRules(), deviceDN);
         loadStoreAccessControlIDRules(arcdev.getStoreAccessControlIDRules(), deviceDN);
-        loadAttributeCoercions(arcdev.getAttributeCoercions(), deviceDN);
+        loadAttributeCoercions(arcdev.getAttributeCoercions(), deviceDN, device);
         loadQueryRetrieveViews(arcdev, deviceDN);
         loadRejectNotes(arcdev, deviceDN);
         loadStudyRetentionPolicies(arcdev.getStudyRetentionPolicies(), deviceDN);
@@ -934,7 +938,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     @Override
-    protected void loadChilds(ApplicationEntity ae, String aeDN) throws NamingException, ConfigurationException {
+    protected void loadChilds(ApplicationEntity ae, String aeDN, Device device) throws NamingException, ConfigurationException {
         ArchiveAEExtension aeExt = ae.getAEExtension(ArchiveAEExtension.class);
         if (aeExt == null)
             return;
@@ -942,7 +946,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadExportRules(aeExt.getExportRules(), aeDN);
         loadCompressionRules(aeExt.getCompressionRules(), aeDN);
         loadStoreAccessControlIDRules(aeExt.getStoreAccessControlIDRules(), aeDN);
-        loadAttributeCoercions(aeExt.getAttributeCoercions(), aeDN);
+        loadAttributeCoercions(aeExt.getAttributeCoercions(), aeDN, device);
         loadStudyRetentionPolicies(aeExt.getStudyRetentionPolicies(), aeDN);
         loadRSForwardRules(aeExt.getRSForwardRules(), aeDN);
     }
@@ -2160,12 +2164,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "dcmAttributeUpdatePolicy",
                 coercion.getAttributeUpdatePolicy(), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
         LdapUtils.storeNotDef(attrs, "dcmRulePriority", coercion.getPriority(), 0);
-        if (coercion.getSupplementFromDevice() != null)
-            LdapUtils.storeNotNullOrDef(attrs, "dcmSupplementFromDeviceReference", config.deviceRef(coercion.getSupplementFromDeviceName()), null);
+        LdapUtils.storeNotNullOrDef(attrs, "dcmSupplementFromDeviceReference",
+               supplementDeviceRef(coercion), null);
         return attrs;
     }
 
-    private void loadAttributeCoercions(Collection<ArchiveAttributeCoercion> coercions, String parentDN)
+    private void loadAttributeCoercions(Collection<ArchiveAttributeCoercion> coercions, String parentDN, Device device)
             throws NamingException, ConfigurationException {
         NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmArchiveAttributeCoercion)");
         try {
@@ -2192,9 +2196,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setAttributeUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
                         attrs.get("dcmAttributeUpdatePolicy"), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE));
                 coercion.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
-                if (attrs.get("dcmSupplementFromDeviceReference") != null)
-                    coercion.setSupplementFromDevice(config.loadDevice(
-                        LdapUtils.stringValue(attrs.get("dcmSupplementFromDeviceReference"), null)));
+
+                String supplementDeviceDN = LdapUtils.stringValue(attrs.get("dcmSupplementFromDeviceReference"), null);
+                coercion.setSupplementFromDevice(parentDN.equals(supplementDeviceDN)
+                        ? device
+                        : loadSupplementFromDevice(supplementDeviceDN));
                 coercions.add(coercion);
             }
         } finally {
@@ -2202,6 +2208,17 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private Device loadSupplementFromDevice(String supplementDeviceRef) {
+        try {
+            return supplementDeviceRef != null
+                    ? config.loadDevice(supplementDeviceRef)
+                    : null;
+        } catch (ConfigurationException e) {
+            LOG.info("Failed to load Supplement Device Reference "
+                    + supplementDeviceRef + " referenced by Attribute Coercion", e);
+            return null;
+        }
+    }
 
     private List<ModificationItem> storeDiffs(
             ArchiveAttributeCoercion prev, ArchiveAttributeCoercion coercion, ArrayList<ModificationItem> mods) {
@@ -2225,7 +2242,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.getAttributeUpdatePolicy(),
                 org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
         LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), coercion.getPriority(), 0);
-        LdapUtils.storeDiffObject(mods, "dcmSupplementFromDeviceReference", prev.getSupplementFromDevice(), coercion.getSupplementFromDevice(), null);
+        LdapUtils.storeDiffObject(mods, "dcmSupplementFromDeviceReference",
+                supplementDeviceRef(prev),
+                supplementDeviceRef(coercion), null);
         return mods;
     }
 
@@ -2384,4 +2403,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
+    private String supplementDeviceRef(ArchiveAttributeCoercion a) {
+        Device supplementDevice = a.getSupplementFromDevice();
+        return supplementDevice != null
+                ? config.deviceRef(supplementDevice.getDeviceName())
+                : null;
+    }
 }

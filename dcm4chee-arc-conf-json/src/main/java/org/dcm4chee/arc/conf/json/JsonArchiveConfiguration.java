@@ -52,6 +52,8 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.util.Property;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.json.stream.JsonParser;
 import java.lang.reflect.Array;
@@ -69,6 +71,8 @@ import java.util.regex.Pattern;
  * @since Jan 2016
  */
 public class JsonArchiveConfiguration extends JsonConfigurationExtension {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JsonArchiveConfiguration.class);
 
     @Override
     protected void storeTo(Device device, JsonWriter writer) {
@@ -424,7 +428,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmMergeMWLMatchingKey", aac.getMergeMWLMatchingKey(), null);
             writer.writeNotNullOrDef("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI(), null);
             writer.writeNotNullOrDef("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy(), null);
-            writer.writeNotNullOrDef("dcmSupplementFromDeviceReference", aac.getSupplementFromDevice(), null);
+            writer.writeNotNullOrDef("dcmSupplementFromDeviceName", aac.getSupplementFromDevice(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1423,8 +1427,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmAttributeUpdatePolicy":
                         aac.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
                         break;
-                    case "dcmSupplementFromDeviceReference":
-                        aac.setSupplementFromDevice(config.findDevice(reader.stringValue()));
+                    case "dcmSupplementFromDeviceName":
+                        aac.setSupplementFromDevice(loadSupplementFromDevice(config, reader.stringValue()));
                         break;
                     default:
                         reader.skipUnknownProperty();
@@ -1434,6 +1438,18 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             coercions.add(aac);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private Device loadSupplementFromDevice(ConfigurationDelegate config, String supplementDeviceRef) throws ConfigurationException {
+        try {
+            return supplementDeviceRef != null
+                    ? config.findDevice(supplementDeviceRef)
+                    : null;
+        } catch (ConfigurationException e) {
+            LOG.info("Failed to load Supplement Device Reference "
+                    + supplementDeviceRef + " referenced by Attribute Coercion", e);
+            return null;
+        }
     }
 
     private void loadRejectionNoteFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
