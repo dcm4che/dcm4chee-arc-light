@@ -86,24 +86,32 @@ class ArchiveDeviceFactory {
             "storescp",
             "mppsscp",
             "ianscp",
-            "storescu",
-            "mppsscu",
             "findscu",
             "getscu",
             "movescu",
             "hl7snd"
     };
+
+    static final String[] SUPPLEMENT_DEVICES = {
+            "storescu",
+            "mppsscu"
+    };
+
     static final String[] OTHER_AES = {
             "DCMQRSCP",
             "STGCMTSCU",
             "STORESCP",
             "MPPSSCP",
             "IANSCP",
-            "STORESCU",
-            "MPPSSCU",
             "FINDSCU",
             "GETSCU"
     };
+
+    static final String[] SUPPLEMENT_AES = {
+            "STORESCU",
+            "MPPSSCU"
+    };
+
     static final Issuer SITE_A =
             new Issuer("Site A", "1.2.40.0.13.1.1.999.111.1111", "ISO");
     static final Issuer SITE_B =
@@ -116,8 +124,6 @@ class ArchiveDeviceFactory {
             SITE_A, // STORESCP
             SITE_A, // MPPSSCP
             null, // IANSCP
-            SITE_A, // STORESCU
-            SITE_A, // MPPSSCU
             SITE_A, // FINDSCU
             SITE_A, // GETSCU
     };
@@ -129,21 +135,28 @@ class ArchiveDeviceFactory {
             null, // STORESCP
             null, // MPPSSCP
             null, // IANSCP
-            INST_A, // STORESCU
-            null, // MPPSSCU
             null, // FINDSCU
             null, // GETSCU
     };
+
+    static final Code[] SUPPLEMENT_INST_CODES = {
+            INST_A, // STORESCU
+            null, // MPPSSCU
+    };
+
     static final int[] OTHER_PORTS = {
             11113, 2763, // DCMQRSCP
             11114, 2765, // STGCMTSCU
             11115, 2766, // STORESCP
             11116, 2767, // MPPSSCP
             11117, 2768, // IANSCP
-            Connection.NOT_LISTENING, Connection.NOT_LISTENING, // STORESCU
-            Connection.NOT_LISTENING, Connection.NOT_LISTENING, // MPPSSCU
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // FINDSCU
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // GETSCU
+    };
+
+    static final int[] SUPPLEMENT_PORTS = {
+            Connection.NOT_LISTENING, Connection.NOT_LISTENING, // STORESCU
+            Connection.NOT_LISTENING, Connection.NOT_LISTENING, // MPPSSCU
     };
 
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
@@ -923,8 +936,6 @@ class ArchiveDeviceFactory {
             "WSD",
             "DSS",
             "DSS",
-            "CT",
-            "CT",
             "WSD",
             "WSD",
             "WSD",
@@ -1140,7 +1151,7 @@ class ArchiveDeviceFactory {
         return device;
     }
 
-    public static Device createArchiveDevice(String name, Device arrDevice, Device scheduledStation, ConfigType configType)
+    public static Device createArchiveDevice(String name, ConfigType configType, Device[] referencedDevices)
             throws Exception {
         Device device = new Device(name);
         String archiveHost = configType == ConfigType.DOCKER ? "archive-host" : "localhost";
@@ -1164,9 +1175,9 @@ class ArchiveDeviceFactory {
             device.addConnection(dicomTLS);
         }
 
-        addArchiveDeviceExtension(device, scheduledStation, configType);
+        addArchiveDeviceExtension(device, configType, referencedDevices);
         addHL7DeviceExtension(device, configType, archiveHost);
-        addAuditLoggerDeviceExtension(device, arrDevice, archiveHost, suppressAuditQueryFromArchive());
+        addAuditLoggerDeviceExtension(device, referencedDevices[0], archiveHost, suppressAuditQueryFromArchive());
         device.addDeviceExtension(new ImageReaderExtension(ImageReaderFactory.getDefault()));
         device.addDeviceExtension(new ImageWriterExtension(ImageWriterFactory.getDefault()));
 
@@ -1221,7 +1232,7 @@ class ArchiveDeviceFactory {
 
     private static ArchiveAttributeCoercion createAttributeCoercion(
             String cn, Dimse dimse, TransferCapability.Role role, String aet, String xsltURI, String leadingCFindSCP,
-            MergeMWLMatchingKey mergeMWLMatchingKey, ConfigType configType) {
+            MergeMWLMatchingKey mergeMWLMatchingKey, ConfigType configType, String sopClass, Device device) {
         ArchiveAttributeCoercion coercion = new ArchiveAttributeCoercion(cn);
         coercion.setAETitles(aet);
         coercion.setRole(role);
@@ -1239,6 +1250,10 @@ class ArchiveDeviceFactory {
             coercion.setHostNames("localhost", "testenv");
             coercion.setSOPClasses(UID.MPEG2, UID.JPEG2000);
         }
+        if (sopClass != null)
+            coercion.setSOPClasses(sopClass);
+        if (device != null)
+            coercion.setSupplementFromDevice(device);
         return coercion;
     }
 
@@ -1299,7 +1314,7 @@ class ArchiveDeviceFactory {
         }
     }
 
-    private static void addArchiveDeviceExtension(Device device, Device scheduledStation, ConfigType configType) {
+    private static void addArchiveDeviceExtension(Device device, ConfigType configType, Device[] referencedDevices) {
         ArchiveDeviceExtension ext = new ArchiveDeviceExtension();
         device.addDeviceExtension(ext);
         ext.setFuzzyAlgorithmClass("org.dcm4che3.soundex.ESoundex");
@@ -1363,7 +1378,7 @@ class ArchiveDeviceFactory {
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
         ext.setAttributeFilter(Entity.MWL, new AttributeFilter(MWL_ATTRS));
 
-        ext.addHL7OrderScheduledStation(newScheduledStation(scheduledStation));
+        ext.addHL7OrderScheduledStation(newScheduledStation(referencedDevices[1]));
 
         if (configType == configType.TEST) {
             ext.getAttributeFilter(Entity.Patient).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));
@@ -1569,16 +1584,34 @@ class ArchiveDeviceFactory {
             ext.addStudyRetentionPolicy(THIN_SLICE);
 
             ext.addAttributeCoercion(createAttributeCoercion(
-                    "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID, null, null, configType));
+                    "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID, null,
+                    null, configType, null, null));
+
             ext.addAttributeCoercion(createAttributeCoercion(
                     "Merge MWL", Dimse.C_STORE_RQ, SCU, "MERGE_MWL", null, null,
-                    MergeMWLMatchingKey.StudyInstanceUID, configType));
+                    MergeMWLMatchingKey.StudyInstanceUID, configType, null, null));
+
             ext.addAttributeCoercion(createAttributeCoercion(
-                    "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN, null, null, configType));
+                    "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN, null,
+                    null, configType, null, null));
+
             ext.addAttributeCoercion(createAttributeCoercion(
-                    "Correct VR", Dimse.C_STORE_RQ, SCP, "CORRECT_VR", CORRECT_VR, null, null, configType));
+                    "Correct VR", Dimse.C_STORE_RQ, SCP, "CORRECT_VR", CORRECT_VR, null,
+                    null, configType, null, null));
+
             ext.addAttributeCoercion(createAttributeCoercion(
-                    "Leading DCMQRSCP", Dimse.C_STORE_RQ, SCP, "LEADING_DCMQRSCP", null, "DCMQRSCP", null, configType));
+                    "Leading DCMQRSCP", Dimse.C_STORE_RQ, SCP, "LEADING_DCMQRSCP", null,
+                    "DCMQRSCP", null, configType, null, null));
+
+            if (configType != ConfigType.TEST) {
+                ext.addAttributeCoercion(createAttributeCoercion(
+                        "Supplement Composite", Dimse.C_STORE_RQ, SCU, "SUPPLEMENT_COMPOSITE", null,
+                        null, null, configType, null, referencedDevices[2]));
+
+                ext.addAttributeCoercion(createAttributeCoercion(
+                        "Supplement MPPS", Dimse.N_CREATE_RQ, SCU, "SUPPLEMENT_MPPS", null,
+                        null, null, configType, "1.2.840.10008.3.1.2.3.3", referencedDevices[3]));
+            }
 
             StoreAccessControlIDRule storeAccessControlIDRule =
                     new StoreAccessControlIDRule("StoreAccessControlIDRule1");
@@ -1586,29 +1619,6 @@ class ArchiveDeviceFactory {
             storeAccessControlIDRule.setStoreAccessControlID("ACCESS_CONTROL_ID");
             ext.addStoreAccessControlIDRule(storeAccessControlIDRule);
         }
-    }
-
-    public static void addSupplementAttributeCoercions(Device arcDev, Device storescu, Device mppsscu) {
-        ArchiveDeviceExtension ext = arcDev.getDeviceExtension(ArchiveDeviceExtension.class);
-        ArchiveAttributeCoercion supplementComposite = createAttributeCoercion(
-                "Supplement Composite", Dimse.C_STORE_RQ, SCU, "SUPPLEMENT_COMPOSITE");
-        supplementComposite.setSupplementFromDevice(storescu);
-        ext.getAttributeCoercions().add(supplementComposite);
-
-        ArchiveAttributeCoercion supplementMPPS = createAttributeCoercion(
-                "Supplement MPPS", Dimse.N_CREATE_RQ, SCU, "SUPPLEMENT_MPPS");
-        supplementMPPS.setSOPClasses("1.2.840.10008.3.1.2.3.3");
-        supplementMPPS.setSupplementFromDevice(mppsscu);
-        ext.getAttributeCoercions().add(supplementMPPS);
-    }
-
-    private static ArchiveAttributeCoercion createAttributeCoercion(
-            String cn, Dimse dimse, TransferCapability.Role role, String aet) {
-        ArchiveAttributeCoercion coercion = new ArchiveAttributeCoercion(cn);
-        coercion.setAETitles(aet);
-        coercion.setRole(role);
-        coercion.setDIMSE(dimse);
-        return coercion;
     }
 
     private static AttributeSet newAttributeSet(AttributeSet.Type type, int number, String id, String title, String desc, int[] tags) {

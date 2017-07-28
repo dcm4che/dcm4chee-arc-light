@@ -69,11 +69,8 @@ public class ArchiveDeviceJsonConfigurationTest {
 
     @Test
     public void testJsonPersist() throws Exception {
-        Device arrDevice = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
-                ArchiveDeviceFactory.ConfigType.TEST);
-        Device scheduledStation = ArchiveDeviceFactory.createScheduledStation("scheduledstation", "SCHEDULEDSTATION", "localhost", 104);
-        Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", arrDevice, scheduledStation,
-                ArchiveDeviceFactory.ConfigType.TEST);
+        Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc",
+                ArchiveDeviceFactory.ConfigType.TEST, getReferencedDevices());
         JsonConfiguration jsonConfig = JsonConfigurationProducer.newJsonConfiguration();
         Path path = Paths.get("target/device.json");
         try ( BufferedWriter w = Files.newBufferedWriter(path, Charset.forName("UTF-8"));
@@ -99,4 +96,12 @@ public class ArchiveDeviceJsonConfigurationTest {
                 throw new ConfigurationNotFoundException("Unknown Device: " + name);
         }
     };
+
+    private Device[] getReferencedDevices() throws Exception {
+        Device[] referencedDevices = new Device[2];
+        referencedDevices[0] = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
+                ArchiveDeviceFactory.ConfigType.TEST);
+        referencedDevices[1] = ArchiveDeviceFactory.createScheduledStation("scheduledstation", "SCHEDULEDSTATION", "localhost", 104);
+        return referencedDevices;
+    }
 }
