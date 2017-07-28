@@ -938,7 +938,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     @Override
-    protected void loadChilds(ApplicationEntity ae, String aeDN, Device device) throws NamingException, ConfigurationException {
+    protected void loadChilds(ApplicationEntity ae, String aeDN) throws NamingException, ConfigurationException {
         ArchiveAEExtension aeExt = ae.getAEExtension(ArchiveAEExtension.class);
         if (aeExt == null)
             return;
@@ -946,7 +946,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadExportRules(aeExt.getExportRules(), aeDN);
         loadCompressionRules(aeExt.getCompressionRules(), aeDN);
         loadStoreAccessControlIDRules(aeExt.getStoreAccessControlIDRules(), aeDN);
-        loadAttributeCoercions(aeExt.getAttributeCoercions(), aeDN, device);
+        loadAttributeCoercions(aeExt.getAttributeCoercions(), aeDN, ae.getDevice());
         loadStudyRetentionPolicies(aeExt.getStudyRetentionPolicies(), aeDN);
         loadRSForwardRules(aeExt.getRSForwardRules(), aeDN);
     }
