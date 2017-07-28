@@ -483,7 +483,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         for (HL7OrderScheduledStation station : stations) {
             writer.writeStartObject();
             writer.writeNotNullOrDef("cn", station.getCommonName(), null);
-            writer.writeNotNullOrDef("hl7OrderScheduledStationDeviceReference", station.getDeviceName(), null);
+            writer.writeNotNullOrDef("hl7OrderScheduledStationDeviceName", station.getDeviceName(), null);
             writer.writeNotDef("dcmRulePriority", station.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(station.getConditions().getMap()));
             writer.writeEnd();
@@ -1452,6 +1452,16 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         }
     }
 
+    private static Device loadScheduledStation(ConfigurationDelegate config, String scheduledStationDeviceRef) throws ConfigurationException {
+        try {
+            return config.findDevice(scheduledStationDeviceRef);
+        } catch (ConfigurationException e) {
+            LOG.info("Failed to load Scheduled Station Device Reference "
+                    + scheduledStationDeviceRef + " referenced by HL7 Order Scheduled Station", e);
+            return null;
+        }
+    }
+
     private void loadRejectionNoteFrom(ArchiveDeviceExtension arcDev, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
@@ -1572,8 +1582,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "cn":
                         station.setCommonName(reader.stringValue());
                         break;
-                    case "hl7OrderScheduledStationDeviceReference":
-                        station.setDevice(config.findDevice(reader.stringValue()));
+                    case "hl7OrderScheduledStationDeviceName":
+                        station.setDevice(loadScheduledStation(config, reader.stringValue()));
                         break;
                     case "dcmRulePriority":
                         station.setPriority(reader.intValue());

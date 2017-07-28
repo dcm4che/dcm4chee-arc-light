@@ -654,7 +654,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadHL7ForwardRules(arcdev.getHL7ForwardRules(), deviceDN, config);
         loadRSForwardRules(arcdev.getRSForwardRules(), deviceDN);
         loadAttributeSet(arcdev, deviceDN);
-        loadScheduledStations(arcdev.getHL7OrderScheduledStations(), deviceDN, config);
+        loadScheduledStations(arcdev.getHL7OrderScheduledStations(), deviceDN, config, device);
         loadHL7OrderSPSStatus(arcdev.getHL7OrderSPSStatuses(), deviceDN, config);
     }
 
@@ -1706,7 +1706,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private static Attributes storeTo(HL7OrderScheduledStation station, BasicAttributes attrs, LdapDicomConfiguration config) {
         attrs.put("objectclass", "hl7OrderScheduledStation");
         attrs.put("cn", station.getCommonName());
-        LdapUtils.storeNotNullOrDef(attrs, "hl7OrderScheduledStationDeviceReference", config.deviceRef(station.getDeviceName()), null);
+        LdapUtils.storeNotNullOrDef(attrs, "hl7OrderScheduledStationDeviceReference",
+                scheduledStationDeviceRef(station, config), null);
         LdapUtils.storeNotDef(attrs, "dcmRulePriority", station.getPriority(), 0);
         LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(station.getConditions().getMap()));
         return attrs;
@@ -1795,7 +1796,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     protected static void loadScheduledStations(
-            Collection<HL7OrderScheduledStation> stations, String parentDN, LdapDicomConfiguration config)
+            Collection<HL7OrderScheduledStation> stations, String parentDN, LdapDicomConfiguration config, Device device)
             throws NamingException, ConfigurationException {
         NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=hl7OrderScheduledStation)");
         try {
@@ -1803,14 +1804,26 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
                 HL7OrderScheduledStation station = new HL7OrderScheduledStation(LdapUtils.stringValue(attrs.get("cn"), null));
-                station.setDevice(config.loadDevice(
-                        LdapUtils.stringValue(attrs.get("hl7OrderScheduledStationDeviceReference"), null)));
+                String scheduledStationDeviceRef = LdapUtils.stringValue(attrs.get("hl7OrderScheduledStationDeviceReference"), null);
+                station.setDevice(parentDN.equals(scheduledStationDeviceRef)
+                                    ? device
+                                    : loadScheduledStation(scheduledStationDeviceRef, config));
                 station.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
                 station.setConditions(new HL7Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
                 stations.add(station);
             }
         } finally {
             LdapUtils.safeClose(ne);
+        }
+    }
+
+    private static Device loadScheduledStation(String scheduledStationDeviceRef, LdapDicomConfiguration config) {
+        try {
+            return config.loadDevice(scheduledStationDeviceRef);
+        } catch (ConfigurationException e) {
+            LOG.info("Failed to load Scheduled Station device "
+                    + scheduledStationDeviceRef + " referenced by HL7 Order Scheduled Station", e);
+            return null;
         }
     }
 
@@ -1922,7 +1935,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             if (prevStation == null)
                 config.createSubcontext(dn, storeTo(station, new BasicAttributes(true), config));
             else
-                config.modifyAttributes(dn, storeDiffs(prevStation, station, new ArrayList<ModificationItem>()));
+                config.modifyAttributes(dn, storeDiffs(prevStation, station, new ArrayList<ModificationItem>(), config));
         }
     }
 
@@ -2000,9 +2013,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return mods;
     }
 
-    private static List<ModificationItem> storeDiffs(
-            HL7OrderScheduledStation prev, HL7OrderScheduledStation station, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(mods, "hl7OrderScheduledStationDeviceReference", prev.getDeviceName(), station.getDeviceName(), null);
+    private static List<ModificationItem> storeDiffs(HL7OrderScheduledStation prev, HL7OrderScheduledStation station,
+                                                     ArrayList<ModificationItem> mods, LdapDicomConfiguration config) {
+        LdapUtils.storeDiffObject(mods, "hl7OrderScheduledStationDeviceReference",
+                scheduledStationDeviceRef(prev, config),
+                scheduledStationDeviceRef(station, config), null);
         LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), station.getPriority(), 0);
         return mods;
     }
@@ -2196,7 +2211,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setAttributeUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
                         attrs.get("dcmAttributeUpdatePolicy"), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE));
                 coercion.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
-
                 String supplementDeviceDN = LdapUtils.stringValue(attrs.get("dcmSupplementFromDeviceReference"), null);
                 coercion.setSupplementFromDevice(parentDN.equals(supplementDeviceDN)
                         ? device
@@ -2407,6 +2421,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         Device supplementDevice = a.getSupplementFromDevice();
         return supplementDevice != null
                 ? config.deviceRef(supplementDevice.getDeviceName())
+                : null;
+    }
+
+    private static String scheduledStationDeviceRef(HL7OrderScheduledStation scheduledStation, LdapDicomConfiguration config) {
+        Device scheduledStationDevice = scheduledStation.getDevice();
+        return scheduledStationDevice != null
+                ? config.deviceRef(scheduledStationDevice.getDeviceName())
                 : null;
     }
 }
