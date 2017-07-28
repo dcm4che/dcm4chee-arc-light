@@ -42,7 +42,6 @@ package org.dcm4chee.arc.code.impl;
 
 import org.dcm4che3.data.Code;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.code.CodeService;
 import org.dcm4chee.arc.entity.CodeEntity;
 
 import javax.ejb.Stateless;
