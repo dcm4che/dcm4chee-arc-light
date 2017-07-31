@@ -428,10 +428,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmMergeMWLMatchingKey", aac.getMergeMWLMatchingKey(), null);
             writer.writeNotNullOrDef("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI(), null);
             writer.writeNotNullOrDef("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy(), null);
-            writer.writeNotNullOrDef("dcmSupplementFromDeviceName", aac.getSupplementFromDevice(), null);
+            writer.writeNotNullOrDef("dcmSupplementFromDeviceName", deviceNameOf(aac.getSupplementFromDevice()), null);
             writer.writeEnd();
         }
         writer.writeEnd();
+    }
+
+    private static String deviceNameOf(Device device) {
+        return device != null ? device.getDeviceName() : null;
     }
 
     protected void writeRejectionNote(JsonWriter writer, Collection<RejectionNote> rejectionNoteList) {
@@ -483,7 +487,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         for (HL7OrderScheduledStation station : stations) {
             writer.writeStartObject();
             writer.writeNotNullOrDef("cn", station.getCommonName(), null);
-            writer.writeNotNullOrDef("hl7OrderScheduledStationDeviceName", station.getDeviceName(), null);
+            writer.writeNotNullOrDef("hl7OrderScheduledStationDeviceName", deviceNameOf(station.getDevice()), null);
             writer.writeNotDef("dcmRulePriority", station.getPriority(), 0);
             writer.writeNotEmpty("dcmProperty", toStrings(station.getConditions().getMap()));
             writer.writeEnd();

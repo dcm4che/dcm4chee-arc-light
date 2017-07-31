@@ -25,6 +25,7 @@ dicomInstalled: TRUE
 dicomDeviceName: hl7snd
 objectClass: dicomDevice
 objectClass: dcmDevice
+dicomPrimaryDeviceType: DSS
 
 dn: dicomDeviceName=ianscp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
@@ -44,9 +45,12 @@ dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 
 dn: dicomDeviceName=movescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
+dicomIssuerOfPatientID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 dicomDeviceName: movescu
 objectClass: dicomDevice
 objectClass: dcmDevice
+dicomPrimaryDeviceType: WSD
+dicomIssuerOfAccessionNumber: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
 
 dn: dicomDeviceName=mppsscp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
@@ -297,6 +301,29 @@ dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=findscu,cn=Devices
 dicomAETitle: FINDSCU
 dicomAssociationAcceptor: TRUE
 
+dn: cn=dicom,dicomDeviceName=movescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomHostname: localhost
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+cn: dicom
+
+dn: cn=dicom-tls,dicomDeviceName=movescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomHostname: localhost
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dicomTLSCipherSuite: TLS_RSA_WITH_AES_128_CBC_SHA
+dicomTLSCipherSuite: SSL_RSA_WITH_3DES_EDE_CBC_SHA
+cn: dicom-tls
+
+dn: dicomAETitle=MOVESCU,dicomDeviceName=movescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAssociationInitiator: TRUE
+objectClass: dicomNetworkAE
+objectClass: dcmNetworkAE
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=movescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=movescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: MOVESCU
+dicomAssociationAcceptor: TRUE
+
 dn: cn=dicom,dicomDeviceName=mppsscp,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomHostname: localhost
 dicomPort: 11116
@@ -533,6 +560,7 @@ dicomTransferRole: SCU
 dcmMergeMWLMatchingKey: StudyInstanceUID
 dcmMergeMWLTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/mwl2series.xsl
 objectClass: dcmArchiveAttributeCoercion
+dcmNoKeywords: TRUE
 cn: Merge MWL
 
 dn: cn=Correct VR,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -838,6 +866,15 @@ dcmEntity: Series
 dcmProperty: SendingApplicationEntityTitle=WADO
 objectClass: dcmExportRule
 cn: Forward to WADO
+
+dn: cn=Supplement MPPS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmSOPClass: 1.2.840.10008.3.1.2.3.3
+dcmDIMSE: N_CREATE_RQ
+dcmAETitle: MPPSSCU
+dicomTransferRole: SCU
+objectClass: dcmArchiveAttributeCoercion
+dcmSupplementFromDeviceReference: dicomDeviceName=mppsscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+cn: Supplement MPPS
 
 dn: dcmEntity=Instance,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmTag: 00080005
@@ -1176,6 +1213,14 @@ cn: Image Reader Factory
 dn: cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmImageWriterFactory
 cn: Image Writer Factory
+
+dn: cn=Supplement Composite,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmDIMSE: C_STORE_RQ
+dcmAETitle: STORESCU
+dicomTransferRole: SCU
+objectClass: dcmArchiveAttributeCoercion
+dcmSupplementFromDeviceReference: dicomDeviceName=storescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+cn: Supplement Composite
 
 dn: dcmExporterID=DCM4CHEE:,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: DCM4CHEE:
@@ -9600,6 +9645,10 @@ dicomAETitle: IANSCP
 dn: dicomAETitle=FINDSCU,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dicomUniqueAETitle
 dicomAETitle: FINDSCU
+
+dn: dicomAETitle=MOVESCU,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomUniqueAETitle
+dicomAETitle: MOVESCU
 
 dn: dicomAETitle=MPPSSCP,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dicomUniqueAETitle

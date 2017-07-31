@@ -82,112 +82,126 @@ public class ArchiveAttributeCoercion {
         return commonName;
     }
 
-    public void setCommonName(String commonName) {
+    public ArchiveAttributeCoercion setCommonName(String commonName) {
         this.commonName = commonName;
+        return this;
     }
 
     public int getPriority() {
         return priority;
     }
 
-    public void setPriority(int priority) {
+    public ArchiveAttributeCoercion setPriority(int priority) {
         this.priority = priority;
+        return this;
     }
 
     public Dimse getDIMSE() {
         return dimse;
     }
 
-    public void setDIMSE(Dimse dimse) {
+    public ArchiveAttributeCoercion setDIMSE(Dimse dimse) {
         this.dimse = dimse;
+        return this;
     }
 
     public TransferCapability.Role getRole() {
         return role;
     }
 
-    public void setRole(TransferCapability.Role role) {
+    public ArchiveAttributeCoercion setRole(TransferCapability.Role role) {
         this.role = role;
+        return this;
     }
 
     public String[] getSOPClasses() {
         return sopClasses;
     }
 
-    public void setSOPClasses(String... sopClasses) {
+    public ArchiveAttributeCoercion setSOPClasses(String... sopClasses) {
         this.sopClasses = sopClasses;
+        return this;
     }
 
     public String[] getAETitles() {
         return aeTitles;
     }
 
-    public void setAETitles(String... aeTitles) {
+    public ArchiveAttributeCoercion setAETitles(String... aeTitles) {
         this.aeTitles = aeTitles;
+        return this;
     }
 
     public String[] getHostNames() {
         return hostNames;
     }
 
-    public void setHostNames(String... hostNames) {
+    public ArchiveAttributeCoercion setHostNames(String... hostNames) {
         this.hostNames = hostNames;
+        return this;
     }
 
     public String getXSLTStylesheetURI() {
         return xsltStylesheetURI;
     }
 
-    public void setXSLTStylesheetURI(String xsltStylesheetURI) {
+    public ArchiveAttributeCoercion setXSLTStylesheetURI(String xsltStylesheetURI) {
         this.xsltStylesheetURI = xsltStylesheetURI;
+        return this;
     }
 
     public boolean isNoKeywords() {
         return noKeywords;
     }
 
-    public void setNoKeywords(boolean noKeywords) {
+    public ArchiveAttributeCoercion setNoKeywords(boolean noKeywords) {
         this.noKeywords = noKeywords;
+        return this;
     }
 
     public String getLeadingCFindSCP() {
         return leadingCFindSCP;
     }
 
-    public void setLeadingCFindSCP(String leadingCFindSCP) {
+    public ArchiveAttributeCoercion setLeadingCFindSCP(String leadingCFindSCP) {
         this.leadingCFindSCP = leadingCFindSCP;
+        return this;
     }
 
     public int[] getLeadingCFindSCPReturnKeys() {
         return leadingCFindSCPReturnKeys;
     }
 
-    public void setLeadingCFindSCPReturnKeys(int[] leadingCFindSCPReturnKeys) {
+    public ArchiveAttributeCoercion setLeadingCFindSCPReturnKeys(int[] leadingCFindSCPReturnKeys) {
         this.leadingCFindSCPReturnKeys = leadingCFindSCPReturnKeys;
+        return this;
     }
 
     public MergeMWLMatchingKey getMergeMWLMatchingKey() {
         return mergeMWLMatchingKey;
     }
 
-    public void setMergeMWLMatchingKey(MergeMWLMatchingKey mergeMWLMatchingKey) {
+    public ArchiveAttributeCoercion setMergeMWLMatchingKey(MergeMWLMatchingKey mergeMWLMatchingKey) {
         this.mergeMWLMatchingKey = mergeMWLMatchingKey;
+        return this;
     }
 
     public String getMergeMWLTemplateURI() {
         return mergeMWLTemplateURI;
     }
 
-    public void setMergeMWLTemplateURI(String mergeMWLTemplateURI) {
+    public ArchiveAttributeCoercion setMergeMWLTemplateURI(String mergeMWLTemplateURI) {
         this.mergeMWLTemplateURI = mergeMWLTemplateURI;
+        return this;
     }
 
     public Attributes.UpdatePolicy getAttributeUpdatePolicy() {
         return attributeUpdatePolicy;
     }
 
-    public void setAttributeUpdatePolicy(Attributes.UpdatePolicy attributeUpdatePolicy) {
+    public ArchiveAttributeCoercion setAttributeUpdatePolicy(Attributes.UpdatePolicy attributeUpdatePolicy) {
         this.attributeUpdatePolicy = attributeUpdatePolicy;
+        return this;
     }
 
     public final Device getSupplementFromDevice() {
@@ -200,8 +214,9 @@ public class ArchiveAttributeCoercion {
         return supplementFromDevice.getDeviceName();
     }
 
-    public void setSupplementFromDevice(Device supplementFromDevice) {
+    public ArchiveAttributeCoercion setSupplementFromDevice(Device supplementFromDevice) {
         this.supplementFromDevice = supplementFromDevice;
+        return this;
     }
 
     public boolean match(String hostName, String aet, TransferCapability.Role role, Dimse dimse, String sopClass) {

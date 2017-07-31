@@ -89,55 +89,42 @@ public class ArchiveDeviceConfigurationTest {
         ArchiveDeviceFactory.ConfigType configType =
                 ArchiveDeviceFactory.ConfigType.valueOf(
                         System.getProperty("configType", ArchiveDeviceFactory.ConfigType.DEFAULT.name()));
+        Device arrDevice = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514, configType);
+        Device[] otherDevices = new Device[ArchiveDeviceFactory.OTHER_DEVICES.length];
         EnumSet<DicomConfiguration.Option> register = EnumSet.of(DicomConfiguration.Option.REGISTER);
-        Device[] referencedDevices = new Device[4];
-        referencedDevices[0] = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514, configType);
-        config.persist(referencedDevices[0], register);
-        referencedDevices[1] = ArchiveDeviceFactory.createScheduledStation("scheduledstation", "SCHEDULEDSTATION", "localhost", 104);
-        config.persist(referencedDevices[1], register);
-
+        config.persist(arrDevice, register);
+        config.persist(otherDevices[0] = ArchiveDeviceFactory.createOtherDevice(0), register);
         if (configType == ArchiveDeviceFactory.ConfigType.SAMPLE) {
-            for (int i = 0; i < ArchiveDeviceFactory.OTHER_AES.length; i++) {
-                String aet = ArchiveDeviceFactory.OTHER_AES[i];
-                config.persist(
-                        ArchiveDeviceFactory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i], ArchiveDeviceFactory.DEVICE_TYPES[i],
-                            ArchiveDeviceFactory.OTHER_ISSUER[i],
-                            ArchiveDeviceFactory.OTHER_INST_CODES[i],
-                            aet, "localhost",
-                            ArchiveDeviceFactory.OTHER_PORTS[i << 1],
-                            ArchiveDeviceFactory.OTHER_PORTS[(i << 1) + 1]),
-                        register);
-            }
-            for (int i = ArchiveDeviceFactory.OTHER_AES.length; i < ArchiveDeviceFactory.OTHER_DEVICES.length; i++)
-                config.persist(
-                        ArchiveDeviceFactory.createDevice(ArchiveDeviceFactory.OTHER_DEVICES[i], configType), register);
-
-            for (int i = 0; i < ArchiveDeviceFactory.SUPPLEMENT_AES.length; i++) {
-                String aet = ArchiveDeviceFactory.SUPPLEMENT_AES[i];
-                referencedDevices[i+2] = ArchiveDeviceFactory.createDevice(ArchiveDeviceFactory.SUPPLEMENT_DEVICES[i], "CT",
-                                            ArchiveDeviceFactory.SITE_A,
-                                            ArchiveDeviceFactory.SUPPLEMENT_INST_CODES[i],
-                                            aet, "localhost",
-                                            ArchiveDeviceFactory.SUPPLEMENT_PORTS[i << 1],
-                                            ArchiveDeviceFactory.SUPPLEMENT_PORTS[(i << 1) + 1]);
-                config.persist(referencedDevices[i+2], register);
+            for (int i = 1; i < ArchiveDeviceFactory.OTHER_DEVICES.length; i++) {
+                config.persist(otherDevices[i] = ArchiveDeviceFactory.createOtherDevice(i), register);
             }
             config.persist(
-                    ArchiveDeviceFactory.createHL7Device("hl7rcv",
-                        ArchiveDeviceFactory.SITE_A,
-                        ArchiveDeviceFactory.INST_A,
-                        ArchiveDeviceFactory.PIX_MANAGER,
-                        "localhost", 2576, 12576), register);
+                    ArchiveDeviceFactory.qualifyDevice(
+                            ArchiveDeviceFactory.createHL7Device(
+                                    "hl7rcv",
+                                    ArchiveDeviceFactory.PIX_MANAGER,
+                                    "localhost",
+                                    2576,
+                                    12576),
+                            "DSS",
+                            ArchiveDeviceFactory.SITE_A,
+                            ArchiveDeviceFactory.INST_A),
+                    register);
         }
 
-        Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", configType, referencedDevices);
+        Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc", configType,
+                arrDevice,
+                otherDevices[ArchiveDeviceFactory.SCHEDULED_STATION_INDEX],
+                otherDevices[ArchiveDeviceFactory.STORESCU_INDEX],
+                otherDevices[ArchiveDeviceFactory.MPPSSCU_INDEX]
+        );
 
         X509Certificate cacert = (X509Certificate) keyStore.getCertificate("cacert");
         String deviceRef = config.deviceRef("dcm4chee-arc");
         arc.setAuthorizedNodeCertificates(deviceRef, cacert);
         config.persist(arc, register);
 
-        Device keycloak = ArchiveDeviceFactory.createKeycloakDevice("keycloak", referencedDevices[0], configType);
+        Device keycloak = ArchiveDeviceFactory.createKeycloakDevice("keycloak", arrDevice, configType);
         config.persist(keycloak, null);
         ApplicationEntity ae = config.findApplicationEntity("DCM4CHEE");
         assertNotNull(ae);

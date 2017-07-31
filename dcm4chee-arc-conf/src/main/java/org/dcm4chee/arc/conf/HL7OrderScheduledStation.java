@@ -82,12 +82,6 @@ public class HL7OrderScheduledStation {
         return device;
     }
 
-    public String getDeviceName() {
-        if (device == null)
-            throw new IllegalStateException("Device not initalized");
-        return device.getDeviceName();
-    }
-
     public void setDevice(Device device) {
         this.device = device;
     }

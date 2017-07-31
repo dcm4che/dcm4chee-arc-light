@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.data.*;
 import org.dcm4che3.imageio.codec.ImageReaderFactory;
 import org.dcm4che3.imageio.codec.ImageWriterFactory;
@@ -77,86 +76,100 @@ class ArchiveDeviceFactory {
     enum ConfigType {
         DEFAULT,
         SAMPLE,
-        DOCKER,
-        TEST
+        DOCKER
     }
     static final String[] OTHER_DEVICES = {
+            "scheduledstation",
             "dcmqrscp",
             "stgcmtscu",
             "storescp",
             "mppsscp",
             "ianscp",
+            "storescu",
+            "mppsscu",
             "findscu",
             "getscu",
             "movescu",
             "hl7snd"
     };
-
-    static final String[] SUPPLEMENT_DEVICES = {
-            "storescu",
-            "mppsscu"
+    static final String[] OTHER_DEVICE_TYPES = {
+            null,
+            "ARCHIVE",
+            "CT",
+            "WSD",
+            "DSS",
+            "DSS",
+            "CT",
+            "CT",
+            "WSD",
+            "WSD",
+            "WSD",
+            "DSS"
     };
-
     static final String[] OTHER_AES = {
+            "SCHEDULEDSTATION",
             "DCMQRSCP",
             "STGCMTSCU",
             "STORESCP",
             "MPPSSCP",
             "IANSCP",
-            "FINDSCU",
-            "GETSCU"
-    };
-
-    static final String[] SUPPLEMENT_AES = {
             "STORESCU",
-            "MPPSSCU"
+            "MPPSSCU",
+            "FINDSCU",
+            "GETSCU",
+            "MOVESCU"
     };
-
+    static final int SCHEDULED_STATION_INDEX = 0;
+    static final int STORESCU_INDEX = 6;
+    static final int MPPSSCU_INDEX = 7;
     static final Issuer SITE_A =
             new Issuer("Site A", "1.2.40.0.13.1.1.999.111.1111", "ISO");
     static final Issuer SITE_B =
             new Issuer("Site B", "1.2.40.0.13.1.1.999.222.2222", "ISO");
+    static final Code INST_A =
+            new Code("111.1111", "99DCM4CHEE", null, "Site A");
     static final Code INST_B =
             new Code("222.2222", "99DCM4CHEE", null, "Site B");
     static final Issuer[] OTHER_ISSUER = {
+            null, // SCHEDULEDSTATION
             SITE_B, // DCMQRSCP
             null, // STGCMTSCU
             SITE_A, // STORESCP
             SITE_A, // MPPSSCP
             null, // IANSCP
+            SITE_A, // STORESCU
+            SITE_A, // MPPSSCU
             SITE_A, // FINDSCU
             SITE_A, // GETSCU
+            SITE_A, // MOVESCU
+            null // hl7snd
     };
-    static final Code INST_A =
-            new Code("111.1111", "99DCM4CHEE", null, "Site A");
     static final Code[] OTHER_INST_CODES = {
+            null, // SCHEDULEDSTATION
             INST_B, // DCMQRSCP
             null, // STGCMTSCU
             null, // STORESCP
             null, // MPPSSCP
             null, // IANSCP
-            null, // FINDSCU
-            null, // GETSCU
-    };
-
-    static final Code[] SUPPLEMENT_INST_CODES = {
             INST_A, // STORESCU
             null, // MPPSSCU
+            null, // FINDSCU
+            null, // GETSCU
+            null, // MOVESCU
+            null, // hl7snd
     };
-
     static final int[] OTHER_PORTS = {
+            104, -2, // SCHEDULEDSTATION
             11113, 2763, // DCMQRSCP
             11114, 2765, // STGCMTSCU
             11115, 2766, // STORESCP
             11116, 2767, // MPPSSCP
             11117, 2768, // IANSCP
-            Connection.NOT_LISTENING, Connection.NOT_LISTENING, // FINDSCU
-            Connection.NOT_LISTENING, Connection.NOT_LISTENING, // GETSCU
-    };
-
-    static final int[] SUPPLEMENT_PORTS = {
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // STORESCU
             Connection.NOT_LISTENING, Connection.NOT_LISTENING, // MPPSSCU
+            Connection.NOT_LISTENING, Connection.NOT_LISTENING, // FINDSCU
+            Connection.NOT_LISTENING, Connection.NOT_LISTENING, // GETSCU
+            Connection.NOT_LISTENING, Connection.NOT_LISTENING, // MOVESCU
     };
 
     static final QueueDescriptor[] QUEUE_DESCRIPTORS = {
@@ -930,18 +943,6 @@ class ArchiveDeviceFactory {
             "ORU^R01"
     };
 
-    static final String[] DEVICE_TYPES = {
-            "ARCHIVE",
-            "CT",
-            "WSD",
-            "DSS",
-            "DSS",
-            "WSD",
-            "WSD",
-            "WSD",
-            "DSS"
-    };
-
     static final String DCM4CHEE_ARC_VERSION = "5.10.5";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
@@ -1071,26 +1072,9 @@ class ArchiveDeviceFactory {
         return arrDevice ;
     }
 
-    public static Device createScheduledStation(String name, String aet, String host, int port) {
-        Device device = new Device(name);
-        ApplicationEntity ae = new ApplicationEntity(aet);
-        ae.setAssociationAcceptor(true);
-        device.addApplicationEntity(ae);
-        Connection dicom = new Connection("dicom", host, port);
-        device.addConnection(dicom);
-        ae.addConnection(dicom);
-        return device;
-    }
-
-    public static Device createDevice(String name, ConfigType configType) throws Exception {
-        return init(new Device(name), null, null);
-    }
-
-    public static Device createDevice(String name, Issuer issuer, Code institutionCode) throws Exception {
-        return init(new Device(name), issuer, institutionCode);
-    }
-
-    private static Device init(Device device, Issuer issuer, Code institutionCode) throws Exception {
+    public static Device qualifyDevice(Device device, String primaryDeviceType, Issuer issuer, Code institutionCode) {
+        if (primaryDeviceType != null)
+            device.setPrimaryDeviceTypes(primaryDeviceType);
         device.setIssuerOfPatientID(issuer);
         device.setIssuerOfAccessionNumber(issuer);
         if (institutionCode != null) {
@@ -1100,31 +1084,47 @@ class ArchiveDeviceFactory {
         return device;
     }
 
-    public static Device createDevice(String name, String primaryDeviceType, Issuer issuer, Code institutionCode, String aet,
-                               String host, int port, int tlsPort) throws Exception {
-        Device device = init(new Device(name), issuer, institutionCode);
+    public static Device createOtherDevice(int i) {
+        return ArchiveDeviceFactory.qualifyDevice(i < OTHER_AES.length
+                    ? ArchiveDeviceFactory.createDevice(
+                            ArchiveDeviceFactory.OTHER_DEVICES[i],
+                            ArchiveDeviceFactory.OTHER_AES[i],
+                            "localhost",
+                            ArchiveDeviceFactory.OTHER_PORTS[i << 1],
+                            ArchiveDeviceFactory.OTHER_PORTS[(i << 1) + 1])
+                    : new Device(ArchiveDeviceFactory.OTHER_DEVICES[i]),
+                ArchiveDeviceFactory.OTHER_DEVICE_TYPES[i],
+                ArchiveDeviceFactory.OTHER_ISSUER[i],
+                ArchiveDeviceFactory.OTHER_INST_CODES[i]);
+    }
+
+    public static Device createDevice(String name, String aet, String host, int port) {
+        return createDevice(name, aet, host, port, -1);
+    }
+
+    public static Device createDevice(String name, String aet, String host, int port, int tlsPort) {
+        Device device = new Device(name);
         ApplicationEntity ae = new ApplicationEntity(aet);
         ae.setAssociationAcceptor(true);
         device.addApplicationEntity(ae);
         Connection dicom = new Connection("dicom", host, port);
         device.addConnection(dicom);
         ae.addConnection(dicom);
-        Connection dicomTLS = new Connection("dicom-tls", host, tlsPort);
-        dicomTLS.setTlsCipherSuites(
-                Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
-                Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
-        device.addConnection(dicomTLS);
-        device.setPrimaryDeviceTypes(primaryDeviceType);
-        ae.addConnection(dicomTLS);
+        if (tlsPort > -2) {
+            Connection dicomTLS = new Connection("dicom-tls", host, tlsPort);
+            dicomTLS.setTlsCipherSuites(
+                    Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
+                    Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
+            device.addConnection(dicomTLS);
+            ae.addConnection(dicomTLS);
+        }
         return device;
     }
 
-    public static Device createHL7Device(String name, Issuer issuer, Code institutionCode, String appName,
-                                     String host, int port, int tlsPort) throws Exception {
+    public static Device createHL7Device(String name, String appName, String host, int port, int tlsPort) {
         Device device = new Device(name);
         HL7DeviceExtension hl7Device = new HL7DeviceExtension();
         device.addDeviceExtension(hl7Device);
-        init(device, issuer, institutionCode);
         HL7Application hl7app = new HL7Application(appName);
         hl7Device.addHL7Application(hl7app);
         Connection hl7 = new Connection("hl7", host, port);
@@ -1138,7 +1138,6 @@ class ArchiveDeviceFactory {
                 Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
         device.addConnection(hl7TLS);
         hl7app.addConnection(hl7TLS);
-        device.setPrimaryDeviceTypes("DSS");
         return device;
     }
 
@@ -1151,8 +1150,8 @@ class ArchiveDeviceFactory {
         return device;
     }
 
-    public static Device createArchiveDevice(String name, ConfigType configType, Device[] referencedDevices)
-            throws Exception {
+    public static Device createArchiveDevice(String name, ConfigType configType, Device arrDevice, Device scheduledStation, Device storescu,
+                                             Device mppsscu)  {
         Device device = new Device(name);
         String archiveHost = configType == ConfigType.DOCKER ? "archive-host" : "localhost";
         Connection dicom = new Connection("dicom", archiveHost, 11112);
@@ -1175,9 +1174,9 @@ class ArchiveDeviceFactory {
             device.addConnection(dicomTLS);
         }
 
-        addArchiveDeviceExtension(device, configType, referencedDevices);
+        addArchiveDeviceExtension(device, configType, storescu, mppsscu, scheduledStation);
         addHL7DeviceExtension(device, configType, archiveHost);
-        addAuditLoggerDeviceExtension(device, referencedDevices[0], archiveHost, suppressAuditQueryFromArchive());
+        addAuditLoggerDeviceExtension(device, arrDevice, archiveHost, suppressAuditQueryFromArchive());
         device.addDeviceExtension(new ImageReaderExtension(ImageReaderFactory.getDefault()));
         device.addDeviceExtension(new ImageWriterExtension(ImageWriterFactory.getDefault()));
 
@@ -1228,33 +1227,6 @@ class ArchiveDeviceFactory {
         policy.setPriority(priority);
         policy.setConditions(conditions);
         return policy;
-    }
-
-    private static ArchiveAttributeCoercion createAttributeCoercion(
-            String cn, Dimse dimse, TransferCapability.Role role, String aet, String xsltURI, String leadingCFindSCP,
-            MergeMWLMatchingKey mergeMWLMatchingKey, ConfigType configType, String sopClass, Device device) {
-        ArchiveAttributeCoercion coercion = new ArchiveAttributeCoercion(cn);
-        coercion.setAETitles(aet);
-        coercion.setRole(role);
-        coercion.setDIMSE(dimse);
-        coercion.setXSLTStylesheetURI(xsltURI);
-        coercion.setNoKeywords(xsltURI != null);
-        coercion.setLeadingCFindSCP(leadingCFindSCP);
-        if (leadingCFindSCP != null)
-            coercion.setLeadingCFindSCPReturnKeys(LEADING_C_FIND_SCP_ATTRS);
-        coercion.setMergeMWLMatchingKey(mergeMWLMatchingKey);
-        if (mergeMWLMatchingKey != null)
-            coercion.setMergeMWLTemplateURI(MERGE_MWL);
-        if (configType == configType.TEST) {
-            coercion.setPriority(3);
-            coercion.setHostNames("localhost", "testenv");
-            coercion.setSOPClasses(UID.MPEG2, UID.JPEG2000);
-        }
-        if (sopClass != null)
-            coercion.setSOPClasses(sopClass);
-        if (device != null)
-            coercion.setSupplementFromDevice(device);
-        return coercion;
     }
 
     private static void addAuditLoggerDeviceExtension(Device device, Device arrDevice, String hostname,
@@ -1314,7 +1286,8 @@ class ArchiveDeviceFactory {
         }
     }
 
-    private static void addArchiveDeviceExtension(Device device, ConfigType configType, Device[] referencedDevices) {
+    private static void addArchiveDeviceExtension(Device device, ConfigType configType,
+                                                  Device storescu, Device mppsscu, Device scheduledStation) {
         ArchiveDeviceExtension ext = new ArchiveDeviceExtension();
         device.addDeviceExtension(ext);
         ext.setFuzzyAlgorithmClass("org.dcm4che3.soundex.ESoundex");
@@ -1322,16 +1295,6 @@ class ArchiveDeviceFactory {
         ext.setQueryRetrieveViewID(HIDE_REJECTED_VIEW.getViewID());
         ext.setExternalRetrieveAEDestination(EXTERNAL_RETRIEVE_AE_DESTINATION);
         ext.setXDSiImagingDocumentSourceAETitle(XDSI_IMAGING_DOCUMENT_SOURCE_AE_TITLE);
-        if (configType == configType.TEST) {
-            ext.setPersonNameComponentOrderInsensitiveMatching(true);
-            ext.setMppsForwardDestinations(MPPS_FORWARD_DESTINATIONS);
-            ext.setFallbackCMoveSCP("QRSCP");
-            ext.setFallbackCMoveSCPDestination("DCM4CHEE");
-            ext.setAlternativeCMoveSCP("DCM4CHEE");
-            ext.setDeleteStudyBatchSize(20);
-            ext.setDeletePatientOnDeleteLastStudy(true);
-            ext.setMaxAccessTimeStaleness(MAX_ACCESS_TIME_STALENESS);
-        }
         ext.addQueryRetrieveView(HIDE_REJECTED_VIEW);
         ext.addQueryRetrieveView(REGULAR_USE_VIEW);
         ext.addQueryRetrieveView(TRASH_VIEW);
@@ -1378,25 +1341,7 @@ class ArchiveDeviceFactory {
         ext.setAttributeFilter(Entity.MPPS, new AttributeFilter(MPPS_ATTRS));
         ext.setAttributeFilter(Entity.MWL, new AttributeFilter(MWL_ATTRS));
 
-        ext.addHL7OrderScheduledStation(newScheduledStation(referencedDevices[1]));
-
-        if (configType == configType.TEST) {
-            ext.getAttributeFilter(Entity.Patient).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));
-            ext.getAttributeFilter(Entity.Patient).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"2\"]"));
-            ext.getAttributeFilter(Entity.Patient).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"3\"]"));
-            ext.getAttributeFilter(Entity.Study).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));
-            ext.getAttributeFilter(Entity.Study).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"2\"]"));
-            ext.getAttributeFilter(Entity.Study).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"3\"]"));
-            ext.getAttributeFilter(Entity.Series).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));
-            ext.getAttributeFilter(Entity.Series).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"2\"]"));
-            ext.getAttributeFilter(Entity.Series).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"3\"]"));
-            ext.getAttributeFilter(Entity.Instance).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));
-            ext.getAttributeFilter(Entity.Instance).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"2\"]"));
-            ext.getAttributeFilter(Entity.Instance).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"3\"]"));
-            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute1(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"1\"]"));
-            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute2(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"2\"]"));
-            ext.getAttributeFilter(Entity.MPPS).setCustomAttribute3(ValueSelector.valueOf("DicomAttribute[@tag=\"0020000D\"]/Value[@number=\"3\"]"));
-        }
+        ext.addHL7OrderScheduledStation(newScheduledStation(scheduledStation));
 
         ext.addIDGenerator(newIDGenerator(IDGenerator.Name.PatientID, "P-%08d"));
         ext.addIDGenerator(newIDGenerator(IDGenerator.Name.AccessionNumber, "A-%08d"));
@@ -1409,9 +1354,6 @@ class ArchiveDeviceFactory {
         storageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
         storageDescriptor.setDigestAlgorithm("MD5");
         storageDescriptor.setInstanceAvailability(Availability.ONLINE);
-        if (configType == configType.TEST) {
-            storageDescriptor.setDeleterThresholdsFromStrings("1GB", "1TB");
-        }
         ext.addStorageDescriptor(storageDescriptor);
 
         for (QueueDescriptor descriptor : QUEUE_DESCRIPTORS)
@@ -1488,7 +1430,7 @@ class ArchiveDeviceFactory {
         dicomExporterAdmin.setAETitle("DCM4CHEE_ADMIN");
         ext.addExporterDescriptor(dicomExporterAdmin);
 
-        if (configType == configType.SAMPLE || configType == configType.TEST) {
+        if (configType == configType.SAMPLE) {
             StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);
             metadataStorageDescriptor.setStorageURIStr(METADATA_STORAGE_URI);
             metadataStorageDescriptor.setProperty("pathFormat", METADATA_PATH_FORMAT);
@@ -1583,35 +1525,61 @@ class ArchiveDeviceFactory {
             ext.addStudyRetentionPolicy(THICK_SLICE);
             ext.addStudyRetentionPolicy(THIN_SLICE);
 
-            ext.addAttributeCoercion(createAttributeCoercion(
-                    "Ensure PID", Dimse.C_STORE_RQ, SCU, "ENSURE_PID", ENSURE_PID, null,
-                    null, configType, null, null));
+            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+                    .setCommonName("Ensure PID")
+                    .setDIMSE(Dimse.C_STORE_RQ)
+                    .setRole(SCU)
+                    .setAETitles("ENSURE_PID")
+                    .setXSLTStylesheetURI(ENSURE_PID)
+                    .setNoKeywords(true));
 
-            ext.addAttributeCoercion(createAttributeCoercion(
-                    "Merge MWL", Dimse.C_STORE_RQ, SCU, "MERGE_MWL", null, null,
-                    MergeMWLMatchingKey.StudyInstanceUID, configType, null, null));
+            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+                    .setCommonName("Merge MWL")
+                    .setDIMSE(Dimse.C_STORE_RQ)
+                    .setRole(SCU)
+                    .setAETitles("MERGE_MWL")
+                    .setMergeMWLMatchingKey(MergeMWLMatchingKey.StudyInstanceUID)
+                    .setMergeMWLTemplateURI(MERGE_MWL)
+                    .setNoKeywords(true));
 
-            ext.addAttributeCoercion(createAttributeCoercion(
-                    "Nullify PN", Dimse.C_STORE_RQ, SCP, "NULLIFY_PN", NULLIFY_PN, null,
-                    null, configType, null, null));
+            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+                    .setCommonName("Nullify PN")
+                    .setDIMSE(Dimse.C_STORE_RQ)
+                    .setRole(SCP)
+                    .setAETitles("NULLIFY_PN")
+                    .setXSLTStylesheetURI(NULLIFY_PN)
+                    .setNoKeywords(true));
 
-            ext.addAttributeCoercion(createAttributeCoercion(
-                    "Correct VR", Dimse.C_STORE_RQ, SCP, "CORRECT_VR", CORRECT_VR, null,
-                    null, configType, null, null));
+            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+                    .setCommonName("Correct VR")
+                    .setDIMSE(Dimse.C_STORE_RQ)
+                    .setRole(SCP)
+                    .setAETitles("CORRECT_VR")
+                    .setXSLTStylesheetURI(CORRECT_VR)
+                    .setNoKeywords(true));
 
-            ext.addAttributeCoercion(createAttributeCoercion(
-                    "Leading DCMQRSCP", Dimse.C_STORE_RQ, SCP, "LEADING_DCMQRSCP", null,
-                    "DCMQRSCP", null, configType, null, null));
+            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+                    .setCommonName("Leading DCMQRSCP")
+                    .setDIMSE(Dimse.C_STORE_RQ)
+                    .setRole(SCP)
+                    .setAETitles("LEADING_DCMQRSCP")
+                    .setLeadingCFindSCP("DCMQRSCP")
+                    .setLeadingCFindSCPReturnKeys(LEADING_C_FIND_SCP_ATTRS));
 
-            if (configType != ConfigType.TEST) {
-                ext.addAttributeCoercion(createAttributeCoercion(
-                        "Supplement Composite", Dimse.C_STORE_RQ, SCU, "SUPPLEMENT_COMPOSITE", null,
-                        null, null, configType, null, referencedDevices[2]));
+            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+                    .setCommonName("Supplement Composite")
+                    .setDIMSE(Dimse.C_STORE_RQ)
+                    .setRole(SCU)
+                    .setAETitles("STORESCU")
+                    .setSupplementFromDevice(storescu));
 
-                ext.addAttributeCoercion(createAttributeCoercion(
-                        "Supplement MPPS", Dimse.N_CREATE_RQ, SCU, "SUPPLEMENT_MPPS", null,
-                        null, null, configType, "1.2.840.10008.3.1.2.3.3", referencedDevices[3]));
-            }
+            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+                    .setCommonName("Supplement MPPS")
+                    .setDIMSE(Dimse.N_CREATE_RQ)
+                    .setRole(SCU)
+                    .setAETitles("MPPSSCU")
+                    .setSOPClasses(UID.ModalityPerformedProcedureStepSOPClass)
+                    .setSupplementFromDevice(mppsscu));
 
             StoreAccessControlIDRule storeAccessControlIDRule =
                     new StoreAccessControlIDRule("StoreAccessControlIDRule1");
@@ -1704,20 +1672,6 @@ class ArchiveDeviceFactory {
         }
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         aeExt.setAcceptedUserRoles(acceptedUserRoles);
-        if (configType == configType.TEST) {
-            aeExt.setStoreAccessControlID("*");
-            aeExt.setAccessControlIDs(ACCESS_CONTROL_IDS);
-            aeExt.setOverwritePolicy(OverwritePolicy.SAME_SOURCE);
-            aeExt.setPersonNameComponentOrderInsensitiveMatching(true);
-            aeExt.setSendPendingCGet(SEND_PENDING_C_GET);
-            aeExt.setSendPendingCMoveInterval(SEND_PENDING_C_MOVE_INTERVAL);
-            aeExt.setWadoSR2HtmlTemplateURI(DSR2HTML_XSL);
-            aeExt.setWadoSR2TextTemplateURI(DSR2TEXT_XSL);
-            aeExt.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
-            aeExt.setMppsForwardDestinations(MPPS_FORWARD_DESTINATIONS);
-            aeExt.setFallbackCMoveSCPDestination("DCM4CHEE");
-            aeExt.setAlternativeCMoveSCP("DCM4CHEE");
-        }
         return ae;
     }
 

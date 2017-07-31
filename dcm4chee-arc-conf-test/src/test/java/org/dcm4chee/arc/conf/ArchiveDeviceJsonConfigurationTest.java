@@ -59,7 +59,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.dcm4chee.arc.conf.Assert.assertDeviceEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -70,11 +69,16 @@ public class ArchiveDeviceJsonConfigurationTest {
     @Test
     public void testJsonPersist() throws Exception {
         Device arc = ArchiveDeviceFactory.createArchiveDevice("dcm4chee-arc",
-                ArchiveDeviceFactory.ConfigType.TEST, getReferencedDevices());
+                ArchiveDeviceFactory.ConfigType.SAMPLE,
+                ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
+                        ArchiveDeviceFactory.ConfigType.SAMPLE),
+                ArchiveDeviceFactory.createOtherDevice(ArchiveDeviceFactory.SCHEDULED_STATION_INDEX),
+                ArchiveDeviceFactory.createOtherDevice(ArchiveDeviceFactory.STORESCU_INDEX),
+                ArchiveDeviceFactory.createOtherDevice(ArchiveDeviceFactory.MPPSSCU_INDEX));
         JsonConfiguration jsonConfig = JsonConfigurationProducer.newJsonConfiguration();
         Path path = Paths.get("target/device.json");
-        try ( BufferedWriter w = Files.newBufferedWriter(path, Charset.forName("UTF-8"));
-              JsonGenerator gen = Json.createGenerator(w)) {
+        try (BufferedWriter w = Files.newBufferedWriter(path, Charset.forName("UTF-8"));
+             JsonGenerator gen = Json.createGenerator(w)) {
             jsonConfig.writeTo(arc, gen, true);
         }
         Device arc2;
@@ -87,21 +91,19 @@ public class ArchiveDeviceJsonConfigurationTest {
     private final ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
         @Override
         public Device findDevice(String name) throws ConfigurationException {
-            if (name.equals("logstash"))
-                return ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
-                    ArchiveDeviceFactory.ConfigType.TEST);
-            if (name.equals("scheduledstation"))
-                return ArchiveDeviceFactory.createScheduledStation("scheduledstation", "SCHEDULEDSTATION", "localhost", 104);
-            else
-                throw new ConfigurationNotFoundException("Unknown Device: " + name);
+            switch (name) {
+                case "logstash":
+                    return ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
+                            ArchiveDeviceFactory.ConfigType.SAMPLE);
+                case "scheduledstation":
+                    return ArchiveDeviceFactory.createOtherDevice(ArchiveDeviceFactory.SCHEDULED_STATION_INDEX);
+                case "storescu":
+                    return ArchiveDeviceFactory.createOtherDevice(ArchiveDeviceFactory.STORESCU_INDEX);
+                case "mppsscu":
+                    return ArchiveDeviceFactory.createOtherDevice(ArchiveDeviceFactory.MPPSSCU_INDEX);
+            }
+            throw new ConfigurationNotFoundException("Unknown Device: " + name);
         }
     };
 
-    private Device[] getReferencedDevices() throws Exception {
-        Device[] referencedDevices = new Device[2];
-        referencedDevices[0] = ArchiveDeviceFactory.createARRDevice("logstash", Connection.Protocol.SYSLOG_UDP, 514,
-                ArchiveDeviceFactory.ConfigType.TEST);
-        referencedDevices[1] = ArchiveDeviceFactory.createScheduledStation("scheduledstation", "SCHEDULEDSTATION", "localhost", 104);
-        return referencedDevices;
-    }
 }

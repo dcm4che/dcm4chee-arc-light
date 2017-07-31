@@ -505,7 +505,7 @@ class StoreServiceImpl implements StoreService {
         try {
             Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(tplURI));
             for (Attributes mwlItem : mwlItems) {
-                Attributes attrs = SAXTransformer.transform(mwlItem, tpls, false, false);
+                Attributes attrs = SAXTransformer.transform(mwlItem, tpls, false, rule.isNoKeywords());
                 if (reqAttrsSeq == null) {
                     result = attrs;
                     reqAttrsSeq = attrs.getSequence(Tag.RequestAttributesSequence);
