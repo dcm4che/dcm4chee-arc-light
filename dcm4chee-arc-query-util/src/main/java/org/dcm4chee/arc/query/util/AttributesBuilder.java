@@ -43,7 +43,6 @@ package org.dcm4chee.arc.query.util;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ElementDictionary;
 import org.dcm4che3.data.Sequence;
-import org.dcm4che3.util.TagUtils;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

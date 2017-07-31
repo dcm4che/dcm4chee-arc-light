@@ -55,7 +55,6 @@ import org.dcm4che3.conf.ldap.hl7.LdapHL7Configuration;
 import org.dcm4che3.conf.ldap.imageio.LdapImageReaderConfiguration;
 import org.dcm4che3.conf.ldap.imageio.LdapImageWriterConfiguration;
 
-import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import java.io.IOException;

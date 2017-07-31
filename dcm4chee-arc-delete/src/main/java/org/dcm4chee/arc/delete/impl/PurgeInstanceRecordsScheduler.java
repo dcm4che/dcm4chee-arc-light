@@ -44,7 +44,6 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

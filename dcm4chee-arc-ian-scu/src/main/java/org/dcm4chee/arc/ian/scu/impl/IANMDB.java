@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.ian.scu.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.Dimse;
 import org.dcm4chee.arc.ian.scu.IANSCU;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;

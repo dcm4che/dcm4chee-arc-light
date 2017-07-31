@@ -56,9 +56,6 @@ import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.xdsi.*;
 
 import javax.enterprise.event.Event;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
 import javax.xml.bind.JAXBElement;
 import javax.xml.ws.soap.AddressingFeature;
 import javax.xml.ws.soap.MTOMFeature;

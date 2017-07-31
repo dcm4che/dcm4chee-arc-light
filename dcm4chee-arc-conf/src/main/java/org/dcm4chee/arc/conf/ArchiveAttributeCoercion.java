@@ -44,8 +44,6 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
-import org.dcm4che3.util.SafeClose;
-import org.dcm4che3.util.StringUtils;
 
 import java.util.Arrays;
 

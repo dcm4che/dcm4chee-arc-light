@@ -40,13 +40,10 @@ package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.util.StringUtils;
 
-import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import java.io.IOException;
-import java.io.Writer;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**

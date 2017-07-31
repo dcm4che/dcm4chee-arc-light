@@ -1,7 +1,6 @@
 package org.dcm4chee.arc.exporter;
 
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.conf.StorageDescriptor;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

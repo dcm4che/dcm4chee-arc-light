@@ -46,7 +46,6 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.DimseRSP;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
-import org.dcm4chee.arc.Cache;
 
 import java.util.EnumSet;
 import java.util.List;

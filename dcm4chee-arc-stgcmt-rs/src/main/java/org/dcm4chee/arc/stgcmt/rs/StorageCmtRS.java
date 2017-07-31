@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.stgcmt.rs;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;

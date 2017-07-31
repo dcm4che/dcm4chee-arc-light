@@ -42,7 +42,6 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
 
-import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

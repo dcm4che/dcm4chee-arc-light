@@ -45,7 +45,6 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.dcm4che3.data.DatePrecision;
 import org.dcm4che3.util.DateUtils;
 
-import javax.net.ssl.SSLSocketFactory;
 import javax.xml.ws.BindingProvider;
 import java.io.IOException;
 import java.security.GeneralSecurityException;

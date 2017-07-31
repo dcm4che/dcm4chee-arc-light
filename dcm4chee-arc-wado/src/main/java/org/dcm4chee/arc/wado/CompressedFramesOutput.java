@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.wado;
 
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StreamUtils;
