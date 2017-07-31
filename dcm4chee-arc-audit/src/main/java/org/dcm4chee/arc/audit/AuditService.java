@@ -806,11 +806,12 @@ public class AuditService {
 
     private BuildAuditInfo buildAuditInfoFORHL7(ProcedureContext ctx) {
         Attributes attr = ctx.getAttributes();
+        HL7Segment msh = ctx.getHL7MessageHeader();
         BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName())
-                .callingAET(ctx.getHL7MessageHeader().getSendingApplicationWithFacility())
-                .calledAET(ctx.getHL7MessageHeader().getReceivingApplicationWithFacility()).studyUID(ctx.getStudyInstanceUID())
+                .callingAET(msh.getSendingApplicationWithFacility())
+                .calledAET(msh.getReceivingApplicationWithFacility()).studyUID(ctx.getStudyInstanceUID())
                 .accNum(getAcc(attr)).pID(getPID(attr)).pName(pName(ctx.getPatient().getAttributes()))
-                .outcome(getOD(ctx.getException())).studyDate(getSD(attr)).build();
+                .outcome(getOD(ctx.getException())).hl7MessageType(msh.getMessageType()).studyDate(getSD(attr)).build();
         return i;
     }
 
@@ -846,7 +847,7 @@ public class AuditService {
         BuildParticipantObjectIdentification poi2 = new BuildParticipantObjectIdentification.Builder(
                 prI.getField(AuditInfo.P_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
-                .name(prI.getField(AuditInfo.P_NAME)).build();
+                .name(prI.getField(AuditInfo.P_NAME)).detail(getPod("HL7MessageType", prI.getField(AuditInfo.HL7_MESSAGE_TYPE))).build();
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi1, poi2), auditLogger);
     }
 
