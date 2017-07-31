@@ -191,7 +191,7 @@ public class PatientServiceEJB {
             updatePatient(pat, ctx);
         if (prev == null) {
             prev = createPatient(ctx, ctx.getPreviousPatientID(), ctx.getPreviousAttributes());
-            ctx.setPreviousAttributes(null); // suppress audit message for deletion of merge patient
+            suppressMergedPatientDeletionAudit(ctx);
         } else {
             moveStudies(prev, pat);
             moveMPPS(prev, pat);
@@ -206,6 +206,10 @@ public class PatientServiceEJB {
         return pat;
     }
 
+    private void suppressMergedPatientDeletionAudit(PatientMgtContext ctx) {
+        ctx.setPreviousAttributes(null);
+    }
+
     public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, PatientAlreadyExistsException {
         ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
@@ -215,7 +219,7 @@ public class PatientServiceEJB {
                 logSuppressPatientCreate(ctx);
                 return null;
             }
-            ctx.setPreviousAttributes(null); // suppress audit message for deletion of merge patient
+            suppressMergedPatientDeletionAudit(ctx);
             return createPatient(ctx);
         }
 
