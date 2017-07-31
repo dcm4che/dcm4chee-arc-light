@@ -1865,6 +1865,13 @@
             "type": "integer",
             "enum": [ 0, 1, 2 ],
             "default": 0
+          },
+          {
+            "name": "queue",
+            "in": "query",
+            "description": "queue request",
+            "type": "boolean",
+            "default": false
           }
         ],
         "responses": {
@@ -1873,6 +1880,9 @@
             "schema": {
               "$ref": "export.schema.json"
             }
+          },
+          "204": {
+            "description": "request successfully queued for processing"
           },
           "206": {
             "description": "One or more Failures",
@@ -1949,6 +1959,13 @@
             "type": "integer",
             "enum": [ 0, 1, 2 ],
             "default": 0
+          },
+          {
+            "name": "queue",
+            "in": "query",
+            "description": "queue request",
+            "type": "boolean",
+            "default": false
           }
         ],
         "responses": {
@@ -1957,6 +1974,9 @@
             "schema": {
               "$ref": "export.schema.json"
             }
+          },
+          "204": {
+            "description": "request successfully queued for processing"
           },
           "206": {
             "description": "One or more Failures",
@@ -2040,6 +2060,13 @@
             "type": "integer",
             "enum": [ 0, 1, 2 ],
             "default": 0
+          },
+          {
+            "name": "queue",
+            "in": "query",
+            "description": "queue request",
+            "type": "boolean",
+            "default": false
           }
         ],
         "responses": {
@@ -2048,6 +2075,9 @@
             "schema": {
               "$ref": "export.schema.json"
             }
+          },
+          "204": {
+            "description": "request successfully queued for processing"
           },
           "206": {
             "description": "One or more Failures",

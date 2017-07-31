@@ -47,6 +47,7 @@ import org.dcm4che3.net.DimseRSP;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 
 /**
@@ -54,6 +55,8 @@ import org.dcm4chee.arc.retrieve.RetrieveContext;
  * @since Dec 2015
  */
 public interface CMoveSCU {
+    String QUEUE_NAME = "CMoveSCU";
+    String JNDI_NAME = "jms/queue/CMoveSCU";
 
     RetrieveTask newForwardRetrieveTask(
             RetrieveContext ctx, PresentationContext pc, Attributes rq, Attributes keys,
@@ -66,4 +69,8 @@ public interface CMoveSCU {
     Association openAssociation(ApplicationEntity localAE, String calledAET) throws Exception;
 
     DimseRSP cmove(Association as, int priority, String destAET, Attributes keys) throws Exception;
+
+    Outcome cmove(String localAET, String remoteAET, int priority, String destAET, Attributes keys) throws Exception;
+
+    void scheduleCMove(String localAET, String remoteAET, int priority, String destAET, Attributes keys);
 }

@@ -93,6 +93,9 @@ public class RetrieveRS {
     @Pattern(regexp = "0|1|2")
     private String priority;
 
+    @QueryParam("queue")
+    private boolean queue;
+
     @Inject
     private CMoveSCU moveSCU;
 
@@ -141,9 +144,18 @@ public class RetrieveRS {
 
     private Response export(String destAET, String... uids) throws Exception {
         LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        Attributes keys = toKeys(uids);
+        return queue ? queueExport(destAET, keys) : export(destAET, keys);
+    }
+
+    private Response queueExport(String destAET, Attributes keys) {
+        moveSCU.scheduleCMove(aet, externalAET, priority(), destAET, keys);
+        return Response.accepted().build();
+    }
+
+    private Response export(String destAET, Attributes keys) throws Exception {
         ApplicationEntity localAE = getApplicationEntity();
         Association as = moveSCU.openAssociation(localAE, externalAET);
-        Attributes keys = toKeys(uids);
         try {
             final DimseRSP rsp = moveSCU.cmove(as, priority(), destAET, keys);
             while (rsp.next());

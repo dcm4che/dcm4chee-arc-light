@@ -51,14 +51,22 @@ import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.dcm4chee.arc.store.scu.CStoreForwardSCU;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.jms.JMSException;
+import javax.jms.ObjectMessage;
+import java.io.IOException;
 import java.util.EnumSet;
 
 /**
@@ -67,6 +75,14 @@ import java.util.EnumSet;
  */
 @ApplicationScoped
 public class CMoveSCUImpl implements CMoveSCU {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CMoveSCUImpl.class);
+
+    @Inject
+    private QueueManager queueManager;
+
+    @Inject
+    private Device device;
 
     @Inject
     private IApplicationEntityCache aeCache;
@@ -147,6 +163,68 @@ public class CMoveSCUImpl implements CMoveSCU {
                 keys,
                 UID.ImplicitVRLittleEndian,
                 destAET);
+    }
+
+    @Override
+    public Outcome cmove(String localAET, String remoteAET, int priority, String destAET, Attributes keys)
+            throws Exception {
+        ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
+        Association as = openAssociation(localAE, remoteAET);
+        try {
+            final DimseRSP rsp = cmove(as, priority, destAET, keys);
+            while (rsp.next());
+            Attributes cmd = rsp.getCommand();
+            int status = cmd.getInt(Tag.Status, -1);
+            if (status == Status.Success || status == Status.OneOrMoreFailures) {
+                    return new Outcome(
+                            status == Status.Success ? QueueMessage.Status.COMPLETED : QueueMessage.Status.WARNING,
+                            toOutcomeMessage(remoteAET, destAET, keys, cmd));
+            }
+            throw new DicomServiceException(status, cmd.getString(Tag.ErrorComment));
+        } finally {
+            try {
+                as.release();
+            } catch (IOException e) {
+                LOG.info("{}: Failed to release association:\\n", as, e);
+            }
+        }
+    }
+
+    private String toOutcomeMessage(String remoteAET, String destAET, Attributes keys, Attributes rsp) {
+        int completed = rsp.getInt(Tag.NumberOfCompletedSuboperations, 0);
+        int warning = rsp.getInt(Tag.NumberOfWarningSuboperations, 0);
+        int failed = rsp.getInt(Tag.NumberOfFailedSuboperations, 0);
+        StringBuilder sb = new StringBuilder(256)
+                .append("Export ")
+                .append(keys.getString(Tag.QueryRetrieveLevel))
+                .append("[suid:")
+                .append(keys.getString(Tag.StudyInstanceUID))
+                .append("] from ")
+                .append(remoteAET)
+                .append(" to ")
+                .append(destAET)
+                .append(" - completed:")
+                .append(completed);
+        if (warning > 0)
+            sb.append(", ").append("warning:").append(warning);
+        if (failed > 0)
+            sb.append(", ").append("failed:").append(failed);
+        return sb.toString();
+    }
+
+    @Override
+    public void scheduleCMove(String localAET, String remoteAET, int priority, String destAET, Attributes keys) {
+        try {
+            ObjectMessage msg = queueManager.createObjectMessage(keys);
+            msg.setStringProperty("LocalAET", localAET);
+            msg.setStringProperty("RemoteAET", remoteAET);
+            msg.setIntProperty("Priority", priority);
+            msg.setStringProperty("DestinationAET", destAET);
+            msg.setStringProperty("StudyInstanceUID", keys.getString(Tag.StudyInstanceUID));
+            queueManager.scheduleMessage(QUEUE_NAME, msg);
+        } catch (JMSException e) {
+            throw QueueMessage.toJMSRuntimeException(e);
+        }
     }
 
     private Association openAssociation(RetrieveContext ctx, PresentationContext pc, String otherCMoveSCP)
