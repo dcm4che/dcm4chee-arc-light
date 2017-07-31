@@ -178,19 +178,17 @@ public class PatientServiceEJB {
 
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         Patient pat = findPatient(ctx.getPatientID());
         Patient prev = findPatient(ctx.getPreviousPatientID());
         if (pat == null && prev == null && ctx.isNoPatientCreate()) {
             logSuppressPatientCreate(ctx);
             return null;
         }
-        if (pat == null) {
+        if (pat == null)
             pat = createPatient(ctx);
-        }
-        else {
+        else
             updatePatient(pat, ctx);
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        }
         if (prev == null) {
             prev = createPatient(ctx, ctx.getPreviousPatientID(), ctx.getPreviousAttributes());
             ctx.setPreviousAttributes(null); // suppress audit message for deletion of merge patient
