@@ -1,6 +1,7 @@
 package org.dcm4chee.arc.exporter;
 
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -22,5 +23,10 @@ public abstract class AbstractExporter implements Exporter {
     @Override
     public ExportContext createExportContext() {
         return new DefaultExportContext(this);
+    }
+
+    @Override
+    public void export(RetrieveContext retrieveContext) throws Exception {
+        throw new UnsupportedOperationException();
     }
 }

@@ -1191,26 +1191,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public ExporterDescriptor getExporterDescriptor(String exporterID) {
-        ExporterDescriptor descriptor = exporterDescriptorMap.get(exporterID);
-        if (descriptor == null) {
-            for (Map.Entry<String, ExporterDescriptor> entry : exporterDescriptorMap.entrySet()) {
-                String key = entry.getKey();
-                int schemeLen = key.length() - 1;
-                if (schemeLen > 0 && key.charAt(schemeLen) == ':' && exporterID.startsWith(key)) {
-                    try {
-                        ExporterDescriptor prototype = entry.getValue();
-                        URI exportURI = new URI(
-                                prototype.getExportURI().getSchemeSpecificPart() + exporterID.substring(schemeLen));
-                        descriptor = new ExporterDescriptor(prototype);
-                        descriptor.setExporterID(exporterID);
-                        descriptor.setExportURI(exportURI);
-                        break;
-                    } catch (URISyntaxException e) {
-                    }
-                }
-            }
-        }
-        return descriptor;
+        return exporterDescriptorMap.get(exporterID);
     }
 
     public ExporterDescriptor getExporterDescriptorNotNull(String exporterID) {

@@ -81,3 +81,9 @@ objectClass: dcmQueue
 dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/CMoveSCU
+
+dn: dcmExporterID=DCM4CHEE:,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: dcmExporterID=DCM4CHEE_ADMIN:,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete

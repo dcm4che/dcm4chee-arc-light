@@ -1156,13 +1156,21 @@ dcmAcceptedUserRole: admin
 dcmMetadataStorageID: metadata
 
 dn: cn=Forward to STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmExporterID: DCM4CHEE:STORESCP
+dcmExporterID: STORESCP
 dcmDuration: PT1M
 dcmEntity: Series
 dcmProperty: Modality=CT|MR
 dcmProperty: SendingApplicationEntityTitle=FORWARD
 objectClass: dcmExportRule
 cn: Forward to STORESCP
+
+Fdn: dcmExporterID=STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: STORESCP
+dicomDescription: Export to STORESCP
+dcmQueueName: Export1
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: dicom:STORESCP
 
 dn: dcmQueueName=StgCmtSCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Storage Commitment SCP Tasks
@@ -1233,14 +1241,6 @@ objectClass: dcmArchiveAttributeCoercion
 dcmSupplementFromDeviceReference: dicomDeviceName=storescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Supplement Composite
 
-dn: dcmExporterID=DCM4CHEE:,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmExporterID: DCM4CHEE:
-dicomDescription: Generic DICOM Exporter (Unrejected Instances & Rejection Notes except Retention Expired)
-dcmQueueName: Export1
-objectClass: dcmExporter
-dicomAETitle: DCM4CHEE
-dcmURI: dicom
-
 dn: dcmSPSStatus=DISCONTINUED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSPSStatus: DISCONTINUED
 hl7OrderControlStatus: DC_CA
@@ -1300,14 +1300,6 @@ dcmProperty: MSH-3=FORWARD
 objectClass: hl7ForwardRule
 hl7FwdApplicationName: HL7RCV|DCM4CHEE
 cn: Forward to HL7RCV|DCM4CHEE
-
-dn: dcmExporterID=DCM4CHEE_ADMIN:,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmExporterID: DCM4CHEE_ADMIN:
-dicomDescription: Generic DICOM Exporter (Unrejected Instances & Rejection Notes)
-dcmQueueName: Export1
-objectClass: dcmExporter
-dicomAETitle: DCM4CHEE_ADMIN
-dcmURI: dicom
 
 dn: dcmRejectionNoteLabel=Quality,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Quality

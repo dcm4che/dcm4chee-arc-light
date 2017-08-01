@@ -984,11 +984,9 @@ class ArchiveDeviceFactory {
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final Duration IAN_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.parse("PT1H");
-    static final String DICOM_EXPORTER_ID = "DCM4CHEE:";
-    static final String DICOM_EXPORTER_DESC = "Generic DICOM Exporter (Unrejected Instances & Rejection Notes except Retention Expired)";
-    static final String DICOM_EXPORTER_ID_ADMIN = "DCM4CHEE_ADMIN:";
-    static final String DICOM_EXPORTER_DESC_ADMIN = "Generic DICOM Exporter (Unrejected Instances & Rejection Notes)";
-    static final URI DICOM_EXPORT_URI = URI.create("dicom");
+    static final String DICOM_EXPORTER_ID = "STORESCP";
+    static final String DICOM_EXPORTER_DESC = "Export to STORESCP";
+    static final URI DICOM_EXPORT_URI = URI.create("dicom:STORESCP");
     static final String WADO_EXPORTER_ID = "WADO";
     static final String WADO_EXPORTER_DESC = "Export to WADO";
     static final URI WADO_EXPORT_URI = URI.create("wado:http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/wado?requestType=WADO&studyUID=[0]&seriesUID=[1]&objectUID=[2]&frameNumber=[3]");
@@ -1417,20 +1415,6 @@ class ArchiveDeviceFactory {
                 REJECTION_CODES));
         ext.setHideSPSWithStatusFrom(HIDE_SPS_WITH_STATUS_FROM_MWL);
 
-        ExporterDescriptor dicomExporter = new ExporterDescriptor(DICOM_EXPORTER_ID);
-        dicomExporter.setDescription(DICOM_EXPORTER_DESC);
-        dicomExporter.setExportURI(DICOM_EXPORT_URI);
-        dicomExporter.setQueueName("Export1");
-        dicomExporter.setAETitle("DCM4CHEE");
-        ext.addExporterDescriptor(dicomExporter);
-
-        ExporterDescriptor dicomExporterAdmin = new ExporterDescriptor(DICOM_EXPORTER_ID_ADMIN);
-        dicomExporterAdmin.setDescription(DICOM_EXPORTER_DESC_ADMIN);
-        dicomExporterAdmin.setExportURI(DICOM_EXPORT_URI);
-        dicomExporterAdmin.setQueueName("Export1");
-        dicomExporterAdmin.setAETitle("DCM4CHEE_ADMIN");
-        ext.addExporterDescriptor(dicomExporterAdmin);
-
         if (configType == configType.SAMPLE) {
             StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);
             metadataStorageDescriptor.setStorageURIStr(METADATA_STORAGE_URI);
@@ -1459,12 +1443,19 @@ class ArchiveDeviceFactory {
             wadoJsonStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
             ext.addStorageDescriptor(wadoJsonStorageDescriptor);
 
+            ExporterDescriptor dicomExporter = new ExporterDescriptor(DICOM_EXPORTER_ID);
+            dicomExporter.setDescription(DICOM_EXPORTER_DESC);
+            dicomExporter.setExportURI(DICOM_EXPORT_URI);
+            dicomExporter.setQueueName("Export1");
+            dicomExporter.setAETitle("DCM4CHEE");
+            ext.addExporterDescriptor(dicomExporter);
+
             ExportRule exportRule = new ExportRule("Forward to STORESCP");
             exportRule.getConditions().setSendingAETitle("FORWARD");
             exportRule.getConditions().setCondition("Modality", "CT|MR");
             exportRule.setEntity(Entity.Series);
             exportRule.setExportDelay(Duration.parse("PT1M"));
-            exportRule.setExporterIDs(DICOM_EXPORTER_ID+"STORESCP");
+            exportRule.setExporterIDs(DICOM_EXPORTER_ID);
             ext.addExportRule(exportRule);
 
             ExporterDescriptor wadoExportDescriptor = new ExporterDescriptor(WADO_EXPORTER_ID);

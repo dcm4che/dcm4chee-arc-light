@@ -98,6 +98,12 @@ public class DicomExporter extends AbstractExporter {
         }
     }
 
+    @Override
+    public void export(RetrieveContext retrieveContext) throws Exception {
+        if (retrieveService.calculateMatches(retrieveContext))
+            storeSCU.newRetrieveTaskSTORE(retrieveContext).run();
+    }
+
     private String noMatches(ExportContext exportContext) {
         StringBuilder sb = new StringBuilder(256);
         sb.append("Could not find ");

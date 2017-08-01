@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.export.rs;
 
+import org.dcm4che3.conf.api.ConfigurationNotFoundException;
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -48,17 +50,27 @@ import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterFactory;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -73,6 +85,9 @@ public class ExporterRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private RetrieveService retrieveService;
 
     @Inject
     private ExportManager exportManager;
@@ -99,59 +114,123 @@ public class ExporterRS {
 
     @POST
     @Path("/studies/{StudyUID}/export/{ExporterID}")
-    public void exportStudy(
+    @Produces("application/json")
+    public Response exportStudy(
             @PathParam("StudyUID") String studyUID,
             @PathParam("ExporterID") String exporterID) {
-        export(studyUID, "*", "*", exporterID);
+        return export(studyUID, "*", "*", exporterID);
     }
 
     @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/export/{ExporterID}")
-    public void exportSeries(
+    @Produces("application/json")
+    public Response exportSeries(
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("ExporterID") String exporterID) {
-        export(studyUID, seriesUID, "*", exporterID);
+        return export(studyUID, seriesUID, "*", exporterID);
     }
 
     @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/instances/{ObjectUID}/export/{ExporterID}")
-    public void exportInstance(
+    @Produces("application/json")
+    public Response exportInstance(
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("ObjectUID") String objectUID,
             @PathParam("ExporterID") String exporterID) {
-        export(studyUID, seriesUID, objectUID, exporterID);
+        return export(studyUID, seriesUID, objectUID, exporterID);
     }
 
-    private void export(String studyUID, String seriesUID, String objectUID, String exporterID) {
+    private Response export(String studyUID, String seriesUID, String objectUID, String exporterID) {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(getResponse("No such Application Entity: " + aet,
-                    Response.Status.SERVICE_UNAVAILABLE));
-
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
-        if (exporter == null)
-            throw new WebApplicationException(getResponse("Exporter not found.", Response.Status.NOT_FOUND));
+            return errResponse(Response.Status.SERVICE_UNAVAILABLE, "No such Application Entity: " + aet);
 
         boolean bOnlyIAN = Boolean.parseBoolean(onlyIAN);
         boolean bOnlyStgCmt = Boolean.parseBoolean(onlyStgCmt);
-        if (bOnlyIAN && exporter.getIanDestinations().length == 0)
-            throw new WebApplicationException(getResponse("No IAN Destinations configured", Response.Status.NOT_FOUND));
-        if (bOnlyStgCmt && exporter.getStgCmtSCPAETitle() == null)
-            throw new WebApplicationException(getResponse("No Storage Commitment SCP configured", Response.Status.NOT_FOUND));
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
+        if (exporter != null) {
+            if (bOnlyIAN && exporter.getIanDestinations().length == 0)
+                return errResponse(Response.Status.NOT_FOUND, "No IAN Destinations configured");
 
-        if (bOnlyIAN || bOnlyStgCmt)
-            exportEvent.fire(createExportContext(studyUID, seriesUID, objectUID, exporter, aet, bOnlyIAN, bOnlyStgCmt));
-        else
-            exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter);
+            if (bOnlyStgCmt && exporter.getStgCmtSCPAETitle() == null)
+                return errResponse(Response.Status.NOT_FOUND, "No Storage Commitment SCP configured");
+
+            if (bOnlyIAN || bOnlyStgCmt)
+                exportEvent.fire(createExportContext(studyUID, seriesUID, objectUID, exporter, aet, bOnlyIAN, bOnlyStgCmt));
+            else
+                exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter);
+
+            return Response.accepted().build();
+        }
+
+        URI exportURI = toDicomURI(exporterID);
+        if (exportURI == null)
+            return errResponse(Response.Status.NOT_FOUND, "Exporter not found.");
+        if (bOnlyStgCmt)
+            return errResponse(Response.Status.BAD_REQUEST,
+                    "only-stgcmt=true not allowed with exporterID: " + exporterID);
+        if (bOnlyIAN)
+            return errResponse(Response.Status.BAD_REQUEST,
+                    "only-ian=true not allowed with exporterID: " + exporterID);
+
+        try {
+            RetrieveContext retrieveContext = retrieveService.newRetrieveContextSTORE(
+                    aet, studyUID, seriesUID, objectUID, exportURI.getSchemeSpecificPart());
+            exporterFactory.getExporter(new ExporterDescriptor(exporterID, exportURI))
+                    .export(retrieveContext);
+            return toResponse(retrieveContext);
+        } catch (ConfigurationNotFoundException e) {
+            return errResponse(Response.Status.NOT_FOUND, e.getMessage());
+        } catch (Exception e) {
+            return errResponse(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
-    private Response getResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
+    private static Response toResponse(RetrieveContext retrieveContext) {
+        return Response.status(status(retrieveContext)).entity(entity(retrieveContext)).build();
+    }
+
+    private static Response.Status status(RetrieveContext ctx) {
+        return ctx.getException() != null ? Response.Status.BAD_GATEWAY
+            : ctx.failed() == 0 ? Response.Status.OK
+                : ctx.completed() + ctx.warning() > 0 ? Response.Status.PARTIAL_CONTENT
+                : Response.Status.BAD_GATEWAY;
+    }
+
+    private static Object entity(final RetrieveContext ctx) {
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                JsonGenerator gen = Json.createGenerator(out);
+                JsonWriter writer = new JsonWriter(gen);
+                gen.writeStartObject();
+                gen.write("completed", ctx.completed());
+                writer.writeNotDef("warning", ctx.warning(), 0);
+                writer.writeNotDef("failed", ctx.failed(), 0);
+                writer.writeNotNullOrDef("failed", ctx.getException(), null);
+                writer.writeNotNullOrDef("error", ctx.getException(), null);
+                gen.writeEnd();
+                gen.flush();
+            }
+        };
+    }
+
+    private static URI toDicomURI(String exporterID) {
+        if (exporterID.startsWith("dicom:"))
+            try {
+                return new URI(exporterID);
+            } catch (URISyntaxException e) {}
+        return null;
+    }
+
+    private Response errResponse(Response.Status status, String message) {
+        return Response.status(status)
+                .entity("{\"errorMessage\":\"" + message + "\"}")
+                .build();
     }
 
     private ExportContext createExportContext(
