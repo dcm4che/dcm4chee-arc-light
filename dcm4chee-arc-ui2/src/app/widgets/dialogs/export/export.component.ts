@@ -130,7 +130,8 @@ export class ExportDialogComponent{
     }
     validForm(){
         if (this._result.exportType === 'dicom'){
-            if (this._result.dicomPrefix && this._result.selectedAet){
+           // if (this._result.dicomPrefix && this._result.selectedAet){
+            if (this._result.selectedAet){
                 return true;
             }else{
                 return false;

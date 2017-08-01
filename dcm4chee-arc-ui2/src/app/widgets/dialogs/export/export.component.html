@@ -13,10 +13,10 @@
                 <p>Select the exporter-template and the AETitle:</p>
 <!--                <select class="prefix" [(ngModel)]="result.dicomPrefix">
                     <option value="{{prefix.id}}" *ngFor="let prefix of dicomPrefixes">{{prefix.id}}</option>
-                </select>-->
+                </select>
                 <md-select class="prefix"  [(ngModel)]="result.dicomPrefix">
                     <md-option value="{{prefix.id}}" *ngFor="let prefix of dicomPrefixes"title="{{prefix.description}}">{{prefix.id}}</md-option>
-                </md-select>
+                </md-select>-->
                 <md-select class="aes" [(ngModel)]="result.selectedAet">
                     <md-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</md-option>
                 </md-select>

@@ -2213,7 +2213,8 @@ export class StudiesComponent implements OnDestroy{
             if (result){
                 $this.cfpLoadingBar.start();
                 if (result.exportType === 'dicom'){
-                    id = result.dicomPrefix + result.selectedAet;
+                    //id = result.dicomPrefix + result.selectedAet;
+                    id = 'dicom:' + result.selectedAet;
                 }else{
                     id = result.selectedExporter;
                 }
