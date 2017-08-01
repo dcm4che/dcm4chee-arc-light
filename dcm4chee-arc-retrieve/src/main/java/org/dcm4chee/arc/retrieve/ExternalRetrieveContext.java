@@ -36,7 +36,7 @@
  *
  */
 
-package org.dcm4chee.arc.event;
+package org.dcm4chee.arc.retrieve;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -51,34 +51,43 @@ import javax.servlet.http.HttpServletRequest;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2017
  */
-public class InstancesRetrieved {
+public class ExternalRetrieveContext {
 
-    private String callingUserID;
-    private String callingHost;
+    private String requesterUserID;
+    private String requesterHostName;
+    private String requestURI;
     private String localAET;
+    private String remoteHostName;
     private String remoteAET;
     private String destinationAET;
     private Attributes keys;
     private Attributes response;
-    private String calledUserID;
 
-    public InstancesRetrieved() {
+    public ExternalRetrieveContext() {
     }
 
-    public String getCallingUserID() {
-        return callingUserID;
+    public String getRequesterUserID() {
+        return requesterUserID;
     }
 
-    public String getCallingHost() {
-        return callingHost;
+    public String getRequesterHostName() {
+        return requesterHostName;
     }
 
     public String getLocalAET() {
         return localAET;
     }
 
+    public String getRequestURI() {
+        return requestURI;
+    }
+
     public String getRemoteAET() {
         return remoteAET;
+    }
+
+    public String getRemoteHostName() {
+        return remoteHostName;
     }
 
     public String getDestinationAET() {
@@ -89,57 +98,58 @@ public class InstancesRetrieved {
         return keys;
     }
 
-    public String getCalledUserID() {
-        return calledUserID;
-    }
-
     public Attributes getResponse() {
         return response;
     }
 
-    public InstancesRetrieved setCallingUserID(String callingUserID) {
-        this.callingUserID = callingUserID;
+    public ExternalRetrieveContext setRequesterUserID(String requesterUserID) {
+        this.requesterUserID = requesterUserID;
         return this;
     }
 
-    public InstancesRetrieved setCallingHost(String callingHost) {
-        this.callingHost = callingHost;
+    public ExternalRetrieveContext setRequesterHostName(String requesterHostName) {
+        this.requesterHostName = requesterHostName;
         return this;
     }
 
-    public InstancesRetrieved setCalledUserID(String calledUserID) {
-        this.calledUserID = calledUserID;
+    public ExternalRetrieveContext setRequestURI(String requestURI) {
+        this.requestURI = requestURI;
         return this;
     }
 
-    public InstancesRetrieved setRequestInfo(HttpServletRequest request) {
-        this.callingUserID = getPreferredUsername(request);
-        this.callingHost = request.getRemoteHost();
-        this.calledUserID = request.getRequestURI();
+    public ExternalRetrieveContext setRequestInfo(HttpServletRequest request) {
+        this.requesterUserID = getPreferredUsername(request);
+        this.requesterHostName = request.getRemoteHost();
+        this.requestURI = request.getRequestURI();
         return this;
     }
 
-    public InstancesRetrieved setLocalAET(String localAET) {
+    public ExternalRetrieveContext setLocalAET(String localAET) {
         this.localAET = localAET;
         return this;
     }
 
-    public InstancesRetrieved setRemoteAET(String remoteAET) {
+    public ExternalRetrieveContext setRemoteAET(String remoteAET) {
         this.remoteAET = remoteAET;
         return this;
     }
 
-    public InstancesRetrieved setDestinationAET(String destinationAET) {
+    public ExternalRetrieveContext setRemoteHostName(String remoteHostName) {
+        this.remoteHostName = remoteHostName;
+        return this;
+    }
+
+    public ExternalRetrieveContext setDestinationAET(String destinationAET) {
         this.destinationAET = destinationAET;
         return this;
     }
 
-    public InstancesRetrieved setKeys(Attributes keys) {
+    public ExternalRetrieveContext setKeys(Attributes keys) {
         this.keys = keys;
         return this;
     }
 
-    public InstancesRetrieved setResponse(Attributes response) {
+    public ExternalRetrieveContext setResponse(Attributes response) {
         this.response = response;
         return this;
     }
@@ -170,7 +180,7 @@ public class InstancesRetrieved {
 
     @Override
     public String toString() {
-        return "InstancesRetrieved[" + callingUserID + '@' + callingHost
+        return "InstancesRetrieved[" + requesterUserID + '@' + requesterHostName
                 + ", localAET=" + localAET
                 + ", remoteAET=" + remoteAET
                 + ", destinationAET=" + destinationAET

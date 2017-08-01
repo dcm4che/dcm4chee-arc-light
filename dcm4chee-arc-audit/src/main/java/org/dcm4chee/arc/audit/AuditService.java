@@ -58,7 +58,7 @@ import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.entity.Study;
-import org.dcm4chee.arc.event.InstancesRetrieved;
+import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -317,18 +317,18 @@ public class AuditService {
                 getPoiList(poi1, poi2), auditLogger);
     }
 
-    void spoolInstancesRetrieved(InstancesRetrieved instancesRetrieved) {
-        Attributes keys = instancesRetrieved.getKeys();
+    void spoolExternalRetrieve(ExternalRetrieveContext ctx) {
+        Attributes keys = ctx.getKeys();
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
         BuildAuditInfo i = new BuildAuditInfo.Builder()
-                .callingAET(instancesRetrieved.getCallingUserID())
-                .callingHost(instancesRetrieved.getCallingHost())
-                .calledHost(instancesRetrieved.getRemoteAET())
-                .calledAET(instancesRetrieved.getCalledUserID())
-                .moveAET(instancesRetrieved.getLocalAET())
-                .destAET(instancesRetrieved.getDestinationAET())
-                .failedIUIDShow(instancesRetrieved.failed() > 0)
-                .warning(String.valueOf(instancesRetrieved.warning()))
+                .callingAET(ctx.getRequesterUserID())
+                .callingHost(ctx.getRequesterHostName())
+                .calledHost(ctx.getRemoteAET())
+                .calledAET(ctx.getRequestURI())
+                .moveAET(ctx.getLocalAET())
+                .destAET(ctx.getDestinationAET())
+                .failedIUIDShow(ctx.failed() > 0)
+                .warning(String.valueOf(ctx.warning()))
                 .studyUID(keys.getString(Tag.StudyInstanceUID))
                 .build();
         obj.add(new AuditInfo(i));

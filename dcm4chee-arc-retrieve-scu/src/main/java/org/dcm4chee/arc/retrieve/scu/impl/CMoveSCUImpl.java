@@ -52,7 +52,7 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.event.InstancesRetrieved;
+import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -95,7 +95,7 @@ public class CMoveSCUImpl implements CMoveSCU {
     private Event<RetrieveContext> retrieveEnd;
 
     @Inject
-    private Event<InstancesRetrieved> instancesRetrievedEvent;
+    private Event<ExternalRetrieveContext> externalRetrieve;
 
     @Override
     public RetrieveTask newForwardRetrieveTask(
@@ -170,23 +170,23 @@ public class CMoveSCUImpl implements CMoveSCU {
     }
 
     @Override
-    public Outcome cmove(int priority, InstancesRetrieved instancesRetrieved)
-            throws Exception {
-        ApplicationEntity localAE = device.getApplicationEntity(instancesRetrieved.getLocalAET(), true);
-        Association as = openAssociation(localAE, instancesRetrieved.getRemoteAET());
+    public Outcome cmove(int priority, ExternalRetrieveContext ctx) throws Exception {
+        ApplicationEntity localAE = device.getApplicationEntity(ctx.getLocalAET(), true);
+        Association as = openAssociation(localAE, ctx.getRemoteAET());
+        ctx.setRemoteHostName(as.getSocket().getInetAddress().getHostName());
         try {
-            final DimseRSP rsp = cmove(as, priority, instancesRetrieved.getDestinationAET(), instancesRetrieved.getKeys());
+            final DimseRSP rsp = cmove(as, priority, ctx.getDestinationAET(), ctx.getKeys());
             while (rsp.next());
             Attributes cmd = rsp.getCommand();
             int status = cmd.getInt(Tag.Status, -1);
             if (status == Status.Success || status == Status.OneOrMoreFailures) {
-                instancesRetrievedEvent.fire(instancesRetrieved.setResponse(cmd));
+                externalRetrieve.fire(ctx.setResponse(cmd));
                     return new Outcome(
                             status == Status.Success ? QueueMessage.Status.COMPLETED : QueueMessage.Status.WARNING,
                             toOutcomeMessage(
-                                    instancesRetrieved.getRemoteAET(),
-                                    instancesRetrieved.getDestinationAET(),
-                                    instancesRetrieved.getKeys(),
+                                    ctx.getRemoteAET(),
+                                    ctx.getDestinationAET(),
+                                    ctx.getKeys(),
                                     cmd));
             }
             throw new DicomServiceException(status, cmd.getString(Tag.ErrorComment));
@@ -222,17 +222,18 @@ public class CMoveSCUImpl implements CMoveSCU {
     }
 
     @Override
-    public void scheduleCMove(int priority, InstancesRetrieved instancesRetrieved) {
+    public void scheduleCMove(int priority, ExternalRetrieveContext ctx) {
         try {
-            ObjectMessage msg = queueManager.createObjectMessage(instancesRetrieved.getKeys());
-            msg.setStringProperty("LocalAET", instancesRetrieved.getLocalAET());
-            msg.setStringProperty("RemoteAET", instancesRetrieved.getRemoteAET());
+            ObjectMessage msg = queueManager.createObjectMessage(ctx.getKeys());
+            msg.setStringProperty("LocalAET", ctx.getLocalAET());
+            msg.setStringProperty("RemoteAET", ctx.getRemoteAET());
+            msg.setStringProperty("RemoteHostName", ctx.getRemoteHostName());
             msg.setIntProperty("Priority", priority);
-            msg.setStringProperty("DestinationAET", instancesRetrieved.getDestinationAET());
-            msg.setStringProperty("StudyInstanceUID", instancesRetrieved.getKeys().getString(Tag.StudyInstanceUID));
-            msg.setStringProperty("CallingUserID", instancesRetrieved.getCallingUserID());
-            msg.setStringProperty("CallingHost", instancesRetrieved.getCallingHost());
-            msg.setStringProperty("CalledUserID", instancesRetrieved.getCalledUserID());
+            msg.setStringProperty("DestinationAET", ctx.getDestinationAET());
+            msg.setStringProperty("StudyInstanceUID", ctx.getKeys().getString(Tag.StudyInstanceUID));
+            msg.setStringProperty("RequesterUserID", ctx.getRequesterUserID());
+            msg.setStringProperty("RequesterHostName", ctx.getRequesterHostName());
+            msg.setStringProperty("RequestURI", ctx.getRequestURI());
             queueManager.scheduleMessage(QUEUE_NAME, msg);
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
