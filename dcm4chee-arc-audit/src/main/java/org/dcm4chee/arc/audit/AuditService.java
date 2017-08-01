@@ -321,7 +321,7 @@ public class AuditService {
         Attributes keys = instancesRetrieved.getKeys();
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
         BuildAuditInfo i = new BuildAuditInfo.Builder()
-                .callingAET(instancesRetrieved.getCalledUserID())
+                .callingAET(instancesRetrieved.getCallingUserID())
                 .callingHost(instancesRetrieved.getCallingHost())
                 .calledHost(instancesRetrieved.getRemoteAET())
                 .calledAET(instancesRetrieved.getCalledUserID())
