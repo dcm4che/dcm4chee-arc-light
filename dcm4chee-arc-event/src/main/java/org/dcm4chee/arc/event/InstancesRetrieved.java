@@ -157,15 +157,15 @@ public class InstancesRetrieved {
     }
 
     public int warning() {
-        return response.getInt(Tag.NumberOfWarningSuboperations, 0);
+        return response != null ? response.getInt(Tag.NumberOfWarningSuboperations, 0) : 0;
     }
 
     public int failed() {
-        return response.getInt(Tag.NumberOfFailedSuboperations, 0);
+        return response != null ? response.getInt(Tag.NumberOfFailedSuboperations, 0) : 0;
     }
 
     public int completed() {
-        return response.getInt(Tag.NumberOfCompletedSuboperations, 0);
+        return response != null ? response.getInt(Tag.NumberOfCompletedSuboperations, 0) : 0;
     }
 
     @Override

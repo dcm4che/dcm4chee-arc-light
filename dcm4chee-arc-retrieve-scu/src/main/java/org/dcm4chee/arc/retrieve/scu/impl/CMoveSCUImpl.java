@@ -180,7 +180,7 @@ public class CMoveSCUImpl implements CMoveSCU {
             Attributes cmd = rsp.getCommand();
             int status = cmd.getInt(Tag.Status, -1);
             if (status == Status.Success || status == Status.OneOrMoreFailures) {
-                instancesRetrievedEvent.fire(instancesRetrieved);
+                instancesRetrievedEvent.fire(instancesRetrieved.setResponse(cmd));
                     return new Outcome(
                             status == Status.Success ? QueueMessage.Status.COMPLETED : QueueMessage.Status.WARNING,
                             toOutcomeMessage(
