@@ -58,8 +58,6 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -109,34 +107,31 @@ public class RetrieveRS {
     @POST
     @Path("/studies/{StudyUID}/export/dicom:{DestinationAET}")
     @Produces("application/json")
-    public void exportStudy(
-            @Suspended AsyncResponse ar,
+    public Response exportStudy(
             @PathParam("StudyUID") String studyUID,
             @PathParam("DestinationAET") String destinationAET) throws Exception {
-        export(ar, destinationAET, studyUID);
+        return export(destinationAET, studyUID);
     }
 
     @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/export/dicom:{DestinationAET}")
     @Produces("application/json")
-    public void exportSeries(
-            @Suspended AsyncResponse ar,
+    public Response exportSeries(
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("DestinationAET") String destinationAET) throws Exception {
-        export(ar, destinationAET, studyUID, seriesUID);
+        return export(destinationAET, studyUID, seriesUID);
     }
 
     @POST
     @Path("/studies/{StudyUID}/series/{SeriesUID}/instances/{ObjectUID}/export/dicom:{DestinationAET}")
     @Produces("application/json")
-    public void exportSeries(
-            @Suspended AsyncResponse ar,
+    public Response exportSeries(
             @PathParam("StudyUID") String studyUID,
             @PathParam("SeriesUID") String seriesUID,
             @PathParam("ObjectUID") String objectUID,
             @PathParam("DestinationAET") String destinationAET) throws Exception {
-        export(ar, destinationAET, studyUID, seriesUID, objectUID);
+        return export(destinationAET, studyUID, seriesUID, objectUID);
     }
 
     private int priority() {
@@ -147,10 +142,10 @@ public class RetrieveRS {
         return s != null ? Integer.parseInt(s) : defval;
     }
 
-    private void export(AsyncResponse ar, String destAET, String... uids) throws Exception {
+    private Response export(String destAET, String... uids) throws Exception {
         LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         Attributes keys = toKeys(uids);
-        ar.resume(queue ? queueExport(destAET, keys) : export(destAET, keys));
+        return queue ? queueExport(destAET, keys) : export(destAET, keys);
     }
 
     private Response queueExport(String destAET, Attributes keys) {
