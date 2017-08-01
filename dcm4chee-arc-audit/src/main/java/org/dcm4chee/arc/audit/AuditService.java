@@ -144,7 +144,7 @@ public class AuditService {
                 auditStorageCommit(auditLogger, readerObj, eventTime, eventType);
                 break;
             case INST_RETRIEVED:
-                auditInstancesRetrieved(auditLogger, path, eventType);
+                auditExternalRetrieve(auditLogger, path, eventType);
                 break;
         }
     }
@@ -318,28 +318,34 @@ public class AuditService {
     }
 
     void spoolExternalRetrieve(ExternalRetrieveContext ctx) {
+        String outcome = ctx.getResponse().getString(Tag.ErrorComment) != null
+                            ? ctx.getResponse().getString(Tag.ErrorComment) + ctx.failed()
+                            : null;
+        String warning = ctx.warning() > 0
+                            ? "Number Of Warning Sub operations" + ctx.warning()
+                            : null;
         Attributes keys = ctx.getKeys();
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
         BuildAuditInfo i = new BuildAuditInfo.Builder()
                 .callingAET(ctx.getRequesterUserID())
                 .callingHost(ctx.getRequesterHostName())
-                .calledHost(ctx.getRemoteAET())
+                .calledHost(ctx.getRemoteHostName())
                 .calledAET(ctx.getRequestURI())
                 .moveAET(ctx.getLocalAET())
                 .destAET(ctx.getDestinationAET())
-                .failedIUIDShow(ctx.failed() > 0)
-                .warning(String.valueOf(ctx.warning()))
+                .warning(warning)
                 .studyUID(keys.getString(Tag.StudyInstanceUID))
+                .outcome(outcome)
                 .build();
         obj.add(new AuditInfo(i));
         writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.INST_RETRV), obj);
     }
 
-    private void auditInstancesRetrieved(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
+    private void auditExternalRetrieve(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
             throws IOException {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo i = new AuditInfo(reader.getMainInfo());
-        EventIdentification ei = getEI(eventType, i.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
+        EventIdentification ei = getCustomEI(eventType, i.getField(AuditInfo.OUTCOME), i.getField(AuditInfo.WARNING), getEventTime(path, auditLogger));
         BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(
                 i.getField(AuditInfo.CALLING_AET),
                 i.getField(AuditInfo.CALLING_HOST))

@@ -102,7 +102,6 @@ public class CMoveSCUMDB implements MessageListener {
         return new ExternalRetrieveContext()
                 .setLocalAET(msg.getStringProperty("LocalAET"))
                 .setRemoteAET(msg.getStringProperty("RemoteAET"))
-                .setRemoteHostName(msg.getStringProperty("RemoteHostName"))
                 .setDestinationAET(msg.getStringProperty("DestinationAET"))
                 .setRequesterUserID(msg.getStringProperty("RequesterUserID"))
                 .setRequesterHostName(msg.getStringProperty("RequesterHostName"))

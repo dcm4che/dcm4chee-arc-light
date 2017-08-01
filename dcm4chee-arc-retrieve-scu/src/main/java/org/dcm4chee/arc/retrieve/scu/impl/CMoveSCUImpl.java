@@ -227,7 +227,6 @@ public class CMoveSCUImpl implements CMoveSCU {
             ObjectMessage msg = queueManager.createObjectMessage(ctx.getKeys());
             msg.setStringProperty("LocalAET", ctx.getLocalAET());
             msg.setStringProperty("RemoteAET", ctx.getRemoteAET());
-            msg.setStringProperty("RemoteHostName", ctx.getRemoteHostName());
             msg.setIntProperty("Priority", priority);
             msg.setStringProperty("DestinationAET", ctx.getDestinationAET());
             msg.setStringProperty("StudyInstanceUID", ctx.getKeys().getString(Tag.StudyInstanceUID));

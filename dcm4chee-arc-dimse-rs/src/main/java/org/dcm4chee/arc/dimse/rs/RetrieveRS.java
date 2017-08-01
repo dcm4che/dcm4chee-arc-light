@@ -167,6 +167,7 @@ public class RetrieveRS {
             Attributes cmd = rsp.getCommand();
             instancesRetrievedEvent.fire(
                     toInstancesRetrieved(destAET, keys)
+                    .setRemoteHostName(as.getSocket().getInetAddress().getHostName())
                     .setResponse(cmd));
             return status(cmd).entity(entity(cmd)).build();
         } finally {
