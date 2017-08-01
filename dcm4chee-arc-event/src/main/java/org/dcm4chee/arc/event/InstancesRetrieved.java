@@ -41,8 +41,11 @@ package org.dcm4chee.arc.event;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 
 import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -50,25 +53,24 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class InstancesRetrieved {
 
-    private final HttpServletRequest request;
-    private final String localAET;
-    private final String remoteAET;
-    private final String destinationAET;
-    private final Attributes keys;
-    private final Attributes response;
+    private String callingUserID;
+    private String callingHost;
+    private String localAET;
+    private String remoteAET;
+    private String destinationAET;
+    private Attributes keys;
+    private Attributes response;
+    private String calledUserID;
 
-    public InstancesRetrieved(HttpServletRequest request, String localAET, String remoteAET, String destinationAET,
-                              Attributes keys, Attributes response) {
-        this.request = request;
-        this.localAET = localAET;
-        this.remoteAET = remoteAET;
-        this.destinationAET = destinationAET;
-        this.keys = keys;
-        this.response = response;
+    public InstancesRetrieved() {
     }
 
-    public HttpServletRequest getRequest() {
-        return request;
+    public String getCallingUserID() {
+        return callingUserID;
+    }
+
+    public String getCallingHost() {
+        return callingHost;
     }
 
     public String getLocalAET() {
@@ -87,8 +89,59 @@ public class InstancesRetrieved {
         return keys;
     }
 
+    public String getCalledUserID() {
+        return calledUserID;
+    }
+
     public Attributes getResponse() {
         return response;
+    }
+
+    public InstancesRetrieved setCallingUserID(String callingUserID) {
+        this.callingUserID = callingUserID;
+        return this;
+    }
+
+    public InstancesRetrieved setCallingHost(String callingHost) {
+        this.callingHost = callingHost;
+        return this;
+    }
+
+    public InstancesRetrieved setCalledUserID(String calledUserID) {
+        this.calledUserID = calledUserID;
+        return this;
+    }
+
+    public InstancesRetrieved setRequestInfo(HttpServletRequest request) {
+        this.callingUserID = getPreferredUsername(request);
+        this.callingHost = request.getRemoteHost();
+        this.calledUserID = request.getRequestURI();
+        return this;
+    }
+
+    public InstancesRetrieved setLocalAET(String localAET) {
+        this.localAET = localAET;
+        return this;
+    }
+
+    public InstancesRetrieved setRemoteAET(String remoteAET) {
+        this.remoteAET = remoteAET;
+        return this;
+    }
+
+    public InstancesRetrieved setDestinationAET(String destinationAET) {
+        this.destinationAET = destinationAET;
+        return this;
+    }
+
+    public InstancesRetrieved setKeys(Attributes keys) {
+        this.keys = keys;
+        return this;
+    }
+
+    public InstancesRetrieved setResponse(Attributes response) {
+        this.response = response;
+        return this;
     }
 
     public String getStudyInstanceUID() {
@@ -117,7 +170,7 @@ public class InstancesRetrieved {
 
     @Override
     public String toString() {
-        return "InstancesRetrieved[" + request.getRemoteUser() + '@' + request.getRemoteHost()
+        return "InstancesRetrieved[" + callingUserID + '@' + callingHost
                 + ", localAET=" + localAET
                 + ", remoteAET=" + remoteAET
                 + ", destinationAET=" + destinationAET
@@ -128,6 +181,13 @@ public class InstancesRetrieved {
                 + ", warning=" + warning()
                 + ", errorComment=" + getErrorComment()
                 + ']';
+    }
+
+    private String getPreferredUsername(HttpServletRequest req) {
+        return req.getAttribute("org.keycloak.KeycloakSecurityContext") != null
+                ? ((RefreshableKeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName()))
+                .getToken().getPreferredUsername()
+                : req.getRemoteAddr();
     }
 
 }

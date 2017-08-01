@@ -321,10 +321,10 @@ public class AuditService {
         Attributes keys = instancesRetrieved.getKeys();
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
         BuildAuditInfo i = new BuildAuditInfo.Builder()
-                .callingAET(getPreferredUsername(instancesRetrieved.getRequest()))
-                .callingHost(instancesRetrieved.getRequest().getRemoteAddr())
+                .callingAET(instancesRetrieved.getCalledUserID())
+                .callingHost(instancesRetrieved.getCallingHost())
                 .calledHost(instancesRetrieved.getRemoteAET())
-                .calledAET(instancesRetrieved.getRequest().getRequestURI())
+                .calledAET(instancesRetrieved.getCalledUserID())
                 .moveAET(instancesRetrieved.getLocalAET())
                 .destAET(instancesRetrieved.getDestinationAET())
                 .failedIUIDShow(instancesRetrieved.failed() > 0)

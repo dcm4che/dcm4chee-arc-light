@@ -47,6 +47,7 @@ import org.dcm4che3.net.DimseRSP;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4chee.arc.event.InstancesRetrieved;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 
@@ -70,7 +71,7 @@ public interface CMoveSCU {
 
     DimseRSP cmove(Association as, int priority, String destAET, Attributes keys) throws Exception;
 
-    Outcome cmove(String localAET, String remoteAET, int priority, String destAET, Attributes keys) throws Exception;
+    Outcome cmove(int priority, InstancesRetrieved instancesRetrieved) throws Exception;
 
-    void scheduleCMove(String localAET, String remoteAET, int priority, String destAET, Attributes keys);
+    void scheduleCMove(int priority, InstancesRetrieved instancesRetrieved);
 }

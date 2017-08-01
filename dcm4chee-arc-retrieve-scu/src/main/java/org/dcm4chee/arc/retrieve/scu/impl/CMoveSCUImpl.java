@@ -52,6 +52,7 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.InstancesRetrieved;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -92,6 +93,9 @@ public class CMoveSCUImpl implements CMoveSCU {
 
     @Inject @RetrieveEnd
     private Event<RetrieveContext> retrieveEnd;
+
+    @Inject
+    private Event<InstancesRetrieved> instancesRetrievedEvent;
 
     @Override
     public RetrieveTask newForwardRetrieveTask(
@@ -166,19 +170,24 @@ public class CMoveSCUImpl implements CMoveSCU {
     }
 
     @Override
-    public Outcome cmove(String localAET, String remoteAET, int priority, String destAET, Attributes keys)
+    public Outcome cmove(int priority, InstancesRetrieved instancesRetrieved)
             throws Exception {
-        ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
-        Association as = openAssociation(localAE, remoteAET);
+        ApplicationEntity localAE = device.getApplicationEntity(instancesRetrieved.getLocalAET(), true);
+        Association as = openAssociation(localAE, instancesRetrieved.getRemoteAET());
         try {
-            final DimseRSP rsp = cmove(as, priority, destAET, keys);
+            final DimseRSP rsp = cmove(as, priority, instancesRetrieved.getDestinationAET(), instancesRetrieved.getKeys());
             while (rsp.next());
             Attributes cmd = rsp.getCommand();
             int status = cmd.getInt(Tag.Status, -1);
             if (status == Status.Success || status == Status.OneOrMoreFailures) {
+                instancesRetrievedEvent.fire(instancesRetrieved);
                     return new Outcome(
                             status == Status.Success ? QueueMessage.Status.COMPLETED : QueueMessage.Status.WARNING,
-                            toOutcomeMessage(remoteAET, destAET, keys, cmd));
+                            toOutcomeMessage(
+                                    instancesRetrieved.getRemoteAET(),
+                                    instancesRetrieved.getDestinationAET(),
+                                    instancesRetrieved.getKeys(),
+                                    cmd));
             }
             throw new DicomServiceException(status, cmd.getString(Tag.ErrorComment));
         } finally {
@@ -213,14 +222,17 @@ public class CMoveSCUImpl implements CMoveSCU {
     }
 
     @Override
-    public void scheduleCMove(String localAET, String remoteAET, int priority, String destAET, Attributes keys) {
+    public void scheduleCMove(int priority, InstancesRetrieved instancesRetrieved) {
         try {
-            ObjectMessage msg = queueManager.createObjectMessage(keys);
-            msg.setStringProperty("LocalAET", localAET);
-            msg.setStringProperty("RemoteAET", remoteAET);
+            ObjectMessage msg = queueManager.createObjectMessage(instancesRetrieved.getKeys());
+            msg.setStringProperty("LocalAET", instancesRetrieved.getLocalAET());
+            msg.setStringProperty("RemoteAET", instancesRetrieved.getRemoteAET());
             msg.setIntProperty("Priority", priority);
-            msg.setStringProperty("DestinationAET", destAET);
-            msg.setStringProperty("StudyInstanceUID", keys.getString(Tag.StudyInstanceUID));
+            msg.setStringProperty("DestinationAET", instancesRetrieved.getDestinationAET());
+            msg.setStringProperty("StudyInstanceUID", instancesRetrieved.getKeys().getString(Tag.StudyInstanceUID));
+            msg.setStringProperty("CallingUserID", instancesRetrieved.getCallingUserID());
+            msg.setStringProperty("CallingHost", instancesRetrieved.getCallingHost());
+            msg.setStringProperty("CalledUserID", instancesRetrieved.getCalledUserID());
             queueManager.scheduleMessage(QUEUE_NAME, msg);
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);

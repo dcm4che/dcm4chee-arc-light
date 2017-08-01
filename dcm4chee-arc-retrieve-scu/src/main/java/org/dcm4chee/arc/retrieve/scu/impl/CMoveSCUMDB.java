@@ -39,6 +39,7 @@
 package org.dcm4chee.arc.retrieve.scu.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4chee.arc.event.InstancesRetrieved;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
@@ -88,15 +89,23 @@ public class CMoveSCUMDB implements MessageListener {
         try {
             Attributes keys = (Attributes) ((ObjectMessage) msg).getObject();
             Outcome outcome = cmoveSCU.cmove(
-                    msg.getStringProperty("LocalAET"),
-                    msg.getStringProperty("RemoteAET"),
                     msg.getIntProperty("Priority"),
-                    msg.getStringProperty("DestinationAET"),
-                    keys);
+                    toInstancesRetrieved(msg, keys));
             queueManager.onProcessingSuccessful(msgID, outcome);
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);
         }
+    }
+
+    private InstancesRetrieved toInstancesRetrieved(Message msg, Attributes keys) throws Exception {
+        return new InstancesRetrieved()
+                .setLocalAET(msg.getStringProperty("LocalAET"))
+                .setRemoteAET(msg.getStringProperty("RemoteAET"))
+                .setDestinationAET(msg.getStringProperty("DestinationAET"))
+                .setCallingUserID(msg.getStringProperty("UserID"))
+                .setCallingHost(msg.getStringProperty("CallingHost"))
+                .setCalledUserID(msg.getStringProperty("CalledUserID"))
+                .setKeys(keys);
     }
 }
