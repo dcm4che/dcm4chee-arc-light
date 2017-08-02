@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016-2017
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,41 +38,15 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.export.mgt;
-
-import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.ExportTask;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
-import org.dcm4chee.arc.store.StoreContext;
-
-import javax.enterprise.event.Observes;
-import java.util.Date;
-import java.util.List;
+package org.dcm4chee.arc.retrieve;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Feb 2016
+ * @since Aug 2017
  */
-public interface ExportManager {
-    void onStore(@Observes StoreContext ctx);
+public interface HttpServletRequestInfo {
+    String getRequesterUserID();
 
-    int scheduleExportTasks(int fetchSize);
+    String getRequesterHost();
 
-    void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                            HttpServletRequestInfo httpServletRequestInfo);
-
-    void updateExportTask(Long pk);
-
-    List<ExportTask> search(
-            String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status,
-            int offset, int limit);
-
-    boolean deleteExportTask(Long pk);
-
-    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
-
-    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException;
+    String getRequestURI();
 }

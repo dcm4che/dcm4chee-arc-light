@@ -54,6 +54,8 @@ import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
+import org.dcm4chee.arc.retrieve.impl.HttpServletRequestInfoImpl;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.hibernate.Session;
@@ -219,20 +221,21 @@ public class ExportManagerEJB implements ExportManager {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         for (ExportTask exportTask : resultList) {
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
-            scheduleExportTask(exportTask, exporter);
+            scheduleExportTask(exportTask, exporter, new HttpServletRequestInfoImpl());
         }
         return resultList.size();
     }
 
     @Override
-    public void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter) {
+    public void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
+                                   HttpServletRequestInfo httpServletRequestInfo) {
         ExportTask task = createExportTask(exporter.getExporterID(), studyUID, seriesUID, objectUID, new Date());
-        scheduleExportTask(task, exporter);
+        scheduleExportTask(task, exporter, httpServletRequestInfo);
     }
 
-    private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter) {
+    private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo) {
         QueueMessage queueMessage = queueManager.scheduleMessage(exporter.getQueueName(),
-                createMessage(exportTask, exporter.getAETitle()));
+                createMessage(exportTask, exporter.getAETitle(), httpServletRequestInfo));
         exportTask.setQueueMessage(queueMessage);
         try {
             Attributes attrs = queryService.queryExportTaskInfo(
@@ -253,7 +256,7 @@ public class ExportManagerEJB implements ExportManager {
         }
     }
 
-    private ObjectMessage createMessage(ExportTask exportTask, String aeTitle) {
+    private ObjectMessage createMessage(ExportTask exportTask, String aeTitle, HttpServletRequestInfo httpServletRequestInfo) {
         ObjectMessage msg = queueManager.createObjectMessage(exportTask.getPk());
         try {
             msg.setStringProperty("StudyInstanceUID", exportTask.getStudyInstanceUID());
@@ -261,6 +264,9 @@ public class ExportManagerEJB implements ExportManager {
             msg.setStringProperty("SopInstanceUID", exportTask.getSopInstanceUID());
             msg.setStringProperty("ExporterID", exportTask.getExporterID());
             msg.setStringProperty("AETitle", aeTitle);
+            msg.setStringProperty("RequesterUserID", httpServletRequestInfo.getRequesterUserID());
+            msg.setStringProperty("RequesterHostName", httpServletRequestInfo.getRequesterHost());
+            msg.setStringProperty("RequestURI", httpServletRequestInfo.getRequestURI());
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

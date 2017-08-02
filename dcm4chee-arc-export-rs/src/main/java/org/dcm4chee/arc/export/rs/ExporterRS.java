@@ -50,8 +50,10 @@ import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterFactory;
+import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.retrieve.impl.HttpServletRequestInfoImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,7 +164,7 @@ public class ExporterRS {
             if (bOnlyIAN || bOnlyStgCmt)
                 exportEvent.fire(createExportContext(studyUID, seriesUID, objectUID, exporter, aet, bOnlyIAN, bOnlyStgCmt));
             else
-                exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter);
+                exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter, new HttpServletRequestInfoImpl(request));
 
             return Response.accepted().build();
         }
@@ -180,6 +182,7 @@ public class ExporterRS {
         try {
             RetrieveContext retrieveContext = retrieveService.newRetrieveContextSTORE(
                     aet, studyUID, seriesUID, objectUID, exportURI.getSchemeSpecificPart());
+            retrieveContext.setHttpServletRequestInfo(new HttpServletRequestInfoImpl(request));
             exporterFactory.getExporter(new ExporterDescriptor(exporterID, exportURI))
                     .export(retrieveContext);
             return toResponse(retrieveContext);

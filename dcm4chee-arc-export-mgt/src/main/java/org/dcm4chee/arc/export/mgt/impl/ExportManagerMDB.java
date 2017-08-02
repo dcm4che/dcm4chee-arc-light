@@ -10,6 +10,7 @@ import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterFactory;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.retrieve.impl.HttpServletRequestInfoImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +69,11 @@ public class ExportManagerMDB implements MessageListener {
             exportContext.setSeriesInstanceUID(msg.getStringProperty("SeriesInstanceUID"));
             exportContext.setSopInstanceUID(msg.getStringProperty("SopInstanceUID"));
             exportContext.setAETitle(msg.getStringProperty("AETitle"));
+            exportContext.setHttpServletRequestInfo(
+                    new HttpServletRequestInfoImpl(
+                            msg.getStringProperty("RequesterUserID"),
+                            msg.getStringProperty("RequesterHostName"),
+                            msg.getStringProperty("RequestURI")));
             outcome = exporter.export(exportContext);
             exportContext.setOutcome(outcome);
             exportEvent.fire(exportContext);

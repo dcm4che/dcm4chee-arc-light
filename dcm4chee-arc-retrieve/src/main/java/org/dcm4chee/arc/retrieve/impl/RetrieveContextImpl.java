@@ -113,6 +113,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private Date patientUpdatedTime;
     private boolean retryFailedRetrieve;
     private AttributeSet metadataFilter;
+    private HttpServletRequestInfo httpServletRequestInfo;
 
     RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle,
                         QueryRetrieveView qrView) {
@@ -639,5 +640,15 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public boolean isRetrieveMetadata() {
         return objectType == null;
+    }
+
+    @Override
+    public HttpServletRequestInfo getHttpServletRequestInfo() {
+        return httpServletRequestInfo;
+    }
+
+    @Override
+    public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
+        this.httpServletRequestInfo = httpServletRequestInfo;
     }
 }

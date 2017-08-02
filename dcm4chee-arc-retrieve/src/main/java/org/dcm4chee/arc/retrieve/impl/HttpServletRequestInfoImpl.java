@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016-2017
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,41 +38,60 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.export.mgt;
+package org.dcm4chee.arc.retrieve.impl;
 
-import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.ExportTask;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
-import org.dcm4chee.arc.store.StoreContext;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 
-import javax.enterprise.event.Observes;
-import java.util.Date;
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Feb 2016
+ * @since Aug 2017
  */
-public interface ExportManager {
-    void onStore(@Observes StoreContext ctx);
+public class HttpServletRequestInfoImpl implements HttpServletRequestInfo {
+    private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
 
-    int scheduleExportTasks(int fetchSize);
+    private String requestingUserID;
+    private String requestingHost;
+    private String requestURI;
 
-    void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                            HttpServletRequestInfo httpServletRequestInfo);
+    public HttpServletRequestInfoImpl() {
+    }
 
-    void updateExportTask(Long pk);
+    public HttpServletRequestInfoImpl(HttpServletRequest request) {
+        this.requestingUserID = getPreferredUsername(request);
+        this.requestingHost = request.getRemoteHost();
+        this.requestURI = request.getRequestURI();
+    }
 
-    List<ExportTask> search(
-            String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status,
-            int offset, int limit);
+    public HttpServletRequestInfoImpl(String requestingUserID, String requestingHost, String requestURI) {
+        this.requestingUserID = requestingUserID;
+        this.requestingHost = requestingHost;
+        this.requestURI = requestURI;
+    }
 
-    boolean deleteExportTask(Long pk);
+    @Override
+    public String getRequesterUserID() {
+        return requestingUserID;
+    }
 
-    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
+    @Override
+    public String getRequesterHost() {
+        return requestingHost;
+    }
 
-    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException;
+    @Override
+    public String getRequestURI() {
+        return requestURI;
+    }
+
+    private String getPreferredUsername(HttpServletRequest req) {
+        return req.getAttribute(keycloakClassName) != null
+                ? ((RefreshableKeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName()))
+                .getToken().getPreferredUsername()
+                : req.getRemoteAddr();
+    }
+
 }
