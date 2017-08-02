@@ -2990,6 +2990,126 @@
         }
       }
     },
+    "/aets/{aet}/rs/mwlitems/{studyUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}": {
+      "post": {
+        "tags": [
+          "IOCM-RS",
+          "MWL-RS"
+        ],
+        "summary": "Move Instances to MWL Item",
+        "operationId": "MoveInstancesMWL",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of Target Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "spsID",
+            "in": "path",
+            "description": "Identifier of Target Scheduled Procedure Step",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codeValue",
+            "in": "path",
+            "description": "Code Value of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "codingSchemeDesignator",
+            "in": "path",
+            "description": "Coding Scheme Designator of Rejection Note",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "instanceRefs",
+            "in": "body",
+            "description": "References to Source Instances",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/HierarchicalSOPInstanceReference"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "no such MWL Item"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/mwlitems/{studyUID}/{spsID}/move": {
+      "delete": {
+        "tags": [
+          "IOCM-RS",
+          "MWL-RS"
+        ],
+        "summary": "Delete Scheduled Procedure Step",
+        "operationId": "DeleteSPS",
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "spsID",
+            "in": "path",
+            "description": "Identifier of the Scheduled Procedure Step",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "no such SPS"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies": {
       "post": {
         "tags": [
