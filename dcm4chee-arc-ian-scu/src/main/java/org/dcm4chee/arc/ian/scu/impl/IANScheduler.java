@@ -198,7 +198,6 @@ public class IANScheduler extends Scheduler {
             if (ctx.isOnlyIAN()
                     || !ctx.isOnlyStgCmt() && ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)
                 sendIAN(ctx, descriptor);
-        return;
     }
 
     private void sendIAN(ExportContext ctx, ExporterDescriptor descriptor) {

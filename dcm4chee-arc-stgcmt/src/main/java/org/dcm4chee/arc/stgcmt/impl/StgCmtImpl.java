@@ -126,7 +126,6 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             if (ctx.isOnlyStgCmt()
                     || !ctx.isOnlyIAN() && ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)
                 triggerStorageCommit(ctx, descriptor, stgCmtSCPAETitle);
-        return;
     }
 
     private void triggerStorageCommit(ExportContext ctx, ExporterDescriptor descriptor, String stgCmtSCPAETitle) {
