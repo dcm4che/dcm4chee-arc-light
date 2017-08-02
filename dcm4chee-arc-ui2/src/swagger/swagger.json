@@ -502,7 +502,7 @@
             "description": "updated device vendor data",
             "required": true,
             "schema": {
-              "type": "file"
+              "x-mime-type": "application/zip"
             }
           }
         ],
