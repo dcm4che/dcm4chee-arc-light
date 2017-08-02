@@ -45,7 +45,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.event.InstancesRetrieved;
+import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +81,7 @@ public class RetrieveRS {
     private Device device;
 
     @Inject
-    private Event<InstancesRetrieved> instancesRetrievedEvent;
+    private Event<ExternalRetrieveContext> instancesRetrievedEvent;
 
     @PathParam("AETitle")
     private String aet;
@@ -149,7 +149,7 @@ public class RetrieveRS {
     }
 
     private Response queueExport(String destAET, Attributes keys) {
-        moveSCU.scheduleCMove(aet, externalAET, priority(), destAET, keys);
+        moveSCU.scheduleCMove(priority(), toInstancesRetrieved(destAET, keys));
         return Response.accepted().build();
     }
 
@@ -160,7 +160,10 @@ public class RetrieveRS {
             final DimseRSP rsp = moveSCU.cmove(as, priority(), destAET, keys);
             while (rsp.next());
             Attributes cmd = rsp.getCommand();
-            instancesRetrievedEvent.fire(new InstancesRetrieved(request, aet, externalAET, destAET, keys, cmd));
+            instancesRetrievedEvent.fire(
+                    toInstancesRetrieved(destAET, keys)
+                    .setRemoteHostName(as.getSocket().getInetAddress().getHostName())
+                    .setResponse(cmd));
             return status(cmd).entity(entity(cmd)).build();
         } finally {
             try {
@@ -169,6 +172,15 @@ public class RetrieveRS {
                 LOG.info("{}: Failed to release association:\\n", as, e);
             }
         }
+    }
+
+    private ExternalRetrieveContext toInstancesRetrieved(String destAET, Attributes keys) {
+        return new ExternalRetrieveContext()
+                .setLocalAET(aet)
+                .setRemoteAET(externalAET)
+                .setDestinationAET(destAET)
+                .setRequestInfo(request)
+                .setKeys(keys);
     }
 
     private static Attributes toKeys(String[] iuids) {

@@ -58,7 +58,7 @@ import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.entity.Study;
-import org.dcm4chee.arc.event.InstancesRetrieved;
+import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.event.RejectionNoteSent;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -144,7 +144,7 @@ public class AuditService {
                 auditStorageCommit(auditLogger, readerObj, eventTime, eventType);
                 break;
             case INST_RETRIEVED:
-                auditInstancesRetrieved(auditLogger, path, eventType);
+                auditExternalRetrieve(auditLogger, path, eventType);
                 break;
         }
     }
@@ -317,50 +317,63 @@ public class AuditService {
                 getPoiList(poi1, poi2), auditLogger);
     }
 
-    void spoolInstancesRetrieved(InstancesRetrieved instancesRetrieved) {
-        Attributes keys = instancesRetrieved.getKeys();
+    void spoolExternalRetrieve(ExternalRetrieveContext ctx) {
+        String outcome = ctx.getResponse().getString(Tag.ErrorComment) != null
+                            ? ctx.getResponse().getString(Tag.ErrorComment) + ctx.failed()
+                            : null;
+        String warning = ctx.warning() > 0
+                            ? "Number Of Warning Sub operations" + ctx.warning()
+                            : null;
+        Attributes keys = ctx.getKeys();
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
         BuildAuditInfo i = new BuildAuditInfo.Builder()
-                .callingAET(getPreferredUsername(instancesRetrieved.getRequest()))
-                .callingHost(instancesRetrieved.getRequest().getRemoteAddr())
-                .calledHost(instancesRetrieved.getRemoteAET())
-                .calledAET(instancesRetrieved.getRequest().getRequestURI())
-                .moveAET(instancesRetrieved.getLocalAET())
-                .destAET(instancesRetrieved.getDestinationAET())
-                .failedIUIDShow(instancesRetrieved.failed() > 0)
-                .warning(String.valueOf(instancesRetrieved.warning()))
+                .callingAET(ctx.getRequesterUserID())
+                .callingHost(ctx.getRequesterHostName())
+                .calledHost(ctx.getRemoteHostName())
+                .calledAET(ctx.getRemoteAET())
+                .moveAET(ctx.getRequestURI())
+                .destAET(ctx.getDestinationAET())
+                .warning(warning)
                 .studyUID(keys.getString(Tag.StudyInstanceUID))
+                .outcome(outcome)
                 .build();
         obj.add(new AuditInfo(i));
         writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.INST_RETRV), obj);
     }
 
-    private void auditInstancesRetrieved(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
+    private void auditExternalRetrieve(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
             throws IOException {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo i = new AuditInfo(reader.getMainInfo());
-        EventIdentification ei = getEI(eventType, i.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
+        EventIdentification ei = getCustomEI(eventType, i.getField(AuditInfo.OUTCOME), i.getField(AuditInfo.WARNING), getEventTime(path, auditLogger));
         BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(
                 i.getField(AuditInfo.CALLING_AET),
                 i.getField(AuditInfo.CALLING_HOST))
-                .altUserID(i.getField(AuditInfo.MOVEAET))
-                .requester(eventType.isSource)
+                .requester(eventType.isOther)
                 .build();
         BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(
-                i.getField(AuditInfo.CALLED_AET),
-                i.getField(AuditInfo.CALLED_HOST))
-                .requester(eventType.isDest)
+                i.getField(AuditInfo.MOVEAET),
+                getLocalHostName(auditLogger))
+                .altUserID(AuditLogger.processID())
+                .requester(eventType.isOther)
                 .build();
         BuildActiveParticipant ap3 = new BuildActiveParticipant.Builder(
+                i.getField(AuditInfo.CALLED_AET),
+                i.getField(AuditInfo.CALLED_HOST))
+                .requester(eventType.isSource)
+                .roleIDCode(eventType.source)
+                .build();
+        BuildActiveParticipant ap4 = new BuildActiveParticipant.Builder(
                 i.getField(AuditInfo.DEST_AET),
                 i.getField(AuditInfo.DEST_NAP_ID))
-                .requester(eventType.isOther)
+                .requester(eventType.isDest)
+                .roleIDCode(eventType.destination)
                 .build();
         BuildParticipantObjectIdentification studyPOI = new BuildParticipantObjectIdentification.Builder(
                 i.getField(AuditInfo.STUDY_UID), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report)
                 .build();
-        emitAuditMessage(ei, getApList(ap1, ap2, ap3), getPoiList(studyPOI), auditLogger);
+        emitAuditMessage(ei, getApList(ap1, ap2, ap3, ap4), getPoiList(studyPOI), auditLogger);
     }
 
     void spoolConnectionRejected(ConnectionEvent event) {

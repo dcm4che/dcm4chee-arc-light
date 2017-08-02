@@ -52,6 +52,7 @@ import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -92,6 +93,9 @@ public class CMoveSCUImpl implements CMoveSCU {
 
     @Inject @RetrieveEnd
     private Event<RetrieveContext> retrieveEnd;
+
+    @Inject
+    private Event<ExternalRetrieveContext> externalRetrieve;
 
     @Override
     public RetrieveTask newForwardRetrieveTask(
@@ -166,19 +170,24 @@ public class CMoveSCUImpl implements CMoveSCU {
     }
 
     @Override
-    public Outcome cmove(String localAET, String remoteAET, int priority, String destAET, Attributes keys)
-            throws Exception {
-        ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
-        Association as = openAssociation(localAE, remoteAET);
+    public Outcome cmove(int priority, ExternalRetrieveContext ctx) throws Exception {
+        ApplicationEntity localAE = device.getApplicationEntity(ctx.getLocalAET(), true);
+        Association as = openAssociation(localAE, ctx.getRemoteAET());
+        ctx.setRemoteHostName(as.getSocket().getInetAddress().getHostName());
         try {
-            final DimseRSP rsp = cmove(as, priority, destAET, keys);
+            final DimseRSP rsp = cmove(as, priority, ctx.getDestinationAET(), ctx.getKeys());
             while (rsp.next());
             Attributes cmd = rsp.getCommand();
             int status = cmd.getInt(Tag.Status, -1);
             if (status == Status.Success || status == Status.OneOrMoreFailures) {
+                externalRetrieve.fire(ctx.setResponse(cmd));
                     return new Outcome(
                             status == Status.Success ? QueueMessage.Status.COMPLETED : QueueMessage.Status.WARNING,
-                            toOutcomeMessage(remoteAET, destAET, keys, cmd));
+                            toOutcomeMessage(
+                                    ctx.getRemoteAET(),
+                                    ctx.getDestinationAET(),
+                                    ctx.getKeys(),
+                                    cmd));
             }
             throw new DicomServiceException(status, cmd.getString(Tag.ErrorComment));
         } finally {
@@ -213,14 +222,17 @@ public class CMoveSCUImpl implements CMoveSCU {
     }
 
     @Override
-    public void scheduleCMove(String localAET, String remoteAET, int priority, String destAET, Attributes keys) {
+    public void scheduleCMove(int priority, ExternalRetrieveContext ctx) {
         try {
-            ObjectMessage msg = queueManager.createObjectMessage(keys);
-            msg.setStringProperty("LocalAET", localAET);
-            msg.setStringProperty("RemoteAET", remoteAET);
+            ObjectMessage msg = queueManager.createObjectMessage(ctx.getKeys());
+            msg.setStringProperty("LocalAET", ctx.getLocalAET());
+            msg.setStringProperty("RemoteAET", ctx.getRemoteAET());
             msg.setIntProperty("Priority", priority);
-            msg.setStringProperty("DestinationAET", destAET);
-            msg.setStringProperty("StudyInstanceUID", keys.getString(Tag.StudyInstanceUID));
+            msg.setStringProperty("DestinationAET", ctx.getDestinationAET());
+            msg.setStringProperty("StudyInstanceUID", ctx.getKeys().getString(Tag.StudyInstanceUID));
+            msg.setStringProperty("RequesterUserID", ctx.getRequesterUserID());
+            msg.setStringProperty("RequesterHostName", ctx.getRequesterHostName());
+            msg.setStringProperty("RequestURI", ctx.getRequestURI());
             queueManager.scheduleMessage(QUEUE_NAME, msg);
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);

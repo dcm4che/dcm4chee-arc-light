@@ -36,47 +36,58 @@
  *
  */
 
-package org.dcm4chee.arc.event;
+package org.dcm4chee.arc.retrieve;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 
 import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2017
  */
-public class InstancesRetrieved {
+public class ExternalRetrieveContext {
 
-    private final HttpServletRequest request;
-    private final String localAET;
-    private final String remoteAET;
-    private final String destinationAET;
-    private final Attributes keys;
-    private final Attributes response;
+    private String requesterUserID;
+    private String requesterHostName;
+    private String requestURI;
+    private String localAET;
+    private String remoteHostName;
+    private String remoteAET;
+    private String destinationAET;
+    private Attributes keys;
+    private Attributes response;
 
-    public InstancesRetrieved(HttpServletRequest request, String localAET, String remoteAET, String destinationAET,
-                              Attributes keys, Attributes response) {
-        this.request = request;
-        this.localAET = localAET;
-        this.remoteAET = remoteAET;
-        this.destinationAET = destinationAET;
-        this.keys = keys;
-        this.response = response;
+    public ExternalRetrieveContext() {
     }
 
-    public HttpServletRequest getRequest() {
-        return request;
+    public String getRequesterUserID() {
+        return requesterUserID;
+    }
+
+    public String getRequesterHostName() {
+        return requesterHostName;
     }
 
     public String getLocalAET() {
         return localAET;
     }
 
+    public String getRequestURI() {
+        return requestURI;
+    }
+
     public String getRemoteAET() {
         return remoteAET;
+    }
+
+    public String getRemoteHostName() {
+        return remoteHostName;
     }
 
     public String getDestinationAET() {
@@ -89,6 +100,58 @@ public class InstancesRetrieved {
 
     public Attributes getResponse() {
         return response;
+    }
+
+    public ExternalRetrieveContext setRequesterUserID(String requesterUserID) {
+        this.requesterUserID = requesterUserID;
+        return this;
+    }
+
+    public ExternalRetrieveContext setRequesterHostName(String requesterHostName) {
+        this.requesterHostName = requesterHostName;
+        return this;
+    }
+
+    public ExternalRetrieveContext setRequestURI(String requestURI) {
+        this.requestURI = requestURI;
+        return this;
+    }
+
+    public ExternalRetrieveContext setRequestInfo(HttpServletRequest request) {
+        this.requesterUserID = getPreferredUsername(request);
+        this.requesterHostName = request.getRemoteHost();
+        this.requestURI = request.getRequestURI();
+        return this;
+    }
+
+    public ExternalRetrieveContext setLocalAET(String localAET) {
+        this.localAET = localAET;
+        return this;
+    }
+
+    public ExternalRetrieveContext setRemoteAET(String remoteAET) {
+        this.remoteAET = remoteAET;
+        return this;
+    }
+
+    public ExternalRetrieveContext setRemoteHostName(String remoteHostName) {
+        this.remoteHostName = remoteHostName;
+        return this;
+    }
+
+    public ExternalRetrieveContext setDestinationAET(String destinationAET) {
+        this.destinationAET = destinationAET;
+        return this;
+    }
+
+    public ExternalRetrieveContext setKeys(Attributes keys) {
+        this.keys = keys;
+        return this;
+    }
+
+    public ExternalRetrieveContext setResponse(Attributes response) {
+        this.response = response;
+        return this;
     }
 
     public String getStudyInstanceUID() {
@@ -104,20 +167,20 @@ public class InstancesRetrieved {
     }
 
     public int warning() {
-        return response.getInt(Tag.NumberOfWarningSuboperations, 0);
+        return response != null ? response.getInt(Tag.NumberOfWarningSuboperations, 0) : 0;
     }
 
     public int failed() {
-        return response.getInt(Tag.NumberOfFailedSuboperations, 0);
+        return response != null ? response.getInt(Tag.NumberOfFailedSuboperations, 0) : 0;
     }
 
     public int completed() {
-        return response.getInt(Tag.NumberOfCompletedSuboperations, 0);
+        return response != null ? response.getInt(Tag.NumberOfCompletedSuboperations, 0) : 0;
     }
 
     @Override
     public String toString() {
-        return "InstancesRetrieved[" + request.getRemoteUser() + '@' + request.getRemoteHost()
+        return "InstancesRetrieved[" + requesterUserID + '@' + requesterHostName
                 + ", localAET=" + localAET
                 + ", remoteAET=" + remoteAET
                 + ", destinationAET=" + destinationAET
@@ -128,6 +191,13 @@ public class InstancesRetrieved {
                 + ", warning=" + warning()
                 + ", errorComment=" + getErrorComment()
                 + ']';
+    }
+
+    private String getPreferredUsername(HttpServletRequest req) {
+        return req.getAttribute("org.keycloak.KeycloakSecurityContext") != null
+                ? ((RefreshableKeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName()))
+                .getToken().getPreferredUsername()
+                : req.getRemoteAddr();
     }
 
 }
