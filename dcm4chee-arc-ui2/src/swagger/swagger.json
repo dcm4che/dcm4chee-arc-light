@@ -500,10 +500,7 @@
             "name": "body",
             "in": "body",
             "description": "updated device vendor data",
-            "required": true,
-            "schema": {
-              "x-mime-type": "application/zip"
-            }
+            "required": true
           }
         ],
         "responses": {
