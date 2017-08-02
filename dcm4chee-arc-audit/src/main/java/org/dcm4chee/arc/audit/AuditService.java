@@ -330,8 +330,8 @@ public class AuditService {
                 .callingAET(ctx.getRequesterUserID())
                 .callingHost(ctx.getRequesterHostName())
                 .calledHost(ctx.getRemoteHostName())
-                .calledAET(ctx.getRequestURI())
-                .moveAET(ctx.getLocalAET())
+                .calledAET(ctx.getRemoteAET())
+                .moveAET(ctx.getRequestURI())
                 .destAET(ctx.getDestinationAET())
                 .warning(warning)
                 .studyUID(keys.getString(Tag.StudyInstanceUID))
@@ -349,24 +349,31 @@ public class AuditService {
         BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(
                 i.getField(AuditInfo.CALLING_AET),
                 i.getField(AuditInfo.CALLING_HOST))
-                .altUserID(i.getField(AuditInfo.MOVEAET))
-                .requester(eventType.isSource)
+                .requester(eventType.isOther)
                 .build();
         BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(
-                i.getField(AuditInfo.CALLED_AET),
-                i.getField(AuditInfo.CALLED_HOST))
-                .requester(eventType.isDest)
+                i.getField(AuditInfo.MOVEAET),
+                getLocalHostName(auditLogger))
+                .altUserID(AuditLogger.processID())
+                .requester(eventType.isOther)
                 .build();
         BuildActiveParticipant ap3 = new BuildActiveParticipant.Builder(
+                i.getField(AuditInfo.CALLED_AET),
+                i.getField(AuditInfo.CALLED_HOST))
+                .requester(eventType.isSource)
+                .roleIDCode(eventType.source)
+                .build();
+        BuildActiveParticipant ap4 = new BuildActiveParticipant.Builder(
                 i.getField(AuditInfo.DEST_AET),
                 i.getField(AuditInfo.DEST_NAP_ID))
-                .requester(eventType.isOther)
+                .requester(eventType.isDest)
+                .roleIDCode(eventType.destination)
                 .build();
         BuildParticipantObjectIdentification studyPOI = new BuildParticipantObjectIdentification.Builder(
                 i.getField(AuditInfo.STUDY_UID), AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report)
                 .build();
-        emitAuditMessage(ei, getApList(ap1, ap2, ap3), getPoiList(studyPOI), auditLogger);
+        emitAuditMessage(ei, getApList(ap1, ap2, ap3, ap4), getPoiList(studyPOI), auditLogger);
     }
 
     void spoolConnectionRejected(ConnectionEvent event) {
