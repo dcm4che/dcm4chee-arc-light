@@ -209,9 +209,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public RetrieveContext newRetrieveContextWADO(
-            HttpServletRequest request, String localAET, String studyUID, String seriesUID, String objectUID) {
+            HttpServletRequestInfo httpServletRequestInfo, String localAET, String studyUID, String seriesUID, String objectUID) {
         RetrieveContext ctx = newRetrieveContext(localAET, studyUID, seriesUID, objectUID);
-        ctx.setHttpRequest(request);
+        ctx.setHttpServletRequestInfo(httpServletRequestInfo);
         return ctx;
     }
 

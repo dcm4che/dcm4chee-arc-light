@@ -49,4 +49,6 @@ public interface HttpServletRequestInfo {
     String getRequesterHost();
 
     String getRequestURI();
+
+    boolean isObjectEmpty();
 }

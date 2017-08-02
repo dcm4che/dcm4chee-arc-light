@@ -87,6 +87,11 @@ public class HttpServletRequestInfoImpl implements HttpServletRequestInfo {
         return requestURI;
     }
 
+    @Override
+    public boolean isObjectEmpty() {
+        return requestingUserID == null && requestingHost == null && requestURI == null;
+    }
+
     private String getPreferredUsername(HttpServletRequest req) {
         return req.getAttribute(keycloakClassName) != null
                 ? ((RefreshableKeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName()))

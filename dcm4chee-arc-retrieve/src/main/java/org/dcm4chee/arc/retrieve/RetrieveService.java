@@ -77,7 +77,7 @@ public interface RetrieveService {
             throws ConfigurationException;
 
     RetrieveContext newRetrieveContextWADO(
-            HttpServletRequest request, String localAET, String studyUID, String seriesUID, String objectUID);
+            HttpServletRequestInfo httpServletRequestInfo, String localAET, String studyUID, String seriesUID, String objectUID);
 
     RetrieveContext newRetrieveContextSTORE(
             String localAET, String studyUID, String seriesUID, String objectUID, String destAET)
