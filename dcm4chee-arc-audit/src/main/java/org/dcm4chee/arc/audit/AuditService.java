@@ -778,12 +778,13 @@ public class AuditService {
         BuildActiveParticipant ap2;
         BuildActiveParticipant ap3 = null;
         if (eventType.isSource) {
-            ap2 = new BuildActiveParticipant.Builder(
-                    ri.getField(AuditInfo.CALLING_AET),
-                    ri.getField(AuditInfo.CALLING_HOST))
-                    .requester(eventType.isSource).build();
-            ap3 = new BuildActiveParticipant.Builder(ri.getField(AuditInfo.DEST_AET),
+            ap2 = new BuildActiveParticipant.Builder(ri.getField(AuditInfo.DEST_AET),
                     ri.getField(AuditInfo.DEST_NAP_ID)).requester(eventType.isDest).roleIDCode(eventType.destination).build();
+            if (ri.getField(AuditInfo.CALLING_AET) != null)
+                ap3 = new BuildActiveParticipant.Builder(
+                        ri.getField(AuditInfo.CALLING_AET),
+                        ri.getField(AuditInfo.CALLING_HOST))
+                        .requester(eventType.isSource).build();
         } else
             ap2 = new BuildActiveParticipant.Builder(ri.getField(AuditInfo.DEST_AET),
                     ri.getField(AuditInfo.DEST_NAP_ID)).requester(eventType.isDest).roleIDCode(eventType.destination).build();
