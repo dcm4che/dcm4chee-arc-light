@@ -872,11 +872,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
         String leadingCFindSCP = rule.getLeadingCFindSCP();
         if (leadingCFindSCP != null) {
-            int[] returnKeys = rule.getLeadingCFindSCPReturnKeys();
-            if (returnKeys.length == 0)
-                returnKeys = aeExt.getArchiveDeviceExtension().catAttributeFilters(Entity.Patient, Entity.Study);
-
-            coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP, returnKeys,
+            coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP,
+                    aeExt.getArchiveDeviceExtension().returnKeysForLeadingCFindSCP(leadingCFindSCP),
                     rule.getAttributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
         }
         return coercion;

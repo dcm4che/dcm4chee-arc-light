@@ -433,20 +433,9 @@ class QueryServiceImpl implements QueryService {
         String leadingCFindSCP = rule.getLeadingCFindSCP();
         if (leadingCFindSCP != null) {
             coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP,
-                    returnKeysForLeadingCFindSCP(aeExt.getArchiveDeviceExtension(), leadingCFindSCP),
+                    aeExt.getArchiveDeviceExtension().returnKeysForLeadingCFindSCP(leadingCFindSCP),
                     rule.getAttributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
         }
         return coercion;
-    }
-
-    private int[] returnKeysForLeadingCFindSCP(ArchiveDeviceExtension arcdev, String aet) {
-        Map<String, AttributeSet> map = arcdev.getAttributeSet(AttributeSet.Type.LEADING_CFIND_SCP);
-        AttributeSet attributeSet = map.get(aet);
-        if (attributeSet == null)
-            attributeSet = map.get("*");
-
-        return attributeSet != null
-                ? attributeSet.getSelection()
-                : arcdev.catAttributeFilters(Entity.Patient, Entity.Study);
     }
 }

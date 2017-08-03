@@ -1066,7 +1066,18 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return attributeFilters;
     }
 
-    public int[] catAttributeFilters(Entity... entities) {
+    public int[] returnKeysForLeadingCFindSCP(String aet) {
+        Map<String, AttributeSet> map = getAttributeSet(AttributeSet.Type.LEADING_CFIND_SCP);
+        AttributeSet attributeSet = map.get(aet);
+        if (attributeSet == null)
+            attributeSet = map.get("*");
+
+        return attributeSet != null
+                ? attributeSet.getSelection()
+                : catAttributeFilters(Entity.Patient, Entity.Study);
+    }
+
+    private int[] catAttributeFilters(Entity... entities) {
         int[] tags = ByteUtils.EMPTY_INTS;
         for (Entity entity : entities) {
             int[] src = getAttributeFilter(entity).getSelection();
