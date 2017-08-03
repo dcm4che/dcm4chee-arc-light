@@ -52,6 +52,7 @@ import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.JMSUtils;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
@@ -259,14 +260,14 @@ public class ExportManagerEJB implements ExportManager {
     private ObjectMessage createMessage(ExportTask exportTask, String aeTitle, HttpServletRequestInfo httpServletRequestInfo) {
         ObjectMessage msg = queueManager.createObjectMessage(exportTask.getPk());
         try {
-            msg.setStringProperty("StudyInstanceUID", exportTask.getStudyInstanceUID());
-            msg.setStringProperty("SeriesInstanceUID", exportTask.getSeriesInstanceUID());
-            msg.setStringProperty("SopInstanceUID", exportTask.getSopInstanceUID());
-            msg.setStringProperty("ExporterID", exportTask.getExporterID());
-            msg.setStringProperty("AETitle", aeTitle);
-            msg.setStringProperty("RequesterUserID", httpServletRequestInfo.getRequesterUserID());
-            msg.setStringProperty("RequesterHostName", httpServletRequestInfo.getRequesterHost());
-            msg.setStringProperty("RequestURI", httpServletRequestInfo.getRequestURI());
+            JMSUtils.setStringNotNull(msg,"StudyInstanceUID", exportTask.getStudyInstanceUID());
+            JMSUtils.setStringNotNull(msg,"SeriesInstanceUID", exportTask.getSeriesInstanceUID());
+            JMSUtils.setStringNotNull(msg,"SopInstanceUID", exportTask.getSopInstanceUID());
+            JMSUtils.setStringNotNull(msg,"ExporterID", exportTask.getExporterID());
+            JMSUtils.setStringNotNull(msg,"AETitle", aeTitle);
+            JMSUtils.setStringNotNull(msg,"RequesterUserID", httpServletRequestInfo.getRequesterUserID());
+            JMSUtils.setStringNotNull(msg,"RequesterHostName", httpServletRequestInfo.getRequesterHost());
+            JMSUtils.setStringNotNull(msg,"RequestURI", httpServletRequestInfo.getRequestURI());
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }
