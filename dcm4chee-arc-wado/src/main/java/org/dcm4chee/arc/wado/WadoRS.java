@@ -51,7 +51,6 @@ import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.retrieve.*;
-import org.dcm4chee.arc.retrieve.impl.HttpServletRequestInfoImpl;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.jboss.resteasy.plugins.providers.multipart.OutputPart;
@@ -340,7 +339,7 @@ public class WadoRS {
             // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
             // s. https://issues.jboss.org/browse/RESTEASY-903
             HttpServletRequest request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
-            final RetrieveContext ctx = service.newRetrieveContextWADO(new HttpServletRequestInfoImpl(request), aet, studyUID, seriesUID, objectUID);
+            final RetrieveContext ctx = service.newRetrieveContextWADO(HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
             if (output.isMetadata()) {
                 ctx.setObjectType(null);
                 ctx.setMetadataFilter(getMetadataFilter(includefields));

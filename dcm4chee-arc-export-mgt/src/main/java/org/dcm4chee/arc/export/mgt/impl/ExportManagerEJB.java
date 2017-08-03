@@ -56,7 +56,6 @@ import org.dcm4chee.arc.qmgt.JMSUtils;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
-import org.dcm4chee.arc.retrieve.impl.HttpServletRequestInfoImpl;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.hibernate.Session;
@@ -222,7 +221,7 @@ public class ExportManagerEJB implements ExportManager {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         for (ExportTask exportTask : resultList) {
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
-            scheduleExportTask(exportTask, exporter, new HttpServletRequestInfoImpl());
+            scheduleExportTask(exportTask, exporter, HttpServletRequestInfo.NULL);
         }
         return resultList.size();
     }
@@ -265,9 +264,7 @@ public class ExportManagerEJB implements ExportManager {
             JMSUtils.setStringNotNull(msg,"SopInstanceUID", exportTask.getSopInstanceUID());
             JMSUtils.setStringNotNull(msg,"ExporterID", exportTask.getExporterID());
             JMSUtils.setStringNotNull(msg,"AETitle", aeTitle);
-            JMSUtils.setStringNotNull(msg,"RequesterUserID", httpServletRequestInfo.getRequesterUserID());
-            JMSUtils.setStringNotNull(msg,"RequesterHostName", httpServletRequestInfo.getRequesterHost());
-            JMSUtils.setStringNotNull(msg,"RequestURI", httpServletRequestInfo.getRequestURI());
+            httpServletRequestInfo.copyTo(msg);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

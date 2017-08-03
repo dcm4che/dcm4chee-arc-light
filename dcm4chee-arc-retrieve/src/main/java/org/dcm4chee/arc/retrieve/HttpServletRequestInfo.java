@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2017
+ * Portions created by the Initial Developer are Copyright (C) 2013
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -40,15 +40,73 @@
 
 package org.dcm4chee.arc.retrieve;
 
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.JMSUtils;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
+import javax.servlet.http.HttpServletRequest;
+
+
 /**
  * @since Aug 2017
  */
-public interface HttpServletRequestInfo {
-    String getRequesterUserID();
+public class HttpServletRequestInfo {
 
-    String getRequesterHost();
+    public final String requesterUserID;
+    public final String requesterHost;
+    public final String requestURI;
 
-    String getRequestURI();
+    public static final HttpServletRequestInfo NULL = new HttpServletRequestInfo(null, null, null);
 
-    boolean isObjectEmpty();
+    private HttpServletRequestInfo(HttpServletRequest request) {
+        requesterUserID = getPreferredUsername(request);
+        requesterHost = request.getRemoteHost();
+        requestURI = request.getRequestURI();
+    }
+
+    private HttpServletRequestInfo(String requesterUserID, String requesterHost, String requestURI) {
+        this.requesterUserID = requesterUserID;
+        this.requesterHost = requesterHost;
+        this.requestURI = requestURI;
+    }
+
+    public static HttpServletRequestInfo valueOf(HttpServletRequest request) {
+        return new HttpServletRequestInfo(request);
+    }
+
+    public static HttpServletRequestInfo valueOf(Message msg) {
+        try {
+            return msg.propertyExists("RequestURI")
+                    ? new HttpServletRequestInfo(
+                        msg.getStringProperty("RequesterUserID"),
+                        msg.getStringProperty("RequesterHostName"),
+                        msg.getStringProperty("RequestURI"))
+                    : NULL;
+        } catch (JMSException e) {
+            throw QueueMessage.toJMSRuntimeException(e);
+        }
+    }
+
+    public void copyTo(Message msg) {
+        if (this != NULL)
+            try {
+                msg.setStringProperty("RequesterUserID", requesterUserID);
+                msg.setStringProperty( "RequesterHostName", requesterHost);
+                msg.setStringProperty( "RequestURI", requestURI);
+            } catch (JMSException e) {
+                throw QueueMessage.toJMSRuntimeException(e);
+            }
+    }
+
+    private String getPreferredUsername(HttpServletRequest req) {
+        return req.getAttribute("org.keycloak.KeycloakSecurityContext") != null
+                ? ((RefreshableKeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName()))
+                .getToken().getPreferredUsername()
+                : req.getRemoteAddr();
+    }
+
 }

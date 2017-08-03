@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.qmgt;
 
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.ObjectMessage;
 
 /**
@@ -49,7 +50,7 @@ import javax.jms.ObjectMessage;
 
 public class JMSUtils {
 
-    public static void setStringNotNull(ObjectMessage msg, String key, String val) throws JMSException {
+    public static void setStringNotNull(Message msg, String key, String val) throws JMSException {
         if (val != null)
             msg.setStringProperty(key, val);
     }

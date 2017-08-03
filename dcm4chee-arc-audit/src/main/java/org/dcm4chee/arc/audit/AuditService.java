@@ -552,10 +552,10 @@ public class AuditService {
             Attributes attrs = new Attributes();
             for (InstanceLocations i : il)
                 attrs = i.getAttributes();
-            String fileName = getFileName(AuditServiceUtils.EventType.WADO___URI, req.getRequesterHost(),
+            String fileName = getFileName(AuditServiceUtils.EventType.WADO___URI, req.requesterHost,
                     rCtx.getLocalAETitle(), rCtx.getStudyInstanceUIDs()[0]);
-            AuditInfo i = new AuditInfo(new BuildAuditInfo.Builder().callingHost(req.getRequesterHost()).callingAET(req.getRequesterUserID())
-                    .calledAET(req.getRequestURI()).studyUID(rCtx.getStudyInstanceUIDs()[0])
+            AuditInfo i = new AuditInfo(new BuildAuditInfo.Builder().callingHost(req.requesterHost).callingAET(req.requesterUserID)
+                    .calledAET(req.requestURI).studyUID(rCtx.getStudyInstanceUIDs()[0])
                     .accNum(getAcc(attrs)).pID(getPID(attrs)).pName(pName(attrs)).studyDate(getSD(attrs))
                     .outcome(null != rCtx.getException() ? rCtx.getException().getMessage() : null).build());
             AuditInfo iI = new AuditInfo(
@@ -667,15 +667,15 @@ public class AuditService {
     }
 
     private BuildAuditInfo buildAuditInfoForExport(RetrieveContext ctx, AuditServiceUtils.EventType eventType) {
-        return ctx.getHttpServletRequestInfo().isObjectEmpty()
+        return ctx.getHttpServletRequestInfo() == HttpServletRequestInfo.NULL
                 ? buildAuditInfoForAssociation(ctx, eventType)
                 : buildAuditInfoForExportByRESTful(ctx, eventType);
     }
 
     private BuildAuditInfo buildAuditInfoForRESTful(RetrieveContext ctx, AuditServiceUtils.EventType eventType) {
         return new BuildAuditInfo.Builder()
-                .calledAET(ctx.getHttpServletRequestInfo().getRequestURI())
-                .destAET(ctx.getHttpServletRequestInfo().getRequesterUserID())
+                .calledAET(ctx.getHttpServletRequestInfo().requestURI)
+                .destAET(ctx.getHttpServletRequestInfo().requesterUserID)
                 .destNapID(ctx.getDestinationHostName())
                 .warning(createWarning(eventType, ctx))
                 .callingHost(ctx.getRequestorHostName())
@@ -687,9 +687,9 @@ public class AuditService {
 
     private BuildAuditInfo buildAuditInfoForExportByRESTful(RetrieveContext ctx, AuditServiceUtils.EventType eventType) {
         return new BuildAuditInfo.Builder()
-                .callingAET(ctx.getHttpServletRequestInfo().getRequesterUserID())
+                .callingAET(ctx.getHttpServletRequestInfo().requesterUserID)
                 .callingHost(ctx.getRequestorHostName())
-                .calledAET(ctx.getHttpServletRequestInfo().getRequestURI())
+                .calledAET(ctx.getHttpServletRequestInfo().requestURI)
                 .destAET(ctx.getDestinationAETitle())
                 .destNapID(ctx.getStoreAssociation().getSocket().getInetAddress().getHostName())
                 .warning(createWarning(eventType, ctx))
@@ -945,9 +945,9 @@ public class AuditService {
         HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
         String destHost = schemeSpecificPart.substring(schemeSpecificPart.indexOf("://")+3, schemeSpecificPart.lastIndexOf(":"));
         BuildAuditInfo i = new BuildAuditInfo.Builder()
-                .callingAET(httpServletRequestInfo.getRequesterUserID())
-                .callingHost(httpServletRequestInfo.getRequesterHost())
-                .calledAET(httpServletRequestInfo.getRequestURI())
+                .callingAET(httpServletRequestInfo.requesterUserID)
+                .callingHost(httpServletRequestInfo.requesterHost)
+                .calledAET(httpServletRequestInfo.requestURI)
                 .destAET(dest.toString())
                 .destNapID(destHost)
                 .outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)

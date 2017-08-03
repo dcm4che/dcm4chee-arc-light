@@ -50,11 +50,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.retrieve.RetrieveService;
-import org.dcm4chee.arc.retrieve.RetrieveWADO;
-import org.dcm4chee.arc.retrieve.impl.HttpServletRequestInfoImpl;
+import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.validation.constraints.*;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
@@ -201,7 +197,7 @@ public class WadoURI {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         try {
             checkAET();
-            final RetrieveContext ctx = service.newRetrieveContextWADO(new HttpServletRequestInfoImpl(request), aet, studyUID, seriesUID, objectUID);
+            final RetrieveContext ctx = service.newRetrieveContextWADO(HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
 
             if (request.getHeader(HttpHeaders.IF_MODIFIED_SINCE) == null && request.getHeader(HttpHeaders.IF_UNMODIFIED_SINCE) == null
                     && request.getHeader(HttpHeaders.IF_MATCH) == null && request.getHeader(HttpHeaders.IF_NONE_MATCH) == null) {
@@ -409,7 +405,7 @@ public class WadoURI {
 
     private Attributes retrievePresentationState() throws IOException {
         RetrieveContext ctx = service.newRetrieveContextWADO(
-                new HttpServletRequestInfoImpl(request), aet, studyUID, presentationSeriesUID, presentationUID);
+                HttpServletRequestInfo.valueOf(request), aet, studyUID, presentationSeriesUID, presentationUID);
         if (!service.calculateMatches(ctx))
             throw new WebApplicationException(
                     "Specified Presentation State does not exist", Response.Status.NOT_FOUND);
