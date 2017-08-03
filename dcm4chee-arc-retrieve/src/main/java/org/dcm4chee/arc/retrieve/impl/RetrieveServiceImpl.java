@@ -874,21 +874,12 @@ public class RetrieveServiceImpl implements RetrieveService {
         if (leadingCFindSCP != null) {
             int[] returnKeys = rule.getLeadingCFindSCPReturnKeys();
             if (returnKeys.length == 0)
-                returnKeys = patAndStudyTags(aeExt.getArchiveDeviceExtension());
+                returnKeys = aeExt.getArchiveDeviceExtension().catAttributeFilters(Entity.Patient, Entity.Study);
+
             coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP, returnKeys,
                     rule.getAttributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
         }
         return coercion;
-    }
-
-    private int[] patAndStudyTags(ArchiveDeviceExtension arcDev) {
-        int[] patTags = arcDev.getAttributeFilter(Entity.Patient).getSelection();
-        int[] studyTags = arcDev.getAttributeFilter(Entity.Study).getSelection();
-        int[] tags = new int[patTags.length + studyTags.length];
-        System.arraycopy(patTags, 0, tags, 0, patTags.length);
-        System.arraycopy(studyTags, 0, tags, patTags.length, studyTags.length);
-        Arrays.sort(tags);
-        return tags;
     }
 
     private boolean isAccessable(ArchiveDeviceExtension arcDev, InstanceLocations match) {

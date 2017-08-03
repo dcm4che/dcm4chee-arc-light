@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.query;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
@@ -118,4 +119,6 @@ public interface QueryService {
     List<Object[]> getSOPInstanceUIDs(String studyUID, String seriesUID);
 
     ZipInputStream openZipInputStream(QueryContext ctx, String storageID, String storagePath) throws IOException;
+
+    AttributesCoercion getAttributesCoercion(QueryContext ctx);
 }

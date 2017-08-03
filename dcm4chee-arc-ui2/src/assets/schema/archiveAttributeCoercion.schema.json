@@ -18,7 +18,7 @@
     },
     "dcmDIMSE": {
       "title": "DIMSE",
-      "description": "DICOM Message Element.",
+      "description": "DICOM Message Element on which this Attribute Coercion shall be applied",
       "type": "string",
       "enum": [
         "N_CREATE_RQ",
@@ -29,7 +29,7 @@
     },
     "dicomTransferRole": {
       "title": "DICOM Transfer Role",
-      "description": "DICOM Transfer Role.",
+      "description": "DICOM Transfer Role of peer DICOM AE.",
       "type": "string",
       "enum": [
         "SCU",
@@ -45,15 +45,15 @@
     },
     "dcmAETitle": {
       "title": "AE Title",
-      "description": "Application Entity (AE) title",
+      "description": "Application Entity (AE) title of peer DICOM AE for which this Attribute Coercion shall be applied. Apply on any if absent.",
       "type": "array",
       "items": {
         "type": "string"
       }
     },
     "dcmHostname": {
-      "title": "Host Name",
-      "description": "DNS hostname",
+      "title": "Hostname",
+      "description": "DNS hostname of peer DICOM AE for which this Attribute Coercion shall be applied. Apply on any if absent.",
       "type": "array",
       "items": {
         "type": "string"
@@ -61,7 +61,7 @@
     },
     "dcmSOPClass": {
       "title": "SOP Class UID",
-      "description": "A SOP Class UID",
+      "description": "UID of SOP Class for which this Attribute Coercion shall be applied. Apply on any if absent.",
       "type": "array",
       "items": {
         "type": "string"
@@ -69,13 +69,13 @@
       "format": "dcmSOPClass"
     },
     "dcmURI": {
-      "title": "URI",
-      "description": "Specifies URI of the style sheet for Attribute Coercion",
+      "title": "XSL Stylesheet URI",
+      "description": "Specifies URI of the XSL style sheet for Attribute Coercion",
       "type": "string"
     },
     "dcmNoKeywords": {
-      "title": "No Keywords",
-      "description": "Indicates if keywords shall be omitted in generated DICOM XML or JSON presentations",
+      "title": "No Attribute Keyword",
+      "description": "Indicates if attribute keywords shall be omitted in DICOM XML passed to XSLT",
       "type": "boolean",
       "default": false
     },

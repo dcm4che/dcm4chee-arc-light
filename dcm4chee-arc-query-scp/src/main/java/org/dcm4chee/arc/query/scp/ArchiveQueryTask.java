@@ -41,9 +41,9 @@
 package org.dcm4chee.arc.query.scp;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicQueryTask;
@@ -52,11 +52,10 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
+import org.dcm4chee.arc.query.QueryService;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -65,36 +64,19 @@ import java.io.IOException;
 public class ArchiveQueryTask extends BasicQueryTask {
     private static final Logger LOG = LoggerFactory.getLogger(ArchiveQueryTask.class);
 
-    private final Query query;
+    private final QueryContext ctx;
+    private Query query;
     private Transaction transaction;
+    private AttributesCoercion coercion;
 
-    public ArchiveQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, Query query) {
+    public ArchiveQueryTask(Association as, PresentationContext pc, Attributes rq, Attributes keys, QueryContext ctx) {
         super(as, pc, rq, keys);
-        this.query = query;
-        setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
+        this.ctx = ctx;
     }
 
     @Override
-    public void run() {
-        try {
-            query.initQuery();
-            QueryContext ctx = query.getQueryContext();
-            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-            ArchiveDeviceExtension arcdev = arcAE.getArchiveDeviceExtension();
-            int queryMaxNumberOfResults = arcAE.queryMaxNumberOfResults();
-            if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
-                    && query.count() > queryMaxNumberOfResults) {
-                throw new DicomServiceException(Status.UnableToProcess, "Request entity too large");
-            }
-            transaction = query.beginTransaction();
-            query.setFetchSize(arcdev.getQueryFetchSize());
-            query.executeQuery();
-            super.run();
-        } catch (DicomServiceException e) {
-            writeDimseRSP(e);
-        } catch (Exception e) {
-            writeDimseRSP(new DicomServiceException(Status.UnableToProcess, e));
-        } finally {
+    protected void close() {
+        if (query != null) {
             if (transaction != null)
                 try {
                     transaction.commit();
@@ -105,25 +87,37 @@ public class ArchiveQueryTask extends BasicQueryTask {
         }
     }
 
-    private void writeDimseRSP(DicomServiceException e) {
-        int msgId = rq.getInt(Tag.MessageID, -1);
-        Attributes rsp = e.mkRSP(Dimse.C_FIND_RSP.commandField(), msgId);
-        try {
-            as.writeDimseRSP(pc, rsp, null);
-        } catch (IOException e1) {
-            // handled by Association
-        }
-    }
-
     @Override
     protected boolean hasMoreMatches() throws DicomServiceException {
         try {
+            if (query == null) {
+                initQuery();
+            }
             return query.hasMoreMatches();
         }  catch (DicomServiceException e) {
             throw e;
         }  catch (Exception e) {
             throw new DicomServiceException(Status.UnableToProcess, e);
         }
+    }
+
+    private void initQuery() throws DicomServiceException {
+        QueryService queryService = ctx.getQueryService();
+        this.coercion = queryService.getAttributesCoercion(ctx);
+        this.query = queryService.createQuery(ctx);
+        setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
+        query.initQuery();
+        QueryContext ctx = query.getQueryContext();
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        ArchiveDeviceExtension arcdev = arcAE.getArchiveDeviceExtension();
+        int queryMaxNumberOfResults = arcAE.queryMaxNumberOfResults();
+        if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
+                && query.count() > queryMaxNumberOfResults) {
+            throw new DicomServiceException(Status.UnableToProcess, "Request entity too large");
+        }
+        transaction = query.beginTransaction();
+        query.setFetchSize(arcdev.getQueryFetchSize());
+        query.executeQuery();
     }
 
     @Override
@@ -139,14 +133,12 @@ public class ArchiveQueryTask extends BasicQueryTask {
     protected Attributes adjust(Attributes match) {
         if (match == null)
             return null;
+
+        if (coercion != null)
+            coercion.coerce(match, null);
+
         Attributes adjust = query.adjust(match);
         adjust.addSelected(keys, null, Tag.QueryRetrieveLevel);
-        switch (query.getQueryContext().getQueryRetrieveLevel()) {
-            case STUDY:
-                return (adjust.getInt(Tag.NumberOfStudyRelatedInstances, -1) == 0) ? null : adjust;
-            case SERIES:
-                return (adjust.getInt(Tag.NumberOfSeriesRelatedInstances, -1) == 0) ? null : adjust;
-        }
         return adjust;
     }
 }

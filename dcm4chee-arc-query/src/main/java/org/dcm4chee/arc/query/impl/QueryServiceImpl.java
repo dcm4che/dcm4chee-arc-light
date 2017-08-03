@@ -41,20 +41,22 @@
 package org.dcm4chee.arc.query.impl;
 
 import com.querydsl.core.BooleanBuilder;
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
-import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.QueryOption;
+import org.dcm4che3.io.TemplatesCache;
+import org.dcm4che3.io.XSLTAttributesCoercion;
+import org.dcm4che3.net.*;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.Availability;
-import org.dcm4chee.arc.conf.QueryRetrieveView;
-import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.storage.ReadContext;
@@ -62,6 +64,8 @@ import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -69,6 +73,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
@@ -84,11 +90,22 @@ import java.util.zip.ZipInputStream;
 @ApplicationScoped
 class QueryServiceImpl implements QueryService {
 
+    private static Logger LOG = LoggerFactory.getLogger(QueryServiceImpl.class);
+
     @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
 
     @Inject
     private QueryServiceEJB ejb;
+
+    @Inject
+    private CFindSCU cfindscu;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
+
+    @Inject
+    private LeadingCFindSCPQueryCache leadingCFindSCPQueryCache;
 
     @Inject
     private CodeCache codeCache;
@@ -396,5 +413,35 @@ class QueryServiceImpl implements QueryService {
             predicate.and(QueryBuilder.hideRejectionNote(queryParam));
             return predicate;
         }
+    }
+
+    @Override
+    public AttributesCoercion getAttributesCoercion(QueryContext ctx) {
+        ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
+        ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
+                ctx.getRemoteHostName(), ctx.getCallingAET(), TransferCapability.Role.SCU, Dimse.C_FIND_RSP,
+                ctx.getSOPClassUID());
+        if (rule == null)
+            return null;
+
+        AttributesCoercion coercion = null;
+        String xsltStylesheetURI = rule.getXSLTStylesheetURI();
+        if (xsltStylesheetURI != null)
+            try {
+                Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
+                coercion = new XSLTAttributesCoercion(tpls, null).includeKeyword(!rule.isNoKeywords());
+            } catch (TransformerConfigurationException e) {
+                LOG.error("{}: Failed to compile XSL: {}", ctx.getAssociation(), xsltStylesheetURI, e);
+            }
+        String leadingCFindSCP = rule.getLeadingCFindSCP();
+        if (leadingCFindSCP != null) {
+            int[] returnKeys = rule.getLeadingCFindSCPReturnKeys();
+            if (returnKeys.length == 0)
+                returnKeys = aeExt.getArchiveDeviceExtension().catAttributeFilters(Entity.Patient, Entity.Study);
+
+            coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP, returnKeys,
+                    rule.getAttributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
+        }
+        return coercion;
     }
 }

@@ -49,6 +49,7 @@ import java.time.LocalTime;
 
 import org.dcm4che3.net.DeviceExtension;
 import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -1063,6 +1064,17 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public Map<Entity, AttributeFilter> getAttributeFilters() {
         return attributeFilters;
+    }
+
+    public int[] catAttributeFilters(Entity... entities) {
+        int[] tags = ByteUtils.EMPTY_INTS;
+        for (Entity entity : entities) {
+            int[] src = getAttributeFilter(entity).getSelection();
+            int[] dest = Arrays.copyOf(tags, tags.length + src.length);
+            System.arraycopy(src, 0, dest, tags.length, src.length);
+            tags = dest;
+        }
+        return tags;
     }
 
     public void addAttributeSet(AttributeSet tags) {

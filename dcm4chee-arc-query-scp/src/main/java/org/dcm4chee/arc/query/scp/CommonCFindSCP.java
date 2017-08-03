@@ -42,6 +42,7 @@ package org.dcm4chee.arc.query.scp;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.BasicCFindSCP;
@@ -50,6 +51,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.net.service.QueryTask;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +91,7 @@ class CommonCFindSCP extends BasicCFindSCP {
             ctx.setPatientIDs(idWithIssuer);
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
-        return new ArchiveQueryTask(as, pc, rq, keys, queryService.createQuery(ctx));
+        return new ArchiveQueryTask(as, pc, rq, keys, ctx);
     }
 
     private Attributes createReturnKeys(Attributes keys) {
