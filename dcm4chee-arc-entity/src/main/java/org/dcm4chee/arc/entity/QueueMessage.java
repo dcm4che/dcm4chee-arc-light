@@ -343,6 +343,7 @@ public class QueueMessage {
                     String key = parser.getString();
                     switch (parser.next()) {
                         case VALUE_STRING:
+                        case VALUE_NULL:
                             msg.setStringProperty(key, parser.getString());
                             break;
                         case VALUE_NUMBER:
