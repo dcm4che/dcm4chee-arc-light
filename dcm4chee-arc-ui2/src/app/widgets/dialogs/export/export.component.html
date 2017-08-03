@@ -10,7 +10,7 @@
                 <input type="radio" name="exportType" value="nonedicom" [(ngModel)]="result.exportType"> No dicom exporter
             </label>
             <div class="dicomBlock" *ngIf="result.exportType == 'dicom'">
-                <p>Select the exporter-template and the AETitle:</p>
+                <p>Select the destination AETitle:</p>
 <!--                <select class="prefix" [(ngModel)]="result.dicomPrefix">
                     <option value="{{prefix.id}}" *ngFor="let prefix of dicomPrefixes">{{prefix.id}}</option>
                 </select>
