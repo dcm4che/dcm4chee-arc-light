@@ -942,10 +942,18 @@ public class AuditService {
             return;
         URI dest = ctx.getExporter().getExporterDescriptor().getExportURI();
         String schemeSpecificPart = dest.getSchemeSpecificPart();
-        String calledHost = schemeSpecificPart.substring(schemeSpecificPart.indexOf("://")+3, schemeSpecificPart.lastIndexOf(":"));
-        BuildAuditInfo i = new BuildAuditInfo.Builder().callingAET(getAET(device)).calledAET(dest.toString())
-                .calledHost(calledHost).outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
-                .pID(getPID(xdsiManifest)).pName(pName(xdsiManifest)).submissionSetUID(ctx.getSubmissionSetUID()).build();
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        String destHost = schemeSpecificPart.substring(schemeSpecificPart.indexOf("://")+3, schemeSpecificPart.lastIndexOf(":"));
+        BuildAuditInfo i = new BuildAuditInfo.Builder()
+                .callingAET(httpServletRequestInfo.getRequesterUserID())
+                .callingHost(httpServletRequestInfo.getRequesterHost())
+                .calledAET(httpServletRequestInfo.getRequestURI())
+                .destAET(dest.toString())
+                .destNapID(destHost)
+                .outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
+                .pID(getPID(xdsiManifest))
+                .pName(pName(xdsiManifest))
+                .submissionSetUID(ctx.getSubmissionSetUID()).build();
         obj.add(new AuditInfo(i));
         writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.PROV_REGIS), obj);
     }
@@ -953,10 +961,16 @@ public class AuditService {
     private void auditProvideAndRegister(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType et) {
         AuditInfo ai = new AuditInfo(readerObj.getMainInfo());
         EventIdentification ei = getEI(et, ai.getField(AuditInfo.OUTCOME), eventTime);
-        BuildActiveParticipant apSource = new BuildActiveParticipant.Builder(ai.getField(AuditInfo.CALLING_AET),
+        BuildActiveParticipant apSource = new BuildActiveParticipant.Builder(ai.getField(AuditInfo.CALLED_AET),
                 getLocalHostName(auditLogger)).altUserID(AuditLogger.processID()).requester(et.isSource).roleIDCode(et.source).build();
-        BuildActiveParticipant apDest = new BuildActiveParticipant.Builder(ai.getField(AuditInfo.CALLED_AET),
-                ai.getField(AuditInfo.CALLED_HOST)).requester(et.isDest).roleIDCode(et.destination).build();
+        BuildActiveParticipant apDest = new BuildActiveParticipant.Builder(ai.getField(AuditInfo.DEST_AET),
+                ai.getField(AuditInfo.DEST_NAP_ID)).requester(et.isDest).roleIDCode(et.destination).build();
+        BuildActiveParticipant apUser = null;
+        if (ai.getField(AuditInfo.CALLING_AET) != null)
+            apUser = new BuildActiveParticipant.Builder(
+                    ai.getField(AuditInfo.CALLING_AET),
+                    ai.getField(AuditInfo.CALLING_HOST))
+                    .requester(et.isSource).build();
         BuildParticipantObjectIdentification poiPatient = new BuildParticipantObjectIdentification.Builder(
                 ai.getField(AuditInfo.P_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
@@ -965,7 +979,10 @@ public class AuditService {
                 ai.getField(AuditInfo.SUBMISSION_SET_UID), AuditMessages.ParticipantObjectIDTypeCode.IHE_XDS_METADATA,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Job)
                 .build();
-        emitAuditMessage(ei, getApList(apSource, apDest), getPoiList(poiPatient, poiSubmissionSet), auditLogger);
+        emitAuditMessage(ei,
+                apUser != null ? getApList(apSource, apDest, apUser) : getApList(apSource, apDest),
+                getPoiList(poiPatient, poiSubmissionSet),
+                auditLogger);
     }
 
     void spoolStgCmt(StgCmtEventInfo stgCmtEventInfo) {
