@@ -354,6 +354,9 @@ public class QueueMessage {
                         case VALUE_TRUE:
                             msg.setBooleanProperty(key, true);
                             break;
+                        case VALUE_NULL:
+                            msg.setStringProperty(key, null);
+                            break;
                         default:
                             throw new IllegalStateException(messageProperties);
                     }

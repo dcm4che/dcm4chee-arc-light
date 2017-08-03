@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016-2017
+ * Portions created by the Initial Developer are Copyright (C) 2015
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,41 +38,21 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.export.mgt;
+package org.dcm4chee.arc.qmgt;
 
-import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.ExportTask;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
-import org.dcm4chee.arc.store.StoreContext;
-
-import javax.enterprise.event.Observes;
-import java.util.Date;
-import java.util.List;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Feb 2016
+ * @since Aug 2017
  */
-public interface ExportManager {
-    void onStore(@Observes StoreContext ctx);
 
-    int scheduleExportTasks(int fetchSize);
+public class JMSUtils {
 
-    void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                            HttpServletRequestInfo httpServletRequestInfo);
+    public static void setStringNotNull(Message msg, String key, String val) throws JMSException {
+        if (val != null)
+            msg.setStringProperty(key, val);
+    }
 
-    void updateExportTask(Long pk);
-
-    List<ExportTask> search(
-            String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status,
-            int offset, int limit);
-
-    boolean deleteExportTask(Long pk);
-
-    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
-
-    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException;
 }

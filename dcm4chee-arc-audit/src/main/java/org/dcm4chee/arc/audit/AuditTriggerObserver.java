@@ -102,13 +102,8 @@ public class AuditTriggerObserver {
     }
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
-        if (deviceHasAuditLoggers()) {
-            HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forBeginTransfer(ctx);
-            String etFile = null;
-            for (AuditServiceUtils.EventType eventType : et)
-                etFile = String.valueOf(eventType);
-            auditService.spoolRetrieve(etFile, ctx, ctx.getMatches());
-        }
+        if (deviceHasAuditLoggers())
+            auditService.spoolRetrieve(AuditServiceUtils.EventType.forBeginTransfer(ctx), ctx, ctx.getMatches());
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
@@ -116,12 +111,8 @@ public class AuditTriggerObserver {
             HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forDicomInstTransferred(ctx);
             if (ctx.failedSOPInstanceUIDs().length > 0)
                 auditService.spoolPartialRetrieve(ctx, et);
-            else {
-                String etFile = null;
-                for (AuditServiceUtils.EventType eventType : et)
-                    etFile = String.valueOf(eventType);
-                auditService.spoolRetrieve(etFile, ctx, ctx.getMatches());
-            }
+            else
+                auditService.spoolRetrieve(AuditServiceUtils.EventType.forDICOMInstancesTransferred(ctx), ctx, ctx.getMatches());
         }
     }
 

@@ -64,6 +64,7 @@ import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.query.QueryContext;
+import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
@@ -121,7 +122,9 @@ public class AuditService {
             case STORE_WADOR:
                 auditStoreOrWADORetrieve(auditLogger, readerObj, eventTime, eventType);
                 break;
+            case BEGIN_TRF:
             case RETRIEVE:
+            case RETRIEVE_ERR:
                 auditRetrieve(auditLogger, readerObj, eventTime, eventType);
                 break;
             case DELETE:
@@ -544,16 +547,15 @@ public class AuditService {
             writeSpoolFileStoreOrWadoRetrieve(fileName, new AuditInfo(i), new AuditInfo(iI));
         }
         if (rCtx != null) {
-            HttpServletRequest req = rCtx.getHttpRequest();
+            HttpServletRequestInfo req = rCtx.getHttpServletRequestInfo();
             Collection<InstanceLocations> il = rCtx.getMatches();
             Attributes attrs = new Attributes();
             for (InstanceLocations i : il)
                 attrs = i.getAttributes();
-            String fileName = getFileName(AuditServiceUtils.EventType.WADO___URI, req.getRemoteAddr(),
+            String fileName = getFileName(AuditServiceUtils.EventType.WADO___URI, req.requesterHost,
                     rCtx.getLocalAETitle(), rCtx.getStudyInstanceUIDs()[0]);
-            String callingAET = getPreferredUsername(req);
-            AuditInfo i = new AuditInfo(new BuildAuditInfo.Builder().callingHost(req.getRemoteAddr()).callingAET(callingAET)
-                    .calledAET(req.getRequestURI()).studyUID(rCtx.getStudyInstanceUIDs()[0])
+            AuditInfo i = new AuditInfo(new BuildAuditInfo.Builder().callingHost(req.requesterHost).callingAET(req.requesterUserID)
+                    .calledAET(req.requestURI).studyUID(rCtx.getStudyInstanceUIDs()[0])
                     .accNum(getAcc(attrs)).pID(getPID(attrs)).pName(pName(attrs)).studyDate(getSD(attrs))
                     .outcome(null != rCtx.getException() ? rCtx.getException().getMessage() : null).build());
             AuditInfo iI = new AuditInfo(
@@ -625,60 +627,105 @@ public class AuditService {
                 success.remove(il);
             }
         }
-        String etFile;
         for (AuditServiceUtils.EventType eventType : et) {
-            etFile = String.valueOf(eventType);
-            if (etFile.substring(9, 10).equals("E"))
-                spoolRetrieve(etFile, ctx, failed);
-            if (etFile.substring(9, 10).equals("P"))
-                spoolRetrieve(etFile, ctx, success);
+            if (eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE_ERR)
+                spoolRetrieve(eventType, ctx, failed);
+            if (eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE)
+                spoolRetrieve(eventType, ctx, success);
         }
     }
 
-    void spoolRetrieve(String etFile, RetrieveContext ctx, Collection<InstanceLocations> il) {
+    void spoolRetrieve(AuditServiceUtils.EventType eventType, RetrieveContext ctx, Collection<InstanceLocations> il) {
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
-        HttpServletRequest req = ctx.getHttpRequest();
-        String destAET = req != null ? getPreferredUsername(req) : ctx.getDestinationAETitle();
-        String outcome = (etFile.substring(0, 8).equals("RTRV_BGN") && ctx.getException() != null) || etFile.substring(9, 10).equals("E")
+
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+
+        BuildAuditInfo i = httpServletRequestInfo != null
+                            ? ctx.isLocalRequestor()
+                                ? buildAuditInfoForExport(ctx, eventType)
+                                : buildAuditInfoForRESTful(ctx, eventType)
+                            : buildAuditInfoForAssociation(ctx, eventType);
+
+        obj.add(new AuditInfo(i));
+
+        addInstanceInfoForRetrieve(obj, il);
+        addInstanceInfoForRetrieve(obj, ctx.getCStoreForwards());
+        writeSpoolFile(String.valueOf(eventType), obj);
+    }
+
+    private BuildAuditInfo buildAuditInfoForAssociation(RetrieveContext ctx, AuditServiceUtils.EventType eventType) {
+        return new BuildAuditInfo.Builder()
+                .calledAET(ctx.getLocalAETitle())
+                .destAET(ctx.getDestinationAETitle())
+                .destNapID(ctx.getDestinationHostName())
+                .warning(createWarning(eventType, ctx))
+                .callingHost(ctx.getRequestorHostName())
+                .moveAET(ctx.getMoveOriginatorAETitle())
+                .outcome(createOutcome(eventType, ctx))
+                .failedIUIDShow(eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE_ERR && ctx.failedSOPInstanceUIDs().length > 0)
+                .build();
+    }
+
+    private BuildAuditInfo buildAuditInfoForExport(RetrieveContext ctx, AuditServiceUtils.EventType eventType) {
+        return ctx.getHttpServletRequestInfo() == HttpServletRequestInfo.NULL
+                ? buildAuditInfoForAssociation(ctx, eventType)
+                : buildAuditInfoForExportByRESTful(ctx, eventType);
+    }
+
+    private BuildAuditInfo buildAuditInfoForRESTful(RetrieveContext ctx, AuditServiceUtils.EventType eventType) {
+        return new BuildAuditInfo.Builder()
+                .calledAET(ctx.getHttpServletRequestInfo().requestURI)
+                .destAET(ctx.getHttpServletRequestInfo().requesterUserID)
+                .destNapID(ctx.getDestinationHostName())
+                .warning(createWarning(eventType, ctx))
+                .callingHost(ctx.getRequestorHostName())
+                .moveAET(ctx.getMoveOriginatorAETitle())
+                .outcome(createOutcome(eventType, ctx))
+                .failedIUIDShow(eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE_ERR && ctx.failedSOPInstanceUIDs().length > 0)
+                .build();
+    }
+
+    private BuildAuditInfo buildAuditInfoForExportByRESTful(RetrieveContext ctx, AuditServiceUtils.EventType eventType) {
+        return new BuildAuditInfo.Builder()
+                .callingAET(ctx.getHttpServletRequestInfo().requesterUserID)
+                .callingHost(ctx.getRequestorHostName())
+                .calledAET(ctx.getHttpServletRequestInfo().requestURI)
+                .destAET(ctx.getDestinationAETitle())
+                .destNapID(ctx.getStoreAssociation().getSocket().getInetAddress().getHostName())
+                .warning(createWarning(eventType, ctx))
+                .moveAET(ctx.getMoveOriginatorAETitle())
+                .outcome(createOutcome(eventType, ctx))
+                .failedIUIDShow(eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE_ERR && ctx.failedSOPInstanceUIDs().length > 0)
+                .build();
+    }
+
+    private String createOutcome(AuditServiceUtils.EventType eventType, RetrieveContext ctx) {
+        return (eventType.eventClass == AuditServiceUtils.EventClass.BEGIN_TRF && ctx.getException() != null)
+                || eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE_ERR
                 ? getFailOutcomeDesc(ctx) : null;
-        String warning = etFile.substring(9, 10).equals("P") && ctx.warning() != 0
+    }
+
+    private String createWarning(AuditServiceUtils.EventType eventType, RetrieveContext ctx) {
+        return eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE && ctx.warning() != 0
                 ? ctx.warning() == ctx.getMatches().size() ? "Warnings on retrieve of all instances"
                 : "Warnings on retrieve of " + ctx.warning() + " instances" : null;
-        boolean failedIUIDShow = etFile.substring(9, 10).equals("E") && ctx.failedSOPInstanceUIDs().length > 0;
-        BuildAuditInfo i = new BuildAuditInfo.Builder().calledAET(req != null ? req.getRequestURI() : ctx.getLocalAETitle())
-                .destAET(destAET).destNapID(null != req ? req.getRemoteAddr() : ctx.getDestinationHostName()).warning(warning)
-                .callingHost(ctx.getRequestorHostName()).moveAET(ctx.getMoveOriginatorAETitle()).outcome(outcome).failedIUIDShow(failedIUIDShow).build();
-        obj.add(new AuditInfo(i));
-        for (InstanceLocations instanceLocation : il)
-            addInstanceInfoForRetrieve(obj, instanceLocation);
-        for (InstanceLocations instanceLocationCStoreForward : ctx.getCStoreForwards())
-            addInstanceInfoForRetrieve(obj, instanceLocationCStoreForward);
-        writeSpoolFile(etFile, obj);
     }
 
-    private void addInstanceInfoForRetrieve(LinkedHashSet<Object> obj, InstanceLocations instanceLocation) {
-        Attributes attrs = instanceLocation.getAttributes();
-        BuildAuditInfo iI = new BuildAuditInfo.Builder().studyUID(attrs.getString(Tag.StudyInstanceUID)).accNum(getAcc(attrs))
-                .sopCUID(sopCUID(attrs)).sopIUID(attrs.getString(Tag.SOPInstanceUID)).pID(getPID(attrs))
-                .pName(pName(attrs)).studyDate(getSD(attrs)).build();
-        obj.add(new AuditInfo(iI));
+    private void addInstanceInfoForRetrieve(LinkedHashSet<Object> obj, Collection<InstanceLocations> instanceLocations) {
+        for (InstanceLocations instanceLocation : instanceLocations) {
+            Attributes attrs = instanceLocation.getAttributes();
+            BuildAuditInfo iI = new BuildAuditInfo.Builder().studyUID(attrs.getString(Tag.StudyInstanceUID)).accNum(getAcc(attrs))
+                    .sopCUID(sopCUID(attrs)).sopIUID(attrs.getString(Tag.SOPInstanceUID)).pID(getPID(attrs))
+                    .pName(pName(attrs)).studyDate(getSD(attrs)).build();
+            obj.add(new AuditInfo(iI));
+        }
     }
-
 
     private void auditRetrieve(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType eventType) {
         AuditInfo ri = new AuditInfo(readerObj.getMainInfo());
         EventIdentification ei = getCustomEI(eventType, ri.getField(AuditInfo.OUTCOME),
                 ri.getField(AuditInfo.WARNING), eventTime);
-        BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(ri.getField(AuditInfo.CALLED_AET),
-                getLocalHostName(auditLogger)).altUserID(AuditLogger.processID()).requester(eventType.isSource)
-                .roleIDCode(eventType.source).build();
-        BuildActiveParticipant ap2 = new BuildActiveParticipant.Builder(ri.getField(AuditInfo.DEST_AET),
-                ri.getField(AuditInfo.DEST_NAP_ID)).requester(eventType.isDest).roleIDCode(eventType.destination).build();
-        BuildActiveParticipant ap3 = null;
-        if (eventType.isOther) {
-            ap3 = new BuildActiveParticipant.Builder(ri.getField(AuditInfo.MOVEAET),
-                    ri.getField(AuditInfo.CALLING_HOST)).requester(eventType.isOther).build();
-        }
+
         HashMap<String, AccessionNumSopClassInfo> study_accNumSOPClassInfo = new HashMap<>();
         String pID = device.getDeviceExtension(ArchiveDeviceExtension.class).auditUnknownPatientID();
         String pName = null;
@@ -720,8 +767,32 @@ public class AuditService {
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
                 .name(pName).build();
         pois.add(poiPatient);
-        emitAuditMessage(ei, eventType.isOther ? getApList(ap1, ap2, ap3) : getApList(ap1, ap2),
+        emitAuditMessage(ei, getApsForRetrieve(eventType, ri, auditLogger),
                 getPoiList(pois.toArray(new BuildParticipantObjectIdentification[pois.size()])), auditLogger);
+    }
+
+    private List<ActiveParticipant> getApsForRetrieve(AuditServiceUtils.EventType eventType, AuditInfo ri, AuditLogger auditLogger) {
+        BuildActiveParticipant ap1 = new BuildActiveParticipant.Builder(ri.getField(AuditInfo.CALLED_AET),
+                getLocalHostName(auditLogger)).altUserID(AuditLogger.processID()).requester(eventType.isSource)
+                .roleIDCode(eventType.source).build();
+        BuildActiveParticipant ap2;
+        BuildActiveParticipant ap3 = null;
+        if (eventType.isSource) {
+            ap2 = new BuildActiveParticipant.Builder(ri.getField(AuditInfo.DEST_AET),
+                    ri.getField(AuditInfo.DEST_NAP_ID)).requester(eventType.isDest).roleIDCode(eventType.destination).build();
+            if (ri.getField(AuditInfo.CALLING_AET) != null)
+                ap3 = new BuildActiveParticipant.Builder(
+                        ri.getField(AuditInfo.CALLING_AET),
+                        ri.getField(AuditInfo.CALLING_HOST))
+                        .requester(eventType.isSource).build();
+        } else
+            ap2 = new BuildActiveParticipant.Builder(ri.getField(AuditInfo.DEST_AET),
+                    ri.getField(AuditInfo.DEST_NAP_ID)).requester(eventType.isDest).roleIDCode(eventType.destination).build();
+        if (eventType.isOther) {
+            ap3 = new BuildActiveParticipant.Builder(ri.getField(AuditInfo.MOVEAET),
+                    ri.getField(AuditInfo.CALLING_HOST)).requester(eventType.isOther).build();
+        }
+        return ap3 != null ? getApList(ap1, ap2, ap3) : getApList(ap1, ap2);
     }
 
     void spoolPatientRecord(PatientMgtContext ctx) {
@@ -871,10 +942,18 @@ public class AuditService {
             return;
         URI dest = ctx.getExporter().getExporterDescriptor().getExportURI();
         String schemeSpecificPart = dest.getSchemeSpecificPart();
-        String calledHost = schemeSpecificPart.substring(schemeSpecificPart.indexOf("://")+3, schemeSpecificPart.lastIndexOf(":"));
-        BuildAuditInfo i = new BuildAuditInfo.Builder().callingAET(getAET(device)).calledAET(dest.toString())
-                .calledHost(calledHost).outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
-                .pID(getPID(xdsiManifest)).pName(pName(xdsiManifest)).submissionSetUID(ctx.getSubmissionSetUID()).build();
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        String destHost = schemeSpecificPart.substring(schemeSpecificPart.indexOf("://")+3, schemeSpecificPart.lastIndexOf(":"));
+        BuildAuditInfo i = new BuildAuditInfo.Builder()
+                .callingAET(httpServletRequestInfo.requesterUserID)
+                .callingHost(httpServletRequestInfo.requesterHost)
+                .calledAET(httpServletRequestInfo.requestURI)
+                .destAET(dest.toString())
+                .destNapID(destHost)
+                .outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
+                .pID(getPID(xdsiManifest))
+                .pName(pName(xdsiManifest))
+                .submissionSetUID(ctx.getSubmissionSetUID()).build();
         obj.add(new AuditInfo(i));
         writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.PROV_REGIS), obj);
     }
@@ -882,10 +961,16 @@ public class AuditService {
     private void auditProvideAndRegister(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType et) {
         AuditInfo ai = new AuditInfo(readerObj.getMainInfo());
         EventIdentification ei = getEI(et, ai.getField(AuditInfo.OUTCOME), eventTime);
-        BuildActiveParticipant apSource = new BuildActiveParticipant.Builder(ai.getField(AuditInfo.CALLING_AET),
+        BuildActiveParticipant apSource = new BuildActiveParticipant.Builder(ai.getField(AuditInfo.CALLED_AET),
                 getLocalHostName(auditLogger)).altUserID(AuditLogger.processID()).requester(et.isSource).roleIDCode(et.source).build();
-        BuildActiveParticipant apDest = new BuildActiveParticipant.Builder(ai.getField(AuditInfo.CALLED_AET),
-                ai.getField(AuditInfo.CALLED_HOST)).requester(et.isDest).roleIDCode(et.destination).build();
+        BuildActiveParticipant apDest = new BuildActiveParticipant.Builder(ai.getField(AuditInfo.DEST_AET),
+                ai.getField(AuditInfo.DEST_NAP_ID)).requester(et.isDest).roleIDCode(et.destination).build();
+        BuildActiveParticipant apUser = null;
+        if (ai.getField(AuditInfo.CALLING_AET) != null)
+            apUser = new BuildActiveParticipant.Builder(
+                    ai.getField(AuditInfo.CALLING_AET),
+                    ai.getField(AuditInfo.CALLING_HOST))
+                    .requester(et.isSource).build();
         BuildParticipantObjectIdentification poiPatient = new BuildParticipantObjectIdentification.Builder(
                 ai.getField(AuditInfo.P_ID), AuditMessages.ParticipantObjectIDTypeCode.PatientNumber,
                 AuditMessages.ParticipantObjectTypeCode.Person, AuditMessages.ParticipantObjectTypeCodeRole.Patient)
@@ -894,7 +979,10 @@ public class AuditService {
                 ai.getField(AuditInfo.SUBMISSION_SET_UID), AuditMessages.ParticipantObjectIDTypeCode.IHE_XDS_METADATA,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Job)
                 .build();
-        emitAuditMessage(ei, getApList(apSource, apDest), getPoiList(poiPatient, poiSubmissionSet), auditLogger);
+        emitAuditMessage(ei,
+                apUser != null ? getApList(apSource, apDest, apUser) : getApList(apSource, apDest),
+                getPoiList(poiPatient, poiSubmissionSet),
+                auditLogger);
     }
 
     void spoolStgCmt(StgCmtEventInfo stgCmtEventInfo) {

@@ -339,7 +339,7 @@ public class WadoRS {
             // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
             // s. https://issues.jboss.org/browse/RESTEASY-903
             HttpServletRequest request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
-            final RetrieveContext ctx = service.newRetrieveContextWADO(request, aet, studyUID, seriesUID, objectUID);
+            final RetrieveContext ctx = service.newRetrieveContextWADO(HttpServletRequestInfo.valueOf(request), aet, studyUID, seriesUID, objectUID);
             if (output.isMetadata()) {
                 ctx.setObjectType(null);
                 ctx.setMetadataFilter(getMetadataFilter(includefields));

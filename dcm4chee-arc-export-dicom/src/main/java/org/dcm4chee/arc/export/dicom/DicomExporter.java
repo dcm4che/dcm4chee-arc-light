@@ -78,6 +78,7 @@ public class DicomExporter extends AbstractExporter {
                 exportContext.getSeriesInstanceUID(),
                 exportContext.getSopInstanceUID(),
                 destAET);
+        retrieveContext.setHttpServletRequestInfo(exportContext.getHttpServletRequestInfo());
         if (!retrieveService.calculateMatches(retrieveContext))
             return new Outcome(QueueMessage.Status.WARNING, noMatches(exportContext));
 

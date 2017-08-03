@@ -55,7 +55,7 @@ import java.util.*;
 
 class AuditServiceUtils {
     enum EventClass {
-        QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
+        QUERY, DELETE, PERM_DELETE, STORE_WADOR, CONN_REJECT, BEGIN_TRF, RETRIEVE, RETRIEVE_ERR, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
         STGCMT, INST_RETRIEVED
     }
     enum EventType {
@@ -66,30 +66,30 @@ class AuditServiceUtils {
         STORE_UPDT(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Update,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
 
-        RTRV_BGN_M(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute,
+        RTRV_BGN_M(EventClass.BEGIN_TRF, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
-        RTRV_BGN_G(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute,
+        RTRV_BGN_G(EventClass.BEGIN_TRF, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        RTRV_BGN_E(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute,
+        RTRV_BGN_E(EventClass.BEGIN_TRF, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        RTRV_BGN_W(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute,
+        RTRV_BGN_W(EventClass.BEGIN_TRF, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
 
         RTRV_T_M_P(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
-        RTRV_T_M_E(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
+        RTRV_T_M_E(EventClass.RETRIEVE_ERR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, false, true, null),
         RTRV_T_G_P(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        RTRV_T_G_E(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
+        RTRV_T_G_E(EventClass.RETRIEVE_ERR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
         RTRV_T_E_P(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
-        RTRV_T_E_E(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
+        RTRV_T_E_E(EventClass.RETRIEVE_ERR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, true, false, false, null),
         RTRV_T_W_P(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
-        RTRV_T_W_E(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
+        RTRV_T_W_E(EventClass.RETRIEVE_ERR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, false, true, false, null),
 
         STG_CMT__P(EventClass.STGCMT, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
@@ -196,14 +196,15 @@ class AuditServiceUtils {
                     : ctx.getStoredInstance() != null ? STORE_CREA : null;
         }
 
-        static HashSet<EventType> forBeginTransfer(RetrieveContext ctx) {
-            HashSet<EventType> eventType = new HashSet<>();
-            eventType.add(ctx.isLocalRequestor() ? RTRV_BGN_E
-                    : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? RTRV_BGN_M
-                    : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
-                    && ctx.isDestinationRequestor()
-                    ? RTRV_BGN_G : null != ctx.getHttpRequest() ? RTRV_BGN_W : null);
-            return eventType;
+        static EventType forBeginTransfer(RetrieveContext ctx) {
+            return ctx.isLocalRequestor()
+                    ? RTRV_BGN_E
+                    : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor()
+                        ? RTRV_BGN_M
+                        : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
+                            && ctx.isDestinationRequestor()
+                            ? RTRV_BGN_G
+                            : RTRV_BGN_W;
         }
 
         static HashSet<EventType> forDicomInstTransferred(RetrieveContext ctx) {
@@ -215,8 +216,6 @@ class AuditServiceUtils {
                     case ALL_FAIL:
                         eventType.add(getDicomInstTrfdErrorEventType(ctx));
                         break;
-                    case ALL_SUCCESS:
-                    case CSTOREFWD:
                     case PARTIAL_TRANSFERRED:
                         eventType.add(getDicomInstTrfdSuccessEventType(ctx));
                         break;
@@ -224,14 +223,16 @@ class AuditServiceUtils {
             return eventType;
         }
 
+        static EventType forDICOMInstancesTransferred(RetrieveContext ctx) {
+            return (ctx.failedSOPInstanceUIDs().length == 0 && !ctx.getMatches().isEmpty())
+                    || (ctx.getMatches().isEmpty() && !ctx.getCStoreForwards().isEmpty())
+                    ? getDicomInstTrfdSuccessEventType(ctx) : null;
+        }
+
         static HashSet<DicomInstancesTransferredOutcomeType> getInstancesTransferredOutcomeType(RetrieveContext ctx) {
             HashSet<DicomInstancesTransferredOutcomeType> ot = new HashSet<>();
             if (ctx.failedSOPInstanceUIDs().length == ctx.getMatches().size() && !ctx.getMatches().isEmpty())
                 ot.add(DicomInstancesTransferredOutcomeType.ALL_FAIL);
-            if (ctx.failedSOPInstanceUIDs().length == 0 && !ctx.getMatches().isEmpty())
-                ot.add(DicomInstancesTransferredOutcomeType.ALL_SUCCESS);
-            if (ctx.getMatches().isEmpty() && !ctx.getCStoreForwards().isEmpty())
-                ot.add(DicomInstancesTransferredOutcomeType.CSTOREFWD);
             if (ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size() && ctx.failedSOPInstanceUIDs().length > 0) {
                 ot.add(DicomInstancesTransferredOutcomeType.PARTIAL_TRANSFERRED_EXCEPTION);
                 ot.add(DicomInstancesTransferredOutcomeType.PARTIAL_TRANSFERRED);
@@ -240,11 +241,14 @@ class AuditServiceUtils {
         }
 
         static EventType getDicomInstTrfdSuccessEventType(RetrieveContext ctx) {
-            return ctx.isLocalRequestor() ? RTRV_T_E_P
-                    : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? RTRV_T_M_P
-                    : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
-                    && ctx.isDestinationRequestor()
-                    ? RTRV_T_G_P : null != ctx.getHttpRequest() ? RTRV_T_W_P : null;
+            return ctx.isLocalRequestor()
+                    ? RTRV_T_E_P
+                    : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor()
+                        ? RTRV_T_M_P
+                        : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
+                            && ctx.isDestinationRequestor()
+                            ? RTRV_T_G_P
+                            : RTRV_T_W_P;
         }
 
         static EventType getDicomInstTrfdErrorEventType(RetrieveContext ctx) {
@@ -278,7 +282,7 @@ class AuditServiceUtils {
     }
 
     enum DicomInstancesTransferredOutcomeType {
-        ALL_FAIL, ALL_SUCCESS, PARTIAL_TRANSFERRED, PARTIAL_TRANSFERRED_EXCEPTION, CSTOREFWD
+        ALL_FAIL, PARTIAL_TRANSFERRED, PARTIAL_TRANSFERRED_EXCEPTION
     }
 
 }

@@ -3,6 +3,7 @@ package org.dcm4chee.arc.exporter;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
 import org.dcm4chee.arc.xdsi.RegistryResponseType;
 
 /**
@@ -25,6 +26,7 @@ public class DefaultExportContext implements ExportContext {
     private Attributes xdsiManifest;
     private RegistryResponseType registryResponse;
     private Throwable exception;
+    private HttpServletRequestInfo httpServletRequestInfo;
 
     public DefaultExportContext(Exporter exporter) {
         this.exporter = exporter;
@@ -153,5 +155,15 @@ public class DefaultExportContext implements ExportContext {
     @Override
     public void setException(Throwable exception) {
         this.exception = exception;
+    }
+
+    @Override
+    public HttpServletRequestInfo getHttpServletRequestInfo() {
+        return httpServletRequestInfo;
+    }
+
+    @Override
+    public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
+        this.httpServletRequestInfo = httpServletRequestInfo;
     }
 }
