@@ -343,7 +343,6 @@ public class QueueMessage {
                     String key = parser.getString();
                     switch (parser.next()) {
                         case VALUE_STRING:
-                        case VALUE_NULL:
                             msg.setStringProperty(key, parser.getString());
                             break;
                         case VALUE_NUMBER:
@@ -354,6 +353,9 @@ public class QueueMessage {
                             break;
                         case VALUE_TRUE:
                             msg.setBooleanProperty(key, true);
+                            break;
+                        case VALUE_NULL:
+                            msg.setStringProperty(key, null);
                             break;
                         default:
                             throw new IllegalStateException(messageProperties);
