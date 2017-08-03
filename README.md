@@ -21,7 +21,7 @@ Build
 
 * Make sure you have [Maven 3](http://maven.apache.org) installed.
 
-* Build `dcm4chee-arc-light` branch of [dcm4che 3 Library](https://github.com/dcm4che/dcm4che) -
+* Build `master` branch of [dcm4che 3 Library](https://github.com/dcm4che/dcm4che) -
   only necessary to build unreleased version, which is not (yet) available in the Maven repository:
 
         > $git clone https://github.com/dcm4che/dcm4che.git
