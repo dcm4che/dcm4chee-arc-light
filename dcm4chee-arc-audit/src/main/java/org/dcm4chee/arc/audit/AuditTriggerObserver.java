@@ -92,7 +92,7 @@ public class AuditTriggerObserver {
             if (ctx.getRejectionNote() != null)
                 auditService.spoolInstancesDeleted(ctx);
             else if (ctx.getStoredInstance() != null || ctx.getException() != null)
-                auditService.spoolInstanceStoredOrWadoRetrieve(ctx, null);
+                auditService.spoolInstanceStored(ctx);
         }
     }
 
@@ -118,7 +118,7 @@ public class AuditTriggerObserver {
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
         if (deviceHasAuditLoggers())
-            auditService.spoolInstanceStoredOrWadoRetrieve(null, ctx);
+            auditService.spoolRetrieveWADO(ctx);
     }
 
     public void onStudyDeleted(@Observes StudyDeleteContext ctx) {

@@ -533,35 +533,34 @@ public class AuditService {
         emitAuditMessage(ei, apList, poiList, auditLogger);
     }
 
-    void spoolInstanceStoredOrWadoRetrieve(StoreContext sCtx, RetrieveContext rCtx) {
-        if (sCtx != null) {
-            AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forInstanceStored(sCtx);
-            if (eventType == null)
-                return; // no audit message for duplicate received instance
-            String callingAET = sCtx.getStoreSession().getHttpRequest() != null
-                    ? sCtx.getStoreSession().getHttpRequest().getRemoteAddr() : sCtx.getStoreSession().getCallingAET().replace('|', '-');
-            String fileName = getFileName(eventType, callingAET, sCtx.getStoreSession().getCalledAET(), sCtx.getStudyInstanceUID());
-            BuildAuditInfo i = getAIStoreCtx(sCtx);
-            BuildAuditInfo iI = new BuildAuditInfo.Builder().sopCUID(sCtx.getSopClassUID()).sopIUID(sCtx.getSopInstanceUID())
-                    .mppsUID(StringUtils.maskNull(sCtx.getMppsInstanceUID(), " ")).build();
-            writeSpoolFileStoreOrWadoRetrieve(fileName, new AuditInfo(i), new AuditInfo(iI));
-        }
-        if (rCtx != null) {
-            HttpServletRequestInfo req = rCtx.getHttpServletRequestInfo();
-            Collection<InstanceLocations> il = rCtx.getMatches();
-            Attributes attrs = new Attributes();
-            for (InstanceLocations i : il)
-                attrs = i.getAttributes();
-            String fileName = getFileName(AuditServiceUtils.EventType.WADO___URI, req.requesterHost,
-                    rCtx.getLocalAETitle(), rCtx.getStudyInstanceUIDs()[0]);
-            AuditInfo i = new AuditInfo(new BuildAuditInfo.Builder().callingHost(req.requesterHost).callingAET(req.requesterUserID)
-                    .calledAET(req.requestURI).studyUID(rCtx.getStudyInstanceUIDs()[0])
-                    .accNum(getAcc(attrs)).pID(getPID(attrs)).pName(pName(attrs)).studyDate(getSD(attrs))
-                    .outcome(null != rCtx.getException() ? rCtx.getException().getMessage() : null).build());
-            AuditInfo iI = new AuditInfo(
-                    new BuildAuditInfo.Builder().sopCUID(sopCUID(attrs)).sopIUID(rCtx.getSopInstanceUIDs()[0]).mppsUID(" ").build());
-            writeSpoolFileStoreOrWadoRetrieve(fileName, i, iI);
-        }
+    void spoolInstanceStored(StoreContext ctx) {
+        AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forInstanceStored(ctx);
+        if (eventType == null)
+            return; // no audit message for duplicate received instance
+        String callingAET = ctx.getStoreSession().getHttpRequest() != null
+                ? ctx.getStoreSession().getHttpRequest().getRemoteAddr() : ctx.getStoreSession().getCallingAET().replace('|', '-');
+        String fileName = getFileName(eventType, callingAET, ctx.getStoreSession().getCalledAET(), ctx.getStudyInstanceUID());
+        BuildAuditInfo i = getAIStoreCtx(ctx);
+        BuildAuditInfo iI = new BuildAuditInfo.Builder().sopCUID(ctx.getSopClassUID()).sopIUID(ctx.getSopInstanceUID())
+                .mppsUID(StringUtils.maskNull(ctx.getMppsInstanceUID(), " ")).build();
+        writeSpoolFileStoreOrWadoRetrieve(fileName, new AuditInfo(i), new AuditInfo(iI));
+    }
+    
+        void spoolRetrieveWADO(RetrieveContext ctx) {
+        HttpServletRequestInfo req = ctx.getHttpServletRequestInfo();
+        Collection<InstanceLocations> il = ctx.getMatches();
+        Attributes attrs = new Attributes();
+        for (InstanceLocations i : il)
+            attrs = i.getAttributes();
+        String fileName = getFileName(AuditServiceUtils.EventType.WADO___URI, req.requesterHost,
+                ctx.getLocalAETitle(), ctx.getStudyInstanceUIDs()[0]);
+        AuditInfo i = new AuditInfo(new BuildAuditInfo.Builder().callingHost(req.requesterHost).callingAET(req.requesterUserID)
+                .calledAET(req.requestURI).studyUID(ctx.getStudyInstanceUIDs()[0])
+                .accNum(getAcc(attrs)).pID(getPID(attrs)).pName(pName(attrs)).studyDate(getSD(attrs))
+                .outcome(null != ctx.getException() ? ctx.getException().getMessage() : null).build());
+        AuditInfo iI = new AuditInfo(
+                new BuildAuditInfo.Builder().sopCUID(sopCUID(attrs)).sopIUID(ctx.getSopInstanceUIDs()[0]).mppsUID(" ").build());
+        writeSpoolFileStoreOrWadoRetrieve(fileName, i, iI);
     }
 
     private void buildSOPClassMap(HashMap<String, HashSet<String>> sopClassMap, String cuid, String iuid) {
@@ -643,7 +642,7 @@ public class AuditService {
         BuildAuditInfo i = httpServletRequestInfo != null
                             ? ctx.isLocalRequestor()
                                 ? buildAuditInfoForExport(ctx, eventType)
-                                : buildAuditInfoForRESTful(ctx, eventType)
+                                : buildAuditInfoForWADORS(ctx, eventType)
                             : buildAuditInfoForAssociation(ctx, eventType);
 
         obj.add(new AuditInfo(i));
@@ -672,7 +671,7 @@ public class AuditService {
                 : buildAuditInfoForExportByRESTful(ctx, eventType);
     }
 
-    private BuildAuditInfo buildAuditInfoForRESTful(RetrieveContext ctx, AuditServiceUtils.EventType eventType) {
+    private BuildAuditInfo buildAuditInfoForWADORS(RetrieveContext ctx, AuditServiceUtils.EventType eventType) {
         return new BuildAuditInfo.Builder()
                 .calledAET(ctx.getHttpServletRequestInfo().requestURI)
                 .destAET(ctx.getHttpServletRequestInfo().requesterUserID)
