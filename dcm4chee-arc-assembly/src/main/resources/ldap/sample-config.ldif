@@ -943,31 +943,6 @@ objectClass: dcmArchiveCompressionRule
 dcmImageWriteParam: maxPixelValueError=0.0
 cn: JPEG LS Lossless
 
-dn: cn=Leading DCMQRSCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmDIMSE: C_STORE_RQ
-dcmLeadingCFindSCP: DCMQRSCP
-dcmAETitle: LEADING_DCMQRSCP
-dicomTransferRole: SCP
-dcmTag: 00080020
-dcmTag: 00080030
-dcmTag: 00080050
-dcmTag: 00080051
-dcmTag: 00080090
-dcmTag: 00081030
-dcmTag: 00081032
-dcmTag: 00100010
-dcmTag: 00100020
-dcmTag: 00100021
-dcmTag: 00100030
-dcmTag: 00100040
-dcmTag: 00101010
-dcmTag: 00101020
-dcmTag: 00101030
-dcmTag: 0020000D
-dcmTag: 00200010
-objectClass: dcmArchiveAttributeCoercion
-cn: Leading DCMQRSCP
-
 dn: dcmExporterID=XDS-I,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRetrieveAET: DCM4CHEE
 dcmRetrieveLocationUID: 1.3.6.1.4.1.21367.13.80.110
@@ -1164,7 +1139,7 @@ dcmProperty: SendingApplicationEntityTitle=FORWARD
 objectClass: dcmExportRule
 cn: Forward to STORESCP
 
-Fdn: dcmExporterID=STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmExporterID=STORESCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: STORESCP
 dicomDescription: Export to STORESCP
 dcmQueueName: Export1
@@ -1240,6 +1215,22 @@ dicomTransferRole: SCU
 objectClass: dcmArchiveAttributeCoercion
 dcmSupplementFromDeviceReference: dicomDeviceName=storescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Supplement Composite
+
+dn: cn=Leading DCMQRSCP FIND,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmDIMSE: C_FIND_RSP
+dcmLeadingCFindSCP: DCMQRSCP
+dcmAETitle: LEADING_DCMQRSCP
+dicomTransferRole: SCU
+objectClass: dcmArchiveAttributeCoercion
+cn: Leading DCMQRSCP FIND
+
+dn: cn=Leading DCMQRSCP STORE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmDIMSE: C_STORE_RQ
+dcmLeadingCFindSCP: DCMQRSCP
+dcmAETitle: LEADING_DCMQRSCP
+dicomTransferRole: SCP
+objectClass: dcmArchiveAttributeCoercion
+cn: Leading DCMQRSCP STORE
 
 dn: dcmSPSStatus=DISCONTINUED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmSPSStatus: DISCONTINUED
@@ -1451,7 +1442,31 @@ dcmAttributeSetID: patient
 objectClass: dcmAttributeSet
 dcmAttributeSetNumber: 2
 
+dn: dcmAttributeSetID=*+dcmAttributeSetType=LEADING_CFIND_SCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeSetTitle: Default
+dcmTag: 00080020
+dcmTag: 00080030
+dcmTag: 00080050
+dcmTag: 00080051
+dcmTag: 00080090
+dcmTag: 00081030
+dcmTag: 00081032
+dcmTag: 00100010
+dcmTag: 00100020
+dcmTag: 00100021
+dcmTag: 00100030
+dcmTag: 00100040
+dcmTag: 00101010
+dcmTag: 00101020
+dcmTag: 00101030
+dcmTag: 0020000D
+dcmTag: 00200010
+dcmAttributeSetType: LEADING_CFIND_SCP
+dcmAttributeSetID: *
+objectClass: dcmAttributeSet
+
 dn: dcmAttributeSetID=AttributeFilters+dcmAttributeSetType=WADO_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmAttributeSetTitle: Attribute Filters
 dcmTag: 00080005
 dcmTag: 00080008
 dcmTag: 00080012

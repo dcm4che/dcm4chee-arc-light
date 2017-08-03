@@ -410,7 +410,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.81 NAME 'dcmAECacheStaleTimeout'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.82 NAME 'dcmLeadingCFindSCP'
-  DESC 'AE Title of external C-FIND SCP for Attribute Coercion with Patient and Study attributes fetched from this AE.'
+  DESC 'AE Title of external C-FIND SCP for Attribute Coercion with Patient and Study attributes fetched from this AE. If no particular Attribute Set is specified for the C-FIND SCP, all Attributes of the configured Patient and Study Attribute Filter will be fetched.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -879,7 +879,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.176 NAME 'hl7NoPatientCreateMessageT
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.177 NAME 'dcmAttributeSetType'
-  DESC 'Specifies if this Attribute Set is used by Query Parameter "comparefield" of DIFF-RS or by Query Parameter "includefields" of WADO-RS requests. Enumerated values: DIFF_RS, WADO_RS'
+  DESC 'Specifies if this Attribute Set is used by Query Parameter "comparefield" of DIFF-RS or by Query Parameter "includefields" of WADO-RS requests. Enumerated values: DIFF_RS, WADO_RS, LEADING_CFIND_SCP'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )

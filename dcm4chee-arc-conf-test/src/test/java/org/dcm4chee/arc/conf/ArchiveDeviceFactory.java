@@ -359,7 +359,7 @@ class ArchiveDeviceFactory {
             Tag.IdenticalDocumentsSequence,
             Tag.CurrentRequestedProcedureEvidenceSequence
     };
-    static final int[] LEADING_C_FIND_SCP_ATTRS = {
+    static final int[] LEADING_CFIND_SCP_ATTRS = {
             Tag.StudyDate,
             Tag.StudyTime,
             Tag.AccessionNumber,
@@ -1383,9 +1383,14 @@ class ArchiveDeviceFactory {
                 union(DIFF_PAT_ATTRS, DIFF_STUDY_ATTRS)));
         ext.addAttributeSet(newAttributeSet(AttributeSet.Type.WADO_RS,
                 0, "AttributeFilters",
-                null,
+                "Attribute Filters",
                 null,
                 union(PATIENT_ATTRS, STUDY_ATTRS, SERIES_ATTRS, INSTANCE_ATTRS)));
+        ext.addAttributeSet(newAttributeSet(AttributeSet.Type.LEADING_CFIND_SCP,
+                0, "*",
+                "Default",
+                null,
+                LEADING_CFIND_SCP_ATTRS));
 
         ext.addRejectionNote(createRejectionNote("Quality",
                 RejectionNote.Type.REJECTED_FOR_QUALITY_REASONS,
@@ -1551,12 +1556,18 @@ class ArchiveDeviceFactory {
                     .setNoKeywords(true));
 
             ext.addAttributeCoercion(new ArchiveAttributeCoercion()
-                    .setCommonName("Leading DCMQRSCP")
+                    .setCommonName("Leading DCMQRSCP STORE")
                     .setDIMSE(Dimse.C_STORE_RQ)
                     .setRole(SCP)
                     .setAETitles("LEADING_DCMQRSCP")
-                    .setLeadingCFindSCP("DCMQRSCP")
-                    .setLeadingCFindSCPReturnKeys(LEADING_C_FIND_SCP_ATTRS));
+                    .setLeadingCFindSCP("DCMQRSCP"));
+
+            ext.addAttributeCoercion(new ArchiveAttributeCoercion()
+                    .setCommonName("Leading DCMQRSCP FIND")
+                    .setDIMSE(Dimse.C_FIND_RSP)
+                    .setRole(SCU)
+                    .setAETitles("LEADING_DCMQRSCP")
+                    .setLeadingCFindSCP("DCMQRSCP"));
 
             ext.addAttributeCoercion(new ArchiveAttributeCoercion()
                     .setCommonName("Supplement Composite")

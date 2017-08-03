@@ -76,10 +76,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -435,13 +432,21 @@ class QueryServiceImpl implements QueryService {
             }
         String leadingCFindSCP = rule.getLeadingCFindSCP();
         if (leadingCFindSCP != null) {
-            int[] returnKeys = rule.getLeadingCFindSCPReturnKeys();
-            if (returnKeys.length == 0)
-                returnKeys = aeExt.getArchiveDeviceExtension().catAttributeFilters(Entity.Patient, Entity.Study);
-
-            coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP, returnKeys,
+            coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP,
+                    returnKeysForLeadingCFindSCP(aeExt.getArchiveDeviceExtension(), leadingCFindSCP),
                     rule.getAttributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
         }
         return coercion;
+    }
+
+    private int[] returnKeysForLeadingCFindSCP(ArchiveDeviceExtension arcdev, String aet) {
+        Map<String, AttributeSet> map = arcdev.getAttributeSet(AttributeSet.Type.LEADING_CFIND_SCP);
+        AttributeSet attributeSet = map.get(aet);
+        if (attributeSet == null)
+            attributeSet = map.get("*");
+
+        return attributeSet != null
+                ? attributeSet.getSelection()
+                : arcdev.catAttributeFilters(Entity.Patient, Entity.Study);
     }
 }

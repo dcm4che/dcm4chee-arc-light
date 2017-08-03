@@ -46,7 +46,7 @@ import java.util.Arrays;
  */
 public class AttributeSet implements Comparable<AttributeSet> {
 
-    public enum Type { DIFF_RS, WADO_RS }
+    public enum Type { DIFF_RS, WADO_RS, LEADING_CFIND_SCP}
 
     private Type type;
     private String id;

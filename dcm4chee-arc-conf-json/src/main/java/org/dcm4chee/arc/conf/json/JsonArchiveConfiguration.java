@@ -424,7 +424,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmNoKeywords", aac.isNoKeywords(), false);
             writer.writeNotNullOrDef("dcmURI", aac.getXSLTStylesheetURI(), null);
             writer.writeNotNullOrDef("dcmLeadingCFindSCP", aac.getLeadingCFindSCP(), null);
-            writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(aac.getLeadingCFindSCPReturnKeys()));
             writer.writeNotNullOrDef("dcmMergeMWLMatchingKey", aac.getMergeMWLMatchingKey(), null);
             writer.writeNotNullOrDef("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI(), null);
             writer.writeNotNullOrDef("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy(), null);
@@ -1418,9 +1417,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmLeadingCFindSCP":
                         aac.setLeadingCFindSCP(reader.stringValue());
-                        break;
-                    case "dcmTag":
-                        aac.setLeadingCFindSCPReturnKeys(TagUtils.fromHexStrings(reader.stringArray()));
                         break;
                     case "dcmMergeMWLMatchingKey":
                         aac.setMergeMWLMatchingKey(MergeMWLMatchingKey.valueOf(reader.stringValue()));

@@ -20,7 +20,8 @@
       "type": "string",
       "enum": [
         "DIFF_RS",
-        "WADO_RS"
+        "WADO_RS",
+        "LEADING_CFIND_SCP"
       ]
     },
     "dcmAttributeSetID": {

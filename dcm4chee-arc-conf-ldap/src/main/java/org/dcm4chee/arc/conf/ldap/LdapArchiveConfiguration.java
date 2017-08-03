@@ -2171,7 +2171,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "dcmURI", coercion.getXSLTStylesheetURI(), null);
         LdapUtils.storeNotDef(attrs, "dcmNoKeywords", coercion.isNoKeywords(), false);
         LdapUtils.storeNotNullOrDef(attrs, "dcmLeadingCFindSCP", coercion.getLeadingCFindSCP(), null);
-        storeNotEmptyTags(attrs, "dcmTag", coercion.getLeadingCFindSCPReturnKeys());
         LdapUtils.storeNotNullOrDef(attrs, "dcmMergeMWLTemplateURI",
                 coercion.getMergeMWLTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmMergeMWLMatchingKey",
@@ -2202,7 +2201,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 coercion.setNoKeywords(LdapUtils.booleanValue(attrs.get("dcmNoKeywords"), false));
                 coercion.setLeadingCFindSCP(LdapUtils.stringValue(attrs.get("dcmLeadingCFindSCP"), null));
-                coercion.setLeadingCFindSCPReturnKeys(tags(attrs.get("dcmTag")));
                 coercion.setMergeMWLTemplateURI(
                         LdapUtils.stringValue(attrs.get("dcmMergeMWLTemplateURI"), null));
                 coercion.setMergeMWLMatchingKey(
@@ -2244,7 +2242,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(mods, "dcmURI", prev.getXSLTStylesheetURI(), coercion.getXSLTStylesheetURI(), null);
         LdapUtils.storeDiff(mods, "dcmNoKeywords", prev.isNoKeywords(), coercion.isNoKeywords(), false);
         LdapUtils.storeDiffObject(mods, "dcmLeadingCFindSCP", prev.getLeadingCFindSCP(), coercion.getLeadingCFindSCP(), null);
-        storeDiffTags(mods, "dcmTag", prev.getLeadingCFindSCPReturnKeys(), coercion.getLeadingCFindSCPReturnKeys());
         LdapUtils.storeDiffObject(mods, "dcmMergeMWLTemplateURI",
                 prev.getMergeMWLTemplateURI(),
                 coercion.getMergeMWLTemplateURI(), null);
