@@ -397,18 +397,18 @@
       "title": "Study Retention Policy",
       "description": "Study Retention Policies. Supplements Study Retention Policies specified on Device level.",
       "type": "array",
+      "titleKey": "{cn}",
+      "items": {
+        "$ref": "studyRetentionPolicy.schema.json"
+      }
+    },
+    "dcmStoreAccessControlIDRule": {
+      "title": "Store Access Control Rules",
+      "description": "Store Access Control Rules applied to Studies received by this AE. Supplements Store Access Control Rules specified on Device level",
+      "type": "array",
       "titleKey":"{cn}",
       "items" : {
-        "$ref": "studyRetentionPolicy.schema.json"
-      },
-      "dcmStoreAccessControlIDRule": {
-        "title": "Store Access Control Rules",
-        "description": "Store Access Control Rules applied to Studies received by this AE. Supplements Store Access Control Rules specified on Device level",
-        "type": "array",
-        "titleKey":"{cn}",
-        "items" : {
-          "$ref": "storeAccessControlIDRule.schema.json"
-        }
+        "$ref": "storeAccessControlIDRule.schema.json"
       }
     }
   }
