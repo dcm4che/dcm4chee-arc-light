@@ -100,9 +100,9 @@ public class HttpServletRequestInfo {
     }
 
     private String getPreferredUsername(HttpServletRequest req) {
-        return req.getAttribute("org.keycloak.KeycloakSecurityContext") != null
-                ? ((RefreshableKeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName()))
-                .getToken().getPreferredUsername()
+        Object securityContext = req.getAttribute(KeycloakSecurityContext.class.getName());
+        return securityContext instanceof RefreshableKeycloakSecurityContext
+                ? ((RefreshableKeycloakSecurityContext) securityContext).getToken().getPreferredUsername()
                 : req.getRemoteAddr();
     }
 
