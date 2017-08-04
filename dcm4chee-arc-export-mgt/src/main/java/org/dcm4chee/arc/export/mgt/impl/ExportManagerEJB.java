@@ -221,7 +221,7 @@ public class ExportManagerEJB implements ExportManager {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         for (ExportTask exportTask : resultList) {
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
-            scheduleExportTask(exportTask, exporter, HttpServletRequestInfo.NULL);
+            scheduleExportTask(exportTask, exporter, null);
         }
         return resultList.size();
     }
@@ -264,7 +264,8 @@ public class ExportManagerEJB implements ExportManager {
             JMSUtils.setStringNotNull(msg,"SopInstanceUID", exportTask.getSopInstanceUID());
             JMSUtils.setStringNotNull(msg,"ExporterID", exportTask.getExporterID());
             JMSUtils.setStringNotNull(msg,"AETitle", aeTitle);
-            httpServletRequestInfo.copyTo(msg);
+            if (httpServletRequestInfo != null)
+                httpServletRequestInfo.copyTo(msg);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

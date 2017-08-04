@@ -60,8 +60,6 @@ public class HttpServletRequestInfo {
     public final String requesterHost;
     public final String requestURI;
 
-    public static final HttpServletRequestInfo NULL = new HttpServletRequestInfo(null, null, null);
-
     private HttpServletRequestInfo(HttpServletRequest request) {
         requesterUserID = getPreferredUsername(request);
         requesterHost = request.getRemoteHost();
@@ -85,21 +83,20 @@ public class HttpServletRequestInfo {
                         msg.getStringProperty("RequesterUserID"),
                         msg.getStringProperty("RequesterHostName"),
                         msg.getStringProperty("RequestURI"))
-                    : NULL;
+                    : null;
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
         }
     }
 
     public void copyTo(Message msg) {
-        if (this != NULL)
-            try {
-                msg.setStringProperty("RequesterUserID", requesterUserID);
-                msg.setStringProperty( "RequesterHostName", requesterHost);
-                msg.setStringProperty( "RequestURI", requestURI);
-            } catch (JMSException e) {
-                throw QueueMessage.toJMSRuntimeException(e);
-            }
+        try {
+            msg.setStringProperty("RequesterUserID", requesterUserID);
+            msg.setStringProperty( "RequesterHostName", requesterHost);
+            msg.setStringProperty( "RequestURI", requestURI);
+        } catch (JMSException e) {
+            throw QueueMessage.toJMSRuntimeException(e);
+        }
     }
 
     private String getPreferredUsername(HttpServletRequest req) {

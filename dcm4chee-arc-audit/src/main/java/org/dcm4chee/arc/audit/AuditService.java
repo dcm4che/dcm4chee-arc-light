@@ -666,7 +666,7 @@ public class AuditService {
     }
 
     private BuildAuditInfo buildAuditInfoForExport(RetrieveContext ctx, AuditServiceUtils.EventType eventType) {
-        return ctx.getHttpServletRequestInfo() == HttpServletRequestInfo.NULL
+        return ctx.getHttpServletRequestInfo() == null
                 ? buildAuditInfoForAssociation(ctx, eventType)
                 : buildAuditInfoForExportByRESTful(ctx, eventType);
     }

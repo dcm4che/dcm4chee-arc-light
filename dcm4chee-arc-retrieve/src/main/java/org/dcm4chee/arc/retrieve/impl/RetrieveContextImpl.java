@@ -285,7 +285,7 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public String getRequestorHostName() {
-        return httpServletRequestInfo != null && httpServletRequestInfo != HttpServletRequestInfo.NULL
+        return httpServletRequestInfo != null
                 ? httpServletRequestInfo.requesterHost
                 : requestAssociation != null
                     ? requestAssociation.getSocket().getInetAddress().getHostName()
@@ -294,7 +294,7 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public String getDestinationHostName() {
-        return httpServletRequestInfo != null && httpServletRequestInfo != HttpServletRequestInfo.NULL
+        return httpServletRequestInfo != null
                 ? httpServletRequestInfo.requesterHost
                 : storeAssociation != null
                     ? storeAssociation.getSocket().getInetAddress().getHostName()
@@ -305,8 +305,7 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public boolean isDestinationRequestor() {
-        return (httpServletRequestInfo != null
-                    && httpServletRequestInfo != HttpServletRequestInfo.NULL)
+        return (httpServletRequestInfo != null)
                 || requestAssociation == storeAssociation;
     }
 
