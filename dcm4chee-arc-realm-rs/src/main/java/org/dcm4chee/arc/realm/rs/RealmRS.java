@@ -41,8 +41,8 @@
 package org.dcm4chee.arc.realm.rs;
 
 import org.jboss.resteasy.annotations.cache.NoCache;
-import org.keycloak.KeycloakPrincipal;
-import org.keycloak.KeycloakSecurityContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.GET;
@@ -55,7 +55,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.security.Principal;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -80,9 +83,10 @@ public class RealmRS {
                 if (principal == null)
                     w.write("{\"user\":null,\"roles\":[]}");
                 else {
-                    w.append("{\"user\":\"").append(user(principal)).append("\",\"roles\":[");
+                    UserRoles userRoles = new UserRoles(principal);
+                    w.append("{\"user\":\"").append(userRoles.userName).append("\",\"roles\":[");
                     int count = 0;
-                    for (String role : roles(principal)) {
+                    for (String role : userRoles.roles) {
                         if (count++ > 0)
                             w.write(',');
                         w.append('\"').append(role).append('\"');
@@ -94,13 +98,54 @@ public class RealmRS {
         };
     }
 
-    private String user(Principal principal) {
-        KeycloakPrincipal<KeycloakSecurityContext> kp1 = (KeycloakPrincipal<KeycloakSecurityContext>) principal;
-        return kp1.getKeycloakSecurityContext().getIdToken().getPreferredUsername();
-    }
+    private static class UserRoles {
+        private final Logger LOG = LoggerFactory.getLogger(UserRoles.class);
 
-    private Iterable<String> roles(Principal principal) {
-        KeycloakPrincipal<KeycloakSecurityContext> kp1 = (KeycloakPrincipal<KeycloakSecurityContext>) principal;
-        return kp1.getKeycloakSecurityContext().getToken().getRealmAccess().getRoles();
+        private Class keycloakPrincipalClass;
+        private Class keycloakSecurityContextClass;
+        private Object keycloakSecurityContext;
+
+        private String userName;
+        private Set<String> roles = Collections.EMPTY_SET;
+
+        UserRoles(Principal principal) {
+            userName = getUserName(principal);
+            roles = getRoles();
+        }
+
+        private String getUserName(Principal principal) {
+            try {
+                keycloakPrincipalClass = Class.forName("org.keycloak.KeycloakPrincipal");
+                keycloakSecurityContextClass = Class.forName("org.keycloak.KeycloakSecurityContext");
+                Class idTokenClass = Class.forName("org.keycloak.representations.IDToken");
+                Object keycloakPrincipal = keycloakPrincipalClass.cast(principal);
+                Method getKeycloakSecurityContext = keycloakPrincipalClass.getDeclaredMethod("getKeycloakSecurityContext");
+                keycloakSecurityContext = getKeycloakSecurityContext.invoke(keycloakPrincipal);
+                Method getIdToken = keycloakSecurityContextClass.getDeclaredMethod("getIdToken");
+                Object idToken = getIdToken.invoke(keycloakSecurityContext);
+                Method getPreferredUsername = idTokenClass.getDeclaredMethod("getPreferredUsername");
+                userName = String.valueOf(getPreferredUsername.invoke(idToken));
+            } catch (Exception e) {
+                LOG.warn("Failed to get username : " + e.getMessage());
+            }
+            return userName;
+        }
+
+        private Set<String> getRoles() {
+            try {
+                Method getToken = keycloakSecurityContextClass.getDeclaredMethod("getToken");
+                Object accessToken = getToken.invoke(keycloakSecurityContext);
+                Class accessTokenClass = Class.forName("org.keycloak.representations.AccessToken");
+                Method getRealmAccess = accessTokenClass.getDeclaredMethod("getRealmAccess");
+                Object access = getRealmAccess.invoke(accessToken);
+                Class accessClass = access.getClass();
+                Method getRoles = accessClass.getDeclaredMethod("getRoles");
+                roles = (Set<String>) getRoles.invoke(access);
+            } catch (Exception e) {
+                LOG.warn("Failed to get user roles : " + e.getMessage());
+            }
+            return roles;
+        }
+
     }
 }

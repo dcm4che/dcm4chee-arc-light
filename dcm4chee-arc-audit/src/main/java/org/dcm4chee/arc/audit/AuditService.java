@@ -71,8 +71,6 @@ import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
-import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +78,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -97,8 +96,6 @@ import java.util.*;
 public class AuditService {
     private final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     private final String studyDate = "StudyDate";
-    private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
-
     @Inject
     private Device device;
 
@@ -1132,10 +1129,8 @@ public class AuditService {
     }
 
     private String getPreferredUsername(HttpServletRequest req) {
-        return req.getAttribute(keycloakClassName) != null
-                ? ((RefreshableKeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName()))
-                .getToken().getPreferredUsername()
-                : req.getRemoteAddr();
+        //TODO
+        return req.getRemoteAddr();
     }
 
     private String getPID(Attributes attrs) {

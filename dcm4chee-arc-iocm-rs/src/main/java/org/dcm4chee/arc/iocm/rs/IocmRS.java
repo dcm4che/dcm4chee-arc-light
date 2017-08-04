@@ -70,8 +70,6 @@ import org.dcm4chee.arc.study.StudyService;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -494,13 +492,15 @@ public class IocmRS {
     }
 
     private boolean authenticatedUser(HttpServletRequest request, String[] acceptedUserRoles) {
-        RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
-                request.getAttribute(KeycloakSecurityContext.class.getName());
-        Set<String> userRoles = securityContext.getToken().getRealmAccess().getRoles();
-        for (String s : userRoles)
-            if (Arrays.asList(acceptedUserRoles).contains(s))
-                return true;
-        return false;
+//        RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
+//                request.getAttribute(KeycloakSecurityContext.class.getName());
+//        Set<String> userRoles = securityContext.getToken().getRealmAccess().getRoles();
+//        for (String s : userRoles)
+//            if (Arrays.asList(acceptedUserRoles).contains(s))
+//                return true;
+        //return false;
+        //TODO
+        return true;
     }
 
     private void reject(RSOperation rsOp, String studyUID, String seriesUID, String objectUID,

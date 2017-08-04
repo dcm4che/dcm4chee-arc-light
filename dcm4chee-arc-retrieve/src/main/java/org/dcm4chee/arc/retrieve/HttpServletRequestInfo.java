@@ -41,11 +41,13 @@
 package org.dcm4chee.arc.retrieve;
 
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
 
 
 /**
@@ -97,10 +99,8 @@ public class HttpServletRequestInfo {
     }
 
     private String getPreferredUsername(HttpServletRequest req) {
-        Object securityContext = req.getAttribute("org.keycloak.KeycloakSecurityContext");
-        return securityContext instanceof RefreshableKeycloakSecurityContext
-                ? ((RefreshableKeycloakSecurityContext) securityContext).getToken().getPreferredUsername()
-                : req.getRemoteAddr();
+        //TODO
+        return req.getRemoteAddr();
     }
 
 }
