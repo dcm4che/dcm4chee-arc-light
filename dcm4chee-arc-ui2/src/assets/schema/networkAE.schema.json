@@ -97,16 +97,10 @@
       }
     },
     "dcmNetworkAE": {
-      "title": "dcm4che Network AE Attributes",
+      "title": "Network AE Extension",
       "description": "dcm4che proprietary Attributes of Network AE",
       "$ref": "dcmNetworkAE.schema.json",
       "order":12
-    },
-    "dcmArchiveNetworkAE": {
-      "title": "Archive Network AE",
-      "description": "DICOM Archive Network AE related information",
-      "$ref": "archiveNetworkAE.schema.json",
-      "order":13
     }
   }
 }

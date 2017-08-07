@@ -433,7 +433,6 @@ class QueryServiceImpl implements QueryService {
         String leadingCFindSCP = rule.getLeadingCFindSCP();
         if (leadingCFindSCP != null) {
             coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP,
-                    aeExt.getArchiveDeviceExtension().returnKeysForLeadingCFindSCP(leadingCFindSCP),
                     rule.getAttributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
         }
         return coercion;

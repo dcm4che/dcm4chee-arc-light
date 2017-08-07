@@ -43,12 +43,36 @@ package org.dcm4chee.arc;
 import org.dcm4che3.data.Attributes;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.Objects;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since May 2016
  */
 @ApplicationScoped
-public class LeadingCFindSCPQueryCache extends Cache<String,Attributes> {
+public class LeadingCFindSCPQueryCache extends Cache<LeadingCFindSCPQueryCache.Key,Attributes> {
 
+    public static class Key {
+        public final String cfindSCP;
+        public final String studyInstanceUID;
+
+        public Key(String cfindSCP, String studyInstanceUID) {
+            this.cfindSCP = cfindSCP;
+            this.studyInstanceUID = studyInstanceUID;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Key key = (Key) o;
+            return Objects.equals(cfindSCP, key.cfindSCP) &&
+                    Objects.equals(studyInstanceUID, key.studyInstanceUID);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(cfindSCP, studyInstanceUID);
+        }
+    }
 }

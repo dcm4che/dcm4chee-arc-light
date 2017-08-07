@@ -48,15 +48,6 @@
       "description": "Access Control ID assigned to Studies received by this AE",
       "type": "string"
     },
-    "dcmStoreAccessControlIDRule": {
-      "title": "Store Access Control Rules",
-      "description": "Store Access Control Rules applied to Studies received by this AE",
-      "type": "array",
-      "titleKey":"{cn}",
-      "items" : {
-        "$ref": "storeAccessControlIDRule.schema.json"
-      }
-    },
     "dcmAccessControlID": {
       "title": "Access Control ID",
       "description": "Access Control IDs assigned to Query/Retrieve requests received by this AE",
@@ -406,9 +397,18 @@
       "title": "Study Retention Policy",
       "description": "Study Retention Policies. Supplements Study Retention Policies specified on Device level.",
       "type": "array",
+      "titleKey": "{cn}",
+      "items": {
+        "$ref": "studyRetentionPolicy.schema.json"
+      }
+    },
+    "dcmStoreAccessControlIDRule": {
+      "title": "Store Access Control Rules",
+      "description": "Store Access Control Rules applied to Studies received by this AE. Supplements Store Access Control Rules specified on Device level",
+      "type": "array",
       "titleKey":"{cn}",
       "items" : {
-        "$ref": "studyRetentionPolicy.schema.json"
+        "$ref": "storeAccessControlIDRule.schema.json"
       }
     }
   }

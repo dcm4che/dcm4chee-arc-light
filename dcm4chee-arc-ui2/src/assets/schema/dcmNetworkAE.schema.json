@@ -1,5 +1,5 @@
 {
-  "title": "dcm4che Network AE Attributes",
+  "title": "Network AE Extension",
   "description": "dcm4che proprietary Attributes of Network AE",
   "type": "object",
   "properties": {
@@ -26,6 +26,11 @@
       "items": {
         "type": "string"
       }
+    },
+    "dcmArchiveNetworkAE": {
+      "title": "Archive Network AE",
+      "description": "DICOM Archive Network AE related information",
+      "$ref": "archiveNetworkAE.schema.json"
     }
   }
 }
