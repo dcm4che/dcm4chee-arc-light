@@ -66,26 +66,26 @@ public class KeycloakUtils {
     public static Set<String> roles = Collections.EMPTY_SET;
 
     public KeycloakUtils(HttpServletRequest request) {
-        userName = toUserName(request);
-        roles = toSetOfRoles();
+        if (request.getAttribute(keycloakSecurityContextClassName) != null) {
+            userName = toUserName(request);
+            roles = toSetOfRoles();
+        } else
+            userName = request.getRemoteAddr();
     }
 
     private String toUserName(HttpServletRequest request) {
         try {
-            if (request.getAttribute(keycloakSecurityContextClassName) != null) {
-                keycloakSecurityContextClass = Class.forName(keycloakSecurityContextClassName);
-                Class refreshableKeycloakSecurityContextClass = Class.forName(refreshableKeycloakSecurityContextClassName);
-                Class idTokenClass = Class.forName(idTokenClassName);
+            keycloakSecurityContextClass = Class.forName(keycloakSecurityContextClassName);
+            Class refreshableKeycloakSecurityContextClass = Class.forName(refreshableKeycloakSecurityContextClassName);
+            Class idTokenClass = Class.forName(idTokenClassName);
 
-                Method getIdToken = keycloakSecurityContextClass.getDeclaredMethod("getIdToken");
-                Method getPreferredUsername = idTokenClass.getDeclaredMethod("getPreferredUsername");
+            Method getIdToken = keycloakSecurityContextClass.getDeclaredMethod("getIdToken");
+            Method getPreferredUsername = idTokenClass.getDeclaredMethod("getPreferredUsername");
 
-                refreshableKeycloakSecurityContext = refreshableKeycloakSecurityContextClass
-                        .cast(request.getAttribute(keycloakSecurityContextClassName));
-                Object idToken = getIdToken.invoke(refreshableKeycloakSecurityContext);
-                userName = String.valueOf(getPreferredUsername.invoke(idToken));
-            } else
-                userName = request.getRemoteAddr();
+            refreshableKeycloakSecurityContext = refreshableKeycloakSecurityContextClass
+                    .cast(request.getAttribute(keycloakSecurityContextClassName));
+            Object idToken = getIdToken.invoke(refreshableKeycloakSecurityContext);
+            userName = String.valueOf(getPreferredUsername.invoke(idToken));
         } catch (Exception e) {
             LOG.warn("Failed to get username : " + e.getMessage());
         }
