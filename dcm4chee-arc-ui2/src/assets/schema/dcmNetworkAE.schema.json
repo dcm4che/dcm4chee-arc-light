@@ -26,6 +26,11 @@
       "items": {
         "type": "string"
       }
+    },
+    "dcmArchiveNetworkAE": {
+      "title": "Archive Network AE",
+      "description": "DICOM Archive Network AE related information",
+      "$ref": "archiveNetworkAE.schema.json"
     }
   }
 }
