@@ -117,6 +117,11 @@ class QueryContextImpl implements QueryContext {
     }
 
     @Override
+    public void setSOPClassUID(String sopClassUID) {
+        this.sopClassUID = sopClassUID;
+    }
+
+    @Override
     public String getSearchMethod() {
         return searchMethod;
     }

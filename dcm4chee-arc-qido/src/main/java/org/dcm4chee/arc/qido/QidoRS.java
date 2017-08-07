@@ -345,7 +345,9 @@ public class QidoRS {
             if (remaining > 0)
                 builder.header("Warning", warning(remaining));
 
-            return builder.entity(output.entity(this, method, query, model)).build();
+            return builder.entity(
+                    output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
+                    .build();
         } finally {
             if (transaction != null)
                 try {
@@ -380,6 +382,7 @@ public class QidoRS {
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);
         ctx.setQueryRetrieveLevel(model.getQueryRetrieveLevel());
+        ctx.setSOPClassUID(model.getSOPClassUID());
         Attributes keys = queryAttrs.getQueryKeys();
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null)
@@ -409,11 +412,38 @@ public class QidoRS {
     }
 
     private enum Model {
-        PATIENT(QueryRetrieveLevel2.PATIENT, QPatient.patient.pk),
-        STUDY(QueryRetrieveLevel2.STUDY, QStudy.study.pk),
-        SERIES(QueryRetrieveLevel2.SERIES, QSeries.series.pk),
-        INSTANCE(QueryRetrieveLevel2.IMAGE, QInstance.instance.pk),
-        MWL(null, QMWLItem.mWLItem.pk) {
+        PATIENT(QueryRetrieveLevel2.PATIENT, QPatient.patient.pk, UID.PatientRootQueryRetrieveInformationModelFIND){
+            @Override
+            public AttributesCoercion getAttributesCoercion(QueryService service, QueryContext ctx) {
+                return null;
+            }
+
+            @Override
+            public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
+            }
+        },
+        STUDY(QueryRetrieveLevel2.STUDY, QStudy.study.pk, UID.StudyRootQueryRetrieveInformationModelFIND) {
+            @Override
+            public StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
+                return super.retrieveURL(qidoRS, match)
+                        .append("/studies/").append(match.getString(Tag.StudyInstanceUID));
+            }
+        },
+        SERIES(QueryRetrieveLevel2.SERIES, QSeries.series.pk, UID.StudyRootQueryRetrieveInformationModelFIND) {
+            @Override
+            StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
+                return STUDY.retrieveURL(qidoRS, match)
+                        .append("/series/").append(match.getString(Tag.SeriesInstanceUID));
+            }
+        },
+        INSTANCE(QueryRetrieveLevel2.IMAGE, QInstance.instance.pk, UID.StudyRootQueryRetrieveInformationModelFIND) {
+            @Override
+            StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
+                return SERIES.retrieveURL(qidoRS, match)
+                        .append("/instances/").append(match.getString(Tag.SOPInstanceUID));
+            }
+        },
+        MWL(null, QMWLItem.mWLItem.pk, UID.ModalityWorklistInformationModelFIND) {
             @Override
             Query createQuery(QueryService service, QueryContext ctx) {
                 return service.createMWLQuery(ctx);
@@ -423,14 +453,25 @@ public class QidoRS {
             boolean addOrderSpecifier(int tag, Order order, List<OrderSpecifier<?>> result) {
                 return QueryBuilder.addMWLOrderSpecifier(tag, order, result);
             }
+
+            @Override
+            public AttributesCoercion getAttributesCoercion(QueryService service, QueryContext ctx) {
+                return null;
+            }
+
+            @Override
+            public void addRetrieveURL(QidoRS qidoRS, Attributes match) {
+            }
         };
 
         final QueryRetrieveLevel2 qrLevel;
         final NumberPath<Long> pk;
+        final private String sopClassUID;
 
-        Model(QueryRetrieveLevel2 qrLevel, NumberPath<Long> pk) {
+        Model(QueryRetrieveLevel2 qrLevel, NumberPath<Long> pk, String sopClassUID) {
             this.qrLevel = qrLevel;
             this.pk = pk;
+            this.sopClassUID = sopClassUID;
         }
 
         QueryRetrieveLevel2 getQueryRetrieveLevel() {
@@ -448,26 +489,49 @@ public class QidoRS {
         boolean addOrderSpecifier(int tag, Order order, List<OrderSpecifier<?>> result) {
             return QueryBuilder.addOrderSpecifier(qrLevel, tag, order, result);
         }
+
+        AttributesCoercion getAttributesCoercion(QueryService service, QueryContext ctx) {
+            return service.getAttributesCoercion(ctx);
+        }
+
+        StringBuffer retrieveURL(QidoRS qidoRS, Attributes match) {
+            StringBuffer sb = qidoRS.device.getDeviceExtension(ArchiveDeviceExtension.class)
+                    .remapRetrieveURL(qidoRS.request);
+            sb.setLength(sb.lastIndexOf("/rs/") + 3);
+            return sb;
+        }
+
+        void addRetrieveURL(QidoRS qidoRS, Attributes match) {
+            match.setString(Tag.RetrieveURL, VR.UR, retrieveURL(qidoRS, match).toString());
+        }
+
+        String getSOPClassUID() {
+            return sopClassUID;
+        }
     }
 
     private enum Output {
         DICOM_XML {
             @Override
-            Object entity(QidoRS service, String method, Query query, Model model) throws DicomServiceException {
-                return service.writeXML(method, query, model);
+            Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
+                    throws DicomServiceException {
+                return service.writeXML(method, query, model, coercion);
             }
         },
         JSON {
             @Override
-            Object entity(QidoRS service, String method, Query query, Model model) throws DicomServiceException {
-                return service.writeJSON(method, query, model);
+            Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
+                    throws DicomServiceException {
+                return service.writeJSON(method, query, model, coercion);
             }
         };
 
-        abstract Object entity(QidoRS service, String method, Query query, Model model) throws DicomServiceException;
+        abstract Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
+                throws DicomServiceException;
     }
 
-    private Object writeXML(String method, Query query, Model model) throws DicomServiceException {
+    private Object writeXML(String method, Query query, Model model, AttributesCoercion coercion)
+            throws DicomServiceException {
         MultipartRelatedOutput output = new MultipartRelatedOutput();
         int count = 0;
         while (query.hasMoreMatches()) {
@@ -475,7 +539,7 @@ public class QidoRS {
             if (tmp == null)
                 continue;
 
-            final Attributes match = adjust(tmp, model, query);
+            final Attributes match = adjust(tmp, model, query, coercion);
             LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
             output.addPart(
                     new StreamingOutput() {
@@ -495,14 +559,15 @@ public class QidoRS {
         return output;
     }
 
-    private Object writeJSON(String method, Query query, Model model) throws DicomServiceException {
+    private Object writeJSON(String method, Query query, Model model, AttributesCoercion coercion)
+            throws DicomServiceException {
         final ArrayList<Attributes> matches = new ArrayList<>();
         int count = 0;
         while (query.hasMoreMatches()) {
             Attributes tmp = query.nextMatch();
             if (tmp == null)
                 continue;
-            Attributes match = adjust(tmp, model, query);
+            Attributes match = adjust(tmp, model, query, coercion);
             LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
             matches.add(match);
         }
@@ -522,26 +587,14 @@ public class QidoRS {
         };
     }
 
-    private Attributes adjust(Attributes match, Model model, Query query) {
+    private Attributes adjust(Attributes match, Model model, Query query, AttributesCoercion coercion) {
+        if (coercion != null)
+            coercion.coerce(match, null);
         match = query.adjust(match);
-        switch(model) {
-            case STUDY:
-            case SERIES:
-            case INSTANCE:
-                match.setString(Tag.RetrieveURL, VR.UR, retrieveURL(match, model));
-        }
+        model.addRetrieveURL(this, match);
+        StringBuffer sb = model.retrieveURL(this, match);
+        if (sb != null)
+            match.setString(Tag.RetrieveURL, VR.UR, sb.toString());
         return match;
-    }
-
-    private String retrieveURL(Attributes match, Model model) {
-        StringBuffer sb = device.getDeviceExtension(ArchiveDeviceExtension.class).remapRetrieveURL(request);
-        sb.setLength(sb.lastIndexOf("/rs/"));
-        sb.append("/rs/studies/").append(match.getString(Tag.StudyInstanceUID));
-        if (model != Model.STUDY) {
-            sb.append("/series/").append(match.getString(Tag.SeriesInstanceUID));
-            if (model != Model.SERIES)
-                sb.append("/instances/").append(match.getString(Tag.SOPInstanceUID));
-        }
-        return sb.toString();
     }
 }

@@ -74,6 +74,8 @@ public interface QueryContext {
 
     String getSOPClassUID();
 
+    void setSOPClassUID(String sopClassUID);
+
     String getSearchMethod();
 
     ArchiveAEExtension getArchiveAEExtension();
