@@ -41,13 +41,11 @@
 package org.dcm4chee.arc.retrieve;
 
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dcm4chee.arc.common.rs.KeycloakUtils;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
 
 
 /**
@@ -60,7 +58,7 @@ public class HttpServletRequestInfo {
     public final String requestURI;
 
     private HttpServletRequestInfo(HttpServletRequest request) {
-        requesterUserID = getPreferredUsername(request);
+        requesterUserID = KeycloakUtils.userName;
         requesterHost = request.getRemoteHost();
         requestURI = request.getRequestURI();
     }
@@ -96,11 +94,6 @@ public class HttpServletRequestInfo {
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
         }
-    }
-
-    private String getPreferredUsername(HttpServletRequest req) {
-        //TODO
-        return req.getRemoteAddr();
     }
 
 }

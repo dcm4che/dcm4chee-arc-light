@@ -41,11 +41,8 @@ package org.dcm4chee.arc.retrieve;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.dcm4chee.arc.common.rs.KeycloakUtils;
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
 
 
 /**
@@ -119,7 +116,7 @@ public class ExternalRetrieveContext {
     }
 
     public ExternalRetrieveContext setRequestInfo(HttpServletRequest request) {
-        this.requesterUserID = getPreferredUsername(request);
+        this.requesterUserID = KeycloakUtils.userName;
         this.requesterHostName = request.getRemoteHost();
         this.requestURI = request.getRequestURI();
         return this;
@@ -192,11 +189,6 @@ public class ExternalRetrieveContext {
                 + ", warning=" + warning()
                 + ", errorComment=" + getErrorComment()
                 + ']';
-    }
-
-    private String getPreferredUsername(HttpServletRequest req) {
-        //TODO
-        return req.getRemoteAddr();
     }
 
 }

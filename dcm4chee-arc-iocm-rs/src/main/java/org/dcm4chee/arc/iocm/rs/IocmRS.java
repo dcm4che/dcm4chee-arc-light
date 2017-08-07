@@ -50,6 +50,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.common.rs.KeycloakUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
@@ -486,21 +487,17 @@ public class IocmRS {
                     Response.Status.SERVICE_UNAVAILABLE));
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         if (request.getAttribute(ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT) != null)
-            if(!authenticatedUser(request, arcAE.getAcceptedUserRoles()))
+            if(!authenticatedUser(arcAE.getAcceptedUserRoles()))
                 throw new WebApplicationException(getResponse("User not allowed to perform this service.", Response.Status.FORBIDDEN));
         return arcAE;
     }
 
-    private boolean authenticatedUser(HttpServletRequest request, String[] acceptedUserRoles) {
-//        RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
-//                request.getAttribute(KeycloakSecurityContext.class.getName());
-//        Set<String> userRoles = securityContext.getToken().getRealmAccess().getRoles();
-//        for (String s : userRoles)
-//            if (Arrays.asList(acceptedUserRoles).contains(s))
-//                return true;
-        //return false;
-        //TODO
-        return true;
+    private boolean authenticatedUser(String[] acceptedUserRoles) {
+        Set<String> userRoles = KeycloakUtils.roles;
+        for (String s : userRoles)
+            if (Arrays.asList(acceptedUserRoles).contains(s))
+                return true;
+        return false;
     }
 
     private void reject(RSOperation rsOp, String studyUID, String seriesUID, String objectUID,

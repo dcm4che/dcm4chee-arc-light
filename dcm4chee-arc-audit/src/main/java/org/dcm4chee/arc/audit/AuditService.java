@@ -51,6 +51,7 @@ import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ConnectionEvent;
+import org.dcm4chee.arc.common.rs.KeycloakUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
@@ -155,7 +156,7 @@ public class AuditService {
         LinkedHashSet<Object> objs = new LinkedHashSet<>();
         objs.add(new AuditInfo(new BuildAuditInfo.Builder().calledAET(getAET(device)).build()));
         if (req != null) {
-            String callingUser = getPreferredUsername(req);
+            String callingUser = getPreferredUsername();
             objs.add(new AuditInfo(
                     new BuildAuditInfo.Builder().callingAET(callingUser).callingHost(req.getRemoteAddr()).build()));
         }
@@ -221,7 +222,7 @@ public class AuditService {
         RejectionNote rjNote = device.getDeviceExtension(ArchiveDeviceExtension.class).getRejectionNote(code);
         HttpServletRequest req = rejectionNoteSent.getRequest();
         String callingAET = req != null
-                ? getPreferredUsername(req)
+                ? getPreferredUsername()
                 : rejectionNoteSent.getLocalAET();
         String calledAET = req != null
                 ? req.getRequestURI() : rejectionNoteSent.getRemoteAET();
@@ -274,7 +275,7 @@ public class AuditService {
 
 
     private BuildAuditInfo buildPermDeletionAuditInfoForWeb(HttpServletRequest req, StudyDeleteContext ctx, Study s, Patient p) {
-        String callingAET = getPreferredUsername(req);
+        String callingAET = getPreferredUsername();
         return new BuildAuditInfo.Builder().callingAET(callingAET).callingHost(req.getRemoteHost()).calledAET(req.getRequestURI())
                 .studyUID(s.getStudyInstanceUID()).accNum(s.getAccessionNumber())
                 .pID(getPID(p.getAttributes())).outcome(getOD(ctx.getException())).studyDate(s.getStudyDate())
@@ -477,7 +478,7 @@ public class AuditService {
         return new AuditInfo(
                 new BuildAuditInfo.Builder()
                         .callingHost(ctx.getRemoteHostName())
-                        .callingAET(getPreferredUsername(httpRequest))
+                        .callingAET(getPreferredUsername())
                         .calledAET(httpRequest.getRequestURI())
                         .queryPOID(ctx.getSearchMethod())
                         .queryString(httpRequest.getRequestURI() + httpRequest.getQueryString())
@@ -800,7 +801,7 @@ public class AuditService {
             String hl7MessageType = null;
             HL7Segment msh = ctx.getHL7MessageHeader();
             if (ctx.getHttpRequest() != null) {
-                source = getPreferredUsername(ctx.getHttpRequest());
+                source = getPreferredUsername();
                 dest = ctx.getCalledAET();
             }
             if (msh != null) {
@@ -877,7 +878,7 @@ public class AuditService {
         Attributes attr = ctx.getAttributes();
         HttpServletRequest req  = ctx.getHttpRequest();
         BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName())
-                .callingAET(getPreferredUsername(req))
+                .callingAET(getPreferredUsername())
                 .calledAET(ctx.getCalledAET()).studyUID(ctx.getStudyInstanceUID())
                 .accNum(getAcc(attr)).pID(getPID(attr)).pName(pName(ctx.getPatient().getAttributes()))
                 .outcome(getOD(ctx.getException())).studyDate(getSD(attr)).build();
@@ -899,7 +900,7 @@ public class AuditService {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
-            String callingAET = getPreferredUsername(ctx.getHttpRequest());
+            String callingAET = getPreferredUsername();
             Attributes sAttr = ctx.getAttributes();
             Attributes pAttr = ctx.getStudy() != null ? ctx.getStudy().getPatient().getAttributes() : null;
             BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest().getRemoteHost()).callingAET(callingAET)
@@ -985,7 +986,7 @@ public class AuditService {
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             String callingAET = stgCmtEventInfo.getRequest() != null
-                                    ? getPreferredUsername(stgCmtEventInfo.getRequest())
+                                    ? getPreferredUsername()
                                     : stgCmtEventInfo.getRemoteAET();
             String calledAET = stgCmtEventInfo.getRequest() != null
                                 ? stgCmtEventInfo.getRequest().getRequestURI()
@@ -1088,7 +1089,7 @@ public class AuditService {
         Attributes attr = ctx.getAttributes();
         String callingHost = ss.getRemoteHostName();
         String callingAET = ss.getCallingAET() != null ? ss.getCallingAET()
-                : req != null ? getPreferredUsername(req) : callingHost;
+                : req != null ? getPreferredUsername() : callingHost;
         if (callingAET == null && callingHost == null)
             callingAET = ss.toString();
         String outcome = null != ctx.getException() ? null != ctx.getRejectionNote()
@@ -1128,9 +1129,8 @@ public class AuditService {
         return attrs != null ? attrs.getString(Tag.SOPClassUID) : null;
     }
 
-    private String getPreferredUsername(HttpServletRequest req) {
-        //TODO
-        return req.getRemoteAddr();
+    private String getPreferredUsername() {
+        return KeycloakUtils.userName;
     }
 
     private String getPID(Attributes attrs) {
