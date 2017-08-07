@@ -77,10 +77,11 @@ public class RealmRS {
             public void write(OutputStream out) throws IOException {
                 Writer w = new OutputStreamWriter(out, "UTF-8");
                 Principal principal = request.getUserPrincipal();
-                if (principal == null)
+                new KeycloakUtils(request);
+                if (principal == null) {
                     w.write("{\"user\":null,\"roles\":[]}");
+                }
                 else {
-                    new KeycloakUtils(request);
                     w.append("{\"user\":\"").append(KeycloakUtils.userName).append("\",\"roles\":[");
                     int count = 0;
                     for (String role : KeycloakUtils.roles) {
