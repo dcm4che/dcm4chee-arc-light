@@ -50,7 +50,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.UIDUtils;
-import org.dcm4chee.arc.common.rs.KeycloakUtils;
+import org.dcm4chee.arc.keycloak.KeycloakPrincipal;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
@@ -493,7 +493,7 @@ public class IocmRS {
     }
 
     private boolean authenticatedUser(String[] acceptedUserRoles) {
-        Set<String> userRoles = KeycloakUtils.roles;
+        Set<String> userRoles = KeycloakPrincipal.getUserRoles(request);
         for (String s : userRoles)
             if (Arrays.asList(acceptedUserRoles).contains(s))
                 return true;

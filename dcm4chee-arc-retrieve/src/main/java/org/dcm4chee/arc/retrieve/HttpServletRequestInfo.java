@@ -41,7 +41,7 @@
 package org.dcm4chee.arc.retrieve;
 
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.common.rs.KeycloakUtils;
+import org.dcm4chee.arc.keycloak.KeycloakPrincipal;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -58,7 +58,7 @@ public class HttpServletRequestInfo {
     public final String requestURI;
 
     private HttpServletRequestInfo(HttpServletRequest request) {
-        requesterUserID = KeycloakUtils.userName;
+        requesterUserID = KeycloakPrincipal.getUserName(request);
         requesterHost = request.getRemoteHost();
         requestURI = request.getRequestURI();
     }

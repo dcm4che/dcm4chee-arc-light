@@ -42,7 +42,7 @@ import org.dcm4che3.audit.*;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
-import org.dcm4chee.arc.common.rs.KeycloakUtils;
+import org.dcm4chee.arc.keycloak.KeycloakPrincipal;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
 import org.slf4j.Logger;
@@ -90,7 +90,7 @@ public class AuditService {
         EventIdentification ei = AuditMessages.createEventIdentification(AuditMessages.EventID.AuditLogUsed,
                 AuditMessages.EventActionCode.Read, logger.timeStamp(), AuditMessages.EventOutcomeIndicator.Success,
                 null);
-        ActiveParticipant ap = AuditMessages.createActiveParticipant(KeycloakUtils.userName,
+        ActiveParticipant ap = AuditMessages.createActiveParticipant(KeycloakPrincipal.getUserName(request),
                 AuditLogger.processID(),
                 null,
                 true,
