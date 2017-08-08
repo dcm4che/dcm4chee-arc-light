@@ -50,36 +50,28 @@ import java.util.Set;
  * @since Aug 2017
  */
 
-public class KeycloakPrincipal {
+public class KeycloakUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KeycloakPrincipal.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KeycloakUtils.class);
 
     private static final String keycloakSecurityContextClassName = "org.keycloak.KeycloakSecurityContext";
-    private static final String refreshableKeycloakSecurityContextClassName = "org.keycloak.adapters.RefreshableKeycloakSecurityContext";
     private static final String accessTokenClassName = "org.keycloak.representations.AccessToken";
     private static final String idTokenClassName = "org.keycloak.representations.IDToken";
-
-    private static final String getTokenDeclaredMethod = "getToken";
-    private static final String getIdTokenDeclaredMethod = "getIdToken";
-    private static final String getPreferredUsernameDeclaredMethod = "getPreferredUsername";
-    private static final String getRealmAccessDeclaredMethod = "getRealmAccess";
-    private static final String getRolesDeclaredMethod = "getRoles";
 
     public static String getUserName(HttpServletRequest request) {
         if (request.getAttribute(keycloakSecurityContextClassName) != null) {
             try {
                 Method getIdToken = Class.forName(keycloakSecurityContextClassName)
-                                        .getDeclaredMethod(getIdTokenDeclaredMethod);
+                                        .getDeclaredMethod("getIdToken");
                 Method getPreferredUsername = Class.forName(idTokenClassName)
-                                                .getDeclaredMethod(getPreferredUsernameDeclaredMethod);
+                                                .getDeclaredMethod("getPreferredUsername");
 
-                Object refreshableKeycloakSecurityContext = Class.forName(refreshableKeycloakSecurityContextClassName)
-                                                                .cast(request.getAttribute(keycloakSecurityContextClassName));
+                Object refreshableKeycloakSecurityContext = request.getAttribute(keycloakSecurityContextClassName);
 
                 Object idToken = getIdToken.invoke(refreshableKeycloakSecurityContext);
                 return String.valueOf(getPreferredUsername.invoke(idToken));
             } catch (Exception e) {
-                LOG.warn("Failed to get user name from Keycloak Security Context : " + e.getMessage());
+                LOG.warn("Failed to get user name from Keycloak Security Context : ", e);
             }
         }
         return request.getRemoteAddr();
@@ -89,20 +81,19 @@ public class KeycloakPrincipal {
         if (request.getAttribute(keycloakSecurityContextClassName) != null) {
             try {
                 Method getToken = Class.forName(keycloakSecurityContextClassName)
-                                        .getDeclaredMethod(getTokenDeclaredMethod);
+                                        .getDeclaredMethod("getToken");
                 Method getRealmAccess = Class.forName(accessTokenClassName)
-                                            .getDeclaredMethod(getRealmAccessDeclaredMethod);
+                                            .getDeclaredMethod("getRealmAccess");
 
-                Object refreshableKeycloakSecurityContext = Class.forName(refreshableKeycloakSecurityContextClassName)
-                                                                .cast(request.getAttribute(keycloakSecurityContextClassName));
+                Object refreshableKeycloakSecurityContext = request.getAttribute(keycloakSecurityContextClassName);
 
                 Object accessToken = getToken.invoke(refreshableKeycloakSecurityContext);
                 Object access = getRealmAccess.invoke(accessToken);
 
-                Method getRoles = access.getClass().getDeclaredMethod(getRolesDeclaredMethod);
+                Method getRoles = access.getClass().getDeclaredMethod("getRoles");
                 return (Set<String>) getRoles.invoke(access);
             } catch (Exception e) {
-                LOG.warn("Failed to get user roles from Keycloak Security Context : " + e.getMessage());
+                LOG.warn("Failed to get user roles from Keycloak Security Context : ", e);
             }
         }
         return Collections.EMPTY_SET;

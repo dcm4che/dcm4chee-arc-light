@@ -55,7 +55,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.security.Principal;
 
-import org.dcm4chee.arc.keycloak.KeycloakPrincipal;
+import org.dcm4chee.arc.keycloak.KeycloakUtils;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -81,9 +81,9 @@ public class RealmRS {
                     w.write("{\"user\":null,\"roles\":[]}");
                 }
                 else {
-                    w.append("{\"user\":\"").append(KeycloakPrincipal.getUserName(request)).append("\",\"roles\":[");
+                    w.append("{\"user\":\"").append(KeycloakUtils.getUserName(request)).append("\",\"roles\":[");
                     int count = 0;
-                    for (String role : KeycloakPrincipal.getUserRoles(request)) {
+                    for (String role : KeycloakUtils.getUserRoles(request)) {
                         if (count++ > 0)
                             w.write(',');
                         w.append('\"').append(role).append('\"');
