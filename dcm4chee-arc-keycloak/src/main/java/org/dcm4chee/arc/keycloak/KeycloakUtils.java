@@ -61,8 +61,7 @@ public class KeycloakUtils {
         Object refreshableKeycloakSecurityContext = request.getAttribute(keycloakSecurityContextClassName);
         if (refreshableKeycloakSecurityContext != null) {
             try {
-                Method getIdToken = Class.forName(keycloakSecurityContextClassName)
-                                        .getDeclaredMethod("getIdToken");
+                Method getIdToken = refreshableKeycloakSecurityContext.getClass().getMethod("getIdToken");
                 Object idToken = getIdToken.invoke(refreshableKeycloakSecurityContext);
                 Method getPreferredUsername = idToken.getClass().getDeclaredMethod("getPreferredUsername");
                 return String.valueOf(getPreferredUsername.invoke(idToken));
