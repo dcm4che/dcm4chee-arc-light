@@ -213,7 +213,6 @@ class AuditServiceUtils {
             for (DicomInstancesTransferredOutcomeType ot : outcomes)
                 switch (ot) {
                     case PARTIAL_TRANSFERRED_EXCEPTION:
-                    case ALL_FAIL:
                         eventType.add(getDicomInstTrfdErrorEventType(ctx));
                         break;
                     case PARTIAL_TRANSFERRED:
@@ -226,13 +225,14 @@ class AuditServiceUtils {
         static EventType forDICOMInstancesTransferred(RetrieveContext ctx) {
             return (ctx.failedSOPInstanceUIDs().length == 0 && !ctx.getMatches().isEmpty())
                     || (ctx.getMatches().isEmpty() && !ctx.getCStoreForwards().isEmpty())
-                    ? getDicomInstTrfdSuccessEventType(ctx) : null;
+                    ? getDicomInstTrfdSuccessEventType(ctx)
+                    : ctx.failedSOPInstanceUIDs().length == ctx.getMatches().size() && !ctx.getMatches().isEmpty()
+                        ? getDicomInstTrfdErrorEventType(ctx)
+                        : null;
         }
 
         static HashSet<DicomInstancesTransferredOutcomeType> getInstancesTransferredOutcomeType(RetrieveContext ctx) {
             HashSet<DicomInstancesTransferredOutcomeType> ot = new HashSet<>();
-            if (ctx.failedSOPInstanceUIDs().length == ctx.getMatches().size() && !ctx.getMatches().isEmpty())
-                ot.add(DicomInstancesTransferredOutcomeType.ALL_FAIL);
             if (ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size() && ctx.failedSOPInstanceUIDs().length > 0) {
                 ot.add(DicomInstancesTransferredOutcomeType.PARTIAL_TRANSFERRED_EXCEPTION);
                 ot.add(DicomInstancesTransferredOutcomeType.PARTIAL_TRANSFERRED);
@@ -252,11 +252,14 @@ class AuditServiceUtils {
         }
 
         static EventType getDicomInstTrfdErrorEventType(RetrieveContext ctx) {
-            return ctx.isLocalRequestor() ? RTRV_T_E_E
-                    : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor() ? RTRV_T_M_E
-                    : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
-                    && ctx.isDestinationRequestor() ? RTRV_T_G_E
-                    : null != ctx.getHttpRequest() ? RTRV_T_W_E : null;
+            return ctx.isLocalRequestor()
+                    ? RTRV_T_E_E
+                    : !ctx.isDestinationRequestor() && !ctx.isLocalRequestor()
+                        ? RTRV_T_M_E
+                        : null != ctx.getRequestAssociation() && null != ctx.getStoreAssociation()
+                            && ctx.isDestinationRequestor()
+                            ? RTRV_T_G_E
+                            : RTRV_T_W_E;
         }
 
         static HashSet<EventType> forHL7(PatientMgtContext ctx) {
@@ -282,7 +285,7 @@ class AuditServiceUtils {
     }
 
     enum DicomInstancesTransferredOutcomeType {
-        ALL_FAIL, PARTIAL_TRANSFERRED, PARTIAL_TRANSFERRED_EXCEPTION
+        PARTIAL_TRANSFERRED, PARTIAL_TRANSFERRED_EXCEPTION
     }
 
 }
