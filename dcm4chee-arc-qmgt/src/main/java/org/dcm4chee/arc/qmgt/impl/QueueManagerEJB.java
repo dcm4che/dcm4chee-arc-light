@@ -147,7 +147,9 @@ public class QueueManagerEJB implements QueueManager {
             if (delay >= 0) {
                 LOG.info("Failed processing of Task[id={}] at Queue {} with Status {} - retry",
                         msgId, queueName, status);
+                entity.setStatus(QueueMessage.Status.SCHEDULED);
                 rescheduleMessage(entity, descriptor, delay * 1000L);
+                return entity;
             }
         }
         LOG.warn("Failed processing of Task[id={}] at Queue {} with Status {}", msgId, queueName, status);
