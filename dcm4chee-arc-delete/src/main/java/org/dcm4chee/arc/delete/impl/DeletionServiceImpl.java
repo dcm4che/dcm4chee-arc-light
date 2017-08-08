@@ -163,6 +163,7 @@ public class DeletionServiceImpl implements DeletionService {
                 try {
                     sCtx = createStudyDeleteContext(study.getPk(), ctx.getHttpRequest());
                     studyDeleted(sCtx, study, AllowDeleteStudyPermanently.REJECTED);
+                    LOG.info("Successfully delete {} from database", study);
                 } catch (Exception e) {
                     LOG.warn("Failed to delete {} on {}", study, e);
                     ctx.setException(e);
@@ -170,8 +171,10 @@ public class DeletionServiceImpl implements DeletionService {
                 }
             }
         }
-        patientService.deletePatientFromUI(ctx);
-        LOG.info("Successfully delete {} from database", ctx.getPatient());
+        if (ctx.getException() != null) {
+            patientService.deletePatientFromUI(ctx);
+            LOG.info("Successfully delete {} from database", ctx.getPatient());
+        }
     }
 
     private boolean studyDeleted(StudyDeleteContext ctx, Study study, AllowDeleteStudyPermanently allowDeleteStudy) {
