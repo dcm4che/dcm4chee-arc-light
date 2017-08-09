@@ -175,15 +175,9 @@ class AuditServiceUtils {
         }
 
         static EventType forApplicationActivity(ArchiveServiceEvent event) {
-            switch (event.getType()) {
-                case STARTED:
-                    return AuditServiceUtils.EventType.APPLNSTART;
-                case STOPPED:
-                    return AuditServiceUtils.EventType.APPLN_STOP;
-                case RELOADED:
-                    break;
-            }
-            return null;
+            return event.getType() == ArchiveServiceEvent.Type.STARTED
+                    ? AuditServiceUtils.EventType.APPLNSTART
+                    : AuditServiceUtils.EventType.APPLN_STOP;
         }
 
         static EventType forQuery(QueryContext ctx) {
@@ -205,13 +199,6 @@ class AuditServiceUtils {
                             && ctx.isDestinationRequestor()
                             ? RTRV_BGN_G
                             : RTRV_BGN_W;
-        }
-
-        static HashSet<EventType> forDicomInstTransferred(RetrieveContext ctx) {
-            HashSet<EventType> eventType = new HashSet<>();
-            eventType.add(getDicomInstTrfdErrorEventType(ctx));
-            eventType.add(getDicomInstTrfdSuccessEventType(ctx));
-            return eventType;
         }
 
         static EventType forDICOMInstancesTransferred(RetrieveContext ctx) {
@@ -258,12 +245,12 @@ class AuditServiceUtils {
             return eventType;
         }
 
-        static HashSet<EventType> forProcedure(String eac) {
-            HashSet<EventType> et = new HashSet<>();
-            et.add(eac.equals(AuditMessages.EventActionCode.Create)
-                    ? EventType.PROC_STD_C : eac.equals(AuditMessages.EventActionCode.Update)
-                    ? EventType.PROC_STD_U : PROC_STD_D);
-            return et;
+        static EventType forProcedure(String eventActionCode) {
+            return eventActionCode.equals(AuditMessages.EventActionCode.Create)
+                    ? EventType.PROC_STD_C
+                    : eventActionCode.equals(AuditMessages.EventActionCode.Update)
+                        ? EventType.PROC_STD_U
+                        : PROC_STD_D;
         }
     }
 

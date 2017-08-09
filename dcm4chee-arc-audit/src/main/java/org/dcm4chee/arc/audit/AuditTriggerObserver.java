@@ -64,7 +64,6 @@ import org.dcm4chee.arc.study.StudyMgtContext;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.util.HashSet;
 
 
 /**
@@ -81,10 +80,8 @@ public class AuditTriggerObserver {
     private Device device;
 
     public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
-        if (deviceHasAuditLoggers()) {
-            AuditServiceUtils.EventType et = AuditServiceUtils.EventType.forApplicationActivity(event);
-            auditService.spoolApplicationActivity(et, event.getRequest());
-        }
+        if (deviceHasAuditLoggers())
+            auditService.spoolApplicationActivity(event);
     }
 
     public void onStore(@Observes StoreContext ctx) {
@@ -109,7 +106,7 @@ public class AuditTriggerObserver {
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
         if (deviceHasAuditLoggers()) {
             if (ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size() && ctx.failedSOPInstanceUIDs().length > 0)
-                auditService.spoolPartialRetrieve(ctx, AuditServiceUtils.EventType.forDicomInstTransferred(ctx));
+                auditService.spoolPartialRetrieve(ctx);
             else
                 auditService.spoolRetrieve(AuditServiceUtils.EventType.forDICOMInstancesTransferred(ctx), ctx, ctx.getMatches());
         }

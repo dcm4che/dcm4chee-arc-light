@@ -50,6 +50,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.keycloak.KeycloakUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -149,9 +150,10 @@ public class AuditService {
         }
     }
 
-    void spoolApplicationActivity(AuditServiceUtils.EventType eventType, HttpServletRequest req) {
-        if (eventType == null)
+    void spoolApplicationActivity(ArchiveServiceEvent event) {
+        if (event.getType() == ArchiveServiceEvent.Type.RELOADED)
             return;
+        HttpServletRequest req = event.getRequest();
         LinkedHashSet<Object> objs = new LinkedHashSet<>();
         objs.add(new AuditInfo(new BuildAuditInfo.Builder().calledAET(getAET(device)).build()));
         if (req != null) {
@@ -159,7 +161,7 @@ public class AuditService {
             objs.add(new AuditInfo(
                     new BuildAuditInfo.Builder().callingAET(callingUser).callingHost(req.getRemoteAddr()).build()));
         }
-        writeSpoolFile(String.valueOf(eventType), objs);
+        writeSpoolFile(AuditServiceUtils.EventType.forApplicationActivity(event), objs);
     }
 
     private void auditApplicationActivity(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType eventType) {
@@ -189,8 +191,9 @@ public class AuditService {
                     buildSOPClassMap(sopClassMap, sopRef.getString(Tag.ReferencedSOPClassUID),
                             sopRef.getString(Tag.ReferencedSOPInstanceUID));
         LinkedHashSet<Object> deleteObjs = getDeletionObjsForSpooling(sopClassMap, new AuditInfo(getAIStoreCtx(ctx)));
-        String eventType = ctx.getStoredInstance().getSeries().getStudy().getRejectionState()== RejectionState.COMPLETE
-        ? String.valueOf(AuditServiceUtils.EventType.RJ_COMPLET) : String.valueOf(AuditServiceUtils.EventType.RJ_PARTIAL);
+        AuditServiceUtils.EventType eventType = ctx.getStoredInstance().getSeries().getStudy().getRejectionState()== RejectionState.COMPLETE
+                                                    ? AuditServiceUtils.EventType.RJ_COMPLET
+                                                    : AuditServiceUtils.EventType.RJ_PARTIAL;
         writeSpoolFile(eventType, deleteObjs);
     }
 
@@ -208,7 +211,9 @@ public class AuditService {
         HttpServletRequest request = ctx.getHttpRequest();
         BuildAuditInfo i = request != null ? buildPermDeletionAuditInfoForWeb(request, ctx, s, p)
                 : buildPermDeletionAuditInfoForScheduler(ctx, s, p);
-        String eventType = String.valueOf(request != null ? AuditServiceUtils.EventType.PRMDLT_WEB : AuditServiceUtils.EventType.PRMDLT_SCH);
+        AuditServiceUtils.EventType eventType = request != null
+                                                ? AuditServiceUtils.EventType.PRMDLT_WEB
+                                                : AuditServiceUtils.EventType.PRMDLT_SCH;
         LinkedHashSet<Object> deleteObjs = getDeletionObjsForSpooling(sopClassMap, new AuditInfo(i));
         writeSpoolFile(eventType, deleteObjs);
     }
@@ -252,12 +257,12 @@ public class AuditService {
         AuditServiceUtils.EventType clientET = rejectionNoteSent.isStudyDeleted()
                 ? AuditServiceUtils.EventType.PRMDLT_WEB
                 : AuditServiceUtils.EventType.RJ_PARTIAL;
-        writeSpoolFile(String.valueOf(clientET), deleteObjs);
+        writeSpoolFile(clientET, deleteObjs);
         if (rejectionNoteSent.getLocalAET().equals(rejectionNoteSent.getRemoteAET())) {
             AuditServiceUtils.EventType serverET = rejectionNoteSent.isStudyDeleted()
                     ? AuditServiceUtils.EventType.RJ_COMPLET
                     : AuditServiceUtils.EventType.RJ_PARTIAL;
-            writeSpoolFile(String.valueOf(serverET), deleteObjs);
+            writeSpoolFile(serverET, deleteObjs);
         }
     }
     private String toHost(String aet) throws ConfigurationException {
@@ -338,7 +343,7 @@ public class AuditService {
                 .outcome(outcome)
                 .build();
         obj.add(new AuditInfo(i));
-        writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.INST_RETRV), obj);
+        writeSpoolFile(AuditServiceUtils.EventType.INST_RETRV, obj);
     }
 
     private void auditExternalRetrieve(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
@@ -381,8 +386,7 @@ public class AuditService {
         BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(event.getSocket().getRemoteSocketAddress().toString())
                 .calledHost(event.getConnection().getHostname()).outcome(event.getException().getMessage()).build();
         obj.add(new AuditInfo(i));
-        String eventType = String.valueOf(AuditServiceUtils.EventType.CONN__RJCT);
-        writeSpoolFile(eventType, obj);
+        writeSpoolFile(AuditServiceUtils.EventType.CONN__RJCT, obj);
     }
 
     private void auditConnectionRejected(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType eventType) {
@@ -611,7 +615,7 @@ public class AuditService {
         emitAuditMessage(ei, getApList(ap1, ap2), getPoiList(poi1, poi2), auditLogger);
     }
 
-    void spoolPartialRetrieve(RetrieveContext ctx, HashSet<AuditServiceUtils.EventType> et) {
+    void spoolPartialRetrieve(RetrieveContext ctx) {
         List<String> failedList = Arrays.asList(ctx.failedSOPInstanceUIDs());
         Collection<InstanceLocations> instanceLocations = ctx.getMatches();
         HashSet<InstanceLocations> failed = new HashSet<>();
@@ -623,12 +627,8 @@ public class AuditService {
                 success.remove(il);
             }
         }
-        for (AuditServiceUtils.EventType eventType : et) {
-            if (eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE_ERR)
-                spoolRetrieve(eventType, ctx, failed);
-            if (eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE)
-                spoolRetrieve(eventType, ctx, success);
-        }
+        spoolRetrieve(AuditServiceUtils.EventType.getDicomInstTrfdErrorEventType(ctx), ctx, failed);
+        spoolRetrieve(AuditServiceUtils.EventType.getDicomInstTrfdSuccessEventType(ctx), ctx, success);
     }
 
     void spoolRetrieve(AuditServiceUtils.EventType eventType, RetrieveContext ctx, Collection<InstanceLocations> il) {
@@ -646,7 +646,7 @@ public class AuditService {
 
         addInstanceInfoForRetrieve(obj, il);
         addInstanceInfoForRetrieve(obj, ctx.getCStoreForwards());
-        writeSpoolFile(String.valueOf(eventType), obj);
+        writeSpoolFile(eventType, obj);
     }
 
     private BuildAuditInfo buildAuditInfoForAssociation(RetrieveContext ctx, AuditServiceUtils.EventType eventType) {
@@ -675,7 +675,6 @@ public class AuditService {
                 .destNapID(ctx.getDestinationHostName())
                 .warning(createWarning(eventType, ctx))
                 .callingHost(ctx.getRequestorHostName())
-                .moveAET(ctx.getMoveOriginatorAETitle())
                 .outcome(createOutcome(eventType, ctx))
                 .failedIUIDShow(eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE_ERR && ctx.failedSOPInstanceUIDs().length > 0)
                 .build();
@@ -689,7 +688,6 @@ public class AuditService {
                 .destAET(ctx.getDestinationAETitle())
                 .destNapID(ctx.getStoreAssociation().getSocket().getInetAddress().getHostName())
                 .warning(createWarning(eventType, ctx))
-                .moveAET(ctx.getMoveOriginatorAETitle())
                 .outcome(createOutcome(eventType, ctx))
                 .failedIUIDShow(eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE_ERR && ctx.failedSOPInstanceUIDs().length > 0)
                 .build();
@@ -827,7 +825,7 @@ public class AuditService {
                     .callingAET(source).calledAET(dest).pID(pID).pName(pName)
                     .outcome(getOD(ctx.getException())).hl7MessageType(hl7MessageType).build();
             obj.add(new AuditInfo(i));
-            writeSpoolFile(String.valueOf(eventType), obj);
+            writeSpoolFile(eventType, obj);
         }
     }
 
@@ -851,15 +849,12 @@ public class AuditService {
     }
 
     void spoolProcedureRecord(ProcedureContext ctx) {
-        HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
-        for (AuditServiceUtils.EventType eventType : et) {
-            LinkedHashSet<Object> obj = new LinkedHashSet<>();
-            BuildAuditInfo i = ctx.getHttpRequest() != null
-                    ? buildAuditInfoFORRestful(ctx)
-                    : ctx.getAssociation() != null ? buildAuditInfoForAssociation(ctx) : buildAuditInfoFORHL7(ctx);
-            obj.add(new AuditInfo(i));
-            writeSpoolFile(String.valueOf(eventType), obj);
-        }
+        LinkedHashSet<Object> obj = new LinkedHashSet<>();
+        BuildAuditInfo i = ctx.getHttpRequest() != null
+                ? buildAuditInfoFORRestful(ctx)
+                : ctx.getAssociation() != null ? buildAuditInfoForAssociation(ctx) : buildAuditInfoFORHL7(ctx);
+        obj.add(new AuditInfo(i));
+        writeSpoolFile(AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode()), obj);
     }
 
     private BuildAuditInfo buildAuditInfoForAssociation(ProcedureContext ctx) {
@@ -896,18 +891,15 @@ public class AuditService {
     }
 
     void spoolProcedureRecord(StudyMgtContext ctx) {
-        HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
-        for (AuditServiceUtils.EventType eventType : et) {
-            LinkedHashSet<Object> obj = new LinkedHashSet<>();
-            String callingAET = KeycloakUtils.getUserName(ctx.getHttpRequest());
-            Attributes sAttr = ctx.getAttributes();
-            Attributes pAttr = ctx.getStudy() != null ? ctx.getStudy().getPatient().getAttributes() : null;
-            BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest().getRemoteHost()).callingAET(callingAET)
-                    .calledAET(ctx.getHttpRequest().getRequestURI()).studyUID(ctx.getStudyInstanceUID()).accNum(getAcc(sAttr))
-                    .pID(getPID(pAttr)).pName(pName(pAttr)).outcome(getOD(ctx.getException())).studyDate(getSD(sAttr)).build();
-            obj.add(new AuditInfo(i));
-            writeSpoolFile(String.valueOf(eventType), obj);
-        }
+        LinkedHashSet<Object> obj = new LinkedHashSet<>();
+        String callingAET = KeycloakUtils.getUserName(ctx.getHttpRequest());
+        Attributes sAttr = ctx.getAttributes();
+        Attributes pAttr = ctx.getStudy() != null ? ctx.getStudy().getPatient().getAttributes() : null;
+        BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest().getRemoteHost()).callingAET(callingAET)
+                .calledAET(ctx.getHttpRequest().getRequestURI()).studyUID(ctx.getStudyInstanceUID()).accNum(getAcc(sAttr))
+                .pID(getPID(pAttr)).pName(pName(pAttr)).outcome(getOD(ctx.getException())).studyDate(getSD(sAttr)).build();
+        obj.add(new AuditInfo(i));
+        writeSpoolFile(AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode()), obj);
     }
 
     private void auditProcedureRecord(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType et) {
@@ -951,7 +943,7 @@ public class AuditService {
                 .pName(pName(xdsiManifest))
                 .submissionSetUID(ctx.getSubmissionSetUID()).build();
         obj.add(new AuditInfo(i));
-        writeSpoolFile(String.valueOf(AuditServiceUtils.EventType.PROV_REGIS), obj);
+        writeSpoolFile(AuditServiceUtils.EventType.PROV_REGIS, obj);
     }
 
     private void auditProvideAndRegister(AuditLogger auditLogger, SpoolFileReader readerObj, Calendar eventTime, AuditServiceUtils.EventType et) {
@@ -1020,7 +1012,7 @@ public class AuditService {
                 objs.add(new AuditInfo(i));
                 for (AuditInfo ai : aiSet)
                     objs.add(ai);
-                writeSpoolFile(AuditServiceUtils.EventType.STG_CMT__E.toString(), objs);
+                writeSpoolFile(AuditServiceUtils.EventType.STG_CMT__E, objs);
             }
             if (success != null && !success.isEmpty()) {
                 LinkedHashSet<Object> objs = new LinkedHashSet<>();
@@ -1033,7 +1025,7 @@ public class AuditService {
                             .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID)).build();
                     objs.add(new AuditInfo(ii));
                 }
-                writeSpoolFile(AuditServiceUtils.EventType.STG_CMT__P.toString(), objs);
+                writeSpoolFile(AuditServiceUtils.EventType.STG_CMT__P, objs);
             }
         } catch (ConfigurationException e) {
             LOG.error(e.getMessage(), stgCmtEventInfo.getRemoteAET());
@@ -1213,9 +1205,9 @@ public class AuditService {
         return log.getConnections().get(0).getHostname();
     }
 
-    private void writeSpoolFile(String eventType, LinkedHashSet<Object> obj) {
+    private void writeSpoolFile(AuditServiceUtils.EventType eventType, LinkedHashSet<Object> obj) {
         if (obj.isEmpty()) {
-            LOG.warn("Attempt to write empty file : " + eventType);
+            LOG.warn("Attempt to write empty file : ", eventType);
             return;
         }
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -1227,7 +1219,7 @@ public class AuditService {
                         auditLogger.getCommonName().replaceAll(" ", "_"));
                 try {
                     Files.createDirectories(dir);
-                    Path file = Files.createTempFile(dir, eventType, null);
+                    Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
                     try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                             StandardOpenOption.APPEND))) {
                         for (Object o : obj)
