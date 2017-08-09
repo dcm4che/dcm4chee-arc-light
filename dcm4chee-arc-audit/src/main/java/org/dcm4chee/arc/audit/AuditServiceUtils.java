@@ -209,16 +209,8 @@ class AuditServiceUtils {
 
         static HashSet<EventType> forDicomInstTransferred(RetrieveContext ctx) {
             HashSet<EventType> eventType = new HashSet<>();
-            HashSet<DicomInstancesTransferredOutcomeType> outcomes = getInstancesTransferredOutcomeType(ctx);
-            for (DicomInstancesTransferredOutcomeType ot : outcomes)
-                switch (ot) {
-                    case PARTIAL_TRANSFERRED_EXCEPTION:
-                        eventType.add(getDicomInstTrfdErrorEventType(ctx));
-                        break;
-                    case PARTIAL_TRANSFERRED:
-                        eventType.add(getDicomInstTrfdSuccessEventType(ctx));
-                        break;
-                }
+            eventType.add(getDicomInstTrfdErrorEventType(ctx));
+            eventType.add(getDicomInstTrfdSuccessEventType(ctx));
             return eventType;
         }
 
@@ -229,15 +221,6 @@ class AuditServiceUtils {
                     : ctx.failedSOPInstanceUIDs().length == ctx.getMatches().size() && !ctx.getMatches().isEmpty()
                         ? getDicomInstTrfdErrorEventType(ctx)
                         : null;
-        }
-
-        static HashSet<DicomInstancesTransferredOutcomeType> getInstancesTransferredOutcomeType(RetrieveContext ctx) {
-            HashSet<DicomInstancesTransferredOutcomeType> ot = new HashSet<>();
-            if (ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size() && ctx.failedSOPInstanceUIDs().length > 0) {
-                ot.add(DicomInstancesTransferredOutcomeType.PARTIAL_TRANSFERRED_EXCEPTION);
-                ot.add(DicomInstancesTransferredOutcomeType.PARTIAL_TRANSFERRED);
-            }
-            return ot;
         }
 
         static EventType getDicomInstTrfdSuccessEventType(RetrieveContext ctx) {
@@ -282,10 +265,6 @@ class AuditServiceUtils {
                     ? EventType.PROC_STD_U : PROC_STD_D);
             return et;
         }
-    }
-
-    enum DicomInstancesTransferredOutcomeType {
-        PARTIAL_TRANSFERRED, PARTIAL_TRANSFERRED_EXCEPTION
     }
 
 }

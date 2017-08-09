@@ -108,7 +108,7 @@ public class AuditTriggerObserver {
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
         if (deviceHasAuditLoggers()) {
-            if (ctx.failedSOPInstanceUIDs().length > 0)
+            if (ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size() && ctx.failedSOPInstanceUIDs().length > 0)
                 auditService.spoolPartialRetrieve(ctx, AuditServiceUtils.EventType.forDicomInstTransferred(ctx));
             else
                 auditService.spoolRetrieve(AuditServiceUtils.EventType.forDICOMInstancesTransferred(ctx), ctx, ctx.getMatches());
