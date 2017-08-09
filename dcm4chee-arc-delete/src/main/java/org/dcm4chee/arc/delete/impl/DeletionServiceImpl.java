@@ -43,7 +43,6 @@ package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.AllowDeleteStudyPermanently;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.delete.*;
@@ -81,9 +80,6 @@ public class DeletionServiceImpl implements DeletionService {
 
     @Inject
     private PatientService patientService;
-
-    @Inject
-    private Device device;
 
     @Inject
     private Event<StudyDeleteContext> studyDeletedEvent;
