@@ -51,6 +51,7 @@ import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ConnectionEvent;
+import org.dcm4chee.arc.keycloak.KeycloakUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
@@ -71,8 +72,6 @@ import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
-import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,8 +96,6 @@ import java.util.*;
 public class AuditService {
     private final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     private final String studyDate = "StudyDate";
-    private final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
-
     @Inject
     private Device device;
 
@@ -158,7 +155,7 @@ public class AuditService {
         LinkedHashSet<Object> objs = new LinkedHashSet<>();
         objs.add(new AuditInfo(new BuildAuditInfo.Builder().calledAET(getAET(device)).build()));
         if (req != null) {
-            String callingUser = getPreferredUsername(req);
+            String callingUser = KeycloakUtils.getUserName(req);
             objs.add(new AuditInfo(
                     new BuildAuditInfo.Builder().callingAET(callingUser).callingHost(req.getRemoteAddr()).build()));
         }
@@ -224,7 +221,7 @@ public class AuditService {
         RejectionNote rjNote = device.getDeviceExtension(ArchiveDeviceExtension.class).getRejectionNote(code);
         HttpServletRequest req = rejectionNoteSent.getRequest();
         String callingAET = req != null
-                ? getPreferredUsername(req)
+                ? KeycloakUtils.getUserName(req)
                 : rejectionNoteSent.getLocalAET();
         String calledAET = req != null
                 ? req.getRequestURI() : rejectionNoteSent.getRemoteAET();
@@ -277,7 +274,7 @@ public class AuditService {
 
 
     private BuildAuditInfo buildPermDeletionAuditInfoForWeb(HttpServletRequest req, StudyDeleteContext ctx, Study s, Patient p) {
-        String callingAET = getPreferredUsername(req);
+        String callingAET = KeycloakUtils.getUserName(req);
         return new BuildAuditInfo.Builder().callingAET(callingAET).callingHost(req.getRemoteHost()).calledAET(req.getRequestURI())
                 .studyUID(s.getStudyInstanceUID()).accNum(s.getAccessionNumber())
                 .pID(getPID(p.getAttributes())).outcome(getOD(ctx.getException())).studyDate(s.getStudyDate())
@@ -480,7 +477,7 @@ public class AuditService {
         return new AuditInfo(
                 new BuildAuditInfo.Builder()
                         .callingHost(ctx.getRemoteHostName())
-                        .callingAET(getPreferredUsername(httpRequest))
+                        .callingAET(KeycloakUtils.getUserName(ctx.getHttpRequest()))
                         .calledAET(httpRequest.getRequestURI())
                         .queryPOID(ctx.getSearchMethod())
                         .queryString(httpRequest.getRequestURI() + httpRequest.getQueryString())
@@ -803,8 +800,8 @@ public class AuditService {
             String hl7MessageType = null;
             HL7Segment msh = ctx.getHL7MessageHeader();
             if (ctx.getHttpRequest() != null) {
-                source = getPreferredUsername(ctx.getHttpRequest());
-                dest = ctx.getHttpRequest().getRequestURI();
+                source = KeycloakUtils.getUserName(ctx.getHttpRequest());
+                dest = ctx.getCalledAET();
             }
             if (msh != null) {
                 source = msh.getSendingApplicationWithFacility();
@@ -880,7 +877,7 @@ public class AuditService {
         Attributes attr = ctx.getAttributes();
         HttpServletRequest req  = ctx.getHttpRequest();
         BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName())
-                .callingAET(getPreferredUsername(req))
+                .callingAET(KeycloakUtils.getUserName(req))
                 .calledAET(ctx.getCalledAET()).studyUID(ctx.getStudyInstanceUID())
                 .accNum(getAcc(attr)).pID(getPID(attr)).pName(pName(ctx.getPatient().getAttributes()))
                 .outcome(getOD(ctx.getException())).studyDate(getSD(attr)).build();
@@ -902,7 +899,7 @@ public class AuditService {
         HashSet<AuditServiceUtils.EventType> et = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
         for (AuditServiceUtils.EventType eventType : et) {
             LinkedHashSet<Object> obj = new LinkedHashSet<>();
-            String callingAET = getPreferredUsername(ctx.getHttpRequest());
+            String callingAET = KeycloakUtils.getUserName(ctx.getHttpRequest());
             Attributes sAttr = ctx.getAttributes();
             Attributes pAttr = ctx.getStudy() != null ? ctx.getStudy().getPatient().getAttributes() : null;
             BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getHttpRequest().getRemoteHost()).callingAET(callingAET)
@@ -988,7 +985,7 @@ public class AuditService {
         try {
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             String callingAET = stgCmtEventInfo.getRequest() != null
-                                    ? getPreferredUsername(stgCmtEventInfo.getRequest())
+                                    ? KeycloakUtils.getUserName(stgCmtEventInfo.getRequest())
                                     : stgCmtEventInfo.getRemoteAET();
             String calledAET = stgCmtEventInfo.getRequest() != null
                                 ? stgCmtEventInfo.getRequest().getRequestURI()
@@ -1091,7 +1088,7 @@ public class AuditService {
         Attributes attr = ctx.getAttributes();
         String callingHost = ss.getRemoteHostName();
         String callingAET = ss.getCallingAET() != null ? ss.getCallingAET()
-                : req != null ? getPreferredUsername(req) : callingHost;
+                : req != null ? KeycloakUtils.getUserName(req) : callingHost;
         if (callingAET == null && callingHost == null)
             callingAET = ss.toString();
         String outcome = null != ctx.getException() ? null != ctx.getRejectionNote()
@@ -1129,13 +1126,6 @@ public class AuditService {
 
     private String sopCUID(Attributes attrs) {
         return attrs != null ? attrs.getString(Tag.SOPClassUID) : null;
-    }
-
-    private String getPreferredUsername(HttpServletRequest req) {
-        return req.getAttribute(keycloakClassName) != null
-                ? ((RefreshableKeycloakSecurityContext) req.getAttribute(KeycloakSecurityContext.class.getName()))
-                .getToken().getPreferredUsername()
-                : req.getRemoteAddr();
     }
 
     private String getPID(Attributes attrs) {

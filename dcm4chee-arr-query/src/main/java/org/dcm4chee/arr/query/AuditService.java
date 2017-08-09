@@ -42,10 +42,9 @@ import org.dcm4che3.audit.*;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLogger;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
+import org.dcm4chee.arc.keycloak.KeycloakUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
-import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +61,6 @@ import java.util.Map;
 public class AuditService {
     private static final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     private static final Map<String, Long> aggregate = new LinkedHashMap<>();
-    private static final String keycloakClassName = "org.keycloak.KeycloakSecurityContext";
 
     public static void auditLogUsed(Device device, HttpServletRequest httpRequest) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -88,14 +86,17 @@ public class AuditService {
     }
 
     private static void emitAudit(AuditLogger logger, HttpServletRequest request, ArchiveDeviceExtension arcDev) {
-        String userId = request.getAttribute(keycloakClassName) != null
-                ? getPreferredUsername(request) : request.getRemoteAddr();
         AuditMessage msg = new AuditMessage();
         EventIdentification ei = AuditMessages.createEventIdentification(AuditMessages.EventID.AuditLogUsed,
                 AuditMessages.EventActionCode.Read, logger.timeStamp(), AuditMessages.EventOutcomeIndicator.Success,
                 null);
-        ActiveParticipant ap = AuditMessages.createActiveParticipant(userId, logger.processID(), null, true,
-                request.getRemoteHost(), AuditMessages.NetworkAccessPointTypeCode.IPAddress, null);
+        ActiveParticipant ap = AuditMessages.createActiveParticipant(KeycloakUtils.getUserName(request),
+                AuditLogger.processID(),
+                null,
+                true,
+                request.getRemoteHost(),
+                AuditMessages.NetworkAccessPointTypeCode.IPAddress,
+                null);
         ParticipantObjectIdentification poi = AuditMessages.createParticipantObjectIdentification(
                 arcDev.getAuditRecordRepositoryURL(), AuditMessages.ParticipantObjectIDTypeCode.URI,
                 "Security Audit Log", null, AuditMessages.ParticipantObjectTypeCode.SystemObject,
@@ -109,11 +110,5 @@ public class AuditService {
         } catch (Exception e) {
             LOG.warn("Failed to emit audit message", logger.getCommonName(), e);
         }
-    }
-
-    private static String getPreferredUsername(HttpServletRequest req) {
-        RefreshableKeycloakSecurityContext securityContext = (RefreshableKeycloakSecurityContext)
-                req.getAttribute(KeycloakSecurityContext.class.getName());
-        return securityContext.getToken().getPreferredUsername();
     }
 }

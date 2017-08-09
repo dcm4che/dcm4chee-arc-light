@@ -325,20 +325,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-core</artifactId>
-      <version>${keycloak.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-adapter-core</artifactId>
-      <version>${keycloak.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.jclouds</groupId>
       <artifactId>jclouds-blobstore</artifactId>
       <version>${jclouds.version}</version>
@@ -420,7 +406,6 @@
   <modules>
     <module>dcm4chee-arc-audit</module>
     <module>dcm4chee-arc-code</module>
-    <module>dcm4chee-arc-common-rs</module>
     <module>dcm4chee-arc-conf</module>
     <module>dcm4chee-arc-conf-data</module>
     <module>dcm4chee-arc-conf-json</module>
@@ -444,6 +429,7 @@
     <module>dcm4chee-arc-id</module>
     <module>dcm4chee-arc-iocm-rs</module>
     <module>dcm4chee-arc-issuer</module>
+    <module>dcm4chee-arc-keycloak</module>
     <module>dcm4chee-arc-metadata</module>
     <module>dcm4chee-arc-mima</module>
     <module>dcm4chee-arc-monitor-rs</module>

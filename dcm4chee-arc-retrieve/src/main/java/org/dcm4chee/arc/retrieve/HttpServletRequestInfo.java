@@ -41,7 +41,7 @@
 package org.dcm4chee.arc.retrieve;
 
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
+import org.dcm4chee.arc.keycloak.KeycloakUtils;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -58,7 +58,7 @@ public class HttpServletRequestInfo {
     public final String requestURI;
 
     private HttpServletRequestInfo(HttpServletRequest request) {
-        requesterUserID = getPreferredUsername(request);
+        requesterUserID = KeycloakUtils.getUserName(request);
         requesterHost = request.getRemoteHost();
         requestURI = request.getRequestURI();
     }
@@ -94,13 +94,6 @@ public class HttpServletRequestInfo {
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
         }
-    }
-
-    private String getPreferredUsername(HttpServletRequest req) {
-        Object securityContext = req.getAttribute("org.keycloak.KeycloakSecurityContext");
-        return securityContext instanceof RefreshableKeycloakSecurityContext
-                ? ((RefreshableKeycloakSecurityContext) securityContext).getToken().getPreferredUsername()
-                : req.getRemoteAddr();
     }
 
 }
