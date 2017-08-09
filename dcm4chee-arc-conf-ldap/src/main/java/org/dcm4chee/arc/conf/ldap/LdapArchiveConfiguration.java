@@ -99,6 +99,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.isPersonNameComponentOrderInsensitiveMatching(), false);
         LdapUtils.storeNotDef(attrs, "dcmSendPendingCGet", ext.isSendPendingCGet(), false);
         LdapUtils.storeNotNullOrDef(attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval(), null);
+        LdapUtils.storeNotNullOrDef(attrs, "dcmSpanningCFindSCP", ext.getSpanningCFindSCP(), null);
+        LdapUtils.storeNotEmpty(attrs, "dcmSpanningCFindSCPRetrieveAET", ext.getSpanningCFindSCPRetrieveAETitles());
+        LdapUtils.storeNotNullOrDef(attrs, "dcmSpanningCFindSCPPolicy",
+                ext.getSpanningCFindSCPPolicy(), SpanningCFindSCPPolicy.REPLACE);
         LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCP", ext.getFallbackCMoveSCP(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCPDestination", ext.getFallbackCMoveSCPDestination(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCPLeadingCFindSCP", ext.getFallbackCMoveSCPLeadingCFindSCP(), null);
@@ -241,6 +245,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.booleanValue(attrs.get("dcmPersonNameComponentOrderInsensitiveMatching"), false));
         ext.setSendPendingCGet(LdapUtils.booleanValue(attrs.get("dcmSendPendingCGet"), false));
         ext.setSendPendingCMoveInterval(toDuration(attrs.get("dcmSendPendingCMoveInterval"), null));
+        ext.setSpanningCFindSCP(LdapUtils.stringValue(attrs.get("dcmSpanningCFindSCP"), null));
+        ext.setSpanningCFindSCPRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmSpanningCFindSCPRetrieveAET")));
+        ext.setSpanningCFindSCPPolicy(LdapUtils.enumValue(
+                SpanningCFindSCPPolicy.class, attrs.get("dcmSpanningCFindSCPPolicy"), SpanningCFindSCPPolicy.REPLACE));
         ext.setFallbackCMoveSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCP"), null));
         ext.setFallbackCMoveSCPDestination(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPDestination"), null));
         ext.setFallbackCMoveSCPRetries(LdapUtils.intValue(attrs.get("dcmFallbackCMoveSCPRetries"), 0));
@@ -409,6 +417,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(mods, "dcmSendPendingCGet", aa.isSendPendingCGet(), bb.isSendPendingCGet(), false);
         LdapUtils.storeDiffObject(mods, "dcmSendPendingCMoveInterval",
                 aa.getSendPendingCMoveInterval(), bb.getSendPendingCMoveInterval(), null);
+        LdapUtils.storeDiffObject(mods, "dcmSpanningCFindSCP",
+                aa.getSpanningCFindSCP(), bb.getSpanningCFindSCP(), null);
+        LdapUtils.storeDiff(mods, "dcmSpanningCFindSCPRetrieveAET",
+                aa.getSpanningCFindSCPRetrieveAETitles(), bb.getSpanningCFindSCPRetrieveAETitles());
+        LdapUtils.storeDiffObject(mods, "dcmSpanningCFindSCPPolicy",
+                aa.getSpanningCFindSCPPolicy(), bb.getSpanningCFindSCPPolicy(), SpanningCFindSCPPolicy.REPLACE);
         LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCP", aa.getFallbackCMoveSCP(), bb.getFallbackCMoveSCP(), null);
         LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPDestination",
                 aa.getFallbackCMoveSCPDestination(), bb.getFallbackCMoveSCPDestination(), null);
@@ -713,6 +727,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getPersonNameComponentOrderInsensitiveMatching(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmSendPendingCGet", ext.getSendPendingCGet(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval(), null);
+        LdapUtils.storeNotNullOrDef(attrs, "dcmSpanningCFindSCP", ext.getSpanningCFindSCP(), null);
+        LdapUtils.storeNotEmpty(attrs, "dcmSpanningCFindSCPRetrieveAET", ext.getSpanningCFindSCPRetrieveAETitles());
+        LdapUtils.storeNotNullOrDef(attrs, "dcmSpanningCFindSCPPolicy", ext.getSpanningCFindSCPPolicy(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCP", ext.getFallbackCMoveSCP(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCPDestination", ext.getFallbackCMoveSCPDestination(), null);
         LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries());
@@ -777,6 +794,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.booleanValue(attrs.get("dcmPersonNameComponentOrderInsensitiveMatching"), null));
         ext.setSendPendingCGet(LdapUtils.booleanValue(attrs.get("dcmSendPendingCGet"), null));
         ext.setSendPendingCMoveInterval(toDuration(attrs.get("dcmSendPendingCMoveInterval"), null));
+        ext.setSpanningCFindSCP(LdapUtils.stringValue(attrs.get("dcmSpanningCFindSCP"), null));
+        ext.setSpanningCFindSCPRetrieveAETitles(LdapUtils.stringArray(attrs.get("dcmSpanningCFindSCPRetrieveAET")));
+        ext.setSpanningCFindSCPPolicy(LdapUtils.enumValue(
+                SpanningCFindSCPPolicy.class, attrs.get("dcmSpanningCFindSCPPolicy"), null));
         ext.setFallbackCMoveSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCP"), null));
         ext.setFallbackCMoveSCPDestination(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPDestination"), null));
         ext.setFallbackCMoveSCPRetries(LdapUtils.intValue(attrs.get("dcmFallbackCMoveSCPRetries"), null));
@@ -861,6 +882,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(mods, "dcmSendPendingCGet", aa.getSendPendingCGet(), bb.getSendPendingCGet(), null);
         LdapUtils.storeDiffObject(mods, "dcmSendPendingCMoveInterval",
                 aa.getSendPendingCMoveInterval(), bb.getSendPendingCMoveInterval(), null);
+        LdapUtils.storeDiffObject(mods, "dcmSpanningCFindSCP",
+                aa.getSpanningCFindSCP(), bb.getSpanningCFindSCP(), null);
+        LdapUtils.storeDiff(mods, "dcmSpanningCFindSCPRetrieveAET",
+                aa.getSpanningCFindSCPRetrieveAETitles(), bb.getSpanningCFindSCPRetrieveAETitles());
+        LdapUtils.storeDiffObject(mods, "dcmSpanningCFindSCPPolicy",
+                aa.getSpanningCFindSCPPolicy(), bb.getSpanningCFindSCPPolicy(), null);
         LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCP", aa.getFallbackCMoveSCP(), bb.getFallbackCMoveSCP(), null);
         LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPDestination",
                 aa.getFallbackCMoveSCPDestination(), bb.getFallbackCMoveSCPDestination(), null);

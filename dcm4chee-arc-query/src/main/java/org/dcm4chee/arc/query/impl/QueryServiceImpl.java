@@ -437,4 +437,9 @@ class QueryServiceImpl implements QueryService {
         }
         return coercion;
     }
+
+    @Override
+    public CFindSCU cfindSCU() {
+        return cfindscu;
+    }
 }

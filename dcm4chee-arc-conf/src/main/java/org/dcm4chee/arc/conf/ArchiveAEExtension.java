@@ -78,6 +78,9 @@ public class ArchiveAEExtension extends AEExtension {
     private Duration ianDelay;
     private Duration ianTimeout;
     private Boolean ianOnTimeout;
+    private String spanningCFindSCP;
+    private String[] spanningCFindSCPRetrieveAETitles = {};
+    private SpanningCFindSCPPolicy spanningCFindSCPPolicy;
     private Integer fallbackCMoveSCPRetries;
     private String fallbackCMoveSCP;
     private String fallbackCMoveSCPDestination;
@@ -410,6 +413,48 @@ public class ArchiveAEExtension extends AEExtension {
         return ianOnTimeout != null
                 ? ianOnTimeout.booleanValue()
                 : getArchiveDeviceExtension().isIanOnTimeout();
+    }
+
+    public String getSpanningCFindSCP() {
+        return spanningCFindSCP;
+    }
+
+    public void setSpanningCFindSCP(String spanningCFindSCP) {
+        this.spanningCFindSCP = spanningCFindSCP;
+    }
+
+    public String spanningCFindSCP() {
+        return spanningCFindSCP != null
+                ? spanningCFindSCP
+                : getArchiveDeviceExtension().getSpanningCFindSCP();
+    }
+
+    public String[] getSpanningCFindSCPRetrieveAETitles() {
+        return spanningCFindSCPRetrieveAETitles;
+    }
+
+    public void setSpanningCFindSCPRetrieveAETitles(String[] spanningCFindSCPRetrieveAETitles) {
+        this.spanningCFindSCPRetrieveAETitles = spanningCFindSCPRetrieveAETitles;
+    }
+
+    public String[] spanningCFindSCPRetrieveAETitles() {
+        return spanningCFindSCPRetrieveAETitles.length > 0
+                ? spanningCFindSCPRetrieveAETitles
+                : getArchiveDeviceExtension().getSpanningCFindSCPRetrieveAETitles();
+    }
+
+    public SpanningCFindSCPPolicy getSpanningCFindSCPPolicy() {
+        return spanningCFindSCPPolicy;
+    }
+
+    public void setSpanningCFindSCPPolicy(SpanningCFindSCPPolicy spanningCFindSCPPolicy) {
+        this.spanningCFindSCPPolicy = spanningCFindSCPPolicy;
+    }
+
+    public SpanningCFindSCPPolicy spanningCFindSCPPolicy() {
+        return spanningCFindSCPPolicy != null
+                ? spanningCFindSCPPolicy
+                : getArchiveDeviceExtension().getSpanningCFindSCPPolicy();
     }
 
     public String getFallbackCMoveSCP() {
@@ -974,6 +1019,9 @@ public class ArchiveAEExtension extends AEExtension {
         ianDelay = aeExt.ianDelay;
         ianTimeout = aeExt.ianTimeout;
         ianOnTimeout = aeExt.ianOnTimeout;
+        spanningCFindSCP = aeExt.spanningCFindSCP;
+        spanningCFindSCPRetrieveAETitles = aeExt.spanningCFindSCPRetrieveAETitles;
+        spanningCFindSCPPolicy = aeExt.spanningCFindSCPPolicy;
         fallbackCMoveSCP = aeExt.fallbackCMoveSCP;
         fallbackCMoveSCPDestination = aeExt.fallbackCMoveSCPDestination;
         fallbackCMoveSCPLeadingCFindSCP = aeExt.fallbackCMoveSCPLeadingCFindSCP;

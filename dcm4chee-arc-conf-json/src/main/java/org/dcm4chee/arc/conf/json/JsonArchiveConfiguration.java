@@ -113,6 +113,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmIanOnTimeout", arcDev.isIanOnTimeout(), false);
         writer.writeNotNullOrDef("dcmIanTaskPollingInterval", arcDev.getIanTaskPollingInterval(), null);
         writer.writeNotDef("dcmIanTaskFetchSize", arcDev.getIanTaskFetchSize(), 100);
+        writer.writeNotNullOrDef("dcmSpanningCFindSCP", arcDev.getSpanningCFindSCP(), null);
+        writer.writeNotEmpty("dcmSpanningCFindSCPRetrieveAET", arcDev.getSpanningCFindSCPRetrieveAETitles());
+        writer.writeNotNullOrDef("dcmSpanningCFindSCPPolicy",
+                arcDev.getSpanningCFindSCPPolicy(), SpanningCFindSCPPolicy.REPLACE);
         writer.writeNotNullOrDef("dcmFallbackCMoveSCP", arcDev.getFallbackCMoveSCP(), null);
         writer.writeNotNullOrDef("dcmFallbackCMoveSCPDestination", arcDev.getFallbackCMoveSCPDestination(), null);
         writer.writeNotDef("dcmFallbackCMoveSCPRetries", arcDev.getFallbackCMoveSCPRetries(), 0);
@@ -564,6 +568,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmIanDelay", arcAE.getIanDelay(), null);
         writer.writeNotNullOrDef("dcmIanTimeout", arcAE.getIanTimeout(), null);
         writer.writeNotNull("dcmIanOnTimeout", arcAE.getIanOnTimeout());
+        writer.writeNotNullOrDef("dcmSpanningCFindSCP", arcAE.getSpanningCFindSCP(), null);
+        writer.writeNotEmpty("dcmSpanningCFindSCPRetrieveAET", arcAE.getSpanningCFindSCPRetrieveAETitles());
+        writer.writeNotNullOrDef("dcmSpanningCFindSCPPolicy", arcAE.getSpanningCFindSCPPolicy(), null);
         writer.writeNotNullOrDef("dcmFallbackCMoveSCP", arcAE.getFallbackCMoveSCP(), null);
         writer.writeNotNullOrDef("dcmFallbackCMoveSCPDestination", arcAE.getFallbackCMoveSCPDestination(), null);
         writer.writeNotNull("dcmFallbackCMoveSCPRetries", arcAE.getFallbackCMoveSCPRetries());
@@ -711,6 +718,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmIanTaskFetchSize":
                     arcDev.setIanTaskFetchSize(reader.intValue());
+                    break;
+                case "dcmSpanningCFindSCP":
+                    arcDev.setSpanningCFindSCP(reader.stringValue());
+                    break;
+                case "dcmSpanningCFindSCPRetrieveAET":
+                    arcDev.setSpanningCFindSCPRetrieveAETitles(reader.stringArray());
+                    break;
+                case "dcmSpanningCFindSCPPolicy":
+                    arcDev.setSpanningCFindSCPPolicy(SpanningCFindSCPPolicy.valueOf(reader.stringValue()));
                     break;
                 case "dcmFallbackCMoveSCP":
                     arcDev.setFallbackCMoveSCP(reader.stringValue());
@@ -1766,6 +1782,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmIanOnTimeout":
                     arcAE.setIanOnTimeout(reader.booleanValue());
+                    break;
+                case "dcmSpanningCFindSCP":
+                    arcAE.setSpanningCFindSCP(reader.stringValue());
+                    break;
+                case "dcmSpanningCFindSCPRetrieveAET":
+                    arcAE.setSpanningCFindSCPRetrieveAETitles(reader.stringArray());
+                    break;
+                case "dcmSpanningCFindSCPPolicy":
+                    arcAE.setSpanningCFindSCPPolicy(SpanningCFindSCPPolicy.valueOf(reader.stringValue()));
                     break;
                 case "dcmFallbackCMoveSCP":
                     arcAE.setFallbackCMoveSCP(reader.stringValue());

@@ -909,6 +909,20 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.182 NAME 'dcmSupplementFromDeviceRef
    EQUALITY distinguishedNameMatch
    SYNTAX 1.3.6.1.4.1.1466.115.121.1.12
    SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.183 NAME 'dcmSpanningCFindSCP'
+  DESC 'AE Title of external C-FIND SCP to forward C-FIND RQs and backward responses according configured Spanning C-Find SCP Policy.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.184 NAME 'dcmSpanningCFindSCPPolicy'
+  DESC 'Specifies policy for combining matches returned from configured Spanning C-Find SCP with matching entries from the archive DB. Enumerated values: SUPPLEMENT (= returns local matches before additional matches from Spanning C-Find SCP ), MERGE (= returns matches from Spanning C-Find SCP before additional local matches), REPLACE (= returns only matches from Spanning C-Find SCP).'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.185 NAME 'dcmSpanningCFindSCPRetrieveAET'
+  DESC 'Specifies Retrieve AE Title(s) in returned matches from Spanning C-Find SCP. Keep original Retrieve AE Title(s) returned by Spanning C-Find SCP if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 -
 delete: olcObjectClasses
 -
@@ -955,6 +969,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmIanOnTimeout $
     dcmIanTaskPollingInterval $
     dcmIanTaskFetchSize $
+    dcmSpanningCFindSCP $
+    dcmSpanningCFindSCPPolicy $
+    dcmSpanningCFindSCPRetrieveAET $
     dcmFallbackCMoveSCP $
     dcmFallbackCMoveSCPDestination $
     dcmFallbackCMoveSCPLeadingCFindSCP $
@@ -1070,6 +1087,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmIanDelay $
     dcmIanTimeout $
     dcmIanOnTimeout $
+    dcmSpanningCFindSCP $
+    dcmSpanningCFindSCPPolicy $
+    dcmSpanningCFindSCPRetrieveAET $
     dcmFallbackCMoveSCP $
     dcmFallbackCMoveSCPDestination $
     dcmFallbackCMoveSCPLeadingCFindSCP $

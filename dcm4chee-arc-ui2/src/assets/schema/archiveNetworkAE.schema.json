@@ -50,7 +50,7 @@
     },
     "dcmAccessControlID": {
       "title": "Access Control ID",
-      "description": "Access Control IDs assigned to Query/Retrieve requests received by this AE",
+      "description": "Access Control IDs assigned to Query/Retrieve requests received by this AE.",
       "type": "array",
       "items": { "type": "string" }
     },
@@ -96,7 +96,7 @@
     },
     "dcmQueryRetrieveViewID": {
       "title": "Query/Retrieve View ID",
-      "description": "Query/Retrieve View Identifier",
+      "description": "Query/Retrieve View Identifier. Overwrites value specified on Device level.",
       "type": "string",
       "format": "dcmQueryRetrieveViewID"
     },
@@ -107,7 +107,7 @@
     },
     "dcmHideSPSWithStatusFromMWL": {
       "title": "Hide SPS with Status",
-      "description": "Scheduled Procedure Step Status codes of MWL items which shall not be returned by the MWL SCP",
+      "description": "Scheduled Procedure Step Status codes of MWL items which shall not be returned by the MWL SCP. Overwrites value specified on Device level.",
       "type": "array",
       "items" : {
         "type": "string",
@@ -140,18 +140,18 @@
     },
     "dcmSendPendingCMoveInterval": {
       "title": "Send Pending C-Move Interval",
-      "description": "Interval of pending C-MOVE responses in ISO-8601 duration format PnDTnHnMn.nS; disabled if absent",
+      "description": "Interval of pending C-MOVE responses in ISO-8601 duration format PnDTnHnMn.nS. Overwrites value specified on Device level.",
       "type": "string",
       "format": "dcmDuration"
     },
     "dcmWadoSR2HtmlTemplateURI": {
-      "title": "Wado SR2 Html Template URI",
-      "description": "Specifies URI for the style sheet used to render structured reports to html",
+      "title": "Wado SR2Html Template URI",
+      "description": "Specifies URI for the style sheet used to render structured reports to html. Overwrites value specified on Device level.",
       "type": "string"
     },
     "dcmWadoSR2TextTemplateURI": {
-      "title": "Wado SR2 Text Template URI",
-      "description": "Specifies URI for the style sheet used to render structured reports to plain text",
+      "title": "Wado SR2Text Template URI",
+      "description": "Specifies URI for the style sheet used to render structured reports to plain text. Overwrites value specified on Device level.",
       "type": "string"
     },
     "dcmQueryMaxNumberOfResults": {
@@ -168,27 +168,27 @@
     },
     "dcmFwdMppsDestination": {
       "title": "Mpps Forward Destination",
-      "description": "Destination to forward MPPS N-CREATE RQ and N-SET RQ",
+      "description": "Destination to forward MPPS N-CREATE RQ and N-SET RQ. Overwrites value specified on Device level.",
       "type": "array",
       "items" : { "type": "string" },
       "format": "dcmAETitle"
     },
     "dcmIanDestination": {
       "title": "Ian Destination",
-      "description": "Destination to send IAN N-CREATE RQ",
+      "description": "Destination to send IAN N-CREATE RQ. Overwrites value specified on Device level.",
       "type": "array",
       "items" : { "type": "string" },
       "format": "dcmAETitle"
     },
     "dcmIanDelay": {
       "title": "IAN Delay",
-      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an IAN for a received study is sent to configured IAN destinations. If absent, IANs are triggered by received MPPS",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which an IAN for a received study is sent to configured IAN destinations. Overwrites value specified on Device level.",
       "type": "string",
       "format": "dcmDuration"
     },
     "dcmIanTimeout": {
       "title": "IAN Timeout",
-      "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS; check for completeness forever if absent",
+      "description": "Timeout in ISO-8601 duration format PnDTnHnMn.nS for waiting on receive of instances referenced in MPPS. Overwrites value specified on Device level.",
       "type": "string",
       "format": "dcmDuration"
     },
@@ -197,37 +197,63 @@
       "description": "Specifies if the IAN is sent if the timeout for waiting on receive of instances referenced is exceeded. Overwrites value specified on Device level.",
       "type": "boolean"
     },
+    "dcmSpanningCFindSCP": {
+      "title": "Spanning C-Find SCP",
+      "description": "AE Title of external C-FIND SCP to forward C-FIND RQs and backward responses according configured Spanning C-Find SCP Policy. Overwrites value specified on Device level.",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmSpanningCFindSCPPolicy": {
+      "title": "Spanning C-Find SCP Policy",
+      "description": "Specifies policy for combining matches returned from configured Spanning C-Find SCP with matching entries from the archive DB. Overwrites value specified on Device level.",
+      "type": "string",
+      "default": "MERGE",
+      "enum": [
+        "SUPPLEMENT",
+        "MERGE",
+        "REPLACE"
+      ]
+    },
+    "dcmSpanningCFindSCPRetrieveAET": {
+      "title": "Spanning C-Find SCP Retrieve AE Title",
+      "description": "Specifies Retrieve AE Title(s) in returned matches from Spanning C-Find SCP. Overwrites value specified on Device level.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "dcmArchiveAETitle"
+    },
     "dcmFallbackCMoveSCP": {
       "title": "Fallback C-Move SCP",
-      "description": "AE Title of external C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not managed by this archive",
+      "description": "AE Title of external C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not managed by this archive. Overwrites value specified on Device level.",
       "type": "string",
       "format": "dcmAETitle"
     },
     "dcmFallbackCMoveSCPStudyOlderThan": {
       "title": "Fallback C-Move SCP Study Older Than",
-      "description": "Specifies threshold for Study Date in format YYYYMMDD for marking received Studies as (potential) incomplete to enforce the retrieve from configured dcmFallbackCMoveSCP",
+      "description": "Specifies threshold for Study Date in format YYYYMMDD for marking received Studies as (potential) incomplete to enforce the retrieve from configured dcmFallbackCMoveSCP. Overwrites value specified on Device level.",
       "type": "string"
     },
     "dcmFallbackCMoveSCPDestination": {
       "title": "Fallback C-Move SCP Destination",
-      "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP",
+      "description": "AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs forwarded to the external C-MOVE SCP specified by dcmFallbackCMoveSCP. Overwrites value specified on Device level.",
       "type": "string",
       "format": "dcmArchiveAETitle"
     },
     "dcmFallbackCMoveSCPLeadingCFindSCP": {
       "title": "Fallback C-Move SCP Leading C-Find SCP",
-      "description": "AE Title of external C-FIND SCP for Verification of Number of Instances retrieved from external C-MOVE SCP specified by dcmFallbackCMoveSCP.",
+      "description": "AE Title of external C-FIND SCP for Verification of Number of Instances retrieved from external C-MOVE SCP specified by dcmFallbackCMoveSCP. Overwrites value specified on Device level.",
       "type": "string",
       "format": "dcmAETitle"
     },
     "dcmFallbackCMoveSCPRetries": {
       "title": "Fallback C-Move SCP Retries",
-      "description": "Maximal number of retries to retrieve not available objects from C-MOVE SCP configured by dcmFallbackCMoveSCP. -1 = forever. Use value configured on Device level, if absent",
+      "description": "Maximal number of retries to retrieve not available objects from C-MOVE SCP configured by dcmFallbackCMoveSCP. -1 = forever. Overwrites value specified on Device level.",
       "type": "integer"
     },
     "dcmAltCMoveSCP": {
       "title": "Alternative C-Move SCP",
-      "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage",
+      "description": "AE Title of alternative C-MOVE SCP to forward C-MOVE RQs if the requested Entities are not located on a local attached Storage. Overwrites value specified on Device level.",
       "type": "string",
       "format": "dcmAETitle"
     },

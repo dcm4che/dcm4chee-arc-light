@@ -101,6 +101,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private boolean ianOnTimeout;
     private Duration ianTaskPollingInterval;
     private int ianTaskFetchSize = 100;
+    private String spanningCFindSCP;
+    private String[] spanningCFindSCPRetrieveAETitles = {};
+    private SpanningCFindSCPPolicy spanningCFindSCPPolicy = SpanningCFindSCPPolicy.REPLACE;
     private String fallbackCMoveSCP;
     private String fallbackCMoveSCPDestination;
     private String fallbackCMoveSCPLeadingCFindSCP;
@@ -496,6 +499,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setIanTaskFetchSize(int ianTaskFetchSize) {
         this.ianTaskFetchSize = greaterZero(ianTaskFetchSize, "ianTaskFetchSize");
+    }
+
+    public String getSpanningCFindSCP() {
+        return spanningCFindSCP;
+    }
+
+    public void setSpanningCFindSCP(String spanningCFindSCP) {
+        this.spanningCFindSCP = spanningCFindSCP;
+    }
+
+    public String[] getSpanningCFindSCPRetrieveAETitles() {
+        return spanningCFindSCPRetrieveAETitles;
+    }
+
+    public void setSpanningCFindSCPRetrieveAETitles(String[] spanningCFindSCPRetrieveAETitles) {
+        this.spanningCFindSCPRetrieveAETitles = spanningCFindSCPRetrieveAETitles;
+    }
+
+    public SpanningCFindSCPPolicy getSpanningCFindSCPPolicy() {
+        return spanningCFindSCPPolicy;
+    }
+
+    public void setSpanningCFindSCPPolicy(SpanningCFindSCPPolicy spanningCFindSCPPolicy) {
+        this.spanningCFindSCPPolicy = spanningCFindSCPPolicy;
     }
 
     public String getFallbackCMoveSCP() {
@@ -1610,6 +1637,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         ianOnTimeout = arcdev.ianOnTimeout;
         ianTaskPollingInterval = arcdev.ianTaskPollingInterval;
         ianTaskFetchSize = arcdev.ianTaskFetchSize;
+        spanningCFindSCP = arcdev.spanningCFindSCP;
+        spanningCFindSCPRetrieveAETitles = arcdev.spanningCFindSCPRetrieveAETitles;
+        spanningCFindSCPPolicy = arcdev.spanningCFindSCPPolicy;
         fallbackCMoveSCP = arcdev.fallbackCMoveSCP;
         fallbackCMoveSCPDestination = arcdev.fallbackCMoveSCPDestination;
         fallbackCMoveSCPLeadingCFindSCP = arcdev.fallbackCMoveSCPLeadingCFindSCP;
