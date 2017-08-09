@@ -804,7 +804,7 @@ public class AuditService {
             HL7Segment msh = ctx.getHL7MessageHeader();
             if (ctx.getHttpRequest() != null) {
                 source = getPreferredUsername(ctx.getHttpRequest());
-                dest = ctx.getCalledAET();
+                dest = ctx.getHttpRequest().getRequestURI();
             }
             if (msh != null) {
                 source = msh.getSendingApplicationWithFacility();
