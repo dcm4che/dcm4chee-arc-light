@@ -70,6 +70,7 @@ class AuditInfo {
     static final int MPPS_UID = 19;
     static final int HL7_MESSAGE_TYPE = 20;
     static final int SUBMISSION_SET_UID = 21;
+    static final int IS_EXPORT = 22;
 
     private final String[] fields;
 
@@ -91,12 +92,13 @@ class AuditInfo {
                 i.destNapID,
                 i.moveAET,
                 i.warning,
-                i.failedIUIDShow ? Boolean.toString(i.failedIUIDShow) : null,
+                i.failedIUIDShow ? String.valueOf(true) : null,
                 i.sopCUID,
                 i.sopIUID,
                 i.mppsUID,
                 i.hl7MessageType,
-                i.submissionSetUID
+                i.submissionSetUID,
+                i.isExport ? String.valueOf(true) : null
         };
     }
 

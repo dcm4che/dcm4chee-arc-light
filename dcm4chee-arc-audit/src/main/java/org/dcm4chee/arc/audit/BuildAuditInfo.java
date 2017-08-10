@@ -68,6 +68,7 @@ class BuildAuditInfo {
     final boolean failedIUIDShow;
     final String hl7MessageType;
     final String submissionSetUID;
+    final boolean isExport;
 
     static class Builder {
         private String callingHost;
@@ -92,6 +93,7 @@ class BuildAuditInfo {
         private boolean failedIUIDShow;
         private String hl7MessageType;
         private String submissionSetUID;
+        private boolean isExport;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -181,6 +183,10 @@ class BuildAuditInfo {
             submissionSetUID = val;
             return this;
         }
+        Builder isExport(boolean val) {
+            isExport = val;
+            return this;
+        }
         BuildAuditInfo build() {
             return new BuildAuditInfo(this);
         }
@@ -209,5 +215,6 @@ class BuildAuditInfo {
         failedIUIDShow = builder.failedIUIDShow;
         hl7MessageType = builder.hl7MessageType;
         submissionSetUID = builder.submissionSetUID;
+        isExport = builder.isExport;
     }
 }
