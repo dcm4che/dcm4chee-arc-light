@@ -311,7 +311,7 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public boolean isLocalRequestor() {
-        return httpServletRequestInfo != null && requestAssociation == null && storeAssociation != null;
+        return requestAssociation == null && storeAssociation != null;
     }
 
     @Override
