@@ -100,7 +100,7 @@ public class AuditTriggerObserver {
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
         if (deviceHasAuditLoggers())
-            auditService.spoolRetrieve(AuditServiceUtils.EventType.forBeginTransfer(ctx), ctx, ctx.getMatches());
+            auditService.spoolRetrieve(AuditServiceUtils.EventType.RTRV_BEGIN, ctx, ctx.getMatches());
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
