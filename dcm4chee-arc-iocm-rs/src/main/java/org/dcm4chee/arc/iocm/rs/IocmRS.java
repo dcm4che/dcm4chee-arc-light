@@ -602,7 +602,7 @@ public class IocmRS {
         Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity(), false);
         moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
 
-        final Attributes result = storeService.copyInstances(rjNote, session, instances, uidMap);
+        final Attributes result = storeService.copyInstances(session, instances, uidMap);
 
         if (rjNote != null) {
             if (result.getString(Tag.FailureReason) != null) {

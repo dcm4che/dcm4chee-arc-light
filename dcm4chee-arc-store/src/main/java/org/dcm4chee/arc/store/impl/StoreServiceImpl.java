@@ -312,7 +312,7 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Attributes copyInstances(RejectionNote rj, StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
+    public Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
             throws Exception {
         Attributes result = new Attributes();
         session.setUIDMap(uidMap);
