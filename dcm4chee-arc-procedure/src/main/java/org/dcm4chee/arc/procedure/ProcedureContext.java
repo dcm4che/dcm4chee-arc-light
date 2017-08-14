@@ -43,8 +43,7 @@ package org.dcm4chee.arc.procedure;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.soundex.FuzzyStr;
-import org.dcm4chee.arc.conf.AttributeFilter;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.Patient;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,10 +67,6 @@ public interface ProcedureContext {
 
     void setAttributes(Attributes attrs);
 
-    AttributeFilter getAttributeFilter();
-
-    FuzzyStr getFuzzyStr();
-
     Patient getPatient();
 
     void setPatient(Patient pat);
@@ -93,4 +88,6 @@ public interface ProcedureContext {
     void setSpsID(String spsID);
 
     List<String> getUpdateSeriesUIDs();
+
+    Device getDevice();
 }

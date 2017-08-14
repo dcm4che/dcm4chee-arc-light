@@ -46,10 +46,6 @@ import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.soundex.FuzzyStr;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 
@@ -64,8 +60,6 @@ import java.util.List;
  * @since Jun 2016
  */
 public class ProcedureContextImpl implements ProcedureContext {
-    private final AttributeFilter attributeFilter;
-    private final FuzzyStr fuzzyStr;
     private final HttpServletRequest httpRequest;
     private final ApplicationEntity ae;
     private final Socket socket;
@@ -78,17 +72,16 @@ public class ProcedureContextImpl implements ProcedureContext {
     private String spsID;
     private Association as;
     private List<String> updateSeriesUIDs = new ArrayList<>();
+    private Device device;
 
     ProcedureContextImpl(Device device, HttpServletRequest httpRequest, ApplicationEntity ae, Association as, Socket socket,
                          HL7Segment msh) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        this.attributeFilter = arcDev.getAttributeFilter(Entity.MWL);
-        this.fuzzyStr = arcDev.getFuzzyStr();
         this.httpRequest = httpRequest;
         this.ae = ae;
         this.socket = socket;
         this.msh = msh;
         this.as = as;
+        this.device = device;
     }
 
     @Override
@@ -96,16 +89,6 @@ public class ProcedureContextImpl implements ProcedureContext {
         return httpRequest != null
                 ? httpRequest.getRemoteAddr()
                 : as != null ? as.toString() : socket.toString();
-    }
-
-    @Override
-    public AttributeFilter getAttributeFilter() {
-        return attributeFilter;
-    }
-
-    @Override
-    public FuzzyStr getFuzzyStr() {
-        return fuzzyStr;
     }
 
     @Override
@@ -192,5 +175,10 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public List<String> getUpdateSeriesUIDs() {
         return updateSeriesUIDs;
+    }
+
+    @Override
+    public Device getDevice() {
+        return device;
     }
 }

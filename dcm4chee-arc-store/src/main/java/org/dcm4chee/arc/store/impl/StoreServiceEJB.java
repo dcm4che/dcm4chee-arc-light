@@ -725,11 +725,11 @@ public class StoreServiceEJB {
         Attributes studyAttr = study.getAttributes();
         Attributes attr = new Attributes();
         IssuerEntity issuerOfAccessionNumber = findOrCreateIssuer(ctx.getMWLItem().getAttributes(), Tag.IssuerOfAccessionNumberSequence);
-        AttributeFilter mwlAttributeFilter = arcDev.getAttributeFilter(Entity.MWL);
-        if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE, ctx.getMWLItem().getAttributes(), attr, mwlAttributeFilter.getSelection())) {
+        AttributeFilter studyAttributeFilter = arcDev.getAttributeFilter(Entity.Study);
+        if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE, ctx.getMWLItem().getAttributes(), attr, studyAttributeFilter.getSelection())) {
             if (study.getIssuerOfAccessionNumber() != null && !study.getIssuerOfAccessionNumber().equals(issuerOfAccessionNumber))
                 study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
-            study.setAttributes(studyAttr, mwlAttributeFilter, arcDev.getFuzzyStr());
+            study.setAttributes(studyAttr, studyAttributeFilter, arcDev.getFuzzyStr());
         }
     }
 
@@ -1076,7 +1076,7 @@ public class StoreServiceEJB {
         return series;
     }
 
-    private void setSeriesAttributesFromMWL(StoreContext ctx, Series series, FuzzyStr fuzzyStr) {
+    private void setSeriesAttributesFromMWL(StoreContext ctx, Series series, ArchiveDeviceExtension arcDev) {
         if (ctx.getMWLItem() == null)
             return;
         Attributes mwlAttr = ctx.getMWLItem().getAttributes();
@@ -1088,7 +1088,8 @@ public class StoreServiceEJB {
             Attributes reqAttr = createRequestAttrs(mwlAttr, item);
             rqAttrsSeq.add(reqAttr);
         }
-        setRequestAttributes(series, seriesAttr, fuzzyStr, issuerOfAccessionNumber);
+        setRequestAttributes(series, seriesAttr, arcDev.getFuzzyStr(), issuerOfAccessionNumber);
+        series.setAttributes(seriesAttr, arcDev.getAttributeFilter(Entity.Series), arcDev.getFuzzyStr());
     }
 
     private Attributes createRequestAttrs(Attributes mwlAttr, Attributes item) {
@@ -1140,7 +1141,7 @@ public class StoreServiceEJB {
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
         series.setSourceAET(session.getCallingAET());
-        setSeriesAttributesFromMWL(ctx, series, fuzzyStr);
+        setSeriesAttributesFromMWL(ctx, series, arcDev);
     }
 
     private Instance createInstance(StoreSession session, Series series, CodeEntity conceptNameCode, Attributes attrs,

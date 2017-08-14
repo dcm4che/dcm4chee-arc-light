@@ -47,6 +47,8 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
 import org.dcm4chee.arc.patient.PatientMismatchException;
@@ -112,7 +114,8 @@ public class ProcedureServiceEJB {
     }
 
     private void updateMWL(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, MWLItem mwlItem, Attributes mwlAttrs) {
-        mwlItem.setAttributes(mwlAttrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+        ArchiveDeviceExtension arcDev = ctx.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
+        mwlItem.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
         mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
     }
@@ -141,9 +144,10 @@ public class ProcedureServiceEJB {
 
     private void createMWL(ProcedureContext ctx, Patient patient, Attributes attrs,
                             IssuerEntity issuerOfAccessionNumber) {
+        ArchiveDeviceExtension arcDev = ctx.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
         MWLItem mwlItem = new MWLItem();
         mwlItem.setPatient(patient);
-        mwlItem.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+        mwlItem.setAttributes(attrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
         mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
         em.persist(mwlItem);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
@@ -191,19 +195,21 @@ public class ProcedureServiceEJB {
     public void updateSPSStatus(ProcedureContext ctx, String status) {
         List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
                 .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+        ArchiveDeviceExtension arcDev = ctx.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
         for (MWLItem mwl : mwlItems) {
             Attributes mwlAttrs = mwl.getAttributes();
             Attributes spsItemMWL = mwlAttrs
                     .getNestedDataset(Tag.ScheduledProcedureStepSequence);
             if (!spsItemMWL.getString(Tag.ScheduledProcedureStepStatus).equals(status)) {
                 spsItemMWL.setString(Tag.ScheduledProcedureStepStatus, VR.CS, status);
-                mwl.setAttributes(mwlAttrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+                mwl.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
                 ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
             }
         }
     }
 
     private boolean updateStudySeriesAttributesFromMWL(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber) {
+        ArchiveDeviceExtension arcDev = ctx.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
         Attributes mwlAttr = ctx.getAttributes();
         boolean studyUpdated = false;
         try {
@@ -213,11 +219,11 @@ public class ProcedureServiceEJB {
                 Study study = seriesList.get(0).getStudy();
                 Attributes studyAttr = study.getAttributes();
                 Attributes attr = new Attributes();
-                studyUpdated = studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE, mwlAttr, attr, ctx.getAttributeFilter().getSelection());
+                studyUpdated = studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE, mwlAttr, attr, arcDev.getAttributeFilter(Entity.Study).getSelection());
                 if (studyUpdated) {
                     if (study.getIssuerOfAccessionNumber() != null && !study.getIssuerOfAccessionNumber().equals(issuerOfAccessionNumber))
                         study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
-                    study.setAttributes(studyAttr, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+                    study.setAttributes(studyAttr, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
                     if (ctx.getUpdateSeriesUIDs().isEmpty())
                         updateAllSeries(ctx, issuerOfAccessionNumber, seriesList);
                     else
@@ -243,6 +249,7 @@ public class ProcedureServiceEJB {
     }
 
     private void updateSeriesAttributes(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, Series series) {
+        ArchiveDeviceExtension arcDev = ctx.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
         Attributes mwlAttr = ctx.getAttributes();
         Attributes seriesAttr = series.getAttributes();
         Sequence rqAttrsSeq = seriesAttr.newSequence(Tag.RequestAttributesSequence, 1);
@@ -251,7 +258,8 @@ public class ProcedureServiceEJB {
             Attributes reqAttr = createRequestAttrs(mwlAttr, item);
             rqAttrsSeq.add(reqAttr);
         }
-        setRequestAttributes(series, seriesAttr, ctx.getFuzzyStr(), issuerOfAccessionNumber);
+        setRequestAttributes(series, seriesAttr, arcDev.getFuzzyStr(), issuerOfAccessionNumber);
+        series.setAttributes(seriesAttr, arcDev.getAttributeFilter(Entity.Series), arcDev.getFuzzyStr());
     }
 
     public void updateStudySeriesAttributes(ProcedureContext ctx) {
