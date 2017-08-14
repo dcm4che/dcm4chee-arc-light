@@ -106,6 +106,13 @@ public class StoreServiceEJB {
     private static final String REVOKE_REJECTION =
             "{}: Revoke rejection of Instance[studyUID={},seriesUID={},objectUID={}] by {}";
 
+    private final int[] SERIES_MWL_ATTR = {
+            Tag.AccessionNumber,
+            Tag.RequestedProcedureID,
+            Tag.StudyInstanceUID,
+            Tag.RequestedProcedureDescription
+    };
+
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
@@ -1052,6 +1059,38 @@ public class StoreServiceEJB {
         return series;
     }
 
+    private void setSeriesAttributesFromMWL(StoreContext ctx, Series series, FuzzyStr fuzzyStr) {
+        if (ctx.getMWLItem() == null)
+            return;
+        Attributes mwlAttr = ctx.getMWLItem().getAttributes();
+        IssuerEntity issuerOfAccessionNumber = findOrCreateIssuer(mwlAttr, Tag.IssuerOfAccessionNumberSequence);
+        Attributes seriesAttr = series.getAttributes();
+        Sequence rqAttrsSeq = seriesAttr.newSequence(Tag.RequestAttributesSequence, 1);
+        Sequence spsSeq = mwlAttr.getSequence(Tag.ScheduledProcedureStepSequence);
+        for (Attributes item : spsSeq) {
+            Attributes reqAttr = createRequestAttrs(mwlAttr, item);
+            rqAttrsSeq.add(reqAttr);
+        }
+        setRequestAttributes(series, seriesAttr, fuzzyStr, issuerOfAccessionNumber);
+    }
+
+    private Attributes createRequestAttrs(Attributes mwlAttr, Attributes item) {
+        Attributes attr = new Attributes();
+        attr.addSelected(mwlAttr, SERIES_MWL_ATTR);
+        attr.setString(Tag.ScheduledProcedureStepID, VR.SH, item.getString(Tag.ScheduledProcedureStepID));
+        return attr;
+    }
+
+    private void setRequestAttributes(Series series, Attributes attrs, FuzzyStr fuzzyStr, IssuerEntity issuerOfAccNum) {
+        Sequence seq = attrs.getSequence(Tag.RequestAttributesSequence);
+        series.getRequestAttributes().clear();
+        if (seq != null)
+            for (Attributes item : seq) {
+                SeriesRequestAttributes request = new SeriesRequestAttributes(item, issuerOfAccNum, fuzzyStr);
+                series.getRequestAttributes().add(request);
+            }
+    }
+
     private boolean markOldStudiesAsIncomplete(StoreContext ctx, Study study) {
         String studyDateThreshold = ctx.getStoreSession().getArchiveAEExtension().fallbackCMoveSCPStudyOlderThan();
         return studyDateThreshold != null && study.getStudyDate().compareTo(studyDateThreshold) < 0;
@@ -1084,6 +1123,7 @@ public class StoreServiceEJB {
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
         series.setSourceAET(session.getCallingAET());
+        setSeriesAttributesFromMWL(ctx, series, fuzzyStr);
     }
 
     private Instance createInstance(StoreSession session, Series series, CodeEntity conceptNameCode, Attributes attrs,

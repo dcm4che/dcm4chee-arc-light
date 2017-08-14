@@ -312,17 +312,15 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
+    public Attributes copyInstances(StoreContext ctx, Collection<InstanceLocations> instances, Map<String, String> uidMap)
             throws Exception {
         Attributes result = new Attributes();
-        session.setUIDMap(uidMap);
         if (instances != null) {
             Sequence refSOPSeq = result.newSequence(Tag.ReferencedSOPSequence, 10);
             Sequence failedSOPSeq = result.newSequence(Tag.FailedSOPSequence, 10);
             for (InstanceLocations il : instances) {
                 Attributes attr = il.getAttributes();
                 UIDUtils.remapUIDs(attr, uidMap);
-                StoreContext ctx = newStoreContext(session);
                 for (Location location : il.getLocations()) {
                     ctx.getLocations().add(location);
                 }

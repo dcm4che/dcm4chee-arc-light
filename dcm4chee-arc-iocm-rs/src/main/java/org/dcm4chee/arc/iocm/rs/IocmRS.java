@@ -527,7 +527,10 @@ public class IocmRS {
             RejectionNote rjNote = toRejectionNote(code);
             Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity(), false);
             moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
-            result = storeService.copyInstances(session, instanceLocations, uidMap);
+            session.setUIDMap(uidMap);
+            StoreContext storeCtx = storeService.newStoreContext(session);
+            storeCtx.setMWLItem(mwl);
+            result = storeService.copyInstances(storeCtx, instanceLocations, uidMap);
             postMoveRejectInstances(instanceRefs, rjNote, session, result);
         }
 
@@ -709,8 +712,9 @@ public class IocmRS {
             throw new WebApplicationException(getResponse("No Instances found. ", Response.Status.NOT_FOUND));
         Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity(), false);
         moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
-
-        final Attributes result = storeService.copyInstances(session, instances, uidMap);
+        session.setUIDMap(uidMap);
+        StoreContext ctx = storeService.newStoreContext(session);
+        final Attributes result = storeService.copyInstances(ctx, instances, uidMap);
 
         postMoveRejectInstances(instanceRefs, rjNote, session, result);
         return result;
