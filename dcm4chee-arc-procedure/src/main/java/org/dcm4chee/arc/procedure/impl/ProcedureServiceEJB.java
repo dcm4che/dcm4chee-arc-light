@@ -81,19 +81,18 @@ public class ProcedureServiceEJB {
     public void updateProcedure(ProcedureContext ctx) {
         Patient patient = ctx.getPatient();
         Attributes attrs = ctx.getAttributes();
-        IssuerEntity issuerOfAccessionNumber = findOrCreateIssuer(
-                attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence));
+        IssuerEntity issuerOfAccessionNumber = findOrCreateIssuer(attrs);
         if (ctx.getHttpRequest() != null)
-            updateProcedureForWeb(ctx, patient, attrs, issuerOfAccessionNumber);
+            updateProcedureForWeb(ctx, patient, issuerOfAccessionNumber);
         else
-            updateProcedureForHL7(ctx, patient, attrs, issuerOfAccessionNumber);
-        updateStudyAndSeriesAttributes(ctx, issuerOfAccessionNumber);
+            updateProcedureForHL7(ctx, patient, issuerOfAccessionNumber);
+        updateStudySeriesAttributesFromMWL(ctx, issuerOfAccessionNumber);
     }
 
 
-    private void updateProcedureForHL7(ProcedureContext ctx, Patient patient, Attributes attrs,
+    private void updateProcedureForHL7(ProcedureContext ctx, Patient patient,
                                        IssuerEntity issuerOfAccessionNumber) {
-        Map<String, Attributes> mwlAttrsMap = createMWLAttrsMap(attrs);
+        Map<String, Attributes> mwlAttrsMap = createMWLAttrsMap(ctx.getAttributes());
         List<MWLItem> prevMWLItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
                 .setParameter(1, ctx.getStudyInstanceUID())
                 .getResultList();
@@ -116,22 +115,32 @@ public class ProcedureServiceEJB {
                 : AuditMessages.EventActionCode.Update);
     }
 
-    private void updateProcedureForWeb(ProcedureContext ctx, Patient patient, Attributes attrs,
+    private void updateProcedureForWeb(ProcedureContext ctx, Patient patient,
                                        IssuerEntity issuerOfAccessionNumber) {
-        Sequence spsSeq = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
-        String spsID = null;
-        for (Attributes item : spsSeq)
-            spsID = item.getString(Tag.ScheduledProcedureStepID);
+        Attributes attrs = ctx.getAttributes();
+//        Sequence spsSeq = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
+//        String spsID = null;
+//        for (Attributes item : spsSeq)
+//            spsID = item.getString(Tag.ScheduledProcedureStepID);
+        ctx.setSpsID(attrs.getSequence(Tag.ScheduledProcedureStepSequence).get(0).getString(Tag.ScheduledProcedureStepID));
         try {
-            MWLItem mwlItem = em.createNamedQuery(MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID_EAGER, MWLItem.class)
-                    .setParameter(1, ctx.getStudyInstanceUID())
-                    .setParameter(2, spsID).getSingleResult();
+            MWLItem mwlItem = findMWLItem(ctx);
             mwlItem.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
             mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         } catch (NoResultException e) {
             persistMWL(ctx, patient, attrs, issuerOfAccessionNumber);
             ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
+        }
+    }
+
+    public MWLItem findMWLItem(ProcedureContext ctx) {
+        try {
+            return em.createNamedQuery(MWLItem.FIND_BY_STUDY_UID_AND_SPS_ID_EAGER, MWLItem.class)
+                    .setParameter(1, ctx.getStudyInstanceUID())
+                    .setParameter(2, ctx.getSpsID()).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         }
     }
 
@@ -145,7 +154,8 @@ public class ProcedureServiceEJB {
         LOG.info("{}: Create {}", ctx, mwlItem);
     }
 
-    private IssuerEntity findOrCreateIssuer(Attributes item) {
+    private IssuerEntity findOrCreateIssuer(Attributes attrs) {
+        Attributes item = attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence);
         return item != null && !item.isEmpty() ? issuerService.mergeOrCreate(new Issuer(item)) : null;
     }
 
@@ -197,35 +207,65 @@ public class ProcedureServiceEJB {
         }
     }
 
-    private void updateStudyAndSeriesAttributes(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber) {
+    private boolean updateStudySeriesAttributesFromMWL(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber) {
         Attributes mwlAttr = ctx.getAttributes();
-        List<Series> seriesList = new ArrayList<>();
+        boolean studyUpdated = false;
         try {
-             seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
+            List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
                     .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
             if (!seriesList.isEmpty()) {
                 Study study = seriesList.get(0).getStudy();
                 Attributes studyAttr = study.getAttributes();
                 Attributes attr = new Attributes();
-                if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE, mwlAttr, attr, ctx.getAttributeFilter().getSelection())) {
+                studyUpdated = studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE, mwlAttr, attr, ctx.getAttributeFilter().getSelection());
+                if (studyUpdated) {
                     if (study.getIssuerOfAccessionNumber() != null && !study.getIssuerOfAccessionNumber().equals(issuerOfAccessionNumber))
                         study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
                     study.setAttributes(studyAttr, ctx.getAttributeFilter(), ctx.getFuzzyStr());
-                    for (Series series : seriesList) {
-                        Attributes seriesAttr = series.getAttributes();
-                        Sequence rqAttrsSeq = seriesAttr.newSequence(Tag.RequestAttributesSequence, 1);
-                        Sequence spsSeq = mwlAttr.getSequence(Tag.ScheduledProcedureStepSequence);
-                        for (Attributes item : spsSeq) {
-                            Attributes reqAttr = createRequestAttrs(mwlAttr, item);
-                            rqAttrsSeq.add(reqAttr);
-                        }
-                        setRequestAttributes(series, seriesAttr, ctx.getFuzzyStr(), issuerOfAccessionNumber);
-                    }
+                    if (ctx.getUpdateSeriesUIDs().isEmpty())
+                        updateAllSeries(ctx, issuerOfAccessionNumber, seriesList);
+                    else
+                        updateSelectedSeries(ctx, issuerOfAccessionNumber, seriesList);
                 }
             }
         } finally {
-            if (!seriesList.isEmpty())
+            if (studyUpdated)
                 LOG.info("Study and series attributes updated successfully : " + ctx.getStudyInstanceUID());
+        }
+        return studyUpdated;
+    }
+
+    private void updateSelectedSeries(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, List<Series> seriesList) {
+        for (Series series : seriesList)
+            if (ctx.getUpdateSeriesUIDs().contains(series.getSeriesInstanceUID()))
+                updateSeriesAttributes(ctx, issuerOfAccessionNumber, series);
+    }
+
+    private void updateAllSeries(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, List<Series> seriesList) {
+        for (Series series : seriesList)
+            updateSeriesAttributes(ctx, issuerOfAccessionNumber, series);
+    }
+
+    private void updateSeriesAttributes(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, Series series) {
+        Attributes mwlAttr = ctx.getAttributes();
+        Attributes seriesAttr = series.getAttributes();
+        Sequence rqAttrsSeq = seriesAttr.newSequence(Tag.RequestAttributesSequence, 1);
+        Sequence spsSeq = mwlAttr.getSequence(Tag.ScheduledProcedureStepSequence);
+        for (Attributes item : spsSeq) {
+            Attributes reqAttr = createRequestAttrs(mwlAttr, item);
+            rqAttrsSeq.add(reqAttr);
+        }
+        setRequestAttributes(series, seriesAttr, ctx.getFuzzyStr(), issuerOfAccessionNumber);
+    }
+
+    public void updateStudySeriesAttributes(ProcedureContext ctx) {
+        try {
+            IssuerEntity issuerOfAccessionNumber = findOrCreateIssuer(ctx.getAttributes());
+            if (updateStudySeriesAttributesFromMWL(ctx, issuerOfAccessionNumber))
+                ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        } catch (Exception e) {
+            ctx.setException(e);
+            throw e;
         }
     }
 

@@ -43,7 +43,6 @@ package org.dcm4chee.arc.study.impl;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
 import org.dcm4chee.arc.code.CodeCache;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
@@ -76,44 +75,55 @@ public class StudyServiceEJB {
     private IssuerService issuerService;
 
     public void updateStudy(StudyMgtContext ctx) {
-        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         AttributeFilter filter = ctx.getStudyAttributeFilter();
+        Study study = findStudy(ctx);
         Attributes attrs = new Attributes(ctx.getAttributes(), filter.getSelection());
+        if (attrs.equals(study.getAttributes()))
+            return;
+
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        ctx.setStudy(study);
+        if (study.getPatient().getPk() != ctx.getPatient().getPk())
+            throw new PatientMismatchException("" + ctx.getPatient() + " does not match " +
+                    study.getPatient() + " in existing " + study);
+
+        study.setAttributes(attrs, filter, ctx.getFuzzyStr());
+        study.setIssuerOfAccessionNumber(
+                findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
+        setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
+                .setParameter(1, study)
+                .executeUpdate();
+    }
+
+    public Study findStudy(StudyMgtContext ctx) {
+        Study study;
         try {
-            Study study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
+            study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                     .setParameter(1, ctx.getStudyInstanceUID())
                     .getSingleResult();
-            if (attrs.equals(study.getAttributes()))
-                return;
-
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-            ctx.setStudy(study);
-            if (study.getPatient().getPk() != ctx.getPatient().getPk())
-                throw new PatientMismatchException("" + ctx.getPatient() + " does not match " +
-                        study.getPatient() + " in existing " + study);
-
-            study.setAttributes(attrs, filter, ctx.getFuzzyStr());
-            study.setIssuerOfAccessionNumber(
-                    findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
-            setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));
-            em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
-                    .setParameter(1, study)
-                    .executeUpdate();
         } catch (NoResultException e) {
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
-            Study study = new Study();
-            study.setCompleteness(Completeness.COMPLETE);
-            study.setRejectionState(RejectionState.EMPTY);
-            study.setAccessControlID(arcAE.storeAccessControlID(
-                    ctx.getRemoteHostName(), null, ctx.getApplicationEntity().getAETitle(), ctx.getAttributes()));
-            study.setAttributes(attrs, filter, ctx.getFuzzyStr());
-            study.setIssuerOfAccessionNumber(
-                    findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
-            setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));
-            study.setPatient(ctx.getPatient());
-            ctx.setStudy(study);
-            em.persist(study);
+            study = createStudy(ctx);
         }
+        return study;
+    }
+
+    private Study createStudy(StudyMgtContext ctx) {
+        Attributes attrs = new Attributes(ctx.getAttributes(), ctx.getStudyAttributeFilter().getSelection());
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
+        Study study = new Study();
+        study.setCompleteness(Completeness.COMPLETE);
+        study.setRejectionState(RejectionState.EMPTY);
+        study.setAccessControlID(ctx.getArchiveAEExtension().storeAccessControlID(
+                ctx.getRemoteHostName(), null, ctx.getApplicationEntity().getAETitle(), ctx.getAttributes()));
+        study.setAttributes(attrs, ctx.getStudyAttributeFilter(), ctx.getFuzzyStr());
+        study.setIssuerOfAccessionNumber(
+                findOrCreateIssuer(attrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence)));
+        setCodes(study.getProcedureCodes(), attrs.getSequence(Tag.ProcedureCodeSequence));
+        study.setPatient(ctx.getPatient());
+        ctx.setStudy(study);
+        em.persist(study);
+        return study;
     }
 
     public void updateStudyExpirationDate(StudyMgtContext ctx) throws NoResultException {

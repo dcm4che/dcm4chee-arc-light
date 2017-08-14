@@ -55,6 +55,8 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -75,6 +77,7 @@ public class ProcedureContextImpl implements ProcedureContext {
     private Exception exception;
     private String spsID;
     private Association as;
+    private List<String> updateSeriesUIDs = new ArrayList<>();
 
     ProcedureContextImpl(Device device, HttpServletRequest httpRequest, ApplicationEntity ae, Association as, Socket socket,
                          HL7Segment msh) {
@@ -123,11 +126,6 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public HL7Segment getHL7MessageHeader() {
         return msh;
-    }
-
-    @Override
-    public String getCalledAET() {
-        return ae != null ? ae.getAETitle() : null;
     }
 
     @Override
@@ -189,5 +187,10 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public void setSpsID(String spsID) {
         this.spsID = spsID;
+    }
+
+    @Override
+    public List<String> getUpdateSeriesUIDs() {
+        return updateSeriesUIDs;
     }
 }

@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.study;
 
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4chee.arc.entity.Study;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -55,4 +56,6 @@ public interface StudyService {
     void updateStudy(StudyMgtContext ctx);
 
     void updateExpirationDate(StudyMgtContext ctx) throws Exception;
+
+    Study findStudy(StudyMgtContext ctx);
 }

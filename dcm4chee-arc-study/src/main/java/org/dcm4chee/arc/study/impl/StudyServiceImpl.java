@@ -42,6 +42,7 @@ package org.dcm4chee.arc.study.impl;
 
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
 
@@ -100,6 +101,11 @@ public class StudyServiceImpl implements StudyService {
             if (ctx.getEventActionCode() != null)
                 updateStudyEvent.fire(ctx);
         }
+    }
+
+    @Override
+    public Study findStudy(StudyMgtContext ctx) {
+        return ejb.findStudy(ctx);
     }
 
 }

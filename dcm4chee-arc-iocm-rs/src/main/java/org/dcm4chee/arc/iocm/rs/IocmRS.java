@@ -50,6 +50,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.keycloak.KeycloakUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.DeletionService;
@@ -60,6 +61,8 @@ import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.procedure.ProcedureContext;
+import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.rs.client.RSClient;
@@ -78,6 +81,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParsingException;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -128,6 +132,9 @@ public class IocmRS {
 
     @Inject
     private HL7Sender hl7Sender;
+
+    @Inject
+    private ProcedureService procedureService;
 
     @PathParam("AETitle")
     private String aet;
@@ -401,7 +408,7 @@ public class IocmRS {
 
             Patient patient = patientService.findPatient(patientID);
             if (patient == null)
-                throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
+                throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exist.",
                         Response.Status.NOT_FOUND));
 
             boolean studyIUIDPresent = attrs.containsValue(Tag.StudyInstanceUID);
@@ -474,6 +481,96 @@ public class IocmRS {
         }
     }
 
+    @POST
+    @Path("/mwlitems/{studyUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response moveInstanceToMWL(@PathParam("studyUID") String studyUID,
+                                      @PathParam("spsID") String spsID,
+                                      @PathParam("codeValue") String codeValue,
+                                      @PathParam("codingSchemeDesignator") String designator,
+                                      InputStream in) throws Exception {
+        logRequest();
+        Attributes instanceRefs = parseSOPInstanceReferences(in);
+
+        ProcedureContext ctx = procedureService.createProcedureContextWEB(request, null);
+        ctx.setStudyInstanceUID(studyUID);
+        ctx.setSpsID(spsID);
+
+        MWLItem mwl = procedureService.findMWLItem(ctx);
+        if (mwl == null)
+            throw new WebApplicationException(
+                    getResponse("MWLItem[studyUID=" + studyUID + ", spsID=" + spsID + "] does not exist.",
+                            Response.Status.NOT_FOUND));
+
+        ctx.setAttributes(mwl.getAttributes());
+        ctx.setPatient(mwl.getPatient());
+        updateSeriesUIDs(instanceRefs, ctx);
+
+        Code code = new Code(codeValue, designator, null, "?");
+
+        ArchiveAEExtension arcAE = getArchiveAE();
+        Map<String, String> uidMap = new HashMap<>();
+        StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
+        Collection<InstanceLocations> instanceLocations = storeService.queryInstances(session, instanceRefs, studyUID, uidMap);
+        if (instanceLocations.isEmpty())
+            throw new WebApplicationException(getResponse("No Instances found. ", Response.Status.NOT_FOUND));
+
+        final Attributes result;
+
+        if (studyUID.equals(instanceRefs.getString(Tag.StudyInstanceUID))) {
+            procedureService.updateStudySeriesAttributes(ctx);
+            result = getResult(instanceLocations);
+        }
+        else {
+            createStudyIfAbsent(studyUID, mwl, arcAE);
+            RejectionNote rjNote = toRejectionNote(code);
+            Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity(), false);
+            moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
+            result = storeService.copyInstances(session, instanceLocations, uidMap);
+            postMoveRejectInstances(instanceRefs, rjNote, session, result);
+        }
+
+        return toResponse(result);
+    }
+
+    private void createStudyIfAbsent(String studyUID, MWLItem mwl, ArchiveAEExtension arcAE) {
+        Attributes attrs = new Attributes();
+        attrs.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
+        attrs.setString(Tag.PatientID, VR.LO, mwl.getPatient().getPatientID().getID());
+        StudyMgtContext studyMgtCtx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
+        studyMgtCtx.setPatient(mwl.getPatient());
+        studyMgtCtx.setAttributes(attrs);
+        studyService.findStudy(studyMgtCtx);
+    }
+
+    private Response toResponse(Attributes result) {
+        StreamingOutput entity = new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                try (JsonGenerator gen = Json.createGenerator(out)) {
+                    new JSONWriter(gen).write(result);
+                }
+            }
+        };
+        return Response.status(status(result)).entity(entity).build();
+    }
+
+    private Attributes getResult(Collection<InstanceLocations> instanceLocations) {
+        Attributes result = new Attributes();
+        Sequence refSOPSeq = result.newSequence(Tag.ReferencedSOPSequence, instanceLocations.size());
+        for (InstanceLocations instanceLocation : instanceLocations)
+            populateResult(refSOPSeq, instanceLocation);
+        return result;
+    }
+
+    private void populateResult(Sequence refSOPSeq, InstanceLocations instanceLocation) {
+        Attributes refSOP = new Attributes(2);
+        refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, instanceLocation.getSopClassUID());
+        refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, instanceLocation.getSopInstanceUID());
+        refSOPSeq.add(refSOP);
+    }
+
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
@@ -488,7 +585,8 @@ public class IocmRS {
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         if (request.getAttribute(ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT) != null)
             if(!authenticatedUser(arcAE.getAcceptedUserRoles()))
-                throw new WebApplicationException(getResponse("User not allowed to perform this service.", Response.Status.FORBIDDEN));
+                throw new WebApplicationException(getResponse("User not allowed to perform this service.",
+                        Response.Status.FORBIDDEN));
         return arcAE;
     }
 
@@ -583,17 +681,27 @@ public class IocmRS {
             throws Exception {
         logRequest();
         Attributes instanceRefs = parseSOPInstanceReferences(in);
+
+        final Attributes result = copyMoveRejectInstances(studyUID, instanceRefs, code);
+
+        forwardRS(HttpMethod.POST, op, getArchiveAE(), instanceRefs);
+        return toResponse(result);
+    }
+
+    private RejectionNote toRejectionNote(Code code) {
+        if (code == null)
+            return null;
+        RejectionNote rjNote = getArchiveAE().getArchiveDeviceExtension().getRejectionNote(code);
+        if (rjNote == null)
+            throw new WebApplicationException(getResponse("Unknown Rejection Note Code: "
+                    + code, Response.Status.NOT_FOUND));
+        return rjNote;
+    }
+
+    private Attributes copyMoveRejectInstances(String studyUID, Attributes instanceRefs, Code code) throws Exception {
+        RejectionNote rjNote = toRejectionNote(code);
+
         ArchiveAEExtension arcAE = getArchiveAE();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-
-        RejectionNote rjNote = null;
-        if (code != null) {
-            rjNote = arcDev.getRejectionNote(code);
-            if (rjNote == null)
-                throw new WebApplicationException(getResponse("Unknown Rejection Note Code: "
-                        + code, Response.Status.NOT_FOUND));
-        }
-
         Map<String, String> uidMap = new HashMap<>();
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID, uidMap);
@@ -604,6 +712,11 @@ public class IocmRS {
 
         final Attributes result = storeService.copyInstances(session, instances, uidMap);
 
+        postMoveRejectInstances(instanceRefs, rjNote, session, result);
+        return result;
+    }
+
+    private void postMoveRejectInstances(Attributes instanceRefs, RejectionNote rjNote, StoreSession session, Attributes result) throws IOException {
         if (rjNote != null) {
             if (result.getString(Tag.FailureReason) != null) {
                 for (int k=0; k < instanceRefs.getSequence(Tag.ReferencedSeriesSequence).size();) {
@@ -630,23 +743,12 @@ public class IocmRS {
             if (!instanceRefs.getSequence(Tag.ReferencedSeriesSequence).isEmpty())
                 reject(session, instanceRefs, rjNote);
         }
-
-        forwardRS(HttpMethod.POST, op, arcAE, instanceRefs);
-        StreamingOutput entity = new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
-                try (JsonGenerator gen = Json.createGenerator(out)) {
-                    new JSONWriter(gen).write(result);
-                }
-            }
-        };
-        return Response.status(status(result)).entity(entity).build();
     }
 
     private Response.Status status(Attributes result) {
         return result.getSequence(Tag.ReferencedSOPSequence).isEmpty()
                 ? Response.Status.CONFLICT
-                : result.getSequence(Tag.FailedSOPSequence).isEmpty()
+                : result.getSequence(Tag.FailedSOPSequence) == null || result.getSequence(Tag.FailedSOPSequence).isEmpty()
                     ? Response.Status.OK : Response.Status.ACCEPTED;
     }
 
@@ -755,6 +857,15 @@ public class IocmRS {
             }
         }
         return attr;
+    }
+
+    private void updateSeriesUIDs(Attributes instanceRefs, ProcedureContext ctx) {
+        Sequence refSeries = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);
+        if (refSeries == null)
+            return;
+
+        for (Attributes item : refSeries)
+            ctx.getUpdateSeriesUIDs().add(item.getString(Tag.SeriesInstanceUID));
     }
 
     private Attributes parseSOPInstanceReferences(InputStream in) throws IOException {

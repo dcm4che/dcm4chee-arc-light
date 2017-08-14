@@ -47,6 +47,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.MPPS;
+import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
@@ -93,6 +94,11 @@ public class ProcedureServiceImpl implements ProcedureService {
     }
 
     @Override
+    public MWLItem findMWLItem(ProcedureContext ctx) {
+        return ejb.findMWLItem(ctx);
+    }
+
+    @Override
     public void updateProcedure(ProcedureContext ctx) {
         try {
             ejb.updateProcedure(ctx);
@@ -111,6 +117,16 @@ public class ProcedureServiceImpl implements ProcedureService {
         if (ctx.getEventActionCode() != null) {
             LOG.info("Successfully deleted MWLItem {} from database." + ctx.getSpsID());
             procedureEvent.fire(ctx);
+        }
+    }
+
+    @Override
+    public void updateStudySeriesAttributes(ProcedureContext ctx) throws Exception {
+        try {
+            ejb.updateStudySeriesAttributes(ctx);
+        } finally {
+            if (ctx.getEventActionCode() != null)
+                procedureEvent.fire(ctx);
         }
     }
 
