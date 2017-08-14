@@ -523,7 +523,7 @@ public class IocmRS {
             result = getResult(instanceLocations);
         }
         else {
-            createStudyIfAbsent(studyUID, mwl, arcAE);
+            createStudyIfAbsent(mwl, arcAE);
             RejectionNote rjNote = toRejectionNote(code);
             Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity(), false);
             moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
@@ -537,13 +537,10 @@ public class IocmRS {
         return toResponse(result);
     }
 
-    private void createStudyIfAbsent(String studyUID, MWLItem mwl, ArchiveAEExtension arcAE) {
-        Attributes attrs = new Attributes();
-        attrs.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
-        attrs.setString(Tag.PatientID, VR.LO, mwl.getPatient().getPatientID().getID());
+    private void createStudyIfAbsent(MWLItem mwl, ArchiveAEExtension arcAE) {
         StudyMgtContext studyMgtCtx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
         studyMgtCtx.setPatient(mwl.getPatient());
-        studyMgtCtx.setAttributes(attrs);
+        studyMgtCtx.setAttributes(mwl.getAttributes());
         studyService.findStudy(studyMgtCtx);
     }
 

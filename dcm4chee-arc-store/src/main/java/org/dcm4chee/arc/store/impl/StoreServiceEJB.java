@@ -694,23 +694,25 @@ public class StoreServiceEJB {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.Study);
+        updateStudyAttributesFromMWL(ctx, study, arcDev);
         Attributes.UpdatePolicy updatePolicy =
                 ctx.isCopyOrMove() ? arcAE.copyMoveUpdatePolicy() : filter.getAttributeUpdatePolicy();
 
-        if (updatePolicy == null)
+        if (updatePolicy == null) {
             return study;
+        }
 
         Attributes attrs = study.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs, updatePolicy);
-        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection()))
+        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection())) {
             return study;
+        }
 
         updateInfo.log(session, study, attrs);
         study = em.find(Study.class, study.getPk());
         study.setAttributes(attrs, filter, arcDev.getFuzzyStr());
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
-        updateStudyAttributesFromMWL(ctx, study, arcDev);
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
                 .setParameter(1, study)
                 .executeUpdate();
