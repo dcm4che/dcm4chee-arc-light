@@ -635,6 +635,7 @@ public class StoreServiceEJB {
             if (p != null && p.getPk() == associatedPat.getPk())
                 return;
         }
+        LOG.warn(StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG, idWithIssuer, patMgtCtx.getPatientID());
         throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
                 StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
     }
@@ -644,9 +645,11 @@ public class StoreServiceEJB {
         AcceptMissingPatientID acceptMissingPatientID = arcAE.acceptMissingPatientID();
         if (acceptMissingPatientID != AcceptMissingPatientID.CREATE && acceptConflictingPID != AcceptConflictingPatientID.YES)
             if ((associatedPat.getPatientID() != null && patMgtCtx.getPatientID() == null)
-                    || (associatedPat.getPatientID() == null && patMgtCtx.getPatientID() != null))
+                    || (associatedPat.getPatientID() == null && patMgtCtx.getPatientID() != null)) {
+                LOG.warn(StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG, associatedPat.getPatientID(), patMgtCtx.getPatientID());
                 throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
                         StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
+            }
     }
 
     private Patient updatePatient(StoreContext ctx, Patient pat) {
