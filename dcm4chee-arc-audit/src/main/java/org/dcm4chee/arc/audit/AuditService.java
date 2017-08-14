@@ -906,7 +906,7 @@ public class AuditService {
         HttpServletRequest req  = ctx.getHttpRequest();
         BuildAuditInfo i = new BuildAuditInfo.Builder().callingHost(ctx.getRemoteHostName())
                 .callingAET(KeycloakUtils.getUserName(req))
-                .calledAET(ctx.getCalledAET()).studyUID(ctx.getStudyInstanceUID())
+                .calledAET(req.getRequestURI()).studyUID(ctx.getStudyInstanceUID())
                 .accNum(getAcc(attr)).pID(getPID(attr)).pName(pName(ctx.getPatient().getAttributes()))
                 .outcome(getOD(ctx.getException())).studyDate(getSD(attr)).build();
         return i;
