@@ -104,34 +104,29 @@ public class ProcedureServiceEJB {
                 if (mwlItem.getPatient().getPk() != patient.getPk())
                     throw new PatientMismatchException("" + patient + " does not match " +
                             mwlItem.getPatient() + " in previous " + mwlItem);
-                mwlItem.setAttributes(mwlAttrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
-                mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
+                updateMWL(ctx, issuerOfAccessionNumber, mwlItem, mwlAttrs);
             }
         }
         for (Attributes mwlAttrs : mwlAttrsMap.values())
-            persistMWL(ctx, patient, mwlAttrs, issuerOfAccessionNumber);
-        ctx.setEventActionCode(prevMWLItems.isEmpty()
-                ? AuditMessages.EventActionCode.Create
-                : AuditMessages.EventActionCode.Update);
+            createMWL(ctx, patient, mwlAttrs, issuerOfAccessionNumber);
+    }
+
+    private void updateMWL(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, MWLItem mwlItem, Attributes mwlAttrs) {
+        mwlItem.setAttributes(mwlAttrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
+        mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
     }
 
     private void updateProcedureForWeb(ProcedureContext ctx, Patient patient,
                                        IssuerEntity issuerOfAccessionNumber) {
         Attributes attrs = ctx.getAttributes();
-//        Sequence spsSeq = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
-//        String spsID = null;
-//        for (Attributes item : spsSeq)
-//            spsID = item.getString(Tag.ScheduledProcedureStepID);
         ctx.setSpsID(attrs.getSequence(Tag.ScheduledProcedureStepSequence).get(0).getString(Tag.ScheduledProcedureStepID));
-        try {
-            MWLItem mwlItem = findMWLItem(ctx);
-            mwlItem.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
-            mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        } catch (NoResultException e) {
-            persistMWL(ctx, patient, attrs, issuerOfAccessionNumber);
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
-        }
+
+        MWLItem mwlItem = findMWLItem(ctx);
+        if (mwlItem == null)
+            createMWL(ctx, patient, attrs, issuerOfAccessionNumber);
+        else
+            updateMWL(ctx, issuerOfAccessionNumber, mwlItem, attrs);
     }
 
     public MWLItem findMWLItem(ProcedureContext ctx) {
@@ -144,13 +139,14 @@ public class ProcedureServiceEJB {
         }
     }
 
-    private void persistMWL(ProcedureContext ctx, Patient patient, Attributes attrs,
+    private void createMWL(ProcedureContext ctx, Patient patient, Attributes attrs,
                             IssuerEntity issuerOfAccessionNumber) {
         MWLItem mwlItem = new MWLItem();
         mwlItem.setPatient(patient);
         mwlItem.setAttributes(attrs, ctx.getAttributeFilter(), ctx.getFuzzyStr());
         mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
         em.persist(mwlItem);
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
         LOG.info("{}: Create {}", ctx, mwlItem);
     }
 
