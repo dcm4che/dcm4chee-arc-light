@@ -710,10 +710,25 @@ public class StoreServiceEJB {
         study.setAttributes(attrs, filter, arcDev.getFuzzyStr());
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
+        updateStudyAttributesFromMWL(ctx, study, arcDev);
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
                 .setParameter(1, study)
                 .executeUpdate();
         return study;
+    }
+
+    private void updateStudyAttributesFromMWL(StoreContext ctx, Study study, ArchiveDeviceExtension arcDev) {
+        if (ctx.getMWLItem() == null)
+            return;
+        Attributes studyAttr = study.getAttributes();
+        Attributes attr = new Attributes();
+        IssuerEntity issuerOfAccessionNumber = findOrCreateIssuer(ctx.getMWLItem().getAttributes(), Tag.IssuerOfAccessionNumberSequence);
+        AttributeFilter mwlAttributeFilter = arcDev.getAttributeFilter(Entity.MWL);
+        if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE, ctx.getMWLItem().getAttributes(), attr, mwlAttributeFilter.getSelection())) {
+            if (study.getIssuerOfAccessionNumber() != null && !study.getIssuerOfAccessionNumber().equals(issuerOfAccessionNumber))
+                study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
+            study.setAttributes(studyAttr, mwlAttributeFilter, arcDev.getFuzzyStr());
+        }
     }
 
     private Series updateSeries(StoreContext ctx, Series series) {
