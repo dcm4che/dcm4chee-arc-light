@@ -304,17 +304,6 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
-    public boolean isDestinationRequestor() {
-        return (httpServletRequestInfo != null)
-                || requestAssociation == storeAssociation;
-    }
-
-    @Override
-    public boolean isLocalRequestor() {
-        return httpRequest == null && requestAssociation == null;
-    }
-
-    @Override
     public IDWithIssuer[] getPatientIDs() {
         return patientIDs;
     }

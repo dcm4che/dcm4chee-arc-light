@@ -642,7 +642,7 @@ public class AuditService {
         String outcome = createOutcome(eventType, ctx);
         String warning = createWarning(eventType, ctx);
 
-        BuildAuditInfo i = ctx.isLocalRequestor()
+        BuildAuditInfo i = isTriggeredByExport(ctx)
                             ? httpServletRequestInfo != null
                                 ? new BuildAuditInfo.Builder()
                                     .callingAET(ctx.getHttpServletRequestInfo().requesterUserID)
@@ -692,6 +692,11 @@ public class AuditService {
         addInstanceInfoForRetrieve(obj, il);
         addInstanceInfoForRetrieve(obj, ctx.getCStoreForwards());
         writeSpoolFile(eventType, obj);
+    }
+
+    private boolean isTriggeredByExport(RetrieveContext ctx) {
+        return (ctx.getRequestAssociation() == null && ctx.getStoreAssociation() != null)
+                || (ctx.getRequestAssociation() == null && ctx.getStoreAssociation() == null && ctx.getException() != null);
     }
 
     private String createOutcome(AuditServiceUtils.EventType eventType, RetrieveContext ctx) {
