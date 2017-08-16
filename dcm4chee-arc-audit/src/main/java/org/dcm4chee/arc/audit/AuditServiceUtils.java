@@ -46,7 +46,6 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
 import java.nio.file.Path;
-import java.util.*;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -176,17 +175,13 @@ class AuditServiceUtils {
                         : null;
         }
 
-        static HashSet<EventType> forHL7(PatientMgtContext ctx) {
-            HashSet<EventType> eventType = new HashSet<>();
-            eventType.add(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
+        static EventType forHL7(PatientMgtContext ctx) {
+            return ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
                     ? PAT_CREATE
                     : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
                     ? PAT_UPDATE
                     : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Delete)
-                    ? ctx.getHttpRequest() != null ? PAT_DELETE : PAT_DLT_SC : null);
-            if (ctx.getPreviousAttributes() != null || ctx.getPreviousPatientID() != null)
-                eventType.add(PAT_DELETE);
-            return eventType;
+                    ? ctx.getHttpRequest() != null ? PAT_DELETE : PAT_DLT_SC : null;
         }
 
         static EventType forProcedure(String eventActionCode) {
