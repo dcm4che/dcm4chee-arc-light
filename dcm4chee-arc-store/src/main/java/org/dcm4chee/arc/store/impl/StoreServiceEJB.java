@@ -637,10 +637,10 @@ public class StoreServiceEJB {
                 return;
         }
         LOG.warn(StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG,
-                idWithIssuer,
-                study.getStudyInstanceUID(),
                 patMgtCtx.getPatientID(),
-                ctx.getStudyInstanceUID());
+                ctx.getStudyInstanceUID(),
+                idWithIssuer,
+                study.getStudyInstanceUID());
         throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
                 StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
     }
@@ -654,10 +654,10 @@ public class StoreServiceEJB {
             if ((associatedPat.getPatientID() != null && patMgtCtx.getPatientID() == null)
                     || (associatedPat.getPatientID() == null && patMgtCtx.getPatientID() != null)) {
                 LOG.warn(StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG,
-                        associatedPat.getPatientID(),
-                        study.getStudyInstanceUID(),
                         patMgtCtx.getPatientID(),
-                        ctx.getStudyInstanceUID());
+                        ctx.getStudyInstanceUID(),
+                        associatedPat.getPatientID(),
+                        study.getStudyInstanceUID());
                 throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
                         StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
             }

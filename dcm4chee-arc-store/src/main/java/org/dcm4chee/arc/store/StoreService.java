@@ -44,7 +44,7 @@ public interface StoreService {
     String PATIENT_ID_MISSING_IN_OBJECT_MSG = "Storage denied as Patient ID missing in object.";
     String NOT_AUTHORIZED = "Storage denied.";
     String FAILED_TO_QUERY_STORE_PERMISSION_SERVICE = "Failed to query Store Permission Service";
-    String CONFLICTING_PID_NOT_ACCEPTED_MSG = "Patient ID in incoming object does not match with that of patient associated with study.";
+    String CONFLICTING_PID_NOT_ACCEPTED_MSG = "Patient ID in incoming object [PID={}, StudyIUID={}] does not match with that of patient associated with study [PID={}, StudyIUID={}].";
 
     StoreSession newStoreSession(Association as);
 
