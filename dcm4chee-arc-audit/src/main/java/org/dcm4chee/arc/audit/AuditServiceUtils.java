@@ -74,9 +74,7 @@ class AuditServiceUtils {
         RTRV_TRF_E(EventClass.RETRIEVE_ERR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
 
-        STG_CMT__P(EventClass.STGCMT, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
-        STG_CMT__E(EventClass.STGCMT, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
+        STG_COMMIT(EventClass.STGCMT, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
 
         INST_RETRV(EventClass.INST_RETRIEVED, AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Read,

@@ -173,24 +173,27 @@ public class AuditService {
         SpoolFileReader reader = new SpoolFileReader(path);
         BuildEventIdentification ei = toBuildEventIdentification(eventType, null, getEventTime(path, auditLogger));
         AuditInfo archiveInfo = new AuditInfo(reader.getMainInfo());
-        BuildActiveParticipant[] activeParticipants = new BuildActiveParticipant[2];
+        BuildActiveParticipant[] activeParticipants = buildApplicationActivityActiveParticipants(auditLogger, eventType, archiveInfo);
+        emitAuditMessage(auditLogger, ei, activeParticipants);
+    }
 
+    private BuildActiveParticipant[] buildApplicationActivityActiveParticipants(
+            AuditLogger auditLogger, AuditServiceUtils.EventType eventType, AuditInfo archiveInfo) {
+        BuildActiveParticipant[] activeParticipants = new BuildActiveParticipant[2];
         activeParticipants[0] = new BuildActiveParticipant.Builder(
                                 archiveInfo.getField(AuditInfo.CALLED_AET),
                                 getLocalHostName(auditLogger))
                                 .altUserID(AuditLogger.processID())
                                 .roleIDCode(eventType.destination)
                                 .build();
-
-        if (archiveInfo.getField(AuditInfo.CALLING_AET) != null)
+        if (isServiceUserTriggered(archiveInfo.getField(AuditInfo.CALLING_AET)))
             activeParticipants[1] = new BuildActiveParticipant.Builder(
                                     archiveInfo.getField(AuditInfo.CALLING_AET),
                                     archiveInfo.getField(AuditInfo.CALLING_HOST)).
                                     requester(true)
                                     .roleIDCode(eventType.source)
                                     .build();
-
-        emitAuditMessage(auditLogger, ei, activeParticipants);
+        return activeParticipants;
     }
 
     void spoolInstancesDeleted(StoreContext ctx) {
@@ -970,7 +973,7 @@ public class AuditService {
         AuditInfo hl7I = new AuditInfo(reader.getMainInfo());
         BuildEventIdentification ei = toBuildEventIdentification(et, hl7I.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
         BuildActiveParticipant[] activeParticipants = new BuildActiveParticipant[2];
-        if (isPatientRecordUserTriggered(et)) {
+        if (isServiceUserTriggered(et.source)) {
             activeParticipants[0] = new BuildActiveParticipant.Builder(
                                     hl7I.getField(AuditInfo.CALLED_AET),
                                     getLocalHostName(auditLogger))
@@ -1000,10 +1003,6 @@ public class AuditService {
                                                     .detail(getPod("HL7MessageType", hl7I.getField(AuditInfo.HL7_MESSAGE_TYPE)))
                                                     .build();
         emitAuditMessage(auditLogger, ei, activeParticipants, poi);
-    }
-
-    private boolean isPatientRecordUserTriggered(AuditServiceUtils.EventType et) {
-        return et.source != null;
     }
 
     void spoolProcedureRecord(ProcedureContext ctx) {
@@ -1161,7 +1160,7 @@ public class AuditService {
                                 ai.getField(AuditInfo.DEST_NAP_ID))
                                 .roleIDCode(et.destination)
                                 .build();
-        if (ai.getField(AuditInfo.CALLING_AET) != null) {
+        if (isServiceUserTriggered(ai.getField(AuditInfo.CALLING_AET))) {
             activeParticipants[1] = new BuildActiveParticipant.Builder(
                                     ai.getField(AuditInfo.CALLED_AET),
                                     getLocalHostName(auditLogger)).altUserID(AuditLogger.processID())
@@ -1181,6 +1180,10 @@ public class AuditService {
                                     .roleIDCode(et.source)
                                     .build();
         return activeParticipants;
+    }
+
+    private boolean isServiceUserTriggered(Object val) {
+        return val != null;
     }
 
     void spoolStgCmt(StgCmtEventInfo stgCmtEventInfo) {
@@ -1225,7 +1228,7 @@ public class AuditService {
                                     .build();
                 objs.add(new AuditInfo(i));
                 objs.addAll(aiSet);
-                writeSpoolFile(AuditServiceUtils.EventType.STG_CMT__E, objs);
+                writeSpoolFile(AuditServiceUtils.EventType.STG_COMMIT, objs);
             }
             if (success != null && !success.isEmpty()) {
                 LinkedHashSet<Object> objs = new LinkedHashSet<>();
@@ -1244,7 +1247,7 @@ public class AuditService {
                                         .build();
                     objs.add(new AuditInfo(ii));
                 }
-                writeSpoolFile(AuditServiceUtils.EventType.STG_CMT__P, objs);
+                writeSpoolFile(AuditServiceUtils.EventType.STG_COMMIT, objs);
             }
         } catch (ConfigurationException e) {
             LOG.error(e.getMessage(), stgCmtEventInfo.getRemoteAET());
