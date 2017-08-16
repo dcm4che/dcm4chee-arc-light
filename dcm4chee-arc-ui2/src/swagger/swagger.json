@@ -4229,10 +4229,22 @@
     "Realm": {
       "type": "object",
       "required": [
+        "auth-server-url",
+        "realm-name",
         "user",
         "roles"
       ],
       "properties": {
+        "auth-server-url": {
+          "title": "auth server url",
+          "description": "The base URL of the Keycloak server",
+          "type": "string"
+        },
+        "realm-name": {
+          "title": "realm name",
+          "description": "Name of the realm",
+          "type": "string"
+        },
         "user": {
           "title": "user",
           "description": "user name",
