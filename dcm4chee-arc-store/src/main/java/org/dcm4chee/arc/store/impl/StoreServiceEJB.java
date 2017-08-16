@@ -579,14 +579,14 @@ public class StoreServiceEJB {
                     study.setExpirationDate(ctx.getExpirationDate());
                 result.setCreatedStudy(study);
             } else {
-                checkConflictingPID(patMgtCtx, ctx, study.getPatient());
+                checkConflictingPID(patMgtCtx, ctx, study);
                 checkStorePermission(ctx, study.getPatient());
                 study = updateStudy(ctx, study);
                 updatePatient(ctx, study.getPatient());
             }
             series = createSeries(ctx, study, result);
         } else {
-            checkConflictingPID(patMgtCtx, ctx, series.getStudy().getPatient());
+            checkConflictingPID(patMgtCtx, ctx, series.getStudy());
             checkStorePermission(ctx, series.getStudy().getPatient());
             series = updateSeries(ctx, series);
             updateStudy(ctx, series.getStudy());
@@ -613,8 +613,9 @@ public class StoreServiceEJB {
         return true;
     }
 
-    private void checkConflictingPID(PatientMgtContext patMgtCtx, StoreContext ctx, Patient associatedPat)
+    private void checkConflictingPID(PatientMgtContext patMgtCtx, StoreContext ctx, Study study)
             throws DicomServiceException {
+        Patient associatedPat = study.getPatient();
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         AcceptConflictingPatientID acceptConflictingPID = arcAE.acceptConflictingPatientID();
@@ -622,7 +623,7 @@ public class StoreServiceEJB {
             return;
 
         if (patMgtCtx.getPatientID() == null || associatedPat.getPatientID() == null) {
-            checkMissingConflicting(patMgtCtx, associatedPat, arcAE, acceptConflictingPID);
+            checkMissingConflicting(patMgtCtx, study, arcAE, ctx);
             return;
         }
 
@@ -635,18 +636,28 @@ public class StoreServiceEJB {
             if (p != null && p.getPk() == associatedPat.getPk())
                 return;
         }
-        LOG.warn(StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG, idWithIssuer, patMgtCtx.getPatientID());
+        LOG.warn(StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG,
+                idWithIssuer,
+                study.getStudyInstanceUID(),
+                patMgtCtx.getPatientID(),
+                ctx.getStudyInstanceUID());
         throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
                 StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
     }
 
-    private void checkMissingConflicting(PatientMgtContext patMgtCtx, Patient associatedPat, ArchiveAEExtension arcAE,
-                                         AcceptConflictingPatientID acceptConflictingPID) throws DicomServiceException {
+    private void checkMissingConflicting(PatientMgtContext patMgtCtx, Study study, ArchiveAEExtension arcAE,
+                                         StoreContext ctx) throws DicomServiceException {
+        Patient associatedPat = study.getPatient();
         AcceptMissingPatientID acceptMissingPatientID = arcAE.acceptMissingPatientID();
-        if (acceptMissingPatientID != AcceptMissingPatientID.CREATE && acceptConflictingPID != AcceptConflictingPatientID.YES)
+        if (acceptMissingPatientID != AcceptMissingPatientID.CREATE
+                && arcAE.acceptConflictingPatientID() != AcceptConflictingPatientID.YES)
             if ((associatedPat.getPatientID() != null && patMgtCtx.getPatientID() == null)
                     || (associatedPat.getPatientID() == null && patMgtCtx.getPatientID() != null)) {
-                LOG.warn(StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG, associatedPat.getPatientID(), patMgtCtx.getPatientID());
+                LOG.warn(StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG,
+                        associatedPat.getPatientID(),
+                        study.getStudyInstanceUID(),
+                        patMgtCtx.getPatientID(),
+                        ctx.getStudyInstanceUID());
                 throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
                         StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
             }
