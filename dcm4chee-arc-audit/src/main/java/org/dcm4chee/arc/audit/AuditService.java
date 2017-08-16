@@ -71,7 +71,6 @@ import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
