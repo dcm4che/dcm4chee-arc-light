@@ -359,7 +359,7 @@ public class AuditService {
                                 .moveAET(ctx.getRequestURI())
                                 .destAET(ctx.getDestinationAET())
                                 .warning(warning)
-                                .studyUID(ctx.getKeys().getString(Tag.StudyInstanceUID))
+                                .studyUIDAccNumDate(ctx.getKeys())
                                 .outcome(outcome)
                                 .build();
         writeSpoolFile(AuditServiceUtils.EventType.INST_RETRV, info);
@@ -1187,71 +1187,80 @@ public class AuditService {
     }
 
     void spoolStgCmt(StgCmtEventInfo stgCmtEventInfo) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        Attributes eventInfo = stgCmtEventInfo.getExtendedEventInfo();
+        Sequence failed = eventInfo.getSequence(Tag.FailedSOPSequence);
+        Sequence success = eventInfo.getSequence(Tag.ReferencedSOPSequence);
+        String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
+                ? buildStrings(eventInfo.getStrings(Tag.StudyInstanceUID)) : arcDev.auditUnknownStudyInstanceUID();
+        if (failed != null && !failed.isEmpty()) {
+            Set<String> failureReasons = new HashSet<>();
+            Set<AuditInfo> aiSet = new HashSet<>();
+            LinkedHashSet<Object> objs = new LinkedHashSet<>();
+            for (Attributes item : failed) {
+                BuildAuditInfo ii = new BuildAuditInfo.Builder()
+                        .sopCUID(item.getString(Tag.ReferencedSOPClassUID))
+                        .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID)).build();
+                String outcome = item.getInt(Tag.FailureReason, 0) == Status.NoSuchObjectInstance
+                        ? "NoSuchObjectInstance" : item.getInt(Tag.FailureReason, 0) == Status.ClassInstanceConflict
+                        ? "ClassInstanceConflict" : "ProcessingFailure";
+                failureReasons.add(outcome);
+                aiSet.add(new AuditInfo(ii));
+            }
+            BuildAuditInfo i = new BuildAuditInfo.Builder()
+                                .callingAET(storageCmtCallingAET(stgCmtEventInfo))
+                                .callingHost(storageCmtCallingHost(stgCmtEventInfo))
+                                .calledAET(storageCmtCalledAET(stgCmtEventInfo))
+                                .pIDAndName(toPIDAndName(eventInfo))
+                                .studyUID(studyUID)
+                                .outcome(buildStrings(failureReasons.toArray(new String[failureReasons.size()])))
+                                .build();
+            objs.add(new AuditInfo(i));
+            objs.addAll(aiSet);
+            writeSpoolFile(AuditServiceUtils.EventType.STG_COMMIT, objs);
+        }
+        if (success != null && !success.isEmpty()) {
+            BuildAuditInfo[] buildAuditInfos = new BuildAuditInfo[success.size()+1];
+            buildAuditInfos[0] = new BuildAuditInfo.Builder()
+                                .callingAET(storageCmtCallingAET(stgCmtEventInfo))
+                                .callingHost(storageCmtCallingHost(stgCmtEventInfo))
+                                .calledAET(storageCmtCalledAET(stgCmtEventInfo))
+                                .pIDAndName(toPIDAndName(eventInfo))
+                                .studyUID(studyUID)
+                                .build();
+            int i = 0;
+            for (Attributes item : success) {
+                buildAuditInfos[i+1] = new BuildAuditInfo.Builder()
+                                    .sopCUID(item.getString(Tag.ReferencedSOPClassUID))
+                                    .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID))
+                                    .build();
+                i++;
+            }
+            writeSpoolFile(AuditServiceUtils.EventType.STG_COMMIT, buildAuditInfos);
+        }
+    }
+
+    private String storageCmtCallingHost(StgCmtEventInfo stgCmtEventInfo) {
         try {
-            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            String callingAET = stgCmtEventInfo.getRequest() != null
-                                    ? KeycloakUtils.getUserName(stgCmtEventInfo.getRequest())
-                                    : stgCmtEventInfo.getRemoteAET();
-            String calledAET = stgCmtEventInfo.getRequest() != null
-                                ? stgCmtEventInfo.getRequest().getRequestURI()
-                                : stgCmtEventInfo.getLocalAET();
-            ApplicationEntity remoteAE = stgCmtEventInfo.getRemoteAET() != null
-                    ? aeCache.findApplicationEntity(stgCmtEventInfo.getRemoteAET()) : null;
-            String callingHost = remoteAE != null
-                    ? remoteAE.getConnections().get(0).getHostname() : stgCmtEventInfo.getRequest().getRemoteHost();
-            Attributes eventInfo = stgCmtEventInfo.getExtendedEventInfo();
-            Sequence failed = eventInfo.getSequence(Tag.FailedSOPSequence);
-            Sequence success = eventInfo.getSequence(Tag.ReferencedSOPSequence);
-            String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
-                    ? buildStrings(eventInfo.getStrings(Tag.StudyInstanceUID)) : arcDev.auditUnknownStudyInstanceUID();
-            if (failed != null && !failed.isEmpty()) {
-                Set<String> failureReasons = new HashSet<>();
-                Set<AuditInfo> aiSet = new HashSet<>();
-                LinkedHashSet<Object> objs = new LinkedHashSet<>();
-                for (Attributes item : failed) {
-                    BuildAuditInfo ii = new BuildAuditInfo.Builder()
-                            .sopCUID(item.getString(Tag.ReferencedSOPClassUID))
-                            .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID)).build();
-                    String outcome = item.getInt(Tag.FailureReason, 0) == Status.NoSuchObjectInstance
-                            ? "NoSuchObjectInstance" : item.getInt(Tag.FailureReason, 0) == Status.ClassInstanceConflict
-                            ? "ClassInstanceConflict" : "ProcessingFailure";
-                    failureReasons.add(outcome);
-                    aiSet.add(new AuditInfo(ii));
-                }
-                BuildAuditInfo i = new BuildAuditInfo.Builder()
-                                    .callingAET(callingAET)
-                                    .callingHost(callingHost)
-                                    .calledAET(calledAET)
-                                    .pIDAndName(toPIDAndName(eventInfo))
-                                    .studyUID(studyUID)
-                                    .outcome(buildStrings(failureReasons.toArray(new String[failureReasons.size()])))
-                                    .build();
-                objs.add(new AuditInfo(i));
-                objs.addAll(aiSet);
-                writeSpoolFile(AuditServiceUtils.EventType.STG_COMMIT, objs);
-            }
-            if (success != null && !success.isEmpty()) {
-                LinkedHashSet<Object> objs = new LinkedHashSet<>();
-                BuildAuditInfo i = new BuildAuditInfo.Builder()
-                                    .callingAET(callingAET)
-                                    .callingHost(callingHost)
-                                    .calledAET(calledAET)
-                                    .pIDAndName(toPIDAndName(eventInfo))
-                                    .studyUID(studyUID)
-                                    .build();
-                objs.add(new AuditInfo(i));
-                for (Attributes item : success) {
-                    BuildAuditInfo ii = new BuildAuditInfo.Builder()
-                                        .sopCUID(item.getString(Tag.ReferencedSOPClassUID))
-                                        .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID))
-                                        .build();
-                    objs.add(new AuditInfo(ii));
-                }
-                writeSpoolFile(AuditServiceUtils.EventType.STG_COMMIT, objs);
-            }
+            return stgCmtEventInfo.getRemoteAET() != null
+                    ? aeCache.findApplicationEntity(stgCmtEventInfo.getRemoteAET()).getConnections().get(0).getHostname()
+                    : stgCmtEventInfo.getRequest().getRemoteHost();
         } catch (ConfigurationException e) {
             LOG.error(e.getMessage(), stgCmtEventInfo.getRemoteAET());
         }
+        return null;
+    }
+
+    private String storageCmtCalledAET(StgCmtEventInfo stgCmtEventInfo) {
+        return stgCmtEventInfo.getRequest() != null
+                            ? stgCmtEventInfo.getRequest().getRequestURI()
+                            : stgCmtEventInfo.getLocalAET();
+    }
+
+    private String storageCmtCallingAET(StgCmtEventInfo stgCmtEventInfo) {
+        return stgCmtEventInfo.getRequest() != null
+                                ? KeycloakUtils.getUserName(stgCmtEventInfo.getRequest())
+                                : stgCmtEventInfo.getRemoteAET();
     }
 
     private void auditStorageCommit(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) throws IOException {
