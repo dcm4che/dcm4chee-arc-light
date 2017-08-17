@@ -62,6 +62,9 @@ export class AppComponent {
                         $this.isRole = $this.mainservice.isRole;
                         $this.realm = response.realm;
                         $this.authServerUrl = response['auth-server-url'];
+                        let host    = location.protocol + '//' + location.host;
+                        $this.logoutUrl = response['auth-server-url'] + `/realms/${response.realm}/protocol/openid-connect/logout?redirect_uri=`
+                            + encodeURIComponent(host + location.pathname);
                     },
                     (response) => {
                         // this.user = this.user || {};
@@ -81,7 +84,7 @@ export class AppComponent {
         }
 
         this.initGetDevicename(2);
-        this.initGetAuth(2)
+        // this.initGetAuth(2)
     }
 
     progress(){
@@ -164,7 +167,7 @@ export class AppComponent {
             }
         });
     }
-    initGetAuth(retries){
+/*    initGetAuth(retries){
         let $this = this;
         this.$http.get('../auth')
             .map(res => {
@@ -172,10 +175,10 @@ export class AppComponent {
             .subscribe(
                 (response) => {
                     $this.url  = response.url;
-                    let host    = location.protocol + '//' + location.host;
-
-                    $this.logoutUrl = response.url + '/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
-                        + encodeURIComponent(host + location.pathname);
+                    // let host    = location.protocol + '//' + location.host;
+                    //
+                    // $this.logoutUrl = response.url + '/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
+                    //     + encodeURIComponent(host + location.pathname);
                 }, (response) => {
                     // vex.dialog.alert("Error loading device names, please reload the page and try again!");
                     if (retries){
@@ -188,7 +191,7 @@ export class AppComponent {
                     }
                 });
 
-    }
+    }*/
     initGetDevicename(retries){
         let $this = this;
         this.$http.get('../devicename')
