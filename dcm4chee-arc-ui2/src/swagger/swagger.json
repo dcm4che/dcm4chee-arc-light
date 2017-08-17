@@ -4228,12 +4228,6 @@
   "definitions": {
     "Realm": {
       "type": "object",
-      "required": [
-        "auth-server-url",
-        "realm-name",
-        "user",
-        "roles"
-      ],
       "properties": {
         "auth-server-url": {
           "title": "auth server url",
