@@ -2253,7 +2253,7 @@ export class StudiesComponent implements OnDestroy{
         let $this = this;
         this.service.queryMwl(
             this.rsURL(),
-            this.createQueryParams(offset, this.limit + 1, this.createStudyFilterParams())
+            this.createQueryParams(offset, this.limit + 1, this.createMwlFilterParams())
         ).subscribe((res) => {
                 $this.patients = [];
                 //           $this.studies = [];
@@ -2989,6 +2989,14 @@ export class StudiesComponent implements OnDestroy{
     createStudyFilterParams() {
         let filter = Object.assign({}, this.filter);
         this.appendFilter(filter, 'StudyDate', this.studyDate, /-/g);
+        this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate, /-/g);
+        this.appendFilter(filter, 'StudyTime', this.studyTime, /:/g);
+        this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime, /-/g);
+        return filter;
+    }
+    createMwlFilterParams() {
+        let filter = Object.assign({}, this.filter);
+        this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.studyDate, /-/g);
         this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate, /-/g);
         this.appendFilter(filter, 'StudyTime', this.studyTime, /:/g);
         this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime, /-/g);
