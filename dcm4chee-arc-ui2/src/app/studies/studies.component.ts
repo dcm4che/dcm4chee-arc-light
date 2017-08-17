@@ -2226,15 +2226,16 @@ export class StudiesComponent implements OnDestroy{
                     (result) => {
                         $this.mainservice.setMessage({
                             'title': 'Info',
-                            'text': 'Command executed successfully!',
+                            'text': $this.service.getMsgFromResponse(result,'Command executed successfully!'),
                             'status': 'info'
                         });
                         $this.cfpLoadingBar.complete();
                     },
                     (err) => {
+                        console.log("err",err);
                         $this.mainservice.setMessage({
                             'title': 'Error ' + err.status,
-                            'text': err.statusText,
+                            'text': $this.service.getMsgFromResponse(err),
                             'status': 'error'
                         });
                         $this.cfpLoadingBar.complete();

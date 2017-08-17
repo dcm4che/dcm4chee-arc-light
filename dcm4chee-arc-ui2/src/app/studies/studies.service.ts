@@ -91,6 +91,32 @@ export class StudiesService {
             }
         }
     }
+    getMsgFromResponse(res,defaultMsg = null){
+        let msg;
+        let endMsg = '';
+        try{
+            msg = res.json();
+            if(_.hasIn(msg,"completed")){
+                endMsg = `Completed: ${msg.completed}<br>`;
+            }
+            if(_.hasIn(msg,"warning")){
+                endMsg = endMsg + `Warning: ${msg.warning}<br>`;
+            }
+            if(_.hasIn(msg,"failed")){
+                endMsg = endMsg + `Failed: ${msg.failed}<br>`;
+            }
+            if(_.hasIn(msg,"errorMessage")){
+                endMsg = endMsg + `${msg.errorMessage}<br>`;
+            }
+        }catch (e){
+            if(defaultMsg){
+                endMsg = defaultMsg;
+            }else{
+                endMsg = res.statusText;
+            }
+        }
+        return endMsg;
+    }
     _config = function(params) {
         return '?' + jQuery.param(params);
     };
