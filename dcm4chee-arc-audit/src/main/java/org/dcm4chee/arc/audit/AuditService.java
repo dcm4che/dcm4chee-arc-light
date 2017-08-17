@@ -115,9 +115,7 @@ public class AuditService {
             case STORE_WADOR:
                 auditStoreOrWADORetrieve(auditLogger, path, eventType);
                 break;
-            case BEGIN_TRF:
             case RETRIEVE:
-            case RETRIEVE_ERR:
                 auditRetrieve(auditLogger, path, eventType);
                 break;
             case USER_DELETED:
@@ -677,80 +675,85 @@ public class AuditService {
         emitAuditMessage(auditLogger, ei, activeParticipants, poiStudy, patientPOI(auditInfo));
     }
 
-    void spoolPartialRetrieve(RetrieveContext ctx) {
-        List<String> failedList = Arrays.asList(ctx.failedSOPInstanceUIDs());
-        Collection<InstanceLocations> instanceLocations = ctx.getMatches();
-        HashSet<InstanceLocations> failed = new HashSet<>();
-        HashSet<InstanceLocations> success = new HashSet<>();
-        success.addAll(instanceLocations);
-        for (InstanceLocations il : instanceLocations) {
-            if (failedList.contains(il.getSopInstanceUID())) {
-                failed.add(il);
-                success.remove(il);
+    void spoolRetrieve(AuditServiceUtils.EventType eventType, RetrieveContext ctx) {
+        if (someInstancesRetrieveFailed(ctx)) {
+            List<String> failedList = Arrays.asList(ctx.failedSOPInstanceUIDs());
+            Collection<InstanceLocations> instanceLocations = ctx.getMatches();
+            HashSet<InstanceLocations> failed = new HashSet<>();
+            HashSet<InstanceLocations> success = new HashSet<>();
+            success.addAll(instanceLocations);
+            for (InstanceLocations instanceLocation : instanceLocations) {
+                if (failedList.contains(instanceLocation.getSopInstanceUID())) {
+                    failed.add(instanceLocation);
+                    success.remove(instanceLocation);
+                }
             }
-        }
-        spoolRetrieve(AuditServiceUtils.EventType.RTRV_TRF_E, ctx, failed);
-        spoolRetrieve(AuditServiceUtils.EventType.RTRV_TRF_P, ctx, success);
+
+            spoolRetrieve(AuditServiceUtils.EventType.RTRV___TRF, ctx, failed, buildRetrieveAuditInfo(ctx, true));
+            spoolRetrieve(AuditServiceUtils.EventType.RTRV___TRF, ctx, success, buildRetrieveAuditInfo(ctx, false));
+
+        } else
+            spoolRetrieve(eventType, ctx, ctx.getMatches(), buildRetrieveAuditInfo(ctx, true));
     }
 
-    void spoolRetrieve(AuditServiceUtils.EventType eventType, RetrieveContext ctx, Collection<InstanceLocations> il) {
+    private void spoolRetrieve(
+            AuditServiceUtils.EventType eventType, RetrieveContext ctx, Collection<InstanceLocations> il, BuildAuditInfo i) {
         LinkedHashSet<Object> obj = new LinkedHashSet<>();
-
-        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
-        boolean failedIUIDShow = eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE_ERR && ctx.failedSOPInstanceUIDs().length > 0;
-        String outcome = createOutcome(eventType, ctx);
-        String warning = createWarning(eventType, ctx);
-
-        BuildAuditInfo i = isExportTriggered(ctx)
-                            ? httpServletRequestInfo != null
-                                ? new BuildAuditInfo.Builder()
-                                    .callingAET(ctx.getHttpServletRequestInfo().requesterUserID)
-                                    .callingHost(ctx.getRequestorHostName())
-                                    .calledAET(ctx.getHttpServletRequestInfo().requestURI)
-                                    .destAET(ctx.getDestinationAETitle())
-                                    .destNapID(ctx.getDestinationHostName())
-                                    .warning(warning)
-                                    .outcome(outcome)
-                                    .failedIUIDShow(failedIUIDShow)
-                                    .isExport(true)
-                                    .build()
-                                : new BuildAuditInfo.Builder()
-                                    .calledAET(ctx.getLocalAETitle())
-                                    .destAET(ctx.getDestinationAETitle())
-                                    .destNapID(ctx.getDestinationHostName())
-                                    .warning(warning)
-                                    .callingHost(ctx.getRequestorHostName())
-                                    .outcome(outcome)
-                                    .failedIUIDShow(failedIUIDShow)
-                                    .isExport(true)
-                                    .build()
-                            : httpServletRequestInfo != null
-                                ? new BuildAuditInfo.Builder()
-                                    .calledAET(ctx.getHttpServletRequestInfo().requestURI)
-                                    .destAET(ctx.getHttpServletRequestInfo().requesterUserID)
-                                    .destNapID(ctx.getDestinationHostName())
-                                    .warning(warning)
-                                    .callingHost(ctx.getRequestorHostName())
-                                    .outcome(outcome)
-                                    .failedIUIDShow(failedIUIDShow)
-                                    .build()
-                                : new BuildAuditInfo.Builder()
-                                    .calledAET(ctx.getLocalAETitle())
-                                    .destAET(ctx.getDestinationAETitle())
-                                    .destNapID(ctx.getDestinationHostName())
-                                    .warning(warning)
-                                    .callingHost(ctx.getRequestorHostName())
-                                    .moveAET(ctx.getMoveOriginatorAETitle())
-                                    .outcome(outcome)
-                                    .failedIUIDShow(failedIUIDShow)
-                                    .build();
-
-
         obj.add(new AuditInfo(i));
-
         addInstanceInfoForRetrieve(obj, il);
         addInstanceInfoForRetrieve(obj, ctx.getCStoreForwards());
         writeSpoolFile(eventType, obj);
+    }
+
+    private BuildAuditInfo buildRetrieveAuditInfo(RetrieveContext ctx, boolean checkForFailures) {
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        boolean failedIUIDShow = checkForFailures && (allInstancesRetrieveFailed(ctx) || someInstancesRetrieveFailed(ctx));
+        String outcome = checkForFailures ? createOutcome(ctx) : null;
+        String warning = createWarning(ctx);
+
+        return isExportTriggered(ctx)
+                ? httpServletRequestInfo != null
+                    ? new BuildAuditInfo.Builder()
+                        .callingAET(httpServletRequestInfo.requesterUserID)
+                        .callingHost(ctx.getRequestorHostName())
+                        .calledAET(httpServletRequestInfo.requestURI)
+                        .destAET(ctx.getDestinationAETitle())
+                        .destNapID(ctx.getDestinationHostName())
+                        .warning(warning)
+                        .outcome(outcome)
+                        .failedIUIDShow(failedIUIDShow)
+                        .isExport(true)
+                        .build()
+                    : new BuildAuditInfo.Builder()
+                        .calledAET(ctx.getLocalAETitle())
+                        .destAET(ctx.getDestinationAETitle())
+                        .destNapID(ctx.getDestinationHostName())
+                        .warning(warning)
+                        .callingHost(ctx.getRequestorHostName())
+                        .outcome(outcome)
+                        .failedIUIDShow(failedIUIDShow)
+                        .isExport(true)
+                        .build()
+                : httpServletRequestInfo != null
+                    ? new BuildAuditInfo.Builder()
+                        .calledAET(httpServletRequestInfo.requestURI)
+                        .destAET(httpServletRequestInfo.requesterUserID)
+                        .destNapID(ctx.getDestinationHostName())
+                        .warning(warning)
+                        .callingHost(ctx.getRequestorHostName())
+                        .outcome(outcome)
+                        .failedIUIDShow(failedIUIDShow)
+                        .build()
+                    : new BuildAuditInfo.Builder()
+                        .calledAET(ctx.getLocalAETitle())
+                        .destAET(ctx.getDestinationAETitle())
+                        .destNapID(ctx.getDestinationHostName())
+                        .warning(warning)
+                        .callingHost(ctx.getRequestorHostName())
+                        .moveAET(ctx.getMoveOriginatorAETitle())
+                        .outcome(outcome)
+                        .failedIUIDShow(failedIUIDShow)
+                        .build();
     }
 
     private boolean isExportTriggered(RetrieveContext ctx) {
@@ -758,16 +761,37 @@ public class AuditService {
                 || (ctx.getRequestAssociation() == null && ctx.getStoreAssociation() == null && ctx.getException() != null);
     }
 
-    private String createOutcome(AuditServiceUtils.EventType eventType, RetrieveContext ctx) {
-        return (eventType.eventClass == AuditServiceUtils.EventClass.BEGIN_TRF && ctx.getException() != null)
-                || eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE_ERR
-                ? getFailOutcomeDesc(ctx) : null;
+    private String createOutcome(RetrieveContext ctx) {
+        return ctx.getException() != null
+                ? ctx.getException().getMessage() != null
+                    ? ctx.getException().getMessage()
+                    : ctx.getException().toString()
+                : allInstancesRetrieveFailed(ctx)
+                    ? "Unable to perform sub-operations on all instances"
+                    : someInstancesRetrieveFailed(ctx)
+                        ? "Retrieve of " + ctx.failed() + " objects failed"
+                        : null;
     }
 
-    private String createWarning(AuditServiceUtils.EventType eventType, RetrieveContext ctx) {
-        return eventType.eventClass == AuditServiceUtils.EventClass.RETRIEVE && ctx.warning() != 0
-                ? ctx.warning() == ctx.getMatches().size() ? "Warnings on retrieve of all instances"
-                : "Warnings on retrieve of " + ctx.warning() + " instances" : null;
+    private boolean allInstancesRetrieveCompleted(RetrieveContext ctx) {
+        return (ctx.failedSOPInstanceUIDs().length == 0 && !ctx.getMatches().isEmpty())
+                || (ctx.getMatches().isEmpty() && !ctx.getCStoreForwards().isEmpty());
+    }
+
+    private boolean allInstancesRetrieveFailed(RetrieveContext ctx) {
+        return ctx.failedSOPInstanceUIDs().length == ctx.getMatches().size() && !ctx.getMatches().isEmpty();
+    }
+
+    private boolean someInstancesRetrieveFailed(RetrieveContext ctx) {
+        return ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size() && ctx.failedSOPInstanceUIDs().length > 0;
+    }
+
+    private String createWarning(RetrieveContext ctx) {
+        return allInstancesRetrieveCompleted(ctx) && ctx.warning() != 0
+                ? ctx.warning() == ctx.getMatches().size()
+                    ? "Warnings on retrieve of all instances"
+                    : "Warnings on retrieve of " + ctx.warning() + " instances"
+                : null;
     }
 
     private void addInstanceInfoForRetrieve(LinkedHashSet<Object> obj, Collection<InstanceLocations> instanceLocations) {
@@ -1301,15 +1325,6 @@ public class AuditService {
 
     private String getFileName(AuditServiceUtils.EventType et, String callingAET, String calledAET, String studyIUID) {
         return String.valueOf(et) + '-' + callingAET + '-' + calledAET + '-' + studyIUID;
-    }
-
-    private String getFailOutcomeDesc(RetrieveContext ctx) {
-        return null != ctx.getException()
-                ? ctx.getException().getMessage() != null ? ctx.getException().getMessage() : ctx.getException().toString()
-                : (ctx.failedSOPInstanceUIDs().length > 0 && (ctx.completed() == 0 && ctx.warning() == 0))
-                ? "Unable to perform sub-operations on all instances"
-                : (ctx.failedSOPInstanceUIDs().length > 0 && !(ctx.completed() == 0 && ctx.warning() == 0))
-                ? "Retrieve of " + ctx.failed() + " objects failed" : null;
     }
 
     private String sopCUID(Attributes attrs) {

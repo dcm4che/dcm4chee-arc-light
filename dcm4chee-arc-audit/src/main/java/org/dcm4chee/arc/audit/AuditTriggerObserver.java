@@ -100,16 +100,12 @@ public class AuditTriggerObserver {
 
     public void onRetrieveStart(@Observes @RetrieveStart RetrieveContext ctx) {
         if (deviceHasAuditLoggers())
-            auditService.spoolRetrieve(AuditServiceUtils.EventType.RTRV_BEGIN, ctx, ctx.getMatches());
+            auditService.spoolRetrieve(AuditServiceUtils.EventType.RTRV_BEGIN, ctx);
     }
 
     public void onRetrieveEnd(@Observes @RetrieveEnd RetrieveContext ctx) {
-        if (deviceHasAuditLoggers()) {
-            if (ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size() && ctx.failedSOPInstanceUIDs().length > 0)
-                auditService.spoolPartialRetrieve(ctx);
-            else
-                auditService.spoolRetrieve(AuditServiceUtils.EventType.forDICOMInstancesTransferred(ctx), ctx, ctx.getMatches());
-        }
+        if (deviceHasAuditLoggers())
+            auditService.spoolRetrieve(AuditServiceUtils.EventType.RTRV___TRF, ctx);
     }
 
     public void onRetrieveWADO(@Observes @RetrieveWADO RetrieveContext ctx) {
