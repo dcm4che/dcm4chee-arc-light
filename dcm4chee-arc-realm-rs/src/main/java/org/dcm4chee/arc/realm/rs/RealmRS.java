@@ -78,16 +78,19 @@ public class RealmRS {
                 Writer w = new OutputStreamWriter(out, "UTF-8");
                 Principal principal = request.getUserPrincipal();
                 if (principal == null) {
-                    w.write("{\"user\":null,\"roles\":[]}");
+                    w.write("{\"auth-server-url\":null,\"realm\":null,\"token\":null,\"user\":null,\"roles\":[]}");
                 }
                 else {
-                    w.append("{\"user\":\"").append(KeycloakUtils.getUserName(request)).append("\",\"roles\":[");
-                    int count = 0;
-                    for (String role : KeycloakUtils.getUserRoles(request)) {
-                        if (count++ > 0)
-                            w.write(',');
-                        w.append('\"').append(role).append('\"');
-                    }
+                    w.append("{\"auth-server-url\":\"").append(System.getProperty("auth-server-url", "/auth"))
+                     .append("\",\"realm\":\"").append(System.getProperty("realm-name"))
+                     .append("\",\"token\":\"").append(KeycloakUtils.getTokenString(request))
+                     .append("\",\"user\":\"").append(KeycloakUtils.getUserName(request)).append("\",\"roles\":[");
+                        int count = 0;
+                        for (String role : KeycloakUtils.getUserRoles(request)) {
+                            if (count++ > 0)
+                                w.write(',');
+                            w.append('\"').append(role).append('\"');
+                        }
                     w.write("]}");
                 }
                 w.flush();
