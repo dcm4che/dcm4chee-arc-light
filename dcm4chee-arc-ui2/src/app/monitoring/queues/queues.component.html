@@ -129,6 +129,11 @@
                     <td [innerHtml]="match.properties.scheduledTime"></td>
                     <td [innerHtml]="match.properties.processingStartTime"></td>
                     <td [innerHtml]="match.properties.processingEndTime"></td>
+<!--                    <td [innerHtml]="match.properties.createdTime | utc | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                    <td [innerHtml]="match.properties.updatedTime | utc | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                    <td [innerHtml]="match.properties.scheduledTime | utc | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                    <td [innerHtml]="match.properties.processingStartTime | utc | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                    <td [innerHtml]="match.properties.processingEndTime | utc | date:'yyyy-MM-dd HH:mm:ss'"></td>-->
                 </tr>
                 <tr *ngIf="match.showProperties">
                     <td colspan="8">
