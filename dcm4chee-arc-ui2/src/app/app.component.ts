@@ -28,6 +28,8 @@ export class AppComponent {
     logoutUrl = '';
     isRole: any;
     archive;
+    realm;
+    authServerUrl;
     showMenu = false;
     showScrollButton = false;
     @ViewChild(MessagingComponent) msg;
@@ -43,6 +45,8 @@ export class AppComponent {
                         console.log('in userauth response', response);
                         $this.mainservice.user.user = response.user;
                         $this.mainservice.user.roles = response.roles;
+                        $this.mainservice.user.realm = response.realm;
+                        $this.mainservice.user.authServerUrl = response['auth-server-url'];
                         $this.mainservice.isRole = function(role){
                             if (response.user === null && response.roles.length === 0){
                                 return true;
@@ -56,6 +60,8 @@ export class AppComponent {
                         };
                         $this.user = $this.mainservice.user;
                         $this.isRole = $this.mainservice.isRole;
+                        $this.realm = response.realm;
+                        $this.authServerUrl = response['auth-server-url'];
                     },
                     (response) => {
                         // this.user = this.user || {};
