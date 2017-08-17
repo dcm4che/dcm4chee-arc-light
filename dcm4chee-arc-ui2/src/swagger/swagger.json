@@ -176,6 +176,29 @@
         }
       }
     },
+    "/elasticsearch": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "Get Access URL of Elastic Search",
+        "operationId": "getElasticSearchURL",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Access URL of Elastic Search",
+            "schema": {
+              "$ref": "#/definitions/URL"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/devicename": {
       "get": {
         "tags": [
