@@ -4234,9 +4234,14 @@
           "description": "The base URL of the Keycloak server",
           "type": "string"
         },
-        "realm-name": {
-          "title": "realm name",
+        "realm": {
+          "title": "realm",
           "description": "Name of the realm",
+          "type": "string"
+        },
+        "token": {
+          "title": "token",
+          "description": "OAuth Bearer Token",
           "type": "string"
         },
         "user": {
