@@ -35,6 +35,10 @@
       "description": "Export Entity"
     },
     {
+      "name": "HL7-RS",
+      "description": "Send HL7 message to remote HL7 Application"
+    },
+    {
       "name": "STGCMT-RS",
       "description": "Storage Commitment"
     },
@@ -2618,6 +2622,262 @@
         }
       }
     },
+    "/hl7apps/{appName}/hl7/{externalAppName}/patients": {
+      "post": {
+        "tags": [
+          "HL7-RS"
+        ],
+        "summary": "Create Patient external",
+        "operationId": "CreatePatientExternal",
+        "consumes": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "appName",
+            "in": "path",
+            "description": "Sending HL7 Application and Facility Name (Application|Facility)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAppName",
+            "in": "path",
+            "description": "Receiving HL7 Application and Facility Name (Application|Facility)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientAttributes",
+            "in": "body",
+            "description": "Patient Attributes encoded as JSON Dataset",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Receiving HL7 Application and Facility Name not configured"
+          },
+          "409": {
+            "description": "Message rejected by Receiving HL7 Application",
+            "schema": {
+              "$ref": "#/definitions/HL7ACK"
+            }
+          },
+          "502": {
+            "description": "Failed to send HL7 message to or receiving the response from Receiving HL7 Application"
+          },
+          "504": {
+            "description": "Failed to connect to Receiving HL7 Application"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "HL7-RS"
+        ],
+        "summary": "Update Patient external",
+        "operationId": "UpdatePatientExternal",
+        "consumes": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "appName",
+            "in": "path",
+            "description": "Sending HL7 Application and Facility Name (Application|Facility)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAppName",
+            "in": "path",
+            "description": "Receiving HL7 Application and Facility Name (Application|Facility)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientAttributes",
+            "in": "body",
+            "description": "Updated Patient Attributes encoded as JSON Dataset",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Receiving HL7 Application and Facility Name not configured"
+          },
+          "409": {
+            "description": "Message rejected by Receiving HL7 Application",
+            "schema": {
+              "$ref": "#/definitions/HL7ACK"
+            }
+          },
+          "502": {
+            "description": "Failed to send HL7 message to or receiving the response from Receiving HL7 Application"
+          },
+          "504": {
+            "description": "Failed to connect to Receiving HL7 Application"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/hl7apps/{appName}/hl7/{externalAppName}/patients/{priorPatientID}/merge": {
+      "post": {
+        "tags": [
+          "HL7-RS"
+        ],
+        "summary": "Merge Patient external",
+        "operationId": "MergePatientExternal",
+        "consumes": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "appName",
+            "in": "path",
+            "description": "Sending HL7 Application and Facility Name (Application|Facility)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAppName",
+            "in": "path",
+            "description": "Receiving HL7 Application and Facility Name (Application|Facility)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priorPatientID",
+            "in": "path",
+            "description": "Patient ID and Issuer of the merged Patient encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientAttributes",
+            "in": "body",
+            "description": "Target Patient Attributes encoded as JSON Dataset",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Receiving HL7 Application and Facility Name not configured"
+          },
+          "409": {
+            "description": "Message rejected by Receiving HL7 Application",
+            "schema": {
+              "$ref": "#/definitions/HL7ACK"
+            }
+          },
+          "502": {
+            "description": "Failed to send HL7 message to or receiving the response from Receiving HL7 Application"
+          },
+          "504": {
+            "description": "Failed to connect to Receiving HL7 Application"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/hl7apps/{appName}/hl7/{externalAppName}/patients/{priorPatientID}/changeid": {
+      "post": {
+        "tags": [
+          "HL7-RS"
+        ],
+        "summary": "Change Patient ID external",
+        "operationId": "ChangePatientIDExternal",
+        "consumes": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "appName",
+            "in": "path",
+            "description": "Sending HL7 Application and Facility Name (Application|Facility)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAppName",
+            "in": "path",
+            "description": "Receiving HL7 Application and Facility Name (Application|Facility)",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priorPatientID",
+            "in": "path",
+            "description": "Prior Patient ID and Issuer encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "patientAttributes",
+            "in": "body",
+            "description": "Patient Attributes with changed Patient ID and Issuer encoded as JSON Dataset",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "Receiving HL7 Application and Facility Name not configured"
+          },
+          "409": {
+            "description": "Message rejected by Receiving HL7 Application",
+            "schema": {
+              "$ref": "#/definitions/HL7ACK"
+            }
+          },
+          "502": {
+            "description": "Failed to send HL7 message to or receiving the response from Receiving HL7 Application"
+          },
+          "504": {
+            "description": "Failed to connect to Receiving HL7 Application"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/patients": {
       "post": {
         "tags": [
@@ -4331,6 +4591,38 @@
           "title": "deleted",
           "description": "number of deleted tasks",
           "type": "integer"
+        }
+      }
+    },
+    "HL7ACK": {
+      "type": "object",
+      "required": [
+        "msa-1"
+      ],
+      "properties": {
+        "msa-1": {
+          "title": "Acknowledgement code",
+          "type": "string"
+        },
+        "msa-3": {
+          "title": "Text Message",
+          "type": "string"
+        },
+        "err-3": {
+          "title": "HL7 Error Code",
+          "type": "string"
+        },
+        "err-7": {
+          "title": "Diagnostic Information",
+          "type": "string"
+        },
+        "err-8": {
+          "title": "User Message",
+          "type": "string"
+        },
+        "message": {
+          "title": "Error Message",
+          "type": "string"
         }
       }
     },
