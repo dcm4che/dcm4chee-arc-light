@@ -96,7 +96,7 @@ public class StudyServiceEJB {
                 .executeUpdate();
     }
 
-    public Study findStudy(StudyMgtContext ctx) {
+    private Study findStudy(StudyMgtContext ctx) {
         Study study;
         try {
             study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)

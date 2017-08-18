@@ -81,7 +81,6 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParsingException;
-import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -493,19 +492,18 @@ public class IocmRS {
         logRequest();
         Attributes instanceRefs = parseSOPInstanceReferences(in);
 
-        ProcedureContext ctx = procedureService.createProcedureContextWEB(request, null);
+        ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
         ctx.setStudyInstanceUID(studyUID);
         ctx.setSpsID(spsID);
 
         MWLItem mwl = procedureService.findMWLItem(ctx);
         if (mwl == null)
-            throw new WebApplicationException(
-                    getResponse("MWLItem[studyUID=" + studyUID + ", spsID=" + spsID + "] does not exist.",
-                            Response.Status.NOT_FOUND));
+            return getResponse("MWLItem[studyUID=" + studyUID + ", spsID=" + spsID + "] does not exist.",
+                            Response.Status.NOT_FOUND);
 
         ctx.setAttributes(mwl.getAttributes());
         ctx.setPatient(mwl.getPatient());
-        updateSeriesUIDs(instanceRefs, ctx);
+        ctx.setSourceInstanceRefs(instanceRefs);
 
         Code code = new Code(codeValue, designator, null, "?");
 
@@ -514,7 +512,7 @@ public class IocmRS {
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         Collection<InstanceLocations> instanceLocations = storeService.queryInstances(session, instanceRefs, studyUID, uidMap);
         if (instanceLocations.isEmpty())
-            throw new WebApplicationException(getResponse("No Instances found. ", Response.Status.NOT_FOUND));
+            return getResponse("No Instances found. ", Response.Status.NOT_FOUND);
 
         final Attributes result;
 
@@ -523,7 +521,6 @@ public class IocmRS {
             result = getResult(instanceLocations);
         }
         else {
-            createStudyIfAbsent(mwl, arcAE);
             RejectionNote rjNote = toRejectionNote(code);
             Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity(), false);
             moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
@@ -535,13 +532,6 @@ public class IocmRS {
         }
 
         return toResponse(result);
-    }
-
-    private void createStudyIfAbsent(MWLItem mwl, ArchiveAEExtension arcAE) {
-        StudyMgtContext studyMgtCtx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
-        studyMgtCtx.setPatient(mwl.getPatient());
-        studyMgtCtx.setAttributes(mwl.getAttributes());
-        studyService.findStudy(studyMgtCtx);
     }
 
     private Response toResponse(Attributes result) {
@@ -858,15 +848,6 @@ public class IocmRS {
             }
         }
         return attr;
-    }
-
-    private void updateSeriesUIDs(Attributes instanceRefs, ProcedureContext ctx) {
-        Sequence refSeries = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);
-        if (refSeries == null)
-            return;
-
-        for (Attributes item : refSeries)
-            ctx.getUpdateSeriesUIDs().add(item.getString(Tag.SeriesInstanceUID));
     }
 
     private Attributes parseSOPInstanceReferences(InputStream in) throws IOException {

@@ -818,9 +818,7 @@ public class StoreServiceEJB {
                 study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .getSingleResult();
-                for (Location l : ctx.getLocations())
-                    if (l.getObjectType() == Location.ObjectType.DICOM_FILE)
-                        study.addStorageID(l.getStorageID());
+                addStorageIDsToStudy(ctx, study);
                 study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                 if (result.getRejectionNote() == null)
                     updateStudyRejectionState(ctx, study);
@@ -828,12 +826,18 @@ public class StoreServiceEJB {
         return study;
     }
 
+    private void addStorageIDsToStudy(StoreContext ctx, Study study) {
+        for (Location l : ctx.getLocations())
+            if (l.getObjectType() == Location.ObjectType.DICOM_FILE)
+                study.addStorageID(l.getStorageID());
+    }
+
     private void updateStudyRejectionState(StoreContext ctx, Study study) {
         switch (study.getRejectionState()) {
             case COMPLETE:
                 study.setRejectionState(RejectionState.PARTIAL);
                 study.getPatient().incrementNumberOfStudies();
-                setStudyAttributes(ctx, study);
+                setStudyAttributes(ctx, study, ctx.getAttributes());
                 break;
             case EMPTY:
                 study.setRejectionState(RejectionState.NONE);
@@ -923,18 +927,38 @@ public class StoreServiceEJB {
     private Study createStudy(StoreContext ctx, Patient patient) {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        boolean isMoveToMWL = ctx.getMWLItem() != null;
+        Attributes attrs = isMoveToMWL ? getStudyAttributesFromMWL(ctx) : ctx.getAttributes();
+
         Study study = new Study();
-        study.addStorageID(session.getObjectStorageID());
-        study.setAccessControlID(arcAE.storeAccessControlID(
-                session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), ctx.getAttributes()));
         study.setCompleteness(Completeness.COMPLETE);
         study.setRejectionState(RejectionState.NONE);
-        setStudyAttributes(ctx, study);
-        study.setPatient(patient);
-        patient.incrementNumberOfStudies();
+        study.setAccessControlID(arcAE.storeAccessControlID(
+                session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), attrs));
+        setStudyAttributes(ctx, study, attrs);
+
+        if (isMoveToMWL) {
+            study.setPatient(ctx.getMWLItem().getPatient());
+            ctx.getMWLItem().getPatient().incrementNumberOfStudies();
+            addStorageIDsToStudy(ctx, study);
+        }
+        else {
+            study.setPatient(patient);
+            patient.incrementNumberOfStudies();
+            study.addStorageID(session.getObjectStorageID());
+        }
+
         em.persist(study);
         LOG.info("{}: Create {}", session, study);
         return study;
+    }
+
+    private Attributes getStudyAttributesFromMWL(StoreContext ctx) {
+        ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        Attributes mwlAttrs = ctx.getMWLItem().getAttributes();
+        AttributeFilter studyAttributeFilter = arcDev.getAttributeFilter(Entity.Study);
+        return new Attributes(mwlAttrs, studyAttributeFilter.getSelection());
     }
 
     private void checkStorePermission(StoreContext ctx, Patient pat) throws DicomServiceException {
@@ -1043,10 +1067,9 @@ public class StoreServiceEJB {
                 selectErrorComment(session, url, response, arcAE.storePermissionServiceErrorCommentPattern()));
     }
 
-    private void setStudyAttributes(StoreContext ctx, Study study) {
+    private void setStudyAttributes(StoreContext ctx, Study study, Attributes attrs) {
         ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        Attributes attrs = ctx.getAttributes();
         study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);

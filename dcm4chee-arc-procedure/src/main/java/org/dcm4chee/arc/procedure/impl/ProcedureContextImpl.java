@@ -43,16 +43,12 @@ package org.dcm4chee.arc.procedure.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Segment;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -61,7 +57,6 @@ import java.util.List;
  */
 public class ProcedureContextImpl implements ProcedureContext {
     private final HttpServletRequest httpRequest;
-    private final ApplicationEntity ae;
     private final Socket socket;
     private final HL7Segment msh;
     private Patient patient;
@@ -71,17 +66,14 @@ public class ProcedureContextImpl implements ProcedureContext {
     private Exception exception;
     private String spsID;
     private Association as;
-    private List<String> updateSeriesUIDs = new ArrayList<>();
-    private Device device;
+    private Attributes sourceInstanceRefs;
 
-    ProcedureContextImpl(Device device, HttpServletRequest httpRequest, ApplicationEntity ae, Association as, Socket socket,
+    ProcedureContextImpl(HttpServletRequest httpRequest, Association as, Socket socket,
                          HL7Segment msh) {
         this.httpRequest = httpRequest;
-        this.ae = ae;
         this.socket = socket;
         this.msh = msh;
         this.as = as;
-        this.device = device;
     }
 
     @Override
@@ -173,12 +165,12 @@ public class ProcedureContextImpl implements ProcedureContext {
     }
 
     @Override
-    public List<String> getUpdateSeriesUIDs() {
-        return updateSeriesUIDs;
+    public Attributes getSourceInstanceRefs() {
+        return sourceInstanceRefs;
     }
 
     @Override
-    public Device getDevice() {
-        return device;
+    public void setSourceInstanceRefs(Attributes sourceInstanceRefs) {
+        this.sourceInstanceRefs = sourceInstanceRefs;
     }
 }

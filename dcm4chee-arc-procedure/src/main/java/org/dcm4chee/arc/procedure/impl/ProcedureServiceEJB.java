@@ -46,6 +46,7 @@ import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Entity;
@@ -75,6 +76,9 @@ public class ProcedureServiceEJB {
 
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
+
+    @Inject
+    private Device device;
 
     @Inject
     private IssuerService issuerService;
@@ -114,7 +118,7 @@ public class ProcedureServiceEJB {
     }
 
     private void updateMWL(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, MWLItem mwlItem, Attributes mwlAttrs) {
-        ArchiveDeviceExtension arcDev = ctx.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         mwlItem.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
         mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
@@ -144,7 +148,7 @@ public class ProcedureServiceEJB {
 
     private void createMWL(ProcedureContext ctx, Patient patient, Attributes attrs,
                             IssuerEntity issuerOfAccessionNumber) {
-        ArchiveDeviceExtension arcDev = ctx.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         MWLItem mwlItem = new MWLItem();
         mwlItem.setPatient(patient);
         mwlItem.setAttributes(attrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
@@ -195,7 +199,7 @@ public class ProcedureServiceEJB {
     public void updateSPSStatus(ProcedureContext ctx, String status) {
         List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_STUDY_IUID_EAGER, MWLItem.class)
                 .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
-        ArchiveDeviceExtension arcDev = ctx.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         for (MWLItem mwl : mwlItems) {
             Attributes mwlAttrs = mwl.getAttributes();
             Attributes spsItemMWL = mwlAttrs
@@ -209,7 +213,7 @@ public class ProcedureServiceEJB {
     }
 
     private boolean updateStudySeriesAttributesFromMWL(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber) {
-        ArchiveDeviceExtension arcDev = ctx.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Attributes mwlAttr = ctx.getAttributes();
         boolean studyUpdated = false;
         try {
@@ -224,7 +228,7 @@ public class ProcedureServiceEJB {
                     if (study.getIssuerOfAccessionNumber() != null && !study.getIssuerOfAccessionNumber().equals(issuerOfAccessionNumber))
                         study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
                     study.setAttributes(studyAttr, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
-                    if (ctx.getUpdateSeriesUIDs().isEmpty())
+                    if (ctx.getSourceInstanceRefs() == null)
                         updateAllSeries(ctx, issuerOfAccessionNumber, seriesList);
                     else
                         updateSelectedSeries(ctx, issuerOfAccessionNumber, seriesList);
@@ -238,9 +242,17 @@ public class ProcedureServiceEJB {
     }
 
     private void updateSelectedSeries(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, List<Series> seriesList) {
+        Attributes sourceInstanceRefs = ctx.getSourceInstanceRefs();
+        Sequence refSeries = sourceInstanceRefs.getSequence(Tag.ReferencedSeriesSequence);
+        if (refSeries == null) {
+            updateAllSeries(ctx, issuerOfAccessionNumber, seriesList);
+            return;
+        }
+
         for (Series series : seriesList)
-            if (ctx.getUpdateSeriesUIDs().contains(series.getSeriesInstanceUID()))
-                updateSeriesAttributes(ctx, issuerOfAccessionNumber, series);
+            for (Attributes item : refSeries)
+                if (item.getString(Tag.SeriesInstanceUID).equals(series.getSeriesInstanceUID()))
+                    updateSeriesAttributes(ctx, issuerOfAccessionNumber, series);
     }
 
     private void updateAllSeries(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, List<Series> seriesList) {
@@ -249,7 +261,7 @@ public class ProcedureServiceEJB {
     }
 
     private void updateSeriesAttributes(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, Series series) {
-        ArchiveDeviceExtension arcDev = ctx.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Attributes mwlAttr = ctx.getAttributes();
         Attributes seriesAttr = series.getAttributes();
         Sequence rqAttrsSeq = seriesAttr.newSequence(Tag.RequestAttributesSequence, 1);
