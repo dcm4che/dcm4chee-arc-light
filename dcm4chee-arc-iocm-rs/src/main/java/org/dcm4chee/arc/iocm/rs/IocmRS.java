@@ -48,7 +48,6 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.keycloak.KeycloakUtils;
 import org.dcm4chee.arc.conf.*;
@@ -62,7 +61,7 @@ import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
-import org.dcm4chee.arc.rs.client.RSClient;
+import org.dcm4chee.arc.rs.client.RSForward;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
@@ -84,8 +83,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
-import java.net.InetAddress;
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -124,7 +121,7 @@ public class IocmRS {
     private IDService idService;
 
     @Inject
-    private RSClient rsClient;
+    private RSForward rsForward;
 
     @Inject
     private HL7Sender hl7Sender;
@@ -204,7 +201,7 @@ public class IocmRS {
         ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
         ctx.setPatient(patient);
         deletionService.deletePatient(ctx);
-        forwardRS(HttpMethod.DELETE, RSOperation.DeletePatient, arcAE, null);
+        rsForward.forward(RSOperation.DeletePatient, arcAE, null, request);
     }
 
     @DELETE
@@ -214,7 +211,7 @@ public class IocmRS {
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             deletionService.deleteStudy(studyUID, request, arcAE.getApplicationEntity());
-            forwardRS(HttpMethod.DELETE, RSOperation.DeleteStudy, arcAE, null);
+            rsForward.forward(RSOperation.DeleteStudy, arcAE, null, request);
         } catch (StudyNotFoundException e) {
             throw new WebApplicationException(getResponse("Study having study instance UID " + studyUID + " not found.",
                     Response.Status.NOT_FOUND));
@@ -239,7 +236,7 @@ public class IocmRS {
             ctx.setAttributes(attrs);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             patientService.updatePatient(ctx);
-            forwardRS(HttpMethod.PUT, RSOperation.CreatePatient, arcAE, attrs);
+            rsForward.forward(RSOperation.CreatePatient, arcAE, attrs, request);
             sendHL7Message("ADT^A28^ADT_A05", ctx);
             return IDWithIssuer.pidOf(attrs).toString();
         } catch (JsonParsingException e) {
@@ -285,7 +282,7 @@ public class IocmRS {
                 ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
                 patientService.changePatientID(ctx);
             }
-            forwardRS(HttpMethod.PUT, RSOperation.UpdatePatient, arcAE, attrs);
+            rsForward.forward(RSOperation.UpdatePatient, arcAE, attrs, request);
             String msgType = ctx.getEventActionCode() == AuditMessages.EventActionCode.Create
                     ? newPatient
                         ? "ADT^A28^ADT_A05" : "ADT^A47^ADT_A30"
@@ -315,7 +312,7 @@ public class IocmRS {
             for (Attributes otherPID : attrs.getSequence(Tag.OtherPatientIDsSequence))
                 mergePatient(patientID, otherPID);
 
-            forwardRSMergeMultiplePatients(HttpMethod.POST, RSOperation.MergePatients, getArchiveAE(), baos.toByteArray());
+            rsForward.forwardMergeMultiplePatients(RSOperation.MergePatients, getArchiveAE(), baos.toByteArray(), request);
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
@@ -333,7 +330,7 @@ public class IocmRS {
             if (priorPatientID.getIssuer() != null)
                 priorPatAttr.setString(Tag.IssuerOfPatientID, VR.LO, priorPatientID.getIssuer().toString());
             mergePatient(patientID, priorPatAttr);
-            forwardRS(HttpMethod.POST, RSOperation.MergePatient, getArchiveAE(), null);
+            rsForward.forward(RSOperation.MergePatient, getArchiveAE(), null, request);
         } catch (Exception e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
@@ -378,7 +375,7 @@ public class IocmRS {
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
             patientService.changePatientID(ctx);
             sendHL7Message("ADT^A47^ADT_A30", ctx);
-            forwardRS(HttpMethod.POST, RSOperation.ChangePatientID, arcAE, null);
+            rsForward.forward(RSOperation.ChangePatientID, arcAE, null, request);
         } catch (Exception e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
@@ -412,7 +409,7 @@ public class IocmRS {
             ctx.setPatient(patient);
             ctx.setAttributes(attrs);
             studyService.updateStudy(ctx);
-            forwardRS(HttpMethod.POST, RSOperation.UpdateStudy, arcAE, attrs);
+            rsForward.forward(RSOperation.UpdateStudy, arcAE, attrs, request);
             return new StreamingOutput() {
                 @Override
                 public void write(OutputStream out) throws IOException {
@@ -457,7 +454,7 @@ public class IocmRS {
             LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
             ctx.setExpirationDate(expireDate);
             studyService.updateExpirationDate(ctx);
-            forwardRS(HttpMethod.PUT, op, arcAE, null);
+            rsForward.forward(op, arcAE, null, request);
         } catch (Exception e) {
             String message;
             if (seriesUID != null)
@@ -523,60 +520,7 @@ public class IocmRS {
         ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
         ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
         storeService.store(ctx, attrs);
-        forwardRS(HttpMethod.POST, rsOp, arcAE, null);
-    }
-
-    private void forwardRS(String method, RSOperation rsOp, ArchiveAEExtension arcAE, Attributes attrs) {
-        List<RSForwardRule> rules = arcAE.findRSForwardRules(rsOp);
-        for (RSForwardRule rule : rules) {
-            String baseURI = rule.getBaseURI();
-            try {
-                if (!request.getRemoteAddr().equals(
-                        InetAddress.getByName(URI.create(baseURI).getHost()).getHostAddress())) {
-                    rsClient.scheduleRequest(method, mkForwardURI(baseURI, rsOp, attrs), toContent(attrs));
-                }
-            } catch (Exception e) {
-                LOG.warn("Failed to apply {}:\n", rule, e);
-            }
-        }
-    }
-
-    private void forwardRSMergeMultiplePatients(String method, RSOperation rsOp, ArchiveAEExtension arcAE, byte[] in) {
-        List<RSForwardRule> rules = arcAE.findRSForwardRules(rsOp);
-        for (RSForwardRule rule : rules) {
-            String baseURI = rule.getBaseURI();
-            try {
-                if (!request.getRemoteAddr().equals(
-                        InetAddress.getByName(URI.create(baseURI).getHost()).getHostAddress())) {
-                    rsClient.scheduleRequest(method, mkForwardURI(baseURI, rsOp, null), in);
-                }
-            } catch (Exception e) {
-                LOG.warn("Failed to apply {}:\n", rule, e);
-            }
-        }
-    }
-
-    private String mkForwardURI(String baseURI, RSOperation rsOp, Attributes attrs) {
-        String requestURI = request.getRequestURI();
-        int requestURIIndex = requestURI.indexOf("/rs");
-        int baseURIIndex = baseURI.indexOf("/rs");
-        StringBuilder sb = new StringBuilder(requestURI.length() + 16);
-        sb.append(baseURI.substring(0, baseURIIndex));
-        sb.append(requestURI.substring(requestURIIndex));
-        if (rsOp == RSOperation.CreatePatient)
-            sb.append(IDWithIssuer.pidOf(attrs));
-        return sb.toString();
-    }
-
-    private static byte[] toContent(Attributes attrs) {
-        if (attrs == null)
-            return ByteUtils.EMPTY_BYTES;
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (JsonGenerator gen = Json.createGenerator(out)) {
-            new JSONWriter(gen).write(attrs);
-        }
-        return out.toByteArray();
+        rsForward.forward(rsOp, arcAE, null, request);
     }
 
     private Response copyOrMoveInstances(RSOperation op, String studyUID, InputStream in, Code code)
@@ -631,7 +575,7 @@ public class IocmRS {
                 reject(session, instanceRefs, rjNote);
         }
 
-        forwardRS(HttpMethod.POST, op, arcAE, instanceRefs);
+        rsForward.forward(op, arcAE, instanceRefs, request);
         StreamingOutput entity = new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
