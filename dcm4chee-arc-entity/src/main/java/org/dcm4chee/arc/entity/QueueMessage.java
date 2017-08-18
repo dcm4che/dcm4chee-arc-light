@@ -282,7 +282,7 @@ public class QueueMessage {
 
     public void writeAsJSON(Writer out) throws IOException {
         JsonGenerator gen = Json.createGenerator(out);
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        DateFormat df = toSimpleDateFormatWithTimezone();
         gen.writeStartObject();
         gen.write("id", messageID);
         gen.write("queue", queueName);
@@ -294,6 +294,15 @@ public class QueueMessage {
         out.write(messageProperties);
         gen.writeEnd();
         gen.flush();
+    }
+
+    private SimpleDateFormat toSimpleDateFormatWithTimezone() {
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ") {
+            public StringBuffer format(Date date, StringBuffer toAppendTo, java.text.FieldPosition pos) {
+                StringBuffer toFix = super.format(date, toAppendTo, pos);
+                return toFix.insert(toFix.length()-2, ':');
+            }
+        };
     }
 
     public void writeStatusAsJSONTo(JsonGenerator gen, DateFormat df) {

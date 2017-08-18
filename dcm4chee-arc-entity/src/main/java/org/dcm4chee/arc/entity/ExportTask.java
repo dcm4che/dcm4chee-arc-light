@@ -44,6 +44,7 @@ import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -260,7 +261,8 @@ public class ExportTask {
         this.queueMessage = queueMessage;
     }
 
-    public void writeAsJSONTo(JsonGenerator gen, DateFormat df) throws IOException {
+    public void writeAsJSONTo(JsonGenerator gen) throws IOException {
+        DateFormat df = toSimpleDateFormatWithTimezone();
         gen.writeStartObject();
         gen.write("pk", pk);
         gen.write("createdTime", df.format(createdTime));
@@ -291,6 +293,15 @@ public class ExportTask {
         }
         gen.writeEnd();
         gen.flush();
+    }
+
+    private SimpleDateFormat toSimpleDateFormatWithTimezone() {
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ") {
+            public StringBuffer format(Date date, StringBuffer toAppendTo, java.text.FieldPosition pos) {
+                StringBuffer toFix = super.format(date, toAppendTo, pos);
+                return toFix.insert(toFix.length()-2, ':');
+            }
+        };
     }
 
     @Override
