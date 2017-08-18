@@ -48,7 +48,6 @@ import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
@@ -90,7 +89,6 @@ class StoreContextImpl implements StoreContext {
     private Availability availability;
     private LocalDate expirationDate;
     private boolean copyOrMove;
-    private MWLItem mwlItem;
 
     public StoreContextImpl(StoreSession storeSession) {
         this.storeSession = storeSession;
@@ -336,13 +334,4 @@ class StoreContextImpl implements StoreContext {
         this.copyOrMove = copyOrMove;
     }
 
-    @Override
-    public MWLItem getMWLItem() {
-        return mwlItem;
-    }
-
-    @Override
-    public void setMWLItem(MWLItem mwlItem) {
-        this.mwlItem = mwlItem;
-    }
 }

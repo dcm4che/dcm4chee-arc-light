@@ -50,13 +50,12 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.UIDUtils;
-import org.dcm4chee.arc.entity.MWLItem;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.KeycloakUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
-import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -104,6 +103,13 @@ public class IocmRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(IocmRS.class);
     private static final String ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT = "org.keycloak.KeycloakSecurityContext";
+
+    private final int[] SERIES_MWL_ATTR = {
+            Tag.AccessionNumber,
+            Tag.RequestedProcedureID,
+            Tag.StudyInstanceUID,
+            Tag.RequestedProcedureDescription
+    };
 
     @Inject
     private Device device;
@@ -499,7 +505,7 @@ public class IocmRS {
         MWLItem mwl = procedureService.findMWLItem(ctx);
         if (mwl == null)
             return getResponse("MWLItem[studyUID=" + studyUID + ", spsID=" + spsID + "] does not exist.",
-                            Response.Status.NOT_FOUND);
+                        Response.Status.NOT_FOUND);
 
         ctx.setAttributes(mwl.getAttributes());
         ctx.setPatient(mwl.getPatient());
@@ -508,6 +514,7 @@ public class IocmRS {
         Code code = new Code(codeValue, designator, null, "?");
 
         ArchiveAEExtension arcAE = getArchiveAE();
+
         Map<String, String> uidMap = new HashMap<>();
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         Collection<InstanceLocations> instanceLocations = storeService.queryInstances(session, instanceRefs, studyUID, uidMap);
@@ -526,12 +533,45 @@ public class IocmRS {
             moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
             session.setUIDMap(uidMap);
             StoreContext storeCtx = storeService.newStoreContext(session);
-            storeCtx.setMWLItem(mwl);
+            updateInstanceLocationAttributesFromMWL(mwl, instanceLocations);
             result = storeService.copyInstances(storeCtx, instanceLocations, uidMap);
             postMoveRejectInstances(instanceRefs, rjNote, session, result);
         }
 
         return toResponse(result);
+    }
+
+    private void updateInstanceLocationAttributesFromMWL(MWLItem mwl, Collection<InstanceLocations> instanceLocations) {
+        Attributes mwlToComposite = mwlToComposite(mwl);
+        for (InstanceLocations instanceLocation : instanceLocations)
+            instanceLocation.getAttributes().addAll(mwlToComposite);
+    }
+
+    private Attributes mwlToComposite(MWLItem mwl) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        Attributes mwlToComposite = new Attributes();
+        mwlToComposite.addSelected(mwl.getAttributes(), arcDev.getAttributeFilter(Entity.Patient).getSelection());
+        mwlToComposite.addSelected(mwl.getAttributes(), arcDev.getAttributeFilter(Entity.Study).getSelection());
+        mwlToComposite.addSelected(mwl.getAttributes(), arcDev.getAttributeFilter(Entity.Series).getSelection());
+        addRequestAttributesSequence(mwl, mwlToComposite);
+        return mwlToComposite;
+    }
+
+    private void addRequestAttributesSequence(MWLItem mwl, Attributes mwlToComposite) {
+        Attributes mwlAttr = mwl.getAttributes();
+        Sequence rqAttrsSeq = mwlToComposite.newSequence(Tag.RequestAttributesSequence, 1);
+        Sequence spsSeq = mwlAttr.getSequence(Tag.ScheduledProcedureStepSequence);
+        for (Attributes item : spsSeq) {
+            Attributes reqAttr = createRequestAttrs(mwlAttr, item);
+            rqAttrsSeq.add(reqAttr);
+        }
+    }
+
+    private Attributes createRequestAttrs(Attributes mwlAttr, Attributes item) {
+        Attributes attr = new Attributes();
+        attr.addSelected(mwlAttr, SERIES_MWL_ATTR);
+        attr.setString(Tag.ScheduledProcedureStepID, VR.SH, item.getString(Tag.ScheduledProcedureStepID));
+        return attr;
     }
 
     private Response toResponse(Attributes result) {

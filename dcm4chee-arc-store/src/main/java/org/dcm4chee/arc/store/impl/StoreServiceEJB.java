@@ -106,13 +106,6 @@ public class StoreServiceEJB {
     private static final String REVOKE_REJECTION =
             "{}: Revoke rejection of Instance[studyUID={},seriesUID={},objectUID={}] by {}";
 
-    private final int[] SERIES_MWL_ATTR = {
-            Tag.AccessionNumber,
-            Tag.RequestedProcedureID,
-            Tag.StudyInstanceUID,
-            Tag.RequestedProcedureDescription
-    };
-
     @PersistenceContext(unitName="dcm4chee-arc")
     private EntityManager em;
 
@@ -694,7 +687,6 @@ public class StoreServiceEJB {
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         AttributeFilter filter = arcDev.getAttributeFilter(Entity.Study);
-        updateStudyAttributesFromMWL(ctx, study, arcDev);
         Attributes.UpdatePolicy updatePolicy =
                 ctx.isCopyOrMove() ? arcAE.copyMoveUpdatePolicy() : filter.getAttributeUpdatePolicy();
 
@@ -715,20 +707,6 @@ public class StoreServiceEJB {
                 .setParameter(1, study)
                 .executeUpdate();
         return study;
-    }
-
-    private void updateStudyAttributesFromMWL(StoreContext ctx, Study study, ArchiveDeviceExtension arcDev) {
-        if (ctx.getMWLItem() == null)
-            return;
-        Attributes studyAttr = study.getAttributes();
-        Attributes attr = new Attributes();
-        IssuerEntity issuerOfAccessionNumber = findOrCreateIssuer(ctx.getMWLItem().getAttributes(), Tag.IssuerOfAccessionNumberSequence);
-        AttributeFilter studyAttributeFilter = arcDev.getAttributeFilter(Entity.Study);
-        if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE, ctx.getMWLItem().getAttributes(), attr, studyAttributeFilter.getSelection())) {
-            if (study.getIssuerOfAccessionNumber() != null && !study.getIssuerOfAccessionNumber().equals(issuerOfAccessionNumber))
-                study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
-            study.setAttributes(studyAttr, studyAttributeFilter, arcDev.getFuzzyStr());
-        }
     }
 
     private Series updateSeries(StoreContext ctx, Series series) {
@@ -835,7 +813,7 @@ public class StoreServiceEJB {
             case COMPLETE:
                 study.setRejectionState(RejectionState.PARTIAL);
                 study.getPatient().incrementNumberOfStudies();
-                setStudyAttributes(ctx, study, ctx.getAttributes());
+                setStudyAttributes(ctx, study);
                 break;
             case EMPTY:
                 study.setRejectionState(RejectionState.NONE);
@@ -925,38 +903,18 @@ public class StoreServiceEJB {
     private Study createStudy(StoreContext ctx, Patient patient) {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        boolean isMoveToMWL = ctx.getMWLItem() != null;
-        Attributes attrs = isMoveToMWL ? getStudyAttributesFromMWL(ctx) : ctx.getAttributes();
-
         Study study = new Study();
+        study.addStorageID(session.getObjectStorageID());
+        study.setAccessControlID(arcAE.storeAccessControlID(
+                session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), ctx.getAttributes()));
         study.setCompleteness(Completeness.COMPLETE);
         study.setRejectionState(RejectionState.NONE);
-        study.setAccessControlID(arcAE.storeAccessControlID(
-                session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), attrs));
-        setStudyAttributes(ctx, study, attrs);
-
-        if (isMoveToMWL) {
-            study.setPatient(ctx.getMWLItem().getPatient());
-            ctx.getMWLItem().getPatient().incrementNumberOfStudies();
-            addStorageIDsToStudy(ctx, study);
-        }
-        else {
-            study.setPatient(patient);
-            patient.incrementNumberOfStudies();
-            study.addStorageID(session.getObjectStorageID());
-        }
-
+        setStudyAttributes(ctx, study);
+        study.setPatient(patient);
+        patient.incrementNumberOfStudies();
         em.persist(study);
         LOG.info("{}: Create {}", session, study);
         return study;
-    }
-
-    private Attributes getStudyAttributesFromMWL(StoreContext ctx) {
-        ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        Attributes mwlAttrs = ctx.getMWLItem().getAttributes();
-        AttributeFilter studyAttributeFilter = arcDev.getAttributeFilter(Entity.Study);
-        return new Attributes(mwlAttrs, studyAttributeFilter.getSelection());
     }
 
     private void checkStorePermission(StoreContext ctx, Patient pat) throws DicomServiceException {
@@ -1065,9 +1023,10 @@ public class StoreServiceEJB {
                 selectErrorComment(session, url, response, arcAE.storePermissionServiceErrorCommentPattern()));
     }
 
-    private void setStudyAttributes(StoreContext ctx, Study study, Attributes attrs) {
+    private void setStudyAttributes(StoreContext ctx, Study study) {
         ArchiveAEExtension arcAE = ctx.getStoreSession().getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        Attributes attrs = ctx.getAttributes();
         study.setAttributes(attrs, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
         study.setIssuerOfAccessionNumber(findOrCreateIssuer(attrs, Tag.IssuerOfAccessionNumberSequence));
         setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
@@ -1095,39 +1054,6 @@ public class StoreServiceEJB {
         em.persist(series);
         LOG.info("{}: Create {}", ctx.getStoreSession(), series);
         return series;
-    }
-
-    private void setSeriesAttributesFromMWL(StoreContext ctx, Series series, ArchiveDeviceExtension arcDev) {
-        if (ctx.getMWLItem() == null)
-            return;
-        Attributes mwlAttr = ctx.getMWLItem().getAttributes();
-        IssuerEntity issuerOfAccessionNumber = findOrCreateIssuer(mwlAttr, Tag.IssuerOfAccessionNumberSequence);
-        Attributes seriesAttr = series.getAttributes();
-        Sequence rqAttrsSeq = seriesAttr.newSequence(Tag.RequestAttributesSequence, 1);
-        Sequence spsSeq = mwlAttr.getSequence(Tag.ScheduledProcedureStepSequence);
-        for (Attributes item : spsSeq) {
-            Attributes reqAttr = createRequestAttrs(mwlAttr, item);
-            rqAttrsSeq.add(reqAttr);
-        }
-        setRequestAttributes(series, seriesAttr, arcDev.getFuzzyStr(), issuerOfAccessionNumber);
-        series.setAttributes(seriesAttr, arcDev.getAttributeFilter(Entity.Series), arcDev.getFuzzyStr());
-    }
-
-    private Attributes createRequestAttrs(Attributes mwlAttr, Attributes item) {
-        Attributes attr = new Attributes();
-        attr.addSelected(mwlAttr, SERIES_MWL_ATTR);
-        attr.setString(Tag.ScheduledProcedureStepID, VR.SH, item.getString(Tag.ScheduledProcedureStepID));
-        return attr;
-    }
-
-    private void setRequestAttributes(Series series, Attributes attrs, FuzzyStr fuzzyStr, IssuerEntity issuerOfAccNum) {
-        Sequence seq = attrs.getSequence(Tag.RequestAttributesSequence);
-        series.getRequestAttributes().clear();
-        if (seq != null)
-            for (Attributes item : seq) {
-                SeriesRequestAttributes request = new SeriesRequestAttributes(item, issuerOfAccNum, fuzzyStr);
-                series.getRequestAttributes().add(request);
-            }
     }
 
     private boolean markOldStudiesAsIncomplete(StoreContext ctx, Study study) {
@@ -1162,7 +1088,6 @@ public class StoreServiceEJB {
         series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         setRequestAttributes(series, attrs, fuzzyStr);
         series.setSourceAET(session.getCallingAET());
-        setSeriesAttributesFromMWL(ctx, series, arcDev);
     }
 
     private Instance createInstance(StoreSession session, Series series, CodeEntity conceptNameCode, Attributes attrs,

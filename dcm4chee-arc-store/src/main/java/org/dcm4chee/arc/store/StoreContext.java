@@ -5,7 +5,6 @@ import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.storage.WriteContext;
 
 import java.time.LocalDate;
@@ -104,8 +103,4 @@ public interface StoreContext {
     boolean isCopyOrMove();
 
     void setCopyOrMove(boolean copyOrMove);
-
-    MWLItem getMWLItem();
-
-    void setMWLItem(MWLItem mwlItem);
 }
