@@ -1400,6 +1400,16 @@ md-dialog-container{
     }
   }
 }
+.input_group_dropdown{
+  input{
+    width:65%;
+  }
+  md-select, select{
+    width:35%;
+    float: right;
+    border-left:none;
+  }
+}
 .form-row.submit_button_block{
 
 }

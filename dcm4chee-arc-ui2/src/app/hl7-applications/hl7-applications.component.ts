@@ -17,6 +17,7 @@ export class Hl7ApplicationsComponent implements OnInit {
         start: 0,
         loaderActive: false
     };
+    advancedConfig = false;
     filter = {
         dicomDeviceName: undefined,
         hl7ApplicationName: undefined,
