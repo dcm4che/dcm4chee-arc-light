@@ -1,0 +1,87 @@
+<div class="main_content devicelist">
+    <div class="devicelist_block">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" routerLinkActive="active"><a aria-controls="device_modus" routerLink="/device/devicelist" role="tab" routerLinkActive="active">Devices</a></li>
+            <li role="presentation" routerLinkActive="active"><a aria-controls="aet_modus" routerLink="/device/aelist" role="tab"  routerLinkActive="active">AE list</a></li>
+            <li role="presentation" routerLinkActive="active"><a aria-controls="aet_modus" routerLink="/device/hl7applications" role="tab"  routerLinkActive="active">Hl7 Applications</a></li>
+        </ul>
+        <div class="tab-content">
+            <div role="tabpanel"  class="device_modus" id="device_modus">
+                <h2>Hl7 Applications</h2>
+                <input autocomplete="off" id="devicefilter" class="devicefilter" [(ngModel)]="devicefilter" placeholder="Search device"/>
+                <!--<button class="adddevice" (click)="createDevice()" title="Add new device"><span class="glyphicon glyphicon-plus"></span></button>-->
+                <!--     <button class="adddevice" (click)="createDevice()" title="Extended filters"><span class="glyphicon glyphicon-cog"></span></button> -->
+
+                <div *ngIf="advancedConfig" class="ng-hide">
+                    <div class="row ng-hide filter hidden_filters" *ngIf="advancedConfig">
+                        <div class="col-md-3 block-2-1">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input id="dicomDeviceName" type="text" [(ngModel)]="filter.dicomDeviceName" placeholder="Device name" title="Device name" class="col-md-12 clearable" />
+                                </div>
+                                <div class="col-md-6">
+                                    <input id="hl7ApplicationName" type="text" [(ngModel)]="filter.hl7ApplicationName" placeholder="Hl7 Application Name" title="hl7 Application Name" class="col-md-12 clearable" />
+                                </div>
+                                <div class="col-md-6">
+                                    <input id="dicomApplicationCluster" type="text" [(ngModel)]="filter.dicomApplicationCluster" placeholder="Application Cluster" title="Application Cluster" class="col-md-12 clearable" />
+                                </div>
+                                <div class="col-md-6">
+                                    <button class="col-md-12" (click)="searchHl7Applications()">Search</button>
+                                </div>
+                            </div>
+                        </div>
+                        <a class="clearform_button" title="Clear all filters" href="" (click)="$event.preventDefault();clearForm()">
+                            Clear <span class="glyphicon glyphicon-remove"></span>
+                        </a>
+                    </div>
+                </div>
+                <div class="morefunctionblock">
+                    <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+                    <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
+<!--                    <div class="more functions">
+                        <div class="mainbutton" (click)="moreFunctionsButtons = !moreFunctionsButtons">
+                            <span *ngIf="!moreFunctionsButtons" >More functions<i class="glyphicon glyphicon-triangle-bottom"></i></span>
+                            <span *ngIf="moreFunctionsButtons">Close more functions<i class="glyphicon glyphicon-triangle-top"></i></span>
+                        </div>
+                        <ul *ngIf="moreFunctionsButtons">
+                            <li (click)="moreFunctionsButtons = false;createExporter()" title="Create new exporter">Create exporter</li>t
+                            <li (click)="moreFunctionsButtons = false;createDevice()" title="Create new device">Create device</li>
+                        </ul>
+                    </div>-->
+                </div>
+                <table class="j4care-table">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>Device Name</th>
+                        <th>Device Description</th>
+                        <th>Hl7 Application Name</th>
+                        <th title="Dicom network connection">Net. Connection</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let device of hl7Applications | search:devicefilter | slice:moreHl7.start:moreHl7.limit; let i = index">
+                        <td class="buttons_td">
+                            <span class="numbers">{{i+1}}.</span>
+                            <a class="table_btn" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
+                                <span class="glyphicon glyphicon-pencil"></span>
+                            </a>
+                        </td>
+                        <td><div *ngIf="device.dicomDeviceName" >
+                            <a title="Edit device" href="" routerLink="/device/edit/{{device.dicomDeviceName}}">
+                                {{device.dicomDeviceName}}
+                            </a>
+                        </div></td>
+                        <td><div *ngIf="device.dicomDescription" >{{device.dicomDescription}}</div></td>
+                        <td><div *ngIf="device.hl7ApplicationName" >{{device.hl7ApplicationName}}</div></td>
+                        <td>
+                            <connection-formater [dicomNetworkConnection]="device.dicomNetworkConnection"></connection-formater>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <button class="load_more" *ngIf="hl7Applications && moreHl7.limit <= hl7Applications.length" (click)="loadMoreDevices()"><i *ngIf="moreHl7.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>More</button>
+            </div>
+        </div>
+    </div>
+</div>
