@@ -1905,7 +1905,7 @@
               "$ref": "export.schema.json"
             }
           },
-          "204": {
+          "202": {
             "description": "request successfully queued for processing"
           },
           "206": {
@@ -1999,7 +1999,7 @@
               "$ref": "export.schema.json"
             }
           },
-          "204": {
+          "202": {
             "description": "request successfully queued for processing"
           },
           "206": {
@@ -2100,7 +2100,7 @@
               "$ref": "export.schema.json"
             }
           },
-          "204": {
+          "202": {
             "description": "request successfully queued for processing"
           },
           "206": {
