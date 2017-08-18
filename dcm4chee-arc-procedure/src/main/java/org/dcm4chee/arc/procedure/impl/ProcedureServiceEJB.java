@@ -49,6 +49,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
@@ -215,54 +216,32 @@ public class ProcedureServiceEJB {
     private boolean updateStudySeriesAttributesFromMWL(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Attributes mwlAttr = ctx.getAttributes();
-        boolean studyUpdated = false;
-        try {
-            List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
-                    .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
-            if (!seriesList.isEmpty()) {
-                Study study = seriesList.get(0).getStudy();
-                Attributes studyAttr = study.getAttributes();
-                Attributes attr = new Attributes();
-                studyUpdated = studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE, mwlAttr, attr, arcDev.getAttributeFilter(Entity.Study).getSelection());
-                if (studyUpdated) {
-                    if (study.getIssuerOfAccessionNumber() != null && !study.getIssuerOfAccessionNumber().equals(issuerOfAccessionNumber))
-                        study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
-                    study.setAttributes(studyAttr, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
-                    if (ctx.getSourceInstanceRefs() == null)
-                        updateAllSeries(ctx, issuerOfAccessionNumber, seriesList);
-                    else
-                        updateSelectedSeries(ctx, issuerOfAccessionNumber, seriesList);
-                }
-            }
-        } finally {
-            if (studyUpdated)
-                LOG.info("Study and series attributes updated successfully : " + ctx.getStudyInstanceUID());
-        }
-        return studyUpdated;
-    }
+        List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
+                .setParameter(1, ctx.getStudyInstanceUID()).getResultList();
+        if (seriesList.isEmpty())
+            return false;
 
-    private void updateSelectedSeries(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, List<Series> seriesList) {
-        Attributes sourceInstanceRefs = ctx.getSourceInstanceRefs();
-        Sequence refSeries = sourceInstanceRefs.getSequence(Tag.ReferencedSeriesSequence);
-        if (refSeries == null) {
-            updateAllSeries(ctx, issuerOfAccessionNumber, seriesList);
-            return;
-        }
+        Study study = seriesList.get(0).getStudy();
+        Attributes studyAttr = study.getAttributes();
+        Attributes attr = new Attributes();
+        if (!studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE,
+                mwlAttr, attr, arcDev.getAttributeFilter(Entity.Study).getSelection()))
+            return false;
 
+        study.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
+        study.setAttributes(studyAttr, arcDev.getAttributeFilter(Entity.Study), arcDev.getFuzzyStr());
+        Set<String> sourceSeriesIUIDs = ctx.getSourceSeriesInstanceUIDs();
         for (Series series : seriesList)
-            for (Attributes item : refSeries)
-                if (item.getString(Tag.SeriesInstanceUID).equals(series.getSeriesInstanceUID()))
-                    updateSeriesAttributes(ctx, issuerOfAccessionNumber, series);
+            if (sourceSeriesIUIDs == null || sourceSeriesIUIDs.contains(series.getSeriesInstanceUID()))
+                updateSeriesAttributes(series, mwlAttr, issuerOfAccessionNumber,
+                        arcDev.getAttributeFilter(Entity.Series), arcDev.getFuzzyStr());
+
+        LOG.info("Study and series attributes updated successfully : " + ctx.getStudyInstanceUID());
+        return true;
     }
 
-    private void updateAllSeries(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, List<Series> seriesList) {
-        for (Series series : seriesList)
-            updateSeriesAttributes(ctx, issuerOfAccessionNumber, series);
-    }
-
-    private void updateSeriesAttributes(ProcedureContext ctx, IssuerEntity issuerOfAccessionNumber, Series series) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        Attributes mwlAttr = ctx.getAttributes();
+    private void updateSeriesAttributes(Series series, Attributes mwlAttr, IssuerEntity issuerOfAccessionNumber,
+                                        AttributeFilter filter, FuzzyStr fuzzyStr) {
         Attributes seriesAttr = series.getAttributes();
         Sequence rqAttrsSeq = seriesAttr.newSequence(Tag.RequestAttributesSequence, 1);
         Sequence spsSeq = mwlAttr.getSequence(Tag.ScheduledProcedureStepSequence);
@@ -270,8 +249,8 @@ public class ProcedureServiceEJB {
             Attributes reqAttr = createRequestAttrs(mwlAttr, item);
             rqAttrsSeq.add(reqAttr);
         }
-        setRequestAttributes(series, seriesAttr, arcDev.getFuzzyStr(), issuerOfAccessionNumber);
-        series.setAttributes(seriesAttr, arcDev.getAttributeFilter(Entity.Series), arcDev.getFuzzyStr());
+        setRequestAttributes(series, seriesAttr, fuzzyStr, issuerOfAccessionNumber);
+        series.setAttributes(seriesAttr, filter, fuzzyStr);
     }
 
     public void updateStudySeriesAttributes(ProcedureContext ctx) {

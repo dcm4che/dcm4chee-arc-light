@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.procedure.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
@@ -49,6 +50,8 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -172,5 +175,18 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public void setSourceInstanceRefs(Attributes sourceInstanceRefs) {
         this.sourceInstanceRefs = sourceInstanceRefs;
+    }
+
+    @Override
+    public Set<String> getSourceSeriesInstanceUIDs() {
+        Sequence seq = sourceInstanceRefs != null ? sourceInstanceRefs.getSequence(Tag.ReferencedSeriesSequence) : null;
+        if (seq == null)
+            return null;
+
+        Set<String> uids = new HashSet<>(seq.size() * 3 / 4 + 1);
+        for (Attributes item : seq)
+            uids.add(item.getString(Tag.SeriesInstanceUID));
+
+        return uids;
     }
 }

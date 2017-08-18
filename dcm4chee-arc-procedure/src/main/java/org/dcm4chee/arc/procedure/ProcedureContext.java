@@ -46,6 +46,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4chee.arc.entity.Patient;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -88,4 +89,6 @@ public interface ProcedureContext {
     Attributes getSourceInstanceRefs();
 
     void setSourceInstanceRefs(Attributes sourceInstanceRefs);
+
+    Set<String> getSourceSeriesInstanceUIDs();
 }

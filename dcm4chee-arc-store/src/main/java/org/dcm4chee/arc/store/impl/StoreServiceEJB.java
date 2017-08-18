@@ -698,15 +698,13 @@ public class StoreServiceEJB {
         Attributes.UpdatePolicy updatePolicy =
                 ctx.isCopyOrMove() ? arcAE.copyMoveUpdatePolicy() : filter.getAttributeUpdatePolicy();
 
-        if (updatePolicy == null) {
+        if (updatePolicy == null)
             return study;
-        }
 
         Attributes attrs = study.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs, updatePolicy);
-        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection())) {
+        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection()))
             return study;
-        }
 
         updateInfo.log(session, study, attrs);
         study = em.find(Study.class, study.getPk());
