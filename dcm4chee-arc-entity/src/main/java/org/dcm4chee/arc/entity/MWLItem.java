@@ -331,4 +331,30 @@ public class MWLItem {
 
         updatedTime = new Date();
     }
+
+    private static final int[] REQUEST_ATTR = {
+            Tag.AccessionNumber,
+            Tag.RequestedProcedureID,
+            Tag.StudyInstanceUID,
+            Tag.RequestedProcedureDescription
+    };
+
+    private static final int[] SPS_REQUEST_ATTR = {
+            Tag.ScheduledProcedureStepDescription,
+            Tag.ScheduledProtocolCodeSequence,
+            Tag.ScheduledProcedureStepID
+    };
+
+    public Attributes getRequestAttributesSequenceItem() {
+        Attributes attrs = getAttributes();
+        Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+        return toRequestAttributesSequenceItem(attrs, spsItem);
+    }
+
+    public static Attributes toRequestAttributesSequenceItem(Attributes mwlItemAttrs, Attributes spsItem) {
+        Attributes item = new Attributes(REQUEST_ATTR.length + SPS_REQUEST_ATTR.length);
+        item.addSelected(mwlItemAttrs, REQUEST_ATTR);
+        item.addSelected(spsItem, SPS_REQUEST_ATTR);
+        return item;
+    }
 }

@@ -46,6 +46,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.UIDMap;
@@ -84,12 +85,21 @@ class StoreSessionImpl implements StoreSession {
     private Map<String, String> uidMap;
     private String objectStorageID;
     private String metadataStorageID;
+    private MWLItem mwlItem;
 
     StoreSessionImpl(StoreService storeService) {
         this.serialNo = prevSerialNo.incrementAndGet();
         this.storeService = storeService;
     }
 
+    @Override
+    public String toString() {
+        return httpRequest != null
+                ? httpRequest.getRemoteUser() + '@' + httpRequest.getRemoteHost() + "->" + ae.getAETitle()
+                : as != null ? as.toString()
+                : msh != null ? msh.toString()
+                : ae.getAETitle();
+    }
 
     void setApplicationEntity(ApplicationEntity ae) {
         this.ae = ae;
@@ -232,12 +242,10 @@ class StoreSessionImpl implements StoreSession {
 
     @Override
     public Map<String, String> getUIDMap() {
-        return uidMap;
-    }
+        if (uidMap == null)
+            uidMap = new HashMap<>();
 
-    @Override
-    public void setUIDMap(Map<String, String> uidMap) {
-        this.uidMap = uidMap;
+        return uidMap;
     }
 
     @Override
@@ -261,11 +269,12 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
-    public String toString() {
-        return httpRequest != null
-                ? httpRequest.getRemoteUser() + '@' + httpRequest.getRemoteHost() + "->" + ae.getAETitle()
-                : as != null ? as.toString()
-                : msh != null ? msh.toString()
-                : ae.getAETitle();
+    public MWLItem getMWLItem() {
+        return mwlItem;
+    }
+
+    @Override
+    public void setMWLItem(MWLItem mwlItem) {
+        this.mwlItem = mwlItem;
     }
 }

@@ -245,11 +245,14 @@ public class ProcedureServiceEJB {
         Attributes seriesAttr = series.getAttributes();
         Sequence rqAttrsSeq = seriesAttr.newSequence(Tag.RequestAttributesSequence, 1);
         Sequence spsSeq = mwlAttr.getSequence(Tag.ScheduledProcedureStepSequence);
-        for (Attributes item : spsSeq) {
-            Attributes reqAttr = createRequestAttrs(mwlAttr, item);
-            rqAttrsSeq.add(reqAttr);
+        Collection<SeriesRequestAttributes> requestAttributes = series.getRequestAttributes();
+        requestAttributes.clear();
+        for (Attributes spsItem : spsSeq) {
+            Attributes rqAttrsItem = MWLItem.toRequestAttributesSequenceItem(mwlAttr, spsItem);
+            rqAttrsSeq.add(rqAttrsItem);
+            SeriesRequestAttributes request = new SeriesRequestAttributes(rqAttrsItem, issuerOfAccessionNumber, fuzzyStr);
+            requestAttributes.add(request);
         }
-        setRequestAttributes(series, seriesAttr, fuzzyStr, issuerOfAccessionNumber);
         series.setAttributes(seriesAttr, filter, fuzzyStr);
     }
 
@@ -262,29 +265,5 @@ public class ProcedureServiceEJB {
             ctx.setException(e);
             throw e;
         }
-    }
-
-    private Attributes createRequestAttrs(Attributes mwlAttr, Attributes item) {
-        Attributes attr = new Attributes();
-        attr.addSelected(mwlAttr, SERIES_MWL_ATTR);
-        attr.setString(Tag.ScheduledProcedureStepID, VR.SH, item.getString(Tag.ScheduledProcedureStepID));
-        return attr;
-    }
-
-    private final int[] SERIES_MWL_ATTR = {
-            Tag.AccessionNumber,
-            Tag.RequestedProcedureID,
-            Tag.StudyInstanceUID,
-            Tag.RequestedProcedureDescription
-    };
-
-    private void setRequestAttributes(Series series, Attributes attrs, FuzzyStr fuzzyStr, IssuerEntity issuerOfAccNum) {
-        Sequence seq = attrs.getSequence(Tag.RequestAttributesSequence);
-        series.getRequestAttributes().clear();
-        if (seq != null)
-            for (Attributes item : seq) {
-                SeriesRequestAttributes request = new SeriesRequestAttributes(item, issuerOfAccNum, fuzzyStr);
-                series.getRequestAttributes().add(request);
-            }
     }
 }

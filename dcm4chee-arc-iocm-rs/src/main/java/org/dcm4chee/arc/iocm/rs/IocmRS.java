@@ -104,13 +104,6 @@ public class IocmRS {
     private static final Logger LOG = LoggerFactory.getLogger(IocmRS.class);
     private static final String ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT = "org.keycloak.KeycloakSecurityContext";
 
-    private final int[] SERIES_MWL_ATTR = {
-            Tag.AccessionNumber,
-            Tag.RequestedProcedureID,
-            Tag.StudyInstanceUID,
-            Tag.RequestedProcedureDescription
-    };
-
     @Inject
     private Device device;
 
@@ -183,7 +176,7 @@ public class IocmRS {
     @Consumes("application/json")
     @Produces("application/json")
     public Response copyInstances(@PathParam("StudyUID") String studyUID, InputStream in) throws Exception {
-        return copyOrMoveInstances(RSOperation.CopyInstances, studyUID, in, null);
+        return copyOrMoveInstances(RSOperation.CopyInstances, studyUID, in, null, null);
     }
 
     @POST
@@ -195,7 +188,7 @@ public class IocmRS {
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator,
             InputStream in) throws Exception {
-        return copyOrMoveInstances(RSOperation.MoveInstances, studyUID, in, new Code(codeValue, designator, null, "?"));
+        return copyOrMoveInstances(RSOperation.MoveInstances, studyUID, in, codeValue, designator);
     }
 
     @DELETE
@@ -496,6 +489,8 @@ public class IocmRS {
                                       @PathParam("codingSchemeDesignator") String designator,
                                       InputStream in) throws Exception {
         logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
         Attributes instanceRefs = parseSOPInstanceReferences(in);
 
         ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
@@ -511,13 +506,9 @@ public class IocmRS {
         ctx.setPatient(mwl.getPatient());
         ctx.setSourceInstanceRefs(instanceRefs);
 
-        Code code = new Code(codeValue, designator, null, "?");
 
-        ArchiveAEExtension arcAE = getArchiveAE();
-
-        Map<String, String> uidMap = new HashMap<>();
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
-        Collection<InstanceLocations> instanceLocations = storeService.queryInstances(session, instanceRefs, studyUID, uidMap);
+        Collection<InstanceLocations> instanceLocations = storeService.queryInstances(session, instanceRefs, studyUID);
         if (instanceLocations.isEmpty())
             return getResponse("No Instances found. ", Response.Status.NOT_FOUND);
 
@@ -526,52 +517,15 @@ public class IocmRS {
         if (studyUID.equals(instanceRefs.getString(Tag.StudyInstanceUID))) {
             procedureService.updateStudySeriesAttributes(ctx);
             result = getResult(instanceLocations);
-        }
-        else {
-            RejectionNote rjNote = toRejectionNote(code);
+        } else {
+            session.setMWLItem(mwl);
             Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity(), false);
             moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
-            session.setUIDMap(uidMap);
-            StoreContext storeCtx = storeService.newStoreContext(session);
-            updateInstanceLocationAttributesFromMWL(mwl, instanceLocations);
-            result = storeService.copyInstances(storeCtx, instanceLocations, uidMap);
-            postMoveRejectInstances(instanceRefs, rjNote, session, result);
+            result = storeService.copyInstances(session, instanceLocations);
+            rejectInstances(instanceRefs, rjNote, session, result);
         }
 
         return toResponse(result);
-    }
-
-    private void updateInstanceLocationAttributesFromMWL(MWLItem mwl, Collection<InstanceLocations> instanceLocations) {
-        Attributes mwlToComposite = mwlToComposite(mwl);
-        for (InstanceLocations instanceLocation : instanceLocations)
-            instanceLocation.getAttributes().addAll(mwlToComposite);
-    }
-
-    private Attributes mwlToComposite(MWLItem mwl) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        Attributes mwlToComposite = new Attributes();
-        mwlToComposite.addSelected(mwl.getAttributes(), arcDev.getAttributeFilter(Entity.Patient).getSelection());
-        mwlToComposite.addSelected(mwl.getAttributes(), arcDev.getAttributeFilter(Entity.Study).getSelection());
-        mwlToComposite.addSelected(mwl.getAttributes(), arcDev.getAttributeFilter(Entity.Series).getSelection());
-        addRequestAttributesSequence(mwl, mwlToComposite);
-        return mwlToComposite;
-    }
-
-    private void addRequestAttributesSequence(MWLItem mwl, Attributes mwlToComposite) {
-        Attributes mwlAttr = mwl.getAttributes();
-        Sequence rqAttrsSeq = mwlToComposite.newSequence(Tag.RequestAttributesSequence, 1);
-        Sequence spsSeq = mwlAttr.getSequence(Tag.ScheduledProcedureStepSequence);
-        for (Attributes item : spsSeq) {
-            Attributes reqAttr = createRequestAttrs(mwlAttr, item);
-            rqAttrsSeq.add(reqAttr);
-        }
-    }
-
-    private Attributes createRequestAttrs(Attributes mwlAttr, Attributes item) {
-        Attributes attr = new Attributes();
-        attr.addSelected(mwlAttr, SERIES_MWL_ATTR);
-        attr.setString(Tag.ScheduledProcedureStepID, VR.SH, item.getString(Tag.ScheduledProcedureStepID));
-        return attr;
     }
 
     private Response toResponse(Attributes result) {
@@ -707,73 +661,68 @@ public class IocmRS {
         return out.toByteArray();
     }
 
-    private Response copyOrMoveInstances(RSOperation op, String studyUID, InputStream in, Code code)
+    private Response copyOrMoveInstances(
+            RSOperation op, String studyUID, InputStream in, String codeValue, String designator)
             throws Exception {
         logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
         Attributes instanceRefs = parseSOPInstanceReferences(in);
+        StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
+        Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID);
+        if (instances.isEmpty())
+            throw new WebApplicationException(getResponse("No Instances found. ", Response.Status.NOT_FOUND));
 
-        final Attributes result = copyMoveRejectInstances(studyUID, instanceRefs, code);
+        Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity(), false);
+        moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
+        Attributes result = storeService.copyInstances(session, instances);
+        if (rjNote != null)
+            rejectInstances(instanceRefs, rjNote, session, result);
 
         forwardRS(HttpMethod.POST, op, getArchiveAE(), instanceRefs);
         return toResponse(result);
     }
 
-    private RejectionNote toRejectionNote(Code code) {
-        if (code == null)
+    private RejectionNote toRejectionNote(ArchiveAEExtension arcAE, String codeValue, String designator) {
+        if (codeValue == null)
             return null;
-        RejectionNote rjNote = getArchiveAE().getArchiveDeviceExtension().getRejectionNote(code);
+
+        RejectionNote rjNote = arcAE.getArchiveDeviceExtension().getRejectionNote(
+                new Code(codeValue, designator, null, ""));
+
         if (rjNote == null)
-            throw new WebApplicationException(getResponse("Unknown Rejection Note Code: "
-                    + code, Response.Status.NOT_FOUND));
+            throw new WebApplicationException(getResponse("Unknown Rejection Note Code: ("
+                    + codeValue + ", " + designator + ')', Response.Status.NOT_FOUND));
+
         return rjNote;
     }
 
-    private Attributes copyMoveRejectInstances(String studyUID, Attributes instanceRefs, Code code) throws Exception {
-        RejectionNote rjNote = toRejectionNote(code);
-
-        ArchiveAEExtension arcAE = getArchiveAE();
-        Map<String, String> uidMap = new HashMap<>();
-        StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
-        Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID, uidMap);
-        if (instances.isEmpty())
-            throw new WebApplicationException(getResponse("No Instances found. ", Response.Status.NOT_FOUND));
-        Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity(), false);
-        moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
-        session.setUIDMap(uidMap);
-        StoreContext ctx = storeService.newStoreContext(session);
-        final Attributes result = storeService.copyInstances(ctx, instances, uidMap);
-
-        postMoveRejectInstances(instanceRefs, rjNote, session, result);
-        return result;
-    }
-
-    private void postMoveRejectInstances(Attributes instanceRefs, RejectionNote rjNote, StoreSession session, Attributes result) throws IOException {
-        if (rjNote != null) {
-            if (result.getString(Tag.FailureReason) != null) {
-                for (int k=0; k < instanceRefs.getSequence(Tag.ReferencedSeriesSequence).size();) {
-                    Attributes refSeries = instanceRefs.getSequence(Tag.ReferencedSeriesSequence).get(0);
-                    if (!refSeries.getSequence(Tag.ReferencedSOPSequence).isEmpty()) {
-                        for (int j = 0; j < refSeries.getSequence(Tag.ReferencedSOPSequence).size();) {
-                                Attributes refSop = refSeries.getSequence(Tag.ReferencedSOPSequence).get(0);
-                                for (int i = 0; i < result.getSequence(Tag.FailedSOPSequence).size(); i++) {
-                                    boolean removed = false;
-                                    if (refSop.getString(Tag.ReferencedSOPInstanceUID).equals(
-                                            result.getSequence(Tag.FailedSOPSequence).get(i).getString(Tag.ReferencedSOPInstanceUID))) {
-                                        refSeries.getSequence(Tag.ReferencedSOPSequence).remove(refSop);
-                                        removed = true;
-                                    }
-                                    if (removed)
-                                        break;
+    private void rejectInstances(Attributes instanceRefs, RejectionNote rjNote, StoreSession session, Attributes result)
+            throws IOException {
+        if (result.getString(Tag.FailureReason) != null) {
+            for (int k=0; k < instanceRefs.getSequence(Tag.ReferencedSeriesSequence).size();) {
+                Attributes refSeries = instanceRefs.getSequence(Tag.ReferencedSeriesSequence).get(0);
+                if (!refSeries.getSequence(Tag.ReferencedSOPSequence).isEmpty()) {
+                    for (int j = 0; j < refSeries.getSequence(Tag.ReferencedSOPSequence).size();) {
+                            Attributes refSop = refSeries.getSequence(Tag.ReferencedSOPSequence).get(0);
+                            for (int i = 0; i < result.getSequence(Tag.FailedSOPSequence).size(); i++) {
+                                boolean removed = false;
+                                if (refSop.getString(Tag.ReferencedSOPInstanceUID).equals(
+                                        result.getSequence(Tag.FailedSOPSequence).get(i).getString(Tag.ReferencedSOPInstanceUID))) {
+                                    refSeries.getSequence(Tag.ReferencedSOPSequence).remove(refSop);
+                                    removed = true;
                                 }
-                        }
-                        if (refSeries.getSequence(Tag.ReferencedSOPSequence).isEmpty())
-                            instanceRefs.getSequence(Tag.ReferencedSeriesSequence).remove(0);
+                                if (removed)
+                                    break;
+                            }
                     }
+                    if (refSeries.getSequence(Tag.ReferencedSOPSequence).isEmpty())
+                        instanceRefs.getSequence(Tag.ReferencedSeriesSequence).remove(0);
                 }
             }
-            if (!instanceRefs.getSequence(Tag.ReferencedSeriesSequence).isEmpty())
-                reject(session, instanceRefs, rjNote);
         }
+        if (!instanceRefs.getSequence(Tag.ReferencedSeriesSequence).isEmpty())
+            reject(session, instanceRefs, rjNote);
     }
 
     private Response.Status status(Attributes result) {

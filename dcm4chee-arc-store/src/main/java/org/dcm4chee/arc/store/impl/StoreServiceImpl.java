@@ -312,7 +312,7 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Attributes copyInstances(StoreContext ctx, Collection<InstanceLocations> instances, Map<String, String> uidMap)
+    public Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances)
             throws Exception {
         Attributes result = new Attributes();
         if (instances != null) {
@@ -320,7 +320,8 @@ class StoreServiceImpl implements StoreService {
             Sequence failedSOPSeq = result.newSequence(Tag.FailedSOPSequence, 10);
             for (InstanceLocations il : instances) {
                 Attributes attr = il.getAttributes();
-                UIDUtils.remapUIDs(attr, uidMap);
+                UIDUtils.remapUIDs(attr, session.getUIDMap());
+                StoreContext ctx = newStoreContext(session);
                 for (Location location : il.getLocations()) {
                     ctx.getLocations().add(location);
                 }
@@ -349,8 +350,9 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public Collection<InstanceLocations> queryInstances(
-            StoreSession session, Attributes instanceRefs, String targetStudyIUID, Map<String, String> uidMap)
+            StoreSession session, Attributes instanceRefs, String targetStudyIUID)
             throws IOException {
+        Map<String, String> uidMap = session.getUIDMap();
         String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
         uidMap.put(sourceStudyUID, targetStudyIUID);
         Sequence refSeriesSeq = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);

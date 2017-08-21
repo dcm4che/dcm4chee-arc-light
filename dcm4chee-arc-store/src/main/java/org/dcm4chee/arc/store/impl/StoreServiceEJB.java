@@ -270,7 +270,6 @@ public class StoreServiceEJB {
     }
 
     private void restoreInstance(StoreSession session, Series series, Attributes attrs) {
-        ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
         Instance inst = createInstance(session, series, findOrCreateCode(attrs, Tag.ConceptNameCodeSequence), attrs,
                 attrs.getStrings(Tag.RetrieveAETitle), Availability.valueOf(attrs.getString(Tag.InstanceAvailability)));
         Location location = new Location.Builder()
@@ -659,7 +658,7 @@ public class StoreServiceEJB {
             return pat;
 
         Attributes attrs = pat.getAttributes();
-        UpdateInfo updateInfo = new UpdateInfo(attrs, updatePolicy);
+        UpdateInfo updateInfo = new UpdateInfo(attrs);
         if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), null, filter.getSelection()))
             return pat;
 
@@ -694,8 +693,13 @@ public class StoreServiceEJB {
             return study;
 
         Attributes attrs = study.getAttributes();
-        UpdateInfo updateInfo = new UpdateInfo(attrs, updatePolicy);
-        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection()))
+        UpdateInfo updateInfo = new UpdateInfo(attrs);
+        boolean updated = attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified,
+                filter.getSelection());
+        if (mergeMWLItemToStudy(ctx, attrs, updateInfo.modified))
+            updated = true;
+
+        if (!updated)
             return study;
 
         updateInfo.log(session, study, attrs);
@@ -709,6 +713,24 @@ public class StoreServiceEJB {
         return study;
     }
 
+    private boolean mergeMWLItemToStudy(StoreContext ctx, Attributes attrs, Attributes modified) {
+        StoreSession session = ctx.getStoreSession();
+        MWLItem mwlItem = session.getMWLItem();
+        return mwlItem != null && attrs.updateSelected(
+                Attributes.UpdatePolicy.MERGE, mwlItem.getAttributes(), modified, session.getArchiveAEExtension()
+                        .getArchiveDeviceExtension().getAttributeFilter(Entity.Study).getSelection());
+    }
+
+    private boolean mergeMWLItemToSeries(StoreContext ctx) {
+        MWLItem mwlItem = ctx.getStoreSession().getMWLItem();
+        if (mwlItem == null)
+            return false;
+
+        ctx.getAttributes().newSequence(Tag.RequestAttributesSequence, 1)
+                .add(mwlItem.getRequestAttributesSequenceItem());
+        return true;
+    }
+
     private Series updateSeries(StoreContext ctx, Series series) {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
@@ -719,8 +741,8 @@ public class StoreServiceEJB {
             return series;
 
         Attributes attrs = series.getAttributes();
-        UpdateInfo updateInfo = new UpdateInfo(attrs, updatePolicy);
-        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), null, filter.getSelection()))
+        UpdateInfo updateInfo = new UpdateInfo(attrs);
+        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection()))
             return series;
 
         updateInfo.log(session, series, attrs);
@@ -760,7 +782,7 @@ public class StoreServiceEJB {
     private static class UpdateInfo {
         int[] prevTags;
         Attributes modified;
-        UpdateInfo(Attributes attrs, Attributes.UpdatePolicy updatePolicy) {
+        UpdateInfo(Attributes attrs) {
             if (!LOG.isInfoEnabled())
                 return;
 
@@ -909,6 +931,7 @@ public class StoreServiceEJB {
                 session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), ctx.getAttributes()));
         study.setCompleteness(Completeness.COMPLETE);
         study.setRejectionState(RejectionState.NONE);
+        mergeMWLItemToStudy(ctx, ctx.getAttributes(), null);
         setStudyAttributes(ctx, study);
         study.setPatient(patient);
         patient.incrementNumberOfStudies();
@@ -1034,6 +1057,7 @@ public class StoreServiceEJB {
 
     private Series createSeries(StoreContext ctx, Study study, UpdateDBResult result) {
         Series series = new Series();
+        mergeMWLItemToSeries(ctx);
         setSeriesAttributes(ctx, series);
         series.setStudy(study);
         series.setInstancePurgeState(Series.InstancePurgeState.NO);

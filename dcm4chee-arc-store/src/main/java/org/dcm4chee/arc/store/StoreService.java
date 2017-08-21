@@ -60,11 +60,11 @@ public interface StoreService {
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 
-    Attributes copyInstances(StoreContext ctx, Collection<InstanceLocations> instances, Map<String, String> uidMap)
+    Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances)
             throws Exception;
 
     Collection<InstanceLocations> queryInstances(
-            StoreSession session, Attributes instanceRefs, String targetStudyIUID, Map<String, String> uidMap)
+            StoreSession session, Attributes instanceRefs, String targetStudyIUID)
             throws IOException;
 
     ZipInputStream openZipInputStream(
