@@ -718,7 +718,7 @@
                     <div style="width:6%" class="th" title="Scheduled Station AE Title">SS AE Title</div>
                 </div>
             </div>
-            <div class="headerbuttons" *ngIf="filterMode != 'mwl' && filterMode != 'diff' && isRole('admin')">
+            <div class="headerbuttons" *ngIf="filterMode != 'diff' && isRole('admin')">
                 <button title="Toggle checkboxes for selection" class="activate_checkboxes" (click)="showCheckBoxes()"><i class="material-icons">playlist_add_check</i></button>
                 <div class="movegroup">
                     <button [ngClass]="{'disabled':selected.hasPatient===true}" title="Copy selected studies/series/instances to clipboard" class="copyselected" (click)="ctrlC()"><i class="material-icons">content_copy</i></button>
@@ -1081,8 +1081,11 @@
                     <div class="tr_row">
                         <!--<div class="colcell" [innerHtml]="mwl._VALUE.offset+1+'.'"> </div>-->
                         <div class="subblock">
-                            <div class="td_row thead repeat4_hover">
+                            <div class="td_row thead repeat4_hover" [ngClass]="{selected: mwl._VALUE.selected}" >
                                 <div class="td_cell table_btn" style="width:7%">
+                                    <div class="checkbox_content hiddenbuttons">
+                                        <input type="checkbox" [ngModel]="mwl.selected" (change)='select(mwl._VALUE,"mwl", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY},"fromcheckbox")'>
+                                    </div>
                                     <a (click)="$event.preventDefault();mwl._VALUE.showAttributes = !mwl._VALUE.showAttributes" href="" title="Show Attributes">
                                         <span class="glyphicon glyphicon-th-list"></span>
                                     </a>

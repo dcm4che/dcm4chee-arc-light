@@ -10,6 +10,13 @@
             </div>
         </div>
 
+        <div class="targetobject" *ngIf="target.modus === 'mwl'">
+            <h5>Selected target MWL</h5>
+            <span *ngIf="target && target.attrs && target.attrs['00100010'] && target.attrs['00100010'].Value && target.attrs['00100010'].Value[0].Alphabetic;else noname">Patient Name:<b>{{target.attrs['00100010'].Value[0].Alphabetic}}</b></span><br>
+            <ng-template #noname>Patient ID: <b>{{target.attrs['00100020'].Value[0]}}</b></ng-template>
+            <span *ngIf="target && target.attrs && target.attrs['00400100'] && target.attrs['00400100'].Value && target.attrs['00400100'].Value[0] && target.attrs['00400100'].Value[0]['00400001'] && target.attrs['00400100'].Value[0]['00400001'].Value && target.attrs['00400100'].Value[0]['00400001'].Value[0]">Scheduled Station AE Title: {{target.attrs['00400100'].Value[0]['00400001'].Value[0]}}</span>
+            <br>
+        </div>
         <div class="targetobject" *ngIf="target.modus === 'patient'">
             <h5>Selected target patient</h5>
             <span *ngIf="target && target.attrs && target.attrs['00100010'] && target.attrs['00100010'].Value && target.attrs['00100010'].Value[0].Alphabetic;else noname"><b>{{target.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID <b>{{target.attrs['00100020'].Value[0]}}</b></span><br>
