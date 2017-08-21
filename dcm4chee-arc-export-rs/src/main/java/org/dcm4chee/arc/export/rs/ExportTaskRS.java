@@ -62,7 +62,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -169,11 +168,10 @@ public class ExportTaskRS {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (ExportTask task : tasks)
-                    task.writeAsJSONTo(gen, df);
+                    task.writeAsJSONTo(gen);
                 gen.writeEnd();
                 gen.flush();
             }

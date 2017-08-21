@@ -79,6 +79,18 @@ export class AppService implements OnInit, OnDestroy{
     //     console.log("in appservice",msg);
     //     this.msg.setMsg(msg);
     // }
+    getRealmOfLogedinUser(){
+        return this.$http.get('/rs/realm')
+            .map(res => {
+                let resjson;
+                try {
+                    resjson = res.json();
+                } catch (e) {
+                    resjson = res;
+                }
+                return resjson;
+            });
+    }
     getUserInfo(): Observable<User>{
         return this.$http.get('/dcm4chee-arc/ui2/rs/realm')
             .map(res => {

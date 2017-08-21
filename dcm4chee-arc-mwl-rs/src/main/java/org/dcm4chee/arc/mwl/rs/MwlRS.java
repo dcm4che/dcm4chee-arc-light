@@ -41,19 +41,26 @@
 package org.dcm4chee.arc.mwl.rs;
 
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
+import org.dcm4chee.arc.keycloak.KeycloakUtils;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
+import org.dcm4chee.arc.rs.client.RSForward;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,11 +74,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -83,6 +89,10 @@ import java.util.Date;
 public class MwlRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(MwlRS.class);
+    private static final String ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT = "org.keycloak.KeycloakSecurityContext";
+
+    @Inject
+    private Device device;
 
     @Inject
     private PatientService patientService;
@@ -92,6 +102,9 @@ public class MwlRS {
 
     @Inject
     private IDService idService;
+
+    @Inject
+    private RSForward rsForward;
 
     @PathParam("AETitle")
     private String aet;
@@ -104,8 +117,9 @@ public class MwlRS {
     @Consumes("application/dicom+json,application/json")
     @Produces("application/dicom+json,application/json")
     public StreamingOutput updateSPS(InputStream in) throws Exception {
-        LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
         try {
+            ArchiveAEExtension arcAE = getArchiveAE();
             JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
             final Attributes attrs = reader.readDataset(null);
             IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
@@ -138,6 +152,9 @@ public class MwlRS {
             ctx.setPatient(patient);
             ctx.setAttributes(attrs);
             procedureService.updateProcedure(ctx);
+            RSOperation rsOp = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
+                                ? RSOperation.CreateMWL : RSOperation.UpdateMWL;
+            rsForward.forward(rsOp, arcAE, attrs, request);
             return new StreamingOutput() {
                 @Override
                 public void write(OutputStream out) throws IOException {
@@ -156,7 +173,8 @@ public class MwlRS {
     @Path("/mwlitems/{studyIUID}/{spsID}")
     public void deleteSPS(@PathParam("studyIUID") String studyIUID, @PathParam("spsID") String spsID)
             throws Exception {
-        LOG.info("Process DELETE {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
         ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
         ctx.setStudyInstanceUID(studyIUID);
         ctx.setSpsID(spsID);
@@ -164,10 +182,37 @@ public class MwlRS {
         if (ctx.getEventActionCode() == null)
             throw new WebApplicationException(getResponse("MWLItem with study instance UID : " + studyIUID +
                     " and SPS ID : " + spsID + " not found.", Response.Status.NOT_FOUND));
+        rsForward.forward(RSOperation.DeleteMWL, arcAE, null, request);
     }
 
     private Response getResponse(String errorMessage, Response.Status status) {
         Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
         return Response.status(status).entity(entity).build();
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
+                request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        if (ae == null || !ae.isInstalled())
+            throw new WebApplicationException(getResponse(
+                    "No such Application Entity: " + aet,
+                    Response.Status.SERVICE_UNAVAILABLE));
+        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
+        if (request.getAttribute(ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT) != null)
+            if(!authenticatedUser(arcAE.getAcceptedUserRoles()))
+                throw new WebApplicationException(getResponse("User not allowed to perform this service.", Response.Status.FORBIDDEN));
+        return arcAE;
+    }
+
+    private boolean authenticatedUser(String[] acceptedUserRoles) {
+        Set<String> userRoles = KeycloakUtils.getUserRoles(request);
+        for (String s : userRoles)
+            if (Arrays.asList(acceptedUserRoles).contains(s))
+                return true;
+        return false;
     }
 }

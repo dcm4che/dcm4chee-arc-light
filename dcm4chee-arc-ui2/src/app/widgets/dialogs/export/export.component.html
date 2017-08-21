@@ -4,10 +4,10 @@
         <div class="content">
             <p>Select the type of the exporter:</p>
             <label>
-                <input type="radio" name="exportType" value="dicom" [(ngModel)]="result.exportType"> Dicom exporter
+                <input type="radio" name="exportType" value="dicom" [(ngModel)]="result.exportType"> Synchronised DICOM exporter
             </label><br>
             <label *ngIf="noDicomExporters.length > 0">
-                <input type="radio" name="exportType" value="nonedicom" [(ngModel)]="result.exportType"> No dicom exporter
+                <input type="radio" name="exportType" value="nonedicom" [(ngModel)]="result.exportType"> Queued exporter
             </label>
             <div class="dicomBlock" *ngIf="result.exportType == 'dicom'">
                 <p>Select the destination AETitle:</p>
@@ -33,10 +33,10 @@
                     <md-option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters" title="{{exporter.description}}">{{exporter.id}}</md-option>
                 </md-select>
             </div>
-            <label title="If checked the study will not be sent" *ngIf="warning">
+            <label title="If checked the study will not be sent" *ngIf="warning && result.exportType != 'dicom'">
                 <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> Storage commitment without export
             </label><br>
-            <label title="If checked the study will not be sent" *ngIf="warning">
+            <label title="If checked the study will not be sent" *ngIf="warning && result.exportType != 'dicom'">
                 <input type="checkbox" name="only-ian" [(ngModel)]="result['checkboxes']['only-ian']"> IAN without export
             </label>
             <div *ngIf="(_.hasIn(result,'checkboxes.only-stgcmt') && result['checkboxes']['only-stgcmt']) || (_.hasIn(result,'checkboxes.only-ian') && result['checkboxes']['only-ian'])" >

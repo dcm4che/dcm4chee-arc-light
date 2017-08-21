@@ -282,7 +282,7 @@ public class QueueMessage {
 
     public void writeAsJSON(Writer out) throws IOException {
         JsonGenerator gen = Json.createGenerator(out);
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         gen.writeStartObject();
         gen.write("id", messageID);
         gen.write("queue", queueName);

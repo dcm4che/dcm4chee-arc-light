@@ -29,6 +29,8 @@ export class StorageSystemsComponent implements OnInit {
     dialogRef: MdDialogRef<any>;
     _ = _;
     aets;
+    usableSpaceBelow;
+    usableSpaceBelowMode = "GB";
 
     constructor(public $http: Http, public cfpLoadingBar: SlimLoadingBarService, public mainservice: AppService, public  service: StorageSystemsService, public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig) {
         // this.initExporters(1);
@@ -91,9 +93,29 @@ export class StorageSystemsComponent implements OnInit {
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
+    calculateUsableSpaceBelowFilter(){
+        console.log("sl",this.usableSpaceBelow);
+        console.log("sl",this.usableSpaceBelowMode);
+        console.log("sl",this.filters.usableSpaceBelow);
+        switch(this.usableSpaceBelowMode) {
+            case "TB":
+                this.filters.usableSpaceBelow = this.usableSpaceBelow * 1000000000000;
+                break;
+            case "GB":
+                this.filters.usableSpaceBelow = this.usableSpaceBelow * 1000000000;
+                break;
+            case "MB":
+                this.filters.usableSpaceBelow = this.usableSpaceBelow * 1000000;
+                break;
+            default:
+                this.filters.usableSpaceBelow = this.usableSpaceBelow;
+        }
+        console.log("sl",this.filters.usableSpaceBelow);
+    }
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
+        this.calculateUsableSpaceBelowFilter();
         this.service.search(this.filters, offset)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {

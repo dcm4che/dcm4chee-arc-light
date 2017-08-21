@@ -89,4 +89,17 @@ public class KeycloakUtils {
         return Collections.EMPTY_SET;
     }
 
+    public static String getTokenString(HttpServletRequest request) {
+        Object refreshableKeycloakSecurityContext = request.getAttribute(keycloakSecurityContextClassName);
+        if (refreshableKeycloakSecurityContext != null) {
+            try {
+                Method getTokenString = refreshableKeycloakSecurityContext.getClass().getMethod("getTokenString");
+                return String.valueOf(getTokenString.invoke(refreshableKeycloakSecurityContext));
+            } catch (Exception e) {
+                LOG.warn("Failed to get user roles from Keycloak Security Context : ", e);
+            }
+        }
+        return null;
+    }
+
 }

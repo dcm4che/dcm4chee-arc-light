@@ -40,6 +40,9 @@
 
 package org.dcm4chee.arc.audit;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since June 2016
@@ -115,24 +118,19 @@ class BuildAuditInfo {
             studyUID = val;
             return this;
         }
-        Builder accNum(String val) {
-            accNum = val;
+        Builder pIDAndName(String[] val) {
+            pID = val[0];
+            pName = val[1];
             return this;
         }
-        Builder pID(String val) {
-            pID = val;
-            return this;
-        }
-        Builder pName(String val) {
-            pName = val;
+        Builder studyUIDAccNumDate(Attributes attrs) {
+            studyUID = attrs.getString(Tag.StudyInstanceUID);
+            accNum = attrs.getString(Tag.AccessionNumber);
+            studyDate = attrs.getString(Tag.StudyDate);
             return this;
         }
         Builder outcome(String val) {
             outcome = val;
-            return this;
-        }
-        Builder studyDate(String val) {
-            studyDate = val;
             return this;
         }
         Builder sopCUID(String val) {

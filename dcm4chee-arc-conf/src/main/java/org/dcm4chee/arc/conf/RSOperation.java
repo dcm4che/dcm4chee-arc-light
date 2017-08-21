@@ -46,10 +46,22 @@ package org.dcm4chee.arc.conf;
  * @since Nov 2016
  */
 public enum RSOperation {
-    CreatePatient, UpdatePatient, DeletePatient,
-    ChangePatientID, MergePatient, MergePatients,
-    UpdateStudy, DeleteStudy,
-    CopyInstances, MoveInstances,
-    RejectStudy, RejectSeries, RejectInstance,
-    UpdateStudyExpirationDate, UpdateSeriesExpirationDate
+    CreatePatient,
+    UpdatePatient,
+    DeletePatient,
+    ChangePatientID,
+    MergePatient,
+    MergePatients,
+    UpdateStudy,
+    DeleteStudy,
+    CopyInstances,
+    MoveInstances,
+    RejectStudy,
+    RejectSeries,
+    RejectInstance,
+    UpdateStudyExpirationDate,
+    UpdateSeriesExpirationDate,
+    CreateMWL,
+    UpdateMWL,
+    DeleteMWL
 }

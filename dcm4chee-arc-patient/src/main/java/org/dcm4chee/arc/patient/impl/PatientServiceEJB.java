@@ -122,6 +122,7 @@ public class PatientServiceEJB {
 
     public Patient updatePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         Patient pat = findPatient(ctx.getPatientID());
         if (pat == null) {
             if (ctx.isNoPatientCreate()) {
@@ -130,8 +131,7 @@ public class PatientServiceEJB {
             }
             return createPatient(ctx);
         }
-        if (updatePatient(pat, ctx))
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        updatePatient(pat, ctx);
         return pat;
     }
 
@@ -156,24 +156,23 @@ public class PatientServiceEJB {
         return pat;
     }
 
-    private boolean updatePatient(Patient pat, PatientMgtContext ctx) {
+    private void updatePatient(Patient pat, PatientMgtContext ctx) {
         Attributes.UpdatePolicy updatePolicy = ctx.getAttributeUpdatePolicy();
         AttributeFilter filter = ctx.getAttributeFilter();
         Attributes attrs = pat.getAttributes();
         Attributes newAttrs = new Attributes(ctx.getAttributes(), filter.getSelection());
         if (updatePolicy == Attributes.UpdatePolicy.REPLACE) {
-            if (attrs.equals(newAttrs)) {
-                return false;
-            }
+            if (attrs.equals(newAttrs))
+                return;
+
             attrs = newAttrs;
-        } else if (!attrs.update(updatePolicy, newAttrs, null)) {
-            return false;
-        }
+        } else if (!attrs.update(updatePolicy, newAttrs, null))
+            return;
+
         pat.setAttributes(attrs, filter, ctx.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
                 .setParameter(1, pat)
                 .executeUpdate();
-        return true;
     }
 
     public Patient mergePatient(PatientMgtContext ctx)
@@ -212,7 +211,7 @@ public class PatientServiceEJB {
 
     public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, PatientAlreadyExistsException {
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         Patient pat = findPatient(ctx.getPreviousPatientID());
         if (pat == null) {
             if (ctx.isNoPatientCreate()) {

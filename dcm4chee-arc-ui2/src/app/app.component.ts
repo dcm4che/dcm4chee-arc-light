@@ -28,6 +28,8 @@ export class AppComponent {
     logoutUrl = '';
     isRole: any;
     archive;
+    realm;
+    authServerUrl;
     showMenu = false;
     showScrollButton = false;
     @ViewChild(MessagingComponent) msg;
@@ -43,6 +45,8 @@ export class AppComponent {
                         console.log('in userauth response', response);
                         $this.mainservice.user.user = response.user;
                         $this.mainservice.user.roles = response.roles;
+                        $this.mainservice.user.realm = response.realm;
+                        $this.mainservice.user.authServerUrl = response['auth-server-url'];
                         $this.mainservice.isRole = function(role){
                             if (response.user === null && response.roles.length === 0){
                                 return true;
@@ -56,6 +60,11 @@ export class AppComponent {
                         };
                         $this.user = $this.mainservice.user;
                         $this.isRole = $this.mainservice.isRole;
+                        $this.realm = response.realm;
+                        $this.authServerUrl = response['auth-server-url'];
+                        let host    = location.protocol + '//' + location.host;
+                        $this.logoutUrl = response['auth-server-url'] + `/realms/${response.realm}/protocol/openid-connect/logout?redirect_uri=`
+                            + encodeURIComponent(host + location.pathname);
                     },
                     (response) => {
                         // this.user = this.user || {};
@@ -75,7 +84,7 @@ export class AppComponent {
         }
 
         this.initGetDevicename(2);
-        this.initGetAuth(2)
+        // this.initGetAuth(2)
     }
 
     progress(){
@@ -158,7 +167,7 @@ export class AppComponent {
             }
         });
     }
-    initGetAuth(retries){
+/*    initGetAuth(retries){
         let $this = this;
         this.$http.get('../auth')
             .map(res => {
@@ -166,10 +175,10 @@ export class AppComponent {
             .subscribe(
                 (response) => {
                     $this.url  = response.url;
-                    let host    = location.protocol + '//' + location.host;
-
-                    $this.logoutUrl = response.url + '/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
-                        + encodeURIComponent(host + location.pathname);
+                    // let host    = location.protocol + '//' + location.host;
+                    //
+                    // $this.logoutUrl = response.url + '/realms/dcm4che/protocol/openid-connect/logout?redirect_uri='
+                    //     + encodeURIComponent(host + location.pathname);
                 }, (response) => {
                     // vex.dialog.alert("Error loading device names, please reload the page and try again!");
                     if (retries){
@@ -182,7 +191,7 @@ export class AppComponent {
                     }
                 });
 
-    }
+    }*/
     initGetDevicename(retries){
         let $this = this;
         this.$http.get('../devicename')

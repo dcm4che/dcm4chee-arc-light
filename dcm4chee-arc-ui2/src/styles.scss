@@ -93,6 +93,14 @@ iod-form-generator{
     }
   }
 }
+.repeat4_hover{
+  .checkbox_content{
+    width: 15%;
+    float: left;
+    text-align: center;
+    line-height: 27px;
+  }
+}
 .groupName{
   padding-left: 7px;
   display: inline-block;
@@ -778,7 +786,8 @@ md-dialog-container{
       width:30%;
     }
     .aes{
-      width:69%;
+      //width:69%;
+      width:100%;
     }
   }
   .noneDicomBlock{
@@ -1397,6 +1406,16 @@ md-dialog-container{
         cursor: pointer;
       }
     }
+  }
+}
+.input_group_dropdown{
+  input{
+    width:65%;
+  }
+  md-select, select{
+    width:35%;
+    float: right;
+    border-left:none;
   }
 }
 .form-row.submit_button_block{

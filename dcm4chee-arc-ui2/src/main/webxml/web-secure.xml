@@ -60,7 +60,7 @@
   </security-constraint>
   <login-config>
     <auth-method>KEYCLOAK</auth-method>
-    <realm-name>dcm4che</realm-name>
+    <realm-name>${realm-name}</realm-name>
   </login-config>
   <security-role>
     <role-name>user</role-name>

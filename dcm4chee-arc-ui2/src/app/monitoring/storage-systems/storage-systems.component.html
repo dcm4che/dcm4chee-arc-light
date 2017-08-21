@@ -30,7 +30,20 @@
                     <div class="row">
                         <label for="usage" class="col-md-6 text-right control-label">Usablespace below:</label>
                         <div class="col-md-6">
-                            <input id="usage" type="number" min="1" [(ngModel)]="filters.usableSpaceBelow" class="col-md-12" />
+                            <div class="input_group_dropdown">
+                                <input id="usage" type="number" min="1" [(ngModel)]="usableSpaceBelow"/>
+                                <select name="tes" id="tes" [(ngModel)]="usableSpaceBelowMode">
+                                    <option value="TB">TB</option>
+                                    <option value="GB">GB</option>
+                                    <option value="MB">MB</option>
+                                    <option value="BYTE">Byte</option>
+                                </select>
+<!--                                <md-select [(ngModel)]="usableSpaceBelowMode" class="col-md-12">
+                                    <md-option value="GB">GB</md-option>
+                                    <md-option value="MB">MB</md-option>
+                                    <md-option value="BYTE">Byte</md-option>
+                                </md-select>-->
+                            </div>
                         </div>
                     </div>
                 </div>

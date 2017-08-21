@@ -38,7 +38,10 @@
           "RejectSeries",
           "RejectInstance",
           "UpdateStudyExpirationDate",
-          "UpdateSeriesExpirationDate"
+          "UpdateSeriesExpirationDate",
+          "CreateMWL",
+          "UpdateMWL",
+          "DeleteMWL"
         ]
 
       }

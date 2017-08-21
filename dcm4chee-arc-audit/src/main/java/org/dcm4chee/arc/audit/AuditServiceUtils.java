@@ -43,10 +43,8 @@ import org.dcm4che3.audit.*;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.StoreContext;
 import java.nio.file.Path;
-import java.util.*;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -55,7 +53,7 @@ import java.util.*;
 
 class AuditServiceUtils {
     enum EventClass {
-        QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_REJECT, BEGIN_TRF, RETRIEVE, RETRIEVE_ERR, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
+        QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
         STGCMT, INST_RETRIEVED
     }
     enum EventType {
@@ -66,18 +64,13 @@ class AuditServiceUtils {
         STORE_UPDT(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Update,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
 
-        RTRV_BEGIN(EventClass.BEGIN_TRF, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute,
+        RTRV_BEGIN(EventClass.RETRIEVE, AuditMessages.EventID.BeginTransferringDICOMInstances, AuditMessages.EventActionCode.Execute,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
 
-        RTRV_TRF_P(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
+        RTRV___TRF(EventClass.RETRIEVE, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
 
-        RTRV_TRF_E(EventClass.RETRIEVE_ERR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
-
-        STG_CMT__P(EventClass.STGCMT, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
-        STG_CMT__E(EventClass.STGCMT, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
+        STG_COMMIT(EventClass.STGCMT, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
 
         INST_RETRV(EventClass.INST_RETRIEVED, AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Read,
@@ -167,26 +160,13 @@ class AuditServiceUtils {
                     : ctx.getStoredInstance() != null ? STORE_CREA : null;
         }
 
-        static EventType forDICOMInstancesTransferred(RetrieveContext ctx) {
-            return (ctx.failedSOPInstanceUIDs().length == 0 && !ctx.getMatches().isEmpty())
-                    || (ctx.getMatches().isEmpty() && !ctx.getCStoreForwards().isEmpty())
-                    ? RTRV_TRF_P
-                    : ctx.failedSOPInstanceUIDs().length == ctx.getMatches().size() && !ctx.getMatches().isEmpty()
-                        ? RTRV_TRF_E
-                        : null;
-        }
-
-        static HashSet<EventType> forHL7(PatientMgtContext ctx) {
-            HashSet<EventType> eventType = new HashSet<>();
-            eventType.add(ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
+        static EventType forHL7(PatientMgtContext ctx) {
+            return ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
                     ? PAT_CREATE
                     : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)
                     ? PAT_UPDATE
                     : ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Delete)
-                    ? ctx.getHttpRequest() != null ? PAT_DELETE : PAT_DLT_SC : null);
-            if (ctx.getPreviousAttributes() != null || ctx.getPreviousPatientID() != null)
-                eventType.add(PAT_DELETE);
-            return eventType;
+                    ? ctx.getHttpRequest() != null ? PAT_DELETE : PAT_DLT_SC : null;
         }
 
         static EventType forProcedure(String eventActionCode) {

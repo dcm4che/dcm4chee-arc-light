@@ -27,7 +27,8 @@ export class ExportComponent implements OnInit {
         limit: 20,
         status: '*',
         updatedBefore: undefined,
-        dicomDeviceName: undefined
+        dicomDeviceName: undefined,
+        StudyInstanceUID: undefined
     };
     isRole: any;
     dialogRef: MdDialogRef<any>;

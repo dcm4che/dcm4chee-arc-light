@@ -2226,15 +2226,16 @@ export class StudiesComponent implements OnDestroy{
                     (result) => {
                         $this.mainservice.setMessage({
                             'title': 'Info',
-                            'text': 'Command executed successfully!',
+                            'text': $this.service.getMsgFromResponse(result,'Command executed successfully!'),
                             'status': 'info'
                         });
                         $this.cfpLoadingBar.complete();
                     },
                     (err) => {
+                        console.log("err",err);
                         $this.mainservice.setMessage({
                             'title': 'Error ' + err.status,
-                            'text': err.statusText,
+                            'text': $this.service.getMsgFromResponse(err),
                             'status': 'error'
                         });
                         $this.cfpLoadingBar.complete();
@@ -2252,7 +2253,7 @@ export class StudiesComponent implements OnDestroy{
         let $this = this;
         this.service.queryMwl(
             this.rsURL(),
-            this.createQueryParams(offset, this.limit + 1, this.createStudyFilterParams())
+            this.createQueryParams(offset, this.limit + 1, this.createMwlFilterParams())
         ).subscribe((res) => {
                 $this.patients = [];
                 //           $this.studies = [];
@@ -2282,7 +2283,8 @@ export class StudiesComponent implements OnDestroy{
                             attrs: studyAttrs,
                             series: null,
                             showAttributes: false,
-                            fromAllStudies: false
+                            fromAllStudies: false,
+                            selected: false
                         };
                         pat.mwls.push(mwl);
                     });
@@ -2763,10 +2765,10 @@ export class StudiesComponent implements OnDestroy{
     //     return
     // }
     selectObject(object, modus, fromcheckbox){
-        console.log('in select object modus', modus);
-        console.log('object', object);
-        console.log('object selected', object.selected);
-        console.log('this.clipboard.action', this.clipboard.action);
+        // console.log('in select object modus', modus);
+        // console.log('object', object);
+        // console.log('object selected', object.selected);
+        // console.log('this.clipboard.action', this.clipboard.action);
         this.showClipboardHeaders[modus] = true;
         // if(!fromcheckbox){
             object.selected = !object.selected;
@@ -2802,9 +2804,9 @@ export class StudiesComponent implements OnDestroy{
                 // console.log("check if patient in select selected =",this.service.getPatientId(this.selected.patients));
                 let patientInSelectedObject = false;
                 _.forEach(this.selected.patients, (m, i) => {
-                    console.log('i=', i);
-                    console.log('m=', m);
-                    console.log('patientid', this.service.getPatientId(m));
+                    // console.log('i=', i);
+                    // console.log('m=', m);
+                    // console.log('patientid', this.service.getPatientId(m));
                     if (this.service.getPatientId(m) === this.service.getPatientId(patientobject)){
                         patientInSelectedObject = true;
                     }
@@ -2988,6 +2990,14 @@ export class StudiesComponent implements OnDestroy{
     createStudyFilterParams() {
         let filter = Object.assign({}, this.filter);
         this.appendFilter(filter, 'StudyDate', this.studyDate, /-/g);
+        this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate, /-/g);
+        this.appendFilter(filter, 'StudyTime', this.studyTime, /:/g);
+        this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime, /-/g);
+        return filter;
+    }
+    createMwlFilterParams() {
+        let filter = Object.assign({}, this.filter);
+        this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.studyDate, /-/g);
         this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate, /-/g);
         this.appendFilter(filter, 'StudyTime', this.studyTime, /:/g);
         this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime, /-/g);
@@ -3478,10 +3488,19 @@ export class StudiesComponent implements OnDestroy{
                                             }
                                         );
                                 } else {
+                                    let url;
+                                    let index = 1;
+                                    if ($this.target.modus === 'mwl') {
+                                        url = `../aets/${$this.aet}/rs/mwlitems/${$this.target.attrs['0020000D'].Value[0]}/${_.get($this.target.attrs,'[00400100].Value[0][00400009].Value[0]')}/move/${$this.reject}`;
+                                    }else{
+                                        url = `../aets/${$this.aet}/rs/studies/${$this.target.attrs['0020000D'].Value[0]}/move/${$this.reject}`;
+                                    }
                                     _.forEach($this.clipboard.otherObjects, function (m, i) {
                                         console.log('m', m);
+                                        console.log("$this.clipboard.otherObjects.length",Object.keys($this.clipboard.otherObjects).length);
+                                        console.log("i",index);
                                         $this.$http.post(
-                                            '../aets/' + $this.aet + '/rs/studies/' + $this.target.attrs['0020000D'].Value[0] + '/move/' + $this.reject,
+                                            url,
                                             m,
                                             headers
                                         )
@@ -3490,7 +3509,7 @@ export class StudiesComponent implements OnDestroy{
                                                 let resjson;
                                                 try {
                                                     let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                                                    if(pattern.exec(res.url)){
+                                                    if (pattern.exec(res.url)) {
                                                         WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                                                     }
                                                     resjson = res.json();
@@ -3501,13 +3520,16 @@ export class StudiesComponent implements OnDestroy{
                                             })
                                             .subscribe((response) => {
                                                 console.log('in then function');
-                                                $this.clipboard = {};
                                                 $this.cfpLoadingBar.stop();
                                                 $this.mainservice.setMessage({
                                                     'title': 'Info',
                                                     'text': 'Object with the Study Instance UID ' + $this.target.attrs['0020000D'].Value[0] + ' moved successfully!',
                                                     'status': 'info'
                                                 });
+                                                if(index == Object.keys($this.clipboard.otherObjects).length){
+                                                    $this.clipboard = {};
+                                                    $this.selected = {};
+                                                }
                                                 $this.fireRightQuery();
                                             }, (response) => {
                                                 $this.cfpLoadingBar.stop();
@@ -3516,7 +3538,12 @@ export class StudiesComponent implements OnDestroy{
                                                     'text': response.statusText,
                                                     'status': 'error'
                                                 });
+                                                if(index == Object.keys($this.clipboard.otherObjects).length){
+                                                    $this.clipboard = {};
+                                                    $this.selected = {};
+                                                }
                                             });
+                                        index++;
                                     });
                                 }
                             }

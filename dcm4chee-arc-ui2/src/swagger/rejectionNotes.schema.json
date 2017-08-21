@@ -4,6 +4,7 @@
   "items": {
     "required": [
       "label",
+      "type",
       "codeValue",
       "codingSchemeDesignator",
       "codeMeaning"
@@ -13,6 +14,18 @@
         "title": "Label",
         "description": "Label of Rejection Note",
         "type": "string"
+      },
+      "type": {
+        "title": "Type",
+        "description": "Label of Rejection Note",
+        "type": "string",
+        "enum": [
+          "REJECTED_FOR_QUALITY_REASONS",
+          "REJECTED_FOR_PATIENT_SAFETY_REASONS",
+          "INCORRECT_MODALITY_WORKLIST_ENTRY",
+          "DATA_RETENTION_POLICY_EXPIRED",
+          "REVOKE_REJECTION"
+        ]
       },
       "codeValue": {
         "title": "Code Value",

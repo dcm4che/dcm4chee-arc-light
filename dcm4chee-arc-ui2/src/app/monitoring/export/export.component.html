@@ -40,20 +40,23 @@
                 </div>
                 <div class="col-md-3 block-2-1">
                     <div class="row">
+                        <!--<label for="dicomDeviceName" class="col-md-6 text-right control-label">Device name:</label>-->
+                        <div class="col-md-6">
+                            <input id="StudyInstanceUID" placeholder="Study Instance UID" type="text" min="1" [(ngModel)]="filters.StudyInstanceUID" class="col-md-12" />
+                        </div>
+                        <div class="col-md-6">
+                            <input id="dicomDeviceName" placeholder="Device name" type="text" min="1" [(ngModel)]="filters.dicomDeviceName" class="col-md-12" />
+                        </div>
+                    </div>
+                    <div class="row">
                         <label class="col-md-6 text-right control-label">Updated before:</label>
                         <div class="col-md-6">
                             <p-calendar  dataType="string" [(ngModel)]="filters.updatedBefore" dateFormat="yy-mm-dd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Updated before"></p-calendar>
                         </div>
                     </div>
                     <div class="row">
-                        <label for="dicomDeviceName" class="col-md-6 text-right control-label">Device name:</label>
                         <div class="col-md-6">
-                            <input id="dicomDeviceName" type="text" min="1" [(ngModel)]="filters.dicomDeviceName" class="col-md-12" />
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-
+                            <!--<input id="StudyInstanceUID" placeholder="Study Instance UID" type="text" min="1" [(ngModel)]="filters.StudyInstanceUID" class="col-md-12" />-->
                         </div>
                         <div class="col-md-6">
                             <button class="btn btn-default submit col-md-12" (click)="search(0)" title="Refresh">

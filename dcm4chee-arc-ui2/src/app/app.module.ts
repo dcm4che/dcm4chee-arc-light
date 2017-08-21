@@ -61,6 +61,8 @@ import {StorageSystemsService} from './monitoring/storage-systems/storage-system
 import {UploadDicomService} from './widgets/dialogs/upload-dicom/upload-dicom.service';
 import {WindowRefService} from "./helpers/window-ref.service";
 import { MonitoringTabsComponent } from './monitoring/monitoring-tabs.component';
+import { Hl7ApplicationsComponent } from './hl7-applications/hl7-applications.component';
+import {Hl7ApplicationsService} from "./hl7-applications/hl7-applications.service";
 
 @NgModule({
     declarations: [
@@ -101,7 +103,8 @@ import { MonitoringTabsComponent } from './monitoring/monitoring-tabs.component'
         UtcPipe,
         CustomValidatorDirective,
         StorageSystemsComponent,
-        MonitoringTabsComponent
+        MonitoringTabsComponent,
+        Hl7ApplicationsComponent
 
     ],
     imports: [
@@ -137,6 +140,7 @@ import { MonitoringTabsComponent } from './monitoring/monitoring-tabs.component'
             { path: 'monitoring/storage-systems', component: StorageSystemsComponent },
             { path: 'device/devicelist', component: DevicesComponent },
             { path: 'device/aelist', component: AeListComponent },
+            { path: 'device/hl7applications', component: Hl7ApplicationsComponent },
             { path: 'device/edit/:device', component: DeviceConfiguratorComponent },
             { path: 'device/edit/:device/:devicereff', component: DeviceConfiguratorComponent },
             { path: 'device/edit/:device/:devicereff/:schema', component: DeviceConfiguratorComponent },
@@ -163,7 +167,8 @@ import { MonitoringTabsComponent } from './monitoring/monitoring-tabs.component'
         CreateExporterService,
         DeviceConfiguratorService,
         UploadDicomService,
-        WindowRefService
+        WindowRefService,
+        Hl7ApplicationsService
     ],
     bootstrap: [AppComponent]
 })
