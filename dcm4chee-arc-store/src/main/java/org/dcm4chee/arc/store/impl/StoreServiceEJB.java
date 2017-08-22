@@ -270,7 +270,6 @@ public class StoreServiceEJB {
     }
 
     private void restoreInstance(StoreSession session, Series series, Attributes attrs) {
-        ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
         Instance inst = createInstance(session, series, findOrCreateCode(attrs, Tag.ConceptNameCodeSequence), attrs,
                 attrs.getStrings(Tag.RetrieveAETitle), Availability.valueOf(attrs.getString(Tag.InstanceAvailability)));
         Location location = new Location.Builder()
@@ -617,13 +616,11 @@ public class StoreServiceEJB {
             throws DicomServiceException {
         Patient associatedPat = study.getPatient();
         StoreSession session = ctx.getStoreSession();
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        AcceptConflictingPatientID acceptConflictingPID = arcAE.acceptConflictingPatientID();
-        if (acceptConflictingPID == AcceptConflictingPatientID.YES || ctx.isCopyOrMove())
+        if (session.getAcceptConflictingPatientID() == AcceptConflictingPatientID.YES)
             return;
 
         if (patMgtCtx.getPatientID() == null || associatedPat.getPatientID() == null) {
-            checkMissingConflicting(patMgtCtx, study, arcAE, ctx);
+            checkMissingConflicting(patMgtCtx, study, session.getArchiveAEExtension(), ctx);
             return;
         }
 
@@ -631,7 +628,7 @@ public class StoreServiceEJB {
         if (idWithIssuer.matches(patMgtCtx.getPatientID()))
             return;
 
-        if (acceptConflictingPID == AcceptConflictingPatientID.MERGED) {
+        if (session.getAcceptConflictingPatientID() == AcceptConflictingPatientID.MERGED) {
             Patient p = patientService.findPatient(patMgtCtx);
             if (p != null && p.getPk() == associatedPat.getPk())
                 return;
@@ -673,7 +670,7 @@ public class StoreServiceEJB {
             return pat;
 
         Attributes attrs = pat.getAttributes();
-        UpdateInfo updateInfo = new UpdateInfo(attrs, updatePolicy);
+        UpdateInfo updateInfo = new UpdateInfo(attrs);
         if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), null, filter.getSelection()))
             return pat;
 
@@ -698,18 +695,17 @@ public class StoreServiceEJB {
 
     private Study updateStudy(StoreContext ctx, Study study) {
         StoreSession session = ctx.getStoreSession();
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        AttributeFilter filter = arcDev.getAttributeFilter(Entity.Study);
-        Attributes.UpdatePolicy updatePolicy =
-                ctx.isCopyOrMove() ? arcAE.copyMoveUpdatePolicy() : filter.getAttributeUpdatePolicy();
-
+        Attributes.UpdatePolicy updatePolicy = session.getStudyUpdatePolicy();
         if (updatePolicy == null)
             return study;
 
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        AttributeFilter filter = arcDev.getAttributeFilter(Entity.Study);
         Attributes attrs = study.getAttributes();
-        UpdateInfo updateInfo = new UpdateInfo(attrs, updatePolicy);
-        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection()))
+        UpdateInfo updateInfo = new UpdateInfo(attrs);
+        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified,
+                filter.getSelection()))
             return study;
 
         updateInfo.log(session, study, attrs);
@@ -733,8 +729,8 @@ public class StoreServiceEJB {
             return series;
 
         Attributes attrs = series.getAttributes();
-        UpdateInfo updateInfo = new UpdateInfo(attrs, updatePolicy);
-        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), null, filter.getSelection()))
+        UpdateInfo updateInfo = new UpdateInfo(attrs);
+        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection()))
             return series;
 
         updateInfo.log(session, series, attrs);
@@ -774,7 +770,7 @@ public class StoreServiceEJB {
     private static class UpdateInfo {
         int[] prevTags;
         Attributes modified;
-        UpdateInfo(Attributes attrs, Attributes.UpdatePolicy updatePolicy) {
+        UpdateInfo(Attributes attrs) {
             if (!LOG.isInfoEnabled())
                 return;
 
@@ -808,14 +804,18 @@ public class StoreServiceEJB {
                 study = em.createNamedQuery(Study.FIND_BY_STUDY_IUID_EAGER, Study.class)
                         .setParameter(1, ctx.getStudyInstanceUID())
                         .getSingleResult();
-                for (Location l : ctx.getLocations())
-                    if (l.getObjectType() == Location.ObjectType.DICOM_FILE)
-                        study.addStorageID(l.getStorageID());
+                addStorageIDsToStudy(ctx, study);
                 study.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                 if (result.getRejectionNote() == null)
                     updateStudyRejectionState(ctx, study);
             } catch (NoResultException e) {}
         return study;
+    }
+
+    private void addStorageIDsToStudy(StoreContext ctx, Study study) {
+        for (Location l : ctx.getLocations())
+            if (l.getObjectType() == Location.ObjectType.DICOM_FILE)
+                study.addStorageID(l.getStorageID());
     }
 
     private void updateStudyRejectionState(StoreContext ctx, Study study) {
@@ -914,7 +914,7 @@ public class StoreServiceEJB {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         Study study = new Study();
-        study.addStorageID(session.getObjectStorageID());
+        study.addStorageID(objectStorageID(ctx));
         study.setAccessControlID(arcAE.storeAccessControlID(
                 session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), ctx.getAttributes()));
         study.setCompleteness(Completeness.COMPLETE);
@@ -925,6 +925,15 @@ public class StoreServiceEJB {
         em.persist(study);
         LOG.info("{}: Create {}", session, study);
         return study;
+    }
+
+    private String objectStorageID(StoreContext ctx) {
+        for (Location location : ctx.getLocations()) {
+            if (location.getObjectType() == Location.ObjectType.DICOM_FILE)
+                return location.getStorageID();
+        }
+
+        return ctx.getStoreSession().getObjectStorageID();
     }
 
     private void checkStorePermission(StoreContext ctx, Patient pat) throws DicomServiceException {

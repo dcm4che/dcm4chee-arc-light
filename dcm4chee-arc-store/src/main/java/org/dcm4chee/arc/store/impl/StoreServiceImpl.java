@@ -312,16 +312,15 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances, Map<String, String> uidMap)
+    public Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances)
             throws Exception {
         Attributes result = new Attributes();
-        session.setUIDMap(uidMap);
         if (instances != null) {
             Sequence refSOPSeq = result.newSequence(Tag.ReferencedSOPSequence, 10);
             Sequence failedSOPSeq = result.newSequence(Tag.FailedSOPSequence, 10);
             for (InstanceLocations il : instances) {
                 Attributes attr = il.getAttributes();
-                UIDUtils.remapUIDs(attr, uidMap);
+                UIDUtils.remapUIDs(attr, session.getUIDMap());
                 StoreContext ctx = newStoreContext(session);
                 for (Location location : il.getLocations()) {
                     ctx.getLocations().add(location);
@@ -329,7 +328,6 @@ class StoreServiceImpl implements StoreService {
                 ctx.setRetrieveAETs(il.getRetrieveAETs());
                 ctx.setAvailability(il.getAvailability());
                 try {
-                    ctx.setCopyOrMove(true);
                     store(ctx, attr);
                     populateResult(refSOPSeq, attr);
                 } catch (DicomServiceException e) {
@@ -351,8 +349,9 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public Collection<InstanceLocations> queryInstances(
-            StoreSession session, Attributes instanceRefs, String targetStudyIUID, Map<String, String> uidMap)
+            StoreSession session, Attributes instanceRefs, String targetStudyIUID)
             throws IOException {
+        Map<String, String> uidMap = session.getUIDMap();
         String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
         uidMap.put(sourceStudyUID, targetStudyIUID);
         Sequence refSeriesSeq = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);

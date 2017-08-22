@@ -109,8 +109,6 @@ public class MwlRS {
     @PathParam("AETitle")
     private String aet;
 
-    private ApplicationEntity ae;
-
     @Context
     private HttpServletRequest request;
 
@@ -150,7 +148,7 @@ public class MwlRS {
                 spsItem.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
             if (!spsItem.containsValue(Tag.ScheduledProcedureStepStatus))
                 spsItem.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.SCHEDULED.toString());
-            ProcedureContext ctx = procedureService.createProcedureContextWEB(request, getApplicationEntity());
+            ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
             ctx.setPatient(patient);
             ctx.setAttributes(attrs);
             procedureService.updateProcedure(ctx);
@@ -177,7 +175,7 @@ public class MwlRS {
             throws Exception {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
-        ProcedureContext ctx = procedureService.createProcedureContextWEB(request, getApplicationEntity());
+        ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
         ctx.setStudyInstanceUID(studyIUID);
         ctx.setSpsID(spsID);
         procedureService.deleteProcedure(ctx);
@@ -185,19 +183,6 @@ public class MwlRS {
             throw new WebApplicationException(getResponse("MWLItem with study instance UID : " + studyIUID +
                     " and SPS ID : " + spsID + " not found.", Response.Status.NOT_FOUND));
         rsForward.forward(RSOperation.DeleteMWL, arcAE, null, request);
-    }
-
-    private ApplicationEntity getApplicationEntity() {
-        ApplicationEntity ae = this.ae;
-        if (ae == null) {
-            ae = device.getApplicationEntity(aet, true);
-            if (ae == null || !ae.isInstalled())
-                throw new WebApplicationException(getResponse(
-                        "No such Application Entity: " + aet,
-                        Response.Status.SERVICE_UNAVAILABLE));
-            this.ae = ae;
-        }
-        return ae;
     }
 
     private Response getResponse(String errorMessage, Response.Status status) {

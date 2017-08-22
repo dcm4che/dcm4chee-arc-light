@@ -99,8 +99,4 @@ public interface StoreContext {
     boolean isPreviousDifferentStudy();
 
     boolean isPreviousDifferentSeries();
-
-    boolean isCopyOrMove();
-
-    void setCopyOrMove(boolean copyOrMove);
 }

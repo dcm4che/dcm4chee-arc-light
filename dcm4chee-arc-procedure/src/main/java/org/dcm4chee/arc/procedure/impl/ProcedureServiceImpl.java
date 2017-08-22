@@ -42,11 +42,10 @@ package org.dcm4chee.arc.procedure.impl;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.HL7Segment;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.MPPS;
+import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.mpps.MPPSContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
@@ -70,8 +69,6 @@ public class ProcedureServiceImpl implements ProcedureService {
     private static final Logger LOG = LoggerFactory.getLogger(ProcedureServiceImpl.class);
 
     @Inject
-    private Device device;
-    @Inject
     private ProcedureServiceEJB ejb;
 
     @Inject
@@ -79,17 +76,22 @@ public class ProcedureServiceImpl implements ProcedureService {
 
     @Override
     public ProcedureContext createProcedureContextHL7(Socket s, HL7Segment msh) {
-        return new ProcedureContextImpl(device, null, null, null, s, msh);
+        return new ProcedureContextImpl(null, null, s, msh);
     }
 
     @Override
-    public ProcedureContext createProcedureContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae) {
-        return new ProcedureContextImpl(device, httpRequest, ae, null,  null, null);
+    public ProcedureContext createProcedureContextWEB(HttpServletRequest httpRequest) {
+        return new ProcedureContextImpl(httpRequest, null,  null, null);
     }
 
     @Override
     public ProcedureContext createProcedureContextAssociation(Association as) {
-        return new ProcedureContextImpl(device, null, as.getApplicationEntity(), as, as.getSocket(), null);
+        return new ProcedureContextImpl(null, as, as.getSocket(), null);
+    }
+
+    @Override
+    public MWLItem findMWLItem(ProcedureContext ctx) {
+        return ejb.findMWLItem(ctx);
     }
 
     @Override
@@ -111,6 +113,16 @@ public class ProcedureServiceImpl implements ProcedureService {
         if (ctx.getEventActionCode() != null) {
             LOG.info("Successfully deleted MWLItem {} from database." + ctx.getSpsID());
             procedureEvent.fire(ctx);
+        }
+    }
+
+    @Override
+    public void updateStudySeriesAttributes(ProcedureContext ctx) throws Exception {
+        try {
+            ejb.updateStudySeriesAttributes(ctx);
+        } finally {
+            if (ctx.getEventActionCode() != null)
+                procedureEvent.fire(ctx);
         }
     }
 

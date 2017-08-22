@@ -41,20 +41,17 @@
 package org.dcm4chee.arc.procedure.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Segment;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
-import org.dcm4che3.net.Device;
-import org.dcm4che3.soundex.FuzzyStr;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -62,10 +59,7 @@ import java.net.Socket;
  * @since Jun 2016
  */
 public class ProcedureContextImpl implements ProcedureContext {
-    private final AttributeFilter attributeFilter;
-    private final FuzzyStr fuzzyStr;
     private final HttpServletRequest httpRequest;
-    private final ApplicationEntity ae;
     private final Socket socket;
     private final HL7Segment msh;
     private Patient patient;
@@ -75,14 +69,11 @@ public class ProcedureContextImpl implements ProcedureContext {
     private Exception exception;
     private String spsID;
     private Association as;
+    private Attributes sourceInstanceRefs;
 
-    ProcedureContextImpl(Device device, HttpServletRequest httpRequest, ApplicationEntity ae, Association as, Socket socket,
+    ProcedureContextImpl(HttpServletRequest httpRequest, Association as, Socket socket,
                          HL7Segment msh) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        this.attributeFilter = arcDev.getAttributeFilter(Entity.MWL);
-        this.fuzzyStr = arcDev.getFuzzyStr();
         this.httpRequest = httpRequest;
-        this.ae = ae;
         this.socket = socket;
         this.msh = msh;
         this.as = as;
@@ -93,16 +84,6 @@ public class ProcedureContextImpl implements ProcedureContext {
         return httpRequest != null
                 ? httpRequest.getRemoteAddr()
                 : as != null ? as.toString() : socket.toString();
-    }
-
-    @Override
-    public AttributeFilter getAttributeFilter() {
-        return attributeFilter;
-    }
-
-    @Override
-    public FuzzyStr getFuzzyStr() {
-        return fuzzyStr;
     }
 
     @Override
@@ -123,11 +104,6 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public HL7Segment getHL7MessageHeader() {
         return msh;
-    }
-
-    @Override
-    public String getCalledAET() {
-        return ae != null ? ae.getAETitle() : null;
     }
 
     @Override
@@ -189,5 +165,28 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public void setSpsID(String spsID) {
         this.spsID = spsID;
+    }
+
+    @Override
+    public Attributes getSourceInstanceRefs() {
+        return sourceInstanceRefs;
+    }
+
+    @Override
+    public void setSourceInstanceRefs(Attributes sourceInstanceRefs) {
+        this.sourceInstanceRefs = sourceInstanceRefs;
+    }
+
+    @Override
+    public Set<String> getSourceSeriesInstanceUIDs() {
+        Sequence seq = sourceInstanceRefs != null ? sourceInstanceRefs.getSequence(Tag.ReferencedSeriesSequence) : null;
+        if (seq == null)
+            return null;
+
+        Set<String> uids = new HashSet<>(seq.size() * 3 / 4 + 1);
+        for (Attributes item : seq)
+            uids.add(item.getString(Tag.SeriesInstanceUID));
+
+        return uids;
     }
 }
