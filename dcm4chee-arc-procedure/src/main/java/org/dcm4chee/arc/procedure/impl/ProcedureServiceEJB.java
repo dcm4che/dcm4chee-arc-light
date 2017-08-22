@@ -257,13 +257,15 @@ public class ProcedureServiceEJB {
     }
 
     public void updateStudySeriesAttributes(ProcedureContext ctx) {
+        boolean result = false;
         try {
             IssuerEntity issuerOfAccessionNumber = findOrCreateIssuer(ctx.getAttributes());
-            if (updateStudySeriesAttributesFromMWL(ctx, issuerOfAccessionNumber))
-                ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+            result = updateStudySeriesAttributesFromMWL(ctx, issuerOfAccessionNumber);
         } catch (Exception e) {
             ctx.setException(e);
-            throw e;
+        } finally {
+            if (result || ctx.getException() != null)
+                ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         }
     }
 }
