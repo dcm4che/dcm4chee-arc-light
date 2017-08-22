@@ -633,6 +633,7 @@ public class IocmRS {
         ArchiveAEExtension arcAE = getArchiveAE();
         RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
         Attributes instanceRefs = parseSOPInstanceReferences(in);
+        Attributes forwardOriginal = new Attributes(instanceRefs);
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID);
         if (instances.isEmpty())
@@ -646,7 +647,7 @@ public class IocmRS {
         if (rjNote != null)
             rejectInstances(instanceRefs, rjNote, session, result);
 
-        rsForward.forward(op, arcAE, instanceRefs, request);
+        rsForward.forward(op, arcAE, forwardOriginal, request);
         return toResponse(result);
     }
 
