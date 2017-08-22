@@ -63,7 +63,7 @@ public interface ProcedureService {
 
     void deleteProcedure(ProcedureContext ctx);
 
-    void updateStudySeriesAttributes(ProcedureContext ctx) throws Exception;
+    void updateStudySeriesAttributes(ProcedureContext ctx);
 
     MWLItem findMWLItem(ProcedureContext ctx);
 }
