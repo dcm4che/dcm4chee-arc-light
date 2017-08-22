@@ -3242,7 +3242,14 @@ export class StudiesComponent implements OnDestroy{
                     let title = action + ' PROCESS';
                     if(this.target.modus === "mwl"){
                         title = "LINK TO MWL";
+                        _.forEach(this.rjnotes,(m,i)=>{
+                            console.log("m",m);
+                            if(m.type === "INCORRECT_MODALITY_WORKLIST_ENTRY"){
+                                this.reject = m.codeValue+"^"+m.codingSchemeDesignator;
+                            }
+                        });
                     }
+                    console.log("reject",this.reject);
                     this.dialogRef.componentInstance.clipboard = this.clipboard;
                     this.dialogRef.componentInstance.rjnotes = this.rjnotes;
                     this.dialogRef.componentInstance.selected = this.selected['otherObjects'];
