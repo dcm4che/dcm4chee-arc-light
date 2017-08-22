@@ -62,4 +62,8 @@ public interface HL7Sender {
     Outcome sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                         String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
             throws Exception;
+
+    HL7Message sendMsg(String sendingApplication, String sendingFacility, String receivingApplication,
+                        String receivingFacility, byte[] hl7msg)
+            throws Exception;
 }

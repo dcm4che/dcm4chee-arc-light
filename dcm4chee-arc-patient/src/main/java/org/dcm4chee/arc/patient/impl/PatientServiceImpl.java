@@ -85,10 +85,9 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public PatientMgtContext createPatientMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae) {
+    public PatientMgtContext createPatientMgtContextWEB(HttpServletRequest httpRequest) {
         PatientMgtContextImpl ctx = new PatientMgtContextImpl(device);
         ctx.setHttpRequest(httpRequest);
-        ctx.setApplicationEntity(ae);
         return ctx;
     }
 

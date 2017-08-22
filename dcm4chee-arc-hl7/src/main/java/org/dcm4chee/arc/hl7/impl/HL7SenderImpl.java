@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.hl7.impl;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
@@ -162,6 +163,29 @@ public class HL7SenderImpl implements HL7Sender {
                             ? QueueMessage.Status.COMPLETED
                             : QueueMessage.Status.WARNING,
                     msa.toString());
+        }
+    }
+
+    @Override
+    public HL7Message sendMsg(String sendingApplication, String sendingFacility, String receivingApplication,
+                              String receivingFacility, byte[] hl7msg)
+            throws Exception {
+        return getAcknowledgeHL7Msg(sendingApplication, sendingFacility, receivingApplication, receivingFacility, hl7msg);
+    }
+
+    private HL7Message getAcknowledgeHL7Msg(String sendingApplication, String sendingFacility, String receivingApplication,
+                                            String receivingFacility, byte[] hl7msg) throws Exception {
+        LOG.warn("HL7 message being sent is : ", hl7msg);
+        HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
+        HL7Application sender = hl7Dev.getHL7Application(sendingApplication + '|' + sendingFacility, true);
+        HL7Application receiver = hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
+        try (MLLPConnection conn = sender.connect(receiver)) {
+            conn.writeMessage(hl7msg);
+            byte[] rsp = conn.readMessage();
+            if (rsp == null)
+                throw new IOException("TCP connection dropped while waiting for response");
+
+            return HL7Message.parse(rsp, sender.getHL7DefaultCharacterSet());
         }
     }
 }
