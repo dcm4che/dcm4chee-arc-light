@@ -533,14 +533,17 @@ public class IocmRS {
         AttributeFilter studyFilter = arcDev.getAttributeFilter(Entity.Study);
         Attributes mwlAttrs = new Attributes(mwl.getAttributes(), studyFilter.getSelection());
         mwlAttrs.addAll(mwl.getPatient().getAttributes());
-        mwlAttrs.newSequence(Tag.RequestAttributesSequence, 1).add(mwl.getRequestAttributesSequenceItem());
-        for (InstanceLocations instanceLocation : instanceLocations) {
-            Attributes instAttrs = instanceLocation.getAttributes();
-            for (int tag : patFilter.getSelection()) {
-                instAttrs.remove(tag);
-            }
-            instAttrs.addAll(mwlAttrs);
-        }
+        mwlAttrs.newSequence(Tag.RequestAttributesSequence, 1)
+                .add(mwl.getRequestAttributesSequenceItem());
+        for (InstanceLocations instanceLocation : instanceLocations)
+            mergeMWLItemTo(mwlAttrs, instanceLocation.getAttributes(), patFilter);
+    }
+
+    private void mergeMWLItemTo(Attributes mwlAttrs, Attributes instAttrs, AttributeFilter patFilter) {
+        for (int tag : patFilter.getSelection())
+            instAttrs.remove(tag);
+
+        instAttrs.addAll(mwlAttrs);
     }
 
     private Response toResponse(Attributes result) {
