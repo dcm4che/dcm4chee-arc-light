@@ -604,12 +604,7 @@ public class IocmRS {
                         String codeValue, String designator) throws IOException {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        Code code = new Code(codeValue, designator, null, "?");
-        RejectionNote rjNote = arcDev.getRejectionNote(code);
-        if (rjNote == null)
-            throw new WebApplicationException(getResponse("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND));
-
+        RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         storeService.restoreInstances(session, studyUID, seriesUID);
 
@@ -667,36 +662,40 @@ public class IocmRS {
 
     private void rejectInstances(Attributes instanceRefs, RejectionNote rjNote, StoreSession session, Attributes result)
             throws IOException {
-        if (result.getString(Tag.FailureReason) != null)
-            removeFailedInstanceRefs(instanceRefs, result);
-
-        if (!instanceRefs.getSequence(Tag.ReferencedSeriesSequence).isEmpty())
+        Sequence refSeriesSeq = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);
+        removeFailedInstanceRefs(refSeriesSeq, failedIUIDs(result));
+        if (!refSeriesSeq.isEmpty())
             reject(session, instanceRefs, rjNote);
     }
 
-    private void removeFailedInstanceRefs(Attributes instanceRefs, Attributes result) {
-        for (Iterator<Attributes> refSeriesIter = instanceRefs.getSequence(Tag.ReferencedSeriesSequence).iterator(); refSeriesIter.hasNext();) {
-            Attributes refSeries = refSeriesIter.next();
-            removeFailedRefSOPs(result, refSeries);
-            if (refSeries.getSequence(Tag.ReferencedSOPSequence).isEmpty())
+    private Set<String> failedIUIDs(Attributes result) {
+        Sequence failedSOPSeq = result.getSequence(Tag.FailedSOPSequence);
+        if (failedSOPSeq == null || failedSOPSeq.isEmpty())
+            return Collections.EMPTY_SET;
+
+        Set<String> failedIUIDs = new HashSet<>(failedSOPSeq.size() * 4 / 3 + 1);
+        for (Attributes failedSOPRef : failedSOPSeq)
+            failedIUIDs.add(failedSOPRef.getString(Tag.ReferencedSOPInstanceUID));
+
+        return failedIUIDs;
+    }
+
+    private void removeFailedInstanceRefs(Sequence refSeriesSeq, Set<String> failedIUIDs) {
+        if (failedIUIDs.isEmpty())
+            return;
+
+        for (Iterator<Attributes> refSeriesIter = refSeriesSeq.iterator(); refSeriesIter.hasNext();) {
+            Sequence refSOPSeq = refSeriesIter.next().getSequence(Tag.ReferencedSOPSequence);
+            removeFailedRefSOPs(refSOPSeq, failedIUIDs);
+            if (refSOPSeq.isEmpty())
                 refSeriesIter.remove();
         }
     }
 
-    private void removeFailedRefSOPs(Attributes result, Attributes refSeries) {
-        for (Iterator<Attributes> refSopIter = refSeries.getSequence(Tag.ReferencedSOPSequence).iterator(); refSopIter.hasNext();) {
-            Attributes refSop = refSopIter.next();
-            for (int i = 0; i < result.getSequence(Tag.FailedSOPSequence).size(); i++) {
-                boolean removed = false;
-                if (refSop.getString(Tag.ReferencedSOPInstanceUID).equals(
-                        result.getSequence(Tag.FailedSOPSequence).get(i).getString(Tag.ReferencedSOPInstanceUID))) {
-                    refSopIter.remove();
-                    removed = true;
-                }
-                if (removed)
-                    break;
-            }
-        }
+    private void removeFailedRefSOPs(Sequence refSOPSeq, Set<String> failedIUIDs) {
+        for (Iterator<Attributes> refSopIter = refSOPSeq.iterator(); refSopIter.hasNext();)
+            if (failedIUIDs.contains(refSopIter.next().getString(Tag.ReferencedSOPInstanceUID)))
+                refSopIter.remove();
     }
 
     private Response.Status status(Attributes result) {
