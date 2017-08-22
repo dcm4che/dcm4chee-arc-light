@@ -959,8 +959,8 @@ class ArchiveDeviceFactory {
     static final String AUDIT2JSONFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl";
     static final String AUDIT2XMLFHIR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl";
     static final String AUDIT_LOGGER_SPOOL_DIR_URI = "${jboss.server.temp.url}";
+    static final Attributes.UpdatePolicy LINK_MWL_ENTRY_UPDATE_POLICY = Attributes.UpdatePolicy.MERGE;
     static final String PIX_CONSUMER = "DCM4CHEE|DCM4CHEE";
-
     static final String PIX_MANAGER = "HL7RCV|DCM4CHEE";
     static final String STORAGE_ID = "fs1";
     static final String STORAGE_URI = "${jboss.server.data.url}/fs1/";
@@ -1297,6 +1297,7 @@ class ArchiveDeviceFactory {
         ext.addQueryRetrieveView(HIDE_REJECTED_VIEW);
         ext.addQueryRetrieveView(REGULAR_USE_VIEW);
         ext.addQueryRetrieveView(TRASH_VIEW);
+        ext.setLinkMWLEntryUpdatePolicy(LINK_MWL_ENTRY_UPDATE_POLICY);
 
         ext.setSendPendingCGet(SEND_PENDING_C_GET);
         ext.setSendPendingCMoveInterval(SEND_PENDING_C_MOVE_INTERVAL);

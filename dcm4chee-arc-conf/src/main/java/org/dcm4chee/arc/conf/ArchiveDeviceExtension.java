@@ -172,6 +172,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String atna2JsonFhirTemplateURI;
     private String atna2XmlFhirTemplateURI;
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
+    private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private boolean hl7TrackChangedPatientID = true;
     private String invokeImageDisplayPatientURL;
     private String invokeImageDisplayStudyURL;
@@ -1516,6 +1517,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.copyMoveUpdatePolicy = copyMoveUpdatePolicy;
     }
 
+    public Attributes.UpdatePolicy getLinkMWLEntryUpdatePolicy() {
+        return linkMWLEntryUpdatePolicy;
+    }
+
+    public void setLinkMWLEntryUpdatePolicy(Attributes.UpdatePolicy linkMWLEntryUpdatePolicy) {
+        this.linkMWLEntryUpdatePolicy = linkMWLEntryUpdatePolicy;
+    }
+
     public boolean isHl7TrackChangedPatientID() {
         return hl7TrackChangedPatientID;
     }
@@ -1707,6 +1716,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         atna2JsonFhirTemplateURI = arcdev.atna2JsonFhirTemplateURI;
         atna2XmlFhirTemplateURI = arcdev.atna2XmlFhirTemplateURI;
         copyMoveUpdatePolicy = arcdev.copyMoveUpdatePolicy;
+        linkMWLEntryUpdatePolicy = arcdev.linkMWLEntryUpdatePolicy;
         hl7TrackChangedPatientID = arcdev.hl7TrackChangedPatientID;
         invokeImageDisplayPatientURL = arcdev.invokeImageDisplayPatientURL;
         invokeImageDisplayStudyURL = arcdev.invokeImageDisplayStudyURL;
