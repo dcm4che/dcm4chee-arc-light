@@ -389,7 +389,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.77 NAME 'dcmPurgeQueueMessageFetchSi
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE)
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.78 NAME 'dcmAttributeUpdatePolicy'
-  DESC 'Specifies update policy for extracted attributes into the DB on Series, Study & Patient level on receive of further instance of the entity. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE. If absent, the attributes will not be updated'
+  DESC 'Specifies update policy for extracted attributes into the DB on Series, Study & Patient level on receive of further instance of the entity. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE, REPLACE. If absent, the attributes will not be updated'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE)
@@ -775,7 +775,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.155 NAME 'dcmAuditRecordRepositoryUR
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.156 NAME 'dcmCopyMoveUpdatePolicy'
-  DESC 'Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. Enumerated values: SUPPLEMENT, OVERWRITE, MERGED, REPLACE. If absent, the attributes will not be updated.'
+  DESC 'Specifies update policy for attributes of the destination Study on Copy/Move of Instances from another Study. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE, REPLACE. If absent, the attributes will not be updated.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -923,6 +923,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.185 NAME 'dcmSpanningCFindSCPRetriev
   DESC 'Specifies Retrieve AE Title(s) in returned matches from Spanning C-Find SCP. Keep original Retrieve AE Title(s) returned by Spanning C-Find SCP if absent.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.186 NAME 'dcmLinkMWLEntryUpdatePolicy'
+  DESC 'Specifies update policy for Study attributes on Link of Instances of another Study with a MWL Entry referring an existing Study. Enumerated values: SUPPLEMENT, MERGE, OVERWRITE, REPLACE. If absent, the attributes will not be updated.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 -
 delete: olcObjectClasses
 -
@@ -1042,6 +1047,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmInvokeImageDisplayPatientURL $
     dcmInvokeImageDisplayStudyURL $
     dcmCopyMoveUpdatePolicy $
+    dcmLinkMWLEntryUpdatePolicy $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
@@ -1110,6 +1116,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmInvokeImageDisplayPatientURL $
     dcmInvokeImageDisplayStudyURL $
     dcmCopyMoveUpdatePolicy $
+    dcmLinkMWLEntryUpdatePolicy $
     hl7PSUDelay $
     hl7PSUMWL $
     hl7PSUTimeout $
