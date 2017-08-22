@@ -131,14 +131,6 @@ public class ConfigurationRS {
 
     @GET
     @NoCache
-    @Path("/auth")
-    @Produces("application/json")
-    public String getAuthServerURL() throws Exception {
-        return "{\"url\":\"" + System.getProperty("auth-server-url", "/auth") + "\"}";
-    }
-
-    @GET
-    @NoCache
     @Path("/devices")
     @Produces("application/json")
     public StreamingOutput listDevices() throws Exception {
