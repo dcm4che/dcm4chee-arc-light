@@ -48,6 +48,7 @@ export class StudiesComponent implements OnDestroy{
     // @ViewChildren(MessagingComponent) msg;
 
     orderby = Globalvar.ORDERBY;
+    orderbyExternal = Globalvar.ORDERBY_EXTERNAL;
     limit = 20;
     showClipboardHeaders = {
         'study': false,
@@ -69,6 +70,7 @@ export class StudiesComponent implements OnDestroy{
         from: undefined,
         to: undefined
     };
+    externalAetMode = "internal";
     filter = {
         orderby: '-StudyDate,-StudyTime',
         ModalitiesInStudy: '',
@@ -203,6 +205,7 @@ export class StudiesComponent implements OnDestroy{
     aes: any;
     aet: any;
     aetmodel: any;
+    externalAEtmodel:any;
     advancedConfig = false;
     showModalitySelector = false;
     modalities: any;
@@ -301,6 +304,7 @@ export class StudiesComponent implements OnDestroy{
         this.modalities = Globalvar.MODALITIES;
         console.log('modalities', this.modalities);
         this.initAETs(2);
+        this.getAllAes(2);
         this.initAttributeFilter('Patient', 1);
         this.initExporters(2);
         this.initRjNotes(2);
@@ -469,6 +473,16 @@ export class StudiesComponent implements OnDestroy{
     //             }
     //         );
     // }
+
+    aetModeChange(e){
+        console.log("in aetmodechange e=",e);
+        if(e === "internal"){
+            this.aetmodel = this.aes[0];
+        }
+        if(e === "external"){
+            this.externalAEtmodel = this.allAes[0];
+        }
+    }
 
     /*
     * @confirmparameters is an object that can contain title, content
@@ -724,9 +738,9 @@ export class StudiesComponent implements OnDestroy{
                 console.log('in error', err);
                 $this.patients = [];
                 $this.mainservice.setMessage({
-                    'title': 'Info',
-                    'text': 'No matching Studies found!',
-                    'status': 'info'
+                    'title': 'Error ' + err.status,
+                    'text': err.statusText,
+                    'status': 'error'
                 });
                 $this.cfpLoadingBar.complete();
             }
@@ -2535,11 +2549,11 @@ export class StudiesComponent implements OnDestroy{
                 }
             } else {
                 $this.patients = [];
-                // this.mainservice.setMessage( {
-                //     "title": "Info",
-                //     "text": "No matching Patients found!",
-                //     "status": "info"
-                // });
+                $this.mainservice.setMessage( {
+                    "title": "Info",
+                    "text": "No matching Patients found!",
+                    "status": "info"
+                });
             }
             $this.extendedFilter(false);
             // var state = ($this.allhidden) ? "hide" : "show";
@@ -2547,6 +2561,12 @@ export class StudiesComponent implements OnDestroy{
             //     togglePatientsHelper(state);
             // }, 1000);
             $this.cfpLoadingBar.complete();
+        },(err)=>{
+            $this.mainservice.setMessage({
+                'title': 'Error ' + err.status,
+                'text': err.statusText,
+                'status': 'error'
+            });
         });
     };
 
@@ -2957,7 +2977,14 @@ export class StudiesComponent implements OnDestroy{
         console.log('this.selected[\'otherObjects\']', this.selected['otherObjects']);
     }
     rsURL() {
-        return '../aets/' + this.aet + '/rs';
+        let url;
+        if(this.externalAetMode === "external"){
+            url = `/aets/${this.aetmodel.title}/dimse/${this.externalAEtmodel.title}`;
+        }
+        if(this.externalAetMode === "internal"){
+            url = `../aets/${this.aet}/rs`;
+        }
+        return url;
     }
     diffUrl(){
         if(!this.aet1){
@@ -3781,7 +3808,12 @@ export class StudiesComponent implements OnDestroy{
             .subscribe(
                 function (res) {
                     console.log('before call getAes', res, 'this user=', $this.user);
-                    $this.allAes = res;
+                    $this.allAes = res.map((res)=>{
+                        res['title'] = res['dicomAETitle'];
+                        res['description'] = res['dicomDescription'];
+                        return res;
+                    });
+                    $this.externalAEtmodel = $this.allAes[0];
                     // $this.aes = $this.service.getAes($this.user, res);
 /*                    console.log('aes', $this.aes);
                     // $this.aesdropdown = $this.aes;

@@ -1787,9 +1787,34 @@ table{
   padding: 15px;
   box-sizing: border-box;
   margin-bottom:15px;
+  margin-right:15px;
   &:hover{
     color:white;
     text-decoration: none;
+    .checkbox_button{
+      color: #000;
+      span{
+        color: rgba(6, 29, 47, 0.84);
+      }
+    }
+  }
+  .checkbox_button{
+    background:white;
+    border:1px solid #cccccc;
+    height:27px;
+    &:hover{
+      color: #000000;
+      span{
+        color: rgba(6, 29, 47, 0.84);
+      }
+    }
+    &.active{
+      background:rgba(6, 29, 47, 0.84);
+      color:white;
+      span {
+        color: white;
+      }
+    }
   }
   .more {
     float: left;

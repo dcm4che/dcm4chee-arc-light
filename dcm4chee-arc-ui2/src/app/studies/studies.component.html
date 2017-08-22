@@ -1,7 +1,7 @@
 <!--<button (click)="debugpre = !debugpre" style="position:fixed;top:0;left:100px;color:black;z-index: 99999999;">Show debug</button>
 <pre *ngIf="debugpre" style="position: absolute;width:70%;top:0;z-index: 9999999;">
     <div style="float:left;width:50%">
-        patients: {{ patients | json}}
+        externalAetMode: {{ externalAetMode}}
     &lt;!&ndash;aetmodel:{{aetmodel|json}}&ndash;&gt;
     </div>
     <div style="float:left;width:50%">
@@ -32,7 +32,7 @@
                         <span>Edit</span>
                       </a> -->
             </li>
-            <!--     <li>
+3            <!--     <li>
                   <a role="menuitem" href
                     (click)="delete(meta.contextmenu.item)"
                   >
@@ -112,10 +112,19 @@
             <div class="main_filter_block">
                 <div class="col-md-3 block-1-1">
                     <div class="row">
-                        <label class="col-md-6 text-right control-label">AET:</label>
+                        <!--<label class="col-md-6 text-right control-label">AET:</label>-->
                         <div class=" col-md-6">
-                            <md-select [(ngModel)]="aetmodel" (ngModelChange)="onChange($event, 'aetmodel')">
+                            <md-select [(ngModel)]="externalAetMode" (ngModelChange)="aetModeChange($event)">
+                                <md-option value="internal" title="Internal AET mode">Internal AET:</md-option>
+                                <md-option value="external" title="External AET mode">External AET:</md-option>
+                            </md-select>
+                        </div>
+                        <div class=" col-md-6">
+                            <md-select *ngIf="externalAetMode === 'internal'" [(ngModel)]="aetmodel" (ngModelChange)="onChange($event, 'aetmodel')">
                                 <md-option *ngFor="let ae of aes" [value]="ae" title="{{ae.description}}">{{ ae.title }}</md-option>
+                            </md-select>
+                            <md-select *ngIf="externalAetMode === 'external'" [(ngModel)]="externalAEtmodel" (ngModelChange)="onChange($event, 'externalAEtmodel')">
+                                <md-option *ngFor="let ae of allAes" [value]="ae" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</md-option>
                             </md-select>
                         </div>
                     </div>
@@ -387,9 +396,14 @@
                             <span id="selectedorder" class="selectedorder"  [innerHtml]="orderbytext"></span>
                             <span class="caret"></span>
                         </button>
-                        <div class="optionlist" id="showoptionlist" *ngIf="showoptionlist">
+                        <div class="optionlist" id="showoptionlist" *ngIf="showoptionlist && externalAetMode === 'internal'" >
                             <ul>
                                 <li *ngFor="let order of orderby; let i = index;" [ngClass]="{active:filter.orderby === order.value}" (click)="showoptionlist = false; filter.orderby = order.value; orderbytext = order.label; filterMode = order.mode;extendedFilter(false);fireQueryOnChange(order)" title="{{order.title}}" [innerHtml]="order.label"></li>
+                            </ul>
+                        </div>
+                        <div class="optionlist" id="showoptionlistExternal" *ngIf="showoptionlist && externalAetMode === 'external'" >
+                            <ul>
+                                <li *ngFor="let order of orderbyExternal; let i = index;" [ngClass]="{active:filter.orderby === order.value}" (click)="showoptionlist = false; filter.orderby = order.value; orderbytext = order.label; filterMode = order.mode;extendedFilter(false);fireQueryOnChange(order)" title="{{order.title}}" [innerHtml]="order.label"></li>
                             </ul>
                         </div>
                         <!--                 <button class="btn btn-default" type="button">Go!</button>
@@ -397,7 +411,7 @@
                         <button type="button" class="btn btn-info btn-default executebutton" *ngIf="filterMode==='patient'" id="querypatients" (click)="queryPatients(0);patientmode=true" title="Query Patients">
                             <span class="glyphicon glyphicon-refresh"></span>
                         </button>
-                        <button type="button" class="btn btn-default executebutton" [disabled]="filter.orderby === ''"
+                        <button type="button" class="btn btn-default executebutton"
                                 *ngIf="filterMode==='study'" id="querystudies" (click)="queryStudies(0);patientmode=false" title="Query Studies">
                             <span class="glyphicon glyphicon-refresh"></span>
                         </button>
@@ -602,6 +616,13 @@
                 </ul>
             </div>
         </div>
+<!--        <div class="morefunctionblock">
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="col-md-12 checkbox_button" [ngClass]="{active: externalAetMode}" (click)="externalAetMode = !externalAetMode"><span class="glyphicon glyphicon-share"></span> External AET Mode</button>
+                </div>
+            </div>
+        </div>-->
 
 
 
