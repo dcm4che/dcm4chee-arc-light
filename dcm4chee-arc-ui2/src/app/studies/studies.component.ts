@@ -478,9 +478,18 @@ export class StudiesComponent implements OnDestroy{
         console.log("in aetmodechange e=",e);
         if(e === "internal"){
             this.aetmodel = this.aes[0];
+            this.showoptionlist = false;
+            this.filter.orderby = "-StudyDate,-StudyTime";
+            this.orderbytext = '<label>Study</label><span class=\"orderbydateasc\"></span>';
+            this.filterMode = "study";
+
         }
         if(e === "external"){
             this.externalAEtmodel = this.allAes[0];
+            this.showoptionlist = false;
+            this.filter.orderby = "";
+            this.orderbytext = "Study";
+            this.filterMode = "study";
         }
     }
 

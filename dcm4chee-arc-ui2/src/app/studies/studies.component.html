@@ -403,7 +403,7 @@
                         </div>
                         <div class="optionlist" id="showoptionlistExternal" *ngIf="showoptionlist && externalAetMode === 'external'" >
                             <ul>
-                                <li *ngFor="let order of orderbyExternal; let i = index;" [ngClass]="{active:filter.orderby === order.value}" (click)="showoptionlist = false; filter.orderby = order.value; orderbytext = order.label; filterMode = order.mode;extendedFilter(false);fireQueryOnChange(order)" title="{{order.title}}" [innerHtml]="order.label"></li>
+                                <li *ngFor="let order of orderbyExternal; let i = index;" [ngClass]="{active:(filter.orderby === order.value && filterMode === order.mode)}" (click)="showoptionlist = false; filter.orderby = order.value; orderbytext = order.label; filterMode = order.mode;extendedFilter(false);fireQueryOnChange(order)" title="{{order.title}}" [innerHtml]="order.label"></li>
                             </ul>
                         </div>
                         <!--                 <button class="btn btn-default" type="button">Go!</button>
