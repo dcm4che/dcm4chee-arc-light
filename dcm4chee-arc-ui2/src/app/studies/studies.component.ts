@@ -2979,7 +2979,7 @@ export class StudiesComponent implements OnDestroy{
     rsURL() {
         let url;
         if(this.externalAetMode === "external"){
-            url = `/aets/${this.aetmodel.title}/dimse/${this.externalAEtmodel.title}`;
+            url = `../aets/${this.aetmodel.title}/dimse/${this.externalAEtmodel.title}`;
         }
         if(this.externalAetMode === "internal"){
             url = `../aets/${this.aet}/rs`;
