@@ -40,12 +40,13 @@
 
 package org.dcm4chee.arc.store;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4chee.arc.conf.AcceptConflictingPatientID;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.UIDMap;
@@ -108,7 +109,11 @@ public interface StoreSession extends Closeable {
 
     void setMetadataStorageID(String metadataStorageID);
 
-    MWLItem getMWLItem();
+    AcceptConflictingPatientID getAcceptConflictingPatientID();
 
-    void setMWLItem(MWLItem mwl);
+    void setAcceptConflictingPatientID(AcceptConflictingPatientID acceptConflictingPatientID);
+
+    Attributes.UpdatePolicy getStudyUpdatePolicy();
+
+    void setStudyUpdatePolicy(Attributes.UpdatePolicy studyUpdatePolicy);
 }

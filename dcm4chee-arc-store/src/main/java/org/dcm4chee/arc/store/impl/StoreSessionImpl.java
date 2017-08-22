@@ -40,13 +40,15 @@
 
 package org.dcm4chee.arc.store.impl;
 
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.util.SafeClose;
+import org.dcm4chee.arc.conf.AcceptConflictingPatientID;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.entity.MWLItem;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.UIDMap;
@@ -85,7 +87,8 @@ class StoreSessionImpl implements StoreSession {
     private Map<String, String> uidMap;
     private String objectStorageID;
     private String metadataStorageID;
-    private MWLItem mwlItem;
+    private AcceptConflictingPatientID acceptConflictingPatientID;
+    private Attributes.UpdatePolicy studyUpdatePolicy;
 
     StoreSessionImpl(StoreService storeService) {
         this.serialNo = prevSerialNo.incrementAndGet();
@@ -104,6 +107,10 @@ class StoreSessionImpl implements StoreSession {
     void setApplicationEntity(ApplicationEntity ae) {
         this.ae = ae;
         this.calledAET = ae.getAETitle();
+        ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+        this.acceptConflictingPatientID = arcAE.acceptConflictingPatientID();
+        this.studyUpdatePolicy = arcAE.getArchiveDeviceExtension()
+                .getAttributeFilter(Entity.Study).getAttributeUpdatePolicy();
     }
 
     void setHttpRequest(HttpServletRequest httpRequest) {
@@ -269,12 +276,22 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
-    public MWLItem getMWLItem() {
-        return mwlItem;
+    public AcceptConflictingPatientID getAcceptConflictingPatientID() {
+        return acceptConflictingPatientID;
     }
 
     @Override
-    public void setMWLItem(MWLItem mwlItem) {
-        this.mwlItem = mwlItem;
+    public void setAcceptConflictingPatientID(AcceptConflictingPatientID acceptConflictingPatientID) {
+        this.acceptConflictingPatientID = acceptConflictingPatientID;
+    }
+
+    @Override
+    public Attributes.UpdatePolicy getStudyUpdatePolicy() {
+        return studyUpdatePolicy;
+    }
+
+    @Override
+    public void setStudyUpdatePolicy(Attributes.UpdatePolicy studyUpdatePolicy) {
+        this.studyUpdatePolicy = studyUpdatePolicy;
     }
 }

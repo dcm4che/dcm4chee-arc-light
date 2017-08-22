@@ -88,7 +88,6 @@ class StoreContextImpl implements StoreContext {
     private String[] retrieveAETs;
     private Availability availability;
     private LocalDate expirationDate;
-    private boolean copyOrMove;
 
     public StoreContextImpl(StoreSession storeSession) {
         this.storeSession = storeSession;
@@ -323,15 +322,4 @@ class StoreContextImpl implements StoreContext {
         return previousInstance != null
                 && previousInstance.getSeries().getPk() != storedInstance.getSeries().getPk();
     }
-
-    @Override
-    public boolean isCopyOrMove() {
-        return copyOrMove;
-    }
-
-    @Override
-    public void setCopyOrMove(boolean copyOrMove) {
-        this.copyOrMove = copyOrMove;
-    }
-
 }

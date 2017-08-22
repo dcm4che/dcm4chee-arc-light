@@ -616,13 +616,11 @@ public class StoreServiceEJB {
             throws DicomServiceException {
         Patient associatedPat = study.getPatient();
         StoreSession session = ctx.getStoreSession();
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        AcceptConflictingPatientID acceptConflictingPID = arcAE.acceptConflictingPatientID();
-        if (acceptConflictingPID == AcceptConflictingPatientID.YES || ctx.isCopyOrMove())
+        if (session.getAcceptConflictingPatientID() == AcceptConflictingPatientID.YES)
             return;
 
         if (patMgtCtx.getPatientID() == null || associatedPat.getPatientID() == null) {
-            checkMissingConflicting(patMgtCtx, study, arcAE, ctx);
+            checkMissingConflicting(patMgtCtx, study, session.getArchiveAEExtension(), ctx);
             return;
         }
 
@@ -630,7 +628,7 @@ public class StoreServiceEJB {
         if (idWithIssuer.matches(patMgtCtx.getPatientID()))
             return;
 
-        if (acceptConflictingPID == AcceptConflictingPatientID.MERGED) {
+        if (session.getAcceptConflictingPatientID() == AcceptConflictingPatientID.MERGED) {
             Patient p = patientService.findPatient(patMgtCtx);
             if (p != null && p.getPk() == associatedPat.getPk())
                 return;
@@ -697,23 +695,17 @@ public class StoreServiceEJB {
 
     private Study updateStudy(StoreContext ctx, Study study) {
         StoreSession session = ctx.getStoreSession();
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        AttributeFilter filter = arcDev.getAttributeFilter(Entity.Study);
-        Attributes.UpdatePolicy updatePolicy =
-                ctx.isCopyOrMove() ? arcAE.copyMoveUpdatePolicy() : filter.getAttributeUpdatePolicy();
-
+        Attributes.UpdatePolicy updatePolicy = session.getStudyUpdatePolicy();
         if (updatePolicy == null)
             return study;
 
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        AttributeFilter filter = arcDev.getAttributeFilter(Entity.Study);
         Attributes attrs = study.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
-        boolean updated = attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified,
-                filter.getSelection());
-        if (mergeMWLItemToStudy(ctx, attrs, updateInfo.modified))
-            updated = true;
-
-        if (!updated)
+        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified,
+                filter.getSelection()))
             return study;
 
         updateInfo.log(session, study, attrs);
@@ -725,24 +717,6 @@ public class StoreServiceEJB {
                 .setParameter(1, study)
                 .executeUpdate();
         return study;
-    }
-
-    private boolean mergeMWLItemToStudy(StoreContext ctx, Attributes attrs, Attributes modified) {
-        StoreSession session = ctx.getStoreSession();
-        MWLItem mwlItem = session.getMWLItem();
-        return mwlItem != null && attrs.updateSelected(
-                Attributes.UpdatePolicy.MERGE, mwlItem.getAttributes(), modified, session.getArchiveAEExtension()
-                        .getArchiveDeviceExtension().getAttributeFilter(Entity.Study).getSelection());
-    }
-
-    private boolean mergeMWLItemToSeries(StoreContext ctx) {
-        MWLItem mwlItem = ctx.getStoreSession().getMWLItem();
-        if (mwlItem == null)
-            return false;
-
-        ctx.getAttributes().newSequence(Tag.RequestAttributesSequence, 1)
-                .add(mwlItem.getRequestAttributesSequenceItem());
-        return true;
     }
 
     private Series updateSeries(StoreContext ctx, Series series) {
@@ -940,18 +914,26 @@ public class StoreServiceEJB {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         Study study = new Study();
-        study.addStorageID(session.getObjectStorageID());
+        study.addStorageID(objectStorageID(ctx));
         study.setAccessControlID(arcAE.storeAccessControlID(
                 session.getRemoteHostName(), session.getCallingAET(), session.getCalledAET(), ctx.getAttributes()));
         study.setCompleteness(Completeness.COMPLETE);
         study.setRejectionState(RejectionState.NONE);
-        mergeMWLItemToStudy(ctx, ctx.getAttributes(), null);
         setStudyAttributes(ctx, study);
         study.setPatient(patient);
         patient.incrementNumberOfStudies();
         em.persist(study);
         LOG.info("{}: Create {}", session, study);
         return study;
+    }
+
+    private String objectStorageID(StoreContext ctx) {
+        for (Location location : ctx.getLocations()) {
+            if (location.getObjectType() == Location.ObjectType.DICOM_FILE)
+                return location.getStorageID();
+        }
+
+        return ctx.getStoreSession().getObjectStorageID();
     }
 
     private void checkStorePermission(StoreContext ctx, Patient pat) throws DicomServiceException {
@@ -1071,7 +1053,6 @@ public class StoreServiceEJB {
 
     private Series createSeries(StoreContext ctx, Study study, UpdateDBResult result) {
         Series series = new Series();
-        mergeMWLItemToSeries(ctx);
         setSeriesAttributes(ctx, series);
         series.setStudy(study);
         series.setInstancePurgeState(Series.InstancePurgeState.NO);

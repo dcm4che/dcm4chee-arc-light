@@ -480,7 +480,7 @@ public class IocmRS {
     @Path("/mwlitems/{studyUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response moveInstanceToMWL(@PathParam("studyUID") String studyUID,
+    public Response moveInstancesToMWLItem(@PathParam("studyUID") String studyUID,
                                       @PathParam("spsID") String spsID,
                                       @PathParam("codeValue") String codeValue,
                                       @PathParam("codingSchemeDesignator") String designator,
@@ -515,14 +515,32 @@ public class IocmRS {
             procedureService.updateStudySeriesAttributes(ctx);
             result = getResult(instanceLocations);
         } else {
-            session.setMWLItem(mwl);
+            mergeMWLItemTo(arcAE, mwl, instanceLocations);
             Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity(), false);
             moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
+            session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
+            session.setStudyUpdatePolicy(Attributes.UpdatePolicy.MERGE);
             result = storeService.copyInstances(session, instanceLocations);
             rejectInstances(instanceRefs, rjNote, session, result);
         }
 
         return toResponse(result);
+    }
+
+    private void mergeMWLItemTo(ArchiveAEExtension arcAE, MWLItem mwl, Collection<InstanceLocations> instanceLocations) {
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        AttributeFilter patFilter = arcDev.getAttributeFilter(Entity.Patient);
+        AttributeFilter studyFilter = arcDev.getAttributeFilter(Entity.Study);
+        Attributes mwlAttrs = new Attributes(mwl.getAttributes(), studyFilter.getSelection());
+        mwlAttrs.addAll(mwl.getPatient().getAttributes());
+        mwlAttrs.newSequence(Tag.RequestAttributesSequence, 1).add(mwl.getRequestAttributesSequenceItem());
+        for (InstanceLocations instanceLocation : instanceLocations) {
+            Attributes instAttrs = instanceLocation.getAttributes();
+            for (int tag : patFilter.getSelection()) {
+                instAttrs.remove(tag);
+            }
+            instAttrs.addAll(mwlAttrs);
+        }
     }
 
     private Response toResponse(Attributes result) {
@@ -615,10 +633,12 @@ public class IocmRS {
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID);
         if (instances.isEmpty())
-            throw new WebApplicationException(getResponse("No Instances found. ", Response.Status.NOT_FOUND));
+            return getResponse("No Instances found. ", Response.Status.NOT_FOUND);
 
         Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity(), false);
         moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
+        session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
+        session.setStudyUpdatePolicy(arcAE.copyMoveUpdatePolicy());
         Attributes result = storeService.copyInstances(session, instances);
         if (rjNote != null)
             rejectInstances(instanceRefs, rjNote, session, result);
