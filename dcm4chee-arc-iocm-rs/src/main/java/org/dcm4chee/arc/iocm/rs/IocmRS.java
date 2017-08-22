@@ -480,11 +480,11 @@ public class IocmRS {
     @Path("/mwlitems/{studyUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response moveInstancesToMWLItem(@PathParam("studyUID") String studyUID,
-                                      @PathParam("spsID") String spsID,
-                                      @PathParam("codeValue") String codeValue,
-                                      @PathParam("codingSchemeDesignator") String designator,
-                                      InputStream in) throws Exception {
+    public Response linkInstancesWithMWLEntry(@PathParam("studyUID") String studyUID,
+                                              @PathParam("spsID") String spsID,
+                                              @PathParam("codeValue") String codeValue,
+                                              @PathParam("codingSchemeDesignator") String designator,
+                                              InputStream in) throws Exception {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
@@ -533,14 +533,17 @@ public class IocmRS {
         AttributeFilter studyFilter = arcDev.getAttributeFilter(Entity.Study);
         Attributes mwlAttrs = new Attributes(mwl.getAttributes(), studyFilter.getSelection());
         mwlAttrs.addAll(mwl.getPatient().getAttributes());
-        mwlAttrs.newSequence(Tag.RequestAttributesSequence, 1).add(mwl.getRequestAttributesSequenceItem());
-        for (InstanceLocations instanceLocation : instanceLocations) {
-            Attributes instAttrs = instanceLocation.getAttributes();
-            for (int tag : patFilter.getSelection()) {
-                instAttrs.remove(tag);
-            }
-            instAttrs.addAll(mwlAttrs);
-        }
+        mwlAttrs.newSequence(Tag.RequestAttributesSequence, 1)
+                .add(mwl.getRequestAttributesSequenceItem());
+        for (InstanceLocations instanceLocation : instanceLocations)
+            mergeMWLItemTo(mwlAttrs, instanceLocation.getAttributes(), patFilter);
+    }
+
+    private void mergeMWLItemTo(Attributes mwlAttrs, Attributes instAttrs, AttributeFilter patFilter) {
+        for (int tag : patFilter.getSelection())
+            instAttrs.remove(tag);
+
+        instAttrs.addAll(mwlAttrs);
     }
 
     private Response toResponse(Attributes result) {
@@ -630,6 +633,7 @@ public class IocmRS {
         ArchiveAEExtension arcAE = getArchiveAE();
         RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
         Attributes instanceRefs = parseSOPInstanceReferences(in);
+        Attributes forwardOriginal = new Attributes(instanceRefs);
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID);
         if (instances.isEmpty())
@@ -643,7 +647,7 @@ public class IocmRS {
         if (rjNote != null)
             rejectInstances(instanceRefs, rjNote, session, result);
 
-        rsForward.forward(op, arcAE, instanceRefs, request);
+        rsForward.forward(op, arcAE, forwardOriginal, request);
         return toResponse(result);
     }
 
@@ -663,30 +667,36 @@ public class IocmRS {
 
     private void rejectInstances(Attributes instanceRefs, RejectionNote rjNote, StoreSession session, Attributes result)
             throws IOException {
-        if (result.getString(Tag.FailureReason) != null) {
-            for (int k=0; k < instanceRefs.getSequence(Tag.ReferencedSeriesSequence).size();) {
-                Attributes refSeries = instanceRefs.getSequence(Tag.ReferencedSeriesSequence).get(0);
-                if (!refSeries.getSequence(Tag.ReferencedSOPSequence).isEmpty()) {
-                    for (int j = 0; j < refSeries.getSequence(Tag.ReferencedSOPSequence).size();) {
-                            Attributes refSop = refSeries.getSequence(Tag.ReferencedSOPSequence).get(0);
-                            for (int i = 0; i < result.getSequence(Tag.FailedSOPSequence).size(); i++) {
-                                boolean removed = false;
-                                if (refSop.getString(Tag.ReferencedSOPInstanceUID).equals(
-                                        result.getSequence(Tag.FailedSOPSequence).get(i).getString(Tag.ReferencedSOPInstanceUID))) {
-                                    refSeries.getSequence(Tag.ReferencedSOPSequence).remove(refSop);
-                                    removed = true;
-                                }
-                                if (removed)
-                                    break;
-                            }
-                    }
-                    if (refSeries.getSequence(Tag.ReferencedSOPSequence).isEmpty())
-                        instanceRefs.getSequence(Tag.ReferencedSeriesSequence).remove(0);
-                }
-            }
-        }
+        if (result.getString(Tag.FailureReason) != null)
+            removeFailedInstanceRefs(instanceRefs, result);
+
         if (!instanceRefs.getSequence(Tag.ReferencedSeriesSequence).isEmpty())
             reject(session, instanceRefs, rjNote);
+    }
+
+    private void removeFailedInstanceRefs(Attributes instanceRefs, Attributes result) {
+        for (Iterator<Attributes> refSeriesIter = instanceRefs.getSequence(Tag.ReferencedSeriesSequence).iterator(); refSeriesIter.hasNext();) {
+            Attributes refSeries = refSeriesIter.next();
+            removeFailedRefSOPs(result, refSeries);
+            if (refSeries.getSequence(Tag.ReferencedSOPSequence).isEmpty())
+                refSeriesIter.remove();
+        }
+    }
+
+    private void removeFailedRefSOPs(Attributes result, Attributes refSeries) {
+        for (Iterator<Attributes> refSopIter = refSeries.getSequence(Tag.ReferencedSOPSequence).iterator(); refSopIter.hasNext();) {
+            Attributes refSop = refSopIter.next();
+            for (int i = 0; i < result.getSequence(Tag.FailedSOPSequence).size(); i++) {
+                boolean removed = false;
+                if (refSop.getString(Tag.ReferencedSOPInstanceUID).equals(
+                        result.getSequence(Tag.FailedSOPSequence).get(i).getString(Tag.ReferencedSOPInstanceUID))) {
+                    refSopIter.remove();
+                    removed = true;
+                }
+                if (removed)
+                    break;
+            }
+        }
     }
 
     private Response.Status status(Attributes result) {

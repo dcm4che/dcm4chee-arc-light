@@ -91,6 +91,7 @@ public class QueryRejectionNotes {
                     JsonWriter writer = new JsonWriter(gen);
                     gen.writeStartObject();
                     writer.writeNotNullOrDef("label", rjNote.getRejectionNoteLabel(), null);
+                    writer.writeNotNullOrDef("type", rjNote.getRejectionNoteType(), null);
                     writer.writeNotNullOrDef("codeValue", code.getCodeValue(), null);
                     writer.writeNotNullOrDef("codingSchemeDesignator", code.getCodingSchemeDesignator(), null);
                     writer.writeNotNullOrDef("codeMeaning", code.getCodeMeaning(), null);
