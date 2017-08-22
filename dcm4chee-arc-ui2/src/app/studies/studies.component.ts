@@ -3219,7 +3219,7 @@ export class StudiesComponent implements OnDestroy{
 
             console.log('selected', this.selected);
             console.log('clipboard', this.clipboard);
-            if (!this.service.isTargetInClipboard(this.selected, this.clipboard)){//TODO
+            if (!this.service.isTargetInClipboard(this.selected, this.clipboard) || this.target.modus === "mwl"){//TODO
 
                 let $this = this;
                 console.log('target', this.target);
@@ -3248,12 +3248,14 @@ export class StudiesComponent implements OnDestroy{
                     this.dialogRef.componentInstance.selected = this.selected['otherObjects'];
                     this.dialogRef.componentInstance.showClipboardHeaders = this.showClipboardHeaders;
                     this.dialogRef.componentInstance.target = this.target;
+                    this.dialogRef.componentInstance.reject = this.reject;
                     this.dialogRef.componentInstance.saveLabel = action;
                     this.dialogRef.componentInstance.title = title;
                     this.cfpLoadingBar.stop();
                     this.dialogRef.afterClosed().subscribe(result => {
                         $this.cfpLoadingBar.start();
                         if (result) {
+                            $this.reject = result;
                             console.log("reject",$this.reject);
                             if ($this.clipboard.action === 'merge') {
                                 let object = {
