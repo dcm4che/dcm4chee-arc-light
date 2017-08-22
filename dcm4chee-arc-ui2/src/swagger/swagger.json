@@ -3319,8 +3319,8 @@
           "IOCM-RS",
           "MWL-RS"
         ],
-        "summary": "Move Instances to MWL Item",
-        "operationId": "MoveInstancesMWL",
+        "summary": "Link Instances with MWL Entry",
+        "operationId": "LinkInstancesWithMWLEntry",
         "consumes": [
           "application/json"
         ],
