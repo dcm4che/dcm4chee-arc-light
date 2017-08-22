@@ -3239,17 +3239,22 @@ export class StudiesComponent implements OnDestroy{
                         width: '90%'
                     });
                     let action = this.clipboard['action'].toUpperCase();
+                    let title = action + ' PROCESS';
+                    if(this.target.modus === "mwl"){
+                        title = "LINK TO MWL";
+                    }
                     this.dialogRef.componentInstance.clipboard = this.clipboard;
                     this.dialogRef.componentInstance.rjnotes = this.rjnotes;
                     this.dialogRef.componentInstance.selected = this.selected['otherObjects'];
                     this.dialogRef.componentInstance.showClipboardHeaders = this.showClipboardHeaders;
                     this.dialogRef.componentInstance.target = this.target;
                     this.dialogRef.componentInstance.saveLabel = action;
-                    this.dialogRef.componentInstance.title = action + ' PROCESS';
+                    this.dialogRef.componentInstance.title = title;
                     this.cfpLoadingBar.stop();
                     this.dialogRef.afterClosed().subscribe(result => {
                         $this.cfpLoadingBar.start();
                         if (result) {
+                            console.log("reject",$this.reject);
                             if ($this.clipboard.action === 'merge') {
                                 let object = {
                                     priorPatientID: $this.clipboard.patients
