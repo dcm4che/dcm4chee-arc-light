@@ -40,9 +40,11 @@
 
 package org.dcm4chee.arc.hl7.rs;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.hl7.HL7Exception;
@@ -58,14 +60,14 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParsingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.*;
 import java.net.ConnectException;
 
 /**
@@ -115,19 +117,23 @@ public class HL7RS {
     private Response createOrUpdatePatient(InputStream in, String msgType) {
         logRequest();
         try {
-            HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
-            hl7Conf.findHL7Application(appName);
-            hl7Conf.findHL7Application(externalAppName);
-
-            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-            Attributes attrs = reader.readDataset(null);
-
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
-            ctx.setAttributes(attrs);
-            return scheduleOrSendHL7(msgType, ctx);
+            checkConfigurationExists();
+            Attributes attrs = toAttributes(in);
+            return scheduleOrSendHL7(msgType, toPatientMgtContext(attrs));
         } catch (Exception e) {
-            return errResponse(e);
+            return errorResponse(e);
         }
+    }
+
+    private PatientMgtContext toPatientMgtContext(Attributes attrs) {
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
+        ctx.setAttributes(attrs);
+        return ctx;
+    }
+
+    private Attributes toAttributes(InputStream in) throws Exception {
+        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        return reader.readDataset(null);
     }
 
     @POST
@@ -149,20 +155,20 @@ public class HL7RS {
     private Response mergePatientOrChangePID(IDWithIssuer priorPatientID, InputStream in, String msgType) {
         logRequest();
         try {
-            HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
-            hl7Conf.findHL7Application(appName);
-            hl7Conf.findHL7Application(externalAppName);
-
-            JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-            Attributes attrs = reader.readDataset(null);
-
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
-            ctx.setAttributes(attrs);
+            checkConfigurationExists();
+            Attributes attrs = toAttributes(in);
+            PatientMgtContext ctx = toPatientMgtContext(attrs);
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
             return scheduleOrSendHL7(msgType, ctx);
         } catch (Exception e) {
-            return errResponse(e);
+            return errorResponse(e);
         }
+    }
+
+    private void checkConfigurationExists() throws ConfigurationException {
+        HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
+        hl7Conf.findHL7Application(appName);
+        hl7Conf.findHL7Application(externalAppName);
     }
 
     private Response scheduleOrSendHL7(String msgType, PatientMgtContext ctx) throws Exception {
@@ -172,14 +178,7 @@ public class HL7RS {
         }
         else {
             HL7Message ack = rsHL7Sender.sendHL7Message(msgType, ctx, appName, externalAppName);
-            HL7Segment msa = ack.getSegment("MSA");
-            if (msa == null)
-                return getResponse( "Missing MSA segment in response message", Response.Status.BAD_GATEWAY);
-
-            String status = msa.getField(1, null);
-            return HL7Exception.AA.equals(status)
-                    ? Response.noContent().build()
-                    : Response.status(Response.Status.CONFLICT).entity(msa.toString()).build();
+            return buildResponse(ack);
         }
     }
 
@@ -188,22 +187,54 @@ public class HL7RS {
                 request.getRemoteUser(), request.getRemoteHost());
     }
 
-
-    private Response errResponse(Exception e) {
+    private Response errorResponse(Exception e) {
         return e instanceof ConnectException
-                ? getResponse(e.getMessage(), Response.Status.GATEWAY_TIMEOUT)
+                ? buildErrorResponse(e.getMessage(), Response.Status.GATEWAY_TIMEOUT)
                 : e instanceof IOException
-                    ? getResponse(e.getMessage(), Response.Status.BAD_GATEWAY)
+                    ? buildErrorResponse(e.getMessage(), Response.Status.BAD_GATEWAY)
                     : e instanceof JsonParsingException
-                        ? getResponse(e.getMessage() + " at location : " + ((JsonParsingException) e).getLocation(), Response.Status.BAD_REQUEST)
+                        ? buildErrorResponse(e.getMessage() + " at location : " + ((JsonParsingException) e).getLocation(), Response.Status.BAD_REQUEST)
                         : e instanceof ConfigurationNotFoundException
-                            ? getResponse(e.getMessage() + " not found.", Response.Status.NOT_FOUND)
-                            : getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+                            ? buildErrorResponse(e.getMessage() + " not found.", Response.Status.NOT_FOUND)
+                            : buildErrorResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
     }
 
-    private Response getResponse(String errorMessage, Response.Status status) {
+    private Response buildErrorResponse(String errorMessage, Response.Status status) {
         Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
         return Response.status(status).entity(entity).build();
     }
 
+    private Response buildResponse(HL7Message ack) {
+        if (ack.getSegment("MSA") == null)
+            return buildErrorResponse( "Missing MSA segment in response message", Response.Status.BAD_GATEWAY);
+
+        String status = ack.getSegment("MSA").getField(1, null);
+        return HL7Exception.AA.equals(status)
+                ? Response.noContent().build()
+                : Response.status(Response.Status.CONFLICT).entity(toStreamingOutput(ack, status)).build();
+    }
+
+    private StreamingOutput toStreamingOutput(HL7Message ack, String status) {
+        HL7Segment msa = ack.getSegment("MSA");
+        HL7Segment err = ack.getSegment("ERR");
+
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                JsonGenerator gen = Json.createGenerator(out);
+                JsonWriter writer = new JsonWriter(gen);
+                gen.writeStartObject();
+                writer.writeNotNullOrDef("msa-1", status, null);
+                writer.writeNotNullOrDef("msa-3", msa.getField(3, null), null);
+                if (err != null) {
+                    writer.writeNotNullOrDef("err-3", err.getField(3, null), null);
+                    writer.writeNotNullOrDef("err-7", err.getField(7, null), null);
+                    writer.writeNotNullOrDef("err-8", err.getField(8, null), null);
+                }
+                writer.writeNotNullOrDef("message", ack.toString(), null);
+                gen.writeEnd();
+                gen.flush();
+            }
+        };
+    }
 }

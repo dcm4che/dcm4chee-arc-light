@@ -552,7 +552,7 @@ public class StoreServiceEJB {
         PatientMgtContext patMgtCtx = as != null
                 ? patientService.createPatientMgtContextDIMSE(as)
                 : httpRequest != null
-                ? patientService.createPatientMgtContextWEB(httpRequest, session.getLocalApplicationEntity())
+                ? patientService.createPatientMgtContextWEB(httpRequest)
                 : patientService.createPatientMgtContextHL7(
                         session.getLocalHL7Application(), session.getSocket(), session.getHL7MessageHeader());
         patMgtCtx.setAttributes(ctx.getAttributes());
