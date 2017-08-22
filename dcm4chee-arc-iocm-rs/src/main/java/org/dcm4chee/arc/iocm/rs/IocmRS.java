@@ -480,11 +480,11 @@ public class IocmRS {
     @Path("/mwlitems/{studyUID}/{spsID}/move/{codeValue}^{codingSchemeDesignator}")
     @Consumes("application/json")
     @Produces("application/json")
-    public Response moveInstancesToMWLItem(@PathParam("studyUID") String studyUID,
-                                      @PathParam("spsID") String spsID,
-                                      @PathParam("codeValue") String codeValue,
-                                      @PathParam("codingSchemeDesignator") String designator,
-                                      InputStream in) throws Exception {
+    public Response linkInstancesWithMWLItem(@PathParam("studyUID") String studyUID,
+                                             @PathParam("spsID") String spsID,
+                                             @PathParam("codeValue") String codeValue,
+                                             @PathParam("codingSchemeDesignator") String designator,
+                                             InputStream in) throws Exception {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
