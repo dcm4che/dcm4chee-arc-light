@@ -516,7 +516,7 @@ public class IocmRS {
             result = getResult(instanceLocations);
         } else {
             mergeMWLItemTo(arcAE, mwl, instanceLocations);
-            Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity(), false);
+            Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity());
             moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
             session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
             session.setStudyUpdatePolicy(arcAE.linkMWLEntryUpdatePolicy());
@@ -634,7 +634,7 @@ public class IocmRS {
         if (instances.isEmpty())
             return getResponse("No Instances found. ", Response.Status.NOT_FOUND);
 
-        Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity(), false);
+        Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity());
         moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
         session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
         session.setStudyUpdatePolicy(arcAE.copyMoveUpdatePolicy());
@@ -714,8 +714,7 @@ public class IocmRS {
         storeService.store(koctx, ko);
     }
 
-    private Attributes getSOPInstanceRefs(Attributes instanceRefs, Collection<InstanceLocations> instances,
-                                          ApplicationEntity ae, boolean availability) {
+    private Attributes getSOPInstanceRefs(Attributes instanceRefs, Collection<InstanceLocations> instances, ApplicationEntity ae) {
         String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
         Attributes refStudy = new Attributes(2);
         Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
@@ -733,9 +732,7 @@ public class IocmRS {
                 seriesMap.put(seriesIUID, refSOPSeq);
                 refSeriesSeq.add(refSeries);
             }
-            Attributes refSOP = new Attributes(3);
-            if (availability)
-                refSOP.setString(Tag.InstanceAvailability, VR.CS, instance.getAvailability().toString());
+            Attributes refSOP = new Attributes(2);
             refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, instance.getSopClassUID());
             refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, instance.getSopInstanceUID());
             refSOPSeq.add(refSOP);
