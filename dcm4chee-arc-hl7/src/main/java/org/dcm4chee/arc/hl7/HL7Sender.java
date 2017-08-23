@@ -42,7 +42,6 @@ package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
-import org.dcm4chee.arc.qmgt.Outcome;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -59,11 +58,7 @@ public interface HL7Sender {
 
     void scheduleMessage(HL7Message hl7Message);
 
-    Outcome sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
+    HL7Message sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                         String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
-            throws Exception;
-
-    HL7Message sendMsg(String sendingApplication, String sendingFacility, String receivingApplication,
-                        String receivingFacility, byte[] hl7msg)
             throws Exception;
 }

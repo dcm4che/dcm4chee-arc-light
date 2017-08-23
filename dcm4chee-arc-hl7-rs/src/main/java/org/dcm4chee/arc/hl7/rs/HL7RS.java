@@ -40,10 +40,7 @@
 
 package org.dcm4chee.arc.hl7.rs;
 
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
-import org.dcm4che3.conf.api.DicomConfiguration;
-import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
@@ -80,9 +77,6 @@ public class HL7RS {
     private static final Logger LOG = LoggerFactory.getLogger(HL7RS.class);
 
     @Inject
-    private DicomConfiguration conf;
-
-    @Inject
     private PatientService patientService;
 
     @Inject
@@ -117,7 +111,6 @@ public class HL7RS {
     private Response createOrUpdatePatient(InputStream in, String msgType) {
         logRequest();
         try {
-            checkConfigurationExists();
             Attributes attrs = toAttributes(in);
             return scheduleOrSendHL7(msgType, toPatientMgtContext(attrs));
         } catch (Exception e) {
@@ -155,7 +148,6 @@ public class HL7RS {
     private Response mergePatientOrChangePID(IDWithIssuer priorPatientID, InputStream in, String msgType) {
         logRequest();
         try {
-            checkConfigurationExists();
             Attributes attrs = toAttributes(in);
             PatientMgtContext ctx = toPatientMgtContext(attrs);
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
@@ -163,12 +155,6 @@ public class HL7RS {
         } catch (Exception e) {
             return errorResponse(e);
         }
-    }
-
-    private void checkConfigurationExists() throws ConfigurationException {
-        HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
-        hl7Conf.findHL7Application(appName);
-        hl7Conf.findHL7Application(externalAppName);
     }
 
     private Response scheduleOrSendHL7(String msgType, PatientMgtContext ctx) throws Exception {
@@ -195,7 +181,7 @@ public class HL7RS {
                     : e instanceof JsonParsingException
                         ? buildErrorResponse(e.getMessage() + " at location : " + ((JsonParsingException) e).getLocation(), Response.Status.BAD_REQUEST)
                         : e instanceof ConfigurationNotFoundException
-                            ? buildErrorResponse(e.getMessage() + " not found.", Response.Status.NOT_FOUND)
+                            ? buildErrorResponse(e.getMessage(), Response.Status.NOT_FOUND)
                             : buildErrorResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
     }
 

@@ -47,7 +47,6 @@ import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.patient.PatientMgtContext;
-import org.dcm4chee.arc.qmgt.Outcome;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -86,11 +85,13 @@ public class RESTfulHL7Sender {
         msg.setReceivingApplicationWithFacility(receiver);
 
         HL7Segment msh = msg.getHL7Message().getSegment("MSH");
-        return hl7Sender.sendMsg(
+        return hl7Sender.sendMessage(
                 msh.getField(2, ""),
                 msh.getField(3, ""),
                 msh.getField(4, ""),
                 msh.getField(5, ""),
+                msh.getField(8, ""),
+                msh.getField(9, ""),
                 msg.getHL7Message().getBytes(null));
     }
 
