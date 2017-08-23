@@ -330,10 +330,9 @@ public class IocmRS {
                              @PathParam("patientID") IDWithIssuer patientID) throws Exception {
         logRequest();
         try {
-            Attributes priorPatAttr = new Attributes(2);
+            Attributes priorPatAttr = new Attributes(3);
             priorPatAttr.setString(Tag.PatientID, VR.LO, priorPatientID.getID());
-            if (priorPatientID.getIssuer() != null)
-                priorPatAttr.setString(Tag.IssuerOfPatientID, VR.LO, priorPatientID.getIssuer().toString());
+            setIssuer(priorPatientID, priorPatAttr);
             mergePatient(patientID, priorPatAttr);
             rsForward.forward(RSOperation.MergePatient, getArchiveAE(), null, request);
         } catch (Exception e) {
@@ -346,10 +345,9 @@ public class IocmRS {
         try {
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(request, getArchiveAE().getApplicationEntity());
             patMgtCtx.setPatientID(patientID);
-            Attributes patAttr = new Attributes(2);
+            Attributes patAttr = new Attributes(3);
             patAttr.setString(Tag.PatientID, VR.LO, patientID.getID());
-            if (patientID.getIssuer() != null)
-                patAttr.setString(Tag.IssuerOfPatientID, VR.LO, patientID.getIssuer().toString());
+            setIssuer(patientID, patAttr);
             patMgtCtx.setAttributes(patAttr);
             patMgtCtx.setPreviousAttributes(priorPatAttr);
             patientService.mergePatient(patMgtCtx);
