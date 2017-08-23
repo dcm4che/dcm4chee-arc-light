@@ -17,6 +17,7 @@ export class CopyMoveObjectsComponent {
     private _selected;
     private _saveLabel;
     private _title;
+    private _reject;
     _ = _;
     constructor(public dialogRef: MdDialogRef<CopyMoveObjectsComponent>, public service: StudiesService) {
         console.log('in construct copymovecomponent');
@@ -75,5 +76,13 @@ export class CopyMoveObjectsComponent {
     }
     removeClipboardElement(modus, keys){
         this.service.removeClipboardElement(modus, keys, this.clipboard);
+    }
+
+    get reject() {
+        return this._reject;
+    }
+
+    set reject(value) {
+        this._reject = value;
     }
 }

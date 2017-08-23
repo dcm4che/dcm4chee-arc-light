@@ -8,6 +8,9 @@ dicomSoftwareVersion: 5.10.5
 replace: dicomVendorData
 dicomVendorData:< file:vendor-data.zip
 -
+replace: dcmLinkMWLEntryUpdatePolicy
+dcmLinkMWLEntryUpdatePolicy: MERGE
+-
 
 dn: dicomAETitle=UNKNOWN,dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: delete

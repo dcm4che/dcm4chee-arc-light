@@ -117,7 +117,7 @@ public class ProcedureServiceImpl implements ProcedureService {
     }
 
     @Override
-    public void updateStudySeriesAttributes(ProcedureContext ctx) throws Exception {
+    public void updateStudySeriesAttributes(ProcedureContext ctx) {
         try {
             ejb.updateStudySeriesAttributes(ctx);
         } finally {

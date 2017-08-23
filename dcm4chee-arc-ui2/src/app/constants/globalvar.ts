@@ -95,6 +95,21 @@ export class Globalvar {
             ]
         };
     }
+    public static get ORDERBY_EXTERNAL(): Array<any>{
+        return [
+            {
+                value: '',
+                label: '<label>Patient </label>',
+                mode: 'patient',
+                title:'Query Patients to external archive'
+            },{
+                value: '',
+                label: '<label>Study </label>',
+                mode: 'study',
+                title:'Query Studies to external archive'
+            }
+        ]
+    }
     public static get ORDERBY(): Array<any>{
         return [
             {
@@ -184,7 +199,7 @@ export class Globalvar {
             },
             {
                 value: '',
-                label: '<label>Diff </label><i class="material-icons">compare_arrows</i></span>',
+                label: '<label>Diff </label><i class="material-icons">compare_arrows</i>',
                 mode: 'diff',
                 title:'Make diff between two archives'
             }

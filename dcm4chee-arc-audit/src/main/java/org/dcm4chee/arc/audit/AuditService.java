@@ -441,8 +441,7 @@ public class AuditService {
         AuditInfo auditInfo = ctx.getHttpRequest() != null ? createAuditInfoForQIDO(ctx) : createAuditInfoForFIND(ctx);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
             if (!isSpoolingSuppressed(eventType, ctx.getCallingAET(), auditLogger)) {
-                Path directory = Paths.get(StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()),
-                                auditLogger.getCommonName().replaceAll(" ", "_"));
+                Path directory = toDirPath(auditLogger);
                 try {
                     Files.createDirectories(directory);
                     Path file = Files.createTempFile(directory, String.valueOf(eventType), null);
@@ -1414,8 +1413,7 @@ public class AuditService {
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
             if (auditLogger.isInstalled()) {
-                Path dir = Paths.get(StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()),
-                        auditLogger.getCommonName().replaceAll(" ", "_"));
+                Path dir = toDirPath(auditLogger);
                 try {
                     Files.createDirectories(dir);
                     Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
@@ -1433,6 +1431,12 @@ public class AuditService {
         }
     }
 
+    private Path toDirPath(AuditLogger auditLogger) {
+        return Paths.get(
+                StringUtils.replaceSystemProperties(device.getDeviceExtension(ArchiveDeviceExtension.class).getAuditSpoolDirectory()),
+                auditLogger.getCommonName().replaceAll(" ", "_"));
+    }
+
     private void writeSpoolFile(AuditServiceUtils.EventType eventType, BuildAuditInfo... buildAuditInfos) {
         if (buildAuditInfos == null) {
             LOG.warn("Attempt to write empty file : ", eventType);
@@ -1443,8 +1447,7 @@ public class AuditService {
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
             if (auditLogger.isInstalled()) {
-                Path dir = Paths.get(StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()),
-                        auditLogger.getCommonName().replaceAll(" ", "_"));
+                Path dir = toDirPath(auditLogger);
                 try {
                     Files.createDirectories(dir);
                     Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
@@ -1472,8 +1475,7 @@ public class AuditService {
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
             if (auditLogger.isInstalled()) {
-                Path dir = Paths.get(StringUtils.replaceSystemProperties(arcDev.getAuditSpoolDirectory()),
-                        auditLogger.getCommonName().replaceAll(" ", "_"));
+                Path dir = toDirPath(auditLogger);
                 Path file = dir.resolve(fileName);
                 boolean append = Files.exists(file);
                 try {

@@ -273,7 +273,7 @@ public class IocmRS {
                 patientService.changePatientID(ctx);
             }
             rsForward.forward(RSOperation.UpdatePatient, arcAE, attrs, request);
-            String msgType = ctx.getEventActionCode() == AuditMessages.EventActionCode.Create
+            String msgType = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
                     ? newPatient
                         ? "ADT^A28^ADT_A05" : "ADT^A47^ADT_A30"
                     : "ADT^A31^ADT_A05";
@@ -310,15 +310,14 @@ public class IocmRS {
     }
 
     @POST
-    @Path("/patients/{patientID}/merge/{priorPatientID}")
-    public void mergePatient(@PathParam("patientID") IDWithIssuer patientID,
-                             @PathParam("priorPatientID") IDWithIssuer priorPatientID) throws Exception {
+    @Path("/patients/{priorPatientID}/merge/{patientID}")
+    public void mergePatient(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
+                             @PathParam("patientID") IDWithIssuer patientID) throws Exception {
         logRequest();
         try {
-            Attributes priorPatAttr = new Attributes(2);
+            Attributes priorPatAttr = new Attributes(3);
             priorPatAttr.setString(Tag.PatientID, VR.LO, priorPatientID.getID());
-            if (priorPatientID.getIssuer() != null)
-                priorPatAttr.setString(Tag.IssuerOfPatientID, VR.LO, priorPatientID.getIssuer().toString());
+            setIssuer(priorPatientID, priorPatAttr);
             mergePatient(patientID, priorPatAttr);
             rsForward.forward(RSOperation.MergePatient, getArchiveAE(), null, request);
         } catch (Exception e) {
@@ -331,10 +330,9 @@ public class IocmRS {
         try {
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(request);
             patMgtCtx.setPatientID(patientID);
-            Attributes patAttr = new Attributes(2);
+            Attributes patAttr = new Attributes(3);
             patAttr.setString(Tag.PatientID, VR.LO, patientID.getID());
-            if (patientID.getIssuer() != null)
-                patAttr.setString(Tag.IssuerOfPatientID, VR.LO, patientID.getIssuer().toString());
+            setIssuer(patientID, patAttr);
             patMgtCtx.setAttributes(patAttr);
             patMgtCtx.setPreviousAttributes(priorPatAttr);
             patientService.mergePatient(patMgtCtx);
@@ -345,9 +343,9 @@ public class IocmRS {
     }
 
     @POST
-    @Path("/patients/{patientID}/changeid/{priorPatientID}")
-    public void changePatientID(@PathParam("patientID") IDWithIssuer patientID,
-                                @PathParam("priorPatientID") IDWithIssuer priorPatientID) throws Exception {
+    @Path("/patients/{priorPatientID}/changeid/{patientID}")
+    public void changePatientID(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
+                                @PathParam("patientID") IDWithIssuer patientID) throws Exception {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
@@ -358,8 +356,7 @@ public class IocmRS {
                         "Patient having patient ID : " + priorPatientID + " not found.", Response.Status.NOT_FOUND));
             Attributes attrs = priorPatient.getAttributes();
             attrs.setString(Tag.PatientID, VR.LO, patientID.getID());
-            if (patientID.getIssuer() != null)
-                attrs.setString(Tag.IssuerOfPatientID, VR.LO, patientID.getIssuer().toString());
+            setIssuer(patientID, attrs);
             ctx.setAttributes(attrs);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
@@ -370,6 +367,40 @@ public class IocmRS {
             throw new WebApplicationException(
                     getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
         }
+    }
+
+    private void setIssuer(IDWithIssuer patientID, Attributes attrs) {
+        Issuer pidIssuer = patientID.getIssuer();
+        if (pidIssuer == null)
+            return;
+
+        attrs.setString(Tag.IssuerOfPatientID, VR.LO, pidIssuer.getLocalNamespaceEntityID());
+        setPIDQualifier(attrs, pidIssuer);
+    }
+
+    private void setPIDQualifier(Attributes attrs, Issuer pidIssuer) {
+        if (hasUniversalEntityIDAndType(pidIssuer)) {
+            Sequence pidQualifiers = attrs.getSequence(Tag.IssuerOfPatientIDQualifiersSequence);
+            if (pidQualifiers != null)
+                for (Attributes item : pidQualifiers)
+                    setUniversalEntityIDAndType(pidIssuer, item);
+
+            else {
+                pidQualifiers = attrs.newSequence(Tag.IssuerOfPatientIDQualifiersSequence, 1);
+                Attributes item = new Attributes(2);
+                setUniversalEntityIDAndType(pidIssuer, item);
+                pidQualifiers.add(item);
+            }
+        }
+    }
+
+    private boolean hasUniversalEntityIDAndType(Issuer pidIssuer) {
+        return pidIssuer.getUniversalEntityID() != null && pidIssuer.getUniversalEntityIDType() != null;
+    }
+
+    private void setUniversalEntityIDAndType(Issuer pidIssuer, Attributes item) {
+        item.setString(Tag.UniversalEntityID, VR.UT, pidIssuer.getUniversalEntityID());
+        item.setString(Tag.UniversalEntityIDType, VR.CS, pidIssuer.getUniversalEntityIDType());
     }
 
     @POST
@@ -501,10 +532,10 @@ public class IocmRS {
             result = getResult(instanceLocations);
         } else {
             mergeMWLItemTo(arcAE, mwl, instanceLocations);
-            Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity(), false);
+            Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity());
             moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
             session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
-            session.setStudyUpdatePolicy(Attributes.UpdatePolicy.MERGE);
+            session.setStudyUpdatePolicy(arcAE.linkMWLEntryUpdatePolicy());
             result = storeService.copyInstances(session, instanceLocations);
             rejectInstances(instanceRefs, rjNote, session, result);
         }
@@ -589,12 +620,7 @@ public class IocmRS {
                         String codeValue, String designator) throws IOException {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        Code code = new Code(codeValue, designator, null, "?");
-        RejectionNote rjNote = arcDev.getRejectionNote(code);
-        if (rjNote == null)
-            throw new WebApplicationException(getResponse("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND));
-
+        RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
         storeService.restoreInstances(session, studyUID, seriesUID);
 
@@ -624,7 +650,7 @@ public class IocmRS {
         if (instances.isEmpty())
             return getResponse("No Instances found. ", Response.Status.NOT_FOUND);
 
-        Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity(), false);
+        Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity());
         moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
         session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
         session.setStudyUpdatePolicy(arcAE.copyMoveUpdatePolicy());
@@ -652,36 +678,40 @@ public class IocmRS {
 
     private void rejectInstances(Attributes instanceRefs, RejectionNote rjNote, StoreSession session, Attributes result)
             throws IOException {
-        if (result.getString(Tag.FailureReason) != null)
-            removeFailedInstanceRefs(instanceRefs, result);
-
-        if (!instanceRefs.getSequence(Tag.ReferencedSeriesSequence).isEmpty())
+        Sequence refSeriesSeq = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);
+        removeFailedInstanceRefs(refSeriesSeq, failedIUIDs(result));
+        if (!refSeriesSeq.isEmpty())
             reject(session, instanceRefs, rjNote);
     }
 
-    private void removeFailedInstanceRefs(Attributes instanceRefs, Attributes result) {
-        for (Iterator<Attributes> refSeriesIter = instanceRefs.getSequence(Tag.ReferencedSeriesSequence).iterator(); refSeriesIter.hasNext();) {
-            Attributes refSeries = refSeriesIter.next();
-            removeFailedRefSOPs(result, refSeries);
-            if (refSeries.getSequence(Tag.ReferencedSOPSequence).isEmpty())
+    private Set<String> failedIUIDs(Attributes result) {
+        Sequence failedSOPSeq = result.getSequence(Tag.FailedSOPSequence);
+        if (failedSOPSeq == null || failedSOPSeq.isEmpty())
+            return Collections.EMPTY_SET;
+
+        Set<String> failedIUIDs = new HashSet<>(failedSOPSeq.size() * 4 / 3 + 1);
+        for (Attributes failedSOPRef : failedSOPSeq)
+            failedIUIDs.add(failedSOPRef.getString(Tag.ReferencedSOPInstanceUID));
+
+        return failedIUIDs;
+    }
+
+    private void removeFailedInstanceRefs(Sequence refSeriesSeq, Set<String> failedIUIDs) {
+        if (failedIUIDs.isEmpty())
+            return;
+
+        for (Iterator<Attributes> refSeriesIter = refSeriesSeq.iterator(); refSeriesIter.hasNext();) {
+            Sequence refSOPSeq = refSeriesIter.next().getSequence(Tag.ReferencedSOPSequence);
+            removeFailedRefSOPs(refSOPSeq, failedIUIDs);
+            if (refSOPSeq.isEmpty())
                 refSeriesIter.remove();
         }
     }
 
-    private void removeFailedRefSOPs(Attributes result, Attributes refSeries) {
-        for (Iterator<Attributes> refSopIter = refSeries.getSequence(Tag.ReferencedSOPSequence).iterator(); refSopIter.hasNext();) {
-            Attributes refSop = refSopIter.next();
-            for (int i = 0; i < result.getSequence(Tag.FailedSOPSequence).size(); i++) {
-                boolean removed = false;
-                if (refSop.getString(Tag.ReferencedSOPInstanceUID).equals(
-                        result.getSequence(Tag.FailedSOPSequence).get(i).getString(Tag.ReferencedSOPInstanceUID))) {
-                    refSopIter.remove();
-                    removed = true;
-                }
-                if (removed)
-                    break;
-            }
-        }
+    private void removeFailedRefSOPs(Sequence refSOPSeq, Set<String> failedIUIDs) {
+        for (Iterator<Attributes> refSopIter = refSOPSeq.iterator(); refSopIter.hasNext();)
+            if (failedIUIDs.contains(refSopIter.next().getString(Tag.ReferencedSOPInstanceUID)))
+                refSopIter.remove();
     }
 
     private Response.Status status(Attributes result) {
@@ -700,8 +730,7 @@ public class IocmRS {
         storeService.store(koctx, ko);
     }
 
-    private Attributes getSOPInstanceRefs(Attributes instanceRefs, Collection<InstanceLocations> instances,
-                                          ApplicationEntity ae, boolean availability) {
+    private Attributes getSOPInstanceRefs(Attributes instanceRefs, Collection<InstanceLocations> instances, ApplicationEntity ae) {
         String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
         Attributes refStudy = new Attributes(2);
         Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
@@ -719,9 +748,7 @@ public class IocmRS {
                 seriesMap.put(seriesIUID, refSOPSeq);
                 refSeriesSeq.add(refSeries);
             }
-            Attributes refSOP = new Attributes(3);
-            if (availability)
-                refSOP.setString(Tag.InstanceAvailability, VR.CS, instance.getAvailability().toString());
+            Attributes refSOP = new Attributes(2);
             refSOP.setString(Tag.ReferencedSOPClassUID, VR.UI, instance.getSopClassUID());
             refSOP.setString(Tag.ReferencedSOPInstanceUID, VR.UI, instance.getSopInstanceUID());
             refSOPSeq.add(refSOP);

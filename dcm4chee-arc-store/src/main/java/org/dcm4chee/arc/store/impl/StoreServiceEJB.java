@@ -427,17 +427,15 @@ public class StoreServiceEJB {
     }
 
     private Long countLocationsByUIDMap(UIDMap uidMap) {
-        Long result = em.createNamedQuery(Location.COUNT_BY_UIDMAP, Long.class)
+        return em.createNamedQuery(Location.COUNT_BY_UIDMAP, Long.class)
                 .setParameter(1, uidMap).getSingleResult();
-        return result;
     }
 
     public void removeOrMarkToDelete(Location location) {
-        if (countLocationsByMultiRef(location.getMultiReference()) > 1) {
+        if (countLocationsByMultiRef(location.getMultiReference()) > 1)
             em.remove(location);
-        } else {
+        else
             markToDelete(location);
-        }
     }
 
     private void markToDelete(Location location) {
@@ -479,16 +477,15 @@ public class StoreServiceEJB {
         }
     }
 
-    private boolean deleteStudyIfEmpty(Study study, StoreContext ctx) {
+    private void deleteStudyIfEmpty(Study study, StoreContext ctx) {
         if (em.createNamedQuery(Series.COUNT_SERIES_OF_STUDY, Long.class)
                 .setParameter(1, study)
                 .getSingleResult() != 0L)
-            return false;
+            return;
 
         LOG.info("{}: Delete {}", ctx.getStoreSession(), study);
         study.getPatient().decrementNumberOfStudies();
         em.remove(study);
-        return true;
     }
 
     private boolean deleteSeriesIfEmpty(Series series, StoreContext ctx) {
@@ -535,12 +532,12 @@ public class StoreServiceEJB {
         deleteStudyQueryAttributes(study);
     }
 
-    private int deleteStudyQueryAttributes(Study study) {
-        return em.createNamedQuery(StudyQueryAttributes.DELETE_FOR_STUDY).setParameter(1, study).executeUpdate();
+    private void deleteStudyQueryAttributes(Study study) {
+        em.createNamedQuery(StudyQueryAttributes.DELETE_FOR_STUDY).setParameter(1, study).executeUpdate();
     }
 
-    private int deleteSeriesQueryAttributes(Series series) {
-        return em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
+    private void deleteSeriesQueryAttributes(Series series) {
+        em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
     }
 
     private Instance createInstance(StoreContext ctx, CodeEntity conceptNameCode, UpdateDBResult result)
@@ -677,14 +674,16 @@ public class StoreServiceEJB {
         updateInfo.log(session, pat, attrs);
         pat = em.find(Patient.class, pat.getPk());
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(attrs);
-        Issuer issuer = idWithIssuer.getIssuer();
-        if (issuer != null) {
-            PatientID patientID = pat.getPatientID();
-            IssuerEntity issuerEntity = patientID.getIssuer();
-            if (issuerEntity == null)
-                patientID.setIssuer(issuerService.mergeOrCreate(issuer));
-            else
-                issuerEntity.getIssuer().merge(issuer);
+        if (idWithIssuer != null) {
+            Issuer issuer = idWithIssuer.getIssuer();
+            if (issuer != null) {
+                PatientID patientID = pat.getPatientID();
+                IssuerEntity issuerEntity = patientID.getIssuer();
+                if (issuerEntity == null)
+                    patientID.setIssuer(issuerService.mergeOrCreate(issuer));
+                else
+                    issuerEntity.getIssuer().merge(issuer);
+            }
         }
         pat.setAttributes(attrs, filter, arcDev.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
@@ -928,10 +927,9 @@ public class StoreServiceEJB {
     }
 
     private String objectStorageID(StoreContext ctx) {
-        for (Location location : ctx.getLocations()) {
+        for (Location location : ctx.getLocations())
             if (location.getObjectType() == Location.ObjectType.DICOM_FILE)
                 return location.getStorageID();
-        }
 
         return ctx.getStoreSession().getObjectStorageID();
     }
@@ -950,10 +948,10 @@ public class StoreServiceEJB {
         if (storePermission == null) {
             storePermission = queryStorePermission(session, urlspec);
             storePermissionCache.put(urlspec, storePermission);
-        } else {
+        } else
             LOG.debug("{}: Use cached result of Query Store Permission Service {} - {}",
                     session, urlspec, storePermission);
-        }
+
         if (storePermission.exception != null)
             throw storePermission.exception;
 
@@ -1006,9 +1004,8 @@ public class StoreServiceEJB {
                     LOG.warn("{}: Store Permission Service {} returns invalid Expiration Date: {} - ignored",
                             session, url, s);
                 }
-            } else {
+            } else
                 LOG.info("{}: Store Permission Service {} response does not contains expiration date", session, url);
-            }
         }
         return null;
     }

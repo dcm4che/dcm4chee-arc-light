@@ -48,6 +48,7 @@ export class StudiesComponent implements OnDestroy{
     // @ViewChildren(MessagingComponent) msg;
 
     orderby = Globalvar.ORDERBY;
+    orderbyExternal = Globalvar.ORDERBY_EXTERNAL;
     limit = 20;
     showClipboardHeaders = {
         'study': false,
@@ -69,6 +70,7 @@ export class StudiesComponent implements OnDestroy{
         from: undefined,
         to: undefined
     };
+    externalAetMode = "internal";
     filter = {
         orderby: '-StudyDate,-StudyTime',
         ModalitiesInStudy: '',
@@ -203,6 +205,7 @@ export class StudiesComponent implements OnDestroy{
     aes: any;
     aet: any;
     aetmodel: any;
+    externalAEtmodel:any;
     advancedConfig = false;
     showModalitySelector = false;
     modalities: any;
@@ -301,6 +304,7 @@ export class StudiesComponent implements OnDestroy{
         this.modalities = Globalvar.MODALITIES;
         console.log('modalities', this.modalities);
         this.initAETs(2);
+        this.getAllAes(2);
         this.initAttributeFilter('Patient', 1);
         this.initExporters(2);
         this.initRjNotes(2);
@@ -469,6 +473,25 @@ export class StudiesComponent implements OnDestroy{
     //             }
     //         );
     // }
+
+    aetModeChange(e){
+        console.log("in aetmodechange e=",e);
+        if(e === "internal"){
+            this.aetmodel = this.aes[0];
+            this.showoptionlist = false;
+            this.filter.orderby = "-StudyDate,-StudyTime";
+            this.orderbytext = '<label>Study</label><span class=\"orderbydateasc\"></span>';
+            this.filterMode = "study";
+
+        }
+        if(e === "external"){
+            this.externalAEtmodel = this.allAes[0];
+            this.showoptionlist = false;
+            this.filter.orderby = "";
+            this.orderbytext = "Study";
+            this.filterMode = "study";
+        }
+    }
 
     /*
     * @confirmparameters is an object that can contain title, content
@@ -724,9 +747,9 @@ export class StudiesComponent implements OnDestroy{
                 console.log('in error', err);
                 $this.patients = [];
                 $this.mainservice.setMessage({
-                    'title': 'Info',
-                    'text': 'No matching Studies found!',
-                    'status': 'info'
+                    'title': 'Error ' + err.status,
+                    'text': err.statusText,
+                    'status': 'error'
                 });
                 $this.cfpLoadingBar.complete();
             }
@@ -2535,11 +2558,11 @@ export class StudiesComponent implements OnDestroy{
                 }
             } else {
                 $this.patients = [];
-                // this.mainservice.setMessage( {
-                //     "title": "Info",
-                //     "text": "No matching Patients found!",
-                //     "status": "info"
-                // });
+                $this.mainservice.setMessage( {
+                    "title": "Info",
+                    "text": "No matching Patients found!",
+                    "status": "info"
+                });
             }
             $this.extendedFilter(false);
             // var state = ($this.allhidden) ? "hide" : "show";
@@ -2547,6 +2570,12 @@ export class StudiesComponent implements OnDestroy{
             //     togglePatientsHelper(state);
             // }, 1000);
             $this.cfpLoadingBar.complete();
+        },(err)=>{
+            $this.mainservice.setMessage({
+                'title': 'Error ' + err.status,
+                'text': err.statusText,
+                'status': 'error'
+            });
         });
     };
 
@@ -2957,7 +2986,14 @@ export class StudiesComponent implements OnDestroy{
         console.log('this.selected[\'otherObjects\']', this.selected['otherObjects']);
     }
     rsURL() {
-        return '../aets/' + this.aet + '/rs';
+        let url;
+        if(this.externalAetMode === "external"){
+            url = `../aets/${this.aetmodel.title}/dimse/${this.externalAEtmodel.title}`;
+        }
+        if(this.externalAetMode === "internal"){
+            url = `../aets/${this.aet}/rs`;
+        }
+        return url;
     }
     diffUrl(){
         if(!this.aet1){
@@ -3183,7 +3219,7 @@ export class StudiesComponent implements OnDestroy{
 
             console.log('selected', this.selected);
             console.log('clipboard', this.clipboard);
-            if (!this.service.isTargetInClipboard(this.selected, this.clipboard)){//TODO
+            if (!this.service.isTargetInClipboard(this.selected, this.clipboard) || this.target.modus === "mwl"){//TODO
 
                 let $this = this;
                 console.log('target', this.target);
@@ -3203,17 +3239,31 @@ export class StudiesComponent implements OnDestroy{
                         width: '90%'
                     });
                     let action = this.clipboard['action'].toUpperCase();
+                    let title = action + ' PROCESS';
+                    if(this.target.modus === "mwl"){
+                        title = "LINK TO MWL";
+                        _.forEach(this.rjnotes,(m,i)=>{
+                            console.log("m",m);
+                            if(m.type === "INCORRECT_MODALITY_WORKLIST_ENTRY"){
+                                this.reject = m.codeValue+"^"+m.codingSchemeDesignator;
+                            }
+                        });
+                    }
+                    console.log("reject",this.reject);
                     this.dialogRef.componentInstance.clipboard = this.clipboard;
                     this.dialogRef.componentInstance.rjnotes = this.rjnotes;
                     this.dialogRef.componentInstance.selected = this.selected['otherObjects'];
                     this.dialogRef.componentInstance.showClipboardHeaders = this.showClipboardHeaders;
                     this.dialogRef.componentInstance.target = this.target;
+                    this.dialogRef.componentInstance.reject = this.reject;
                     this.dialogRef.componentInstance.saveLabel = action;
-                    this.dialogRef.componentInstance.title = action + ' PROCESS';
+                    this.dialogRef.componentInstance.title = title;
                     this.cfpLoadingBar.stop();
                     this.dialogRef.afterClosed().subscribe(result => {
                         $this.cfpLoadingBar.start();
                         if (result) {
+                            $this.reject = result;
+                            console.log("reject",$this.reject);
                             if ($this.clipboard.action === 'merge') {
                                 let object = {
                                     priorPatientID: $this.clipboard.patients
@@ -3781,7 +3831,12 @@ export class StudiesComponent implements OnDestroy{
             .subscribe(
                 function (res) {
                     console.log('before call getAes', res, 'this user=', $this.user);
-                    $this.allAes = res;
+                    $this.allAes = res.map((res)=>{
+                        res['title'] = res['dicomAETitle'];
+                        res['description'] = res['dicomDescription'];
+                        return res;
+                    });
+                    $this.externalAEtmodel = $this.allAes[0];
                     // $this.aes = $this.service.getAes($this.user, res);
 /*                    console.log('aes', $this.aes);
                     // $this.aesdropdown = $this.aes;
@@ -4054,13 +4109,13 @@ export class StudiesComponent implements OnDestroy{
                         $this.initExporters(retries - 1);
                 });
     }
-    showExporter(){
+/*    showExporter(){
         if (_.size(this.exporters) > 0){
             return true;
         }else{
             return false;
         }
-    }
+    }*/
     initRjNotes(retries) {
         let $this = this;
        this.$http.get('../reject')

@@ -62,6 +62,9 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.CompletionCallback;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -115,6 +118,8 @@ public class QueryRS {
     @Inject
     private CFindSCU findSCU;
 
+    private Association as;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -124,35 +129,39 @@ public class QueryRS {
     @NoCache
     @Path("/patients")
     @Produces("application/dicom+json,application/json")
-    public Response searchForPatientsJSON() throws Exception {
-        return search(Level.PATIENT, null, null, QIDO.PATIENT);
+    public void searchForPatientsJSON(@Suspended AsyncResponse ar) throws Exception {
+        search(ar, Level.PATIENT, null, null, QIDO.PATIENT);
     }
 
     @GET
     @NoCache
     @Path("/studies")
     @Produces("application/dicom+json,application/json")
-    public Response searchForStudiesJSON() throws Exception {
-        return search(Level.STUDY, null, null, QIDO.STUDY);
+    public void searchForStudiesJSON(@Suspended AsyncResponse ar) throws Exception {
+        search(ar, Level.STUDY, null, null, QIDO.STUDY);
     }
 
     @GET
     @NoCache
     @Path("/studies/{StudyInstanceUID}/series")
     @Produces("application/dicom+json,application/json")
-    public Response searchForSeriesOfStudyJSON(
-                                           @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
-        return search(Level.SERIES, studyInstanceUID, null, QIDO.STUDY_SERIES);
+    public void searchForSeriesOfStudyJSON(
+            @Suspended AsyncResponse ar,
+            @PathParam("StudyInstanceUID") String studyInstanceUID)
+            throws Exception {
+        search(ar, Level.SERIES, studyInstanceUID, null, QIDO.STUDY_SERIES);
     }
 
     @GET
     @NoCache
     @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances")
     @Produces("application/dicom+json,application/json")
-    public Response searchForInstancesOfSeriesJSON(
-                                               @PathParam("StudyInstanceUID") String studyInstanceUID,
-                                               @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
-        return search(Level.IMAGE, studyInstanceUID, seriesInstanceUID, QIDO.STUDY_SERIES_INSTANCE);
+    public void searchForInstancesOfSeriesJSON(
+            @Suspended AsyncResponse ar,
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID)
+            throws Exception {
+        search(ar, Level.IMAGE, studyInstanceUID, seriesInstanceUID, QIDO.STUDY_SERIES_INSTANCE);
     }
 
     private ApplicationEntity getApplicationEntity() {
@@ -180,7 +189,7 @@ public class QueryRS {
         return s != null ? Integer.parseInt(s) : defval;
     }
 
-    private Response search(Level level, String studyInstanceUID, String seriesInstanceUID, QIDO qido)
+    private void search(AsyncResponse ar, Level level, String studyInstanceUID, String seriesInstanceUID, QIDO qido)
             throws Exception {
         LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
@@ -208,26 +217,33 @@ public class QueryRS {
         EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
         if (Boolean.parseBoolean(fuzzymatching))
             queryOptions.add(QueryOption.FUZZY);
-        Association as = findSCU.openAssociation(localAE, externalAET, level.cuid, queryOptions);
-        try {
-            DimseRSP dimseRSP = findSCU.query(as, priority(), keys, limit != null ? offset() + limit() : 0);
-            dimseRSP.next();
-            int status = dimseRSP.getCommand().getInt(Tag.Status, -1);
-            switch (status) {
-                case 0:
-                    return Response.ok("[]").build();
-                case Status.Pending:
-                case Status.PendingWarning:
-                    return Response.ok(writeJSON(dimseRSP)).build();
+        ar.register(new CompletionCallback() {
+            @Override
+            public void onComplete(Throwable throwable) {
+                if (as != null)
+                    try {
+                        as.release();
+                    } catch (IOException e) {
+                        LOG.info("{}: Failed to release association:\\n", as, e);
+                    }
             }
-            return Response.status(Response.Status.BAD_GATEWAY).header("Warning", warning(status)).build();
-        } finally {
-            try {
-                as.release();
-            } catch (IOException e) {
-                LOG.info("{}: Failed to release association:\\n", as, e);
-            }
+        });
+        as = findSCU.openAssociation(localAE, externalAET, level.cuid, queryOptions);
+        DimseRSP dimseRSP = findSCU.query(as, priority(), keys, limit != null ? offset() + limit() : 0);
+        dimseRSP.next();
+        ar.resume(responseBuilder(dimseRSP).build());
+    }
+
+    private Response.ResponseBuilder responseBuilder(DimseRSP dimseRSP) {
+        int status = dimseRSP.getCommand().getInt(Tag.Status, -1);
+        switch (status) {
+            case 0:
+                return Response.ok("[]");
+            case Status.Pending:
+            case Status.PendingWarning:
+                return Response.ok(writeJSON(dimseRSP));
         }
+        return Response.status(Response.Status.BAD_GATEWAY).header("Warning", warning(status));
     }
 
     private String warning(int status) {

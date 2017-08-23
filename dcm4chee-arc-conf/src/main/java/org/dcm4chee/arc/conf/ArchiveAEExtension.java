@@ -108,6 +108,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean hl7PSUOnTimeout;
     private Boolean hl7PSUMWL;
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
+    private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private String invokeImageDisplayPatientURL;
     private String invokeImageDisplayStudyURL;
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
@@ -967,6 +968,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getCopyMoveUpdatePolicy();
     }
 
+    public Attributes.UpdatePolicy getLinkMWLEntryUpdatePolicy() {
+        return linkMWLEntryUpdatePolicy;
+    }
+
+    public void setLinkMWLEntryUpdatePolicy(Attributes.UpdatePolicy linkMWLEntryUpdatePolicy) {
+        this.linkMWLEntryUpdatePolicy = linkMWLEntryUpdatePolicy;
+    }
+
+    public Attributes.UpdatePolicy linkMWLEntryUpdatePolicy() {
+        return linkMWLEntryUpdatePolicy != null
+                ? linkMWLEntryUpdatePolicy
+                : getArchiveDeviceExtension().getLinkMWLEntryUpdatePolicy();
+    }
+
     public String getInvokeImageDisplayPatientURL() {
         return invokeImageDisplayPatientURL;
     }
@@ -1042,6 +1057,7 @@ public class ArchiveAEExtension extends AEExtension {
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
         acceptConflictingPatientID = aeExt.acceptConflictingPatientID;
         copyMoveUpdatePolicy = aeExt.copyMoveUpdatePolicy;
+        linkMWLEntryUpdatePolicy = aeExt.linkMWLEntryUpdatePolicy;
         retrieveAETitles = aeExt.retrieveAETitles;
         hl7PSUSendingApplication = aeExt.hl7PSUSendingApplication;
         hl7PSUReceivingApplications = aeExt.hl7PSUReceivingApplications;

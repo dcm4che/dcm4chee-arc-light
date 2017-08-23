@@ -769,8 +769,19 @@
       "type": "string",
       "enum": [
         "SUPPLEMENT",
+        "MERGE",
         "OVERWRITE",
-        "MERGED",
+        "REPLACE"
+      ]
+    },
+    "dcmLinkMWLEntryUpdatePolicy": {
+      "title": "Link MWL Entry Update Policy",
+      "description": "Specifies update policy for Study attributes on Link of Instances of another Study with a MWL Entry referring an existing Study. If absent, the attributes will not be updated. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "string",
+      "enum": [
+        "SUPPLEMENT",
+        "MERGE",
+        "OVERWRITE",
         "REPLACE"
       ]
     },
