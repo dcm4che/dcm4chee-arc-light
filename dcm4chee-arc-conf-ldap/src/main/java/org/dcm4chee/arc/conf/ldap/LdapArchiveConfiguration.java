@@ -771,7 +771,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "hl7PSUOnTimeout", ext.getHl7PSUOnTimeout(), null);
         LdapUtils.storeNotNullOrDef(attrs, "hl7PSUMWL", ext.getHl7PSUMWL(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmAcceptConflictingPatientID",
-                ext.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
+                ext.getAcceptConflictingPatientID(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmCopyMoveUpdatePolicy", ext.getCopyMoveUpdatePolicy(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmLinkMWLEntryUpdatePolicy", ext.getLinkMWLEntryUpdatePolicy(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL(), null);
@@ -844,8 +844,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7PSUOnTimeout(LdapUtils.booleanValue(attrs.get("hl7PSUOnTimeout"), null));
         ext.setHl7PSUMWL(LdapUtils.booleanValue(attrs.get("hl7PSUMWL"), null));
         ext.setAcceptConflictingPatientID(
-                LdapUtils.enumValue(AcceptConflictingPatientID.class, attrs.get("dcmAcceptConflictingPatientID"),
-                        AcceptConflictingPatientID.MERGED));
+                LdapUtils.enumValue(AcceptConflictingPatientID.class, attrs.get("dcmAcceptConflictingPatientID"), null));
         ext.setCopyMoveUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmCopyMoveUpdatePolicy"), null));
         ext.setLinkMWLEntryUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmLinkMWLEntryUpdatePolicy"), null));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
@@ -947,7 +946,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(mods, "hl7PSUOnTimeout", aa.getHl7PSUOnTimeout(), bb.getHl7PSUOnTimeout(), null);
         LdapUtils.storeDiffObject(mods, "hl7PSUMWL", aa.getHl7PSUMWL(), bb.getHl7PSUMWL(), null);
         LdapUtils.storeDiffObject(mods, "dcmAcceptConflictingPatientID",
-                aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
+                aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(), null);
         LdapUtils.storeDiffObject(mods, "dcmCopyMoveUpdatePolicy", aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy(), null);
         LdapUtils.storeDiffObject(mods, "dcmLinkMWLEntryUpdatePolicy", aa.getLinkMWLEntryUpdatePolicy(), bb.getLinkMWLEntryUpdatePolicy(), null);
         LdapUtils.storeDiffObject(mods, "dcmInvokeImageDisplayPatientURL", aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL(), null);
