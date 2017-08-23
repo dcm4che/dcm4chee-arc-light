@@ -361,11 +361,14 @@ public class IocmRS {
 
     @POST
     @Path("/patients/{patientID}/changeid/{priorPatientID}")
-    public void changePatientID(@PathParam("patientID") IDWithIssuer patientID,
-                                @PathParam("priorPatientID") IDWithIssuer priorPatientID) throws Exception {
+    public void changePatientID(@PathParam("patientID") String pID,
+                                @PathParam("priorPatientID") String priorPID) throws Exception {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
+            IDWithIssuer priorPatientID = new IDWithIssuer(priorPID);
+            IDWithIssuer patientID = new IDWithIssuer(pID);
+
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, arcAE.getApplicationEntity());
             Patient priorPatient = patientService.findPatient(priorPatientID);
             if (priorPatient == null)
@@ -373,8 +376,7 @@ public class IocmRS {
                         "Patient having patient ID : " + priorPatientID + " not found.", Response.Status.NOT_FOUND));
             Attributes attrs = priorPatient.getAttributes();
             attrs.setString(Tag.PatientID, VR.LO, patientID.getID());
-            if (patientID.getIssuer() != null)
-                attrs.setString(Tag.IssuerOfPatientID, VR.LO, patientID.getIssuer().toString());
+            setIssuer(patientID, attrs);
             ctx.setAttributes(attrs);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
@@ -385,6 +387,40 @@ public class IocmRS {
             throw new WebApplicationException(
                     getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
         }
+    }
+
+    private void setIssuer(IDWithIssuer patientID, Attributes attrs) {
+        Issuer pidIssuer = patientID.getIssuer();
+        if (pidIssuer == null)
+            return;
+
+        attrs.setString(Tag.IssuerOfPatientID, VR.LO, pidIssuer.getLocalNamespaceEntityID());
+        setPIDQualifier(attrs, pidIssuer);
+    }
+
+    private void setPIDQualifier(Attributes attrs, Issuer pidIssuer) {
+        if (hasUniversalEntityIDAndType(pidIssuer)) {
+            Sequence pidQualifiers = attrs.getSequence(Tag.IssuerOfPatientIDQualifiersSequence);
+            if (pidQualifiers != null)
+                for (Attributes item : pidQualifiers)
+                    setUniversalEntityIDAndType(pidIssuer, item);
+
+            else {
+                pidQualifiers = attrs.newSequence(Tag.IssuerOfPatientIDQualifiersSequence, 1);
+                Attributes item = new Attributes(2);
+                setUniversalEntityIDAndType(pidIssuer, item);
+                pidQualifiers.add(item);
+            }
+        }
+    }
+
+    private boolean hasUniversalEntityIDAndType(Issuer pidIssuer) {
+        return pidIssuer.getUniversalEntityID() != null && pidIssuer.getUniversalEntityIDType() != null;
+    }
+
+    private void setUniversalEntityIDAndType(Issuer pidIssuer, Attributes item) {
+        item.setString(Tag.UniversalEntityID, VR.UT, pidIssuer.getUniversalEntityID());
+        item.setString(Tag.UniversalEntityIDType, VR.CS, pidIssuer.getUniversalEntityIDType());
     }
 
     @POST
