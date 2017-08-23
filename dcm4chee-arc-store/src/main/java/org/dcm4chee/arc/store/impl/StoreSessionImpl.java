@@ -135,9 +135,9 @@ class StoreSessionImpl implements StoreSession {
 
     void setAssociation(Association as) {
         this.as = as;
-        this.ae = as.getApplicationEntity();
         this.socket = as.getSocket();
         this.calledAET = as.getCalledAET();
+        setApplicationEntity(as.getApplicationEntity());
     }
 
     @Override
