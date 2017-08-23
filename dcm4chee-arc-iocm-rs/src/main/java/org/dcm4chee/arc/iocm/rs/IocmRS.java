@@ -325,9 +325,9 @@ public class IocmRS {
     }
 
     @POST
-    @Path("/patients/{patientID}/merge/{priorPatientID}")
-    public void mergePatient(@PathParam("patientID") IDWithIssuer patientID,
-                             @PathParam("priorPatientID") IDWithIssuer priorPatientID) throws Exception {
+    @Path("/patients/{priorPatientID}/merge/{patientID}")
+    public void mergePatient(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
+                             @PathParam("patientID") IDWithIssuer patientID) throws Exception {
         logRequest();
         try {
             Attributes priorPatAttr = new Attributes(2);
@@ -360,9 +360,9 @@ public class IocmRS {
     }
 
     @POST
-    @Path("/patients/{patientID}/changeid/{priorPatientID}")
-    public void changePatientID(@PathParam("patientID") IDWithIssuer patientID,
-                                @PathParam("priorPatientID") IDWithIssuer priorPatientID) throws Exception {
+    @Path("/patients/{priorPatientID}/changeid/{patientID}")
+    public void changePatientID(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
+                                @PathParam("patientID") IDWithIssuer patientID) throws Exception {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
