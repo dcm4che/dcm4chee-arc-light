@@ -288,7 +288,7 @@ public class IocmRS {
                 patientService.changePatientID(ctx);
             }
             rsForward.forward(RSOperation.UpdatePatient, arcAE, attrs, request);
-            String msgType = ctx.getEventActionCode() == AuditMessages.EventActionCode.Create
+            String msgType = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
                     ? newPatient
                         ? "ADT^A28^ADT_A05" : "ADT^A47^ADT_A30"
                     : "ADT^A31^ADT_A05";
@@ -361,14 +361,11 @@ public class IocmRS {
 
     @POST
     @Path("/patients/{patientID}/changeid/{priorPatientID}")
-    public void changePatientID(@PathParam("patientID") String pID,
-                                @PathParam("priorPatientID") String priorPID) throws Exception {
+    public void changePatientID(@PathParam("patientID") IDWithIssuer patientID,
+                                @PathParam("priorPatientID") IDWithIssuer priorPatientID) throws Exception {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            IDWithIssuer priorPatientID = new IDWithIssuer(priorPID);
-            IDWithIssuer patientID = new IDWithIssuer(pID);
-
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, arcAE.getApplicationEntity());
             Patient priorPatient = patientService.findPatient(priorPatientID);
             if (priorPatient == null)
