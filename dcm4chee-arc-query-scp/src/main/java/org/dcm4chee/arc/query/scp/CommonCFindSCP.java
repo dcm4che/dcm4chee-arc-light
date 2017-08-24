@@ -100,6 +100,7 @@ class CommonCFindSCP extends BasicCFindSCP {
         returnKeys.setNull(Tag.SpecificCharacterSet, VR.CS);
         returnKeys.setNull(Tag.RetrieveAETitle, VR.AE);
         returnKeys.setNull(Tag.InstanceAvailability, VR.CS);
+        returnKeys.setNull(Tag.TimezoneOffsetFromUTC, VR.SH);
         return returnKeys;
     }
 

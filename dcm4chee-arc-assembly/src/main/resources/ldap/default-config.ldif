@@ -169,6 +169,7 @@ dcmTag: 00080094
 dcmTag: 00080096
 dcmTag: 0008009C
 dcmTag: 0008009D
+dcmTag: 00080201
 dcmTag: 00081080
 dcmTag: 00081084
 dcmTag: 00081110
@@ -234,6 +235,7 @@ objectClass: dcmAttributeFilter
 dn: dcmEntity=MPPS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmTag: 00080005
 dcmTag: 00080060
+dcmTag: 00080201
 dcmTag: 00081032
 dcmTag: 00082229
 dcmTag: 00181110
@@ -290,6 +292,7 @@ dcmTag: 00080030
 dcmTag: 00080050
 dcmTag: 00080051
 dcmTag: 00080090
+dcmTag: 00080201
 dcmTag: 00081030
 dcmTag: 00081032
 dcmTag: 00081048
@@ -314,6 +317,7 @@ dcmTag: 00080060
 dcmTag: 00080070
 dcmTag: 00080080
 dcmTag: 00080082
+dcmTag: 00080201
 dcmTag: 00081010
 dcmTag: 0008103E
 dcmTag: 00081040
@@ -408,6 +412,7 @@ dcmTag: 00080016
 dcmTag: 00080018
 dcmTag: 00080023
 dcmTag: 00080033
+dcmTag: 00080201
 dcmTag: 00081115
 dcmTag: 00082218
 dcmTag: 00200013
@@ -845,6 +850,7 @@ dcmTag: 00080070
 dcmTag: 00080080
 dcmTag: 00080082
 dcmTag: 00080090
+dcmTag: 00080201
 dcmTag: 00081010
 dcmTag: 00081030
 dcmTag: 00081032

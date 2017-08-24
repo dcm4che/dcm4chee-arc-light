@@ -148,11 +148,12 @@ public class QueryAttributes {
         if (includeAll)
             return null;
 
-        Attributes returnKeys = new Attributes(keys.size() + 3 + includetags.length);
+        Attributes returnKeys = new Attributes(keys.size() + 4 + includetags.length);
         returnKeys.addAll(keys);
         returnKeys.setNull(Tag.SpecificCharacterSet, VR.CS);
         returnKeys.setNull(Tag.RetrieveAETitle, VR.AE);
         returnKeys.setNull(Tag.InstanceAvailability, VR.CS);
+        returnKeys.setNull(Tag.TimezoneOffsetFromUTC, VR.SH);
         for (int tag : includetags)
             returnKeys.setNull(tag, DICT.vrOf(tag));
         return returnKeys;
