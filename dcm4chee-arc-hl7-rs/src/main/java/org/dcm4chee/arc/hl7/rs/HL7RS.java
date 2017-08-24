@@ -131,7 +131,7 @@ public class HL7RS {
             return reader.readDataset(null);
         } catch (JsonParsingException e) {
             throw new WebApplicationException(buildErrorResponse(e.getMessage() + " at location : "
-                    + ((JsonParsingException) e).getLocation(), Response.Status.BAD_REQUEST));
+                    + e.getLocation(), Response.Status.BAD_REQUEST));
         }
     }
 
