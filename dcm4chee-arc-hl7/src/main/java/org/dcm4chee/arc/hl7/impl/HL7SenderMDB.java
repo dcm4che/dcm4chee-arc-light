@@ -40,6 +40,10 @@
 
 package org.dcm4chee.arc.hl7.impl;
 
+import org.dcm4che3.hl7.HL7Exception;
+import org.dcm4che3.hl7.HL7Message;
+import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
@@ -88,18 +92,30 @@ public class HL7SenderMDB implements MessageListener {
             return;
         try {
             byte[] hl7msg = (byte[]) ((ObjectMessage) msg).getObject();
-            Outcome outcome = hl7Sender.sendMessage(
+            HL7Message ack = hl7Sender.sendMessage(
                     msg.getStringProperty("SendingApplication"),
                     msg.getStringProperty("SendingFacility"),
                     msg.getStringProperty("ReceivingApplication"),
                     msg.getStringProperty("ReceivingFacility"),
                     msg.getStringProperty("MessageType"),
                     msg.getStringProperty("MessageControlID"),
-                    hl7msg);
-            queueManager.onProcessingSuccessful(msgID, outcome);
+                    hl7msg);;
+            queueManager.onProcessingSuccessful(msgID, toOutcome(ack));
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);
         }
+    }
+
+    private Outcome toOutcome(HL7Message ack) {
+        HL7Segment msa = ack.getSegment("MSA");
+        if (msa == null)
+            return new Outcome(QueueMessage.Status.WARNING, "Missing MSA segment in response message");
+
+        return new Outcome(
+                    HL7Exception.AA.equals(msa.getField(1, null))
+                            ? QueueMessage.Status.COMPLETED
+                            : QueueMessage.Status.WARNING,
+                    msa.toString());
     }
 }

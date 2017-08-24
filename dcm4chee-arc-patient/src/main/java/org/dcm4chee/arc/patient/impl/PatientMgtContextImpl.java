@@ -68,7 +68,6 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private final AttributeFilter attributeFilter;
     private final FuzzyStr fuzzyStr;
     private HttpServletRequest httpRequest;
-    private ApplicationEntity ae;
     private HL7Application hl7app;
     private Association as;
     private Socket socket;
@@ -92,10 +91,6 @@ public class PatientMgtContextImpl implements PatientMgtContext {
         this.httpRequest = httpRequest;
     }
 
-    void setApplicationEntity(ApplicationEntity ae) {
-        this.ae = ae;
-    }
-
     void setHL7Application(HL7Application hl7app) {
         this.hl7app = hl7app;
     }
@@ -110,7 +105,6 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
     void setAssociation(Association as) {
         this.as = as;
-        this.ae = as.getApplicationEntity();
         this.socket = as.getSocket();
     }
 
@@ -145,16 +139,6 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public HL7Segment getHL7MessageHeader() {
         return msh;
-    }
-
-    @Override
-    public String getCalledAET() {
-        return as != null ? as.getCalledAET() : ae != null ? ae.getAETitle() : null;
-    }
-
-    @Override
-    public String getCallingAET() {
-        return as != null ? as.getCallingAET() : null;
     }
 
     @Override

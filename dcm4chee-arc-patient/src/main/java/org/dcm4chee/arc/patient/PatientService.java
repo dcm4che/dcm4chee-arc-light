@@ -60,7 +60,7 @@ public interface PatientService {
 
     PatientMgtContext createPatientMgtContextDIMSE(Association as);
 
-    PatientMgtContext createPatientMgtContextWEB(HttpServletRequest httpRequest, ApplicationEntity ae);
+    PatientMgtContext createPatientMgtContextWEB(HttpServletRequest httpRequest);
 
     PatientMgtContext createPatientMgtContextHL7(HL7Application hl7App, Socket socket, HL7Segment msh);
 

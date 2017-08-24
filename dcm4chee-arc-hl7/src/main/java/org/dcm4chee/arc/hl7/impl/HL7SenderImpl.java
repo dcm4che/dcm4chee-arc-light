@@ -40,17 +40,16 @@
 
 package org.dcm4chee.arc.hl7.impl;
 
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
-import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.hl7.MLLPConnection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
-import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.hl7.HL7Sender;
-import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,14 +84,18 @@ public class HL7SenderImpl implements HL7Sender {
         int field45Len = msh.getField(4, "").length() + msh.getField(5, "").length() + 2;
         for (String dest : dests) {
             String[] ss = HL7Segment.split(dest, '|');
-            scheduleMessage(
-                    msh.getField(4, ""),
-                    msh.getField(5, ""),
-                    ss[0],
-                    ss.length > 1 ? ss[1] : "",
-                    msh.getField(8, ""),
-                    msh.getField(9, ""),
-                    replaceField2345(orighl7msg, dest.replace('|', msh.getFieldSeparator()), field23Len, field45Len));
+            try {
+                scheduleMessage(
+                        msh.getField(4, ""),
+                        msh.getField(5, ""),
+                        ss[0],
+                        ss.length > 1 ? ss[1] : "",
+                        msh.getField(8, ""),
+                        msh.getField(9, ""),
+                        replaceField2345(orighl7msg, dest.replace('|', msh.getFieldSeparator()), field23Len, field45Len));
+            } catch (Exception e) {
+                LOG.warn("Failed to schedule forward of HL7 message to {}:\n", dest, e);
+            }
         }
     }
 
@@ -110,7 +113,10 @@ public class HL7SenderImpl implements HL7Sender {
 
     @Override
     public void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
-                                String receivingFacility, String messageType, String messageControlID, byte[] hl7msg) {
+                                String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
+            throws ConfigurationException {
+        getSendingHl7Application(sendingApplication, sendingFacility);
+        hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
         try {
             ObjectMessage msg = queueManager.createObjectMessage(hl7msg);
             msg.setStringProperty("SendingApplication", sendingApplication);
@@ -126,7 +132,7 @@ public class HL7SenderImpl implements HL7Sender {
     }
 
     @Override
-    public void scheduleMessage(HL7Message hl7Message) {
+    public void scheduleMessage(HL7Message hl7Message) throws ConfigurationException {
         HL7Segment msh = hl7Message.get(0);
         scheduleMessage(
                 msh.getField(2, ""),
@@ -139,29 +145,31 @@ public class HL7SenderImpl implements HL7Sender {
     }
 
     @Override
-    public Outcome sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
-                               String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
+    public HL7Message sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
+                              String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
             throws Exception {
-        LOG.warn("HL7 message being sent is : ", hl7msg);
-        HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
-        HL7Application sender = hl7Dev.getHL7Application(sendingApplication + '|' + sendingFacility, true);
+        HL7Application sender = getSendingHl7Application(sendingApplication, sendingFacility);
         HL7Application receiver = hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
+        return getAcknowledgeHL7Msg(sender, receiver, hl7msg);
+    }
+
+    private HL7Application getSendingHl7Application(String sendingApplication, String sendingFacility) throws ConfigurationNotFoundException {
+        HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
+        String sendingAppWithFacility = sendingApplication + '|' + sendingFacility;
+        HL7Application sender = hl7Dev.getHL7Application(sendingAppWithFacility, true);
+        if (sender == null)
+            throw new ConfigurationNotFoundException("Sending HL7 Application not configured : " + sendingAppWithFacility);
+        return sender;
+    }
+
+    private HL7Message getAcknowledgeHL7Msg(HL7Application sender, HL7Application receiver, byte[] hl7msg) throws Exception {
         try (MLLPConnection conn = sender.connect(receiver)) {
             conn.writeMessage(hl7msg);
             byte[] rsp = conn.readMessage();
             if (rsp == null)
                 throw new IOException("TCP connection dropped while waiting for response");
 
-            HL7Message ack = HL7Message.parse(rsp, sender.getHL7DefaultCharacterSet());
-            HL7Segment msa = ack.getSegment("MSA");
-            if (msa == null)
-                return new Outcome(QueueMessage.Status.WARNING, "Missing MSA segment in response message");
-
-            return new Outcome(
-                    HL7Exception.AA.equals(msa.getField(1, null))
-                            ? QueueMessage.Status.COMPLETED
-                            : QueueMessage.Status.WARNING,
-                    msa.toString());
+            return HL7Message.parse(rsp, sender.getHL7DefaultCharacterSet());
         }
     }
 }

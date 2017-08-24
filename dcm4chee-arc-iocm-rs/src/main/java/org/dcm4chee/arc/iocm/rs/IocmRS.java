@@ -42,20 +42,18 @@ package org.dcm4chee.arc.iocm.rs;
 
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
-import org.dcm4che3.hl7.HL7Message;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.hl7.RESTfulHL7Sender;
 import org.dcm4chee.arc.keycloak.KeycloakUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
-import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
@@ -126,7 +124,7 @@ public class IocmRS {
     private RSForward rsForward;
 
     @Inject
-    private HL7Sender hl7Sender;
+    private RESTfulHL7Sender rsHL7Sender;
 
     @Inject
     private ProcedureService procedureService;
@@ -200,7 +198,7 @@ public class IocmRS {
         if (patient.getNumberOfStudies() > 0)
             throw new WebApplicationException(getResponse(
                     "Patient having patient ID : " + patientID + " has non empty studies.", Response.Status.FORBIDDEN));
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, arcAE.getApplicationEntity());
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
         ctx.setPatientID(patientID);
         ctx.setAttributes(patient.getAttributes());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
@@ -237,31 +235,18 @@ public class IocmRS {
             if (attrs.containsValue(Tag.PatientID))
                 throw new WebApplicationException(getResponse("Patient ID in message body", Response.Status.BAD_REQUEST));
             idService.newPatientID(attrs);
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, arcAE.getApplicationEntity());
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
             ctx.setAttributes(attrs);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             patientService.updatePatient(ctx);
             rsForward.forward(RSOperation.CreatePatient, arcAE, attrs, request);
-            sendHL7Message("ADT^A28^ADT_A05", ctx);
+            rsHL7Sender.sendHL7Message("ADT^A28^ADT_A05", ctx);
             return IDWithIssuer.pidOf(attrs).toString();
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         } catch (IOException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
-        }
-    }
-
-    private void sendHL7Message(String msgType, PatientMgtContext ctx) {
-        ArchiveAEExtension arcAE = getArchiveAE();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        if (arcDev.getHl7ADTSendingApplication() != null) {
-            HL7Msg msg = new HL7Msg(msgType, ctx);
-            msg.setSendingApplicationWithFacility(arcDev.getHl7ADTSendingApplication());
-            for (String receiver : arcDev.getHl7ADTReceivingApplication()) {
-                msg.setReceivingApplicationWithFacility(receiver);
-                hl7Sender.scheduleMessage(msg.getHL7Message());
-            }
         }
     }
 
@@ -272,7 +257,7 @@ public class IocmRS {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, arcAE.getApplicationEntity());
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
             JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
             Attributes attrs = reader.readDataset(null);
             ctx.setAttributes(attrs);
@@ -292,7 +277,7 @@ public class IocmRS {
                     ? newPatient
                         ? "ADT^A28^ADT_A05" : "ADT^A47^ADT_A30"
                     : "ADT^A31^ADT_A05";
-            sendHL7Message(msgType, ctx);
+            rsHL7Sender.sendHL7Message(msgType, ctx);
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
@@ -343,7 +328,7 @@ public class IocmRS {
 
     private void mergePatient(IDWithIssuer patientID, Attributes priorPatAttr) throws Exception {
         try {
-            PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(request, getArchiveAE().getApplicationEntity());
+            PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(request);
             patMgtCtx.setPatientID(patientID);
             Attributes patAttr = new Attributes(3);
             patAttr.setString(Tag.PatientID, VR.LO, patientID.getID());
@@ -351,7 +336,7 @@ public class IocmRS {
             patMgtCtx.setAttributes(patAttr);
             patMgtCtx.setPreviousAttributes(priorPatAttr);
             patientService.mergePatient(patMgtCtx);
-            sendHL7Message("ADT^A40^ADT_A39", patMgtCtx);
+            rsHL7Sender.sendHL7Message("ADT^A40^ADT_A39", patMgtCtx);
         } catch (Exception e) {
             throw e;
         }
@@ -364,7 +349,7 @@ public class IocmRS {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request, arcAE.getApplicationEntity());
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
             Patient priorPatient = patientService.findPatient(priorPatientID);
             if (priorPatient == null)
                 throw new WebApplicationException(getResponse(
@@ -376,7 +361,7 @@ public class IocmRS {
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
             patientService.changePatientID(ctx);
-            sendHL7Message("ADT^A47^ADT_A30", ctx);
+            rsHL7Sender.sendHL7Message("ADT^A47^ADT_A30", ctx);
             rsForward.forward(RSOperation.ChangePatientID, arcAE, null, request);
         } catch (Exception e) {
             throw new WebApplicationException(
@@ -926,49 +911,5 @@ public class IocmRS {
     private Response getResponse(String errorMessage, Response.Status status) {
         Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
         return Response.status(status).entity(entity).build();
-    }
-
-    class HL7Msg {
-        private final HL7Segment msh;
-        private final HL7Segment pid;
-        private final HL7Segment mrg;
-        private final HL7Message hl7Message;
-
-        public HL7Msg(String msgType, PatientMgtContext ctx) {
-            msh = HL7Segment.makeMSH();
-            msh.setField(8, msgType);
-            pid = new HL7Segment(8);
-            pid.setField(0, "PID");
-            pid.setField(3, ctx.getPatientID().toString());
-            pid.setField(5, ctx.getAttributes().getString(Tag.PatientName));
-            pid.setField(6, ctx.getAttributes().getString(Tag.PatientMotherBirthName));
-            pid.setField(7, ctx.getAttributes().getString(Tag.PatientBirthDate));
-            pid.setField(8, ctx.getAttributes().getString(Tag.PatientSex));
-            mrg = new HL7Segment(2);
-            hl7Message = new HL7Message(3);
-            hl7Message.add(msh);
-            hl7Message.add(pid);
-            if (ctx.getPreviousPatientID() != null) {
-                mrg.setField(0, "MRG");
-                mrg.setField(1, ctx.getPreviousPatientID().toString());
-                String prevPatName = msgType.equals("ADT^A40^ADT_A39")
-                        ? ctx.getPreviousAttributes().getString(Tag.PatientName)
-                        : ctx.getAttributes().getString(Tag.PatientName);
-                mrg.setField(7, prevPatName);
-                hl7Message.add(mrg);
-            }
-        }
-
-        public HL7Message getHL7Message() {
-            return hl7Message;
-        }
-
-        public void setSendingApplicationWithFacility(String sendingApp) {
-            msh.setSendingApplicationWithFacility(sendingApp);
-        }
-
-        public void setReceivingApplicationWithFacility(String receivingApp) {
-            msh.setReceivingApplicationWithFacility(receivingApp);
-        }
     }
 }
