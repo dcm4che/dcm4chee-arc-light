@@ -440,6 +440,8 @@ export class DeviceConfiguratorService{
                             }else{
                                 console.log('this.device', this.device);
                                 if (_.hasIn(m, 'items.enum')){
+                                    //TODO when m.item.enum is too long than don't shown checkboxes but show some widget
+
                                     _.forEach(m.items.enum, (opt) => {
                                         options.push({
                                             key: opt,

@@ -46,8 +46,7 @@ export class DynamicFormElementComponent{
         public viewContainerRef: ViewContainerRef,
         public $http: Http,
         private ref: ChangeDetectorRef,
-        private mainservice: AppService
-
+        private mainservice: AppService,
     ){
         // dcl.resolveComponentFactory(DynamicFormComponent);
         this.partRemoved = false;
@@ -187,6 +186,19 @@ export class DynamicFormElementComponent{
             }catch (e){
                 return null;
             }
+        }else{
+            if(_.startsWith(path,'/dicomNetworkConnection/')){
+                try {
+                    let indexStart = path.lastIndexOf('/');
+                    let index = path.substring(indexStart);
+                    index = _.replace(index, '/', '');
+                    // index = _.replace(index, ']', '');
+                    // let clearPath = path.substring(0, indexStart);
+                    return index;
+                }catch (e){
+                    return null;
+                }
+            }
         }
     }
     removePart(formelement){
@@ -203,20 +215,39 @@ export class DynamicFormElementComponent{
                 let elementFound = false;
                 _.forEach(formelement.options, (m, i) => {
                     if (m === selected){
-                        let newAddUrl = formelement.options[formelement.options.length-1].url;
-                        formelement.options.splice(i, 1);
-                        let check = $this.deviceConfiguratorService.removePartFromDevice($this.extractIndexFromPath(selected.currentElementUrl));
-                        if (check){
-                            elementFound = true;
-                            $this.partRemoved = true;
+                        //If removed element is referenced prevent removing it
+                        if(formelement.key === "dicomNetworkConnection" && $this.isReferenceUsed($this.deviceConfiguratorService.device, i)){
+                            // $this.deviceConfiguratorService.device['dicomNetworkAE'][0]['dicomAETitle'] = "AETITLECHANGED";
+                            console.log("$this.deviceConfiguratorService.device",$this.deviceConfiguratorService.device);
                             $this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': `Click save if you want to remove "${selected.title}" permanently!`,
-                                'status': 'info'
+                                'title': 'Warning',
+                                'text': `This element is referenced, remove references first then you can delete this element!`,
+                                'status': 'warning'
                             });
-                            formelement.addUrl = newAddUrl;
+                        }else{
+                            let newAddUrl = formelement.options[formelement.options.length-1].url;
+                            formelement.options.splice(i, 1);
+                            let check = $this.deviceConfiguratorService.removePartFromDevice($this.extractIndexFromPath(selected.currentElementUrl));
+                            if (check){
+                                elementFound = true;
+                                $this.partRemoved = true;
+                                $this.mainservice.setMessage({
+                                    'title': 'Info',
+                                    'text': `Element removed from object successfully!`,
+                                    'status': 'Info'
+                                });
+                                $this.mainservice.setMessage({
+                                    'title': 'Click to save',
+                                    'text': `Click save if you want to remove "${selected.title}" permanently!`,
+                                    'status': 'warning'
+                                });
+                                formelement.addUrl = newAddUrl;
+                                //If removed element was dicomNetworkConnection than update references in the object
+                                if(formelement.key === "dicomNetworkConnection"){
+                                    $this.updateReferences($this.deviceConfiguratorService.device, i);
+                                }
+                            }
                         }
-                        //TODO If removed element is refferenced than traverse the device and change thous refferences
                     }else{
                         if (elementFound){
                            let pathObject = $this.extractIndexFromPath(formelement.options[_.toInteger(i) - 1].currentElementUrl);
@@ -230,6 +261,44 @@ export class DynamicFormElementComponent{
             }
         });
     }
+    //Update DicomNetworkConnection reference index
+    updateReferences(o, removedDicomNetworkConnectionIndex) {
+        for (let i in o) {
+            if(i === "dicomNetworkConnectionReference"){
+                for(let index in o[i]){
+                    let extracedIndex = this.extractIndexFromPath(o[i][index]);
+                    if(extracedIndex > removedDicomNetworkConnectionIndex){
+                        o[i][index] = `/dicomNetworkConnection/${(parseInt(extracedIndex) - 1)}`
+                    }
+                }
+            }
+            if (o[i] !== null && typeof(o[i])=="object") {
+                this.updateReferences(o[i],removedDicomNetworkConnectionIndex);
+            }
+        }
+    }
+    isReferenceUsed(o, index){
+        let check = { // We need object so i can use as call by reference
+            used:false
+        };
+        this._isReferenceUsed(o,index,check);
+        return check.used;
+    }
+    _isReferenceUsed(o,index,check){
+        for (let i in o) {
+            if(i === "dicomNetworkConnectionReference"){
+                for(let reffIndex in o[i]){
+                    if(this.extractIndexFromPath(o[i][reffIndex]) == index){
+                        check.used = true;
+                    }
+                }
+            }
+            if (o[i] !== null && typeof(o[i])=="object") {
+                this._isReferenceUsed(o[i],index,check);
+            }
+        }
+    }
+
     clone(formelement){
 /*        console.log("formelement",formelement);
         let value = (<FormArray>this.form.controls[formelement.key]).getRawValue();
