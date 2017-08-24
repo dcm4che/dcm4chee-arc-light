@@ -68,6 +68,7 @@ import java.io.*;
 import java.net.ConnectException;
 
 /**
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2017
  */
 
@@ -121,7 +122,7 @@ public class HL7RS {
     }
 
     private Attributes toAttributes(InputStream in) {
-        JSONReader reader = null;
+        JSONReader reader;
         try {
             reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
         } catch (UnsupportedEncodingException e) {
