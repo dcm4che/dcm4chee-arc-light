@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.hl7.psu;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
@@ -182,7 +183,11 @@ public class HL7PSUEJB {
         msg.setSendingApplicationWithFacility(arcAE.hl7PSUSendingApplication());
         for (String receivingApp : arcAE.hl7PSUReceivingApplications()) {
             msg.setReceivingApplicationWithFacility(receivingApp);
-            hl7Sender.scheduleMessage(msg.getHL7Message());
+            try {
+                hl7Sender.scheduleMessage(msg.getHL7Message());
+            } catch (Exception e) {
+                LOG.warn("Failed to schedule HL7 Procedure Status Update to {}:\n", receivingApp, e);
+            }
         }
         removeHL7PSUTask(task);
     }

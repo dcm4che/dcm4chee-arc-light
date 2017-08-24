@@ -110,12 +110,8 @@ public class HL7RS {
 
     private Response createOrUpdatePatient(InputStream in, String msgType) {
         logRequest();
-        try {
-            Attributes attrs = toAttributes(in);
-            return scheduleOrSendHL7(msgType, toPatientMgtContext(attrs));
-        } catch (Exception e) {
-            return errorResponse(e);
-        }
+        PatientMgtContext ctx = toPatientMgtContext(toAttributes(in));
+        return scheduleOrSendHL7(msgType, ctx);
     }
 
     private PatientMgtContext toPatientMgtContext(Attributes attrs) {
@@ -124,9 +120,19 @@ public class HL7RS {
         return ctx;
     }
 
-    private Attributes toAttributes(InputStream in) throws Exception {
-        JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-        return reader.readDataset(null);
+    private Attributes toAttributes(InputStream in) {
+        JSONReader reader = null;
+        try {
+            reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError(e);
+        }
+        try {
+            return reader.readDataset(null);
+        } catch (JsonParsingException e) {
+            throw new WebApplicationException(buildErrorResponse(e.getMessage() + " at location : "
+                    + ((JsonParsingException) e).getLocation(), Response.Status.BAD_REQUEST));
+        }
     }
 
     @POST
@@ -147,42 +153,35 @@ public class HL7RS {
 
     private Response mergePatientOrChangePID(IDWithIssuer priorPatientID, InputStream in, String msgType) {
         logRequest();
-        try {
-            Attributes attrs = toAttributes(in);
-            PatientMgtContext ctx = toPatientMgtContext(attrs);
-            ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
-            return scheduleOrSendHL7(msgType, ctx);
-        } catch (Exception e) {
-            return errorResponse(e);
-        }
+        PatientMgtContext ctx = toPatientMgtContext(toAttributes(in));
+        ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
+        return scheduleOrSendHL7(msgType, ctx);
     }
 
-    private Response scheduleOrSendHL7(String msgType, PatientMgtContext ctx) throws Exception {
-        if (queue) {
-            rsHL7Sender.scheduleHL7Message(msgType, ctx, appName, externalAppName);
-            return Response.accepted().build();
-        }
-        else {
-            HL7Message ack = rsHL7Sender.sendHL7Message(msgType, ctx, appName, externalAppName);
-            return buildResponse(ack);
+    private Response scheduleOrSendHL7(String msgType, PatientMgtContext ctx) {
+        try {
+            if (queue) {
+                rsHL7Sender.scheduleHL7Message(msgType, ctx, appName, externalAppName);
+                return Response.accepted().build();
+            }
+            else {
+                HL7Message ack = rsHL7Sender.sendHL7Message(msgType, ctx, appName, externalAppName);
+                return buildResponse(ack);
+            }
+        } catch (ConnectException e) {
+            return buildErrorResponse(e.getMessage(), Response.Status.GATEWAY_TIMEOUT);
+        } catch (IOException e) {
+            return buildErrorResponse(e.getMessage(), Response.Status.BAD_GATEWAY);
+        } catch (ConfigurationNotFoundException e) {
+            return buildErrorResponse(e.getMessage(), Response.Status.NOT_FOUND);
+        } catch (Exception e) {
+            return buildErrorResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
-    }
-
-    private Response errorResponse(Exception e) {
-        return e instanceof ConnectException
-                ? buildErrorResponse(e.getMessage(), Response.Status.GATEWAY_TIMEOUT)
-                : e instanceof IOException
-                    ? buildErrorResponse(e.getMessage(), Response.Status.BAD_GATEWAY)
-                    : e instanceof JsonParsingException
-                        ? buildErrorResponse(e.getMessage() + " at location : " + ((JsonParsingException) e).getLocation(), Response.Status.BAD_REQUEST)
-                        : e instanceof ConfigurationNotFoundException
-                            ? buildErrorResponse(e.getMessage(), Response.Status.NOT_FOUND)
-                            : buildErrorResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
     }
 
     private Response buildErrorResponse(String errorMessage, Response.Status status) {

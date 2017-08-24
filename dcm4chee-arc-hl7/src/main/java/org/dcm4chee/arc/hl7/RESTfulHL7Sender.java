@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.hl7;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Message;
@@ -60,7 +61,7 @@ public class RESTfulHL7Sender {
     @Inject
     private HL7Sender hl7Sender;
 
-    public void sendHL7Message(String msgType, PatientMgtContext ctx) {
+    public void sendHL7Message(String msgType, PatientMgtContext ctx) throws ConfigurationException {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         if (arcDev.getHl7ADTSendingApplication() != null) {
             HL7Msg msg = new HL7Msg(msgType, ctx);
@@ -72,7 +73,7 @@ public class RESTfulHL7Sender {
         }
     }
 
-    public void scheduleHL7Message(String msgType, PatientMgtContext ctx, String sender, String receiver) {
+    public void scheduleHL7Message(String msgType, PatientMgtContext ctx, String sender, String receiver) throws ConfigurationException {
         HL7Msg msg = new HL7Msg(msgType, ctx);
         msg.setSendingApplicationWithFacility(sender);
         msg.setReceivingApplicationWithFacility(receiver);

@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.hl7.impl;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.hl7.HL7Message;
@@ -83,14 +84,18 @@ public class HL7SenderImpl implements HL7Sender {
         int field45Len = msh.getField(4, "").length() + msh.getField(5, "").length() + 2;
         for (String dest : dests) {
             String[] ss = HL7Segment.split(dest, '|');
-            scheduleMessage(
-                    msh.getField(4, ""),
-                    msh.getField(5, ""),
-                    ss[0],
-                    ss.length > 1 ? ss[1] : "",
-                    msh.getField(8, ""),
-                    msh.getField(9, ""),
-                    replaceField2345(orighl7msg, dest.replace('|', msh.getFieldSeparator()), field23Len, field45Len));
+            try {
+                scheduleMessage(
+                        msh.getField(4, ""),
+                        msh.getField(5, ""),
+                        ss[0],
+                        ss.length > 1 ? ss[1] : "",
+                        msh.getField(8, ""),
+                        msh.getField(9, ""),
+                        replaceField2345(orighl7msg, dest.replace('|', msh.getFieldSeparator()), field23Len, field45Len));
+            } catch (Exception e) {
+                LOG.warn("Failed to schedule forward of HL7 message to {}:\n", dest, e);
+            }
         }
     }
 
@@ -108,7 +113,10 @@ public class HL7SenderImpl implements HL7Sender {
 
     @Override
     public void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
-                                String receivingFacility, String messageType, String messageControlID, byte[] hl7msg) {
+                                String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
+            throws ConfigurationException {
+        getSendingHl7Application(sendingApplication, sendingFacility);
+        hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
         try {
             ObjectMessage msg = queueManager.createObjectMessage(hl7msg);
             msg.setStringProperty("SendingApplication", sendingApplication);
@@ -124,7 +132,7 @@ public class HL7SenderImpl implements HL7Sender {
     }
 
     @Override
-    public void scheduleMessage(HL7Message hl7Message) {
+    public void scheduleMessage(HL7Message hl7Message) throws ConfigurationException {
         HL7Segment msh = hl7Message.get(0);
         scheduleMessage(
                 msh.getField(2, ""),
@@ -140,7 +148,6 @@ public class HL7SenderImpl implements HL7Sender {
     public HL7Message sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                               String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
             throws Exception {
-        LOG.warn("HL7 message being sent is : ", hl7msg);
         HL7Application sender = getSendingHl7Application(sendingApplication, sendingFacility);
         HL7Application receiver = hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
         return getAcknowledgeHL7Msg(sender, receiver, hl7msg);
