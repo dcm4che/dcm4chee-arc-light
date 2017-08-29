@@ -310,7 +310,8 @@ export class DeviceConfiguratorService{
                                             type: 'string',
                                             value: value,
                                             order: (5 + newOrderSuffix),
-                                            validation: validation
+                                            validation: validation,
+                                            format: m.format
                                         })
                                     );
                                 }
@@ -604,7 +605,8 @@ export class DeviceConfiguratorService{
                                                         type: type,
                                                         value: (value) ? value : [''],
                                                         order: (5 + newOrderSuffix),
-                                                        validation: validation
+                                                        validation: validation,
+                                                        format: m.format
                                                     })
                                                 );
                                             }
@@ -643,7 +645,7 @@ export class DeviceConfiguratorService{
                                     url: url,
                                     devicereff: (params.devicereff) ? params.devicereff + '.' + i : i,
                                     order: (1 + newOrderSuffix),
-                                    value: value
+                                    value: value,
                                 });
                     }
                 });

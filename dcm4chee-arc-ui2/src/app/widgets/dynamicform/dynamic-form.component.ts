@@ -98,10 +98,12 @@ export class DynamicFormComponent implements OnInit{
         }
         this.prevPartSearch = this.partSearch;
     }
-    onSubmit(){
+    onSubmit(valid){
         console.log('this.form.value', this.form.value);
-        this.payLoad = JSON.stringify(this.form.value);
-        this.submitFunction.emit(this.form.value);
+        if(valid){
+            this.payLoad = JSON.stringify(this.form.value);
+            this.submitFunction.emit(this.form.value);
+        }
     }
     getForm(){
         return this.form;

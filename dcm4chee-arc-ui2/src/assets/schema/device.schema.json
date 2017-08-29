@@ -43,7 +43,8 @@
       "title": "Device Description",
       "description": "Unconstrained text description of the device",
       "type": "string",
-      "order":2
+      "order":2,
+      "format": "dcmTransferSyntax"
     },
     "dicomVendorData":{
       "title": "Vendor Device Data",
@@ -75,6 +76,7 @@
       "description": "Should be the same as the values of Software Versions (0018,1020) in SOP instances created by this device",
       "type": "array",
       "order":6,
+      "format": "dcmSOPClass",
       "items": {
         "type": "string"
       }

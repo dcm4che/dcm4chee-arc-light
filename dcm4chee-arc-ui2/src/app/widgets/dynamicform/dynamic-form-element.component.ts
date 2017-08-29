@@ -3,7 +3,7 @@
  */
 import {
     Component, Input, ElementRef, ComponentFactoryResolver, ChangeDetectionStrategy,
-    ViewContainerRef, ChangeDetectorRef
+    ViewContainerRef, ChangeDetectorRef, HostListener
 } from '@angular/core';
 import {FormGroup, FormControl, FormArray} from '@angular/forms';
 import {DynamicFormComponent} from './dynamic-form.component';
@@ -380,5 +380,31 @@ export class DynamicFormElementComponent{
             this.formcomp.setFormModel(valueObject);
         }
         // this.activetab = 'tab_'+(orderId-1);
+    }
+    onValueChange(e, formelement, formcontrol,i){
+        if(formelement.controlType === "arrayelement"){
+            // (<FormArray>this.form.controls[formelement.key]).insert(i, new FormControl(e))
+            formcontrol[i].setValue(e);
+            formelement.value[i] = e;
+        }else{
+
+            formcontrol.setValue(e);
+            formelement.value = e;
+            console.log("in value change",e);
+        }
+        formelement.showPicker = false;
+    }
+
+    onFocuse(formelement,i=null) {
+        console.log("in focushostlistener",formelement);
+        console.log("i",i);
+        if(formelement.format){
+            if(i != null){
+                formelement.showPicker = formelement.showPicker || {};
+                formelement.showPicker[i] = true;
+            }else{
+                formelement.showPicker = true;
+            }
+        }
     }
 }

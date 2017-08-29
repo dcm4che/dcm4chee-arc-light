@@ -17,7 +17,8 @@
                 <input class="simple_input text disabled" *ngSwitchCase="'constantField'" disabled value="{{formelement.value}}" type="text" />
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
-                <input class="simple_input text" *ngSwitchCase="'text'" [formControlName]="formelement.key" [id]="formelement.key" [type]="formelement.type" />
+                <input class="simple_input text" *ngSwitchCase="'text'" [formControlName]="formelement.key" [id]="formelement.key" [type]="formelement.type" (click)="onFocuse(formelement)"/>
+                <dictionary-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showPicker" [dictionary]="formelement.format" [formelement]="formelement" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></dictionary-picker>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <input class="simple_input number" *ngSwitchCase="'number'" [formControlName]="formelement.key" [id]="formelement.key" type="number" />
@@ -56,8 +57,9 @@
                 <div class="array_parent" *ngSwitchCase="'arrayelement'"  [formArrayName]="formelement.key">
                     <div class="array_single" *ngFor="let item of formelement.value; let i=index">
                         <input *ngIf="formelement.type == 'number'" formControlName="{{i}}" type="number">
-                        <input *ngIf="formelement.type != 'number'" formControlName="{{i}}" [type]="formelement.type">
+                        <input *ngIf="formelement.type != 'number'" formControlName="{{i}}" [type]="formelement.type" (click)="onFocuse(formelement,i)">
                         <span class="delete" title="Remove this value from the array" (click)="removeArrayElement(formelement, i, form)"><i class="material-icons">clear</i></span>
+                        <dictionary-picker *ngIf="formelement.controlType === 'arrayelement'  && formelement.format && formelement.showPicker && formelement.showPicker[i]" [dictionary]="formelement.format" [formelement]="formelement" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key].controls,i)"></dictionary-picker>
                     </div>
                     <div class="add" (click)="addArrayElement(formelement.value, form.controls[formelement.key].controls, form)"><i class="material-icons">add</i> Add</div>
                 </div>

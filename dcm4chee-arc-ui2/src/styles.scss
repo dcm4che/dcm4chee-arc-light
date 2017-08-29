@@ -804,28 +804,43 @@ md-dialog-container{
   width:100%;
 }
 .form-row.submit_button_block{
-  button.submit{
-    float: right;
-    width: 150px;
-    height: 30px;
-    background:$lightBlue;
-    color:white;
-    border-radius: 0;
-    line-height: 30px;
-    padding: 0;
-    margin-top:20px;
-    background: $lightBlue;
+  fieldset{
+    float: left;
+    width: 100%;
+    margin: 20px 0;
     &[disabled] {
-      color: #888;
-      background: rgba(6, 29, 47, 0.74);
-      opacity:1;
-      &:hover{
+      div.submit{
+        color: #888;
         background: rgba(6, 29, 47, 0.74);
+        opacity:1;
+        &:hover{
+          background: rgba(6, 29, 47, 0.74);
+        }
       }
     }
-    &:hover{
-      cursor:pointer;
-      background:$blue;
+    div.submit{
+      float: right;
+      width: 150px;
+      height: 30px;
+      background:$lightBlue;
+      color:white;
+      border-radius: 0;
+      line-height: 30px;
+      padding: 0;
+      margin-top:20px;
+      background: $lightBlue;
+/*      &[disabled] {
+        color: #888;
+        background: rgba(6, 29, 47, 0.74);
+        opacity:1;
+        &:hover{
+          background: rgba(6, 29, 47, 0.74);
+        }
+      }*/
+      &:hover{
+        cursor:pointer;
+        background:$blue;
+      }
     }
   }
 }
@@ -1149,6 +1164,19 @@ md-dialog-container{
   float: left;
   width:100%;
   margin-top:10px;
+}
+.arrayelement{
+  dictionary-picker{
+    position: relative;
+    width: 500px;
+    top: 35px;
+    .dictionary_widget_search{
+      left:0;
+    }
+    .dictionary_widget{
+      width: 600px;
+    }
+  }
 }
 .dynamicform{
   .simple_input{

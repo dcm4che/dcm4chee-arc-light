@@ -23,6 +23,7 @@ import { RemovePartSelectorComponent } from './dialogs/remove-part-selector/remo
 import { InfoComponent } from './dialogs/info/info.component';
 import { UploadFilesComponent } from './dialogs/upload-files/upload-files.component';
 import { SpecificCharPickerComponent } from './specific-char-picker/specific-char-picker.component';
+import { DictionaryPickerComponent } from './dictionary-picker/dictionary-picker.component';
 
 
 @NgModule({
@@ -55,5 +56,6 @@ export const WidgetsComponents = [
     RemovePartSelectorComponent,
     InfoComponent,
     UploadFilesComponent,
-    SpecificCharPickerComponent
+    SpecificCharPickerComponent,
+    DictionaryPickerComponent
 ];

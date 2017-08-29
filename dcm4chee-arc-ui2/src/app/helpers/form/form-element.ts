@@ -11,6 +11,7 @@ export class FormElement<T>{
     description: string;
     controlType: string;
     show: boolean;
+    format: string;
     constructor(options: {
         value?: T,
         key?: string,
@@ -20,6 +21,7 @@ export class FormElement<T>{
         description?: string,
         controlType?: string,
         show?: boolean;
+        format?: string;
     } = {}) {
         this.value = options.value;
         this.key = options.key || '';
@@ -29,5 +31,6 @@ export class FormElement<T>{
         this.description = options.description || '';
         this.controlType = options.controlType || '';
         this.show = options.show || true;
+        this.format = options.format || undefined;
     }
 }
