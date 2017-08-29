@@ -41,7 +41,10 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ShowPatientInfo;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -96,7 +99,7 @@ class BuildAuditInfo {
         private boolean failedIUIDShow;
         private String hl7MessageType;
         private String submissionSetUID;
-        private boolean isExport;
+        private boolean isExport ;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -118,7 +121,8 @@ class BuildAuditInfo {
             studyUID = val;
             return this;
         }
-        Builder pIDAndName(String[] val) {
+        Builder pIDAndName(Attributes attr, ArchiveDeviceExtension arcDev) {
+            String[] val = toPIDAndName(attr, arcDev);
             pID = val[0];
             pName = val[1];
             return this;
@@ -181,8 +185,8 @@ class BuildAuditInfo {
             submissionSetUID = val;
             return this;
         }
-        Builder isExport(boolean val) {
-            isExport = val;
+        Builder isExport() {
+            isExport = true;
             return this;
         }
         BuildAuditInfo build() {
@@ -214,5 +218,24 @@ class BuildAuditInfo {
         hl7MessageType = builder.hl7MessageType;
         submissionSetUID = builder.submissionSetUID;
         isExport = builder.isExport;
+    }
+
+    private static String[] toPIDAndName(Attributes attr, ArchiveDeviceExtension arcDev) {
+        ShowPatientInfo showPatientInfo = arcDev.showPatientInfoInAuditLog();
+        String[] pInfo = new String[2];
+        pInfo[0] = arcDev.auditUnknownPatientID();
+        if (attr != null) {
+            IDWithIssuer pidWithIssuer = IDWithIssuer.pidOf(attr);
+            String pName = attr.getString(Tag.PatientName);
+            pInfo[0] = pidWithIssuer != null
+                    ? showPatientInfo == ShowPatientInfo.HASH_NAME_AND_ID
+                    ? String.valueOf(pidWithIssuer.hashCode())
+                    : pidWithIssuer.toString()
+                    : arcDev.auditUnknownPatientID();
+            pInfo[1] = pName != null && showPatientInfo != ShowPatientInfo.PLAIN_TEXT
+                    ? String.valueOf(pName.hashCode())
+                    : pName;
+        }
+        return pInfo;
     }
 }

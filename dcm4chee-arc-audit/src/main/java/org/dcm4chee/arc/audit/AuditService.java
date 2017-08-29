@@ -55,7 +55,6 @@ import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.keycloak.KeycloakUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
-import org.dcm4chee.arc.conf.ShowPatientInfo;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
@@ -235,7 +234,7 @@ public class AuditService {
         Attributes attrs = rejectionNoteSent.getRejectionNote();
         Attributes codeItem = attrs.getSequence(Tag.ConceptNameCodeSequence).get(0);
         Code code = new Code(codeItem.getString(Tag.CodeValue), codeItem.getString(Tag.CodingSchemeDesignator), null, "?");
-        RejectionNote rjNote = device.getDeviceExtension(ArchiveDeviceExtension.class).getRejectionNote(code);
+        RejectionNote rjNote = getArchiveDevice().getRejectionNote(code);
         HttpServletRequest req = rejectionNoteSent.getRequest();
         String callingAET = req != null
                 ? KeycloakUtils.getUserName(req)
@@ -251,7 +250,7 @@ public class AuditService {
                 .calledHost(toHost(rejectionNoteSent.getRemoteAET()))
                 .outcome(String.valueOf(rjNote.getRejectionNoteType()))
                 .studyUIDAccNumDate(attrs)
-                .pIDAndName(toPIDAndName(attrs))
+                .pIDAndName(attrs, getArchiveDevice())
                 .build()));
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence))
@@ -293,7 +292,7 @@ public class AuditService {
                 .callingHost(req.getRemoteHost())
                 .calledAET(req.getRequestURI())
                 .studyUIDAccNumDate(ctx.getStudy().getAttributes())
-                .pIDAndName(toPIDAndName(ctx.getPatient().getAttributes()))
+                .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
                 .build();
     }
@@ -301,7 +300,7 @@ public class AuditService {
     private BuildAuditInfo buildPermDeletionAuditInfoForScheduler(StudyDeleteContext ctx) {
         return new BuildAuditInfo.Builder()
                 .studyUIDAccNumDate(ctx.getStudy().getAttributes())
-                .pIDAndName(toPIDAndName(ctx.getPatient().getAttributes()))
+                .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
                 .build();
     }
@@ -434,8 +433,7 @@ public class AuditService {
     }
 
     void spoolQuery(QueryContext ctx) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        boolean auditAggregate = arcDev.isAuditAggregate();
+        boolean auditAggregate = getArchiveDevice().isAuditAggregate();
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forQuery(ctx);
         AuditInfo auditInfo = ctx.getHttpRequest() != null ? createAuditInfoForQIDO(ctx) : createAuditInfoForFIND(ctx);
@@ -600,11 +598,11 @@ public class AuditService {
                                 .callingAET(req.requesterUserID)
                                 .calledAET(req.requestURI)
                                 .studyUIDAccNumDate(attrs)
-                                .pIDAndName(toPIDAndName(attrs))
+                                .pIDAndName(attrs, getArchiveDevice())
                                 .outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
                                 .build();
         BuildAuditInfo instanceInfo = new BuildAuditInfo.Builder()
-                                        .sopCUID(sopCUID(attrs))
+                                        .sopCUID(attrs.getString(Tag.SOPClassUID))
                                         .sopIUID(ctx.getSopInstanceUIDs()[0])
                                         .mppsUID(" ")
                                         .build();
@@ -675,135 +673,13 @@ public class AuditService {
     }
 
     void spoolRetrieve(AuditServiceUtils.EventType eventType, RetrieveContext ctx) {
-        if (someInstancesRetrieveFailed(ctx)) {
-            List<String> failedList = Arrays.asList(ctx.failedSOPInstanceUIDs());
-            Collection<InstanceLocations> instanceLocations = ctx.getMatches();
-            HashSet<InstanceLocations> failed = new HashSet<>();
-            HashSet<InstanceLocations> success = new HashSet<>();
-            success.addAll(instanceLocations);
-            for (InstanceLocations instanceLocation : instanceLocations) {
-                if (failedList.contains(instanceLocation.getSopInstanceUID())) {
-                    failed.add(instanceLocation);
-                    success.remove(instanceLocation);
-                }
-            }
-
-            spoolRetrieve(AuditServiceUtils.EventType.RTRV___TRF, ctx, failed, buildRetrieveAuditInfo(ctx, true));
-            spoolRetrieve(AuditServiceUtils.EventType.RTRV___TRF, ctx, success, buildRetrieveAuditInfo(ctx, false));
-
-        } else
-            spoolRetrieve(eventType, ctx, ctx.getMatches(), buildRetrieveAuditInfo(ctx, true));
+        RetrieveContextAuditInfoBuilder builder = new RetrieveContextAuditInfoBuilder(ctx, getArchiveDevice(), eventType);
+        for (BuildAuditInfo[] buildAuditInfos : builder.getBuildAuditInfos())
+            writeSpoolFile(builder.getEventType(), buildAuditInfos);
     }
 
-    private void spoolRetrieve(
-            AuditServiceUtils.EventType eventType, RetrieveContext ctx, Collection<InstanceLocations> il, BuildAuditInfo i) {
-        LinkedHashSet<Object> obj = new LinkedHashSet<>();
-        obj.add(new AuditInfo(i));
-        addInstanceInfoForRetrieve(obj, il);
-        addInstanceInfoForRetrieve(obj, ctx.getCStoreForwards());
-        writeSpoolFile(eventType, obj);
-    }
-
-    private BuildAuditInfo buildRetrieveAuditInfo(RetrieveContext ctx, boolean checkForFailures) {
-        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
-        boolean failedIUIDShow = checkForFailures && (allInstancesRetrieveFailed(ctx) || someInstancesRetrieveFailed(ctx));
-        String outcome = checkForFailures ? createOutcome(ctx) : null;
-        String warning = createWarning(ctx);
-
-        return isExportTriggered(ctx)
-                ? httpServletRequestInfo != null
-                    ? new BuildAuditInfo.Builder()
-                        .callingAET(httpServletRequestInfo.requesterUserID)
-                        .callingHost(ctx.getRequestorHostName())
-                        .calledAET(httpServletRequestInfo.requestURI)
-                        .destAET(ctx.getDestinationAETitle())
-                        .destNapID(ctx.getDestinationHostName())
-                        .warning(warning)
-                        .outcome(outcome)
-                        .failedIUIDShow(failedIUIDShow)
-                        .isExport(true)
-                        .build()
-                    : new BuildAuditInfo.Builder()
-                        .calledAET(ctx.getLocalAETitle())
-                        .destAET(ctx.getDestinationAETitle())
-                        .destNapID(ctx.getDestinationHostName())
-                        .warning(warning)
-                        .callingHost(ctx.getRequestorHostName())
-                        .outcome(outcome)
-                        .failedIUIDShow(failedIUIDShow)
-                        .isExport(true)
-                        .build()
-                : httpServletRequestInfo != null
-                    ? new BuildAuditInfo.Builder()
-                        .calledAET(httpServletRequestInfo.requestURI)
-                        .destAET(httpServletRequestInfo.requesterUserID)
-                        .destNapID(ctx.getDestinationHostName())
-                        .warning(warning)
-                        .callingHost(ctx.getRequestorHostName())
-                        .outcome(outcome)
-                        .failedIUIDShow(failedIUIDShow)
-                        .build()
-                    : new BuildAuditInfo.Builder()
-                        .calledAET(ctx.getLocalAETitle())
-                        .destAET(ctx.getDestinationAETitle())
-                        .destNapID(ctx.getDestinationHostName())
-                        .warning(warning)
-                        .callingHost(ctx.getRequestorHostName())
-                        .moveAET(ctx.getMoveOriginatorAETitle())
-                        .outcome(outcome)
-                        .failedIUIDShow(failedIUIDShow)
-                        .build();
-    }
-
-    private boolean isExportTriggered(RetrieveContext ctx) {
-        return (ctx.getRequestAssociation() == null && ctx.getStoreAssociation() != null)
-                || (ctx.getRequestAssociation() == null && ctx.getStoreAssociation() == null && ctx.getException() != null);
-    }
-
-    private String createOutcome(RetrieveContext ctx) {
-        return ctx.getException() != null
-                ? ctx.getException().getMessage() != null
-                    ? ctx.getException().getMessage()
-                    : ctx.getException().toString()
-                : allInstancesRetrieveFailed(ctx)
-                    ? "Unable to perform sub-operations on all instances"
-                    : someInstancesRetrieveFailed(ctx)
-                        ? "Retrieve of " + ctx.failed() + " objects failed"
-                        : null;
-    }
-
-    private boolean allInstancesRetrieveCompleted(RetrieveContext ctx) {
-        return (ctx.failedSOPInstanceUIDs().length == 0 && !ctx.getMatches().isEmpty())
-                || (ctx.getMatches().isEmpty() && !ctx.getCStoreForwards().isEmpty());
-    }
-
-    private boolean allInstancesRetrieveFailed(RetrieveContext ctx) {
-        return ctx.failedSOPInstanceUIDs().length == ctx.getMatches().size() && !ctx.getMatches().isEmpty();
-    }
-
-    private boolean someInstancesRetrieveFailed(RetrieveContext ctx) {
-        return ctx.failedSOPInstanceUIDs().length != ctx.getMatches().size() && ctx.failedSOPInstanceUIDs().length > 0;
-    }
-
-    private String createWarning(RetrieveContext ctx) {
-        return allInstancesRetrieveCompleted(ctx) && ctx.warning() != 0
-                ? ctx.warning() == ctx.getMatches().size()
-                    ? "Warnings on retrieve of all instances"
-                    : "Warnings on retrieve of " + ctx.warning() + " instances"
-                : null;
-    }
-
-    private void addInstanceInfoForRetrieve(LinkedHashSet<Object> obj, Collection<InstanceLocations> instanceLocations) {
-        for (InstanceLocations instanceLocation : instanceLocations) {
-            Attributes attrs = instanceLocation.getAttributes();
-            BuildAuditInfo iI = new BuildAuditInfo.Builder()
-                    .studyUIDAccNumDate(attrs)
-                    .sopCUID(sopCUID(attrs))
-                    .sopIUID(attrs.getString(Tag.SOPInstanceUID))
-                    .pIDAndName(toPIDAndName(attrs))
-                    .build();
-            obj.add(new AuditInfo(iI));
-        }
+    private ArchiveDeviceExtension getArchiveDevice() {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class);
     }
 
     private void auditRetrieve(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
@@ -814,7 +690,7 @@ public class AuditService {
                 ri.getField(AuditInfo.WARNING), getEventTime(path, auditLogger));
 
         HashMap<String, AccessionNumSopClassInfo> study_accNumSOPClassInfo = new HashMap<>();
-        String pID = device.getDeviceExtension(ArchiveDeviceExtension.class).auditUnknownPatientID();
+        String pID = getArchiveDevice().auditUnknownPatientID();
         String pName = null;
         String studyDt = null;
         for (String line : reader.getInstanceLines()) {
@@ -968,7 +844,7 @@ public class AuditService {
                             .callingHost(callingHost)
                             .callingAET(source)
                             .calledAET(dest)
-                            .pIDAndName(toPIDAndName(ctx.getAttributes()))
+                            .pIDAndName(ctx.getAttributes(), getArchiveDevice())
                             .outcome(getOD(ctx.getException()))
                             .hl7MessageType(hl7MessageType)
                             .build();
@@ -978,7 +854,7 @@ public class AuditService {
                                     .callingHost(callingHost)
                                     .callingAET(source)
                                     .calledAET(dest)
-                                    .pIDAndName(toPIDAndName(ctx.getPreviousAttributes()))
+                                    .pIDAndName(ctx.getPreviousAttributes(), getArchiveDevice())
                                     .outcome(getOD(ctx.getException()))
                                     .hl7MessageType(hl7MessageType)
                                     .build();
@@ -1034,7 +910,7 @@ public class AuditService {
                 .callingAET(as.getCallingAET())
                 .calledAET(as.getCalledAET())
                 .studyUIDAccNumDate(ctx.getAttributes())
-                .pIDAndName(toPIDAndName(ctx.getPatient().getAttributes()))
+                .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
                 .build();
     }
@@ -1046,7 +922,7 @@ public class AuditService {
                 .callingAET(KeycloakUtils.getUserName(req))
                 .calledAET(req.getRequestURI())
                 .studyUIDAccNumDate(ctx.getAttributes())
-                .pIDAndName(toPIDAndName(ctx.getPatient().getAttributes()))
+                .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
                 .build();
     }
@@ -1058,7 +934,7 @@ public class AuditService {
                 .callingAET(msh.getSendingApplicationWithFacility())
                 .calledAET(msh.getReceivingApplicationWithFacility())
                 .studyUIDAccNumDate(ctx.getAttributes())
-                .pIDAndName(toPIDAndName(ctx.getPatient().getAttributes()))
+                .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
                 .hl7MessageType(msh.getMessageType())
                 .build();
@@ -1072,7 +948,7 @@ public class AuditService {
                                 .callingAET(callingAET)
                                 .calledAET(ctx.getHttpRequest().getRequestURI())
                                 .studyUIDAccNumDate(ctx.getAttributes())
-                                .pIDAndName(toPIDAndName(pAttr))
+                                .pIDAndName(pAttr, getArchiveDevice())
                                 .outcome(getOD(ctx.getException()))
                                 .build();
         writeSpoolFile(AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode()), info);
@@ -1130,7 +1006,7 @@ public class AuditService {
                             .destAET(dest.toString())
                             .destNapID(destHost)
                             .outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
-                            .pIDAndName(toPIDAndName(xdsiManifest))
+                            .pIDAndName(xdsiManifest, getArchiveDevice())
                             .submissionSetUID(ctx.getSubmissionSetUID()).build();
         writeSpoolFile(AuditServiceUtils.EventType.PROV_REGIS, info);
     }
@@ -1181,12 +1057,11 @@ public class AuditService {
     }
 
     void spoolStgCmt(StgCmtEventInfo stgCmtEventInfo) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Attributes eventInfo = stgCmtEventInfo.getExtendedEventInfo();
         Sequence failed = eventInfo.getSequence(Tag.FailedSOPSequence);
         Sequence success = eventInfo.getSequence(Tag.ReferencedSOPSequence);
         String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
-                ? buildStrings(eventInfo.getStrings(Tag.StudyInstanceUID)) : arcDev.auditUnknownStudyInstanceUID();
+                ? buildStrings(eventInfo.getStrings(Tag.StudyInstanceUID)) : getArchiveDevice().auditUnknownStudyInstanceUID();
         if (failed != null && !failed.isEmpty()) {
             Set<String> failureReasons = new HashSet<>();
             Set<AuditInfo> aiSet = new HashSet<>();
@@ -1205,7 +1080,7 @@ public class AuditService {
                                 .callingAET(storageCmtCallingAET(stgCmtEventInfo))
                                 .callingHost(storageCmtCallingHost(stgCmtEventInfo))
                                 .calledAET(storageCmtCalledAET(stgCmtEventInfo))
-                                .pIDAndName(toPIDAndName(eventInfo))
+                                .pIDAndName(eventInfo, getArchiveDevice())
                                 .studyUID(studyUID)
                                 .outcome(buildStrings(failureReasons.toArray(new String[failureReasons.size()])))
                                 .build();
@@ -1219,7 +1094,7 @@ public class AuditService {
                                 .callingAET(storageCmtCallingAET(stgCmtEventInfo))
                                 .callingHost(storageCmtCallingHost(stgCmtEventInfo))
                                 .calledAET(storageCmtCalledAET(stgCmtEventInfo))
-                                .pIDAndName(toPIDAndName(eventInfo))
+                                .pIDAndName(eventInfo, getArchiveDevice())
                                 .studyUID(studyUID)
                                 .build();
             int i = 0;
@@ -1316,7 +1191,7 @@ public class AuditService {
                 .callingAET(callingAET)
                 .calledAET(req != null ? req.getRequestURI() : ss.getCalledAET())
                 .studyUIDAccNumDate(attr)
-                .pIDAndName(toPIDAndName(attr))
+                .pIDAndName(attr, getArchiveDevice())
                 .outcome(outcome)
                 .warning(warning)
                 .build();
@@ -1324,30 +1199,6 @@ public class AuditService {
 
     private String getFileName(AuditServiceUtils.EventType et, String callingAET, String calledAET, String studyIUID) {
         return String.valueOf(et) + '-' + callingAET + '-' + calledAET + '-' + studyIUID;
-    }
-
-    private String sopCUID(Attributes attrs) {
-        return attrs != null ? attrs.getString(Tag.SOPClassUID) : null;
-    }
-
-    private String[] toPIDAndName(Attributes attr) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        ShowPatientInfo showPatientInfo = arcDev.showPatientInfoInAuditLog();
-        String[] pInfo = new String[2];
-        pInfo[0] = arcDev.auditUnknownPatientID();
-        if (attr != null) {
-            IDWithIssuer pidWithIssuer = IDWithIssuer.pidOf(attr);
-            String pName = attr.getString(Tag.PatientName);
-            pInfo[0] = pidWithIssuer != null
-                    ? showPatientInfo == ShowPatientInfo.HASH_NAME_AND_ID
-                        ? String.valueOf(pidWithIssuer.hashCode())
-                        : pidWithIssuer.toString()
-                    : arcDev.auditUnknownPatientID();
-            pInfo[1] = pName != null && showPatientInfo != ShowPatientInfo.PLAIN_TEXT
-                    ? String.valueOf(pName.hashCode())
-                    : pName;
-        }
-        return pInfo;
     }
 
     private String getOD(Exception e) {
@@ -1408,7 +1259,7 @@ public class AuditService {
             LOG.warn("Attempt to write empty file : ", eventType);
             return;
         }
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = getArchiveDevice();
         boolean auditAggregate = arcDev.isAuditAggregate();
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
@@ -1433,7 +1284,7 @@ public class AuditService {
 
     private Path toDirPath(AuditLogger auditLogger) {
         return Paths.get(
-                StringUtils.replaceSystemProperties(device.getDeviceExtension(ArchiveDeviceExtension.class).getAuditSpoolDirectory()),
+                StringUtils.replaceSystemProperties(getArchiveDevice().getAuditSpoolDirectory()),
                 auditLogger.getCommonName().replaceAll(" ", "_"));
     }
 
@@ -1442,8 +1293,7 @@ public class AuditService {
             LOG.warn("Attempt to write empty file : ", eventType);
             return;
         }
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        boolean auditAggregate = arcDev.isAuditAggregate();
+        boolean auditAggregate = getArchiveDevice().isAuditAggregate();
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
             if (auditLogger.isInstalled()) {
@@ -1470,8 +1320,7 @@ public class AuditService {
             LOG.warn("Attempt to write empty file : " + fileName);
             return;
         }
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        boolean auditAggregate = arcDev.isAuditAggregate();
+        boolean auditAggregate = getArchiveDevice().isAuditAggregate();
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
             if (auditLogger.isInstalled()) {
