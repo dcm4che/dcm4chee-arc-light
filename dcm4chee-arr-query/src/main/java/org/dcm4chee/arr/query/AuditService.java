@@ -86,29 +86,43 @@ public class AuditService {
     }
 
     private static void emitAudit(AuditLogger logger, HttpServletRequest request, ArchiveDeviceExtension arcDev) {
-        AuditMessage msg = new AuditMessage();
-        EventIdentification ei = AuditMessages.createEventIdentification(AuditMessages.EventID.AuditLogUsed,
-                AuditMessages.EventActionCode.Read, logger.timeStamp(), AuditMessages.EventOutcomeIndicator.Success,
-                null);
-        ActiveParticipant ap = AuditMessages.createActiveParticipant(KeycloakUtils.getUserName(request),
-                AuditLogger.processID(),
-                null,
-                true,
-                request.getRemoteHost(),
-                AuditMessages.NetworkAccessPointTypeCode.IPAddress,
-                null);
-        ParticipantObjectIdentification poi = AuditMessages.createParticipantObjectIdentification(
-                arcDev.getAuditRecordRepositoryURL(), AuditMessages.ParticipantObjectIDTypeCode.URI,
-                "Security Audit Log", null, AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                AuditMessages.ParticipantObjectTypeCodeRole.SecurityResource, null, null, null);
-        msg.setEventIdentification(ei);
-        msg.getActiveParticipant().add(ap);
+        BuildActiveParticipant[] buildAP = new BuildActiveParticipant[1];
+        buildAP[0] = buildActiveParticipant(request);
+        AuditMessage msg = AuditMessages.createMessage(
+                buildEventIdentification(logger),
+                buildAP,
+                buildParticipantObjectIdentification(arcDev));
         msg.getAuditSourceIdentification().add(logger.createAuditSourceIdentification());
-        msg.getParticipantObjectIdentification().add(poi);
         try {
             logger.write(logger.timeStamp(), msg);
         } catch (Exception e) {
             LOG.warn("Failed to emit audit message", logger.getCommonName(), e);
         }
     }
+
+    private static BuildParticipantObjectIdentification buildParticipantObjectIdentification(ArchiveDeviceExtension arcDev) {
+        return new BuildParticipantObjectIdentification.Builder(
+                arcDev.getAuditRecordRepositoryURL(),
+                AuditMessages.ParticipantObjectIDTypeCode.URI,
+                AuditMessages.ParticipantObjectTypeCode.SystemObject,
+                AuditMessages.ParticipantObjectTypeCodeRole.SecurityResource)
+                .name("Security Audit Log").build();
+    }
+
+    private static BuildActiveParticipant buildActiveParticipant(HttpServletRequest request) {
+        return new BuildActiveParticipant.Builder(
+                KeycloakUtils.getUserName(request),
+                request.getRemoteHost())
+                .altUserID(AuditLogger.processID())
+                .requester(true).build();
+    }
+
+    private static BuildEventIdentification buildEventIdentification(AuditLogger logger) {
+        return new BuildEventIdentification.Builder(
+                AuditMessages.EventID.AuditLogUsed,
+                AuditMessages.EventActionCode.Read,
+                logger.timeStamp(),
+                AuditMessages.EventOutcomeIndicator.Success).build();
+    }
+
 }
