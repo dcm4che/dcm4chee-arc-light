@@ -198,13 +198,19 @@ export class AppComponent {
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe(
                 (res) => {
-                    console.log('devicename', res);
+                    $this.mainservice["deviceName"] = res.dicomDeviceName;
                     $this.$http.get('../devices?dicomDeviceName=' + res.dicomDeviceName)
                         .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
-                        .subscribe(arc => {
-                            console.log('arch');
-                            $this.archive = arc[0];
-                        });
+                        .subscribe(
+                            arc => {
+                                $this.mainservice["archiveDevice"] = arc[0];
+                                $this.archive = arc[0];
+                            },
+                            (err2)=>{
+                                if (retries)
+                                    $this.initGetDevicename(retries - 1);
+                            }
+                        );
                 },(err)=>{
                     if (retries)
                         $this.initGetDevicename(retries - 1);
