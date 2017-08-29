@@ -48,19 +48,20 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since May 2016
  */
-public class SpoolFileReader {
+class SpoolFileReader {
     private static final Logger LOG = LoggerFactory.getLogger(SpoolFileReader.class);
     private String mainInfo;
-    private HashSet<String> instanceLines = new HashSet<>();
+    private List<String> instanceLines = new ArrayList<>();
 
 
-    public SpoolFileReader(Path p) throws IOException {
+    SpoolFileReader(Path p) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(p, StandardCharsets.UTF_8)) {
             this.mainInfo = reader.readLine();
             String line;
@@ -72,11 +73,11 @@ public class SpoolFileReader {
         }
     }
 
-    public String getMainInfo() {
+    String getMainInfo() {
         return mainInfo;
     }
 
-    public HashSet<String> getInstanceLines() {
+    List<String> getInstanceLines() {
         return instanceLines;
     }
 }

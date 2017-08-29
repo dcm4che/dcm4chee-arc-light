@@ -327,16 +327,16 @@ public class AuditService {
                     .requester(true).build();
 
         ParticipantObjectContainsStudy pocs = getPocs(auditInfo.getField(AuditInfo.STUDY_UID));
-        BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder(
-                getSopClasses(reader.getInstanceLines()), pocs)
-                .acc(getAccessions(auditInfo.getField(AuditInfo.ACC_NUM))).build();
+        BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder()
+                .sopC(sopClasses(reader.getInstanceLines()))
+                .acc(AuditMessages.createAccession(auditInfo.getField(AuditInfo.ACC_NUM))).build();
         
         BuildParticipantObjectIdentification poiStudy = new BuildParticipantObjectIdentification.Builder(
                 auditInfo.getField(AuditInfo.STUDY_UID), 
                 AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
                 AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                .desc(getPODesc(desc))
+                .desc(desc)
                 .detail(getPod(studyDate, auditInfo.getField(AuditInfo.STUDY_DATE)))
                 .build();
         emitAuditMessage(auditLogger, ei, activeParticipants, poiStudy, patientPOI(auditInfo));
@@ -580,7 +580,7 @@ public class AuditService {
         BuildAuditInfo info = getAIStoreCtx(ctx);
         BuildAuditInfo instanceInfo = new BuildAuditInfo.Builder()
                                     .sopCUID(ctx.getSopClassUID()).sopIUID(ctx.getSopInstanceUID())
-                                    .mppsUID(StringUtils.maskNull(ctx.getMppsInstanceUID(), " "))
+                                    .mppsUID(ctx.getMppsInstanceUID())
                                     .build();
         writeSpoolFileStoreOrWadoRetrieve(fileName, info, instanceInfo);
     }
@@ -604,7 +604,6 @@ public class AuditService {
         BuildAuditInfo instanceInfo = new BuildAuditInfo.Builder()
                                         .sopCUID(attrs.getString(Tag.SOPClassUID))
                                         .sopIUID(ctx.getSopInstanceUIDs()[0])
-                                        .mppsUID(" ")
                                         .build();
         writeSpoolFileStoreOrWadoRetrieve(fileName, info, instanceInfo);
     }
@@ -621,15 +620,16 @@ public class AuditService {
     private void auditStoreOrWADORetrieve(AuditLogger auditLogger, Path path,
                                           AuditServiceUtils.EventType eventType) throws IOException {
         SpoolFileReader reader = new SpoolFileReader(path);
-        HashSet<String> mppsUIDs = new HashSet<>();
+        List<MPPS> mppsUIDs = new ArrayList<>();
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         for (String line : reader.getInstanceLines()) {
             AuditInfo iI = new AuditInfo(line);
             buildSOPClassMap(sopClassMap, iI.getField(AuditInfo.SOP_CUID), iI.getField(AuditInfo.SOP_IUID));
-            mppsUIDs.add(iI.getField(AuditInfo.MPPS_UID));
+            String mppsUID = iI.getField(AuditInfo.MPPS_UID);
+            if (mppsUID != null)
+                mppsUIDs.add(AuditMessages.createMPPS(mppsUID));
         }
-        mppsUIDs.remove(" ");
 
         BuildEventIdentification ei = toBuildEventIdentification(eventType, auditInfo.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
 
@@ -647,14 +647,19 @@ public class AuditService {
                                 .roleIDCode(eventType.destination)
                                 .build();
 
-        HashSet<SOPClass> sopC = new HashSet<>();
-        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet())
-            sopC.add(getSOPC(null, entry.getKey(), entry.getValue().size()));
+        SOPClass[] sopC = new SOPClass[sopClassMap.size()];
+        int i = 0;
+        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
+            sopC[i] = AuditMessages.createSOPClass(null, entry.getKey(), entry.getValue().size());
+            i++;
+        }
+
         ParticipantObjectContainsStudy pocs = getPocs(auditInfo.getField(AuditInfo.STUDY_UID));
 
-        BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder(sopC, pocs)
-                                                .acc(getAccessions(auditInfo.getField(AuditInfo.ACC_NUM)))
-                                                .mpps(AuditMessages.getMPPS(mppsUIDs.toArray(new String[mppsUIDs.size()])))
+        BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder()
+                                                .sopC(sopC)
+                                                .acc(AuditMessages.createAccession(auditInfo.getField(AuditInfo.ACC_NUM)))
+                                                .mpps(mppsUIDs.toArray(new MPPS[mppsUIDs.size()]))
                                                 .build();
 
         String lifecycle = (eventType == AuditServiceUtils.EventType.STORE_CREA
@@ -665,7 +670,7 @@ public class AuditService {
                                                         AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                                                         AuditMessages.ParticipantObjectTypeCode.SystemObject,
                                                         AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                                                        .desc(getPODesc(desc))
+                                                        .desc(desc)
                                                         .detail(getPod(studyDate, auditInfo.getField(AuditInfo.STUDY_DATE)))
                                                         .lifeCycle(lifecycle)
                                                         .build();
@@ -711,20 +716,22 @@ public class AuditService {
         List<BuildParticipantObjectIdentification> pois = new ArrayList<>();
         for (Map.Entry<String, AccessionNumSopClassInfo> entry : study_accNumSOPClassInfo.entrySet()) {
             HashSet<SOPClass> sopC = new HashSet<>();
-            for (Map.Entry<String, HashSet<String>> sopClassMap : entry.getValue().getSopClassMap().entrySet()) {
+            for (Map.Entry<String, HashSet<String>> sopClassMap : entry.getValue().getSopClassMap().entrySet())
                 if (ri.getField(AuditInfo.FAILED_IUID_SHOW) != null)
                     sopC.add(getSOPC(sopClassMap.getValue(), sopClassMap.getKey(), sopClassMap.getValue().size()));
                 else
                     sopC.add(getSOPC(null, sopClassMap.getKey(), sopClassMap.getValue().size()));
-            }
-            BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder(sopC, getPocs(entry.getKey()))
-                    .acc(getAccessions(entry.getValue().getAccNum())).build();
+
+            BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder()
+                                                        .sopC(sopC.toArray(new SOPClass[sopC.size()]))
+                                                        .acc(AuditMessages.createAccession(entry.getValue().getAccNum()))
+                                                        .build();
             BuildParticipantObjectIdentification poi = new BuildParticipantObjectIdentification.Builder(
                                                         entry.getKey(),
                                                         AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                                                         AuditMessages.ParticipantObjectTypeCode.SystemObject,
                                                         AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                                                        .desc(getPODesc(desc))
+                                                        .desc(desc)
                                                         .detail(getPod(studyDate, studyDt))
                                                         .build();
             pois.add(poi);
@@ -962,15 +969,15 @@ public class AuditService {
         BuildActiveParticipant[] activeParticipants = buildProcedureRecordActiveParticipants(auditLogger, prI);
 
         ParticipantObjectContainsStudy pocs = getPocs(prI.getField(AuditInfo.STUDY_UID));
-        BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder(null, pocs)
-                .acc(getAccessions(prI.getField(AuditInfo.ACC_NUM))).build();
+        BuildParticipantObjectDescription desc = new BuildParticipantObjectDescription.Builder()
+                .acc(AuditMessages.createAccession(prI.getField(AuditInfo.ACC_NUM))).build();
 
         BuildParticipantObjectIdentification poiStudy = new BuildParticipantObjectIdentification.Builder(
                                                         prI.getField(AuditInfo.STUDY_UID),
                                                         AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                                                         AuditMessages.ParticipantObjectTypeCode.SystemObject,
                                                         AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                                                        .desc(getPODesc(desc))
+                                                        .desc(desc)
                                                         .detail(getPod(studyDate, prI.getField(AuditInfo.STUDY_DATE)))
                                                         .build();
         emitAuditMessage(auditLogger, ei, activeParticipants, poiStudy, patientPOI(prI));
@@ -1157,11 +1164,13 @@ public class AuditService {
         else
             for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet())
                 sopC.add(getSOPC(null, entry.getKey(), entry.getValue().size()));
-        BuildParticipantObjectDescription poDesc = new BuildParticipantObjectDescription.Builder(sopC, pocs).build();
+
+        BuildParticipantObjectDescription poDesc = new BuildParticipantObjectDescription.Builder()
+                .sopC(sopC.toArray(new SOPClass[sopC.size()])).build();
         BuildParticipantObjectIdentification poiStudy = new BuildParticipantObjectIdentification.Builder(studyUIDs[0],
                 AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject, AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                .desc(getPODesc(poDesc)).lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.Verification).build();
+                .desc(poDesc).lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.Verification).build();
         emitAuditMessage(auditLogger, ei, activeParticipants, poiStudy, patientPOI(auditInfo));
     }
 
@@ -1213,26 +1222,18 @@ public class AuditService {
         return AuditMessages.getPocs(studyUIDs);
     }
 
-    private ParticipantObjectDescription getPODesc(BuildParticipantObjectDescription desc) {
-        return desc != null ? AuditMessages.getPODesc(desc) : null;
-    }
-
-    private HashSet<Accession> getAccessions(String accNum) {
-        return AuditMessages.getAccessions(accNum);
-    }
-
-    private HashSet<SOPClass> getSopClasses(HashSet<String> instanceLines) {
-        HashSet<SOPClass> sopC = new HashSet<>();
-        for (String line : instanceLines) {
-            AuditInfo ii = new AuditInfo(line);
-            sopC.add(getSOPC(null, ii.getField(AuditInfo.SOP_CUID),
-                    Integer.parseInt(ii.getField(AuditInfo.SOP_IUID))));
+    private SOPClass[] sopClasses(List<String> instanceLines) {
+        SOPClass[] sopClasses = new SOPClass[instanceLines.size()];
+        for (int i = 0; i < instanceLines.size(); i++) {
+            AuditInfo ii = new AuditInfo(instanceLines.get(i));
+            sopClasses[i] = AuditMessages.createSOPClass(
+                    null, ii.getField(AuditInfo.SOP_CUID), Integer.parseInt(ii.getField(AuditInfo.SOP_IUID)));
         }
-        return sopC;
+        return sopClasses;
     }
 
     private SOPClass getSOPC(HashSet<String> instances, String uid, Integer numI) {
-        return AuditMessages.getSOPC(instances, uid, numI);
+        return AuditMessages.createSOPClass(instances, uid, numI);
     }
 
     private Calendar getEventTime(Path path, AuditLogger auditLogger){
