@@ -24,6 +24,7 @@ import { InfoComponent } from './dialogs/info/info.component';
 import { UploadFilesComponent } from './dialogs/upload-files/upload-files.component';
 import { SpecificCharPickerComponent } from './specific-char-picker/specific-char-picker.component';
 import { DictionaryPickerComponent } from './dictionary-picker/dictionary-picker.component';
+import { TimePickerComponent } from './time-picker/time-picker.component';
 
 
 @NgModule({
@@ -57,5 +58,6 @@ export const WidgetsComponents = [
     InfoComponent,
     UploadFilesComponent,
     SpecificCharPickerComponent,
-    DictionaryPickerComponent
+    DictionaryPickerComponent,
+    TimePickerComponent
 ];

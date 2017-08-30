@@ -393,17 +393,28 @@ export class DynamicFormElementComponent{
             console.log("in value change",e);
         }
         formelement.showPicker = false;
+        formelement.showTimePicker = false;
     }
 
     onFocuse(formelement,i=null) {
         console.log("in focushostlistener",formelement);
         console.log("i",i);
         if(formelement.format){
-            if(i != null){
-                formelement.showPicker = formelement.showPicker || {};
-                formelement.showPicker[i] = true;
-            }else{
-                formelement.showPicker = true;
+            if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass'){
+                if(i != null){
+                    formelement.showPicker = formelement.showPicker || {};
+                    formelement.showPicker[i] = true;
+                }else{
+                    formelement.showPicker = true;
+                }
+            }
+            if(formelement.format === 'dcmTime'){
+                if(i != null){
+                    formelement.showTimePicker = formelement.showTimePicker || {};
+                    formelement.showTimePicker[i] = true;
+                }else{
+                    formelement.showTimePicker = true;
+                }
             }
         }
     }

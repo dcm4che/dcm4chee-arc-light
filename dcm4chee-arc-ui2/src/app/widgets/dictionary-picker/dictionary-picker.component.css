@@ -11,7 +11,9 @@
     position: absolute;
     z-index: 9999;
     background: white;
-    box-shadow: 3px 4px 8px 6px #ccc;
+    -webkit-box-shadow: 3px 4px 8px 6px #cccccc;
+    -moz-box-shadow:  3px 4px 8px 6px #cccccc;
+    box-shadow:  3px 4px 8px 6px #cccccc;
 }
 .dictionary_widget .no_result{
     padding: 0px 15px 30px 15px;
