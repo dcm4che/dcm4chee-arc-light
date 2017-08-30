@@ -1,0 +1,15 @@
+<div class="timepicker">
+    <h4>Select time (hh:mm:ss)</h4>
+    <md-select [(ngModel)]="hh">
+        <md-option value="{{h}}" *ngFor="let h of hhArray">{{h}}</md-option>
+    </md-select>:
+    <md-select [(ngModel)]="mm">
+        <md-option value="{{m}}" *ngFor="let m of mmArray">{{m}}</md-option>
+    </md-select>:
+    <md-select [(ngModel)]="ss">
+        <md-option value="{{s}}" *ngFor="let s of ssArray">{{s}}</md-option>
+    </md-select>
+    <div class="btn_content">
+        <button class="btn" (click)="addTime()">add time</button>
+    </div>
+</div>
