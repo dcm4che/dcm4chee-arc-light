@@ -88,11 +88,11 @@ public class AuditService {
     }
 
     private static void emitAudit(AuditLogger logger, HttpServletRequest request, ArchiveDeviceExtension arcDev) {
-        BuildActiveParticipant[] buildAP = new BuildActiveParticipant[1];
-        buildAP[0] = buildActiveParticipant(request);
+        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[1];
+        activeParticipantBuilder[0] = buildActiveParticipant(request);
         AuditMessage msg = AuditMessages.createMessage(
                             buildEventIdentification(logger),
-                            buildAP,
+                            activeParticipantBuilder,
                             buildParticipantObjectIdentification(arcDev));
         msg.getAuditSourceIdentification().add(logger.createAuditSourceIdentification());
         try {
@@ -102,8 +102,8 @@ public class AuditService {
         }
     }
 
-    private static BuildParticipantObjectIdentification buildParticipantObjectIdentification(ArchiveDeviceExtension arcDev) {
-        return new BuildParticipantObjectIdentification.Builder(
+    private static ParticipantObjectIdentificationBuilder buildParticipantObjectIdentification(ArchiveDeviceExtension arcDev) {
+        return new ParticipantObjectIdentificationBuilder.Builder(
                 arcDev.getAuditRecordRepositoryURL(),
                 AuditMessages.ParticipantObjectIDTypeCode.URI,
                 AuditMessages.ParticipantObjectTypeCode.SystemObject,
@@ -111,16 +111,16 @@ public class AuditService {
                 .name("Security Audit Log").build();
     }
 
-    private static BuildActiveParticipant buildActiveParticipant(HttpServletRequest request) {
-        return new BuildActiveParticipant.Builder(
+    private static ActiveParticipantBuilder buildActiveParticipant(HttpServletRequest request) {
+        return new ActiveParticipantBuilder.Builder(
                 KeycloakUtils.getUserName(request),
                 request.getRemoteHost())
                 .altUserID(AuditLogger.processID())
                 .requester(true).build();
     }
 
-    private static BuildEventIdentification buildEventIdentification(AuditLogger logger) {
-        return new BuildEventIdentification.Builder(
+    private static EventIdentificationBuilder buildEventIdentification(AuditLogger logger) {
+        return new EventIdentificationBuilder.Builder(
                 AuditMessages.EventID.AuditLogUsed,
                 AuditMessages.EventActionCode.Read,
                 logger.timeStamp(),
