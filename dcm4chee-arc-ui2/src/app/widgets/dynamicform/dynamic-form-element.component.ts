@@ -394,6 +394,7 @@ export class DynamicFormElementComponent{
         }
         formelement.showPicker = false;
         formelement.showTimePicker = false;
+        formelement.showDurationPicker = false;
     }
 
     onFocuse(formelement,i=null) {
@@ -414,6 +415,14 @@ export class DynamicFormElementComponent{
                     formelement.showTimePicker[i] = true;
                 }else{
                     formelement.showTimePicker = true;
+                }
+            }
+            if(formelement.format === 'dcmDuration' || formelement.format === 'dcmPeriod'){
+                if(i != null){
+                    formelement.showDurationPicker = formelement.showDurationPicker || {};
+                    formelement.showDurationPicker[i] = true;
+                }else{
+                    formelement.showDurationPicker = true;
                 }
             }
         }

@@ -1,0 +1,56 @@
+<div class="durationpicker" (keyup)="onModelChange($event)">
+    <!--<ng-container class="form-horizontal" *ngIf="mode === 'dcmDuration'">-->
+        <h4 *ngIf="mode === 'dcmPeriod'">Add period</h4>
+        <h4 *ngIf="mode === 'dcmDuration'">Add duration</h4>
+        <div class="form-group" *ngIf="mode === 'dcmPeriod'" (keydown)="noWeekChange()">
+            <label class="control-label text-right col-md-5" for="year">year:</label>
+            <div class="col-md-7">
+                <input type="number" class="col-md-12" id="year" [(ngModel)]="y">
+            </div>
+        </div>
+        <div class="form-group" *ngIf="mode === 'dcmPeriod'" (keydown)="noWeekChange()">
+            <label class="control-label text-right col-md-5" for="month">month:</label>
+            <div class="col-md-7">
+                <input type="number" class="col-md-12" id="month" [(ngModel)]="month">
+            </div>
+        </div>
+        <div class="form-group" (keydown)="noWeekChange()">
+            <label class="control-label text-right col-md-5" for="day">day:</label>
+            <div class="col-md-7">
+                <input type="number" class="col-md-12" id="day" [(ngModel)]="d">
+            </div>
+        </div>
+        <div class="form-group" *ngIf="mode === 'dcmDuration'">
+            <label class="control-label text-right col-md-5" for="hour">hour:</label>
+            <div class="col-md-7">
+                <input type="number" class="col-md-12" id="hour" [(ngModel)]="h">
+            </div>
+        </div>
+        <div class="form-group" *ngIf="mode === 'dcmDuration'">
+            <label class="control-label text-right col-md-5" for="minute">minute:</label>
+            <div class="col-md-7">
+                <input type="number" class="col-md-12" id="minute" [(ngModel)]="m">
+            </div>
+        </div>
+        <div class="form-group" *ngIf="mode === 'dcmDuration'">
+            <label class="control-label text-right col-md-5" for="sec">Second:</label>
+            <div class="col-md-7">
+                <input type="number" class="col-md-12" id="sec" [(ngModel)]="s">
+            </div>
+        </div>
+        <div class="form-group" *ngIf="mode === 'dcmPeriod'">
+            or:
+        </div>
+        <div class="form-group" *ngIf="mode === 'dcmPeriod'">
+            <label class="control-label text-right col-md-5" for="week">Week:</label>
+            <div class="col-md-7">
+                <input type="number" class="col-md-12" id="week" [(ngModel)]="week" (keydown)="weekChanged()">
+            </div>
+        </div>
+    <p class="msg">
+        {{message}}
+    </p>
+    <div class="btn_content">
+        <button class="btn" (click)="addDuration()">add time</button>
+    </div>
+</div>

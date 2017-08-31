@@ -20,6 +20,7 @@
                 <input class="simple_input text" *ngSwitchCase="'text'" [formControlName]="formelement.key" [id]="formelement.key" [type]="formelement.type" (click)="onFocuse(formelement)"/>
                 <dictionary-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showPicker" [dictionary]="formelement.format" [formelement]="formelement" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></dictionary-picker>
                 <time-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showTimePicker" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></time-picker>
+                <duration-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showDurationPicker" [mode]="formelement.format" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></duration-picker>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <input class="simple_input number" *ngSwitchCase="'number'" [formControlName]="formelement.key" [id]="formelement.key" type="number" />
@@ -62,6 +63,7 @@
                         <span class="delete" title="Remove this value from the array" (click)="removeArrayElement(formelement, i, form)"><i class="material-icons">clear</i></span>
                         <dictionary-picker *ngIf="formelement.controlType === 'arrayelement'  && formelement.format && formelement.showPicker && formelement.showPicker[i]" [dictionary]="formelement.format" [formelement]="formelement" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key].controls,i)"></dictionary-picker>
                         <time-picker *ngIf="formelement.controlType === 'arrayelement'  && formelement.format && formelement.showTimePicker && formelement.showTimePicker[i]" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key].controls,i)"></time-picker>
+                        <duration-picker *ngIf="formelement.controlType === 'arrayelement' && formelement.format && formelement.showDurationPicker && formelement.showDurationPicker[i]" [mode]="formelement.format" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key].controls,i)"></duration-picker>
                     </div>
                     <div class="add" (click)="addArrayElement(formelement.value, form.controls[formelement.key].controls, form)"><i class="material-icons">add</i> Add</div>
                 </div>
