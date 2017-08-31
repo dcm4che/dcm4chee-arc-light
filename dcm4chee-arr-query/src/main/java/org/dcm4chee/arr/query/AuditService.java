@@ -110,9 +110,11 @@ public class AuditService {
     }
 
     private static ActiveParticipantBuilder buildActiveParticipant(HttpServletRequest request) {
+        String userID = KeycloakUtils.getUserName(request);
         return new ActiveParticipantBuilder.Builder(
-                KeycloakUtils.getUserName(request),
+                userID,
                 request.getRemoteHost())
+                .userIDTypeCode(AuditMessages.userIDTypeCode(userID))
                 .altUserID(AuditLogger.processID())
                 .requester(true).build();
     }
