@@ -48,6 +48,8 @@ import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
@@ -88,6 +90,13 @@ class StoreContextImpl implements StoreContext {
     private String[] retrieveAETs;
     private Availability availability;
     private LocalDate expirationDate;
+    private Patient patient;
+    private Study study;
+    private boolean dicomServiceException;
+
+    private enum OperationState {
+        CREATE, UPDATE, CREATE_ERROR
+    }
 
     public StoreContextImpl(StoreSession storeSession) {
         this.storeSession = storeSession;
@@ -321,5 +330,48 @@ class StoreContextImpl implements StoreContext {
     public boolean isPreviousDifferentSeries() {
         return previousInstance != null
                 && previousInstance.getSeries().getPk() != storedInstance.getSeries().getPk();
+    }
+
+    @Override
+    public Patient getPatient() {
+        return patient;
+    }
+
+    @Override
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+    }
+
+    @Override
+    public Study getStudy() {
+        return study;
+    }
+
+    @Override
+    public void setStudy(Study study) {
+        this.study = study;
+    }
+
+    @Override
+    public boolean isDicomServiceException() {
+        return dicomServiceException;
+    }
+
+    @Override
+    public void setDicomServiceException(boolean dicomServiceException) {
+        this.dicomServiceException = dicomServiceException;
+    }
+
+    public String operationState() {
+        OperationState opState = !locations.isEmpty()
+                                    ? previousInstance != null
+                                        ? OperationState.UPDATE : OperationState.CREATE
+                                    : storedInstance != null
+                                        ? OperationState.CREATE
+                                        : dicomServiceException
+                                            ? OperationState.CREATE_ERROR
+                                            : null;
+
+        return opState != null ? opState.name() : null;
     }
 }

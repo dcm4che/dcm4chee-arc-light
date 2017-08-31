@@ -556,37 +556,47 @@ public class StoreServiceEJB {
         if (series == null) {
             Study study = findStudy(ctx, result);
             if (study == null) {
-                if (!checkMissingPatientID(ctx))
+                Patient pat = patientService.findPatient(patMgtCtx);
+                result.setPatient(pat);
+
+                if (!checkMissingPatientID(ctx)) {
                     throw new DicomServiceException(StoreService.PATIENT_ID_MISSING_IN_OBJECT,
                             StoreService.PATIENT_ID_MISSING_IN_OBJECT_MSG);
+                }
 
-                Patient pat = patientService.findPatient(patMgtCtx);
                 checkStorePermission(ctx, pat);
 
                 if (pat == null) {
                     patMgtCtx.setPatientID(IDWithIssuer.pidOf(ctx.getAttributes()));
                     pat = patientService.createPatient(patMgtCtx);
                     result.setCreatedPatient(pat);
-                } else {
+                } else
                     pat = updatePatient(ctx, pat);
-                }
+
                 study = createStudy(ctx, pat);
                 if (ctx.getExpirationDate() != null)
                     study.setExpirationDate(ctx.getExpirationDate());
                 result.setCreatedStudy(study);
             } else {
+                result.setStudy(study);
+                Patient patient = study.getPatient();
+                result.setPatient(patient);
                 checkConflictingPID(patMgtCtx, ctx, study);
-                checkStorePermission(ctx, study.getPatient());
+                checkStorePermission(ctx, patient);
                 study = updateStudy(ctx, study);
-                updatePatient(ctx, study.getPatient());
+                updatePatient(ctx, patient);
             }
             series = createSeries(ctx, study, result);
         } else {
-            checkConflictingPID(patMgtCtx, ctx, series.getStudy());
-            checkStorePermission(ctx, series.getStudy().getPatient());
+            Study study = series.getStudy();
+            result.setStudy(study);
+            Patient patient = study.getPatient();
+            result.setPatient(patient);
+            checkConflictingPID(patMgtCtx, ctx, study);
+            checkStorePermission(ctx, patient);
             series = updateSeries(ctx, series);
-            updateStudy(ctx, series.getStudy());
-            updatePatient(ctx, series.getStudy().getPatient());
+            updateStudy(ctx, study);
+            updatePatient(ctx, patient);
         }
         Instance instance = createInstance(session, series, conceptNameCode,
                 ctx.getAttributes(), ctx.getRetrieveAETs(), ctx.getAvailability());
