@@ -613,16 +613,23 @@ public class StoreServiceEJB {
             throws DicomServiceException {
         Patient associatedPat = study.getPatient();
         StoreSession session = ctx.getStoreSession();
-        if (session.getAcceptConflictingPatientID() == AcceptConflictingPatientID.YES)
+        AcceptConflictingPatientID acceptConflictingPatientID = session.getAcceptConflictingPatientID();
+        if (acceptConflictingPatientID == AcceptConflictingPatientID.YES)
             return;
 
+        IDWithIssuer associatedPatientIDWithIssuer = IDWithIssuer.pidOf(associatedPat.getAttributes());
+        String errorMsg = MessageFormat.format(StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG,
+                patMgtCtx.getPatientID(),
+                ctx.getStudyInstanceUID(),
+                associatedPatientIDWithIssuer,
+                study.getStudyInstanceUID());
+
         if (patMgtCtx.getPatientID() == null || associatedPat.getPatientID() == null) {
-            checkMissingConflicting(patMgtCtx, study, session.getArchiveAEExtension(), ctx);
+            checkMissingConflicting(patMgtCtx, associatedPatientIDWithIssuer, session, errorMsg);
             return;
         }
 
-        IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(associatedPat.getAttributes());
-        if (idWithIssuer.matches(patMgtCtx.getPatientID()))
+        if (associatedPatientIDWithIssuer != null && associatedPatientIDWithIssuer.matches(patMgtCtx.getPatientID()))
             return;
 
         if (session.getAcceptConflictingPatientID() == AcceptConflictingPatientID.MERGED) {
@@ -630,30 +637,20 @@ public class StoreServiceEJB {
             if (p != null && p.getPk() == associatedPat.getPk())
                 return;
         }
-        LOG.warn(StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG,
-                patMgtCtx.getPatientID(),
-                ctx.getStudyInstanceUID(),
-                idWithIssuer,
-                study.getStudyInstanceUID());
+        LOG.warn(errorMsg);
         throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
-                StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
+                errorMsg);
     }
 
-    private void checkMissingConflicting(PatientMgtContext patMgtCtx, Study study, ArchiveAEExtension arcAE,
-                                         StoreContext ctx) throws DicomServiceException {
-        Patient associatedPat = study.getPatient();
-        AcceptMissingPatientID acceptMissingPatientID = arcAE.acceptMissingPatientID();
+    private void checkMissingConflicting(PatientMgtContext patMgtCtx, IDWithIssuer associatedPatientIDWithIssuer, StoreSession session,
+                                         String errorMsg) throws DicomServiceException {
+        AcceptMissingPatientID acceptMissingPatientID = session.getArchiveAEExtension().acceptMissingPatientID();
         if (acceptMissingPatientID != AcceptMissingPatientID.CREATE
-                && arcAE.acceptConflictingPatientID() != AcceptConflictingPatientID.YES)
-            if ((associatedPat.getPatientID() != null && patMgtCtx.getPatientID() == null)
-                    || (associatedPat.getPatientID() == null && patMgtCtx.getPatientID() != null)) {
-                LOG.warn(StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG,
-                        patMgtCtx.getPatientID(),
-                        ctx.getStudyInstanceUID(),
-                        associatedPat.getPatientID(),
-                        study.getStudyInstanceUID());
-                throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED,
-                        StoreService.CONFLICTING_PID_NOT_ACCEPTED_MSG);
+                && session.getAcceptConflictingPatientID() != AcceptConflictingPatientID.YES)
+            if ((associatedPatientIDWithIssuer != null && patMgtCtx.getPatientID() == null)
+                    || (associatedPatientIDWithIssuer == null && patMgtCtx.getPatientID() != null)) {
+                LOG.warn(errorMsg);
+                throw new DicomServiceException(StoreService.CONFLICTING_PID_NOT_ACCEPTED, errorMsg);
             }
     }
 
