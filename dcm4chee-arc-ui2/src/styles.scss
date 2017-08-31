@@ -1390,6 +1390,20 @@ md-dialog-container{
           width:90%;
         }
       }
+      &.picker{
+        &:hover{
+          input{
+            width:100%;
+          }
+          .delete{
+            opacity:0;
+            visibility: hidden;
+          }
+        }
+      }
+      .durationpicker{
+        top: 30px;
+      }
     }
     .add{
       float: right;

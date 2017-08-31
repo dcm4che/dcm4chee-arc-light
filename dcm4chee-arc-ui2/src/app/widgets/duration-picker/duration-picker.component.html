@@ -1,4 +1,5 @@
 <div class="durationpicker" (keyup)="onModelChange($event)">
+    <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
     <!--<ng-container class="form-horizontal" *ngIf="mode === 'dcmDuration'">-->
         <h4 *ngIf="mode === 'dcmPeriod'">Add period</h4>
         <h4 *ngIf="mode === 'dcmDuration'">Add duration</h4>
@@ -42,7 +43,7 @@
             or:
         </div>
         <div class="form-group" *ngIf="mode === 'dcmPeriod'">
-            <label class="control-label text-right col-md-5" for="week">Week:</label>
+            <label class="control-label text-right col-md-5" for="week">week:</label>
             <div class="col-md-7">
                 <input type="number" class="col-md-12" id="week" [(ngModel)]="week" (keydown)="weekChanged()">
             </div>
@@ -51,6 +52,6 @@
         {{message}}
     </p>
     <div class="btn_content">
-        <button class="btn" (click)="addDuration()">add time</button>
+        <button class="btn" (click)="addDuration()">Set</button>
     </div>
 </div>

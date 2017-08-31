@@ -7,12 +7,19 @@
     -webkit-box-shadow: 3px 4px 8px 6px #cccccc;
     -moz-box-shadow:  3px 4px 8px 6px #cccccc;
     box-shadow:  3px 4px 8px 6px #cccccc;
-    padding:20px 15px;
+    padding:20px 30px;
 }
 .durationpicker .msg{
     float: left;
     margin: 20px 0 0px 0;
     width: 100%;
+    font-size:12px;
+}
+.durationpicker .close{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 13px;
 }
 .durationpicker .btn_content{
     width: 100%;
