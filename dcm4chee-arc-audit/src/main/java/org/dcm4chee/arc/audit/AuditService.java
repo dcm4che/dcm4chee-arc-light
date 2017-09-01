@@ -814,8 +814,11 @@ public class AuditService {
 
     private ActiveParticipantBuilder[] getApsForExport(AuditServiceUtils.EventType eventType, AuditInfo ri, AuditLogger auditLogger) {
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
-        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(ri.getField(AuditInfo.DEST_AET),
-                ri.getField(AuditInfo.DEST_NAP_ID)).roleIDCode(eventType.destination).build();
+        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
+                ri.getField(AuditInfo.DEST_AET),
+                ri.getField(AuditInfo.DEST_NAP_ID))
+                .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
+                .roleIDCode(eventType.destination).build();
         String archiveUserID = ri.getField(AuditInfo.CALLED_AET);
         AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
         if (ri.getField(AuditInfo.CALLING_AET) == null)
