@@ -51,7 +51,7 @@ import org.dcm4chee.arc.conf.ShowPatientInfo;
  * @since June 2016
  */
 
-class BuildAuditInfo {
+class AuditInfoBuilder {
     final String callingHost;
     final String callingAET;
     final String calledAET;
@@ -189,12 +189,12 @@ class BuildAuditInfo {
             isExport = true;
             return this;
         }
-        BuildAuditInfo build() {
-            return new BuildAuditInfo(this);
+        AuditInfoBuilder build() {
+            return new AuditInfoBuilder(this);
         }
     }
 
-    private BuildAuditInfo(Builder builder) {
+    private AuditInfoBuilder(Builder builder) {
         callingHost = builder.callingHost;
         callingAET = builder.callingAET;
         calledAET = builder.calledAET;

@@ -48,12 +48,17 @@ import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import java.util.*;
 
+/**
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Aug 2017
+ */
+
 class RetrieveContextAuditInfoBuilder {
 
     private final RetrieveContext ctx;
     private final ArchiveDeviceExtension arcDev;
     private final HttpServletRequestInfo httpServletRequestInfo;
-    private BuildAuditInfo[][] buildAuditInfos = new BuildAuditInfo[2][];
+    private AuditInfoBuilder[][] auditInfoBuilder = new AuditInfoBuilder[2][];
     private AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.RTRV___TRF;
 
     RetrieveContextAuditInfoBuilder(RetrieveContext ctx, ArchiveDeviceExtension arcDev, AuditServiceUtils.EventType et) {
@@ -68,7 +73,7 @@ class RetrieveContextAuditInfoBuilder {
         if (someInstancesRetrieveFailed())
             processPartialRetrieve();
         else
-            buildAuditInfos[0] = buildAuditInfos(toBuildAuditInfo(true), ctx.getMatches());
+            auditInfoBuilder[0] = buildAuditInfos(toBuildAuditInfo(true), ctx.getMatches());
     }
 
     private void processPartialRetrieve() {
@@ -83,23 +88,23 @@ class RetrieveContextAuditInfoBuilder {
                 success.remove(instanceLocation);
             }
         }
-        buildAuditInfos[0] = buildAuditInfos(toBuildAuditInfo(true), failed);
-        buildAuditInfos[1] = buildAuditInfos(toBuildAuditInfo(false), success);
+        auditInfoBuilder[0] = buildAuditInfos(toBuildAuditInfo(true), failed);
+        auditInfoBuilder[1] = buildAuditInfos(toBuildAuditInfo(false), success);
     }
 
-    private BuildAuditInfo[] buildAuditInfos(BuildAuditInfo buildAuditInfo, Collection<InstanceLocations> il) {
-        LinkedHashSet<BuildAuditInfo> objs = new LinkedHashSet<>();
-        objs.add(buildAuditInfo);
+    private AuditInfoBuilder[] buildAuditInfos(AuditInfoBuilder auditInfoBuilder, Collection<InstanceLocations> il) {
+        LinkedHashSet<AuditInfoBuilder> objs = new LinkedHashSet<>();
+        objs.add(auditInfoBuilder);
         objs.addAll(buildInstanceInfos(ctx.getCStoreForwards()));
         objs.addAll(buildInstanceInfos(il));
-        return objs.toArray(new BuildAuditInfo[objs.size()]);
+        return objs.toArray(new AuditInfoBuilder[objs.size()]);
     }
 
-    private LinkedHashSet<BuildAuditInfo> buildInstanceInfos(Collection<InstanceLocations> il) {
-        LinkedHashSet<BuildAuditInfo> objs = new LinkedHashSet<>();
+    private LinkedHashSet<AuditInfoBuilder> buildInstanceInfos(Collection<InstanceLocations> il) {
+        LinkedHashSet<AuditInfoBuilder> objs = new LinkedHashSet<>();
         for (InstanceLocations instanceLocation : il) {
             Attributes attrs = instanceLocation.getAttributes();
-            BuildAuditInfo iI = new BuildAuditInfo.Builder()
+            AuditInfoBuilder iI = new AuditInfoBuilder.Builder()
                     .studyUIDAccNumDate(attrs)
                     .sopCUID(attrs.getString(Tag.SOPClassUID))
                     .sopIUID(attrs.getString(Tag.SOPInstanceUID))
@@ -110,7 +115,7 @@ class RetrieveContextAuditInfoBuilder {
         return objs;
     }
 
-    private BuildAuditInfo toBuildAuditInfo(boolean checkForFailures) {
+    private AuditInfoBuilder toBuildAuditInfo(boolean checkForFailures) {
         boolean failedIUIDShow = isFailedIUIDShow(checkForFailures);
         String outcome = checkForFailures ? buildOutcome() : null;
 
@@ -123,8 +128,8 @@ class RetrieveContextAuditInfoBuilder {
                     : cMoveCGet(failedIUIDShow, outcome);
     }
 
-    private BuildAuditInfo cMoveCGet(boolean failedIUIDShow, String outcome) {
-        return new BuildAuditInfo.Builder()
+    private AuditInfoBuilder cMoveCGet(boolean failedIUIDShow, String outcome) {
+        return new AuditInfoBuilder.Builder()
             .calledAET(ctx.getLocalAETitle())
             .destAET(ctx.getDestinationAETitle())
             .destNapID(ctx.getDestinationHostName())
@@ -136,8 +141,8 @@ class RetrieveContextAuditInfoBuilder {
             .build();
     }
 
-    private BuildAuditInfo wadoRS(boolean failedIUIDShow, String outcome) {
-        return new BuildAuditInfo.Builder()
+    private AuditInfoBuilder wadoRS(boolean failedIUIDShow, String outcome) {
+        return new AuditInfoBuilder.Builder()
             .calledAET(httpServletRequestInfo.requestURI)
             .destAET(httpServletRequestInfo.requesterUserID)
             .destNapID(ctx.getDestinationHostName())
@@ -148,8 +153,8 @@ class RetrieveContextAuditInfoBuilder {
             .build();
     }
 
-    private BuildAuditInfo schedulerTriggeredExport(boolean failedIUIDShow, String outcome) {
-        return new BuildAuditInfo.Builder()
+    private AuditInfoBuilder schedulerTriggeredExport(boolean failedIUIDShow, String outcome) {
+        return new AuditInfoBuilder.Builder()
             .calledAET(ctx.getLocalAETitle())
             .destAET(ctx.getDestinationAETitle())
             .destNapID(ctx.getDestinationHostName())
@@ -161,8 +166,8 @@ class RetrieveContextAuditInfoBuilder {
             .build();
     }
 
-    private BuildAuditInfo restfulTriggeredExport(boolean failedIUIDShow, String outcome) {
-        return new BuildAuditInfo.Builder()
+    private AuditInfoBuilder restfulTriggeredExport(boolean failedIUIDShow, String outcome) {
+        return new AuditInfoBuilder.Builder()
             .callingAET(httpServletRequestInfo.requesterUserID)
             .callingHost(ctx.getRequestorHostName())
             .calledAET(httpServletRequestInfo.requestURI)
@@ -217,8 +222,8 @@ class RetrieveContextAuditInfoBuilder {
                         : null;
     }
 
-    BuildAuditInfo[][] getBuildAuditInfos() {
-        return buildAuditInfos;
+    AuditInfoBuilder[][] getAuditInfoBuilder() {
+        return auditInfoBuilder;
     }
 
     AuditServiceUtils.EventType getEventType() {
