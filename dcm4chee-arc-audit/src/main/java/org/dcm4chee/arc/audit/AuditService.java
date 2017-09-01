@@ -1281,7 +1281,7 @@ public class AuditService {
     }
 
     private ParticipantObjectDetail getPod(String type, String value) {
-        return value != null ? AuditMessages.createParticipantObjectDetail(type, value.getBytes()) : null;
+        return AuditMessages.createParticipantObjectDetail(type, value);
     }
 
     private SOPClass[] sopClasses(List<String> instanceLines) {
