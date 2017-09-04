@@ -130,7 +130,7 @@ class RetrieveContextAuditInfoBuilder {
 
     private AuditInfoBuilder cMoveCGet(boolean failedIUIDShow, String outcome) {
         return new AuditInfoBuilder.Builder()
-            .calledAET(ctx.getLocalAETitle())
+            .calledUserID(ctx.getLocalAETitle())
             .destAET(ctx.getDestinationAETitle())
             .destNapID(ctx.getDestinationHostName())
             .warning(buildWarning())
@@ -143,7 +143,7 @@ class RetrieveContextAuditInfoBuilder {
 
     private AuditInfoBuilder wadoRS(boolean failedIUIDShow, String outcome) {
         return new AuditInfoBuilder.Builder()
-            .calledAET(httpServletRequestInfo.requestURI)
+            .calledUserID(httpServletRequestInfo.requestURI)
             .destAET(httpServletRequestInfo.requesterUserID)
             .destNapID(ctx.getDestinationHostName())
             .warning(buildWarning())
@@ -155,7 +155,7 @@ class RetrieveContextAuditInfoBuilder {
 
     private AuditInfoBuilder schedulerTriggeredExport(boolean failedIUIDShow, String outcome) {
         return new AuditInfoBuilder.Builder()
-            .calledAET(ctx.getLocalAETitle())
+            .calledUserID(ctx.getLocalAETitle())
             .destAET(ctx.getDestinationAETitle())
             .destNapID(ctx.getDestinationHostName())
             .warning(buildWarning())
@@ -168,9 +168,9 @@ class RetrieveContextAuditInfoBuilder {
 
     private AuditInfoBuilder restfulTriggeredExport(boolean failedIUIDShow, String outcome) {
         return new AuditInfoBuilder.Builder()
-            .callingAET(httpServletRequestInfo.requesterUserID)
+            .callingUserID(httpServletRequestInfo.requesterUserID)
             .callingHost(ctx.getRequestorHostName())
-            .calledAET(httpServletRequestInfo.requestURI)
+            .calledUserID(httpServletRequestInfo.requestURI)
             .destAET(ctx.getDestinationAETitle())
             .destNapID(ctx.getDestinationHostName())
             .warning(buildWarning())

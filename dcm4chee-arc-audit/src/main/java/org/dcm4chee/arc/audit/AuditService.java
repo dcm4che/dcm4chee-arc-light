@@ -153,13 +153,13 @@ public class AuditService {
     }
 
     private AuditInfoBuilder systemTriggeredApplicationActivityInfo() {
-        return new AuditInfoBuilder.Builder().calledAET(getAET()).build();
+        return new AuditInfoBuilder.Builder().calledUserID(getAET()).build();
     }
 
     private AuditInfoBuilder restfulTriggeredApplicationActivityInfo(HttpServletRequest req) {
         return new AuditInfoBuilder.Builder()
-                .calledAET(req.getRequestURI())
-                .callingAET(KeycloakUtils.getUserName(req))
+                .calledUserID(req.getRequestURI())
+                .callingUserID(KeycloakUtils.getUserName(req))
                 .callingHost(req.getRemoteAddr())
                 .build();
     }
@@ -248,9 +248,9 @@ public class AuditService {
         String callingHost = req != null
                 ? req.getRemoteHost() : toHost(rejectionNoteSent.getLocalAET());
         deleteObjs.add(new AuditInfo(new AuditInfoBuilder.Builder()
-                .callingAET(callingAET)
+                .callingUserID(callingAET)
                 .callingHost(callingHost)
-                .calledAET(calledAET)
+                .calledUserID(calledAET)
                 .calledHost(toHost(rejectionNoteSent.getRemoteAET()))
                 .outcome(String.valueOf(rjNote.getRejectionNoteType()))
                 .studyUIDAccNumDate(attrs)
@@ -292,9 +292,9 @@ public class AuditService {
 
     private AuditInfoBuilder buildPermDeletionAuditInfoForWeb(HttpServletRequest req, StudyDeleteContext ctx) {
         return new AuditInfoBuilder.Builder()
-                .callingAET(KeycloakUtils.getUserName(req))
+                .callingUserID(KeycloakUtils.getUserName(req))
                 .callingHost(req.getRemoteHost())
-                .calledAET(req.getRequestURI())
+                .calledUserID(req.getRequestURI())
                 .studyUIDAccNumDate(ctx.getStudy().getAttributes())
                 .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
@@ -363,10 +363,10 @@ public class AuditService {
                             ? "Number Of Warning Sub operations" + ctx.warning()
                             : null;
         AuditInfoBuilder info = new AuditInfoBuilder.Builder()
-                                .callingAET(ctx.getRequesterUserID())
+                                .callingUserID(ctx.getRequesterUserID())
                                 .callingHost(ctx.getRequesterHostName())
                                 .calledHost(ctx.getRemoteHostName())
-                                .calledAET(ctx.getRemoteAET())
+                                .calledUserID(ctx.getRemoteAET())
                                 .moveAET(ctx.getRequestURI())
                                 .destAET(ctx.getDestinationAET())
                                 .warning(warning)
@@ -489,8 +489,8 @@ public class AuditService {
         return new AuditInfo(
                 new AuditInfoBuilder.Builder()
                         .callingHost(ctx.getRemoteHostName())
-                        .callingAET(ctx.getCallingAET())
-                        .calledAET(ctx.getCalledAET())
+                        .callingUserID(ctx.getCallingAET())
+                        .calledUserID(ctx.getCalledAET())
                         .queryPOID(ctx.getSOPClassUID())
                         .build());
     }
@@ -500,8 +500,8 @@ public class AuditService {
         return new AuditInfo(
                 new AuditInfoBuilder.Builder()
                         .callingHost(ctx.getRemoteHostName())
-                        .callingAET(KeycloakUtils.getUserName(ctx.getHttpRequest()))
-                        .calledAET(httpRequest.getRequestURI())
+                        .callingUserID(KeycloakUtils.getUserName(ctx.getHttpRequest()))
+                        .calledUserID(httpRequest.getRequestURI())
                         .queryPOID(ctx.getSearchMethod())
                         .queryString(httpRequest.getRequestURI() + httpRequest.getQueryString())
                         .build());
@@ -622,8 +622,8 @@ public class AuditService {
                 ctx.getLocalAETitle(), ctx.getStudyInstanceUIDs()[0]);
         AuditInfoBuilder info = new AuditInfoBuilder.Builder()
                                 .callingHost(req.requesterHost)
-                                .callingAET(req.requesterUserID)
-                                .calledAET(req.requestURI)
+                                .callingUserID(req.requesterUserID)
+                                .calledUserID(req.requestURI)
                                 .studyUIDAccNumDate(attrs)
                                 .pIDAndName(attrs, getArchiveDevice())
                                 .outcome(null != ctx.getException() ? ctx.getException().getMessage() : null)
@@ -896,8 +896,8 @@ public class AuditService {
                 ? ctx.getRemoteHostName() : null;
         AuditInfoBuilder i = new AuditInfoBuilder.Builder()
                             .callingHost(callingHost)
-                            .callingAET(source)
-                            .calledAET(dest)
+                            .callingUserID(source)
+                            .calledUserID(dest)
                             .pIDAndName(ctx.getAttributes(), getArchiveDevice())
                             .outcome(getOD(ctx.getException()))
                             .hl7MessageType(hl7MessageType)
@@ -906,8 +906,8 @@ public class AuditService {
         if (ctx.getPreviousAttributes() != null) {
             AuditInfoBuilder prev = new AuditInfoBuilder.Builder()
                                     .callingHost(callingHost)
-                                    .callingAET(source)
-                                    .calledAET(dest)
+                                    .callingUserID(source)
+                                    .calledUserID(dest)
                                     .pIDAndName(ctx.getPreviousAttributes(), getArchiveDevice())
                                     .outcome(getOD(ctx.getException()))
                                     .hl7MessageType(hl7MessageType)
@@ -969,8 +969,8 @@ public class AuditService {
         Association as = ctx.getAssociation();
         return new AuditInfoBuilder.Builder()
                 .callingHost(ctx.getRemoteHostName())
-                .callingAET(as.getCallingAET())
-                .calledAET(as.getCalledAET())
+                .callingUserID(as.getCallingAET())
+                .calledUserID(as.getCalledAET())
                 .studyUIDAccNumDate(ctx.getAttributes())
                 .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
@@ -981,8 +981,8 @@ public class AuditService {
         HttpServletRequest req  = ctx.getHttpRequest();
         return new AuditInfoBuilder.Builder()
                 .callingHost(ctx.getRemoteHostName())
-                .callingAET(KeycloakUtils.getUserName(req))
-                .calledAET(req.getRequestURI())
+                .callingUserID(KeycloakUtils.getUserName(req))
+                .calledUserID(req.getRequestURI())
                 .studyUIDAccNumDate(ctx.getAttributes())
                 .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
@@ -993,8 +993,8 @@ public class AuditService {
         HL7Segment msh = ctx.getHL7MessageHeader();
         return new AuditInfoBuilder.Builder()
                 .callingHost(ctx.getRemoteHostName())
-                .callingAET(msh.getSendingApplicationWithFacility())
-                .calledAET(msh.getReceivingApplicationWithFacility())
+                .callingUserID(msh.getSendingApplicationWithFacility())
+                .calledUserID(msh.getReceivingApplicationWithFacility())
                 .studyUIDAccNumDate(ctx.getAttributes())
                 .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
@@ -1007,8 +1007,8 @@ public class AuditService {
         Attributes pAttr = ctx.getStudy() != null ? ctx.getStudy().getPatient().getAttributes() : null;
         AuditInfoBuilder info = new AuditInfoBuilder.Builder().callingHost(
                                 ctx.getHttpRequest().getRemoteHost())
-                                .callingAET(callingAET)
-                                .calledAET(ctx.getHttpRequest().getRequestURI())
+                                .callingUserID(callingAET)
+                                .calledUserID(ctx.getHttpRequest().getRequestURI())
                                 .studyUIDAccNumDate(ctx.getAttributes())
                                 .pIDAndName(pAttr, getArchiveDevice())
                                 .outcome(getOD(ctx.getException()))
@@ -1138,9 +1138,9 @@ public class AuditService {
                 aiSet.add(new AuditInfo(ii));
             }
             AuditInfoBuilder i = new AuditInfoBuilder.Builder()
-                                .callingAET(storageCmtCallingAET(stgCmtEventInfo))
+                                .callingUserID(storageCmtCallingAET(stgCmtEventInfo))
                                 .callingHost(storageCmtCallingHost(stgCmtEventInfo))
-                                .calledAET(storageCmtCalledAET(stgCmtEventInfo))
+                                .calledUserID(storageCmtCalledAET(stgCmtEventInfo))
                                 .pIDAndName(eventInfo, getArchiveDevice())
                                 .studyUID(studyUID)
                                 .outcome(buildStrings(failureReasons.toArray(new String[failureReasons.size()])))
@@ -1152,9 +1152,9 @@ public class AuditService {
         if (success != null && !success.isEmpty()) {
             AuditInfoBuilder[] auditInfoBuilder = new AuditInfoBuilder[success.size()+1];
             auditInfoBuilder[0] = new AuditInfoBuilder.Builder()
-                                .callingAET(storageCmtCallingAET(stgCmtEventInfo))
+                                .callingUserID(storageCmtCallingAET(stgCmtEventInfo))
                                 .callingHost(storageCmtCallingHost(stgCmtEventInfo))
-                                .calledAET(storageCmtCalledAET(stgCmtEventInfo))
+                                .calledUserID(storageCmtCalledAET(stgCmtEventInfo))
                                 .pIDAndName(eventInfo, getArchiveDevice())
                                 .studyUID(studyUID)
                                 .build();
@@ -1263,8 +1263,8 @@ public class AuditService {
         String warning = ctx.getException() == null && null != ctx.getRejectionNote()
                 ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null;
         return new AuditInfoBuilder.Builder().callingHost(callingHost)
-                .callingAET(callingAET)
-                .calledAET(req != null ? req.getRequestURI() : ss.getCalledAET())
+                .callingUserID(callingAET)
+                .calledUserID(req != null ? req.getRequestURI() : ss.getCalledAET())
                 .studyUIDAccNumDate(attr)
                 .pIDAndName(attr, getArchiveDevice())
                 .outcome(outcome)

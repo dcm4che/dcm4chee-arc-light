@@ -53,8 +53,8 @@ import org.dcm4chee.arc.conf.ShowPatientInfo;
 
 class AuditInfoBuilder {
     final String callingHost;
-    final String callingAET;
-    final String calledAET;
+    final String callingUserID;
+    final String calledUserID;
     final String calledHost;
     final String studyUID;
     final String accNum;
@@ -78,8 +78,8 @@ class AuditInfoBuilder {
 
     static class Builder {
         private String callingHost;
-        private String callingAET;
-        private String calledAET;
+        private String callingUserID;
+        private String calledUserID;
         private String calledHost;
         private String studyUID;
         private String accNum;
@@ -105,12 +105,12 @@ class AuditInfoBuilder {
             callingHost = val;
             return this;
         }
-        Builder callingAET(String val) {
-            callingAET = val;
+        Builder callingUserID(String val) {
+            callingUserID = val;
             return this;
         }
-        Builder calledAET(String val) {
-            calledAET = val;
+        Builder calledUserID(String val) {
+            calledUserID = val;
             return this;
         }
         Builder calledHost(String val) {
@@ -196,8 +196,8 @@ class AuditInfoBuilder {
 
     private AuditInfoBuilder(Builder builder) {
         callingHost = builder.callingHost;
-        callingAET = builder.callingAET;
-        calledAET = builder.calledAET;
+        callingUserID = builder.callingUserID;
+        calledUserID = builder.calledUserID;
         calledHost = builder.calledHost;
         studyUID = builder.studyUID;
         accNum = builder.accNum;

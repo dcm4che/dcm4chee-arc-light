@@ -77,8 +77,8 @@ class AuditInfo {
     AuditInfo(AuditInfoBuilder i) {
         fields = new String[] {
                 i.callingHost,
-                i.callingAET,
-                i.calledAET,
+                i.callingUserID,
+                i.calledUserID,
                 i.calledHost,
                 i.studyUID,
                 i.accNum,

@@ -85,9 +85,9 @@ class ProvideAndRegisterAuditInfoBuilder {
 
     private AuditInfoBuilder restfulTriggeredProvideRegisterAuditInfo() {
         return new AuditInfoBuilder.Builder()
-                .callingAET(httpServletRequestInfo.requesterUserID)
+                .callingUserID(httpServletRequestInfo.requesterUserID)
                 .callingHost(httpServletRequestInfo.requesterHost)
-                .calledAET(httpServletRequestInfo.requestURI)
+                .calledUserID(httpServletRequestInfo.requestURI)
                 .destAET(dest.toString())
                 .destNapID(destHost)
                 .outcome(outcome)
@@ -97,7 +97,7 @@ class ProvideAndRegisterAuditInfoBuilder {
 
     private AuditInfoBuilder schedulerTriggeredProvideRegisterAuditInfo() {
         return new AuditInfoBuilder.Builder()
-                .calledAET(dest.toString())
+                .calledUserID(dest.toString())
                 .calledHost(destHost)
                 .outcome(outcome)
                 .pIDAndName(xdsiManifest, arcDev)
