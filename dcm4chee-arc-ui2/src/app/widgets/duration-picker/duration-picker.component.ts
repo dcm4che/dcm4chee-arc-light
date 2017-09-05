@@ -109,7 +109,6 @@ export class DurationPickerComponent implements OnInit {
         this.week = "";
     }
     weekChanged(){
-        console.log("in weekchanged");
         this.y = "";
         this.month = "";
         this.d = "";

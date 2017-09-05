@@ -26,6 +26,7 @@ import { SpecificCharPickerComponent } from './specific-char-picker/specific-cha
 import { DictionaryPickerComponent } from './dictionary-picker/dictionary-picker.component';
 import { TimePickerComponent } from './time-picker/time-picker.component';
 import { DurationPickerComponent } from './duration-picker/duration-picker.component';
+import { SchedulePickerComponent } from './schedule-picker/schedule-picker.component';
 
 
 @NgModule({
@@ -61,5 +62,6 @@ export const WidgetsComponents = [
     SpecificCharPickerComponent,
     DictionaryPickerComponent,
     TimePickerComponent,
-    DurationPickerComponent
+    DurationPickerComponent,
+    SchedulePickerComponent
 ];

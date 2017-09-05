@@ -397,11 +397,10 @@ export class DynamicFormElementComponent{
         formelement.showPicker = false;
         formelement.showTimePicker = false;
         formelement.showDurationPicker = false;
+        formelement.showSchedulePicker = false;
     }
 
     onFocuse(formelement,i=null) {
-        console.log("in focushostlistener",formelement);
-        console.log("i",i);
         if(formelement.format){
             if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass'){
                 if(i != null){
@@ -425,6 +424,14 @@ export class DynamicFormElementComponent{
                     formelement.showDurationPicker[i] = true;
                 }else{
                     formelement.showDurationPicker = true;
+                }
+            }
+            if(formelement.format === 'dcmSchedule'){
+                if(i != null){
+                    formelement.showSchedulePicker = formelement.showSchedulePicker || {};
+                    formelement.showSchedulePicker[i] = true;
+                }else{
+                    formelement.showSchedulePicker = true;
                 }
             }
         }
