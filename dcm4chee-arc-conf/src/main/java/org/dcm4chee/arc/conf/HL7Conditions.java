@@ -113,7 +113,7 @@ public class HL7Conditions {
                 if (index >= 0) {
                     String value = msh.getField(index, null);
                     return ne ? (value != null && pattern.matcher(value).matches())
-                              : (value == null || pattern.matcher(value).matches());
+                              : (value == null || !pattern.matcher(value).matches());
                 }
             } catch (NumberFormatException ignore) {}
         return true;
