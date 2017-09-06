@@ -11,6 +11,7 @@ import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.patient.PatientTrackingNotAllowedException;
 import org.xml.sax.SAXException;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -78,8 +79,12 @@ class PatientUpdateService extends AbstractHL7Service {
         ctx.setPreviousAttributes(mrg);
         if (ctx.getPreviousPatientID() == null)
             throw new HL7Exception(HL7Exception.AR, "Missing MRG-1");
-        return "ADT^A47".equals(msh.getMessageType())
-                ? patientService.changePatientID(ctx)
-                : patientService.mergePatient(ctx);
+        try {
+            return "ADT^A47".equals(msh.getMessageType())
+                    ? patientService.changePatientID(ctx)
+                    : patientService.mergePatient(ctx);
+        } catch (PatientTrackingNotAllowedException e) {
+            throw new HL7Exception(HL7Exception.AR, e.getMessage());
+        }
     }
 }

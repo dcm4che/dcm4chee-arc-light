@@ -45,11 +45,9 @@ import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.patient.NonUniquePatientException;
-import org.dcm4chee.arc.patient.PatientMergedException;
-import org.dcm4chee.arc.patient.PatientMgtContext;
-import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.patient.*;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -156,7 +154,14 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient changePatientID(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException {
+            throws NonUniquePatientException, PatientMergedException, PatientTrackingNotAllowedException {
+        if (device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).isHl7TrackChangedPatientID()) {
+            if (isEitherHavingNoIssuer(ctx))
+                throw new PatientTrackingNotAllowedException(
+                        "Either previous or new Patient ID has missing issuer and change patient id tracking is enabled. Disable change patient id tracking feature and retry update");
+            createPatient(ctx);
+            return mergePatient(ctx);
+        }
         try {
             return ejb.changePatientID(ctx);
         } catch (RuntimeException e) {
@@ -166,6 +171,13 @@ public class PatientServiceImpl implements PatientService {
             if (ctx.getEventActionCode() != null)
                 patientMgtEvent.fire(ctx);
         }
+    }
+
+    private boolean isEitherHavingNoIssuer(PatientMgtContext ctx) {
+        IDWithIssuer prevPatientID = ctx.getPreviousPatientID();
+        IDWithIssuer newPatientID = ctx.getPatientID();
+        return (prevPatientID.getIssuer() == null && newPatientID.getIssuer() != null)
+                || (prevPatientID.getIssuer() != null && newPatientID.getIssuer() == null);
     }
 
     @Override

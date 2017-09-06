@@ -57,6 +57,7 @@ import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.patient.PatientTrackingNotAllowedException;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.query.QueryService;
@@ -270,15 +271,6 @@ public class IocmRS {
                 patientService.updatePatient(ctx);
             else {
                 ctx.setPreviousAttributes(patientID.exportPatientIDWithIssuer(null));
-                if (isHl7TrackChangedPatientID()) {
-                    if (isEitherHavingNoIssuer(patientID, bodyPatientID))
-                        throw new WebApplicationException(
-                            getResponse("Either previous or new Patient ID has missing issuer and HL7 track change patient id is enabled. Disable HL7 track change patient id feature and retry update",
-                                    Response.Status.CONFLICT));
-
-                    patientService.createPatient(ctx);
-                    patientService.mergePatient(ctx);
-                }
                 patientService.changePatientID(ctx);
             }
             rsForward.forward(RSOperation.UpdatePatient, arcAE, attrs, request);
@@ -290,16 +282,9 @@ public class IocmRS {
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
+        } catch (PatientTrackingNotAllowedException e) {
+            throw new WebApplicationException(e.getMessage(), Response.Status.CONFLICT);
         }
-    }
-
-    private boolean isHl7TrackChangedPatientID() {
-        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).isHl7TrackChangedPatientID();
-    }
-
-    private boolean isEitherHavingNoIssuer(IDWithIssuer patientID, IDWithIssuer bodyPatientID) {
-        return (patientID.getIssuer() == null && bodyPatientID.getIssuer() != null)
-                || (patientID.getIssuer() != null && bodyPatientID.getIssuer() == null);
     }
 
     @POST

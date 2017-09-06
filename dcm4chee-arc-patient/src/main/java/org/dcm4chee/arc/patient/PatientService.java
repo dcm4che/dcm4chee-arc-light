@@ -78,7 +78,7 @@ public interface PatientService {
             throws NonUniquePatientException, PatientMergedException;
 
     Patient changePatientID(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
+            throws NonUniquePatientException, PatientMergedException, PatientTrackingNotAllowedException;
 
     Patient findPatient(PatientMgtContext ctx);
 
