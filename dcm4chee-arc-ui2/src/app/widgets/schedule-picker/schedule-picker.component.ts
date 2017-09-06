@@ -27,44 +27,52 @@ export class SchedulePickerComponent implements OnInit {
             if(_.hasIn(matchArray,'[0][1]') && matchArray[0][1]){
                 while ((match2 = ptrn2.exec(matchArray[0][2])) != null) {
                     if(match2[1] && match2[2]){
-                        this.draggedElements.push({
-                            mode:((matchArray[0][1]==='hour')?'hour_range':'day_range'),
-                            model:{
-                                model1:(match2[1]),
-                                model2:(match2[2])
-                            }
-                        });
+                        let newObject = this.generateDraggableObject(matchArray[0][1], match2);
+                        if(newObject)
+                            this.draggedElements.push(newObject);
                     }
                     if(match2[3] && !match2[1] && !match2[2]){
-                        this.draggedElements.push({
-                            mode:((matchArray[0][1]==='hour')?'single_hour':'single_day'),
-                            model:(match2[3])
-                        });
+                        let newObject = this.generateDraggableObject(matchArray[0][1], match2);
+                        if(newObject)
+                            this.draggedElements.push(newObject);
                     }
                 }
             }
             if(_.hasIn(matchArray,'[1][3]') && matchArray[1][3]){
                 while ((match2 = ptrn2.exec(matchArray[1][4])) != null) {
                     if(match2[1] && match2[2]){
-                        this.draggedElements.push({
-                            mode:((matchArray[1][3]==='hour')?'hour_range':'day_range'),
-                            model:{
-                                model1:(match2[1]),
-                                model2:(match2[2])
-                            }
-                        });
+                       let newObject = this.generateDraggableObject(matchArray[1][3], match2);
+                        if(newObject)
+                            this.draggedElements.push(newObject);
                     }
                     if(match2[3] && !match2[1] && !match2[2]){
-                        this.draggedElements.push({
-                            mode:((matchArray[1][3]==='hour')?'single_hour':'single_day'),
-                            model:(match2[3])
-                        });
+                        let newObject = this.generateDraggableObject(matchArray[1][3], match2);
+                        if(newObject)
+                            this.draggedElements.push(newObject);
                     }
                 }
             }
         }catch (e){
             console.error("error parsing data!",e);
         }
+    }
+    generateDraggableObject(mode, match2){
+        if(match2[1] && match2[2]){
+            return {
+                mode:((mode==='hour')?'hour_range':'day_range'),
+                model:{
+                    model1:(match2[1]),
+                    model2:(match2[2])
+                }
+            };
+        }
+        if(match2[3] && !match2[1] && !match2[2]){
+            return {
+                mode:((mode==='hour')?'single_hour':'single_day'),
+                model:(match2[3])
+            };
+        }
+        return null;
     }
     addSchedule(){
         this.onValueSet.emit(this.generateSchedule());
