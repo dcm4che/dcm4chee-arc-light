@@ -15,15 +15,56 @@ export class SchedulePickerComponent implements OnInit {
     constructor() { }
 
     ngOnInit() {
-/*        let match;
+        let match;
+        let matchArray = [];
+        let match2;
         let ptrn = /(hour)=([\d|\d-\d|\*|\,]*)|(dayOfWeek)=([\d|\d-\d|\*|\,]*)/g;
+        let ptrn2 = /(\d+)-(\d+)|(\d+)|\*/g;
         try {
             while ((match = ptrn.exec(this.value)) != null) {
-                    console.log("match",match);
+                matchArray.push(match);
+            }
+            if(_.hasIn(matchArray,'[0][1]') && matchArray[0][1]){
+                while ((match2 = ptrn2.exec(matchArray[0][2])) != null) {
+                    if(match2[1] && match2[2]){
+                        this.draggedElements.push({
+                            mode:((matchArray[0][1]==='hour')?'hour_range':'day_range'),
+                            model:{
+                                model1:(match2[1]),
+                                model2:(match2[2])
+                            }
+                        });
+                    }
+                    if(match2[3] && !match2[1] && !match2[2]){
+                        this.draggedElements.push({
+                            mode:((matchArray[0][1]==='hour')?'single_hour':'single_day'),
+                            model:(match2[3])
+                        });
+                    }
+                }
+            }
+            if(_.hasIn(matchArray,'[1][3]') && matchArray[1][3]){
+                while ((match2 = ptrn2.exec(matchArray[1][4])) != null) {
+                    if(match2[1] && match2[2]){
+                        this.draggedElements.push({
+                            mode:((matchArray[1][3]==='hour')?'hour_range':'day_range'),
+                            model:{
+                                model1:(match2[1]),
+                                model2:(match2[2])
+                            }
+                        });
+                    }
+                    if(match2[3] && !match2[1] && !match2[2]){
+                        this.draggedElements.push({
+                            mode:((matchArray[1][3]==='hour')?'single_hour':'single_day'),
+                            model:(match2[3])
+                        });
+                    }
+                }
             }
         }catch (e){
             console.error("error parsing data!",e);
-        }*/
+        }
     }
     addSchedule(){
         this.onValueSet.emit(this.generateSchedule());
