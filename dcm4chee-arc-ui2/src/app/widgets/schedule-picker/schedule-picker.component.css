@@ -8,6 +8,7 @@
     -moz-box-shadow:  3px 4px 8px 6px #cccccc;
     box-shadow:  3px 4px 8px 6px #cccccc;
     padding:20px 30px;
+    width:635px;
 }
 .schedulepicker .msg{
     float: left;
@@ -115,14 +116,14 @@
     -moz-box-shadow: 2px 2px 11px 1px rgba(0, 0, 0, 0.42);
     box-shadow: 2px 2px 11px 1px rgba(0, 0, 0, 0.42);
 }
-.schedulepicker .dragged_elements .delete{
+.schedulepicker .dragged_elements .delete_schedule{
     float: right;
     display: block;
     text-align: center;
     width: 5%;
     padding-left: 5px;
 }
-.schedulepicker .dragged_elements .delete:hover {
+.schedulepicker .dragged_elements .delete_schedule:hover {
     cursor: pointer;
 }
 .schedulepicker .dragged_elements{
