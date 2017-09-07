@@ -2118,7 +2118,7 @@ export class StudiesComponent implements OnDestroy{
             }).subscribe(result => {
                 if (result){
                     $this.cfpLoadingBar.start();
-                    $this.$http.delete('../aets/' + $this.aet + '/rs/patients/' + patient.attrs['00100020'].Value[0]).subscribe(
+                    $this.$http.delete('../aets/' + $this.aet + '/rs/patients/' + this.service.getPatientId(patient.attrs)).subscribe(
                         (response) => {
                             $this.mainservice.setMessage({
                                 'title': 'Info',

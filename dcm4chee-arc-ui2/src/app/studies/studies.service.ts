@@ -508,7 +508,10 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         }else{
             obj = patient;
         }
-        let patientId = obj.PatientID;
+        let patientId = '';
+        if (obj.PatientID){
+            patientId = obj.PatientID;
+        }
         if (obj.IssuerOfPatientID){
             patientId += '^^^' + obj.IssuerOfPatientID;
         }
@@ -517,6 +520,12 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         }
         if(_.hasIn(obj,'IssuerOfPatientIDQualifiers.UniversalEntityIDType')){
             patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityIDType;
+        }
+        if (_.hasIn(obj, '["00100020"].Value[0]')){
+            patientId += obj["00100020"].Value[0];
+        }
+        if (_.hasIn(obj, '["00100021"].Value[0]')){
+            patientId += '^^^' + obj["00100021"].Value[0];
         }
         if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]')){
             patientId += '&' + obj['00100024'].Value[0]['00400032'].Value[0];
