@@ -3248,6 +3248,7 @@ export class StudiesComponent implements OnDestroy{
                                 this.reject = m.codeValue+"^"+m.codingSchemeDesignator;
                             }
                         });
+                        $this.clipboard.action = 'move';
                     }
                     console.log("reject",this.reject);
                     this.dialogRef.componentInstance.clipboard = this.clipboard;
