@@ -512,7 +512,12 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         if (obj.IssuerOfPatientID){
             patientId += '^^^' + obj.IssuerOfPatientID;
         }
-
+        if(_.hasIn(obj,'IssuerOfPatientIDQualifiers.UniversalEntityID')){
+            patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityID;
+        }
+        if(_.hasIn(obj,'IssuerOfPatientIDQualifiers.UniversalEntityIDType')){
+            patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityIDType;
+        }
         if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]')){
             patientId += '&' + obj['00100024'].Value[0]['00400032'].Value[0];
         }

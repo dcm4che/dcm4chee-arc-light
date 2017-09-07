@@ -3216,15 +3216,9 @@ export class StudiesComponent implements OnDestroy{
         if (_.size(this.clipboard) > 0 && (_.size(this.selected) > 0 || (_.hasIn(this.selected, 'hasPatient') && _.size(this.selected) > 1))) {
             this.cfpLoadingBar.start();
             let headers: Headers = new Headers({'Content-Type': 'application/json'});
-
-            console.log('selected', this.selected);
-            console.log('clipboard', this.clipboard);
-            if (!this.service.isTargetInClipboard(this.selected, this.clipboard) || this.target.modus === "mwl"){//TODO
+            if (!this.service.isTargetInClipboard(this.selected, this.clipboard) || this.target.modus === "mwl"){
 
                 let $this = this;
-                console.log('target', this.target);
-                console.log('firstelement select3', _.keysIn(this.selected.otherObjects)[0]);
-                console.log('selection in clipboard', ((_.keysIn(this.selected.otherObjects)[0]) in this.clipboard.otherObjects));
                 // if (((_.keysIn(this.selected.otherObjects)[0]) in this.clipboard.otherObjects)) {
                 //     this.mainservice.setMessage({
                 //         "title": "Warning",
