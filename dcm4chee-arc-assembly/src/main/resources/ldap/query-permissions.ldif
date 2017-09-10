@@ -1,0 +1,22 @@
+version: 1
+
+dn: cn=query-users,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: query-users
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=query-groups,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: query-groups
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=query-realms,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: query-realms
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
+dn: cn=query-clients,ou=realm-management,dc=dcm4che,dc=org
+objectClass: groupOfNames
+cn: query-clients
+member: uid=admin,ou=users,dc=dcm4che,dc=org
+
