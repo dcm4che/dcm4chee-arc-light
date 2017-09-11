@@ -283,7 +283,7 @@ public class IocmRS {
             throw new WebApplicationException(
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         } catch (PatientTrackingNotAllowedException e) {
-            throw new WebApplicationException(e.getMessage(), Response.Status.CONFLICT);
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.CONFLICT));
         }
     }
 
