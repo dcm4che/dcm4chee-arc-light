@@ -94,8 +94,8 @@ public class QueryAETs {
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         JsonWriter writer = new JsonWriter(gen);
         gen.writeStartObject();
-        gen.write("title", ae.getAETitle());
-        writer.writeNotNullOrDef("description", ae.getDescription(), null);
+        gen.write("dicomAETitle", ae.getAETitle());
+        writer.writeNotNullOrDef("dicomDescription", ae.getDescription(), null);
         if (arcAE != null) {
             QueryRetrieveView queryRetrieveView = arcAE.getQueryRetrieveView();
             writer.writeNotDef("dcmHideNotRejectedInstances",
