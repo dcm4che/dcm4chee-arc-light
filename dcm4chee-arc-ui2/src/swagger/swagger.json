@@ -4552,6 +4552,11 @@
         "expiration": {
           "title": "expiration",
           "description": "Access token lifetime in seconds",
+          "type": ""
+        },
+        "systemCurrentTime": {
+          "title": "systemCurrentTime",
+          "description": "System current time in seconds",
           "type": "integer"
         },
         "roles": {

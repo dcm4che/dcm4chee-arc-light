@@ -54,6 +54,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 
@@ -76,18 +78,25 @@ public class RealmRS {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                JsonGenerator gen = Json.createGenerator(out);
-                JsonWriter writer = new JsonWriter(gen);
-                gen.writeStartObject();
-                KeycloakContext ctx = KeycloakContext.valueOf(request);
-                writer.writeNotNullOrDef("auth-server-url", System.getProperty("auth-server-url", "/auth"), null);
-                writer.writeNotNullOrDef("realm", System.getProperty("realm-name"), null);
-                writer.writeNotNullOrDef("token", ctx.getToken(), null);
-                writer.writeNotNullOrDef("user", ctx.getUserName(), null);
-                writer.write("expiration", ctx.getExpiration());
-                writer.writeNotEmpty("roles", ctx.getUserRoles());
-                gen.writeEnd();
-                gen.flush();
+                if (request.getUserPrincipal() != null) {
+                    JsonGenerator gen = Json.createGenerator(out);
+                    JsonWriter writer = new JsonWriter(gen);
+                    gen.writeStartObject();
+                    KeycloakContext ctx = KeycloakContext.valueOf(request);
+                    writer.writeNotNullOrDef("auth-server-url", System.getProperty("auth-server-url", "/auth"), null);
+                    writer.writeNotNullOrDef("realm", System.getProperty("realm-name"), null);
+                    writer.writeNotNullOrDef("token", ctx.getToken(), null);
+                    writer.writeNotNullOrDef("user", ctx.getUserName(), null);
+                    writer.write("expiration", ctx.getExpiration());
+                    writer.write("systemCurrentTime", (int) (System.currentTimeMillis()/1000L));
+                    writer.writeNotEmpty("roles", ctx.getUserRoles());
+                    gen.writeEnd();
+                    gen.flush();
+                } else {
+                    Writer w = new OutputStreamWriter(out, "UTF-8");
+                    w.write("{\"auth-server-url\":null,\"realm\":null,\"token\":null,\"user\":null,\"roles\":[]}");
+                    w.flush();
+                }
             }
         };
     }
