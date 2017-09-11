@@ -40,9 +40,12 @@
 
 package org.dcm4chee.arc.realm.rs;
 
+import org.dcm4che3.conf.json.JsonWriter;
 import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -51,14 +54,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.security.Principal;
 
-import org.dcm4chee.arc.keycloak.KeycloakUtils;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Mar 2016
  */
 @RequestScoped
@@ -75,25 +76,18 @@ public class RealmRS {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                Writer w = new OutputStreamWriter(out, "UTF-8");
-                Principal principal = request.getUserPrincipal();
-                if (principal == null) {
-                    w.write("{\"auth-server-url\":null,\"realm\":null,\"token\":null,\"user\":null,\"roles\":[]}");
-                }
-                else {
-                    w.append("{\"auth-server-url\":\"").append(System.getProperty("auth-server-url", "/auth"))
-                     .append("\",\"realm\":\"").append(System.getProperty("realm-name"))
-                     .append("\",\"token\":\"").append(KeycloakUtils.getTokenString(request))
-                     .append("\",\"user\":\"").append(KeycloakUtils.getUserName(request)).append("\",\"roles\":[");
-                        int count = 0;
-                        for (String role : KeycloakUtils.getUserRoles(request)) {
-                            if (count++ > 0)
-                                w.write(',');
-                            w.append('\"').append(role).append('\"');
-                        }
-                    w.write("]}");
-                }
-                w.flush();
+                JsonGenerator gen = Json.createGenerator(out);
+                JsonWriter writer = new JsonWriter(gen);
+                gen.writeStartObject();
+                KeycloakContext ctx = KeycloakContext.valueOf(request);
+                writer.writeNotNullOrDef("auth-server-url", System.getProperty("auth-server-url", "/auth"), null);
+                writer.writeNotNullOrDef("realm", System.getProperty("realm-name"), null);
+                writer.writeNotNullOrDef("token", ctx.getToken(), null);
+                writer.writeNotNullOrDef("user", ctx.getUserName(), null);
+                writer.write("expiration", ctx.getExpiration());
+                writer.writeNotEmpty("roles", ctx.getUserRoles());
+                gen.writeEnd();
+                gen.flush();
             }
         };
     }

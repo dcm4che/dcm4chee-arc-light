@@ -52,7 +52,7 @@ import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
-import org.dcm4chee.arc.keycloak.KeycloakUtils;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
@@ -159,7 +159,7 @@ public class AuditService {
     private AuditInfoBuilder restfulTriggeredApplicationActivityInfo(HttpServletRequest req) {
         return new AuditInfoBuilder.Builder()
                 .calledUserID(req.getRequestURI())
-                .callingUserID(KeycloakUtils.getUserName(req))
+                .callingUserID(KeycloakContext.valueOf(req).getUserName())
                 .callingHost(req.getRemoteAddr())
                 .build();
     }
@@ -241,7 +241,7 @@ public class AuditService {
         RejectionNote rjNote = getArchiveDevice().getRejectionNote(code);
         HttpServletRequest req = rejectionNoteSent.getRequest();
         String callingAET = req != null
-                ? KeycloakUtils.getUserName(req)
+                ? KeycloakContext.valueOf(req).getUserName()
                 : rejectionNoteSent.getLocalAET();
         String calledAET = req != null
                 ? req.getRequestURI() : rejectionNoteSent.getRemoteAET();
@@ -292,7 +292,7 @@ public class AuditService {
 
     private AuditInfoBuilder buildPermDeletionAuditInfoForWeb(HttpServletRequest req, StudyDeleteContext ctx) {
         return new AuditInfoBuilder.Builder()
-                .callingUserID(KeycloakUtils.getUserName(req))
+                .callingUserID(KeycloakContext.valueOf(req).getUserName())
                 .callingHost(req.getRemoteHost())
                 .calledUserID(req.getRequestURI())
                 .studyUIDAccNumDate(ctx.getStudy().getAttributes())
@@ -500,7 +500,7 @@ public class AuditService {
         return new AuditInfo(
                 new AuditInfoBuilder.Builder()
                         .callingHost(ctx.getRemoteHostName())
-                        .callingUserID(KeycloakUtils.getUserName(ctx.getHttpRequest()))
+                        .callingUserID(KeycloakContext.valueOf(ctx.getHttpRequest()).getUserName())
                         .calledUserID(httpRequest.getRequestURI())
                         .queryPOID(ctx.getSearchMethod())
                         .queryString(httpRequest.getRequestURI() + httpRequest.getQueryString())
@@ -878,7 +878,7 @@ public class AuditService {
         HL7Segment msh = ctx.getHL7MessageHeader();
         HttpServletRequest request = ctx.getHttpRequest();
         if (request != null) {
-            source = KeycloakUtils.getUserName(request);
+            source = KeycloakContext.valueOf(request).getUserName();
             dest = request.getRequestURI();
         }
         if (msh != null) {
@@ -981,7 +981,7 @@ public class AuditService {
         HttpServletRequest req  = ctx.getHttpRequest();
         return new AuditInfoBuilder.Builder()
                 .callingHost(ctx.getRemoteHostName())
-                .callingUserID(KeycloakUtils.getUserName(req))
+                .callingUserID(KeycloakContext.valueOf(req).getUserName())
                 .calledUserID(req.getRequestURI())
                 .studyUIDAccNumDate(ctx.getAttributes())
                 .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
@@ -1003,7 +1003,7 @@ public class AuditService {
     }
 
     void spoolProcedureRecord(StudyMgtContext ctx) {
-        String callingAET = KeycloakUtils.getUserName(ctx.getHttpRequest());
+        String callingAET = KeycloakContext.valueOf(ctx.getHttpRequest()).getUserName();
         Attributes pAttr = ctx.getStudy() != null ? ctx.getStudy().getPatient().getAttributes() : null;
         AuditInfoBuilder info = new AuditInfoBuilder.Builder().callingHost(
                                 ctx.getHttpRequest().getRemoteHost())
@@ -1189,7 +1189,7 @@ public class AuditService {
 
     private String storageCmtCallingAET(StgCmtEventInfo stgCmtEventInfo) {
         return stgCmtEventInfo.getRequest() != null
-                                ? KeycloakUtils.getUserName(stgCmtEventInfo.getRequest())
+                                ? KeycloakContext.valueOf(stgCmtEventInfo.getRequest()).getUserName()
                                 : stgCmtEventInfo.getRemoteAET();
     }
 
@@ -1253,8 +1253,7 @@ public class AuditService {
         HttpServletRequest req = ss.getHttpRequest();
         Attributes attr = ctx.getAttributes();
         String callingHost = ss.getRemoteHostName();
-        String callingAET = ss.getCallingAET() != null ? ss.getCallingAET()
-                : req != null ? KeycloakUtils.getUserName(req) : callingHost;
+        String callingAET = req != null ? KeycloakContext.valueOf(req).getUserName() : ss.getCallingAET();
         if (callingAET == null && callingHost == null)
             callingAET = ss.toString();
         String outcome = null != ctx.getException() ? null != ctx.getRejectionNote()
