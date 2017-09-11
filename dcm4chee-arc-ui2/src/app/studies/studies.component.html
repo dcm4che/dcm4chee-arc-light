@@ -3,6 +3,7 @@
     <div style="float:left;width:50%">
         externalAetMode: {{ externalAetMode}}
     &lt;!&ndash;aetmodel:{{aetmodel|json}}&ndash;&gt;
+        <button (click)="testToken()">testtoken</button>
     </div>
     <div style="float:left;width:50%">
     &lt;!&ndash;aes:{{aes|json}}&ndash;&gt;
@@ -121,7 +122,7 @@
                         </div>
                         <div class=" col-md-6">
                             <md-select *ngIf="externalAetMode === 'internal'" [(ngModel)]="aetmodel" (ngModelChange)="onChange($event, 'aetmodel')">
-                                <md-option *ngFor="let ae of aes" [value]="ae" title="{{ae.description}}">{{ ae.title }}</md-option>
+                                <md-option *ngFor="let ae of aes" [value]="ae" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</md-option>
                             </md-select>
                             <md-select *ngIf="externalAetMode === 'external'" [(ngModel)]="externalAEtmodel" (ngModelChange)="onChange($event, 'externalAEtmodel')">
                                 <md-option *ngFor="let ae of allAes" [value]="ae" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</md-option>

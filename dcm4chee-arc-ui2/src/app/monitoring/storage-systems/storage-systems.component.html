@@ -8,7 +8,7 @@
                         <label class="col-md-6 text-right control-label">Uri Schema:</label>
                         <div class="col-md-6">
                             <md-select [(ngModel)]="filters.uriScheme" class="col-md-12">
-                                <!--<md-option *ngFor="let ae of aets" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>-->
+                                <!--<md-option *ngFor="let ae of aets" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</md-option>-->
                                 <md-option value="">*</md-option>
                                 <md-option value="file">file</md-option>
                                 <md-option value="jclouds">jclouds</md-option>
@@ -23,7 +23,7 @@
                         <div class="col-md-6">
                             <md-select [(ngModel)]="filters.dicomAETitle" class="col-md-12">
                                 <md-option value="">*</md-option>
-                                <md-option *ngFor="let ae of aets" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>
+                                <md-option *ngFor="let ae of aets" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</md-option>
                             </md-select>
                         </div>
                     </div>

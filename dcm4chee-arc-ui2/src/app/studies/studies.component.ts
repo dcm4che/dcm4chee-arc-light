@@ -25,6 +25,7 @@ import {WindowRefService} from "../helpers/window-ref.service";
 import {FormatAttributeValuePipe} from "../pipes/format-attribute-value.pipe";
 import {FormatDAPipe} from "../pipes/format-da.pipe";
 import {FormatTMPipe} from "../pipes/format-tm.pipe";
+declare var Keycloak: any;
 
 @Component({
     selector: 'app-studies',
@@ -3792,7 +3793,7 @@ export class StudiesComponent implements OnDestroy{
                         $this.aes = $this.service.getAes($this.user, res);
                         console.log('aes', $this.aes);
                         // $this.aesdropdown = $this.aes;
-                        $this.aes.map((ae, i) => {
+/*                        $this.aes.map((ae, i) => {
                             console.log('in map ae', ae);
                             console.log('in map i', i);
                             console.log('aesi=', $this.aes[i]);
@@ -3800,9 +3801,9 @@ export class StudiesComponent implements OnDestroy{
                             $this.aes[i]['label'] = ae.title;
                             $this.aes[i]['value'] = ae.value;
 
-                        });
+                        });*/
                         console.log('$this.aes after map', $this.aes);
-                        $this.aet = $this.aes[0].title.toString();
+                        $this.aet = $this.aes[0].dicomAETitle.toString();
                         if (!$this.aetmodel){
                             $this.aetmodel = $this.aes[0];
                         }
@@ -4146,6 +4147,47 @@ export class StudiesComponent implements OnDestroy{
 
     debugTemplate(obj){
         console.log('obj', obj);
+    }
+
+    testToken(){
+/*        var keycloak = new Keycloak('./assets/keycloak.json');
+
+        keycloak.init().success(function(authenticated) {
+            console.log(authenticated ? 'authenticated' : 'not authenticated');
+        }).error(function() {
+            console.log('failed to initialize');
+        });
+        keycloak.updateToken(30).success(function() {
+            console.log("success")
+        }).error(function() {
+            console.log('Failed to refresh token');
+        });*/
+/*        var x = document.cookie;
+        console.log("cookie",x);
+        this.mainservice.getRealmOfLogedinUser()
+            .subscribe((res)=>{
+                let token = res.token;
+                // this.$http.get('../reject')
+                this.kc.init().then(init => {
+                    console.log("init",init);
+                this.kc.getToken(token)
+                    .then(token => {
+                        console.log("token",token);
+                        let headers = new Headers({
+                            'Accept': 'application/json',
+                            'Authorization': 'Bearer ' + token
+                        });
+
+        /!*                let options = new RequestOptions({ headers });
+
+                        this.http.get('/database/products', options)
+                            .map(res => res.json())
+                            .subscribe(prods => this.products = prods,
+                                error => console.log(error));*!/
+                    })
+                    .catch(error => console.log(error));
+                }).catch(error => console.log(error));
+            });*/
     }
     ngOnDestroy() {
         // Save state of the study page in a global variable after leaving it

@@ -80,7 +80,7 @@ export class AppService implements OnInit, OnDestroy{
     //     this.msg.setMsg(msg);
     // }
     getRealmOfLogedinUser(){
-        return this.$http.get('/rs/realm')
+        return this.$http.get('/dcm4chee-arc/ui2/rs/realm')
             .map(res => {
                 let resjson;
                 try {
