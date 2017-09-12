@@ -49,8 +49,8 @@ import org.dcm4che3.util.StringUtils;
 
 class AuditInfo {
     static final int CALLING_HOST = 0;
-    static final int CALLING_AET = 1;
-    static final int CALLED_AET = 2;
+    static final int CALLING_USERID = 1;
+    static final int CALLED_USERID = 2;
     static final int CALLED_HOST = 3;
     static final int STUDY_UID = 4;
     static final int ACC_NUM = 5;
