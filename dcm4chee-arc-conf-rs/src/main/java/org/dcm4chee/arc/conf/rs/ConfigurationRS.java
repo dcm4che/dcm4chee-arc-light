@@ -187,7 +187,11 @@ public class ConfigurationRS {
     public StreamingOutput listHL7Apps() throws Exception {
         try {
             HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
-            final HL7ApplicationInfo[] hl7AppInfos = hl7Conf.listHL7AppInfos(new HL7ApplicationInfoBuilder(uriInfo).hl7AppInfo);
+            final List<HL7ApplicationInfo> hl7AppInfos = Arrays.asList(
+                                                            hl7Conf.listHL7AppInfos(
+                                                                    new HL7ApplicationInfoBuilder(uriInfo).hl7AppInfo));
+            hl7AppInfos.sort(Comparator.comparing(HL7ApplicationInfo::getHl7ApplicationName));
+
             return new StreamingOutput() {
                 @Override
                 public void write(OutputStream out) throws IOException, WebApplicationException {
