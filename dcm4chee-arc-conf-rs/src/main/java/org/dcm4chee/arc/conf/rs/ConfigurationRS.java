@@ -68,10 +68,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -135,7 +132,11 @@ public class ConfigurationRS {
     @Produces("application/json")
     public StreamingOutput listDevices() throws Exception {
         try {
-            final DeviceInfo[] deviceInfos = conf.listDeviceInfos(new DeviceInfoBuilder(uriInfo).deviceInfo);
+            final List<DeviceInfo> deviceInfos = Arrays.asList(
+                                                    conf.listDeviceInfos(
+                                                            new DeviceInfoBuilder(uriInfo).deviceInfo));
+            deviceInfos.sort(Comparator.comparing(DeviceInfo::getDeviceName));
+
             return new StreamingOutput() {
                 @Override
                 public void write(OutputStream out) throws IOException {
@@ -158,7 +159,11 @@ public class ConfigurationRS {
     @Produces("application/json")
     public StreamingOutput listAETs() throws Exception {
         try {
-            final ApplicationEntityInfo[] aetInfos = conf.listAETInfos(new ApplicationEntityInfoBuilder(uriInfo).aetInfo);
+            final List<ApplicationEntityInfo> aetInfos = Arrays.asList(
+                                                            conf.listAETInfos(
+                                                                    new ApplicationEntityInfoBuilder(uriInfo).aetInfo));
+            aetInfos.sort(Comparator.comparing(ApplicationEntityInfo::getAETitle));
+
             return new StreamingOutput() {
                 @Override
                 public void write(OutputStream out) throws IOException {
