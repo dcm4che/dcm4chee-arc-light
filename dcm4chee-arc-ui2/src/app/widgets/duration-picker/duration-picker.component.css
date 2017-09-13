@@ -2,7 +2,7 @@
     max-height: 350px;
     overflow: auto;
     position: absolute;
-    z-index: 999;
+    z-index: 1001;
     background: white;
     -webkit-box-shadow: 3px 4px 8px 6px #cccccc;
     -moz-box-shadow:  3px 4px 8px 6px #cccccc;

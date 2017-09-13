@@ -8,6 +8,7 @@ import {MdDialog, MdDialogConfig, MdDialogRef} from '@angular/material';
 import {CreateAeComponent} from '../widgets/dialogs/create-ae/create-ae.component';
 import {DevicesService} from '../devices/devices.service';
 import {WindowRefService} from "../helpers/window-ref.service";
+import {AeListService} from "./ae-list.service";
 
 @Component({
   selector: 'app-ae-list',
@@ -42,7 +43,7 @@ export class AeListComponent{
       public viewContainerRef: ViewContainerRef ,
       public dialog: MdDialog,
       public config: MdDialogConfig,
-      public service: DevicesService
+      public service: AeListService
   ) {
       this.getAes();
       this.getAets();
@@ -431,14 +432,7 @@ export class AeListComponent{
     };
     getAes(){
         let $this = this;
-/*        if($this.mainservice.global && $this.mainservice.global.aes) {
-            this.aes = this.mainservice.global.aes;
-        }else{*/
-            this.$http.get(
-                '../aes'
-                // './assets/dummydata/aes.json'
-            )
-                .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            this.service.getAes()
                 .subscribe((response) => {
                     $this.aes = response;
                     if ($this.mainservice.global && !$this.mainservice.global.aes){
@@ -460,9 +454,7 @@ export class AeListComponent{
     getAets(){
 
         let $this = this;
-        this.$http.get(
-            '../aets'
-        ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+        this.service.getAets()
             .subscribe((response) => {
                 $this.aets = response;
 
@@ -476,10 +468,7 @@ export class AeListComponent{
         if (this.mainservice.global && this.mainservice.global.devices){
             this.devices = this.mainservice.global.devices;
         }else{
-            this.$http.get(
-                '../devices'
-                // './assets/dummydata/devices.json'
-            ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            this.service.getDevices().map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                 .subscribe((response) => {
                     $this.devices = response;
                 }, (err) => {

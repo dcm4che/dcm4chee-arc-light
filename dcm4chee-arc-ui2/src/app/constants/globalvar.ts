@@ -371,6 +371,61 @@ export class Globalvar {
         ]
 
     }
+    public static get DYNAMIC_FORMATER(): any{
+        return {
+            dcmAETitle:{
+                key:'dicomAETitle',
+                labelKey:'{dicomAETitle}',
+                msg:'Create first an AE Title!'
+            },
+            dcmArchiveAETitle:{
+                key:'dicomAETitle',
+                labelKey:'{dicomAETitle}',
+                msg:'Create first an AE Title!',
+                pathInDevice:'dicomNetworkAE'
+            },
+            dcmQueueName:{
+                key:'dcmQueueName',
+                labelKey:'{dcmQueueName}',
+                msg:'Configure first an Queue',
+                pathInDevice:'dcmDevice.dcmArchiveDevice.dcmQueue'
+            },
+            dcmExporterID:{
+                key:'dcmExporterID',
+                labelKey:'{dcmQueueName}',
+                msg:'Create first an Exporter!',
+                pathInDevice:'dcmDevice.dcmArchiveDevice.dcmExporter'
+            },
+            dcmStorageID:{
+                key:'dcmStorageID',
+                labelKey:'{dcmStorageID}',
+                msg:'Create first an Storage!',
+                pathInDevice:'dcmDevice.dcmArchiveDevice.dcmStorage'
+            },
+            dcmQueryRetrieveViewID:{
+                key:'dcmQueryRetrieveViewID',
+                labelKey:'{dcmQueryRetrieveViewID}',
+                msg:'Create first an Query Retrieve View!',
+                pathInDevice:'dcmDevice.dcmArchiveDevice.dcmQueryRetrieveView'
+            },
+            dcmRejectionNoteCode:{
+                key:'dcmRejectionNoteCode',
+                labelKey:'{dcmRejectionNoteLabel}',
+                msg:'Create first an Rejection Note!',
+                pathInDevice:'dcmDevice.dcmArchiveDevice.dcmRejectionNote'
+            },
+            dicomDeviceName:{
+                key:'dicomDeviceName',
+                labelKey:'{dicomDeviceName}',
+                msg:'Create first any device first!'
+            },
+            hl7ApplicationName:{
+                key:'hl7ApplicationName',
+                labelKey:'{hl7ApplicationName}',
+                msg:'Create first an hl7 Application!'
+            }
+        };
+    }
     public static get HL7_LIST_LINK(): string{
         return "../hl7apps";
     }

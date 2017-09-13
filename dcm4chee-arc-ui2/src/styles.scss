@@ -954,7 +954,9 @@ md-dialog-container{
       }
     }
   }
-
+  &.checkbox label{
+    font-weight:600;
+  }
 }
 .dynamicform:not(.hiddencontent){
   float: left;

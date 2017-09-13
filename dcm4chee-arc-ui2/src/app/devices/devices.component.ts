@@ -10,6 +10,7 @@ import {HostListener} from '@angular/core';
 import {CreateExporterComponent} from '../widgets/dialogs/create-exporter/create-exporter.component';
 import {Router} from '@angular/router';
 import {WindowRefService} from "../helpers/window-ref.service";
+import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
 
 @Component({
   selector: 'app-devices',
@@ -51,10 +52,12 @@ export class DevicesComponent {
         public dialog: MdDialog,
         public config: MdDialogConfig,
         public service: DevicesService,
-        private router: Router
+        private router: Router,
+        private hl7service:Hl7ApplicationsService
     ) {
         this.getDevices();
         this.getAes();
+        this.getHl7ApplicationsList(2);
     }
 
 
@@ -332,11 +335,7 @@ export class DevicesComponent {
         // if(this.mainservice.global && this.mainservice.global.devices){
         //     this.devices = this.mainservice.global.devices;
         // }else{
-            this.$http.get(
-                '../devices'
-                // './assets/dummydata/devices.json'
-            ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
-                .subscribe((response) => {
+        this.service.getDevices().subscribe((response) => {
                     console.log('getdevices response', response);
                     console.log('global', $this.mainservice.global);
                     $this.devices = response;
@@ -356,5 +355,29 @@ export class DevicesComponent {
                 });
         // }
     };
+    getHl7ApplicationsList(retries){
+        let $this = this;
+        this.hl7service.getHl7ApplicationsList('').subscribe(
+            (response)=>{
+                if ($this.mainservice.global && !$this.mainservice.global.hl7){
+                    let global = _.cloneDeep($this.mainservice.global); //,...[{hl7:response}]];
+                    global.hl7 = response;
+                    $this.mainservice.setGlobal(global);
+                }else{
+                    if ($this.mainservice.global && $this.mainservice.global.hl7){
+                        $this.mainservice.global.hl7 = response;
+                    }else{
+                        $this.mainservice.setGlobal({hl7: response});
+                    }
+                }
+            },
+            (err)=>{
+                if(retries){
+                    $this.getHl7ApplicationsList(retries - 1);
+                }
+            }
+        );
+    }
+
 
 }

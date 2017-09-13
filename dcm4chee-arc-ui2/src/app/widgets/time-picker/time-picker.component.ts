@@ -8,7 +8,9 @@ import {Component, OnInit, EventEmitter, Output} from '@angular/core';
 export class TimePickerComponent implements OnInit {
 
     @Output() onValueSet = new EventEmitter();
-    constructor() { }
+
+    constructor() {
+    }
 
     hhArray = [];
     mmArray = [];
@@ -16,19 +18,24 @@ export class TimePickerComponent implements OnInit {
     hh = '00';
     mm = '00';
     ss = '00';
+
     ngOnInit() {
         let i = 0;
-        while(i < 61){
-            if(i < 25){
-                this.hhArray.push(i < 10 ? `0${i}`:i);
+        while (i < 61) {
+            if (i < 25) {
+                this.hhArray.push(i < 10 ? `0${i}` : i);
             }
-            this.mmArray.push(i < 10 ? `0${i}`:i);
-            this.ssArray.push(i < 10 ? `0${i}`:i);
+            this.mmArray.push(i < 10 ? `0${i}` : i);
+            this.ssArray.push(i < 10 ? `0${i}` : i);
             i++;
         }
     }
 
-    addTime(){
+    addTime() {
         this.onValueSet.emit(`${this.hh}:${this.mm}:${this.ss}`);
+    }
+
+    close() {
+        this.onValueSet.emit("");
     }
 }

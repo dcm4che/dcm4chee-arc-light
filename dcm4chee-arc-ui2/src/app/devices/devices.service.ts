@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import * as _ from 'lodash';
+import {WindowRefService} from "../helpers/window-ref.service";
+import {Http} from "@angular/http";
 
 @Injectable()
 export class DevicesService {
 
-    constructor() { }
+    constructor(private $http:Http) { }
 
     appendExporterToDevice(device, exporter){
         device.dcmArchiveDevice = device.dcmArchiveDevice || {};
@@ -20,6 +22,12 @@ export class DevicesService {
                 }
             });
         }
+
+    }
+    getDevices(){
+       return this.$http.get(
+            '../devices'
+        ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
 
     }
     getNewAETitle(dicomAETitle, aes){
