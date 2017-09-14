@@ -55,6 +55,19 @@ export class SchedulePickerComponent implements OnInit {
         }catch (e){
             console.error("error parsing data!",e);
         }
+        document.addEventListener("dragend", function( event ) {
+            // store a ref. on the dragged elem
+            console.log("in addevent dragend");
+        }, false)
+/*        var dragItems = document.querySelectorAll('[draggable=true]');
+
+        for (var i = 0; i < dragItems.length; i++) {
+/!*            addEvent(dragItems[i], 'dragstart', function (event) {
+                // store the ID of the element, and collect it on the drop later on
+
+                event.dataTransfer.setData('Text', this.id);
+            });*!/
+        }*/
     }
     generateDraggableObject(mode, match2){
         if(match2[1] && match2[2]){
@@ -109,18 +122,35 @@ export class SchedulePickerComponent implements OnInit {
         return ((scheduler.hour)?`hour=${scheduler.hour}`:'') + ((scheduler.hour && scheduler.dayOfWeek)? ' ':'') + ((scheduler.dayOfWeek)?`dayOfWeek=${scheduler.dayOfWeek}`:'');
     }
     dragleave(ev){
+        console.log("dropleave",ev);
         if(this.currentDraggedElement != ""){
             this.draggedElements.push(this.currentDraggedElement);
             this.currentDraggedElement = "";
         }
     }
-    dropstart(ev){
+    dragstart(ev,mode){
+        console.log("in original dragstart");
+        ev.dataTransfer.setData('text', 'foo');
         this.currentDraggedElement = {
-            mode:ev,
+            mode:mode,
             model:{}
         };
     }
     deleteDropped(item){
         this.draggedElements.splice(item, 1);
     }
+/*    testDrag(){
+        console.log("ontestdrag");
+    }
+    testOnDragStart(){
+        console.log("testOnDragStart");
+    }
+    testDragStart(ev){
+        console.log("testDragStart",ev);
+        // ev.dataTransfer.dropEffect = "copy";
+        ev.dataTransfer.setData('text', 'foo');
+    }
+    testDragEnd(event){
+        console.log("testdragend",event);
+    }*/
 }
