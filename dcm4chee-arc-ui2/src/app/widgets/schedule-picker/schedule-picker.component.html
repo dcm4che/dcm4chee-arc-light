@@ -3,7 +3,6 @@
     <h4>Schedule picker</h4>
     <div class="dropped_schedules"
           (dragleave)="dragleave($event)"
-         (dragend)="testDragEnd($event)"
     >
         <!--{{draggedElements | json}}-->
         <div class="drop_info" *ngIf="draggedElements.length == 0">Drop here some element to edit</div>
