@@ -323,6 +323,7 @@ export class DeviceConfiguratorService{
         let validation = {
             required: required
         };
+        console.log(`in processSchemaEntries i=${i}, m=`,m);
         if (_.hasIn(m, 'minimum')){
             validation['minimum'] = m.minimum;
         }
@@ -521,13 +522,23 @@ export class DeviceConfiguratorService{
             case 'array':
                 if (i == 'dicomNetworkConnectionReference'|| (_.hasIn(m,'formatValue') && m.formatValue && m.formatValue.length > 0 )){
                     if(_.hasIn(m,'formatValue') && m.formatValue && i != 'dicomNetworkConnectionReference'){
-                        _.forEach(m.formatValue, (opt) => {
-                            options.push({
-                                key: opt.label,
-                                value: opt.value,
-                                active: (_.indexOf(value, opt.value) > -1) ? true : false
+                       if(!_.hasIn(m.formatValue,'state')){
+                            _.forEach(m.formatValue, (opt) => {
+                                options.push({
+                                    key: opt.label,
+                                    value: opt.value,
+                                    active: (_.indexOf(value, opt.value) > -1) ? true : false
+                                });
                             });
-                        });
+                       }else{
+                           _.forEach(m.enum, (opt) => {
+                               options.push({
+                                   label: opt,
+                                   value: opt,
+                                   active: (opt === value) ? true : false
+                               });
+                           });
+                       }
                     }else{
                         _.forEach(this.device['dicomNetworkConnection'], (opt, i) => {
                             options.push({
@@ -537,17 +548,29 @@ export class DeviceConfiguratorService{
                             });
                         });
                     }
-                    form.push(
-                        new Checkbox({
+                    if(_.hasIn(m.formatValue,'state')){
+                        form.push({
+                            controlType: 'message',
                             key: i,
                             label: m.title,
-                            format: m.format,
                             description: m.description,
-                            options: options,
+                            msg:m.formatValue.msg,
                             order: (5 + newOrderSuffix),
-                            validation: validation
+                            show: true
                         })
-                    );
+                    }else{
+                        form.push(
+                            new Checkbox({
+                                key: i,
+                                label: m.title,
+                                format: m.format,
+                                description: m.description,
+                                options: options,
+                                order: (5 + newOrderSuffix),
+                                validation: validation
+                            })
+                        );
+                    }
                     console.log(`ì= ${i} form= `,form);
                 }else{
                     console.log('this.device', this.device);
