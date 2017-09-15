@@ -9,6 +9,7 @@ import {CreateAeComponent} from '../widgets/dialogs/create-ae/create-ae.componen
 import {DevicesService} from '../devices/devices.service';
 import {WindowRefService} from "../helpers/window-ref.service";
 import {AeListService} from "./ae-list.service";
+import {HttpErrorHandler} from "../helpers/http-error-handler";
 
 @Component({
   selector: 'app-ae-list',
@@ -43,7 +44,8 @@ export class AeListComponent{
       public viewContainerRef: ViewContainerRef ,
       public dialog: MdDialog,
       public config: MdDialogConfig,
-      public service: AeListService
+      public service: AeListService,
+      public httpErrorHandler:HttpErrorHandler
   ) {
       this.getAes();
       this.getAets();
@@ -173,12 +175,7 @@ export class AeListComponent{
                         }
                     }, err => {
                         $this.cfpLoadingBar.complete();
-                        console.log('error', err);
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + err.status,
-                            'text': err.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(err);
                     });
             }
         });
@@ -221,11 +218,7 @@ export class AeListComponent{
 
                         },
                         (err) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Error',
-                                'text': 'Error deleting the device!',
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                         });
                 }else{
                     $this.$http.get('../devices/' + device)
@@ -361,17 +354,7 @@ export class AeListComponent{
                                         "../unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle
                                     ).subscribe((response) => {
                                     });*/
-                                    let msg = err.statusText;
-                                    try{
-                                        msg = JSON.parse(err._body).errorMessage;
-                                    }catch (e){
-
-                                    }
-                                    $this.mainservice.setMessage({
-                                        "title": "Error",
-                                        "text": msg,
-                                        "status": "error"
-                                    });
+                                    $this.httpErrorHandler.handleError(err);
                                 });
                     }else{
                         re.device.dicomNetworkAE =  re.device.dicomNetworkAE || [];

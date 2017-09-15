@@ -25,6 +25,7 @@ import {WindowRefService} from "../helpers/window-ref.service";
 import {FormatAttributeValuePipe} from "../pipes/format-attribute-value.pipe";
 import {FormatDAPipe} from "../pipes/format-da.pipe";
 import {FormatTMPipe} from "../pipes/format-tm.pipe";
+import {HttpErrorHandler} from "../helpers/http-error-handler";
 declare var Keycloak: any;
 
 @Component({
@@ -260,7 +261,8 @@ export class StudiesComponent implements OnDestroy{
         public messaging: MessagingComponent,
         public viewContainerRef: ViewContainerRef ,
         public dialog: MdDialog,
-        public config: MdDialogConfig
+        public config: MdDialogConfig,
+        public httpErrorHandler:HttpErrorHandler
     ) {
         // $('.clockpicker').clockpicker()
         //     .find('input').change(function(){
@@ -747,11 +749,7 @@ export class StudiesComponent implements OnDestroy{
             (err) => {
                 console.log('in error', err);
                 $this.patients = [];
-                $this.mainservice.setMessage({
-                    'title': 'Error ' + err.status,
-                    'text': err.statusText,
-                    'status': 'error'
-                });
+                $this.httpErrorHandler.handleError(err);
                 $this.cfpLoadingBar.complete();
             }
         );
@@ -862,11 +860,7 @@ export class StudiesComponent implements OnDestroy{
                 $this.cfpLoadingBar.complete();
             },(err)=>{
                 $this.cfpLoadingBar.complete();
-                $this.mainservice.setMessage({
-                    'title': 'Error ' + err.status,
-                    'text': err.statusText,
-                    'status': 'error'
-                });
+                $this.httpErrorHandler.handleError(err);
             }
         );
     };
@@ -1056,11 +1050,7 @@ export class StudiesComponent implements OnDestroy{
                         $this.cfpLoadingBar.complete();
                     },
                     (err)=>{
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + err.status,
-                            'text': err.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(err);
                         $this.cfpLoadingBar.complete();
                     }
                 );
@@ -1154,11 +1144,7 @@ export class StudiesComponent implements OnDestroy{
                     },
                     (err) => {
                         console.log('error', err);
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + err.status,
-                            'text': err.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(err);
                     });
             }
             $this.cfpLoadingBar.complete();
@@ -1283,11 +1269,7 @@ export class StudiesComponent implements OnDestroy{
                             $this.fireRightQuery();
                         }
                     }, (response) => {
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + response.status,
-                            'text': response.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(response);
                         // $scope.callBackFree = true;
                     });
                 }else{
@@ -1408,11 +1390,7 @@ export class StudiesComponent implements OnDestroy{
                             }
                         },
                         (response) => {
-                            $this.mainservice.setMessage( {
-                                'title': 'Error ' + response.status,
-                                'text': response.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(response);
                         }
                     );
                 }else{
@@ -1707,16 +1685,6 @@ export class StudiesComponent implements OnDestroy{
                             patient.attrs,
                             {headers: headers}
                         ).subscribe(function successCallback(response) {
-                            if (mode === 'edit'){
-                                //Update changes on the patient list
-                                // patient.attrs = patient.attrs;
-                                //Force rerendering the directive attribute-list
-                                // var id = "#"+patient.attrs["00100020"].Value;
-                                // var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].attrs"></attribute-list>')($scope);
-                                // $(id).html(attribute);
-                            }else{
-
-                            }
                                 $this.fireRightQuery();
                             // $scope.dateplaceholder = {};
                             // console.log("data",data);
@@ -1727,14 +1695,7 @@ export class StudiesComponent implements OnDestroy{
                                 'status': 'info'
                             });
                         }, function errorCallback(response) {
-                            $this.mainservice.setMessage( {
-                                // "title": "Error",
-                                // "text": "Error saving patient!",
-                                // "status": "error"
-                                'title': 'Error ' + response.status,
-                                'text': response.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(response);
                         });
                         ////
                     }else{
@@ -1755,12 +1716,7 @@ export class StudiesComponent implements OnDestroy{
                                     });
                                 },
                                 (response) => {
-                                    console.log('response', response);
-                                    $this.mainservice.setMessage( {
-                                        'title': 'Error ' + response.status,
-                                        'text': JSON.parse(response._body).errorMessage,
-                                        'status': 'error'
-                                    });
+                                    $this.httpErrorHandler.handleError(response);
                                 }
                             );
                         }else{
@@ -1806,11 +1762,7 @@ export class StudiesComponent implements OnDestroy{
                         $this.cfpLoadingBar.complete();
                     },
                     (response) => {
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + response.status,
-                            'text': response.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(response);
                         $this.cfpLoadingBar.complete();
                     }
                 );
@@ -1872,11 +1824,7 @@ export class StudiesComponent implements OnDestroy{
                     $this.queryStudies($this.patients[0].offset);
                 },
                 (response) => {
-                    $this.mainservice.setMessage({
-                        'title': 'Error ' + response.status,
-                        'text': response.statusText,
-                        'status': 'error'
-                    });
+                    $this.httpErrorHandler.handleError(response);
                     console.log('response', response);
                 }
             );
@@ -1925,11 +1873,7 @@ export class StudiesComponent implements OnDestroy{
                             $this.cfpLoadingBar.complete();
                         },
                         (err) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                             // angular.element("#querypatients").trigger('click');
                             $this.cfpLoadingBar.complete();
                         }
@@ -1959,11 +1903,7 @@ export class StudiesComponent implements OnDestroy{
                     $this.queryStudies($this.patients[0].offset);
                 },
                 (response) => {
-                    $this.mainservice.setMessage({
-                        'title': 'Error ' + response.status,
-                        'text': response.statusText,
-                        'status': 'error'
-                    });
+                    $this.httpErrorHandler.handleError(response);
                     console.log('response', response);
                 }
             );
@@ -2006,11 +1946,7 @@ export class StudiesComponent implements OnDestroy{
                             $this.cfpLoadingBar.complete();
                         },
                         (err) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                             // angular.element("#querypatients").trigger('click');
                             $this.cfpLoadingBar.complete();
                         }
@@ -2040,11 +1976,7 @@ export class StudiesComponent implements OnDestroy{
                     $this.queryStudies($this.patients[0].offset);
                 },
                 (response) => {
-                    $this.mainservice.setMessage({
-                        'title': 'Error ' + response.status,
-                        'text': response.statusText,
-                        'status': 'error'
-                    });
+                    $this.httpErrorHandler.handleError(response);
                     console.log('response', response);
                 }
             );
@@ -2087,11 +2019,7 @@ export class StudiesComponent implements OnDestroy{
                             $this.cfpLoadingBar.complete();
                         },
                         (err) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                             // angular.element("#querypatients").trigger('click');
                             $this.cfpLoadingBar.complete();
                         }
@@ -2133,11 +2061,7 @@ export class StudiesComponent implements OnDestroy{
                             $this.cfpLoadingBar.complete();
                         },
                         (err) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                             // angular.element("#querypatients").trigger('click');
                             $this.cfpLoadingBar.complete();
                         }
@@ -2175,11 +2099,7 @@ export class StudiesComponent implements OnDestroy{
                         $this.cfpLoadingBar.complete();
                     },
                     (response) => {
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + response.status,
-                            'text': response.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(response);
                         console.log('response', response);
 
                         $this.cfpLoadingBar.complete();
@@ -2337,11 +2257,7 @@ export class StudiesComponent implements OnDestroy{
                 $this.cfpLoadingBar.complete();
             },
             (err) => {
-                $this.mainservice.setMessage({
-                    'title': 'Error ' + err.status,
-                    'text': err.statusText,
-                    'status': 'error'
-                });
+                $this.httpErrorHandler.handleError(err);
             }
         );
     };
@@ -2572,11 +2488,7 @@ export class StudiesComponent implements OnDestroy{
             // }, 1000);
             $this.cfpLoadingBar.complete();
         },(err)=>{
-            $this.mainservice.setMessage({
-                'title': 'Error ' + err.status,
-                'text': err.statusText,
-                'status': 'error'
-            });
+            $this.httpErrorHandler.handleError(err);
         });
     };
 
@@ -3295,34 +3207,7 @@ export class StudiesComponent implements OnDestroy{
                                         $this.cfpLoadingBar.stop();
                                     }, (response) => {
                                         $this.cfpLoadingBar.stop();
-                                        try{
-
-                                            if (response._body && response._body != '') {
-                                                try{
-                                                    console.log('responseb1', JSON.parse(response._body).errorMessage);
-                                                    console.log('responseb2', response.body);
-
-                                                    $this.mainservice.setMessage({
-                                                        'title': 'Error ' + response.status,
-                                                        'text': JSON.parse(response._body).errorMessage,
-                                                        'status': 'error'
-                                                    });
-
-                                                }catch (e){
-                                                    $this.mainservice.setMessage({
-                                                        'title': 'Error ' + response.status,
-                                                        'text': response.statusText,
-                                                        'status': 'error'
-                                                    });
-                                                }
-                                            }
-                                        }catch (e){
-                                            $this.mainservice.setMessage({
-                                                'title': 'Error ',
-                                                'text': 'Something went wrong!',
-                                                'status': 'error'
-                                            });
-                                        }
+                                        $this.httpErrorHandler.handleError(response);
                                     });
                             }
                             if ($this.clipboard.action === 'copy') {
@@ -3390,11 +3275,7 @@ export class StudiesComponent implements OnDestroy{
                                                             console.log('resin err', response);
                                                             $this.clipboard = {};
                                                             $this.cfpLoadingBar.stop();
-                                                            $this.mainservice.setMessage({
-                                                                'title': 'Error ' + response.status,
-                                                                'text': response.statusText,
-                                                                'status': 'error'
-                                                            });
+                                                            $this.httpErrorHandler.handleError(response);
                                                             // $this.callBackFree = true;
                                                         });
                                                 });
@@ -3402,11 +3283,7 @@ export class StudiesComponent implements OnDestroy{
                                             },
                                             (response) => {
                                                 $this.cfpLoadingBar.stop();
-                                                $this.mainservice.setMessage({
-                                                    'title': 'Error ' + response.status,
-                                                    'text': response.statusText,
-                                                    'status': 'error'
-                                                });
+                                                $this.httpErrorHandler.handleError(response);
                                                 console.log('response', response);
                                             }
                                         );
@@ -3445,11 +3322,7 @@ export class StudiesComponent implements OnDestroy{
                                                 // $this.callBackFree = true;
                                             }, (response) => {
                                                 $this.cfpLoadingBar.stop();
-                                                $this.mainservice.setMessage({
-                                                    'title': 'Error ' + response.status,
-                                                    'text': response.statusText,
-                                                    'status': 'error'
-                                                });
+                                                $this.httpErrorHandler.handleError(response);
                                                 // $this.callBackFree = true;
                                             });
                                     });
@@ -3515,21 +3388,13 @@ export class StudiesComponent implements OnDestroy{
                                                             $this.fireRightQuery();
                                                         }, (response) => {
                                                             $this.cfpLoadingBar.stop();
-                                                            $this.mainservice.setMessage({
-                                                                'title': 'Error ' + response.status,
-                                                                'text': response.statusText,
-                                                                'status': 'error'
-                                                            });
+                                                            $this.httpErrorHandler.handleError(response);
                                                         });
                                                 });
                                             },
                                             (response) => {
                                                 $this.cfpLoadingBar.stop();
-                                                $this.mainservice.setMessage({
-                                                    'title': 'Error ' + response.status,
-                                                    'text': response.statusText,
-                                                    'status': 'error'
-                                                });
+                                                $this.httpErrorHandler.handleError(response);
                                                 console.log('response', response);
                                             }
                                         );
@@ -3579,11 +3444,7 @@ export class StudiesComponent implements OnDestroy{
                                                 $this.fireRightQuery();
                                             }, (response) => {
                                                 $this.cfpLoadingBar.stop();
-                                                $this.mainservice.setMessage({
-                                                    'title': 'Error ' + response.status,
-                                                    'text': response.statusText,
-                                                    'status': 'error'
-                                                });
+                                                $this.httpErrorHandler.handleError(response);
                                                 if(index == Object.keys($this.clipboard.otherObjects).length){
                                                     $this.clipboard = {};
                                                     $this.selected = {};
@@ -3979,11 +3840,7 @@ export class StudiesComponent implements OnDestroy{
                 this.cfpLoadingBar.complete();
             },
             (response) => {
-                this.mainservice.setMessage( {
-                    'title': 'Error ' + response.status,
-                    'text': JSON.parse(response._body).errorMessage,
-                    'status': 'error'
-                });
+                $this.httpErrorHandler.handleError(response);
                 this.cfpLoadingBar.complete();
             }
         );

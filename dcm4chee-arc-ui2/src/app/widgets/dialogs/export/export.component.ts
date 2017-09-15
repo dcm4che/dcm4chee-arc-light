@@ -148,7 +148,7 @@ export class ExportDialogComponent{
         let code = (e.keyCode ? e.keyCode : e.which);
         console.log('in modality keyhandler', code);
         if (code === 13){
-            dialogRef.close('ok'); //TODO
+            dialogRef.close('ok');
         }
         if (code === 27){
             dialogRef.close(null);

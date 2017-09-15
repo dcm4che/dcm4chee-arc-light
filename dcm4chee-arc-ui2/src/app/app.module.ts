@@ -63,6 +63,7 @@ import { MonitoringTabsComponent } from './monitoring/monitoring-tabs.component'
 import { Hl7ApplicationsComponent } from './hl7-applications/hl7-applications.component';
 import {Hl7ApplicationsService} from "./hl7-applications/hl7-applications.service";
 import {AeListService} from "./ae-list/ae-list.service";
+import {HttpErrorHandler} from "./helpers/http-error-handler";
 
 @NgModule({
     declarations: [
@@ -169,7 +170,8 @@ import {AeListService} from "./ae-list/ae-list.service";
         UploadDicomService,
         WindowRefService,
         Hl7ApplicationsService,
-        AeListService
+        AeListService,
+        HttpErrorHandler
     ],
     bootstrap: [AppComponent]
 })

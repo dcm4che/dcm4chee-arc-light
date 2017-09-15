@@ -4,6 +4,7 @@ import {AppService} from "../app.service";
 import {HostListener} from "@angular/core";
 import * as _ from 'lodash';
 import {Router} from "@angular/router";
+import {HttpErrorHandler} from "../helpers/http-error-handler";
 
 @Component({
   selector: 'app-hl7-applications',
@@ -28,7 +29,8 @@ export class Hl7ApplicationsComponent implements OnInit {
     constructor(
         private service:Hl7ApplicationsService,
         private mainservice:AppService,
-        private router: Router
+        private router: Router,
+        private httpErrorHandler:HttpErrorHandler
     ) { }
 
     ngOnInit() {
@@ -82,11 +84,7 @@ export class Hl7ApplicationsComponent implements OnInit {
                 if(retries){
                     $this.getHl7ApplicationsList(retries - 1);
                 }else{
-                    $this.mainservice.setMessage({
-                        'title': 'Info',
-                        'text': 'No Hl7 Applications found!',
-                        'status': 'info'
-                    });
+                    $this.httpErrorHandler.handleError(err);
                 }
             }
         );

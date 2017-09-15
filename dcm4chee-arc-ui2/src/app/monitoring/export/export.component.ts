@@ -9,6 +9,7 @@ import {AppService} from '../../app.service';
 import {ExportService} from './export.service';
 import {ExportDialogComponent} from '../../widgets/dialogs/export/export.component';
 import {WindowRefService} from "../../helpers/window-ref.service";
+import {HttpErrorHandler} from "../../helpers/http-error-handler";
 
 @Component({
   selector: 'app-export',
@@ -34,7 +35,16 @@ export class ExportComponent implements OnInit {
     dialogRef: MdDialogRef<any>;
     _ = _;
 
-    constructor(public $http: Http, public cfpLoadingBar: SlimLoadingBarService, public mainservice: AppService, public  service: ExportService, public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig) {
+    constructor(
+        public $http: Http,
+        public cfpLoadingBar: SlimLoadingBarService,
+        public mainservice: AppService,
+        public  service: ExportService,
+        public viewContainerRef: ViewContainerRef,
+        public dialog: MdDialog,
+        public config: MdDialogConfig,
+        private httpErrorHandler:HttpErrorHandler
+    ) {
         this.initExporters(1);
         // this.init();
         let $this = this;
@@ -191,12 +201,7 @@ export class ExportComponent implements OnInit {
                         },
                         (err) => {
                             $this.cfpLoadingBar.complete();
-                            console.log('cancleerr', err);
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                         });
                 }
         });
@@ -227,11 +232,7 @@ export class ExportComponent implements OnInit {
                         (err) => {
                             $this.cfpLoadingBar.complete();
                             console.log('cancleerr', err);
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                         });
             }
         });
@@ -297,12 +298,7 @@ export class ExportComponent implements OnInit {
                             },
                             (err) => {
                                 $this.cfpLoadingBar.complete();
-                                console.log('cancleerr', err);
-                                $this.mainservice.setMessage({
-                                    'title': 'Error ' + err.status,
-                                    'text': err.statusText,
-                                    'status': 'error'
-                                });
+                                $this.httpErrorHandler.handleError(err);
                             });
             }
         });
