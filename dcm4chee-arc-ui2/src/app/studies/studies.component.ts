@@ -2138,6 +2138,7 @@ export class StudiesComponent implements OnDestroy{
     exporter(url, title, warning){
         let $this = this;
         let id;
+        let urlRest;
         let noDicomExporters = [];
         let dicomPrefixes = [];
         _.forEach(this.exporters, (m, i) => {
@@ -2151,19 +2152,27 @@ export class StudiesComponent implements OnDestroy{
         this.dialogRef = this.dialog.open(ExportDialogComponent, this.config);
         this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
+        this.dialogRef.componentInstance.externalAetMode = this.externalAetMode;
         this.dialogRef.componentInstance.title = title;
         this.dialogRef.componentInstance.warning = warning;
         this.dialogRef.afterClosed().subscribe(result => {
             if (result){
+
                 $this.cfpLoadingBar.start();
-                if (result.exportType === 'dicom'){
-                    //id = result.dicomPrefix + result.selectedAet;
+                if($this.externalAetMode === 'external'){
                     id = 'dicom:' + result.selectedAet;
+                    urlRest = url  + '/export/' + id + '?' + this.mainservice.param({queue:result.queue});
                 }else{
-                    id = result.selectedExporter;
+                    if (result.exportType === 'dicom'){
+                        //id = result.dicomPrefix + result.selectedAet;
+                        id = 'dicom:' + result.selectedAet;
+                    }else{
+                        id = result.selectedExporter;
+                    }
+                    urlRest = url  + '/export/' + id + '?' + this.mainservice.param(result.checkboxes);
                 }
                 $this.$http.post(
-                    url  + '/export/' + id + '?' + this.mainservice.param(result.checkboxes),
+                    urlRest,
                     {},
                     $this.jsonHeader
                 ).subscribe(

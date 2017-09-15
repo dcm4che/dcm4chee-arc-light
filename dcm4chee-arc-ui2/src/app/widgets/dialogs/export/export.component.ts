@@ -24,10 +24,12 @@ export class ExportDialogComponent{
     private _warning;
     private _title;
     private _okButtonLabel;
+    private _externalAetMode;
     private _result = {
         exportType: 'dicom',
         selectedAet: undefined,
         selectedExporter: undefined,
+        queue:false,
         dicomPrefix: undefined,
         checkboxes: {
             'only-stgcmt': undefined,
@@ -104,6 +106,15 @@ export class ExportDialogComponent{
     set aes(value) {
         this._aes = value;
     }
+
+    get externalAetMode() {
+        return this._externalAetMode;
+    }
+
+    set externalAetMode(value) {
+        this._externalAetMode = value;
+    }
+
     getAes(){
         let $this = this;
         this.$http.get(
