@@ -126,15 +126,15 @@ export class AeListComponent{
         let select: any = [];
         _.forEach(this.aets, (m, i) => {
             select.push({
-                title: m.title,
-                value: m.title,
-                label: m.title
+                title: m.dicomAETitle,
+                value: m.dicomAETitle,
+                label: m.dicomAETitle
             });
         });
         let parameters: any = {
             content: 'Select one AET:',
             select: select,
-            result: {select: this.aets[0].title},
+            result: {select: this.aets[0].dicomAETitle},
             bodytext: 'Remote AET: <b>' + ae + '</b>',
             saveButton: 'ECHO',
             cssClass: 'echodialog'

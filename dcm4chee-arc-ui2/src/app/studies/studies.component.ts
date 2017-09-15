@@ -628,7 +628,7 @@ export class StudiesComponent implements OnDestroy{
             width: '500px'
         });
         this.dialogRef.componentInstance.aes = this.aes;
-        this.dialogRef.componentInstance.selectedAe = this.aetmodel.title;
+        this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;
         this.dialogRef.componentInstance.dicomObject = object;
         this.dialogRef.afterClosed().subscribe((result) => {
             console.log('result', result);
@@ -2346,7 +2346,7 @@ export class StudiesComponent implements OnDestroy{
         );
     };
     setTrash(){
-        this.aet = this.aetmodel.title;
+        this.aet = this.aetmodel.dicomAETitle;
         let $this = this;
         if (this.aetmodel.dcmHideNotRejectedInstances === true){
             if (this.rjcode === null){
@@ -3082,7 +3082,7 @@ export class StudiesComponent implements OnDestroy{
             width: '500px'
         });
         this.dialogRef.componentInstance.aes = this.aes;
-        this.dialogRef.componentInstance.selectedAe = this.aetmodel.title;
+        this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;
         this.dialogRef.afterClosed().subscribe((result) => {
             console.log('result', result);
             if (result){
@@ -3885,7 +3885,7 @@ export class StudiesComponent implements OnDestroy{
             // this[model] = newValue;
         // }
         if (model === 'aetmodel'){
-            this.aet = newValue.title;
+            this.aet = newValue.dicomAETitle;
             // this.aetmodel = newValue;
             this.setTrash();
         }
