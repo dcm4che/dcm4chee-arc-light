@@ -107,11 +107,11 @@ export class ExportDialogComponent{
         this._aes = value;
     }
 
-    get externalAetMode() {
+    get externalInternalAetMode() {
         return this._externalAetMode;
     }
 
-    set externalAetMode(value) {
+    set externalInternalAetMode(value) {
         this._externalAetMode = value;
     }
 

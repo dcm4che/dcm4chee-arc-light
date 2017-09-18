@@ -1,7 +1,7 @@
 <div class="vex vex-theme-os export" xmlns="http://www.w3.org/1999/html" (keydown)="dialogKeyHandler($event,dialogRef)">
     <div class="vex-dialog-form">
         <h5>{{title}}</h5>
-        <div class="content" *ngIf="externalAetMode === 'internal'">
+        <div class="content" *ngIf="externalInternalAetMode === 'internal'">
             <p>Select the type of the exporter:</p>
             <label>
                 <input type="radio" name="exportType" value="dicom" [(ngModel)]="result.exportType"> Synchronised DICOM exporter
@@ -43,7 +43,7 @@
                 <span class="text-danger">{{warning}}</span>
             </div>
         </div>
-        <div class="content" *ngIf="externalAetMode === 'external'">
+        <div class="content" *ngIf="externalInternalAetMode === 'external'">
             <div class="dicomBlock" >
                 <p>Select the destination AETitle:</p>
                 <md-select class="aes" [(ngModel)]="result.selectedAet">
