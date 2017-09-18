@@ -52,6 +52,7 @@ import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
+import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
@@ -277,6 +278,11 @@ public class AuditService {
             writeSpoolFile(serverET, deleteObjs);
         }
     }
+
+    void spoolSoftwareConfiguration(SoftwareConfiguration softwareConfiguration) {
+        //TODO
+    }
+
     private String toHost(String aet) throws ConfigurationException {
         ApplicationEntity ae = aeCache.findApplicationEntity(aet);
         StringBuilder b = new StringBuilder();

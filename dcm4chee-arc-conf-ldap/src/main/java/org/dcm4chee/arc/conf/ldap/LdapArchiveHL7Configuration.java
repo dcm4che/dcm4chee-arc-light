@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf.ldap;
 
 import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.ldap.LdapUtils;
 import org.dcm4che3.conf.ldap.hl7.LdapHL7ConfigurationExtension;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -126,7 +127,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
     }
 
     @Override
-    public void storeDiffs(HL7Application a, HL7Application b,
+    public void storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, HL7Application a, HL7Application b,
                            List<ModificationItem> mods) {
         ArchiveHL7ApplicationExtension aa =
                 a.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
@@ -143,23 +144,23 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
             mods.add(new ModificationItem(DirContext.ADD_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveHL7Application")));
         }
-        LdapUtils.storeDiffObject(mods, "hl7PatientUpdateTemplateURI",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PatientUpdateTemplateURI",
                 aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods, "hl7ImportReportTemplateURI",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportTemplateURI",
                 aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods, "hl7ScheduleProcedureTemplateURI",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ScheduleProcedureTemplateURI",
                 aa.getScheduleProcedureTemplateURI(),
                 bb.getScheduleProcedureTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods, "hl7LogFilePattern",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7LogFilePattern",
                 aa.getHl7LogFilePattern(), bb.getHl7LogFilePattern(), null);
-        LdapUtils.storeDiffObject(mods, "hl7ErrorLogFilePattern",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ErrorLogFilePattern",
                 aa.getHl7ErrorLogFilePattern(), bb.getHl7ErrorLogFilePattern(), null);
-        LdapUtils.storeDiffObject(mods, "dicomAETitle", aa.getAETitle(), bb.getAETitle(), null);
-        LdapUtils.storeDiffObject(mods, "hl7ScheduledProtocolCodeInOrder",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle", aa.getAETitle(), bb.getAETitle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ScheduledProtocolCodeInOrder",
                 aa.getHl7ScheduledProtocolCodeInOrder(), bb.getHl7ScheduledProtocolCodeInOrder(), null);
-        LdapUtils.storeDiffObject(mods, "hl7ScheduledStationAETInOrder",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ScheduledStationAETInOrder",
                 aa.getHl7ScheduledStationAETInOrder(), bb.getHl7ScheduledStationAETInOrder(), null);
-        LdapUtils.storeDiff(mods, "hl7NoPatientCreateMessageType",
+        LdapUtils.storeDiff(ldapObj, mods, "hl7NoPatientCreateMessageType",
                 aa.getHl7NoPatientCreateMessageTypes(), bb.getHl7NoPatientCreateMessageTypes());
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
@@ -167,7 +168,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
     }
 
     @Override
-    public void mergeChilds(HL7Application prev, HL7Application hl7App, String appDN) throws NamingException {
+    public void mergeChilds(ConfigurationChanges diffs, HL7Application prev, HL7Application hl7App, String appDN) throws NamingException {
         ArchiveHL7ApplicationExtension aa = prev.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         ArchiveHL7ApplicationExtension bb = hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         if (aa == null && bb == null)
@@ -179,11 +180,11 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
             bb = new ArchiveHL7ApplicationExtension();
 
         LdapArchiveConfiguration.mergeHL7ForwardRules(
-                aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), appDN, getDicomConfiguration());
+                diffs, aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), appDN, getDicomConfiguration());
         LdapArchiveConfiguration.mergeScheduledStations(
-                aa.getHL7OrderScheduledStations(), bb.getHL7OrderScheduledStations(), appDN, getDicomConfiguration());
+                diffs, aa.getHL7OrderScheduledStations(), bb.getHL7OrderScheduledStations(), appDN, getDicomConfiguration());
         LdapArchiveConfiguration.mergeHL7OrderSPSStatus(
-                aa.getHL7OrderSPSStatuses(), bb.getHL7OrderSPSStatuses(), appDN, getDicomConfiguration());
+                diffs, aa.getHL7OrderSPSStatuses(), bb.getHL7OrderSPSStatuses(), appDN, getDicomConfiguration());
     }
 
 }
