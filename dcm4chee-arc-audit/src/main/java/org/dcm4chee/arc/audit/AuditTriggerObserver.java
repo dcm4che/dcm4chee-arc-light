@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4chee.arc.ArchiveServiceEvent;
@@ -160,12 +159,12 @@ public class AuditTriggerObserver {
             auditService.spoolStgCmt(stgCmtEventInfo);
     }
 
-    public void onRejectionNoteSent(@Observes RejectionNoteSent rejectionNoteSent) throws ConfigurationException {
+    public void onRejectionNoteSent(@Observes RejectionNoteSent rejectionNoteSent) {
         if (deviceHasAuditLoggers())
             auditService.spoolExternalRejection(rejectionNoteSent);
     }
 
-    public void onExternalRetrieve(@Observes ExternalRetrieveContext ctx) throws ConfigurationException {
+    public void onExternalRetrieve(@Observes ExternalRetrieveContext ctx) {
         if (deviceHasAuditLoggers())
             auditService.spoolExternalRetrieve(ctx);
     }

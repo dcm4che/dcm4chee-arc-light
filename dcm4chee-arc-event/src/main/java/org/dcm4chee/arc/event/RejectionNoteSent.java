@@ -40,6 +40,7 @@ package org.dcm4chee.arc.event;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.TagUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,18 +52,18 @@ import javax.servlet.http.HttpServletRequest;
 public class RejectionNoteSent {
 
     private final HttpServletRequest request;
-    private final String localAET;
-    private final String remoteAET;
+    private final ApplicationEntity localAE;
+    private final ApplicationEntity remoteAE;
     private final Attributes rejectionNote;
     private final boolean studyDeleted;
     private final int status;
     private final String errorComment;
 
-    public RejectionNoteSent(HttpServletRequest request, String localAET, String remoteAET, Attributes rejectionNote,
+    public RejectionNoteSent(HttpServletRequest request, ApplicationEntity localAE, ApplicationEntity remoteAE, Attributes rejectionNote,
                              boolean studyDeleted, int status, String errorComment) {
         this.request = request;
-        this.localAET = localAET;
-        this.remoteAET = remoteAET;
+        this.localAE = localAE;
+        this.remoteAE = remoteAE;
         this.rejectionNote = rejectionNote;
         this.studyDeleted = studyDeleted;
         this.status = status;
@@ -73,12 +74,12 @@ public class RejectionNoteSent {
         return request;
     }
 
-    public String getLocalAET() {
-        return localAET;
+    public ApplicationEntity getLocalAE() {
+        return localAE;
     }
 
-    public String getRemoteAET() {
-        return remoteAET;
+    public ApplicationEntity getRemoteAE() {
+        return remoteAE;
     }
 
     public Attributes getRejectionNote() {
@@ -112,8 +113,8 @@ public class RejectionNoteSent {
     @Override
     public String toString() {
         return "RejectInstancesEvent[" + request.getRemoteUser() + '@' + request.getRemoteHost()
-                + ", localAET=" + localAET
-                + ", remoteAET=" + remoteAET
+                + ", localAET=" + localAE.getAETitle()
+                + ", remoteAET=" + remoteAE.getAETitle()
                 + ", studyUID=" + rejectionNote.getString(Tag.StudyInstanceUID)
                 + ", studyDeleted=" + studyDeleted
                 + ", status=" + TagUtils.shortToHexString(status)

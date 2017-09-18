@@ -233,25 +233,27 @@ public class AuditService {
         writeSpoolFile(eventType, deleteObjs);
     }
 
-    void spoolExternalRejection(RejectionNoteSent rejectionNoteSent) throws ConfigurationException {
+    void spoolExternalRejection(RejectionNoteSent rejectionNoteSent) {
         LinkedHashSet<Object> deleteObjs = new LinkedHashSet<>();
         Attributes attrs = rejectionNoteSent.getRejectionNote();
         Attributes codeItem = attrs.getSequence(Tag.ConceptNameCodeSequence).get(0);
         Code code = new Code(codeItem.getString(Tag.CodeValue), codeItem.getString(Tag.CodingSchemeDesignator), null, "?");
         RejectionNote rjNote = getArchiveDevice().getRejectionNote(code);
         HttpServletRequest req = rejectionNoteSent.getRequest();
+        String localAET = rejectionNoteSent.getLocalAE().getAETitle();
         String callingAET = req != null
                 ? KeycloakContext.valueOf(req).getUserName()
-                : rejectionNoteSent.getLocalAET();
+                : localAET;
+        String remoteAET = rejectionNoteSent.getRemoteAE().getAETitle();
         String calledAET = req != null
-                ? req.getRequestURI() : rejectionNoteSent.getRemoteAET();
+                ? req.getRequestURI() : remoteAET;
         String callingHost = req != null
-                ? req.getRemoteHost() : toHost(rejectionNoteSent.getLocalAET());
+                ? req.getRemoteHost() : toHost(rejectionNoteSent.getLocalAE());
         deleteObjs.add(new AuditInfo(new AuditInfoBuilder.Builder()
                 .callingUserID(callingAET)
                 .callingHost(callingHost)
                 .calledUserID(calledAET)
-                .calledHost(toHost(rejectionNoteSent.getRemoteAET()))
+                .calledHost(toHost(rejectionNoteSent.getRemoteAE()))
                 .outcome(String.valueOf(rjNote.getRejectionNoteType()))
                 .studyUIDAccNumDate(attrs)
                 .pIDAndName(attrs, getArchiveDevice())
@@ -270,21 +272,20 @@ public class AuditService {
                 ? AuditServiceUtils.EventType.PRMDLT_WEB
                 : AuditServiceUtils.EventType.RJ_PARTIAL;
         writeSpoolFile(clientET, deleteObjs);
-        if (rejectionNoteSent.getLocalAET().equals(rejectionNoteSent.getRemoteAET())) {
+        if (localAET.equals(remoteAET)) {
             AuditServiceUtils.EventType serverET = rejectionNoteSent.isStudyDeleted()
                     ? AuditServiceUtils.EventType.RJ_COMPLET
                     : AuditServiceUtils.EventType.RJ_PARTIAL;
             writeSpoolFile(serverET, deleteObjs);
         }
     }
-    private String toHost(String aet) throws ConfigurationException {
-        ApplicationEntity ae = aeCache.findApplicationEntity(aet);
+    private String toHost(ApplicationEntity ae) {
         StringBuilder b = new StringBuilder();
-        if (ae != null) {
-            List<Connection> conns = ae.getConnections();
-            b.append(conns.get(0).getHostname());
-            for (int i = 1; i < conns.size(); i++)
-                b.append(';').append(conns.get(i).getHostname());
+        List<Connection> connections = ae.getConnections();
+        if (!connections.isEmpty()) {
+            b.append(connections.get(0).getHostname());
+            for (int i = 1; i < connections.size(); i++)
+                b.append(';').append(connections.get(i).getHostname());
         }
         return b.toString();
     }

@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.dimse.rs;
 
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
@@ -85,6 +86,9 @@ public class RejectRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
 
     @Inject
     private Event<RejectionNoteSent> rejectionNoteSentEvent;
@@ -198,12 +202,13 @@ public class RejectRS {
         Attributes kos = builder.getAttributes();
         try {
             String remoteAET = storescp != null ? storescp : externalAET;
-            Attributes cmd = storeSCU.store(localAE, remoteAET, priority(), kos);
+            ApplicationEntity remoteAE = aeCache.get(remoteAET);
+            Attributes cmd = storeSCU.store(localAE, remoteAE, priority(), kos);
             int status = cmd.getInt(Tag.Status, -1);
             String errorComment = cmd.getString(Tag.ErrorComment);
             boolean studyDeleted = seriesUID == null;
             rejectionNoteSentEvent.fire(
-                    new RejectionNoteSent(request, aet, remoteAET, kos, studyDeleted, status, errorComment));
+                    new RejectionNoteSent(request, localAE, remoteAE, kos, studyDeleted, status, errorComment));
             switch (status) {
                 case Status.Success:
                 case Status.CoercionOfDataElements:
