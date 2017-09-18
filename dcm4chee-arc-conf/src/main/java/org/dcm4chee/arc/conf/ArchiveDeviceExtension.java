@@ -94,6 +94,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String importReportTemplateURI;
     private String scheduleProcedureTemplateURI;
     private String unzipVendorDataToURI;
+    private String outgoingPatientUpdateTemplateURI;
     private String[] mppsForwardDestinations = {};
     private String[] ianDestinations = {};
     private Duration ianDelay;
@@ -444,6 +445,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setUnzipVendorDataToURI(String unzipVendorDataToURI) {
         this.unzipVendorDataToURI = unzipVendorDataToURI;
+    }
+
+    public String getOutgoingPatientUpdateTemplateURI() {
+        return outgoingPatientUpdateTemplateURI;
+    }
+
+    public void setOutgoingPatientUpdateTemplateURI(String outgoingPatientUpdateTemplateURI) {
+        this.outgoingPatientUpdateTemplateURI = outgoingPatientUpdateTemplateURI;
     }
 
     public String[] getMppsForwardDestinations() {
@@ -1634,6 +1643,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         patientUpdateTemplateURI = arcdev.patientUpdateTemplateURI;
         importReportTemplateURI = arcdev.importReportTemplateURI;
         scheduleProcedureTemplateURI = arcdev.scheduleProcedureTemplateURI;
+        outgoingPatientUpdateTemplateURI = arcdev.outgoingPatientUpdateTemplateURI;
         queryFetchSize = arcdev.queryFetchSize;
         queryMaxNumberOfResults = arcdev.queryMaxNumberOfResults;
         qidoMaxNumberOfResults = arcdev.qidoMaxNumberOfResults;

@@ -113,6 +113,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(attrs, "hl7OutgoingPatientUpdateTemplateURI", ext.getOutgoingPatientUpdateTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(attrs, "hl7LogFilePattern", ext.getHl7LogFilePattern(), null);
         LdapUtils.storeNotNullOrDef(attrs, "hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern(), null);
         LdapUtils.storeNotNullOrDef(attrs, "dcmUnzipVendorDataToURI", ext.getUnzipVendorDataToURI(), null);
@@ -260,6 +261,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
         ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("hl7ImportReportTemplateURI"), null));
         ext.setScheduleProcedureTemplateURI(LdapUtils.stringValue(attrs.get("hl7ScheduleProcedureTemplateURI"), null));
+        ext.setOutgoingPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7OutgoingPatientUpdateTemplateURI"), null));
         ext.setHl7LogFilePattern(LdapUtils.stringValue(attrs.get("hl7LogFilePattern"), null));
         ext.setHl7ErrorLogFilePattern(LdapUtils.stringValue(attrs.get("hl7ErrorLogFilePattern"), null));
         ext.setUnzipVendorDataToURI(LdapUtils.stringValue(attrs.get("dcmUnzipVendorDataToURI"), null));
@@ -443,6 +445,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI(), null);
         LdapUtils.storeDiffObject(mods, "hl7ScheduleProcedureTemplateURI", aa.getScheduleProcedureTemplateURI(),
                 bb.getScheduleProcedureTemplateURI(), null);
+        LdapUtils.storeDiffObject(mods, "hl7OutgoingPatientUpdateTemplateURI", aa.getOutgoingPatientUpdateTemplateURI(),
+                bb.getOutgoingPatientUpdateTemplateURI(), null);
         LdapUtils.storeDiffObject(mods, "hl7LogFilePattern", aa.getHl7LogFilePattern(), bb.getHl7LogFilePattern(), null);
         LdapUtils.storeDiffObject(mods, "hl7ErrorLogFilePattern", aa.getHl7ErrorLogFilePattern(), bb.getHl7ErrorLogFilePattern(), null);
         LdapUtils.storeDiffObject(mods, "dcmUnzipVendorDataToURI",

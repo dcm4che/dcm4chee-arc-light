@@ -144,6 +144,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7PatientUpdateTemplateURI", arcDev.getPatientUpdateTemplateURI(), null);
         writer.writeNotNullOrDef("hl7ImportReportTemplateURI", arcDev.getImportReportTemplateURI(), null);
         writer.writeNotNullOrDef("hl7ScheduleProcedureTemplateURI", arcDev.getScheduleProcedureTemplateURI(), null);
+        writer.writeNotNullOrDef("hl7OutgoingPatientUpdateTemplateURI", arcDev.getOutgoingPatientUpdateTemplateURI(), null);
         writer.writeNotNullOrDef("hl7LogFilePattern", arcDev.getHl7LogFilePattern(), null);
         writer.writeNotNullOrDef("hl7ErrorLogFilePattern", arcDev.getHl7ErrorLogFilePattern(), null);
         writer.writeNotNullOrDef("dcmUnzipVendorDataToURI", arcDev.getUnzipVendorDataToURI(), null);
@@ -801,6 +802,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7ScheduleProcedureTemplateURI":
                     arcDev.setScheduleProcedureTemplateURI(reader.stringValue());
+                    break;
+                case "hl7OutgoingPatientUpdateTemplateURI":
+                    arcDev.setOutgoingPatientUpdateTemplateURI(reader.stringValue());
                     break;
                 case "hl7LogFilePattern":
                     arcDev.setHl7LogFilePattern(reader.stringValue());

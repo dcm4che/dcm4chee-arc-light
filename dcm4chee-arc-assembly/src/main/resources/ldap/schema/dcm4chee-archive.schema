@@ -1109,6 +1109,13 @@ attributetype ( 1.2.40.0.13.1.15.110.3.186 NAME 'dcmLinkMWLEntryUpdatePolicy'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.187 NAME 'hl7OutgoingPatientUpdateTemplateURI'
+  DESC 'Specifies URI for the style sheet to transcode DICOM object patient attributes to HL7 ADT messages.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1188,6 +1195,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7PatientUpdateTemplateURI $
     hl7ImportReportTemplateURI $
     hl7ScheduleProcedureTemplateURI $
+    hl7OutgoingPatientUpdateTemplateURI $
     hl7ScheduledProtocolCodeInOrder $
     hl7ScheduledStationAETInOrder $
     hl7LogFilePattern $

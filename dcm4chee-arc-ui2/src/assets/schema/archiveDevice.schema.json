@@ -499,6 +499,11 @@
       "description": "Specifies URI for the style sheet to transcode received HL7 ORM^O01, OMI^O23, OMG^O19 to DICOM MWL items. May be overwritten by configured values for particular Archive HL7 Application.",
       "type": "string"
     },
+    "hl7OutgoingPatientUpdateTemplateURI": {
+      "title": "HL7 Outgoing Patient Update Template URI",
+      "description": "Specifies URI for the style sheet to transcode DICOM object patient attributes to HL7 ADT messages.",
+      "type": "string"
+    },
     "hl7ScheduledProtocolCodeInOrder": {
       "title": "HL7 Schedule Protocol Code in Order",
       "description": "Specifies location of Scheduled Protocol Code in received HL7 Order message. May be overwritten by configured values for particular Archive HL7 Application.",

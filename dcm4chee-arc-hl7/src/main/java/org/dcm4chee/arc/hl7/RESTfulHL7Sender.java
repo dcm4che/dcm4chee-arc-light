@@ -46,11 +46,20 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.xml.transform.Transformer;
+import java.util.Date;
+
+/**
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Aug 2017
+ */
 
 @ApplicationScoped
 public class RESTfulHL7Sender {
@@ -81,19 +90,45 @@ public class RESTfulHL7Sender {
     }
 
     public HL7Message sendHL7Message(String msgType, PatientMgtContext ctx, String sender, String receiver) throws Exception {
-        HL7Msg msg = new HL7Msg(msgType, ctx);
-        msg.setSendingApplicationWithFacility(sender);
-        msg.setReceivingApplicationWithFacility(receiver);
+        String msgControlID = HL7Segment.nextMessageControlID();
+        String[] sendingAppWithFacility = appWithFacility(sender);
+        String[] receivingAppWithFacility = appWithFacility(receiver);
 
-        HL7Segment msh = msg.getHL7Message().getSegment("MSH");
+        HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
+        String hl7cs = hl7Dev.getHL7Application(sender, true).getHl7SendingCharacterSet();
+
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        byte[] hl7msg = SAXTransformer.transform(
+                ctx.getAttributes(), hl7cs, arcDev.getOutgoingPatientUpdateTemplateURI(), new org.dcm4che3.io.SAXTransformer.SetupTransformer() {
+                    @Override
+                    public void setup(Transformer tr) {
+                        tr.setParameter("sendingApplication", sendingAppWithFacility[0]);
+                        tr.setParameter("sendingFacility", sendingAppWithFacility[1]);
+                        tr.setParameter("receivingApplication", receivingAppWithFacility[0]);
+                        tr.setParameter("receivingFacility", receivingAppWithFacility[1]);
+                        tr.setParameter("dateTime", HL7Segment.timeStamp(new Date()));
+                        tr.setParameter("msgType", msgType);
+                        tr.setParameter("msgControlID", msgControlID);
+                    }
+                });
+
+
         return hl7Sender.sendMessage(
-                msh.getField(2, ""),
-                msh.getField(3, ""),
-                msh.getField(4, ""),
-                msh.getField(5, ""),
-                msh.getField(8, ""),
-                msh.getField(9, ""),
-                msg.getHL7Message().getBytes(null));
+                sendingAppWithFacility[0],
+                sendingAppWithFacility[1],
+                receivingAppWithFacility[0],
+                receivingAppWithFacility[1],
+                msgType,
+                msgControlID,
+                hl7msg);
+    }
+
+    private String[] appWithFacility(String applicationWithFacility) {
+        String[] appWithFacility = new String[2];
+        int pipeIndex = applicationWithFacility.indexOf('|');
+        appWithFacility[0] = applicationWithFacility.substring(0, pipeIndex);
+        appWithFacility[1] = applicationWithFacility.substring(pipeIndex + 1);
+        return appWithFacility;
     }
 
     private class HL7Msg {
