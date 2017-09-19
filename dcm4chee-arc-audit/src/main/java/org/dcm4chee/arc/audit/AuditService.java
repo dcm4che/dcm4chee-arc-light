@@ -296,7 +296,7 @@ public class AuditService {
                 .callingHost(req.getRemoteHost())
                 .calledUserID(req.getRequestURI())
                 .calledHost(toHost(rejectionNoteSent.getRemoteAE()))
-                .outcome(String.valueOf(rjNote.getRejectionNoteType()))
+                .outcome(rjNote.getRejectionNoteCode().getCodeMeaning())
                 .studyUIDAccNumDate(attrs)
                 .pIDAndName(attrs, getArchiveDevice())
                 .build();
@@ -309,7 +309,7 @@ public class AuditService {
                 .callingHost(toHost(rejectionNoteSent.getLocalAE()))
                 .calledUserID(rejectionNoteSent.getRemoteAE().getAETitle())
                 .calledHost(toHost(rejectionNoteSent.getRemoteAE()))
-                .outcome(String.valueOf(rjNote.getRejectionNoteType()))
+                .outcome(rjNote.getRejectionNoteCode().getCodeMeaning())
                 .studyUIDAccNumDate(attrs)
                 .pIDAndName(attrs, getArchiveDevice())
                 .build();
