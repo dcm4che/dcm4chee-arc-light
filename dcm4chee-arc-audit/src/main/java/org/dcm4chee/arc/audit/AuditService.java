@@ -201,12 +201,7 @@ public class AuditService {
         if (isExternalRejectionSourceDestSame(ctx))
             return;
         Attributes attrs = ctx.getAttributes();
-        HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
-        for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence))
-            for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence))
-                for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence))
-                    buildSOPClassMap(sopClassMap, sopRef.getString(Tag.ReferencedSOPClassUID),
-                            sopRef.getString(Tag.ReferencedSOPInstanceUID));
+        HashMap<String, HashSet<String>> sopClassMap = buildRejectionSOPClassMap(attrs);
         LinkedHashSet<Object> deleteObjs = getDeletionObjsForSpooling(sopClassMap, new AuditInfo(getAIStoreCtx(ctx)));
         AuditServiceUtils.EventType eventType = ctx.getStoredInstance().getSeries().getStudy().getRejectionState() == RejectionState.COMPLETE
                                                     ? AuditServiceUtils.EventType.RJ_COMPLET
@@ -214,9 +209,24 @@ public class AuditService {
         writeSpoolFile(eventType, deleteObjs);
     }
 
+    private HashMap<String, HashSet<String>> buildRejectionSOPClassMap(Attributes attrs) {
+        HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
+        for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence))
+            for (Attributes seriesRef : studyRef.getSequence(Tag.ReferencedSeriesSequence))
+                for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence))
+                    buildSOPClassMap(sopClassMap, sopRef.getString(Tag.ReferencedSOPClassUID),
+                            sopRef.getString(Tag.ReferencedSOPInstanceUID));
+        return sopClassMap;
+    }
+
     private boolean isExternalRejectionSourceDestSame(StoreContext ctx) {
         StoreSession ss = ctx.getStoreSession();
         return ctx.getRejectionNote() != null && ss.getHttpRequest() == null && ss.getCallingAET().equals(ss.getCalledAET());
+    }
+
+    private boolean isExternalRejectionSourceDestSame(RejectionNoteSent rejectionNoteSent) {
+        return rejectionNoteSent.getLocalAE().getAETitle()
+                .equals(rejectionNoteSent.getRemoteAE().getAETitle());
     }
 
     void spoolStudyDeleted(StudyDeleteContext ctx) {
@@ -234,51 +244,77 @@ public class AuditService {
     }
 
     void spoolExternalRejection(RejectionNoteSent rejectionNoteSent) {
-        LinkedHashSet<Object> deleteObjs = new LinkedHashSet<>();
         Attributes attrs = rejectionNoteSent.getRejectionNote();
+        RejectionNote rjNote = toRejectionNote(attrs);
+
+        LinkedHashSet<AuditInfoBuilder> rejectionSOPRefs = rejectionSOPRefs(attrs);
+
+        LinkedHashSet<AuditInfoBuilder> externalRejectionClientAuditInfo = new LinkedHashSet<>();
+        externalRejectionClientAuditInfo.add(externalRejectionClientAuditInfo(rejectionNoteSent, rjNote));
+        externalRejectionClientAuditInfo.addAll(rejectionSOPRefs);
+
+        AuditServiceUtils.EventType clientET = rejectionNoteSent.isStudyDeleted()
+                ? AuditServiceUtils.EventType.PRMDLT_WEB
+                : AuditServiceUtils.EventType.RJ_PARTIAL;
+        writeSpoolFile(clientET, externalRejectionClientAuditInfo.toArray(
+                new AuditInfoBuilder[externalRejectionClientAuditInfo.size()]));
+
+        if (isExternalRejectionSourceDestSame(rejectionNoteSent)) {
+            LinkedHashSet<AuditInfoBuilder> externalRejectionServerAuditInfo = new LinkedHashSet<>();
+            externalRejectionServerAuditInfo.add(externalRejectionServerAuditInfo(rejectionNoteSent, rjNote));
+            externalRejectionServerAuditInfo.addAll(rejectionSOPRefs);
+
+            AuditServiceUtils.EventType serverET = rejectionNoteSent.isStudyDeleted()
+                    ? AuditServiceUtils.EventType.RJ_COMPLET
+                    : AuditServiceUtils.EventType.RJ_PARTIAL;
+            writeSpoolFile(serverET, externalRejectionServerAuditInfo.toArray(
+                    new AuditInfoBuilder[externalRejectionServerAuditInfo.size()]));
+        }
+    }
+
+    private LinkedHashSet<AuditInfoBuilder> rejectionSOPRefs(Attributes attrs) {
+        LinkedHashSet<AuditInfoBuilder> rejectionSOPRefs = new LinkedHashSet<>();
+        HashMap<String, HashSet<String>> sopClassMap = buildRejectionSOPClassMap(attrs);
+        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet())
+            rejectionSOPRefs.add(new AuditInfoBuilder.Builder().sopCUID(entry.getKey())
+                    .sopIUID(String.valueOf(entry.getValue().size())).build());
+
+        return rejectionSOPRefs;
+    }
+
+    private RejectionNote toRejectionNote(Attributes attrs) {
         Attributes codeItem = attrs.getSequence(Tag.ConceptNameCodeSequence).get(0);
         Code code = new Code(codeItem.getString(Tag.CodeValue), codeItem.getString(Tag.CodingSchemeDesignator), null, "?");
-        RejectionNote rjNote = getArchiveDevice().getRejectionNote(code);
+        return getArchiveDevice().getRejectionNote(code);
+    }
+
+    private AuditInfoBuilder externalRejectionClientAuditInfo(RejectionNoteSent rejectionNoteSent, RejectionNote rjNote) {
         HttpServletRequest req = rejectionNoteSent.getRequest();
-        String localAET = rejectionNoteSent.getLocalAE().getAETitle();
-        String callingAET = req != null
-                ? KeycloakContext.valueOf(req).getUserName()
-                : localAET;
-        String remoteAET = rejectionNoteSent.getRemoteAE().getAETitle();
-        String calledAET = req != null
-                ? req.getRequestURI() : remoteAET;
-        String callingHost = req != null
-                ? req.getRemoteHost() : toHost(rejectionNoteSent.getLocalAE());
-        deleteObjs.add(new AuditInfo(new AuditInfoBuilder.Builder()
-                .callingUserID(callingAET)
-                .callingHost(callingHost)
-                .calledUserID(calledAET)
+        Attributes attrs = rejectionNoteSent.getRejectionNote();
+        return new AuditInfoBuilder.Builder()
+                .callingUserID(KeycloakContext.valueOf(req).getUserName())
+                .callingHost(req.getRemoteHost())
+                .calledUserID(req.getRequestURI())
                 .calledHost(toHost(rejectionNoteSent.getRemoteAE()))
                 .outcome(String.valueOf(rjNote.getRejectionNoteType()))
                 .studyUIDAccNumDate(attrs)
                 .pIDAndName(attrs, getArchiveDevice())
-                .build()));
-        HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
-        for (Attributes studyRef : attrs.getSequence(Tag.CurrentRequestedProcedureEvidenceSequence))
-            for (Attributes refSer : studyRef.getSequence(Tag.ReferencedSeriesSequence))
-                for (Attributes refSop : refSer.getSequence(Tag.ReferencedSOPSequence))
-                    buildSOPClassMap(sopClassMap, refSop.getString(Tag.ReferencedSOPClassUID),
-                            refSop.getString(Tag.ReferencedSOPInstanceUID));
-        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
-            deleteObjs.add(new AuditInfo(new AuditInfoBuilder.Builder().sopCUID(entry.getKey())
-                    .sopIUID(String.valueOf(entry.getValue().size())).build()));
-        }
-        AuditServiceUtils.EventType clientET = rejectionNoteSent.isStudyDeleted()
-                ? AuditServiceUtils.EventType.PRMDLT_WEB
-                : AuditServiceUtils.EventType.RJ_PARTIAL;
-        writeSpoolFile(clientET, deleteObjs);
-        if (localAET.equals(remoteAET)) {
-            AuditServiceUtils.EventType serverET = rejectionNoteSent.isStudyDeleted()
-                    ? AuditServiceUtils.EventType.RJ_COMPLET
-                    : AuditServiceUtils.EventType.RJ_PARTIAL;
-            writeSpoolFile(serverET, deleteObjs);
-        }
+                .build();
     }
+
+    private AuditInfoBuilder externalRejectionServerAuditInfo(RejectionNoteSent rejectionNoteSent, RejectionNote rjNote) {
+        Attributes attrs = rejectionNoteSent.getRejectionNote();
+        return new AuditInfoBuilder.Builder()
+                .callingUserID(rejectionNoteSent.getLocalAE().getAETitle())
+                .callingHost(toHost(rejectionNoteSent.getLocalAE()))
+                .calledUserID(rejectionNoteSent.getRemoteAE().getAETitle())
+                .calledHost(toHost(rejectionNoteSent.getRemoteAE()))
+                .outcome(String.valueOf(rjNote.getRejectionNoteType()))
+                .studyUIDAccNumDate(attrs)
+                .pIDAndName(attrs, getArchiveDevice())
+                .build();
+    }
+
     private String toHost(ApplicationEntity ae) {
         StringBuilder b = new StringBuilder();
         List<Connection> connections = ae.getConnections();
