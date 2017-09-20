@@ -47,6 +47,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.AcceptConflictingPatientID;
+import org.dcm4chee.arc.conf.AcceptMissingPatientID;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.Series;
@@ -87,6 +88,7 @@ class StoreSessionImpl implements StoreSession {
     private Map<String, String> uidMap;
     private String objectStorageID;
     private String metadataStorageID;
+    private AcceptMissingPatientID acceptMissingPatientID;
     private AcceptConflictingPatientID acceptConflictingPatientID;
     private Attributes.UpdatePolicy studyUpdatePolicy;
 
@@ -108,6 +110,7 @@ class StoreSessionImpl implements StoreSession {
         this.ae = ae;
         this.calledAET = ae.getAETitle();
         ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
+        this.acceptMissingPatientID = arcAE.acceptMissingPatientID();
         this.acceptConflictingPatientID = arcAE.acceptConflictingPatientID();
         this.studyUpdatePolicy = arcAE.getArchiveDeviceExtension()
                 .getAttributeFilter(Entity.Study).getAttributeUpdatePolicy();
@@ -273,6 +276,11 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public void setMetadataStorageID(String metadataStorageID) {
         this.metadataStorageID = metadataStorageID;
+    }
+
+    @Override
+    public AcceptMissingPatientID getAcceptMissingPatientID() {
+        return acceptMissingPatientID;
     }
 
     @Override
