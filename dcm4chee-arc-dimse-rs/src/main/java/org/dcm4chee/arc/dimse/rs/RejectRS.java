@@ -194,7 +194,7 @@ public class RejectRS {
         if (matches.isEmpty())
             throw new WebApplicationException(Response.Status.NOT_FOUND);
 
-        KOSBuilder builder = new KOSBuilder(code, 999, 1);
+        KOSBuilder builder = new KOSBuilder(rjNote.getRejectionNoteCode(), 999, 1);
 
         for (Attributes match : matches)
             builder.addInstanceRef(match);

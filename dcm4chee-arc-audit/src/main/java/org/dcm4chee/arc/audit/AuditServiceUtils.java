@@ -83,8 +83,6 @@ class AuditServiceUtils {
 
         PRMDLT_SCH(EventClass.SCHEDULER_DELETED, AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete,
                 null, null, null),
-        PRMDLT_WEB(EventClass.USER_DELETED, AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete,
-                null, null, null),
 
         APPLNSTART(EventClass.APPLN_ACTIVITY, AuditMessages.EventID.ApplicationActivity, AuditMessages.EventActionCode.Execute,
                 AuditMessages.RoleIDCode.ApplicationLauncher, AuditMessages.RoleIDCode.Application,

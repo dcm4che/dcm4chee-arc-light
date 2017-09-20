@@ -198,8 +198,6 @@ public class AuditService {
     }
 
     void spoolInstancesDeleted(StoreContext ctx) {
-        if (isExternalRejectionSourceDestSame(ctx))
-            return;
         Attributes attrs = ctx.getAttributes();
         HashMap<String, HashSet<String>> sopClassMap = buildRejectionSOPClassMap(attrs);
         LinkedHashSet<Object> deleteObjs = getDeletionObjsForSpooling(sopClassMap, new AuditInfo(getAIStoreCtx(ctx)));
@@ -219,16 +217,6 @@ public class AuditService {
         return sopClassMap;
     }
 
-    private boolean isExternalRejectionSourceDestSame(StoreContext ctx) {
-        StoreSession ss = ctx.getStoreSession();
-        return ctx.getRejectionNote() != null && ss.getHttpRequest() == null && ss.getCallingAET().equals(ss.getCalledAET());
-    }
-
-    private boolean isExternalRejectionSourceDestSame(RejectionNoteSent rejectionNoteSent) {
-        return rejectionNoteSent.getLocalAE().getAETitle()
-                .equals(rejectionNoteSent.getRemoteAE().getAETitle());
-    }
-
     void spoolStudyDeleted(StudyDeleteContext ctx) {
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         for (org.dcm4chee.arc.entity.Instance i : ctx.getInstances())
@@ -237,7 +225,7 @@ public class AuditService {
         AuditInfoBuilder i = request != null ? buildPermDeletionAuditInfoForWeb(request, ctx)
                 : buildPermDeletionAuditInfoForScheduler(ctx);
         AuditServiceUtils.EventType eventType = request != null
-                                                ? AuditServiceUtils.EventType.PRMDLT_WEB
+                                                ? AuditServiceUtils.EventType.RJ_COMPLET
                                                 : AuditServiceUtils.EventType.PRMDLT_SCH;
         LinkedHashSet<Object> deleteObjs = getDeletionObjsForSpooling(sopClassMap, new AuditInfo(i));
         writeSpoolFile(eventType, deleteObjs);
@@ -245,31 +233,16 @@ public class AuditService {
 
     void spoolExternalRejection(RejectionNoteSent rejectionNoteSent) {
         Attributes attrs = rejectionNoteSent.getRejectionNote();
-        RejectionNote rjNote = toRejectionNote(attrs);
-
-        LinkedHashSet<AuditInfoBuilder> rejectionSOPRefs = rejectionSOPRefs(attrs);
 
         LinkedHashSet<AuditInfoBuilder> externalRejectionClientAuditInfo = new LinkedHashSet<>();
-        externalRejectionClientAuditInfo.add(externalRejectionClientAuditInfo(rejectionNoteSent, rjNote));
-        externalRejectionClientAuditInfo.addAll(rejectionSOPRefs);
+        externalRejectionClientAuditInfo.add(externalRejectionClientAuditInfo(rejectionNoteSent));
+        externalRejectionClientAuditInfo.addAll(rejectionSOPRefs(attrs));
 
         AuditServiceUtils.EventType clientET = rejectionNoteSent.isStudyDeleted()
-                ? AuditServiceUtils.EventType.PRMDLT_WEB
+                ? AuditServiceUtils.EventType.RJ_COMPLET
                 : AuditServiceUtils.EventType.RJ_PARTIAL;
         writeSpoolFile(clientET, externalRejectionClientAuditInfo.toArray(
                 new AuditInfoBuilder[externalRejectionClientAuditInfo.size()]));
-
-        if (isExternalRejectionSourceDestSame(rejectionNoteSent)) {
-            LinkedHashSet<AuditInfoBuilder> externalRejectionServerAuditInfo = new LinkedHashSet<>();
-            externalRejectionServerAuditInfo.add(externalRejectionServerAuditInfo(rejectionNoteSent, rjNote));
-            externalRejectionServerAuditInfo.addAll(rejectionSOPRefs);
-
-            AuditServiceUtils.EventType serverET = rejectionNoteSent.isStudyDeleted()
-                    ? AuditServiceUtils.EventType.RJ_COMPLET
-                    : AuditServiceUtils.EventType.RJ_PARTIAL;
-            writeSpoolFile(serverET, externalRejectionServerAuditInfo.toArray(
-                    new AuditInfoBuilder[externalRejectionServerAuditInfo.size()]));
-        }
     }
 
     private LinkedHashSet<AuditInfoBuilder> rejectionSOPRefs(Attributes attrs) {
@@ -282,34 +255,16 @@ public class AuditService {
         return rejectionSOPRefs;
     }
 
-    private RejectionNote toRejectionNote(Attributes attrs) {
-        Attributes codeItem = attrs.getSequence(Tag.ConceptNameCodeSequence).get(0);
-        Code code = new Code(codeItem.getString(Tag.CodeValue), codeItem.getString(Tag.CodingSchemeDesignator), null, "?");
-        return getArchiveDevice().getRejectionNote(code);
-    }
-
-    private AuditInfoBuilder externalRejectionClientAuditInfo(RejectionNoteSent rejectionNoteSent, RejectionNote rjNote) {
+    private AuditInfoBuilder externalRejectionClientAuditInfo(RejectionNoteSent rejectionNoteSent) {
         HttpServletRequest req = rejectionNoteSent.getRequest();
         Attributes attrs = rejectionNoteSent.getRejectionNote();
+        Attributes codeItem = attrs.getSequence(Tag.ConceptNameCodeSequence).get(0);
         return new AuditInfoBuilder.Builder()
                 .callingUserID(KeycloakContext.valueOf(req).getUserName())
                 .callingHost(req.getRemoteHost())
                 .calledUserID(req.getRequestURI())
                 .calledHost(toHost(rejectionNoteSent.getRemoteAE()))
-                .outcome(rjNote.getRejectionNoteCode().getCodeMeaning())
-                .studyUIDAccNumDate(attrs)
-                .pIDAndName(attrs, getArchiveDevice())
-                .build();
-    }
-
-    private AuditInfoBuilder externalRejectionServerAuditInfo(RejectionNoteSent rejectionNoteSent, RejectionNote rjNote) {
-        Attributes attrs = rejectionNoteSent.getRejectionNote();
-        return new AuditInfoBuilder.Builder()
-                .callingUserID(rejectionNoteSent.getLocalAE().getAETitle())
-                .callingHost(toHost(rejectionNoteSent.getLocalAE()))
-                .calledUserID(rejectionNoteSent.getRemoteAE().getAETitle())
-                .calledHost(toHost(rejectionNoteSent.getRemoteAE()))
-                .outcome(rjNote.getRejectionNoteCode().getCodeMeaning())
+                .outcome(codeItem.getString(Tag.CodeMeaning))
                 .studyUIDAccNumDate(attrs)
                 .pIDAndName(attrs, getArchiveDevice())
                 .build();
