@@ -39,6 +39,8 @@
 package org.dcm4chee.arc.conf;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -55,6 +57,7 @@ public class AttributeSet implements Comparable<AttributeSet> {
     private int number;
     private int[] selection;
     private boolean installed = true;
+    private final Map<String, String> properties = new HashMap<>();
 
     public Type getType() {
         return type;
@@ -102,6 +105,29 @@ public class AttributeSet implements Comparable<AttributeSet> {
 
     public void setSelection(int[] selection) {
         Arrays.sort(this.selection = selection);
+    }
+
+    public void setProperty(String name, String value) {
+        properties.put(name, value);
+    }
+
+    public String getProperty(String name, String defValue) {
+        String value = properties.get(name);
+        return value != null ? value : defValue;
+    }
+
+    public Map<String,String> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(String[] ss) {
+        properties.clear();
+        for (String s : ss) {
+            int index = s.indexOf('=');
+            if (index < 0)
+                throw new IllegalArgumentException(s);
+            setProperty(s.substring(0, index), s.substring(index+1));
+        }
     }
 
     public boolean isInstalled() {

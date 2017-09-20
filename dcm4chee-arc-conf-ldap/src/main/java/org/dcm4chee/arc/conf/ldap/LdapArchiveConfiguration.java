@@ -1034,6 +1034,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAttributeSetTitle", attributeSet.getTitle(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", attributeSet.getDescription(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmAttributeSetNumber", attributeSet.getNumber(), 0);
+        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(attributeSet.getProperties()));
         LdapUtils.storeNotDef(ldapObj, attrs, "dicomInstalled", attributeSet.isInstalled(), true);
         storeNotEmptyTags(ldapObj, attrs, "dcmTag", attributeSet.getSelection());
         return attrs;
@@ -1118,6 +1119,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attributeSet.setTitle(LdapUtils.stringValue(attrs.get("dcmAttributeSetTitle"), null));
                 attributeSet.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
                 attributeSet.setNumber(LdapUtils.intValue(attrs.get("dcmAttributeSetNumber"), 0));
+                attributeSet.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 attributeSet.setInstalled(LdapUtils.booleanValue(attrs.get("dicomInstalled"), true));
                 attributeSet.setSelection(tags(attrs.get("dcmTag")));
                 device.addAttributeSet(attributeSet);
@@ -1286,6 +1288,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getDescription(), attributeSet.getDescription(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmAttributeSetNumber",
                 prev.getNumber(), attributeSet.getNumber(), 0);
+        storeDiffProperties(mods, prev.getProperties(), attributeSet.getProperties());
         LdapUtils.storeDiff(ldapObj, mods, "dicomInstalled",
                 prev.isInstalled(), attributeSet.isInstalled(), true);
         storeDiffTags(mods, "dcmTag", prev.getSelection(), attributeSet.getSelection());
