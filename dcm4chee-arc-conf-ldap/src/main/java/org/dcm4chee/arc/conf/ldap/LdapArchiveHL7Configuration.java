@@ -62,34 +62,34 @@ import java.util.List;
  */
 public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
     @Override
-    public void storeTo(HL7Application hl7App, String deviceDN, Attributes attrs) {
+    public void storeTo(ConfigurationChanges.ModifiedObject ldapObj, HL7Application hl7App, String deviceDN, Attributes attrs) {
         ArchiveHL7ApplicationExtension ext =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         if (ext == null)
             return;
 
         attrs.get("objectclass").add("dcmArchiveHL7Application");
-        LdapUtils.storeNotNullOrDef(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7LogFilePattern", ext.getHl7LogFilePattern(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dicomAETitle", ext.getAETitle(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7ScheduledProtocolCodeInOrder", ext.getHl7ScheduledProtocolCodeInOrder(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7ScheduledStationAETInOrder", ext.getHl7ScheduledStationAETInOrder(), null);
-        LdapUtils.storeNotEmpty(attrs, "hl7NoPatientCreateMessageType", ext.getHl7NoPatientCreateMessageTypes());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7LogFilePattern", ext.getHl7LogFilePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", ext.getAETitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledProtocolCodeInOrder", ext.getHl7ScheduledProtocolCodeInOrder(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledStationAETInOrder", ext.getHl7ScheduledStationAETInOrder(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7NoPatientCreateMessageType", ext.getHl7NoPatientCreateMessageTypes());
     }
 
     @Override
-    public void storeChilds(String appDN, HL7Application hl7App) throws NamingException {
+    public void storeChilds(ConfigurationChanges.ModifiedObject ldapObj, String appDN, HL7Application hl7App) throws NamingException {
         ArchiveHL7ApplicationExtension ext =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         if (ext == null)
             return;
 
-        LdapArchiveConfiguration.storeHL7ForwardRules(ext.getHL7ForwardRules(), appDN, getDicomConfiguration());
-        LdapArchiveConfiguration.storeScheduledStations(ext.getHL7OrderScheduledStations(), appDN, getDicomConfiguration());
-        LdapArchiveConfiguration.storeHL7OrderSPSStatus(ext.getHL7OrderSPSStatuses(), appDN, getDicomConfiguration());
+        LdapArchiveConfiguration.storeHL7ForwardRules(ldapObj, ext.getHL7ForwardRules(), appDN, getDicomConfiguration());
+        LdapArchiveConfiguration.storeScheduledStations(ldapObj, ext.getHL7OrderScheduledStations(), appDN, getDicomConfiguration());
+        LdapArchiveConfiguration.storeHL7OrderSPSStatus(ldapObj, ext.getHL7OrderSPSStatuses(), appDN, getDicomConfiguration());
     }
 
     @Override
