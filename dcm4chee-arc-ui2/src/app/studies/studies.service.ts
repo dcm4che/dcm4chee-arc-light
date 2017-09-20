@@ -555,8 +555,8 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         }
         return endObject;
     }
-    changeExternalPatientID(patient, aet, oldPatientID){
-        let url = `../hl7apps/${aet}/hl7/${aet}/patients/${oldPatientID}/changeid`;
+    changeExternalPatientID(patient, internalAppName, externalAppName, oldPatientID){
+        let url = `../hl7apps/${internalAppName}/hl7/${externalAppName}/patients/${oldPatientID}/changeid`;
         let headers = new Headers({ 'Content-Type': 'application/dicom+json' });
         let object;
         if(_.hasIn(patient,"attrs")){
@@ -574,10 +574,10 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             successMsg:'Patient ID changed successfully!'
         };
     }
-    modifyPatient(patient, iod, oldPatientID, aet, externalAppName,  modifyMode, externalInternalAetMode){
+    modifyPatient(patient, iod, oldPatientID, aet,internalAppName, externalAppName,  modifyMode, externalInternalAetMode){
         let url;
         if(externalInternalAetMode === 'external'){
-            url = `../hl7apps/${aet}/hl7/${externalAppName}/patients`;
+            url = `../hl7apps/${internalAppName}/hl7/${externalAppName}/patients`;
         }else{
             url = `../aets/${aet}/rs/patients/`;
         }

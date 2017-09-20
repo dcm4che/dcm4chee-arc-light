@@ -1,5 +1,6 @@
 import {Injectable} from "@angular/core";
 import {AppService} from "../app.service";
+import * as _ from 'lodash';
 
 @Injectable()
 export class HttpErrorHandler {
@@ -8,9 +9,20 @@ export class HttpErrorHandler {
     public handleError(error){
         if (error._body && error._body != '') {
             try{
+                let msgObject = JSON.parse(error._body);
+                let msg = "Error";
+                if(_.hasIn(msgObject,"msa-3")){
+                    msg = msgObject["msa-3"];
+                }
+                if(_.hasIn(msgObject,"err-8")){
+                    msg = msgObject["err-8"];
+                }
+                if(_.hasIn(msgObject,"errorMessage")){
+                    msg = msgObject["errorMessage"];
+                }
                 this.mainservice.setMessage({
                     'title': 'Error ' + error.status,
-                    'text': JSON.parse(error._body).errorMessage,
+                    'text': msg,
                     'status': 'error'
                 });
 
