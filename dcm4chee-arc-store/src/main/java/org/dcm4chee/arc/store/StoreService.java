@@ -41,10 +41,10 @@ public interface StoreService {
     String REJECTION_FAILED_ALREADY_REJECTED_MSG  = "Failed to reject Instance[uid={0}] - already rejected.";
     String REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_AUTHORIZED_MSG = "Rejection for Retention Policy Expired not authorized.";
     String RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG = "Retention Period of Study not yet expired.";
-    String PATIENT_ID_MISSING_IN_OBJECT_MSG = "Storage denied as Patient ID missing in object.";
+    String PATIENT_ID_MISSING_IN_OBJECT_MSG = "Patient ID missing in object.";
     String NOT_AUTHORIZED = "Storage denied.";
     String FAILED_TO_QUERY_STORE_PERMISSION_SERVICE = "Failed to query Store Permission Service";
-    String CONFLICTING_PID_NOT_ACCEPTED_MSG = "Patient ID in incoming object [PID={0}, StudyIUID={1}] does not match with that of patient associated with study [PID={2}, StudyIUID={3}].";
+    String CONFLICTING_PID_NOT_ACCEPTED_MSG = "Patient ID {0} differs from Patient ID {1} in previous received object of Study[uid={2}].";
 
     StoreSession newStoreSession(Association as);
 

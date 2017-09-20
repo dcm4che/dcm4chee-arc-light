@@ -94,6 +94,9 @@ public class QueryAttributeSets {
                     writer.writeNotNullOrDef("id", attrSet.getID(), null);
                     writer.writeNotNullOrDef("description", attrSet.getDescription(), null);
                     writer.writeNotNullOrDef("title", attrSet.getTitle(), null);
+                    for (Map.Entry<String, String> property : attrSet.getProperties().entrySet()) {
+                        writer.writeNotNullOrDef(property.getKey(), property.getValue(), null);
+                    }
                     gen.writeEnd();
                 }
                 gen.writeEnd();
