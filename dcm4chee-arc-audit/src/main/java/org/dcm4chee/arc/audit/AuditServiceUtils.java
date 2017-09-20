@@ -155,11 +155,8 @@ class AuditServiceUtils {
         }
 
         static EventType forInstanceStored(StoreContext ctx) {
-            String operationState = ctx.operationState();
-            return operationState != null
-                    ? operationState.equals("UPDATE")
-                        ? STORE_UPDT : STORE_CREA
-                    : null;
+            return !ctx.getLocations().isEmpty() && ctx.getPreviousInstance() != null
+                        ? STORE_UPDT : STORE_CREA;
         }
 
         static EventType forHL7(PatientMgtContext ctx) {

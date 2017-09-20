@@ -5,8 +5,6 @@ import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.WriteContext;
 
 import java.time.LocalDate;
@@ -101,19 +99,5 @@ public interface StoreContext {
     boolean isPreviousDifferentStudy();
 
     boolean isPreviousDifferentSeries();
-
-    Patient getPatient();
-
-    void setPatient(Patient patient);
-
-    Study getStudy();
-
-    void setStudy(Study study);
-
-    String operationState();
-
-    boolean isDicomServiceException();
-
-    void setDicomServiceException(boolean dicomServiceException);
 
 }

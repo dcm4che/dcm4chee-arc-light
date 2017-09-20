@@ -599,9 +599,15 @@ public class AuditService {
     }
 
     void spoolInstanceStored(StoreContext ctx) {
+        if (ctx.getRejectionNote() != null) {
+            spoolInstancesDeleted(ctx);
+            return;
+        }
+
+        if (isDuplicateReceivedInstance(ctx))
+            return;
+
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forInstanceStored(ctx);
-        if (eventType == null)
-            return; // no audit message for duplicate received instance
 
         StoreSession ss = ctx.getStoreSession();
         HttpServletRequest req = ss.getHttpRequest();
@@ -609,47 +615,39 @@ public class AuditService {
                 ? KeycloakUtils.getUserName(req)
                 : ss.getCallingAET();
 
-        String callingHost = ss.getRemoteHostName();
-
-        String outcome = null != ctx.getException() && null != ctx.getRejectionNote()
-                ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
-                : getOD(ctx.getException());
-        String warning = ctx.getException() == null && null != ctx.getRejectionNote()
-                ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null;
+        String rjNoteMeaning = ctx.getException() == null && null != ctx.getRejectionNote()
+                            ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null;
+        String exception = getOD(ctx.getException());
+        String outcome = ctx.getRejectionNote() == null
+                            ? exception
+                            : exception + " - " + rjNoteMeaning;
 
         BuildAuditInfo instanceInfo = new BuildAuditInfo.Builder()
                 .sopCUID(ctx.getSopClassUID()).sopIUID(ctx.getSopInstanceUID())
                 .mppsUID(ctx.getMppsInstanceUID())
                 .build();
 
-        BuildAuditInfo info;
-
         ArchiveDeviceExtension arcDev = getArchiveDevice();
-        if (ctx.isDicomServiceException()) {
-            Attributes attr = ctx.getStudy() != null ? ctx.getStudy().getAttributes() : ctx.getAttributes();
-            Attributes patAttrs = ctx.getPatient() != null ? ctx.getPatient().getAttributes() : null;
-            info = new BuildAuditInfo.Builder().callingHost(callingHost)
-                    .callingAET(callingAET)
-                    .calledAET(req != null ? req.getRequestURI() : ss.getCalledAET())
-                    .studyUIDAccNumDate(attr)
-                    .pIDAndName(patAttrs, arcDev)
-                    .outcome(outcome)
-                    .warning(warning)
-                    .build();
+        Attributes attr = ctx.getAttributes();
+        BuildAuditInfo info = new BuildAuditInfo.Builder().callingHost(ss.getRemoteHostName())
+                .callingAET(callingAET)
+                .calledAET(req != null ? req.getRequestURI() : ss.getCalledAET())
+                .studyUIDAccNumDate(attr)
+                .pIDAndName(attr, arcDev)
+                .outcome(outcome)
+                .warning(rjNoteMeaning)
+                .build();
+
+        if (ctx.getException() != null)
             writeSpoolFile(eventType, info, instanceInfo);
-        } else {
+        else {
             String fileName = getFileName(eventType, callingAET.replace('|', '-'), ctx.getStoreSession().getCalledAET(), ctx.getStudyInstanceUID());
-            Attributes attr = ctx.getAttributes();
-            info = new BuildAuditInfo.Builder().callingHost(callingHost)
-                    .callingAET(callingAET)
-                    .calledAET(req != null ? req.getRequestURI() : ss.getCalledAET())
-                    .studyUIDAccNumDate(attr)
-                    .pIDAndName(attr, arcDev)
-                    .outcome(outcome)
-                    .warning(warning)
-                    .build();
             writeSpoolFileStoreOrWadoRetrieve(fileName, info, instanceInfo);
         }
+    }
+
+    private boolean isDuplicateReceivedInstance(StoreContext ctx) {
+        return ctx.getLocations().isEmpty() && ctx.getStoredInstance() == null && ctx.getException() == null;
     }
     
     void spoolRetrieveWADO(RetrieveContext ctx) {

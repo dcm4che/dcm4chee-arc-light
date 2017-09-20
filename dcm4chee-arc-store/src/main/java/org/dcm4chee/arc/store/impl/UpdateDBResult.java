@@ -60,8 +60,6 @@ class UpdateDBResult {
     private Patient createdPatient;
     private Study createdStudy;
     private Instance storedInstance;
-    private Patient patient;
-    private Study study;
     private Exception exception;
 
     public List<Location> getLocations() {
@@ -126,21 +124,5 @@ class UpdateDBResult {
 
     public void setException(Exception exception) {
         this.exception = exception;
-    }
-
-    public Patient getPatient() {
-        return patient;
-    }
-
-    public void setPatient(Patient patient) {
-        this.patient = patient;
-    }
-
-    public Study getStudy() {
-        return study;
-    }
-
-    public void setStudy(Study study) {
-        this.study = study;
     }
 }

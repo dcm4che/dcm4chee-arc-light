@@ -196,6 +196,9 @@ class StoreServiceImpl implements StoreService {
             coerceAttributes(ctx);
             result = updateDB(ctx);
             postUpdateDB(ctx, result);
+        } catch (DicomServiceException e) {
+            ctx.setException(e);
+            throw e;
         } catch (Exception e) {
             DicomServiceException dse = new DicomServiceException(Status.ProcessingFailure, e);
             ctx.setException(dse);
@@ -214,8 +217,8 @@ class StoreServiceImpl implements StoreService {
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
         int retries = arcDev.getStoreUpdateDBMaxRetries();
         for (;;) {
-            UpdateDBResult result = new UpdateDBResult();
             try {
+                UpdateDBResult result = new UpdateDBResult();
                 ejb.updateDB(ctx, result);
                 return result;
             } catch (EJBException e) {
@@ -225,13 +228,6 @@ class StoreServiceImpl implements StoreService {
                     LOG.warn("{}: Failed to update DB:\n", session, e);
                     throw e;
                 }
-            } catch (DicomServiceException e) {
-                ctx.setException(e);
-                result.setException(e);
-                ctx.setPatient(result.getPatient());
-                ctx.setStudy(result.getStudy());
-                ctx.setDicomServiceException(true);
-                return result;
             }
             try {
                 Thread.sleep(ThreadLocalRandom.current().nextInt(arcDev.getStoreUpdateDBMaxRetryDelay()));
@@ -242,9 +238,6 @@ class StoreServiceImpl implements StoreService {
     }
 
     private void postUpdateDB(StoreContext ctx, UpdateDBResult result) throws Exception {
-        if (result.getException() != null)
-            throw result.getException();
-
         Instance instance = result.getCreatedInstance();
         if (instance != null) {
             if (result.getCreatedPatient() != null) {
@@ -299,6 +292,9 @@ class StoreServiceImpl implements StoreService {
             }
             result = updateDB(ctx);
             postUpdateDB(ctx, result);
+        } catch (DicomServiceException e) {
+            ctx.setException(e);
+            throw e;
         } catch (Exception e) {
             DicomServiceException dse = new DicomServiceException(Status.ProcessingFailure, e);
             ctx.setException(dse);

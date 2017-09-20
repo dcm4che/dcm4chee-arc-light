@@ -85,12 +85,8 @@ public class AuditTriggerObserver {
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        if (deviceHasAuditLoggers()) {
-            if (ctx.getRejectionNote() != null)
-                auditService.spoolInstancesDeleted(ctx);
-            else if (ctx.getStoredInstance() != null || ctx.getException() != null)
-                auditService.spoolInstanceStored(ctx);
-        }
+        if (deviceHasAuditLoggers())
+            auditService.spoolInstanceStored(ctx);
     }
 
     public void onQuery(@Observes QueryContext ctx) {

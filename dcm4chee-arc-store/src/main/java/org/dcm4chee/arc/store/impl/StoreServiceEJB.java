@@ -556,14 +556,12 @@ public class StoreServiceEJB {
         if (series == null) {
             Study study = findStudy(ctx, result);
             if (study == null) {
-                Patient pat = patientService.findPatient(patMgtCtx);
-                result.setPatient(pat);
-
-                if (!checkMissingPatientID(ctx)) {
+                if (!checkMissingPatientID(ctx))
                     throw new DicomServiceException(StoreService.PATIENT_ID_MISSING_IN_OBJECT,
                             StoreService.PATIENT_ID_MISSING_IN_OBJECT_MSG);
-                }
 
+
+                Patient pat = patientService.findPatient(patMgtCtx);
                 checkStorePermission(ctx, pat);
 
                 if (pat == null) {
@@ -578,25 +576,18 @@ public class StoreServiceEJB {
                     study.setExpirationDate(ctx.getExpirationDate());
                 result.setCreatedStudy(study);
             } else {
-                result.setStudy(study);
-                Patient patient = study.getPatient();
-                result.setPatient(patient);
                 checkConflictingPID(patMgtCtx, ctx, study);
-                checkStorePermission(ctx, patient);
+                checkStorePermission(ctx, study.getPatient());
                 study = updateStudy(ctx, study);
-                updatePatient(ctx, patient);
+                updatePatient(ctx, study.getPatient());
             }
             series = createSeries(ctx, study, result);
         } else {
-            Study study = series.getStudy();
-            result.setStudy(study);
-            Patient patient = study.getPatient();
-            result.setPatient(patient);
-            checkConflictingPID(patMgtCtx, ctx, study);
-            checkStorePermission(ctx, patient);
+            checkConflictingPID(patMgtCtx, ctx, series.getStudy());
+            checkStorePermission(ctx, series.getStudy().getPatient());
             series = updateSeries(ctx, series);
-            updateStudy(ctx, study);
-            updatePatient(ctx, patient);
+            updateStudy(ctx, series.getStudy());
+            updatePatient(ctx, series.getStudy().getPatient());
         }
         Instance instance = createInstance(session, series, conceptNameCode,
                 ctx.getAttributes(), ctx.getRetrieveAETs(), ctx.getAvailability());
