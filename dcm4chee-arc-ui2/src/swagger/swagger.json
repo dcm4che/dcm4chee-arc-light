@@ -874,6 +874,9 @@
               "$ref": "attributeSets.schema.json"
             }
           },
+          "404": {
+            "description": "type not found"
+          },
           "default": {
             "description": "unexpected error"
           }
