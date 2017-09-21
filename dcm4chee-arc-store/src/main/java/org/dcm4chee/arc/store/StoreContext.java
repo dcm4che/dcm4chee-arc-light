@@ -99,5 +99,4 @@ public interface StoreContext {
     boolean isPreviousDifferentStudy();
 
     boolean isPreviousDifferentSeries();
-
 }

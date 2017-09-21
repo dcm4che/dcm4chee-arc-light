@@ -237,7 +237,7 @@ class StoreServiceImpl implements StoreService {
         }
     }
 
-    private void postUpdateDB(StoreContext ctx, UpdateDBResult result) throws Exception {
+    private void postUpdateDB(StoreContext ctx, UpdateDBResult result) throws IOException {
         Instance instance = result.getCreatedInstance();
         if (instance != null) {
             if (result.getCreatedPatient() != null) {

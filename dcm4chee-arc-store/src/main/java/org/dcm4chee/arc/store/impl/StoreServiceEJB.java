@@ -560,7 +560,6 @@ public class StoreServiceEJB {
                     throw new DicomServiceException(StoreService.PATIENT_ID_MISSING_IN_OBJECT,
                             StoreService.PATIENT_ID_MISSING_IN_OBJECT_MSG);
 
-
                 Patient pat = patientService.findPatient(patMgtCtx);
                 checkStorePermission(ctx, pat);
 
@@ -568,9 +567,9 @@ public class StoreServiceEJB {
                     patMgtCtx.setPatientID(IDWithIssuer.pidOf(ctx.getAttributes()));
                     pat = patientService.createPatient(patMgtCtx);
                     result.setCreatedPatient(pat);
-                } else
+                } else {
                     pat = updatePatient(ctx, pat);
-
+                }
                 study = createStudy(ctx, pat);
                 if (ctx.getExpirationDate() != null)
                     study.setExpirationDate(ctx.getExpirationDate());
