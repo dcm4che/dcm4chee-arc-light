@@ -551,7 +551,7 @@ public class StoreServiceEJB {
                 : httpRequest != null
                 ? patientService.createPatientMgtContextWEB(httpRequest)
                 : patientService.createPatientMgtContextHL7(
-                        session.getLocalHL7Application(), session.getSocket(), session.getHL7MessageHeader());
+                        session.getLocalHL7Application(), session.getSocket(), session.getUnparsedHL7Message());
         patMgtCtx.setAttributes(ctx.getAttributes());
         if (series == null) {
             Study study = findStudy(ctx, result);
