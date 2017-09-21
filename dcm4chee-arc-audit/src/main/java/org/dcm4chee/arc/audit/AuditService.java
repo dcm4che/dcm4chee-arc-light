@@ -52,9 +52,9 @@ import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
+import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.RejectionState;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
@@ -137,6 +137,9 @@ public class AuditService {
                 break;
             case INST_RETRIEVED:
                 auditExternalRetrieve(auditLogger, path, eventType);
+                break;
+            case LDAP_CHANGES:
+                auditSoftwareConfiguration(auditLogger, path, eventType);
                 break;
         }
     }
@@ -281,6 +284,37 @@ public class AuditService {
         return b.toString();
     }
 
+    void spoolSoftwareConfiguration(SoftwareConfiguration softwareConfiguration) {
+        HttpServletRequest request = softwareConfiguration.getRequest();
+        AuditInfoBuilder info = new AuditInfoBuilder.Builder()
+                                .callingUserID(KeycloakContext.valueOf(request).getUserName())
+                                .callingHost(request.getRemoteAddr())
+                                .calledUserID(softwareConfiguration.getDeviceName())
+                                .ldapDiff(softwareConfiguration.getLdapDiff().toString())
+                                .build();
+        writeSpoolFile(AuditServiceUtils.EventType.LDAP_CHNGS, info);
+    }
+
+    private void auditSoftwareConfiguration(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
+            throws IOException {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+        EventIdentificationBuilder ei = toBuildEventIdentification(eventType, null, getEventTime(path, auditLogger));
+        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[1];
+        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
+        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
+                callingUserID,
+                auditInfo.getField(AuditInfo.CALLING_HOST))
+                .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
+                .requester(true).build();
+        ParticipantObjectIdentificationBuilder poiLDAPDiff = new ParticipantObjectIdentificationBuilder.Builder(auditInfo.getField(
+                                                    AuditInfo.CALLED_USERID),
+                                                    AuditMessages.ParticipantObjectIDTypeCode.DeviceName,
+                                                    AuditMessages.ParticipantObjectTypeCode.SystemObject,
+                                                    null).detail(getPod("Alert Description", auditInfo.getField(AuditInfo.LDAP_DIFF)))
+                                                    .build();
+        emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poiLDAPDiff);
+    }
 
     private AuditInfoBuilder buildPermDeletionAuditInfoForWeb(HttpServletRequest req, StudyDeleteContext ctx) {
         return new AuditInfoBuilder.Builder()
@@ -590,18 +624,57 @@ public class AuditService {
     }
 
     void spoolInstanceStored(StoreContext ctx) {
+        if (ctx.getRejectionNote() != null) {
+            spoolInstancesDeleted(ctx);
+            return;
+        }
+
+        if (isDuplicateReceivedInstance(ctx))
+            return;
+
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forInstanceStored(ctx);
-        if (eventType == null)
-            return; // no audit message for duplicate received instance
-        String callingAET = ctx.getStoreSession().getHttpRequest() != null
-                ? ctx.getStoreSession().getHttpRequest().getRemoteAddr() : ctx.getStoreSession().getCallingAET().replace('|', '-');
-        String fileName = getFileName(eventType, callingAET, ctx.getStoreSession().getCalledAET(), ctx.getStudyInstanceUID());
-        AuditInfoBuilder info = getAIStoreCtx(ctx);
+
+        StoreSession ss = ctx.getStoreSession();
+        HttpServletRequest req = ss.getHttpRequest();
+        String callingUserID = req != null
+                ? KeycloakContext.valueOf(req).getUserName()
+                : ss.getCallingAET();
+
+        String rjNoteMeaning = ctx.getException() == null && null != ctx.getRejectionNote()
+                            ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null;
+        String exception = getOD(ctx.getException());
+        String outcome = ctx.getRejectionNote() == null
+                            ? exception
+                            : exception + " - " + rjNoteMeaning;
+
         AuditInfoBuilder instanceInfo = new AuditInfoBuilder.Builder()
-                                    .sopCUID(ctx.getSopClassUID()).sopIUID(ctx.getSopInstanceUID())
-                                    .mppsUID(ctx.getMppsInstanceUID())
-                                    .build();
-        writeSpoolFileStoreOrWadoRetrieve(fileName, info, instanceInfo);
+                .sopCUID(ctx.getSopClassUID()).sopIUID(ctx.getSopInstanceUID())
+                .mppsUID(ctx.getMppsInstanceUID())
+                .build();
+
+        ArchiveDeviceExtension arcDev = getArchiveDevice();
+        Attributes attr = ctx.getAttributes();
+        AuditInfoBuilder info = new AuditInfoBuilder.Builder().callingHost(ss.getRemoteHostName())
+                .callingUserID(callingUserID)
+                .calledUserID(req != null ? req.getRequestURI() : ss.getCalledAET())
+                .studyUIDAccNumDate(attr)
+                .pIDAndName(attr, arcDev)
+                .outcome(outcome)
+                .warning(rjNoteMeaning)
+                .build();
+
+        if (ctx.getException() != null)
+            writeSpoolFile(eventType, info, instanceInfo);
+        else {
+            String fileName = getFileName(
+                    eventType, callingUserID.replace('|', '-'),
+                    ctx.getStoreSession().getCalledAET(), ctx.getStudyInstanceUID());
+            writeSpoolFileStoreOrWadoRetrieve(fileName, info, instanceInfo);
+        }
+    }
+
+    private boolean isDuplicateReceivedInstance(StoreContext ctx) {
+        return ctx.getLocations().isEmpty() && ctx.getStoredInstance() == null && ctx.getException() == null;
     }
     
     void spoolRetrieveWADO(RetrieveContext ctx) {

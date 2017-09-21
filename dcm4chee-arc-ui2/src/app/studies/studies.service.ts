@@ -509,33 +509,146 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             obj = patient;
         }
         let patientId = '';
-        if (obj.PatientID){
-            patientId = obj.PatientID;
+        if(obj.PatientID || (_.hasIn(obj, '["00100020"].Value[0]') && obj["00100020"].Value[0] != '')){
+            if (obj.PatientID){
+                patientId = obj.PatientID;
+            }
+            if (obj.IssuerOfPatientID){
+                patientId += '^^^' + obj.IssuerOfPatientID;
+            }
+            if(_.hasIn(obj,'IssuerOfPatientIDQualifiers.UniversalEntityID')){
+                patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityID;
+            }
+            if(_.hasIn(obj,'IssuerOfPatientIDQualifiers.UniversalEntityIDType')){
+                patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityIDType;
+            }
+            if (_.hasIn(obj, '["00100020"].Value[0]')){
+                patientId += obj["00100020"].Value[0];
+            }
+            if (_.hasIn(obj, '["00100021"].Value[0]')){
+                patientId += '^^^' + obj["00100021"].Value[0];
+            }
+            if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]')){
+                patientId += '&' + obj['00100024'].Value[0]['00400032'].Value[0];
+            }
+            if (_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]')){
+                patientId += '&' + obj['00100024'].Value[0]['00400033'].Value[0];
+            }
+            return patientId;
+        }else{
+            return undefined;
         }
-        if (obj.IssuerOfPatientID){
-            patientId += '^^^' + obj.IssuerOfPatientID;
-        }
-        if(_.hasIn(obj,'IssuerOfPatientIDQualifiers.UniversalEntityID')){
-            patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityID;
-        }
-        if(_.hasIn(obj,'IssuerOfPatientIDQualifiers.UniversalEntityIDType')){
-            patientId += '&' + obj.IssuerOfPatientIDQualifiers.UniversalEntityIDType;
-        }
-        if (_.hasIn(obj, '["00100020"].Value[0]')){
-            patientId += obj["00100020"].Value[0];
-        }
-        if (_.hasIn(obj, '["00100021"].Value[0]')){
-            patientId += '^^^' + obj["00100021"].Value[0];
-        }
-        if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]')){
-            patientId += '&' + obj['00100024'].Value[0]['00400032'].Value[0];
-        }
-        if (_.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]')){
-            patientId += '&' + obj['00100024'].Value[0]['00400033'].Value[0];
-        }
-        return patientId;
     }
-
+    preparePatientObjectForExternalPatiendIdChange(unchangedPatientObject, changedPatientObject){
+        let endObject = _.cloneDeep(unchangedPatientObject);
+        if(_.hasIn(changedPatientObject,'["00100020"].Value[0]')){
+            _.set(endObject,'["00100020"].Value[0]', changedPatientObject["00100020"].Value[0]);
+        }
+        if(_.hasIn(changedPatientObject,'["00100021"].Value[0]')){
+            _.set(endObject,'["00100021"].Value[0]', changedPatientObject["00100021"].Value[0]);
+        }
+        if(_.hasIn(changedPatientObject,'["00100024"].Value[0]["00400032"].Value[0]')){
+            _.set(endObject,'["00100024"].Value[0]["00400032"].Value[0]', changedPatientObject["00100024"].Value[0]["00400032"].Value[0]);
+        }
+        if(_.hasIn(changedPatientObject,'["00100024"].Value[0]["00400033"].Value[0]')){
+            _.set(endObject,'["00100024"].Value[0]["00400033"].Value[0]', changedPatientObject["00100024"].Value[0]["00400033"].Value[0]);
+        }
+        return endObject;
+    }
+    changeExternalPatientID(patient, internalAppName, externalAppName, oldPatientID){
+        let url = `../hl7apps/${internalAppName}/hl7/${externalAppName}/patients/${oldPatientID}/changeid`;
+        let headers = new Headers({ 'Content-Type': 'application/dicom+json' });
+        let object;
+        if(_.hasIn(patient,"attrs")){
+            object = patient.attrs;
+        }else{
+            object = patient;
+        }
+        return {
+            save:this.$http.post(
+                url,
+                object,
+                {headers: headers}
+            ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            ,
+            successMsg:'Patient ID changed successfully!'
+        };
+    }
+    modifyPatient(patient, iod, oldPatientID, aet,internalAppName, externalAppName,  modifyMode, externalInternalAetMode){
+        let url;
+        if(externalInternalAetMode === 'external'){
+            url = `../hl7apps/${internalAppName}/hl7/${externalAppName}/patients`;
+        }else{
+            url = `../aets/${aet}/rs/patients/`;
+        }
+        let headers = new Headers({ 'Content-Type': 'application/dicom+json' });
+        this.clearPatientObject(patient.attrs);
+        this.convertStringToNumber(patient.attrs);
+        //Check if the patient.attrs object have PatientID
+        if (_.hasIn(patient,'attrs[00100020].Value[0]') && patient.attrs['00100020'].Value[0] != ''){
+            //Delete attrs that don't have values
+            _.forEach(patient.attrs, function(m, i){
+                if (iod && iod[i] && iod[i].vr != 'SQ' && m.Value && m.Value.length === 1 && m.Value[0] === ''){
+                    delete patient.attrs[i];
+                }
+            });
+            if (modifyMode === 'create' && _.hasIn(patient, 'attrs.00100021') && patient.attrs['00100021'] != undefined) {
+                oldPatientID = this.getPatientId(patient.attrs);
+            }
+            if(externalInternalAetMode === 'internal'){
+                url = url + oldPatientID;
+            }
+            if((externalInternalAetMode === 'external' && modifyMode === 'edit') || externalInternalAetMode === 'internal'){
+                    return {
+                        save:this.$http.put(
+                                url,
+                                patient.attrs,
+                                {headers: headers}
+                            ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+                        ,
+                        successMsg:'Patient saved successfully!'
+                    };
+            }else{
+               if(externalInternalAetMode === 'external' && modifyMode === 'create'){
+                   return {
+                       save:this.$http.post(
+                           url,
+                           patient.attrs,
+                           {headers: headers}
+                       ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+                       ,
+                       successMsg:'Patient created successfully!'
+                   };
+               }else{
+                   this.mainservice.setMessage( {
+                       'title': 'Error',
+                       'text': 'Something went wrong, reload the page and try again!',
+                       'status': 'error'
+                   });
+                   return null;
+               }
+            }
+        }else{
+            if (modifyMode === 'create'){
+                return {
+                    save:this.$http.post(
+                        url,
+                        patient.attrs,
+                        {headers: headers}
+                    ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+                    ,
+                        successMsg:'Patient created successfully!'
+                };
+            }else{
+                this.mainservice.setMessage({
+                    'title': 'Error',
+                    'text': 'Patient ID is required!',
+                    'status': 'error'
+                });
+                return null;
+            }
+        }
+    }
     isTargetInClipboard(target, clipboard){
         let contains = false;
         _.forEach(clipboard.otherObjects, (m, i) => {

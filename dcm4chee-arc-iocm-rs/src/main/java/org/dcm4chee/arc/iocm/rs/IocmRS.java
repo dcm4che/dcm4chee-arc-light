@@ -284,6 +284,8 @@ public class IocmRS {
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         } catch (PatientTrackingNotAllowedException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.CONFLICT));
+        } catch(Exception e) {
+            throw new WebApplicationException(getResponseAsTextPlain(e));
         }
     }
 
@@ -911,5 +913,12 @@ public class IocmRS {
     private Response getResponse(String errorMessage, Response.Status status) {
         Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
         return Response.status(status).entity(entity).build();
+    }
+
+    private Response getResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.BAD_REQUEST).entity(exceptionAsString).type("text/plain").build();
     }
 }

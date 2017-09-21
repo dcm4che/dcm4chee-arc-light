@@ -9,6 +9,7 @@ import {AppService} from '../app.service';
 import {ControlService} from '../control/control.service';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {WindowRefService} from "../helpers/window-ref.service";
+import {HttpErrorHandler} from "../helpers/http-error-handler";
 
 @Component({
   selector: 'app-device-configurator',
@@ -31,7 +32,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         private $http: Http,
         private mainservice: AppService,
         private controlService: ControlService,
-        public cfpLoadingBar: SlimLoadingBarService
+        public cfpLoadingBar: SlimLoadingBarService,
+        public httpErrorHandler:HttpErrorHandler
     ) { }
     addModel(){
         let explod = this.params['device'].split('|');
@@ -116,12 +118,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         (err) => {
                             _.assign($this.service.device, deviceClone);
                             console.log('error', err);
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText + '!',
-                                'status': 'error',
-                                'detailError': err._body
-                            });
+                            $this.httpErrorHandler.handleError(err);
                             $this.cfpLoadingBar.complete();
                         }
 
@@ -178,12 +175,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         (err) => {
                             _.assign($this.service.device, deviceClone);
                             console.log('error', err);
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText + '!',
-                                'status': 'error',
-                                'detailError': err._body
-                            });
+                            $this.httpErrorHandler.handleError(err);
                             $this.cfpLoadingBar.complete();
                         }
 
@@ -281,11 +273,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                             },(err)=>{
                                 console.log("error",err);
                                 $this.cfpLoadingBar.complete();
-                                $this.mainservice.setMessage({
-                                    'title': 'Error',
-                                    'text': "Error",
-                                    'status': 'error'
-                                });
+                                $this.httpErrorHandler.handleError(err);
                             });
                         }
                     // }

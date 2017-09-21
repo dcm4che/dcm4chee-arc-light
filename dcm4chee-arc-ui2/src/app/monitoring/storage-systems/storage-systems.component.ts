@@ -8,6 +8,7 @@ import * as _ from 'lodash';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {StorageSystemsService} from './storage-systems.service';
 import {WindowRefService} from "../../helpers/window-ref.service";
+import {HttpErrorHandler} from "../../helpers/http-error-handler";
 
 @Component({
   selector: 'app-storage-systems',
@@ -32,7 +33,16 @@ export class StorageSystemsComponent implements OnInit {
     usableSpaceBelow;
     usableSpaceBelowMode = "GB";
 
-    constructor(public $http: Http, public cfpLoadingBar: SlimLoadingBarService, public mainservice: AppService, public  service: StorageSystemsService, public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig) {
+    constructor(
+        public $http: Http,
+        public cfpLoadingBar: SlimLoadingBarService,
+        public mainservice: AppService,
+        public  service: StorageSystemsService,
+        public viewContainerRef: ViewContainerRef,
+        public dialog: MdDialog,
+        public config: MdDialogConfig,
+        public httpErrorHandler:HttpErrorHandler
+    ) {
         // this.initExporters(1);
         // this.init();
         this.getAets();
@@ -164,7 +174,7 @@ export class StorageSystemsComponent implements OnInit {
             }, (err) => {
                 $this.cfpLoadingBar.complete();
                 $this.matches = [];
-                console.log('err', err);
+                $this.httpErrorHandler.handleError(err);
             });
     };
     convertBtoGBorMB(value){
@@ -275,11 +285,7 @@ export class StorageSystemsComponent implements OnInit {
                             $this.search(0);
                             $this.cfpLoadingBar.complete();
                         }, (err) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                         });
                 }
             }
@@ -310,12 +316,7 @@ export class StorageSystemsComponent implements OnInit {
                         },
                         (err) => {
                             $this.cfpLoadingBar.complete();
-                            console.log('cancleerr', err);
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                         });
             }
         });

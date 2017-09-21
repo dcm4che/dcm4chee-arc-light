@@ -40,10 +40,7 @@
 
 package org.dcm4chee.arc.conf.rs;
 
-import org.dcm4che3.conf.api.AETitleAlreadyExistsException;
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.conf.api.ConfigurationNotFoundException;
-import org.dcm4che3.conf.api.DicomConfiguration;
+import org.dcm4che3.conf.api.*;
 import org.dcm4che3.conf.api.hl7.HL7ApplicationAlreadyExistsException;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
@@ -53,11 +50,13 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DeviceInfo;
 import org.dcm4che3.net.HL7ApplicationInfo;
 import org.dcm4che3.util.ByteUtils;
+import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -91,6 +90,9 @@ public class ConfigurationRS {
 
     @Context
     private HttpServletRequest request;
+
+    @Inject
+    private Event<SoftwareConfiguration> softwareConfigurationEvent;
 
     @QueryParam("options")
     @Pattern(regexp = "true|false")
@@ -245,7 +247,8 @@ public class ConfigurationRS {
     private EnumSet<DicomConfiguration.Option> options() {
         EnumSet<DicomConfiguration.Option> options = EnumSet.of(
                 DicomConfiguration.Option.PRESERVE_VENDOR_DATA,
-                DicomConfiguration.Option.PRESERVE_CERTIFICATE);
+                DicomConfiguration.Option.PRESERVE_CERTIFICATE,
+                DicomConfiguration.Option.CONFIGURATION_CHANGES);
         if (register == null || Boolean.parseBoolean(register))
             options.add(DicomConfiguration.Option.REGISTER);
         return options;
@@ -262,7 +265,8 @@ public class ConfigurationRS {
                 throw new WebApplicationException(
                         "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
                         Response.Status.BAD_REQUEST);
-            conf.persist(device, options());
+            ConfigurationChanges diffs = conf.persist(device, options());
+            softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException e) {
@@ -288,7 +292,9 @@ public class ConfigurationRS {
                 throw new WebApplicationException(getResponse(
                         "Device name in content[" + device.getDeviceName() + "] does not match Device name in URL",
                         Response.Status.BAD_REQUEST));
-            conf.merge(device, options());
+            ConfigurationChanges diffs = conf.merge(device, options());
+            if (!diffs.isEmpty())
+                softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (IllegalArgumentException e) {
@@ -368,7 +374,8 @@ public class ConfigurationRS {
     public void deleteDevice(@PathParam("DeviceName") String deviceName) throws Exception {
         logRequest();
         try {
-            conf.removeDevice(deviceName, options());
+            ConfigurationChanges diffs = conf.removeDevice(deviceName, options());
+            softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (Exception e) {
@@ -402,7 +409,9 @@ public class ConfigurationRS {
     @Consumes("application/zip")
     public Response updateVendorData(@PathParam("deviceName") String deviceName, File file) throws Exception {
         try {
-            conf.updateDeviceVendorData(deviceName, Files.readAllBytes(file.toPath()));
+            ConfigurationChanges diffs = conf.updateDeviceVendorData(deviceName, Files.readAllBytes(file.toPath()));
+            if (!diffs.isEmpty())
+                softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (Exception e) {
@@ -415,7 +424,9 @@ public class ConfigurationRS {
     @Path("/devices/{deviceName}/vendordata")
     public Response deleteVendorData(@PathParam("deviceName") String deviceName) throws Exception {
         try {
-            conf.updateDeviceVendorData(deviceName);
+            ConfigurationChanges diffs = conf.updateDeviceVendorData(deviceName);
+            if (!diffs.isEmpty())
+                softwareConfigurationEvent.fire(new SoftwareConfiguration(request, deviceName, diffs));
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (Exception e) {

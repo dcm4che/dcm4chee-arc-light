@@ -5,6 +5,7 @@ import {AppService} from '../../../app.service';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import * as _ from 'lodash';
 import {CreateExporterService} from './create-exporter.service';
+import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 
 @Component({
   selector: 'app-create-exporter',
@@ -36,7 +37,8 @@ export class CreateExporterComponent {
         public dialogRef: MdDialogRef<CreateExporterComponent>,
         public mainservice: AppService,
         public cfpLoadingBar: SlimLoadingBarService,
-        private service: CreateExporterService
+        private service: CreateExporterService,
+        private httpErrorHandler:HttpErrorHandler
     ) {
         this.cfpLoadingBar.complete();
         let $this = this;
@@ -87,11 +89,7 @@ export class CreateExporterComponent {
                 $this.showexporter = true;
             $this.cfpLoadingBar.stop();
         }, (err) => {
-            $this.mainservice.setMessage({
-                'title': 'Error ' + err.status,
-                'text': err.statusText,
-                'status': 'error'
-            });
+            $this.httpErrorHandler.handleError(err);
             $this.cfpLoadingBar.complete();
         });
     }

@@ -8,6 +8,7 @@ import * as _ from 'lodash';
 import {AppService} from '../../app.service';
 import {StorageCommitmentService} from './storage-commitment.service';
 import {WindowRefService} from "../../helpers/window-ref.service";
+import {HttpErrorHandler} from "../../helpers/http-error-handler";
 
 @Component({
   selector: 'app-storage-commitment',
@@ -32,7 +33,16 @@ export class StorageCommitmentComponent implements OnInit {
     dialogRef: MdDialogRef<any>;
     _ = _;
 
-    constructor(public $http: Http, public cfpLoadingBar: SlimLoadingBarService, public mainservice: AppService, public  service: StorageCommitmentService, public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig) {
+    constructor(
+        public $http: Http,
+        public cfpLoadingBar: SlimLoadingBarService,
+        public mainservice: AppService,
+        public  service: StorageCommitmentService,
+        public viewContainerRef: ViewContainerRef,
+        public dialog: MdDialog,
+        public config: MdDialogConfig,
+        public httpErrorHandler:HttpErrorHandler
+    ) {
         this.initExporters(2);
         // this.init();
         let $this = this;
@@ -124,7 +134,7 @@ export class StorageCommitmentComponent implements OnInit {
             }, (err) => {
                 $this.cfpLoadingBar.complete();
                 $this.matches = [];
-                console.log('err', err);
+                $this.httpErrorHandler.handleError(err);
             });
     };
     getDifferenceTime(starttime, endtime){
@@ -228,11 +238,7 @@ export class StorageCommitmentComponent implements OnInit {
                             $this.search(0);
                             $this.cfpLoadingBar.complete();
                         }, (err) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                         });
                 }
             }
@@ -264,11 +270,7 @@ export class StorageCommitmentComponent implements OnInit {
                         (err) => {
                             $this.cfpLoadingBar.complete();
                             console.log('cancleerr', err);
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                         });
             }
         });
@@ -288,17 +290,6 @@ export class StorageCommitmentComponent implements OnInit {
         return objs[0].offset + this.filters.limit;
     };
 
-    /*    init() {
-     let $this = this;
-     $this.cfpLoadingBar.start();
-     this.$http.get("../monitor/export")
-     .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
-     .subscribe((res) => {
-     $this.exportTasks = res;
-     // $this.queueName = res[0].name;
-     $this.cfpLoadingBar.complete();
-     })
-     }*/
     initExporters(retries) {
         let $this = this;
         this.$http.get('../export')

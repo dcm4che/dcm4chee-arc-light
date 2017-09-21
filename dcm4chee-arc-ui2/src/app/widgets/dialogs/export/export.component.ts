@@ -24,10 +24,12 @@ export class ExportDialogComponent{
     private _warning;
     private _title;
     private _okButtonLabel;
+    private _externalAetMode;
     private _result = {
         exportType: 'dicom',
         selectedAet: undefined,
         selectedExporter: undefined,
+        queue:false,
         dicomPrefix: undefined,
         checkboxes: {
             'only-stgcmt': undefined,
@@ -104,6 +106,15 @@ export class ExportDialogComponent{
     set aes(value) {
         this._aes = value;
     }
+
+    get externalInternalAetMode() {
+        return this._externalAetMode;
+    }
+
+    set externalInternalAetMode(value) {
+        this._externalAetMode = value;
+    }
+
     getAes(){
         let $this = this;
         this.$http.get(
@@ -148,7 +159,7 @@ export class ExportDialogComponent{
         let code = (e.keyCode ? e.keyCode : e.which);
         console.log('in modality keyhandler', code);
         if (code === 13){
-            dialogRef.close('ok'); //TODO
+            dialogRef.close('ok');
         }
         if (code === 27){
             dialogRef.close(null);

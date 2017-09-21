@@ -1,7 +1,7 @@
 <div class="vex vex-theme-os export" xmlns="http://www.w3.org/1999/html" (keydown)="dialogKeyHandler($event,dialogRef)">
     <div class="vex-dialog-form">
         <h5>{{title}}</h5>
-        <div class="content">
+        <div class="content" *ngIf="externalInternalAetMode === 'internal'">
             <p>Select the type of the exporter:</p>
             <label>
                 <input type="radio" name="exportType" value="dicom" [(ngModel)]="result.exportType"> Synchronised DICOM exporter
@@ -42,6 +42,17 @@
             <div *ngIf="(_.hasIn(result,'checkboxes.only-stgcmt') && result['checkboxes']['only-stgcmt']) || (_.hasIn(result,'checkboxes.only-ian') && result['checkboxes']['only-ian'])" >
                 <span class="text-danger">{{warning}}</span>
             </div>
+        </div>
+        <div class="content" *ngIf="externalInternalAetMode === 'external'">
+            <div class="dicomBlock" >
+                <p>Select the destination AETitle:</p>
+                <md-select class="aes" [(ngModel)]="result.selectedAet">
+                    <md-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</md-option>
+                </md-select>
+            </div>
+            <label title="If checked the process will be queued">
+                <input type="checkbox" name="queue" [(ngModel)]="result['queue']"> Queued DICOM export
+            </label><br>
         </div>
         <div class="dialogbuttons">
             <button *ngIf="!okButtonLabel" class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()">EXPORT</button>

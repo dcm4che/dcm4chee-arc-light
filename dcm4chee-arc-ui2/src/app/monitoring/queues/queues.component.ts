@@ -9,6 +9,7 @@ import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
 import {DatePipe} from '@angular/common';
 import * as _ from 'lodash';
 import {WindowRefService} from "../../helpers/window-ref.service";
+import {HttpErrorHandler} from "../../helpers/http-error-handler";
 
 @Component({
   selector: 'app-queues',
@@ -26,7 +27,16 @@ export class QueuesComponent {
     dialogRef: MdDialogRef<any>;
     _ = _;
 
-    constructor(public $http: Http, public service: QueuesService, public mainservice: AppService,  public cfpLoadingBar: SlimLoadingBarService, public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig) {
+    constructor(
+        public $http: Http,
+        public service: QueuesService,
+        public mainservice: AppService,
+        public cfpLoadingBar: SlimLoadingBarService,
+        public viewContainerRef: ViewContainerRef,
+        public dialog: MdDialog,
+        public config: MdDialogConfig,
+        private httpErrorHandler:HttpErrorHandler
+    ) {
         this.init();
         this.before = new Date();
         let $this = this;
@@ -142,11 +152,7 @@ export class QueuesComponent {
                 $this.cfpLoadingBar.complete();
             }, (err) => {
                 $this.cfpLoadingBar.complete();
-                $this.mainservice.setMessage({
-                    'title': 'Error ' + err.status,
-                    'text': err.statusText,
-                    'status': 'error'
-                });
+                $this.httpErrorHandler.handleError(err);
             });
     };
     reschedule(match) {
@@ -158,11 +164,7 @@ export class QueuesComponent {
                 $this.cfpLoadingBar.complete();
             }, (err) => {
                 $this.cfpLoadingBar.complete();
-                $this.mainservice.setMessage({
-                    'title': 'Error ' + err.status,
-                    'text': err.statusText,
-                    'status': 'error'
-                });
+                $this.httpErrorHandler.handleError(err);
             });
     };
     delete(match) {
@@ -181,11 +183,7 @@ export class QueuesComponent {
             }
         }, (err) => {
             $this.cfpLoadingBar.complete();
-            $this.mainservice.setMessage({
-                'title': 'Error ' + err.status,
-                'text': err.statusText,
-                'status': 'error'
-            });
+            $this.httpErrorHandler.handleError(err);
         });
     };
     getQueueDescriptionFromName(queuename){
@@ -227,11 +225,7 @@ export class QueuesComponent {
                         $this.cfpLoadingBar.complete();
                     }, (err) => {
                         $this.cfpLoadingBar.complete();
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + err.status,
-                            'text': err.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(err);
                     });
             }
         });
