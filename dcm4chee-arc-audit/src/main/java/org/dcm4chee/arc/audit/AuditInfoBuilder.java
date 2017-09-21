@@ -75,7 +75,6 @@ class AuditInfoBuilder {
     final String hl7MessageType;
     final String submissionSetUID;
     final boolean isExport;
-    final String ldapDiff;
 
     static class Builder {
         private String callingHost;
@@ -101,7 +100,6 @@ class AuditInfoBuilder {
         private String hl7MessageType;
         private String submissionSetUID;
         private boolean isExport;
-        private String ldapDiff;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -191,10 +189,6 @@ class AuditInfoBuilder {
             isExport = true;
             return this;
         }
-        Builder ldapDiff(String val) {
-            ldapDiff = val;
-            return this;
-        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -224,7 +218,6 @@ class AuditInfoBuilder {
         hl7MessageType = builder.hl7MessageType;
         submissionSetUID = builder.submissionSetUID;
         isExport = builder.isExport;
-        ldapDiff = builder.ldapDiff;
     }
 
     private static String[] toPIDAndName(Attributes attr, ArchiveDeviceExtension arcDev) {

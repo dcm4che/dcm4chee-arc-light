@@ -61,6 +61,11 @@ class SpoolFileWriter implements Closeable {
         writer.newLine();
     }
 
+    void writeLine(AuditInfo auditInfo, String ldapDiff) throws IOException {
+        writeLine(auditInfo);
+        writer.write(ldapDiff);
+    }
+
     @Override
     public void close() throws IOException {
         writer.close();

@@ -71,7 +71,6 @@ class AuditInfo {
     static final int HL7_MESSAGE_TYPE = 20;
     static final int SUBMISSION_SET_UID = 21;
     static final int IS_EXPORT = 22;
-    static final int LDAP_DIFF = 23;
 
     private final String[] fields;
 
@@ -99,8 +98,7 @@ class AuditInfo {
                 i.mppsUID,
                 i.hl7MessageType,
                 i.submissionSetUID,
-                i.isExport ? String.valueOf(true) : null,
-                i.ldapDiff
+                i.isExport ? String.valueOf(true) : null
         };
     }
 

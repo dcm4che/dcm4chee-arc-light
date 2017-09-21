@@ -290,15 +290,40 @@ public class AuditService {
                                 .callingUserID(KeycloakContext.valueOf(request).getUserName())
                                 .callingHost(request.getRemoteAddr())
                                 .calledUserID(softwareConfiguration.getDeviceName())
-                                .ldapDiff(softwareConfiguration.getLdapDiff().toString())
                                 .build();
-        writeSpoolFile(AuditServiceUtils.EventType.LDAP_CHNGS, info);
+
+        boolean auditAggregate = getArchiveDevice().isAuditAggregate();
+        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
+        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
+            if (auditLogger.isInstalled()) {
+                Path dir = toDirPath(auditLogger);
+                try {
+                    Files.createDirectories(dir);
+                    Path file = Files.createTempFile(dir, String.valueOf(AuditServiceUtils.EventType.LDAP_CHNGS), null);
+                    try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
+                            StandardOpenOption.APPEND))) {
+                        writer.writeLine(new AuditInfo(info), softwareConfiguration.getLdapDiff().toString());
+                    }
+                    if (!auditAggregate)
+                        auditAndProcessFile(auditLogger, file);
+                } catch (Exception e) {
+                    LOG.warn("Failed to write to Audit Spool File - {} ", auditLogger.getCommonName(), e);
+                }
+            }
+        }
     }
 
     private void auditSoftwareConfiguration(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
             throws IOException {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+
+        List<String> ldapDiffs = reader.getInstanceLines();
+        StringBuilder sb = new StringBuilder();
+        sb.append(ldapDiffs.get(0));
+        for (int i = 1; i < ldapDiffs.size(); i++)
+            sb.append('\n').append(ldapDiffs.get(i));
+
         EventIdentificationBuilder ei = toBuildEventIdentification(eventType, null, getEventTime(path, auditLogger));
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[1];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
@@ -311,7 +336,7 @@ public class AuditService {
                                                     AuditInfo.CALLED_USERID),
                                                     AuditMessages.ParticipantObjectIDTypeCode.DeviceName,
                                                     AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                                                    null).detail(getPod("Alert Description", auditInfo.getField(AuditInfo.LDAP_DIFF)))
+                                                    null).detail(getPod("Alert Description", sb.toString()))
                                                     .build();
         emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poiLDAPDiff);
     }
