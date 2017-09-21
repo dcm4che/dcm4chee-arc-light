@@ -159,9 +159,8 @@ class AuditServiceUtils {
         }
 
         static EventType forInstanceStored(StoreContext ctx) {
-            return !ctx.getLocations().isEmpty()
-                    ? ctx.getPreviousInstance() != null ? STORE_UPDT : STORE_CREA
-                    : ctx.getStoredInstance() != null ? STORE_CREA : null;
+            return !ctx.getLocations().isEmpty() && ctx.getPreviousInstance() != null
+                        ? STORE_UPDT : STORE_CREA;
         }
 
         static EventType forHL7(PatientMgtContext ctx) {

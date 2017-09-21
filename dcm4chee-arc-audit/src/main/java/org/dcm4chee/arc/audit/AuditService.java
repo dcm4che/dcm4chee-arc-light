@@ -634,18 +634,57 @@ public class AuditService {
     }
 
     void spoolInstanceStored(StoreContext ctx) {
+        if (ctx.getRejectionNote() != null) {
+            spoolInstancesDeleted(ctx);
+            return;
+        }
+
+        if (isDuplicateReceivedInstance(ctx))
+            return;
+
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forInstanceStored(ctx);
-        if (eventType == null)
-            return; // no audit message for duplicate received instance
-        String callingAET = ctx.getStoreSession().getHttpRequest() != null
-                ? ctx.getStoreSession().getHttpRequest().getRemoteAddr() : ctx.getStoreSession().getCallingAET().replace('|', '-');
-        String fileName = getFileName(eventType, callingAET, ctx.getStoreSession().getCalledAET(), ctx.getStudyInstanceUID());
-        AuditInfoBuilder info = getAIStoreCtx(ctx);
+
+        StoreSession ss = ctx.getStoreSession();
+        HttpServletRequest req = ss.getHttpRequest();
+        String callingUserID = req != null
+                ? KeycloakContext.valueOf(req).getUserName()
+                : ss.getCallingAET();
+
+        String rjNoteMeaning = ctx.getException() == null && null != ctx.getRejectionNote()
+                            ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null;
+        String exception = getOD(ctx.getException());
+        String outcome = ctx.getRejectionNote() == null
+                            ? exception
+                            : exception + " - " + rjNoteMeaning;
+
         AuditInfoBuilder instanceInfo = new AuditInfoBuilder.Builder()
-                                    .sopCUID(ctx.getSopClassUID()).sopIUID(ctx.getSopInstanceUID())
-                                    .mppsUID(ctx.getMppsInstanceUID())
-                                    .build();
-        writeSpoolFileStoreOrWadoRetrieve(fileName, info, instanceInfo);
+                .sopCUID(ctx.getSopClassUID()).sopIUID(ctx.getSopInstanceUID())
+                .mppsUID(ctx.getMppsInstanceUID())
+                .build();
+
+        ArchiveDeviceExtension arcDev = getArchiveDevice();
+        Attributes attr = ctx.getAttributes();
+        AuditInfoBuilder info = new AuditInfoBuilder.Builder().callingHost(ss.getRemoteHostName())
+                .callingUserID(callingUserID)
+                .calledUserID(req != null ? req.getRequestURI() : ss.getCalledAET())
+                .studyUIDAccNumDate(attr)
+                .pIDAndName(attr, arcDev)
+                .outcome(outcome)
+                .warning(rjNoteMeaning)
+                .build();
+
+        if (ctx.getException() != null)
+            writeSpoolFile(eventType, info, instanceInfo);
+        else {
+            String fileName = getFileName(
+                    eventType, callingUserID.replace('|', '-'),
+                    ctx.getStoreSession().getCalledAET(), ctx.getStudyInstanceUID());
+            writeSpoolFileStoreOrWadoRetrieve(fileName, info, instanceInfo);
+        }
+    }
+
+    private boolean isDuplicateReceivedInstance(StoreContext ctx) {
+        return ctx.getLocations().isEmpty() && ctx.getStoredInstance() == null && ctx.getException() == null;
     }
     
     void spoolRetrieveWADO(RetrieveContext ctx) {
