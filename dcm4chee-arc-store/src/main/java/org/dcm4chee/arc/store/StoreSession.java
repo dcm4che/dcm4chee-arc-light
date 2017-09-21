@@ -46,6 +46,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4chee.arc.conf.AcceptConflictingPatientID;
+import org.dcm4chee.arc.conf.AcceptMissingPatientID;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
@@ -110,6 +111,8 @@ public interface StoreSession extends Closeable {
     void setMetadataStorageID(String metadataStorageID);
 
     AcceptConflictingPatientID getAcceptConflictingPatientID();
+
+    AcceptMissingPatientID getAcceptMissingPatientID();
 
     void setAcceptConflictingPatientID(AcceptConflictingPatientID acceptConflictingPatientID);
 

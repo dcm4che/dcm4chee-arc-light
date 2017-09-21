@@ -8,6 +8,8 @@ import {MdDialog, MdDialogConfig, MdDialogRef} from '@angular/material';
 import {CreateAeComponent} from '../widgets/dialogs/create-ae/create-ae.component';
 import {DevicesService} from '../devices/devices.service';
 import {WindowRefService} from "../helpers/window-ref.service";
+import {AeListService} from "./ae-list.service";
+import {HttpErrorHandler} from "../helpers/http-error-handler";
 
 @Component({
   selector: 'app-ae-list',
@@ -42,7 +44,8 @@ export class AeListComponent{
       public viewContainerRef: ViewContainerRef ,
       public dialog: MdDialog,
       public config: MdDialogConfig,
-      public service: DevicesService
+      public service: AeListService,
+      public httpErrorHandler:HttpErrorHandler
   ) {
       this.getAes();
       this.getAets();
@@ -125,15 +128,15 @@ export class AeListComponent{
         let select: any = [];
         _.forEach(this.aets, (m, i) => {
             select.push({
-                title: m.title,
-                value: m.title,
-                label: m.title
+                title: m.dicomAETitle,
+                value: m.dicomAETitle,
+                label: m.dicomAETitle
             });
         });
         let parameters: any = {
             content: 'Select one AET:',
             select: select,
-            result: {select: this.aets[0].title},
+            result: {select: this.aets[0].dicomAETitle},
             bodytext: 'Remote AET: <b>' + ae + '</b>',
             saveButton: 'ECHO',
             cssClass: 'echodialog'
@@ -172,12 +175,7 @@ export class AeListComponent{
                         }
                     }, err => {
                         $this.cfpLoadingBar.complete();
-                        console.log('error', err);
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + err.status,
-                            'text': err.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(err);
                     });
             }
         });
@@ -220,11 +218,7 @@ export class AeListComponent{
 
                         },
                         (err) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Error',
-                                'text': 'Error deleting the device!',
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                         });
                 }else{
                     $this.$http.get('../devices/' + device)
@@ -360,17 +354,7 @@ export class AeListComponent{
                                         "../unique/aets/"+re.newaetmodel.dicomNetworkAE[0].dicomAETitle
                                     ).subscribe((response) => {
                                     });*/
-                                    let msg = err.statusText;
-                                    try{
-                                        msg = JSON.parse(err._body).errorMessage;
-                                    }catch (e){
-
-                                    }
-                                    $this.mainservice.setMessage({
-                                        "title": "Error",
-                                        "text": msg,
-                                        "status": "error"
-                                    });
+                                    $this.httpErrorHandler.handleError(err);
                                 });
                     }else{
                         re.device.dicomNetworkAE =  re.device.dicomNetworkAE || [];
@@ -431,14 +415,7 @@ export class AeListComponent{
     };
     getAes(){
         let $this = this;
-/*        if($this.mainservice.global && $this.mainservice.global.aes) {
-            this.aes = this.mainservice.global.aes;
-        }else{*/
-            this.$http.get(
-                '../aes'
-                // './assets/dummydata/aes.json'
-            )
-                .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            this.service.getAes()
                 .subscribe((response) => {
                     $this.aes = response;
                     if ($this.mainservice.global && !$this.mainservice.global.aes){
@@ -460,9 +437,7 @@ export class AeListComponent{
     getAets(){
 
         let $this = this;
-        this.$http.get(
-            '../aets'
-        ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+        this.service.getAets()
             .subscribe((response) => {
                 $this.aets = response;
 
@@ -476,10 +451,7 @@ export class AeListComponent{
         if (this.mainservice.global && this.mainservice.global.devices){
             this.devices = this.mainservice.global.devices;
         }else{
-            this.$http.get(
-                '../devices'
-                // './assets/dummydata/devices.json'
-            ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            this.service.getDevices().map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                 .subscribe((response) => {
                     $this.devices = response;
                 }, (err) => {

@@ -51,10 +51,10 @@ import org.dcm4chee.arc.conf.ShowPatientInfo;
  * @since June 2016
  */
 
-class BuildAuditInfo {
+class AuditInfoBuilder {
     final String callingHost;
-    final String callingAET;
-    final String calledAET;
+    final String callingUserID;
+    final String calledUserID;
     final String calledHost;
     final String studyUID;
     final String accNum;
@@ -75,11 +75,12 @@ class BuildAuditInfo {
     final String hl7MessageType;
     final String submissionSetUID;
     final boolean isExport;
+    final String ldapDiff;
 
     static class Builder {
         private String callingHost;
-        private String callingAET;
-        private String calledAET;
+        private String callingUserID;
+        private String calledUserID;
         private String calledHost;
         private String studyUID;
         private String accNum;
@@ -99,18 +100,19 @@ class BuildAuditInfo {
         private boolean failedIUIDShow;
         private String hl7MessageType;
         private String submissionSetUID;
-        private boolean isExport ;
+        private boolean isExport;
+        private String ldapDiff;
 
         Builder callingHost(String val) {
             callingHost = val;
             return this;
         }
-        Builder callingAET(String val) {
-            callingAET = val;
+        Builder callingUserID(String val) {
+            callingUserID = val;
             return this;
         }
-        Builder calledAET(String val) {
-            calledAET = val;
+        Builder calledUserID(String val) {
+            calledUserID = val;
             return this;
         }
         Builder calledHost(String val) {
@@ -189,15 +191,19 @@ class BuildAuditInfo {
             isExport = true;
             return this;
         }
-        BuildAuditInfo build() {
-            return new BuildAuditInfo(this);
+        Builder ldapDiff(String val) {
+            ldapDiff = val;
+            return this;
+        }
+        AuditInfoBuilder build() {
+            return new AuditInfoBuilder(this);
         }
     }
 
-    private BuildAuditInfo(Builder builder) {
+    private AuditInfoBuilder(Builder builder) {
         callingHost = builder.callingHost;
-        callingAET = builder.callingAET;
-        calledAET = builder.calledAET;
+        callingUserID = builder.callingUserID;
+        calledUserID = builder.calledUserID;
         calledHost = builder.calledHost;
         studyUID = builder.studyUID;
         accNum = builder.accNum;
@@ -218,6 +224,7 @@ class BuildAuditInfo {
         hl7MessageType = builder.hl7MessageType;
         submissionSetUID = builder.submissionSetUID;
         isExport = builder.isExport;
+        ldapDiff = builder.ldapDiff;
     }
 
     private static String[] toPIDAndName(Attributes attr, ArchiveDeviceExtension arcDev) {

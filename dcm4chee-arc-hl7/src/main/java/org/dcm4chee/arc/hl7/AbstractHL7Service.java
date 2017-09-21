@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.hl7;
 
+import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Segment;
 
@@ -92,7 +93,9 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
             throw e;
         } catch (Exception e) {
             log(msg, arcHl7App.hl7ErrorLogFilePattern());
-            throw new HL7Exception(HL7Exception.AE, e);
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh()).setUserMessage(e.getMessage()),
+                    e);
         }
         return super.onMessage(hl7App, conn, s, msg);
     }

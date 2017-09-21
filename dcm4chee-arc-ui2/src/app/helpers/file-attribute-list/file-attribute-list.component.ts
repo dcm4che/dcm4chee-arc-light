@@ -5,6 +5,7 @@ import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import * as _ from 'lodash';
 import {AppService} from '../../app.service';
 import {WindowRefService} from "../window-ref.service";
+import {HttpErrorHandler} from "../http-error-handler";
 
 @Component({
   selector: 'file-attribute-list',
@@ -17,7 +18,12 @@ export class FileAttributeListComponent implements OnInit {
     @Input() objectuid;
     @Input() aet;
     rows2 = [];
-    constructor(public $http: Http, public cfpLoadingBar: SlimLoadingBarService, public mainservice: AppService) { }
+    constructor(
+        public $http: Http,
+        public cfpLoadingBar: SlimLoadingBarService,
+        public mainservice: AppService,
+        public httpErrorHandler:HttpErrorHandler
+    ) { }
     ngOnInit() {
         this.init();
     }
@@ -46,11 +52,7 @@ export class FileAttributeListComponent implements OnInit {
                 $this.cfpLoadingBar.complete();
             }, (err) => {
                 // vex.dialog.alert("Error loading Attributes!");
-                $this.mainservice.setMessage({
-                    'title': 'Error ' + err.status,
-                    'text': err.statusText,
-                    'status': 'error'
-                });
+                $this.httpErrorHandler.handleError(err);
                 $this.cfpLoadingBar.complete();
             });
     };

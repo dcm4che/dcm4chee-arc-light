@@ -11,6 +11,7 @@ export class DurationPickerComponent implements OnInit {
 
     @Output() onValueSet = new EventEmitter();
     @Input() mode;
+    @Input() value;
     constructor() { }
     y; //yeaar
     d; //day
@@ -22,8 +23,51 @@ export class DurationPickerComponent implements OnInit {
     message;
 
     ngOnInit() {
+        this.extractDurationFromValue();
+        this.onModelChange(null);
     }
 
+    extractDurationFromValue(){
+        let match;
+        let ptrn = /(\d)(\w)/g;
+        try {
+            while ((match = ptrn.exec(this.value)) != null) {
+                if(this.mode === "dcmDuration"){
+                    switch(match[2]) {
+                        case 'D':
+                            this.d = parseInt(match[1]);
+                            break;
+                        case 'H':
+                            this.h = parseInt(match[1]);
+                            break;
+                        case 'M':
+                            this.m = parseInt(match[1]);
+                            break;
+                        case 'S':
+                            this.s = parseInt(match[1]);
+                            break;
+                    }
+                }else{
+                    switch(match[2]) {
+                        case 'Y':
+                            this.y = parseInt(match[1]);
+                            break;
+                        case 'W':
+                            this.week = parseInt(match[1]);
+                            break;
+                        case 'M':
+                            this.month = parseInt(match[1]);
+                            break;
+                        case 'D':
+                            this.d = parseInt(match[1]);
+                            break;
+                    }
+                }
+            }
+        }catch (e){
+            console.error("error parsing data!",e);
+        }
+    }
     addDuration(){
         this.onValueSet.emit(this.generateDuration());
     }
@@ -58,18 +102,18 @@ export class DurationPickerComponent implements OnInit {
             return "";
         }else  return duration;
     }
-
+    close(){
+        this.onValueSet.emit("");
+    }
     noWeekChange(){
         this.week = "";
     }
     weekChanged(){
-        console.log("in weekchanged");
         this.y = "";
         this.month = "";
         this.d = "";
     }
     onModelChange(e){
-        console.log("e",e);
         if(this.mode === 'dcmPeriod'){
             if(this._isset(this.week)){
                 this.message = `This period will last ${this.week} week${(this.week > 1?'s':'')}`;
@@ -155,7 +199,7 @@ export class DurationPickerComponent implements OnInit {
                         if(middlePart === "" && firstPart === ""){
                             firstPart = `${o.words[i].value} ${(o.words[i].value > 1 ? o.words[i].wordPlural : o.words[i].word)} `;
                         }else{
-                            middlePart = `, ${o.words[i].value} ${(o.words[i].value > 1 ? o.words[i].wordPlural : o.words[i].word)} `;
+                            middlePart = middlePart + `, ${o.words[i].value} ${(o.words[i].value > 1 ? o.words[i].wordPlural : o.words[i].word)} `;
                         }
                     }
                 });

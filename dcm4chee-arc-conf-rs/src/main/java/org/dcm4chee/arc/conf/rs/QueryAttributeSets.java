@@ -49,10 +49,8 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -80,11 +78,11 @@ public class QueryAttributeSets {
     @Path("/{type}")
     @Produces("application/json")
     public StreamingOutput listAttributeSets(@PathParam("type") String type) {
+        final AttributeSet.Type attrSetType = attrSetTypeOf(type);
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
                 JsonGenerator gen = Json.createGenerator(out);
-                AttributeSet.Type attrSetType = AttributeSet.Type.valueOf(type);
                 ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
                 gen.writeStartArray();
                 for (AttributeSet attrSet : toInstalledSortedAttrSet(arcDev.getAttributeSet(attrSetType))) {
@@ -94,12 +92,23 @@ public class QueryAttributeSets {
                     writer.writeNotNullOrDef("id", attrSet.getID(), null);
                     writer.writeNotNullOrDef("description", attrSet.getDescription(), null);
                     writer.writeNotNullOrDef("title", attrSet.getTitle(), null);
+                    for (Map.Entry<String, String> property : attrSet.getProperties().entrySet()) {
+                        writer.writeNotNullOrDef(property.getKey(), property.getValue(), null);
+                    }
                     gen.writeEnd();
                 }
                 gen.writeEnd();
                 gen.flush();
             }
         };
+    }
+
+    private AttributeSet.Type attrSetTypeOf(String type) {
+        try {
+            return AttributeSet.Type.valueOf(type);
+        } finally {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
     }
 
     private List<AttributeSet> toInstalledSortedAttrSet(Map<String, AttributeSet> attrSets) {

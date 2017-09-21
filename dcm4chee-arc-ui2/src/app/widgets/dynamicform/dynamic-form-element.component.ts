@@ -382,24 +382,25 @@ export class DynamicFormElementComponent{
         // this.activetab = 'tab_'+(orderId-1);
     }
     onValueChange(e, formelement, formcontrol,i){
-        if(formelement.controlType === "arrayelement"){
-            // (<FormArray>this.form.controls[formelement.key]).insert(i, new FormControl(e))
-            formcontrol[i].setValue(e);
-            formelement.value[i] = e;
-        }else{
+        if(e && e != ""){
+            if(formelement.controlType === "arrayelement"){
+                // (<FormArray>this.form.controls[formelement.key]).insert(i, new FormControl(e))
+                formcontrol[i].setValue(e);
+                formelement.value[i] = e;
+            }else{
 
-            formcontrol.setValue(e);
-            formelement.value = e;
-            console.log("in value change",e);
+                formcontrol.setValue(e);
+                formelement.value = e;
+                console.log("in value change",e);
+            }
         }
         formelement.showPicker = false;
         formelement.showTimePicker = false;
         formelement.showDurationPicker = false;
+        formelement.showSchedulePicker = false;
     }
 
     onFocuse(formelement,i=null) {
-        console.log("in focushostlistener",formelement);
-        console.log("i",i);
         if(formelement.format){
             if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass'){
                 if(i != null){
@@ -423,6 +424,14 @@ export class DynamicFormElementComponent{
                     formelement.showDurationPicker[i] = true;
                 }else{
                     formelement.showDurationPicker = true;
+                }
+            }
+            if(formelement.format === 'dcmSchedule'){
+                if(i != null){
+                    formelement.showSchedulePicker = formelement.showSchedulePicker || {};
+                    formelement.showSchedulePicker[i] = true;
+                }else{
+                    formelement.showSchedulePicker = true;
                 }
             }
         }

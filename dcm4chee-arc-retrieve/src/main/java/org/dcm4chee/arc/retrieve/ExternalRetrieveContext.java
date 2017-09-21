@@ -41,7 +41,7 @@ package org.dcm4chee.arc.retrieve;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.keycloak.KeycloakUtils;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -116,7 +116,7 @@ public class ExternalRetrieveContext {
     }
 
     public ExternalRetrieveContext setRequestInfo(HttpServletRequest request) {
-        this.requesterUserID = KeycloakUtils.getUserName(request);
+        this.requesterUserID = KeycloakContext.valueOf(request).getUserName();
         this.requesterHostName = request.getRemoteHost();
         this.requestURI = request.getRequestURI();
         return this;

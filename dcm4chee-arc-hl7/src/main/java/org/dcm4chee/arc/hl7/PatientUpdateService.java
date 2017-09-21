@@ -2,6 +2,7 @@ package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -11,6 +12,7 @@ import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.patient.PatientTrackingNotAllowedException;
 import org.xml.sax.SAXException;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -70,16 +72,32 @@ class PatientUpdateService extends AbstractHL7Service {
         PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msh);
         ctx.setAttributes(attrs);
         if (ctx.getPatientID() == null)
-            throw new HL7Exception(HL7Exception.AR, "Missing PID-3");
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh())
+                            .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
+                            .setErrorLocation("PID^1^3")
+                            .setUserMessage("Missing PID-3"));
         Attributes mrg = attrs.getNestedDataset(Tag.ModifiedAttributesSequence);
         if (mrg == null)
             return patientService.updatePatient(ctx);
 
         ctx.setPreviousAttributes(mrg);
         if (ctx.getPreviousPatientID() == null)
-            throw new HL7Exception(HL7Exception.AR, "Missing MRG-1");
-        return "ADT^A47".equals(msh.getMessageType())
-                ? patientService.changePatientID(ctx)
-                : patientService.mergePatient(ctx);
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh())
+                        .setHL7ErrorCode(ERRSegment.RequiredFieldMissing)
+                        .setErrorLocation("MRG^1^1")
+                        .setUserMessage("Missing MRG-1"));
+        try {
+            return "ADT^A47".equals(msh.getMessageType())
+                    ? patientService.changePatientID(ctx)
+                    : patientService.mergePatient(ctx);
+        } catch (PatientTrackingNotAllowedException e) {
+            throw new HL7Exception(
+                    new ERRSegment(msg.msh())
+                            .setHL7ErrorCode(ERRSegment.DuplicateKeyIdentifier)
+                            .setErrorLocation("PID^1^3")
+                            .setUserMessage(e.getMessage()));
+        }
     }
 }

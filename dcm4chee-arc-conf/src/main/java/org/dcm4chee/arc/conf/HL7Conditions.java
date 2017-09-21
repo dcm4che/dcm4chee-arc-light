@@ -76,7 +76,8 @@ public class HL7Conditions {
     }
 
     public void setCondition(String tagPath, String value) {
-        Pattern pattern = Pattern.compile(value);
+        Pattern pattern = tagPath.startsWith("MSH-8") && value.contains("^")
+                ? Pattern.compile(value.replace("^", "\\^")) : Pattern.compile(value);
         map.put(tagPath, pattern);
     }
 
@@ -95,10 +96,9 @@ public class HL7Conditions {
                 if (ne ? (hostName != null && pattern.matcher(hostName).matches())
                         : (hostName == null || !pattern.matcher(hostName).matches()))
                     return false;
-            } else if (hl7Field.startsWith("MSH-")) {
-                if (!match(msh, hl7Field, pattern, ne))
-                    return false;
-            } else if (attrs != null) {
+            } else if (hl7Field.startsWith("MSH-"))
+                return match(msh, hl7Field, pattern, ne);
+            else if (attrs != null) {
                 if (!match(attrs, TagUtils.parseTagPath(hl7Field), pattern, 0, ne))
                     return false;
             }
@@ -107,15 +107,15 @@ public class HL7Conditions {
     }
 
     private boolean match(HL7Segment msh, String hl7Field, Pattern pattern, boolean ne) {
-        if (hl7Field.startsWith("MSH-"))
-            try {
-                int index = Integer.parseInt(hl7Field.substring(4)) - 1;
-                if (index >= 0) {
-                    String value = msh.getField(index, null);
-                    return ne ? (value != null && pattern.matcher(value).matches())
-                              : (value == null || pattern.matcher(value).matches());
-                }
-            } catch (NumberFormatException ignore) {}
+        try {
+            int index = Integer.parseInt(hl7Field.substring(4));
+            if (index >= 0) {
+                String value = msh.getField(index, null);
+                if (ne ? (value != null && pattern.matcher(value).matches())
+                          : (value == null || !pattern.matcher(value).matches()))
+                    return false;
+            }
+        } catch (NumberFormatException ignore) {}
         return true;
     }
 

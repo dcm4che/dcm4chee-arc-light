@@ -236,7 +236,7 @@ export class UploadFilesComponent implements OnInit {
         dialogRef.close(null);
     }
     onChange(newValue) {
-        this._selectedAe = newValue.title;
+        this._selectedAe = newValue.dicomAETitle;
     }
 
     get dicomObject() {

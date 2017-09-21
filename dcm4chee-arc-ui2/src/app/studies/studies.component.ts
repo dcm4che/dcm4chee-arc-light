@@ -25,6 +25,8 @@ import {WindowRefService} from "../helpers/window-ref.service";
 import {FormatAttributeValuePipe} from "../pipes/format-attribute-value.pipe";
 import {FormatDAPipe} from "../pipes/format-da.pipe";
 import {FormatTMPipe} from "../pipes/format-tm.pipe";
+import {HttpErrorHandler} from "../helpers/http-error-handler";
+declare var Keycloak: any;
 
 @Component({
     selector: 'app-studies',
@@ -70,7 +72,7 @@ export class StudiesComponent implements OnDestroy{
         from: undefined,
         to: undefined
     };
-    externalAetMode = "internal";
+    externalInternalAetMode = "internal";
     filter = {
         orderby: '-StudyDate,-StudyTime',
         ModalitiesInStudy: '',
@@ -205,7 +207,7 @@ export class StudiesComponent implements OnDestroy{
     aes: any;
     aet: any;
     aetmodel: any;
-    externalAEtmodel:any;
+    externalInternalAetModel:any;
     advancedConfig = false;
     showModalitySelector = false;
     modalities: any;
@@ -259,7 +261,8 @@ export class StudiesComponent implements OnDestroy{
         public messaging: MessagingComponent,
         public viewContainerRef: ViewContainerRef ,
         public dialog: MdDialog,
-        public config: MdDialogConfig
+        public config: MdDialogConfig,
+        public httpErrorHandler:HttpErrorHandler
     ) {
         // $('.clockpicker').clockpicker()
         //     .find('input').change(function(){
@@ -485,7 +488,7 @@ export class StudiesComponent implements OnDestroy{
 
         }
         if(e === "external"){
-            this.externalAEtmodel = this.allAes[0];
+            this.externalInternalAetModel = this.allAes[0];
             this.showoptionlist = false;
             this.filter.orderby = "";
             this.orderbytext = "Study";
@@ -627,7 +630,7 @@ export class StudiesComponent implements OnDestroy{
             width: '500px'
         });
         this.dialogRef.componentInstance.aes = this.aes;
-        this.dialogRef.componentInstance.selectedAe = this.aetmodel.title;
+        this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;
         this.dialogRef.componentInstance.dicomObject = object;
         this.dialogRef.afterClosed().subscribe((result) => {
             console.log('result', result);
@@ -746,11 +749,7 @@ export class StudiesComponent implements OnDestroy{
             (err) => {
                 console.log('in error', err);
                 $this.patients = [];
-                $this.mainservice.setMessage({
-                    'title': 'Error ' + err.status,
-                    'text': err.statusText,
-                    'status': 'error'
-                });
+                $this.httpErrorHandler.handleError(err);
                 $this.cfpLoadingBar.complete();
             }
         );
@@ -861,11 +860,7 @@ export class StudiesComponent implements OnDestroy{
                 $this.cfpLoadingBar.complete();
             },(err)=>{
                 $this.cfpLoadingBar.complete();
-                $this.mainservice.setMessage({
-                    'title': 'Error ' + err.status,
-                    'text': err.statusText,
-                    'status': 'error'
-                });
+                $this.httpErrorHandler.handleError(err);
             }
         );
     };
@@ -1055,11 +1050,7 @@ export class StudiesComponent implements OnDestroy{
                         $this.cfpLoadingBar.complete();
                     },
                     (err)=>{
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + err.status,
-                            'text': err.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(err);
                         $this.cfpLoadingBar.complete();
                     }
                 );
@@ -1153,11 +1144,7 @@ export class StudiesComponent implements OnDestroy{
                     },
                     (err) => {
                         console.log('error', err);
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + err.status,
-                            'text': err.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(err);
                     });
             }
             $this.cfpLoadingBar.complete();
@@ -1282,11 +1269,7 @@ export class StudiesComponent implements OnDestroy{
                             $this.fireRightQuery();
                         }
                     }, (response) => {
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + response.status,
-                            'text': response.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(response);
                         // $scope.callBackFree = true;
                     });
                 }else{
@@ -1407,11 +1390,7 @@ export class StudiesComponent implements OnDestroy{
                             }
                         },
                         (response) => {
-                            $this.mainservice.setMessage( {
-                                'title': 'Error ' + response.status,
-                                'text': response.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(response);
                         }
                     );
                 }else{
@@ -1543,13 +1522,17 @@ export class StudiesComponent implements OnDestroy{
             }
         }, 50);
     }
+    getHl7ApplicationNameFormAETtitle(aet){
+        for(let i = 0; i < this.allAes.length; i++){
+            if(aet === this.allAes[i].dicomAETitle){
+                return this.allAes[i].hl7ApplicationName;
+            }
+        };
+    }
     modifyPatient(patient, mode , patientkey){
         let originalPatientObject = _.cloneDeep(patient);
         this.config.viewContainerRef = this.viewContainerRef;
         let oldPatientID;
-        let oldIssuer;
-        let oldUniversalEntityId;
-        let oldUniversalEntityType;
         this.lastPressedCode = 0;
 
         if (mode === 'edit'){
@@ -1564,51 +1547,9 @@ export class StudiesComponent implements OnDestroy{
                 if (index === '00100040' && patient.attrs[index] && patient.attrs[index].Value && patient.attrs[index].Value[0]){
                     patient.attrs[index].Value[0] = patient.attrs[index].Value[0].toUpperCase();
                 }
-                // console.log("value.vr",value.vr);
-                // console.log("value",value);
-/*                if(value.vr === "DA" && value.Value && value.Value[0]){
-                    var string = value.Value[0];
-                    string = string.replace(/\./g,"");
-                    var yyyy = string.substring(0,4);
-                    var MM = string.substring(4,6);
-                    var dd = string.substring(6,8);
-                    var timestampDate   = Date.parse(yyyy+"-"+MM+"-"+dd);
-                    var date          = new Date(timestampDate);
-                    $scope.dateplaceholder[index] = date;
-                }*/
             });
-            if (patient.attrs['00100020'] && patient.attrs['00100020'].Value && patient.attrs['00100020'].Value[0]){
-                oldPatientID            = patient.attrs['00100020'].Value[0];
-            }
-            if (patient.attrs['00100021'] && patient.attrs['00100021'].Value && patient.attrs['00100021'].Value[0]){
-                oldIssuer               = patient.attrs['00100021'].Value[0];
-            }
-            if (
-                patient.attrs['00100024'] &&
-                patient.attrs['00100024'].Value &&
-                patient.attrs['00100024'].Value[0] &&
-                patient.attrs['00100024'].Value[0]['00400032'] &&
-                patient.attrs['00100024'].Value[0]['00400032'].Value &&
-                patient.attrs['00100024'].Value[0]['00400032'].Value[0]
-            ){
-                oldUniversalEntityId    = patient.attrs['00100024'].Value[0]['00400032'].Value[0];
-                console.log('set oldUniversalEntityId', oldUniversalEntityId);
-            }
-            if (
-                patient.attrs['00100024'] &&
-                patient.attrs['00100024'].Value &&
-                patient.attrs['00100024'].Value[0] &&
-                patient.attrs['00100024'].Value[0]['00400033'] &&
-                patient.attrs['00100024'].Value[0]['00400033'].Value &&
-                patient.attrs['00100024'].Value[0]['00400033'].Value[0]
-            ){
-                oldUniversalEntityType  = patient.attrs['00100024'].Value[0]['00400033'].Value[0];
-                console.log('set oldUniversalEntityType', oldUniversalEntityType);
-            }
+            oldPatientID = this.service.getPatientId(patient.attrs);
         }
-
-        // this.config.width = "800";
-
         let $this = this;
         this.service.getPatientIod().subscribe((res) => {
             $this.service.patientIod = res;
@@ -1625,155 +1566,59 @@ export class StudiesComponent implements OnDestroy{
             $this.dialogRef.componentInstance.patientkey = patientkey;
             $this.dialogRef.componentInstance.dropdown = $this.service.getArrayFromIod(res);
             $this.dialogRef.componentInstance.iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
-            console.log('$this.savelabel', $this.saveLabel);
             $this.dialogRef.componentInstance.saveLabel = $this.saveLabel;
             $this.dialogRef.componentInstance.titleLabel = $this.titleLabel;
             $this.dialogRef.afterClosed().subscribe(result => {
                 //If user clicked save
                 if (result){
-                    let headers = new Headers({ 'Content-Type': 'application/dicom+json' });
-                    console.log('patient for clear', patient);
-                    $this.service.clearPatientObject(patient.attrs);
-                    $this.service.convertStringToNumber(patient.attrs);
-                    console.log('patient after clear', patient);
-                    // $this.service.convertDateToString($scope, "editpatient");
-                    if (patient.attrs['00100020'] && patient.attrs['00100020'].Value[0]){
-                        _.forEach(patient.attrs, function(m, i){
-                            if (res && res[i] && res[i].vr != 'SQ' && m.Value && m.Value.length === 1 && m.Value[0] === ''){
-                                delete patient.attrs[i];
-                            }
-                        });
-                        // patient.attrs["00104000"] = { "vr": "LT", "Value":[""]};
-                        oldPatientID = oldPatientID || patient.attrs['00100020'].Value[0];
-                        let issuer =                oldIssuer != undefined;
-                        let universalEntityId =     oldUniversalEntityId != undefined;
-                        let universalEntityType =   oldUniversalEntityType != undefined;
-
-                        if (issuer){
-                            oldPatientID += '^^^' + oldIssuer;
-                        }
-                        if (universalEntityId || universalEntityType){
-                            // if(!oldUniversalEntityId || oldUniversalEntityId === undefined){
-                            //     oldUniversalEntityId    = patient.attrs["00100024"].Value[0]["00400032"].Value[0];
-                            // }
-                            // if(!oldUniversalEntityType || oldUniversalEntityType === undefined){
-                            //     oldUniversalEntityType  = patient.attrs["00100024"].Value[0]["00400033"].Value[0];
-                            // }
-                            if (!issuer){
-                                oldPatientID += '^^^';
-                            }
-
-                            if (universalEntityId && oldUniversalEntityId){
-                                oldPatientID += '&' + oldUniversalEntityId;
-                            }
-                            if (universalEntityType && oldUniversalEntityType){
-                                oldPatientID += '&' + oldUniversalEntityType;
-                            }
-                        }
-                        //From vrinda
-                        if (mode === 'create' && _.hasIn(patient, 'attrs.00100021') && patient.attrs['00100021'] != undefined) {
-                            if (patient.attrs['00100021'].Value && patient.attrs['00100021'].Value[0]) {
-                                oldPatientID = oldPatientID + '^^^' + patient.attrs['00100021'].Value[0];
-                            }
-                            if (
-                                patient.attrs['00100024'] &&
-                                patient.attrs['00100024'].Value &&
-                                patient.attrs['00100024'].Value[0] &&
-                                patient.attrs['00100024'].Value[0]['00400032'] &&
-                                patient.attrs['00100024'].Value[0]['00400032'].Value &&
-                                patient.attrs['00100024'].Value[0]['00400032'].Value[0]
-                            ) {
-                                oldUniversalEntityId  = patient.attrs['00100024'].Value[0]['00400032'].Value[0];
-                            }
-                            if (
-                                patient.attrs['00100024'] &&
-                                patient.attrs['00100024'].Value &&
-                                patient.attrs['00100024'].Value[0] &&
-                                patient.attrs['00100024'].Value[0]['00400033'] &&
-                                patient.attrs['00100024'].Value[0]['00400033'].Value &&
-                                patient.attrs['00100024'].Value[0]['00400033'].Value[0]
-                            ) {
-                                oldUniversalEntityType  = patient.attrs['00100024'].Value[0]['00400033'].Value[0];
-                            }
-                            if (oldUniversalEntityId != undefined)
-                                oldPatientID = oldPatientID + '&' + oldUniversalEntityId;
-                            if (oldUniversalEntityType != undefined)
-                                oldPatientID = oldPatientID + '&' + oldUniversalEntityType;
-                        }
-                        // console.log("patient.attrs",patient.attrs);
-                        $this.$http.put(
-                            '../aets/' + $this.aet + '/rs/patients/' + oldPatientID,
-                            patient.attrs,
-                            {headers: headers}
-                        ).subscribe(function successCallback(response) {
-                            if (mode === 'edit'){
-                                //Update changes on the patient list
-                                // patient.attrs = patient.attrs;
-                                //Force rerendering the directive attribute-list
-                                // var id = "#"+patient.attrs["00100020"].Value;
-                                // var attribute = $compile('<attribute-list attrs="patients['+patientkey+'].attrs"></attribute-list>')($scope);
-                                // $(id).html(attribute);
-                            }else{
-
-                            }
-                                $this.fireRightQuery();
-                            // $scope.dateplaceholder = {};
-                            // console.log("data",data);
-                            // console.log("datepicker",$(".datepicker .no-close-button"));
-                            $this.mainservice.setMessage( {
-                                'title': 'Info',
-                                'text': 'Patient saved successfully!',
-                                'status': 'info'
+                    console.log("oldPatientID",oldPatientID);
+                    console.log("$this.service.getPatientId(patient.attrs)",$this.service.getPatientId(patient.attrs));
+                    if(oldPatientID === $this.service.getPatientId(patient.attrs) || $this.externalInternalAetMode === "internal" || mode === "create"){
+                        let modifyPatientService = $this.service.modifyPatient(patient, res, oldPatientID, $this.aet, $this.getHl7ApplicationNameFormAETtitle($this.aet), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode);
+                        if(modifyPatientService){
+                            modifyPatientService.save.subscribe((response)=>{
+                                this.fireRightQuery();
+                                this.mainservice.setMessage({
+                                    'title': 'Info',
+                                    'text': modifyPatientService.successMsg,
+                                    'status': 'info'
+                                });
+                            },(err)=>{
+                                _.assign(patient, originalPatientObject);
+                                $this.httpErrorHandler.handleError(err);
                             });
-                        }, function errorCallback(response) {
-                            $this.mainservice.setMessage( {
-                                // "title": "Error",
-                                // "text": "Error saving patient!",
-                                // "status": "error"
-                                'title': 'Error ' + response.status,
-                                'text': response.statusText,
-                                'status': 'error'
-                            });
-                        });
-                        ////
+                        }
                     }else{
-                        if (mode === 'create'){
-                                $this.$http.post(
-                                    '../aets/' + $this.aet + '/rs/patients/',
-                                    patient.attrs,
-                                    {headers: headers}
-                                )
-                                    //.map(res => {let resjson;try{resjson = res.json();}catch (e){resjson = {};} return resjson;})
-                                .subscribe(
-                                (response) => {
-                                    console.log('response', response);
-                                    $this.mainservice.setMessage( {
-                                        'title': 'Info',
-                                        'text': 'Patient created successfully!',
-                                        'status': 'info'
-                                    });
-                                },
-                                (response) => {
-                                    console.log('response', response);
-                                    $this.mainservice.setMessage( {
-                                        'title': 'Error ' + response.status,
-                                        'text': JSON.parse(response._body).errorMessage,
-                                        'status': 'error'
+                        //If patient id was changed and the aetmode is external than change the patient id first than update the patient
+                        let changeExternalPatientIdService = $this.service.changeExternalPatientID($this.service.preparePatientObjectForExternalPatiendIdChange(originalPatientObject.attrs, patient.attrs), $this.getHl7ApplicationNameFormAETtitle($this.aet) ,  $this.externalInternalAetModel.hl7ApplicationName, oldPatientID);
+                        if(changeExternalPatientIdService){
+                            changeExternalPatientIdService.save.subscribe((response)=>{
+                                this.mainservice.setMessage({
+                                    'title': 'Info',
+                                    'text': changeExternalPatientIdService.successMsg,
+                                    'status': 'info'
+                                });
+                                let modifyPatientService = $this.service.modifyPatient(patient, res, oldPatientID,$this.aet, $this.getHl7ApplicationNameFormAETtitle($this.aet), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode);
+                                if(modifyPatientService){
+                                    modifyPatientService.save.subscribe((response)=>{
+                                        this.fireRightQuery();
+                                        this.mainservice.setMessage({
+                                            'title': 'Info',
+                                            'text': modifyPatientService.successMsg,
+                                            'status': 'info'
+                                        });
+                                    },(err)=>{
+                                        _.assign(patient, $this.service.preparePatientObjectForExternalPatiendIdChange(originalPatientObject.attrs, patient.attrs));
+                                        $this.httpErrorHandler.handleError(err);
                                     });
                                 }
-                            );
-                        }else{
-                            $this.mainservice.setMessage( {
-                                'title': 'Error',
-                                'text': 'Patient ID is required!',
-                                'status': 'error'
+                            },(err)=>{
+                                _.assign(patient, originalPatientObject);
+                                $this.httpErrorHandler.handleError(err);
                             });
                         }
-                        // $scope.dateplaceholder = {};
                     }
                 }else{
-                    console.log('no', originalPatientObject);
-                    // patient = originalPatient;
                     _.assign(patient, originalPatientObject);
                 }
                 $this.dialogRef = null;
@@ -1805,11 +1650,7 @@ export class StudiesComponent implements OnDestroy{
                         $this.cfpLoadingBar.complete();
                     },
                     (response) => {
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + response.status,
-                            'text': response.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(response);
                         $this.cfpLoadingBar.complete();
                     }
                 );
@@ -1871,11 +1712,7 @@ export class StudiesComponent implements OnDestroy{
                     $this.queryStudies($this.patients[0].offset);
                 },
                 (response) => {
-                    $this.mainservice.setMessage({
-                        'title': 'Error ' + response.status,
-                        'text': response.statusText,
-                        'status': 'error'
-                    });
+                    $this.httpErrorHandler.handleError(response);
                     console.log('response', response);
                 }
             );
@@ -1924,11 +1761,7 @@ export class StudiesComponent implements OnDestroy{
                             $this.cfpLoadingBar.complete();
                         },
                         (err) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                             // angular.element("#querypatients").trigger('click');
                             $this.cfpLoadingBar.complete();
                         }
@@ -1958,11 +1791,7 @@ export class StudiesComponent implements OnDestroy{
                     $this.queryStudies($this.patients[0].offset);
                 },
                 (response) => {
-                    $this.mainservice.setMessage({
-                        'title': 'Error ' + response.status,
-                        'text': response.statusText,
-                        'status': 'error'
-                    });
+                    $this.httpErrorHandler.handleError(response);
                     console.log('response', response);
                 }
             );
@@ -2005,11 +1834,7 @@ export class StudiesComponent implements OnDestroy{
                             $this.cfpLoadingBar.complete();
                         },
                         (err) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                             // angular.element("#querypatients").trigger('click');
                             $this.cfpLoadingBar.complete();
                         }
@@ -2039,11 +1864,7 @@ export class StudiesComponent implements OnDestroy{
                     $this.queryStudies($this.patients[0].offset);
                 },
                 (response) => {
-                    $this.mainservice.setMessage({
-                        'title': 'Error ' + response.status,
-                        'text': response.statusText,
-                        'status': 'error'
-                    });
+                    $this.httpErrorHandler.handleError(response);
                     console.log('response', response);
                 }
             );
@@ -2086,11 +1907,7 @@ export class StudiesComponent implements OnDestroy{
                             $this.cfpLoadingBar.complete();
                         },
                         (err) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                             // angular.element("#querypatients").trigger('click');
                             $this.cfpLoadingBar.complete();
                         }
@@ -2118,7 +1935,7 @@ export class StudiesComponent implements OnDestroy{
             }).subscribe(result => {
                 if (result){
                     $this.cfpLoadingBar.start();
-                    $this.$http.delete('../aets/' + $this.aet + '/rs/patients/' + patient.attrs['00100020'].Value[0]).subscribe(
+                    $this.$http.delete('../aets/' + $this.aet + '/rs/patients/' + this.service.getPatientId(patient.attrs)).subscribe(
                         (response) => {
                             $this.mainservice.setMessage({
                                 'title': 'Info',
@@ -2132,11 +1949,7 @@ export class StudiesComponent implements OnDestroy{
                             $this.cfpLoadingBar.complete();
                         },
                         (err) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                             // angular.element("#querypatients").trigger('click');
                             $this.cfpLoadingBar.complete();
                         }
@@ -2174,11 +1987,7 @@ export class StudiesComponent implements OnDestroy{
                         $this.cfpLoadingBar.complete();
                     },
                     (response) => {
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + response.status,
-                            'text': response.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(response);
                         console.log('response', response);
 
                         $this.cfpLoadingBar.complete();
@@ -2217,6 +2026,7 @@ export class StudiesComponent implements OnDestroy{
     exporter(url, title, warning){
         let $this = this;
         let id;
+        let urlRest;
         let noDicomExporters = [];
         let dicomPrefixes = [];
         _.forEach(this.exporters, (m, i) => {
@@ -2230,19 +2040,27 @@ export class StudiesComponent implements OnDestroy{
         this.dialogRef = this.dialog.open(ExportDialogComponent, this.config);
         this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
+        this.dialogRef.componentInstance.externalInternalAetMode = this.externalInternalAetMode;
         this.dialogRef.componentInstance.title = title;
         this.dialogRef.componentInstance.warning = warning;
         this.dialogRef.afterClosed().subscribe(result => {
             if (result){
+
                 $this.cfpLoadingBar.start();
-                if (result.exportType === 'dicom'){
-                    //id = result.dicomPrefix + result.selectedAet;
+                if($this.externalInternalAetMode === 'external'){
                     id = 'dicom:' + result.selectedAet;
+                    urlRest = url  + '/export/' + id + '?' + this.mainservice.param({queue:result.queue});
                 }else{
-                    id = result.selectedExporter;
+                    if (result.exportType === 'dicom'){
+                        //id = result.dicomPrefix + result.selectedAet;
+                        id = 'dicom:' + result.selectedAet;
+                    }else{
+                        id = result.selectedExporter;
+                    }
+                    urlRest = url  + '/export/' + id + '?' + this.mainservice.param(result.checkboxes);
                 }
                 $this.$http.post(
-                    url  + '/export/' + id + '?' + this.mainservice.param(result.checkboxes),
+                    urlRest,
                     {},
                     $this.jsonHeader
                 ).subscribe(
@@ -2336,16 +2154,12 @@ export class StudiesComponent implements OnDestroy{
                 $this.cfpLoadingBar.complete();
             },
             (err) => {
-                $this.mainservice.setMessage({
-                    'title': 'Error ' + err.status,
-                    'text': err.statusText,
-                    'status': 'error'
-                });
+                $this.httpErrorHandler.handleError(err);
             }
         );
     };
     setTrash(){
-        this.aet = this.aetmodel.title;
+        this.aet = this.aetmodel.dicomAETitle;
         let $this = this;
         if (this.aetmodel.dcmHideNotRejectedInstances === true){
             if (this.rjcode === null){
@@ -2571,11 +2385,7 @@ export class StudiesComponent implements OnDestroy{
             // }, 1000);
             $this.cfpLoadingBar.complete();
         },(err)=>{
-            $this.mainservice.setMessage({
-                'title': 'Error ' + err.status,
-                'text': err.statusText,
-                'status': 'error'
-            });
+            $this.httpErrorHandler.handleError(err);
         });
     };
 
@@ -2987,10 +2797,10 @@ export class StudiesComponent implements OnDestroy{
     }
     rsURL() {
         let url;
-        if(this.externalAetMode === "external"){
-            url = `../aets/${this.aetmodel.title}/dimse/${this.externalAEtmodel.title}`;
+        if(this.externalInternalAetMode === "external"){
+            url = `../aets/${this.aetmodel.dicomAETitle}/dimse/${this.externalInternalAetModel.dicomAETitle}`;
         }
-        if(this.externalAetMode === "internal"){
+        if(this.externalInternalAetMode === "internal"){
             url = `../aets/${this.aet}/rs`;
         }
         return url;
@@ -3081,7 +2891,7 @@ export class StudiesComponent implements OnDestroy{
             width: '500px'
         });
         this.dialogRef.componentInstance.aes = this.aes;
-        this.dialogRef.componentInstance.selectedAe = this.aetmodel.title;
+        this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;
         this.dialogRef.afterClosed().subscribe((result) => {
             console.log('result', result);
             if (result){
@@ -3216,15 +3026,9 @@ export class StudiesComponent implements OnDestroy{
         if (_.size(this.clipboard) > 0 && (_.size(this.selected) > 0 || (_.hasIn(this.selected, 'hasPatient') && _.size(this.selected) > 1))) {
             this.cfpLoadingBar.start();
             let headers: Headers = new Headers({'Content-Type': 'application/json'});
-
-            console.log('selected', this.selected);
-            console.log('clipboard', this.clipboard);
-            if (!this.service.isTargetInClipboard(this.selected, this.clipboard) || this.target.modus === "mwl"){//TODO
+            if (!this.service.isTargetInClipboard(this.selected, this.clipboard) || this.target.modus === "mwl"){
 
                 let $this = this;
-                console.log('target', this.target);
-                console.log('firstelement select3', _.keysIn(this.selected.otherObjects)[0]);
-                console.log('selection in clipboard', ((_.keysIn(this.selected.otherObjects)[0]) in this.clipboard.otherObjects));
                 // if (((_.keysIn(this.selected.otherObjects)[0]) in this.clipboard.otherObjects)) {
                 //     this.mainservice.setMessage({
                 //         "title": "Warning",
@@ -3248,6 +3052,7 @@ export class StudiesComponent implements OnDestroy{
                                 this.reject = m.codeValue+"^"+m.codingSchemeDesignator;
                             }
                         });
+                        $this.clipboard.action = 'move';
                     }
                     console.log("reject",this.reject);
                     this.dialogRef.componentInstance.clipboard = this.clipboard;
@@ -3299,34 +3104,7 @@ export class StudiesComponent implements OnDestroy{
                                         $this.cfpLoadingBar.stop();
                                     }, (response) => {
                                         $this.cfpLoadingBar.stop();
-                                        try{
-
-                                            if (response._body && response._body != '') {
-                                                try{
-                                                    console.log('responseb1', JSON.parse(response._body).errorMessage);
-                                                    console.log('responseb2', response.body);
-
-                                                    $this.mainservice.setMessage({
-                                                        'title': 'Error ' + response.status,
-                                                        'text': JSON.parse(response._body).errorMessage,
-                                                        'status': 'error'
-                                                    });
-
-                                                }catch (e){
-                                                    $this.mainservice.setMessage({
-                                                        'title': 'Error ' + response.status,
-                                                        'text': response.statusText,
-                                                        'status': 'error'
-                                                    });
-                                                }
-                                            }
-                                        }catch (e){
-                                            $this.mainservice.setMessage({
-                                                'title': 'Error ',
-                                                'text': 'Something went wrong!',
-                                                'status': 'error'
-                                            });
-                                        }
+                                        $this.httpErrorHandler.handleError(response);
                                     });
                             }
                             if ($this.clipboard.action === 'copy') {
@@ -3394,11 +3172,7 @@ export class StudiesComponent implements OnDestroy{
                                                             console.log('resin err', response);
                                                             $this.clipboard = {};
                                                             $this.cfpLoadingBar.stop();
-                                                            $this.mainservice.setMessage({
-                                                                'title': 'Error ' + response.status,
-                                                                'text': response.statusText,
-                                                                'status': 'error'
-                                                            });
+                                                            $this.httpErrorHandler.handleError(response);
                                                             // $this.callBackFree = true;
                                                         });
                                                 });
@@ -3406,11 +3180,7 @@ export class StudiesComponent implements OnDestroy{
                                             },
                                             (response) => {
                                                 $this.cfpLoadingBar.stop();
-                                                $this.mainservice.setMessage({
-                                                    'title': 'Error ' + response.status,
-                                                    'text': response.statusText,
-                                                    'status': 'error'
-                                                });
+                                                $this.httpErrorHandler.handleError(response);
                                                 console.log('response', response);
                                             }
                                         );
@@ -3449,11 +3219,7 @@ export class StudiesComponent implements OnDestroy{
                                                 // $this.callBackFree = true;
                                             }, (response) => {
                                                 $this.cfpLoadingBar.stop();
-                                                $this.mainservice.setMessage({
-                                                    'title': 'Error ' + response.status,
-                                                    'text': response.statusText,
-                                                    'status': 'error'
-                                                });
+                                                $this.httpErrorHandler.handleError(response);
                                                 // $this.callBackFree = true;
                                             });
                                     });
@@ -3519,21 +3285,13 @@ export class StudiesComponent implements OnDestroy{
                                                             $this.fireRightQuery();
                                                         }, (response) => {
                                                             $this.cfpLoadingBar.stop();
-                                                            $this.mainservice.setMessage({
-                                                                'title': 'Error ' + response.status,
-                                                                'text': response.statusText,
-                                                                'status': 'error'
-                                                            });
+                                                            $this.httpErrorHandler.handleError(response);
                                                         });
                                                 });
                                             },
                                             (response) => {
                                                 $this.cfpLoadingBar.stop();
-                                                $this.mainservice.setMessage({
-                                                    'title': 'Error ' + response.status,
-                                                    'text': response.statusText,
-                                                    'status': 'error'
-                                                });
+                                                $this.httpErrorHandler.handleError(response);
                                                 console.log('response', response);
                                             }
                                         );
@@ -3583,11 +3341,7 @@ export class StudiesComponent implements OnDestroy{
                                                 $this.fireRightQuery();
                                             }, (response) => {
                                                 $this.cfpLoadingBar.stop();
-                                                $this.mainservice.setMessage({
-                                                    'title': 'Error ' + response.status,
-                                                    'text': response.statusText,
-                                                    'status': 'error'
-                                                });
+                                                $this.httpErrorHandler.handleError(response);
                                                 if(index == Object.keys($this.clipboard.otherObjects).length){
                                                     $this.clipboard = {};
                                                     $this.selected = {};
@@ -3797,7 +3551,7 @@ export class StudiesComponent implements OnDestroy{
                         $this.aes = $this.service.getAes($this.user, res);
                         console.log('aes', $this.aes);
                         // $this.aesdropdown = $this.aes;
-                        $this.aes.map((ae, i) => {
+/*                        $this.aes.map((ae, i) => {
                             console.log('in map ae', ae);
                             console.log('in map i', i);
                             console.log('aesi=', $this.aes[i]);
@@ -3805,9 +3559,9 @@ export class StudiesComponent implements OnDestroy{
                             $this.aes[i]['label'] = ae.title;
                             $this.aes[i]['value'] = ae.value;
 
-                        });
+                        });*/
                         console.log('$this.aes after map', $this.aes);
-                        $this.aet = $this.aes[0].title.toString();
+                        $this.aet = $this.aes[0].dicomAETitle.toString();
                         if (!$this.aetmodel){
                             $this.aetmodel = $this.aes[0];
                         }
@@ -3836,7 +3590,7 @@ export class StudiesComponent implements OnDestroy{
                         res['description'] = res['dicomDescription'];
                         return res;
                     });
-                    $this.externalAEtmodel = $this.allAes[0];
+                    $this.externalInternalAetModel = $this.allAes[0];
                     // $this.aes = $this.service.getAes($this.user, res);
 /*                    console.log('aes', $this.aes);
                     // $this.aesdropdown = $this.aes;
@@ -3889,7 +3643,7 @@ export class StudiesComponent implements OnDestroy{
             // this[model] = newValue;
         // }
         if (model === 'aetmodel'){
-            this.aet = newValue.title;
+            this.aet = newValue.dicomAETitle;
             // this.aetmodel = newValue;
             this.setTrash();
         }
@@ -3983,11 +3737,7 @@ export class StudiesComponent implements OnDestroy{
                 this.cfpLoadingBar.complete();
             },
             (response) => {
-                this.mainservice.setMessage( {
-                    'title': 'Error ' + response.status,
-                    'text': JSON.parse(response._body).errorMessage,
-                    'status': 'error'
-                });
+                $this.httpErrorHandler.handleError(response);
                 this.cfpLoadingBar.complete();
             }
         );
@@ -4151,6 +3901,47 @@ export class StudiesComponent implements OnDestroy{
 
     debugTemplate(obj){
         console.log('obj', obj);
+    }
+
+    testToken(){
+/*        var keycloak = new Keycloak('./assets/keycloak.json');
+
+        keycloak.init().success(function(authenticated) {
+            console.log(authenticated ? 'authenticated' : 'not authenticated');
+        }).error(function() {
+            console.log('failed to initialize');
+        });
+        keycloak.updateToken(30).success(function() {
+            console.log("success")
+        }).error(function() {
+            console.log('Failed to refresh token');
+        });*/
+/*        var x = document.cookie;
+        console.log("cookie",x);
+        this.mainservice.getRealmOfLogedinUser()
+            .subscribe((res)=>{
+                let token = res.token;
+                // this.$http.get('../reject')
+                this.kc.init().then(init => {
+                    console.log("init",init);
+                this.kc.getToken(token)
+                    .then(token => {
+                        console.log("token",token);
+                        let headers = new Headers({
+                            'Accept': 'application/json',
+                            'Authorization': 'Bearer ' + token
+                        });
+
+        /!*                let options = new RequestOptions({ headers });
+
+                        this.http.get('/database/products', options)
+                            .map(res => res.json())
+                            .subscribe(prods => this.products = prods,
+                                error => console.log(error));*!/
+                    })
+                    .catch(error => console.log(error));
+                }).catch(error => console.log(error));
+            });*/
     }
     ngOnDestroy() {
         // Save state of the study page in a global variable after leaving it

@@ -4,7 +4,7 @@
         <div class="content">
             <label>Select the ae title:</label>
             <md-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
-                <md-option *ngFor="let ae of aes" [value]="ae.title" title="{{ae.description}}">{{ ae.title }}</md-option>
+                <md-option *ngFor="let ae of aes" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</md-option>
             </md-select>
             <ng-container *ngIf="isImage">
                 <label>Captured Image Type:</label>

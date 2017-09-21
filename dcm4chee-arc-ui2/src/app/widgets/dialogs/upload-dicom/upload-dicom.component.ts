@@ -173,9 +173,9 @@ export class UploadDicomComponent implements OnInit{
     close(dialogRef){
         dialogRef.close(null);
     }
-    onChange(newValue) {
+/*    onChange(newValue) {
         this._selectedAe = newValue.title;
-    }
+    }*/
     get selectedAe() {
         return this._selectedAe;
     }

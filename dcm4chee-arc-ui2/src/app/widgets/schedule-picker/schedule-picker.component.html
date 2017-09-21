@@ -1,0 +1,150 @@
+<div class="schedulepicker">
+    <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
+    <h4>Schedule picker</h4>
+    <div class="dropped_schedules"
+          (dragleave)="dragleave($event)"
+    >
+        <!--{{draggedElements | json}}-->
+        <div class="drop_info" *ngIf="draggedElements.length == 0">Drop here some element to edit</div>
+        <div class="dragged_elements {{item.mode}}" [ngSwitch]="item.mode" *ngFor="let item of draggedElements; let i = index">
+                <div *ngSwitchCase="'single_hour'" class="element single">
+                    <select name="single_hour" id="single_hour" [(ngModel)]="item.model">
+                        <option value="*">*</option>
+                        <option value="0">00</option>
+                        <option value="1">01</option>
+                        <option value="2">02</option>
+                        <option value="3">03</option>
+                        <option value="4">04</option>
+                        <option value="5">05</option>
+                        <option value="6">06</option>
+                        <option value="7">07</option>
+                        <option value="8">08</option>
+                        <option value="9">09</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                    </select>
+                </div>
+                <div *ngSwitchCase="'hour_range'" class="element range">
+                    <select name="hour_range1" id="hour_range1" [(ngModel)]="item.model.model1">
+                        <option value="0">00</option>
+                        <option value="1">01</option>
+                        <option value="2">02</option>
+                        <option value="3">03</option>
+                        <option value="4">04</option>
+                        <option value="5">05</option>
+                        <option value="6">06</option>
+                        <option value="7">07</option>
+                        <option value="8">08</option>
+                        <option value="9">09</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                    </select>
+                    <span class="split">-</span>
+                    <select name="hour_range2" id="hour_range2" [(ngModel)]="item.model.model2">
+                        <option value="0">00</option>
+                        <option value="1">01</option>
+                        <option value="2">02</option>
+                        <option value="3">03</option>
+                        <option value="4">04</option>
+                        <option value="5">05</option>
+                        <option value="6">06</option>
+                        <option value="7">07</option>
+                        <option value="8">08</option>
+                        <option value="9">09</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                    </select>
+                </div>
+                <div *ngSwitchCase="'single_day'" class="element single">
+                    <select name="single_day" id="single_day" [(ngModel)]="item.model">
+                        <option value="*">*</option>
+                        <option value="1">Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                        <option value="6">Saturday</option>
+                        <option value="0">Sunday</option>
+                    </select>
+                </div>
+                <div *ngSwitchCase="'day_range'" class="element range">
+                    <select name="day_range1" id="day_range1" [(ngModel)]="item.model.model1">
+                        <option value="1">Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                        <option value="6">Saturday</option>
+                        <option value="0">Sunday</option>
+                    </select>
+                    <span class="split">-</span>
+                    <select name="day_range2" id="day_range2" [(ngModel)]="item.model.model2">
+                        <option value="1">Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                        <option value="6">Saturday</option>
+                        <option value="0">Sunday</option>
+                    </select>
+                </div>
+                <div class="delete_schedule" (click)="deleteDropped(i)"><i class="glyphicon glyphicon-remove"></i></div>
+            </div>
+    </div>
+    <div class="schedule_drodown_buttons">
+        <div (dragstart)="dragstart($event,'single_hour')" draggable="true" class="button clock">
+            <div class="text">Single hour</div>
+        </div>
+        <div (dragstart)="dragstart($event,'hour_range')" draggable="true" class="button clock_range">
+            <div class="text">Hour range</div>
+        </div>
+        <div (dragstart)="dragstart($event,'single_day')" draggable="true" class="button calendar">
+            <div class="text">Single day</div>
+        </div>
+        <div (dragstart)="dragstart($event,'day_range')" draggable="true" class="button range_calendar">
+            <div class="text">Day range</div>
+        </div>
+    </div>
+    <div class="btn_content">
+        <button class="btn" (click)="addSchedule()">Add</button>
+    </div>
+</div>

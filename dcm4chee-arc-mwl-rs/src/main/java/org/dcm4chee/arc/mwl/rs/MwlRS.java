@@ -56,7 +56,7 @@ import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
-import org.dcm4chee.arc.keycloak.KeycloakUtils;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
@@ -209,8 +209,7 @@ public class MwlRS {
     }
 
     private boolean authenticatedUser(String[] acceptedUserRoles) {
-        Set<String> userRoles = KeycloakUtils.getUserRoles(request);
-        for (String s : userRoles)
+        for (String s : KeycloakContext.valueOf(request).getUserRoles())
             if (Arrays.asList(acceptedUserRoles).contains(s))
                 return true;
         return false;

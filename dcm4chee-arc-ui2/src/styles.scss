@@ -34,6 +34,9 @@ md-grid-list{
     max-width:1403px;
     margin:16px;
 }
+/*[draggable=true] {
+  -khtml-user-drag: element;
+}*/
 .mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{
   color: $blue;
 }
@@ -954,7 +957,9 @@ md-dialog-container{
       }
     }
   }
-
+  &.checkbox label{
+    font-weight:600;
+  }
 }
 .dynamicform:not(.hiddencontent){
   float: left;
@@ -1389,6 +1394,20 @@ md-dialog-container{
         input{
           width:90%;
         }
+      }
+      &.picker{
+        &:hover{
+          input{
+            width:100%;
+          }
+          .delete{
+            opacity:0;
+            visibility: hidden;
+          }
+        }
+      }
+      .durationpicker{
+        top: 30px;
       }
     }
     .add{

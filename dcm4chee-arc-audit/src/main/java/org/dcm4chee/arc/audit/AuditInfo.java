@@ -49,8 +49,8 @@ import org.dcm4che3.util.StringUtils;
 
 class AuditInfo {
     static final int CALLING_HOST = 0;
-    static final int CALLING_AET = 1;
-    static final int CALLED_AET = 2;
+    static final int CALLING_USERID = 1;
+    static final int CALLED_USERID = 2;
     static final int CALLED_HOST = 3;
     static final int STUDY_UID = 4;
     static final int ACC_NUM = 5;
@@ -71,14 +71,15 @@ class AuditInfo {
     static final int HL7_MESSAGE_TYPE = 20;
     static final int SUBMISSION_SET_UID = 21;
     static final int IS_EXPORT = 22;
+    static final int LDAP_DIFF = 23;
 
     private final String[] fields;
 
-    AuditInfo(BuildAuditInfo i) {
+    AuditInfo(AuditInfoBuilder i) {
         fields = new String[] {
                 i.callingHost,
-                i.callingAET,
-                i.calledAET,
+                i.callingUserID,
+                i.calledUserID,
                 i.calledHost,
                 i.studyUID,
                 i.accNum,
@@ -98,7 +99,8 @@ class AuditInfo {
                 i.mppsUID,
                 i.hl7MessageType,
                 i.submissionSetUID,
-                i.isExport ? String.valueOf(true) : null
+                i.isExport ? String.valueOf(true) : null,
+                i.ldapDiff
         };
     }
 

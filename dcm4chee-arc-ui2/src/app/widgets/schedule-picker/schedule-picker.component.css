@@ -1,0 +1,218 @@
+.schedulepicker{
+    max-height: 500px;
+    overflow: auto;
+    position: absolute;
+    z-index: 1001;
+    background: white;
+    -webkit-box-shadow: 3px 4px 8px 6px #cccccc;
+    -moz-box-shadow:  3px 4px 8px 6px #cccccc;
+    box-shadow:  3px 4px 8px 6px #cccccc;
+    padding:20px 30px;
+    width:635px;
+}
+.schedulepicker .msg{
+    float: left;
+    margin: 20px 0 0px 0;
+    width: 100%;
+    font-size:12px;
+}
+.schedulepicker .close{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 13px;
+}
+.schedulepicker .btn_content{
+    width: 100%;
+}
+.schedulepicker .schedule_table > div .input_block{
+    border: 1px solid #ddd;
+    padding: 10px 5px;
+}
+.schedulepicker .schedule_table .add{
+    float: right;
+    color: #777;
+    width: 100%;
+    border: 1px solid #ccc;
+    margin-top: 2px;
+    height: 30px;
+    vertical-align: middle;
+    line-height: 30px;
+    text-align: center;
+    position: relative;
+}
+.schedulepicker .schedule_table .add i{
+    position: absolute;
+    left: 38%;
+    top: 2px;
+}
+.schedulepicker .schedule_table .add:hover{
+    cursor: pointer;
+    background: rgba(6, 29, 47, 0.84);
+    color:white;
+}
+.schedulepicker .form_block{
+    width: 81%;
+    float: left;
+}
+.schedulepicker .form_block > div{
+    width:49%;
+    float: left;
+}
+
+.schedulepicker .form_block > div .input_block input{
+    width:49%;
+}
+.schedulepicker .schedule_table .change_buttons > div{
+    padding-right: 8px;
+    font-weight: 600;
+    background: #ddd;
+    text-align: center;
+    padding: 5px 10px;
+    margin-bottom: 5px;
+
+}
+.schedulepicker .schedule_table .change_buttons{
+    width: 17%;
+    padding:0;
+    float: left;
+}
+.schedulepicker .schedule_table .change_buttons > div:hover{
+    background: #aaaaaa;
+    cursor: pointer;
+}
+.schedulepicker .form_block > .hour_block,.schedulepicker .form_block > .single_block{
+    /*border: 1px solid #ccc;*/
+    padding: 9px 7px;
+}
+.schedulepicker .dropped_schedules{
+    float: left;
+    width: 450px;
+    padding: 15px 10px;
+    margin-right: 10px;
+    height:360px;
+    border:1px solid #cccccc;
+}
+.schedulepicker .schedule_drodown_buttons{
+    display: block;
+    width: 100px;
+    float: left;
+}
+.schedulepicker .schedule_drodown_buttons .button{
+    width:100px;
+    display: block;
+    height: 80px;
+    position: relative;
+    margin-bottom:10px;
+    border: 1px solid transparent;
+}
+.schedulepicker .schedule_drodown_buttons .button:hover{
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+    /*border:1px solid #cccccc;*/
+    -webkit-box-shadow: 2px 2px 11px 1px rgba(0, 0, 0, 0.42);
+    -moz-box-shadow: 2px 2px 11px 1px rgba(0, 0, 0, 0.42);
+    box-shadow: 2px 2px 11px 1px rgba(0, 0, 0, 0.42);
+}
+.schedulepicker .dragged_elements .delete_schedule{
+    float: right;
+    display: block;
+    text-align: center;
+    width: 5%;
+    padding-left: 5px;
+}
+.schedulepicker .dragged_elements .delete_schedule:hover {
+    cursor: pointer;
+}
+.schedulepicker .dragged_elements{
+    float: left;
+    width: 100%;
+    background: rgba(6, 29, 47, 0.84);
+    padding: 5px 5px;
+    margin-bottom: 5px;
+    color: white;
+}
+.schedulepicker .dragged_elements .element select,.schedulepicker .dragged_elements .element option{
+    background: white;
+    color: black;
+}
+.schedulepicker .dragged_elements .element.single select{
+    width: 100%;
+}
+.schedulepicker .dragged_elements .element.range select{
+    width: 48%;
+    float: left;
+}
+.schedulepicker .dragged_elements .element.range .split{
+    width: 4%;
+    float: left;
+    display: inline-block;
+    text-align: center;
+}
+.schedulepicker .dragged_elements .element{
+    width:95%;
+    float: left;
+}
+.schedulepicker .schedule_drodown_buttons .button:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+.schedulepicker .schedule_drodown_buttons .button .text{
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    width:100%;
+}
+.schedulepicker .schedule_drodown_buttons .button.calendar{
+    background:url("../../../assets/img/calendar.png");
+    background-repeat: no-repeat;
+    background-position: center 5px;
+}
+.schedulepicker .schedule_drodown_buttons .button.calendar:hover{
+    background:url("../../../assets/img/calendar_hover.png");
+    background-repeat: no-repeat;
+    background-position: center 5px;
+}
+.schedulepicker .schedule_drodown_buttons .button.clock{
+    background:url("../../../assets/img/clock.png");
+    background-repeat: no-repeat;
+    background-position: center 5px;
+}
+.schedulepicker .schedule_drodown_buttons .button.clock:hover{
+    background:url("../../../assets/img/clock_hover.png");
+    background-repeat: no-repeat;
+    background-position: center 5px;
+}
+.schedulepicker .schedule_drodown_buttons .button.range_calendar{
+    background:url("../../../assets/img/range_calendar.png");
+    background-repeat: no-repeat;
+    background-position: center 5px;
+}
+.schedulepicker .schedule_drodown_buttons .button.range_calendar:hover{
+    background:url("../../../assets/img/range_calendar_hover.png");
+    background-repeat: no-repeat;
+    background-position: center 5px;
+}
+.schedulepicker .schedule_drodown_buttons .button.clock_range{
+    background:url("../../../assets/img/range_clock.png");
+    background-repeat: no-repeat;
+    background-position: center 5px;
+
+}
+.schedulepicker .schedule_drodown_buttons .button.clock_range:hover{
+    background:url("../../../assets/img/range_clock_hover.png");
+    background-repeat: no-repeat;
+    background-position: center 5px;
+}
+.schedulepicker .drop_info{
+    font-size: 20px;
+    color: #777;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 300px;
+}
