@@ -21,4 +21,5 @@ export class SpecificCharPickerComponent implements OnInit {
         this.localModel = $event;
         this.modelChange.emit(this.localModel);
     }
+
 }

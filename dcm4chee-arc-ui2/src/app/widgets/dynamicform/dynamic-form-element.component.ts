@@ -436,4 +436,19 @@ export class DynamicFormElementComponent{
             }
         }
     }
+    onMouseEnter(formelement,i=null){
+        if(formelement.format){
+            if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass'){
+                if(i != null){
+                    formelement.showPickerTooltipp = formelement.showPickerTooltipp || {};
+                    formelement.showPickerTooltipp[i] = true;
+                }else{
+                    formelement.showPickerTooltipp = true;
+                }
+            }
+        }
+    }
+    onMouseLeave(formelement){
+        formelement.showPickerTooltipp = false;
+    }
 }
