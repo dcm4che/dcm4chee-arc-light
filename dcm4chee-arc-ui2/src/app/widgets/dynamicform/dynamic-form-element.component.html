@@ -20,8 +20,8 @@
                 <input class="simple_input text" *ngSwitchCase="'text'" [formControlName]="formelement.key" [id]="formelement.key" [type]="formelement.type" (click)="onFocuse(formelement)"/>
                 <dictionary-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showPicker" [dictionary]="formelement.format" [formelement]="formelement" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></dictionary-picker>
                 <time-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showTimePicker" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></time-picker>
-                <duration-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showDurationPicker" [value]="formelement.value" [mode]="formelement.format" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></duration-picker>
-                <schedule-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showSchedulePicker" [value]="formelement.value" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></schedule-picker>
+                <duration-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showDurationPicker" [value]="form.controls[formelement.key].value" [mode]="formelement.format" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></duration-picker>
+                <schedule-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showSchedulePicker" [value]="form.controls[formelement.key].value" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></schedule-picker>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <input class="simple_input number" *ngSwitchCase="'number'" [formControlName]="formelement.key" [id]="formelement.key" type="number" />

@@ -11,6 +11,7 @@ import {CreateExporterComponent} from '../widgets/dialogs/create-exporter/create
 import {Router} from '@angular/router';
 import {WindowRefService} from "../helpers/window-ref.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
+import {HttpErrorHandler} from "../helpers/http-error-handler";
 
 @Component({
   selector: 'app-devices',
@@ -53,7 +54,8 @@ export class DevicesComponent {
         public config: MdDialogConfig,
         public service: DevicesService,
         private router: Router,
-        private hl7service:Hl7ApplicationsService
+        private hl7service:Hl7ApplicationsService,
+        public httpErrorHandler:HttpErrorHandler
     ) {
         this.getDevices();
         this.getAes();
@@ -151,11 +153,7 @@ export class DevicesComponent {
                         $this.getDevices();
                         $this.cfpLoadingBar.complete();
                     }, (err) => {
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + err.status,
-                            'text': err.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(err);
                         $this.cfpLoadingBar.complete();
                     });
                 }
@@ -240,19 +238,11 @@ export class DevicesComponent {
                                     err => {
                                         console.log('error');
                                         $this.cfpLoadingBar.complete();
-                                        $this.mainservice.setMessage({
-                                            'title': 'Error ' + err.status,
-                                            'text': err.statusText,
-                                            'status': 'error'
-                                        });
+                                        $this.httpErrorHandler.handleError(err);
                                     });
                         },
                         (err) => {
-                            $this.mainservice.setMessage({
-                                'title': 'Error ' + err.status,
-                                'text': err.statusText,
-                                'status': 'error'
-                            });
+                            $this.httpErrorHandler.handleError(err);
                             $this.cfpLoadingBar.complete();
                         }
                     );
@@ -290,11 +280,7 @@ export class DevicesComponent {
                         });
                     });
                 }, (err) => {
-                    $this.mainservice.setMessage({
-                        'title': 'Error ' + err.status,
-                        'text': err.statusText,
-                        'status': 'error'
-                    });
+                    $this.httpErrorHandler.handleError(err);
                 });
             }
         });

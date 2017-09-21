@@ -53,6 +53,14 @@
         "type": "string"
       },
       "format": "dcmTag"
+    },
+    "dcmProperty": {
+      "title": "Property",
+      "description": "Property in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
   }
 }

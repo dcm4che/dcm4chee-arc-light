@@ -281,6 +281,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmAttributeSetTitle", attributeSet.getTitle(), null);
         writer.writeNotDef("dcmAttributeSetNumber", attributeSet.getNumber(), 0);
         writer.writeNotDef("dicomInstalled", attributeSet.isInstalled(), true);
+        writer.writeNotEmpty("dcmProperty", descriptorProperties(attributeSet.getProperties()));
         writer.writeNotEmpty("dcmTag", TagUtils.toHexStrings(attributeSet.getSelection()));
         writer.writeEnd();
     }
@@ -1109,6 +1110,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmTag":
                         attributeSet.setSelection(TagUtils.fromHexStrings(reader.stringArray()));
+                        break;
+                    case "dcmProperty":
+                        attributeSet.setProperties(reader.stringArray());
                         break;
                     default:
                         reader.skipUnknownProperty();

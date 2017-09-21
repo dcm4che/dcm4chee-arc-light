@@ -40,6 +40,7 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
+import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.query.QueryContext;
@@ -54,7 +55,7 @@ import java.nio.file.Path;
 class AuditServiceUtils {
     enum EventClass {
         QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
-        STGCMT, INST_RETRIEVED
+        STGCMT, INST_RETRIEVED, LDAP_CHANGES
     }
     enum EventType {
         WADO___URI(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
@@ -119,7 +120,10 @@ class AuditServiceUtils {
 
         PROV_REGIS(EventClass.PROV_REGISTER, AuditMessages.EventID.Export, AuditMessages.EventActionCode.Read,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination,
-                AuditMessages.EventTypeCode.ITI_41_ProvideAndRegisterDocumentSetB);
+                AuditMessages.EventTypeCode.ITI_41_ProvideAndRegisterDocumentSetB),
+
+        LDAP_CHNGS(EventClass.LDAP_CHANGES, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
+                null, null, AuditMessages.EventTypeCode.SoftwareConfiguration);
 
 
         final EventClass eventClass;

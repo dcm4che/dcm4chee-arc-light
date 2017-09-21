@@ -5,6 +5,7 @@ import {AppService} from '../../../app.service';
 import {Http} from '@angular/http';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {WindowRefService} from "../../../helpers/window-ref.service";
+import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 
 @Component({
   selector: 'app-create-ae',
@@ -25,7 +26,13 @@ export class CreateAeComponent {
     netConnModelDevice;
     private _devices;
     _ = _;
-    constructor(public $http: Http, public dialogRef: MdDialogRef<CreateAeComponent>, public mainservice: AppService, public cfpLoadingBar: SlimLoadingBarService) {
+    constructor(
+        public $http: Http,
+        public dialogRef: MdDialogRef<CreateAeComponent>,
+        public mainservice: AppService,
+        public cfpLoadingBar: SlimLoadingBarService,
+        public httpErrorHandler:HttpErrorHandler
+    ) {
         this.cfpLoadingBar.complete();
     }
 
@@ -86,11 +93,7 @@ export class CreateAeComponent {
                         $this.setReferencesFromDevice();
                         $this.cfpLoadingBar.stop();
                     }, (err) => {
-                        $this.mainservice.setMessage({
-                            'title': 'Error ' + err.status,
-                            'text': err.statusText,
-                            'status': 'error'
-                        });
+                        $this.httpErrorHandler.handleError(err);
                         $this.cfpLoadingBar.complete();
                     });
             }

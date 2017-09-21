@@ -2,7 +2,8 @@
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
     <h4>Schedule picker</h4>
     <div class="dropped_schedules"
-          (dragleave)="dragleave($event)">
+          (dragleave)="dragleave($event)"
+    >
         <!--{{draggedElements | json}}-->
         <div class="drop_info" *ngIf="draggedElements.length == 0">Drop here some element to edit</div>
         <div class="dragged_elements {{item.mode}}" [ngSwitch]="item.mode" *ngFor="let item of draggedElements; let i = index">
@@ -130,16 +131,16 @@
             </div>
     </div>
     <div class="schedule_drodown_buttons">
-        <div (dragstart)="dropstart('single_hour')" draggable="true" class="button clock">
+        <div (dragstart)="dragstart($event,'single_hour')" draggable="true" class="button clock">
             <div class="text">Single hour</div>
         </div>
-        <div (dragstart)="dropstart('hour_range')" draggable="true" class="button clock_range">
+        <div (dragstart)="dragstart($event,'hour_range')" draggable="true" class="button clock_range">
             <div class="text">Hour range</div>
         </div>
-        <div (dragstart)="dropstart('single_day')" draggable="true" class="button calendar">
+        <div (dragstart)="dragstart($event,'single_day')" draggable="true" class="button calendar">
             <div class="text">Single day</div>
         </div>
-        <div (dragstart)="dropstart('day_range')" draggable="true" class="button range_calendar">
+        <div (dragstart)="dragstart($event,'day_range')" draggable="true" class="button range_calendar">
             <div class="text">Day range</div>
         </div>
     </div>

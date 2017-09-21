@@ -52,6 +52,7 @@ import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
+import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RejectionNote;
@@ -137,6 +138,9 @@ public class AuditService {
                 break;
             case INST_RETRIEVED:
                 auditExternalRetrieve(auditLogger, path, eventType);
+                break;
+            case LDAP_CHANGES:
+                auditSoftwareConfiguration(auditLogger, path, eventType);
                 break;
         }
     }
@@ -277,6 +281,7 @@ public class AuditService {
             writeSpoolFile(serverET, deleteObjs);
         }
     }
+
     private String toHost(String aet) throws ConfigurationException {
         ApplicationEntity ae = aeCache.findApplicationEntity(aet);
         StringBuilder b = new StringBuilder();
@@ -289,6 +294,37 @@ public class AuditService {
         return b.toString();
     }
 
+    void spoolSoftwareConfiguration(SoftwareConfiguration softwareConfiguration) {
+        HttpServletRequest request = softwareConfiguration.getRequest();
+        AuditInfoBuilder info = new AuditInfoBuilder.Builder()
+                                .callingUserID(KeycloakContext.valueOf(request).getUserName())
+                                .callingHost(request.getRemoteAddr())
+                                .calledUserID(softwareConfiguration.getDeviceName())
+                                .ldapDiff(softwareConfiguration.getLdapDiff().toString())
+                                .build();
+        writeSpoolFile(AuditServiceUtils.EventType.LDAP_CHNGS, info);
+    }
+
+    private void auditSoftwareConfiguration(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
+            throws IOException {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+        EventIdentificationBuilder ei = toBuildEventIdentification(eventType, null, getEventTime(path, auditLogger));
+        ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[1];
+        String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
+        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
+                callingUserID,
+                auditInfo.getField(AuditInfo.CALLING_HOST))
+                .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
+                .requester(true).build();
+        ParticipantObjectIdentificationBuilder poiLDAPDiff = new ParticipantObjectIdentificationBuilder.Builder(auditInfo.getField(
+                                                    AuditInfo.CALLED_USERID),
+                                                    AuditMessages.ParticipantObjectIDTypeCode.DeviceName,
+                                                    AuditMessages.ParticipantObjectTypeCode.SystemObject,
+                                                    null).detail(getPod("Alert Description", auditInfo.getField(AuditInfo.LDAP_DIFF)))
+                                                    .build();
+        emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poiLDAPDiff);
+    }
 
     private AuditInfoBuilder buildPermDeletionAuditInfoForWeb(HttpServletRequest req, StudyDeleteContext ctx) {
         return new AuditInfoBuilder.Builder()

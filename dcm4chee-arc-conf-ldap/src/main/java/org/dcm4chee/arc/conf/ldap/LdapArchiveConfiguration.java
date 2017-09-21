@@ -43,6 +43,7 @@ package org.dcm4chee.arc.conf.ldap;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.ldap.LdapDicomConfiguration;
 import org.dcm4che3.conf.ldap.LdapDicomConfigurationExtension;
+import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.ldap.LdapUtils;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.ApplicationEntity;
@@ -77,149 +78,149 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     private static final Logger LOG = LoggerFactory.getLogger(LdapArchiveConfiguration.class);
 
     @Override
-    protected void storeTo(Device device, Attributes attrs) {
+    protected void storeTo(ConfigurationChanges.ModifiedObject ldapObj, Device device, Attributes attrs) {
         ArchiveDeviceExtension ext = device.getDeviceExtension(ArchiveDeviceExtension.class);
         if (ext == null)
             return;
 
         attrs.get("objectclass").add("dcmArchiveDevice");
-        LdapUtils.storeNotNullOrDef(attrs, "dcmFuzzyAlgorithmClass", ext.getFuzzyAlgorithmClass(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmSeriesMetadataStorageID", ext.getSeriesMetadataStorageIDs());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmSeriesMetadataDelay", ext.getSeriesMetadataDelay(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmSeriesMetadataPollingInterval", ext.getSeriesMetadataPollingInterval(), null);
-        LdapUtils.storeNotDef(attrs, "dcmSeriesMetadataFetchSize", ext.getSeriesMetadataFetchSize(), 100);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmPurgeInstanceRecordsDelay", ext.getPurgeInstanceRecordsDelay(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmPurgeInstanceRecordsPollingInterval", ext.getPurgeInstanceRecordsPollingInterval(), null);
-        LdapUtils.storeNotDef(attrs, "dcmPurgeInstanceRecordsFetchSize", ext.getPurgeInstanceRecordsFetchSize(), 100);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmOverwritePolicy", ext.getOverwritePolicy(), OverwritePolicy.NEVER);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmBulkDataSpoolDirectory",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFuzzyAlgorithmClass", ext.getFuzzyAlgorithmClass(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSeriesMetadataStorageID", ext.getSeriesMetadataStorageIDs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataDelay", ext.getSeriesMetadataDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataPollingInterval", ext.getSeriesMetadataPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmSeriesMetadataFetchSize", ext.getSeriesMetadataFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeInstanceRecordsDelay", ext.getPurgeInstanceRecordsDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeInstanceRecordsPollingInterval", ext.getPurgeInstanceRecordsPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmPurgeInstanceRecordsFetchSize", ext.getPurgeInstanceRecordsFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOverwritePolicy", ext.getOverwritePolicy(), OverwritePolicy.NEVER);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataSpoolDirectory",
                 ext.getBulkDataSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmQueryRetrieveViewID", ext.getQueryRetrieveViewID(), null);
-        LdapUtils.storeNotDef(attrs, "dcmPersonNameComponentOrderInsensitiveMatching",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQueryRetrieveViewID", ext.getQueryRetrieveViewID(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmPersonNameComponentOrderInsensitiveMatching",
                 ext.isPersonNameComponentOrderInsensitiveMatching(), false);
-        LdapUtils.storeNotDef(attrs, "dcmSendPendingCGet", ext.isSendPendingCGet(), false);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmSpanningCFindSCP", ext.getSpanningCFindSCP(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmSpanningCFindSCPRetrieveAET", ext.getSpanningCFindSCPRetrieveAETitles());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmSpanningCFindSCPPolicy",
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmSendPendingCGet", ext.isSendPendingCGet(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSpanningCFindSCP", ext.getSpanningCFindSCP(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSpanningCFindSCPRetrieveAET", ext.getSpanningCFindSCPRetrieveAETitles());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSpanningCFindSCPPolicy",
                 ext.getSpanningCFindSCPPolicy(), SpanningCFindSCPPolicy.REPLACE);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCP", ext.getFallbackCMoveSCP(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCPDestination", ext.getFallbackCMoveSCPDestination(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCPLeadingCFindSCP", ext.getFallbackCMoveSCPLeadingCFindSCP(), null);
-        LdapUtils.storeNotDef(attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries(), 0);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7OutgoingPatientUpdateTemplateURI", ext.getOutgoingPatientUpdateTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7LogFilePattern", ext.getHl7LogFilePattern(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmUnzipVendorDataToURI", ext.getUnzipVendorDataToURI(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
-        LdapUtils.storeNotDef(attrs, "dcmQueryFetchSize", ext.getQueryFetchSize(), 100);
-        LdapUtils.storeNotDef(attrs, "dcmQueryMaxNumberOfResults", ext.getQueryMaxNumberOfResults(), 0);
-        LdapUtils.storeNotDef(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 100);
-        LdapUtils.storeNotEmpty(attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
-        LdapUtils.storeNotEmpty(attrs, "dcmIanDestination", ext.getIanDestinations());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmIanDelay", ext.getIanDelay(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmIanTimeout", ext.getIanTimeout(), null);
-        LdapUtils.storeNotDef(attrs, "dcmIanOnTimeout", ext.isIanOnTimeout(), false);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmIanTaskPollingInterval", ext.getIanTaskPollingInterval(), null);
-        LdapUtils.storeNotDef(attrs, "dcmIanTaskFetchSize", ext.getIanTaskFetchSize(), 100);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmExportTaskPollingInterval", ext.getExportTaskPollingInterval(), null);
-        LdapUtils.storeNotDef(attrs, "dcmExportTaskFetchSize", ext.getExportTaskFetchSize(), 5);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmPurgeStoragePollingInterval", ext.getPurgeStoragePollingInterval(), null);
-        LdapUtils.storeNotDef(attrs, "dcmPurgeStorageFetchSize", ext.getPurgeStorageFetchSize(), 100);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmDeleteRejectedPollingInterval", ext.getDeleteRejectedPollingInterval(), null);
-        LdapUtils.storeNotDef(attrs, "dcmDeleteRejectedFetchSize", ext.getDeleteRejectedFetchSize(), 100);
-        LdapUtils.storeNotDef(attrs, "dcmDeleteStudyBatchSize", ext.getDeleteStudyBatchSize(), 10);
-        LdapUtils.storeNotDef(attrs, "dcmDeletePatientOnDeleteLastStudy",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCP", ext.getFallbackCMoveSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPDestination", ext.getFallbackCMoveSCPDestination(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPLeadingCFindSCP", ext.getFallbackCMoveSCPLeadingCFindSCP(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries(), 0);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportTemplateURI", ext.getImportReportTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduleProcedureTemplateURI", ext.getScheduleProcedureTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OutgoingPatientUpdateTemplateURI", ext.getOutgoingPatientUpdateTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7LogFilePattern", ext.getHl7LogFilePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ErrorLogFilePattern", ext.getHl7ErrorLogFilePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUnzipVendorDataToURI", ext.getUnzipVendorDataToURI(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmWadoSupportedSRClasses", ext.getWadoSupportedSRClasses());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmQueryFetchSize", ext.getQueryFetchSize(), 100);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmQueryMaxNumberOfResults", ext.getQueryMaxNumberOfResults(), 0);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults(), 100);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanDestination", ext.getIanDestinations());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanDelay", ext.getIanDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanTimeout", ext.getIanTimeout(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmIanOnTimeout", ext.isIanOnTimeout(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanTaskPollingInterval", ext.getIanTaskPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmIanTaskFetchSize", ext.getIanTaskFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExportTaskPollingInterval", ext.getExportTaskPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportTaskFetchSize", ext.getExportTaskFetchSize(), 5);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeStoragePollingInterval", ext.getPurgeStoragePollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmPurgeStorageFetchSize", ext.getPurgeStorageFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteRejectedPollingInterval", ext.getDeleteRejectedPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleteRejectedFetchSize", ext.getDeleteRejectedFetchSize(), 100);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeleteStudyBatchSize", ext.getDeleteStudyBatchSize(), 10);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmDeletePatientOnDeleteLastStudy",
                 ext.isDeletePatientOnDeleteLastStudy(), false);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmMaxAccessTimeStaleness", ext.getMaxAccessTimeStaleness(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAECacheStaleTimeout", ext.getAECacheStaleTimeout(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmLeadingCFindSCPQueryCacheStaleTimeout", ext.getLeadingCFindSCPQueryCacheStaleTimeout(), null);
-        LdapUtils.storeNotDef(attrs, "dcmLeadingCFindSCPQueryCacheSize", ext.getLeadingCFindSCPQueryCacheSize(), 10);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAuditSpoolDirectory",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMaxAccessTimeStaleness", ext.getMaxAccessTimeStaleness(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAECacheStaleTimeout", ext.getAECacheStaleTimeout(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLeadingCFindSCPQueryCacheStaleTimeout", ext.getLeadingCFindSCPQueryCacheStaleTimeout(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmLeadingCFindSCPQueryCacheSize", ext.getLeadingCFindSCPQueryCacheSize(), 10);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditSpoolDirectory",
                 ext.getAuditSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAuditPollingInterval", ext.getAuditPollingInterval(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAuditAggregateDuration", ext.getAuditAggregateDuration(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStowSpoolDirectory",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditPollingInterval", ext.getAuditPollingInterval(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditAggregateDuration", ext.getAuditAggregateDuration(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStowSpoolDirectory",
                 ext.getStowSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmPurgeQueueMessagePollingInterval",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessagePollingInterval",
                 ext.getPurgeQueueMessagePollingInterval(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmWadoSpoolDirectory",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSpoolDirectory",
                 ext.getWadoSpoolDirectory(), ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
-        LdapUtils.storeNotEmpty(attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFrom());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmRejectExpiredStudiesPollingInterval",
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFrom());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectExpiredStudiesPollingInterval",
                 ext.getRejectExpiredStudiesPollingInterval(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmRejectExpiredStudiesPollingStartTime",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectExpiredStudiesPollingStartTime",
                 ext.getRejectExpiredStudiesPollingStartTime(), null);
-        LdapUtils.storeNotDef(attrs, "dcmRejectExpiredStudiesFetchSize", ext.getRejectExpiredStudiesFetchSize(), 0);
-        LdapUtils.storeNotDef(attrs, "dcmRejectExpiredSeriesFetchSize", ext.getRejectExpiredSeriesFetchSize(), 0);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmRejectExpiredStudiesAETitle", ext.getRejectExpiredStudiesAETitle(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCPStudyOlderThan", ext.getFallbackCMoveSCPStudyOlderThan(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStorePermissionServiceURL", ext.getStorePermissionServiceURL(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStorePermissionServiceResponsePattern",
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRejectExpiredStudiesFetchSize", ext.getRejectExpiredStudiesFetchSize(), 0);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRejectExpiredSeriesFetchSize", ext.getRejectExpiredSeriesFetchSize(), 0);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectExpiredStudiesAETitle", ext.getRejectExpiredStudiesAETitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPStudyOlderThan", ext.getFallbackCMoveSCPStudyOlderThan(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceURL", ext.getStorePermissionServiceURL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceResponsePattern",
                 ext.getStorePermissionServiceResponsePattern(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStorePermissionCacheStaleTimeout",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionCacheStaleTimeout",
                 ext.getStorePermissionCacheStaleTimeout(), null);
-        LdapUtils.storeNotDef(attrs, "dcmStorePermissionCacheSize", ext.getStorePermissionCacheSize(), 10);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmMergeMWLCacheStaleTimeout", ext.getMergeMWLCacheStaleTimeout(), null);
-        LdapUtils.storeNotDef(attrs, "dcmMergeMWLCacheSize", ext.getMergeMWLCacheSize(), 10);
-        LdapUtils.storeNotDef(attrs, "dcmStoreUpdateDBMaxRetries", ext.getStoreUpdateDBMaxRetries(), 1);
-        LdapUtils.storeNotDef(attrs, "dcmStoreUpdateDBMaxRetryDelay", ext.getStoreUpdateDBMaxRetryDelay(), 1000);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAllowRejectionForDataRetentionPolicyExpired",
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStorePermissionCacheSize", ext.getStorePermissionCacheSize(), 10);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLCacheStaleTimeout", ext.getMergeMWLCacheStaleTimeout(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMergeMWLCacheSize", ext.getMergeMWLCacheSize(), 10);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStoreUpdateDBMaxRetries", ext.getStoreUpdateDBMaxRetries(), 1);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmStoreUpdateDBMaxRetryDelay", ext.getStoreUpdateDBMaxRetryDelay(), 1000);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowRejectionForDataRetentionPolicyExpired",
                 ext.getAllowRejectionForDataRetentionPolicyExpired(), AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAcceptMissingPatientID",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptMissingPatientID",
                 ext.getAcceptMissingPatientID(), AcceptMissingPatientID.CREATE);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAllowDeleteStudyPermanently",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowDeleteStudyPermanently",
                 ext.getAllowDeleteStudyPermanently(), AllowDeleteStudyPermanently.REJECTED);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStorePermissionServiceExpirationDatePattern",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceExpirationDatePattern",
                 ext.getStorePermissionServiceExpirationDatePattern(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmShowPatientInfoInSystemLog",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmShowPatientInfoInSystemLog",
                 ext.getShowPatientInfoInSystemLog(), ShowPatientInfo.PLAIN_TEXT);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmShowPatientInfoInAuditLog",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmShowPatientInfoInAuditLog",
                 ext.getShowPatientInfoInAuditLog(), ShowPatientInfo.PLAIN_TEXT);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmPurgeStgCmtCompletedDelay", ext.getPurgeStgCmtCompletedDelay(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmPurgeStgCmtPollingInterval", ext.getPurgeStgCmtPollingInterval(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmDefaultCharacterSet", ext.getDefaultCharacterSet(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStorePermissionServiceErrorCommentPattern", ext.getStorePermissionServiceErrorCommentPattern(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStorePermissionServiceErrorCodePattern", ext.getStorePermissionServiceErrorCodePattern(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", ext.getRetrieveAETitles());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmExternalRetrieveAEDestination", ext.getExternalRetrieveAEDestination(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmXDSiImagingDocumentSourceAETitle", ext.getXDSiImagingDocumentSourceAETitle(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmRemapRetrieveURL", ext.getRemapRetrieveURL(), null);
-        LdapUtils.storeNotDef(attrs, "dcmValidateCallingAEHostname", ext.isValidateCallingAEHostname(), false);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7PSUSendingApplication", ext.getHl7PSUSendingApplication(), null);
-        LdapUtils.storeNotEmpty(attrs, "hl7PSUReceivingApplication", ext.getHl7PSUReceivingApplications());
-        LdapUtils.storeNotNullOrDef(attrs, "hl7PSUDelay", ext.getHl7PSUDelay(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7PSUTimeout", ext.getHl7PSUTimeout(), null);
-        LdapUtils.storeNotDef(attrs, "hl7PSUOnTimeout", ext.isHl7PSUOnTimeout(), false);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7PSUTaskPollingInterval", ext.getHl7PSUTaskPollingInterval(), null);
-        LdapUtils.storeNotDef(attrs, "hl7PSUTaskFetchSize", ext.getHl7PSUTaskFetchSize(), 100);
-        LdapUtils.storeNotDef(attrs, "hl7PSUMWL", ext.isHl7PSUMWL(), false);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAcceptConflictingPatientID",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeStgCmtCompletedDelay", ext.getPurgeStgCmtCompletedDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeStgCmtPollingInterval", ext.getPurgeStgCmtPollingInterval(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultCharacterSet", ext.getDefaultCharacterSet(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCommentPattern", ext.getStorePermissionServiceErrorCommentPattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCodePattern", ext.getStorePermissionServiceErrorCodePattern(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRetrieveAET", ext.getRetrieveAETitles());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalRetrieveAEDestination", ext.getExternalRetrieveAEDestination(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmXDSiImagingDocumentSourceAETitle", ext.getXDSiImagingDocumentSourceAETitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRemapRetrieveURL", ext.getRemapRetrieveURL(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmValidateCallingAEHostname", ext.isValidateCallingAEHostname(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUSendingApplication", ext.getHl7PSUSendingApplication(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUReceivingApplication", ext.getHl7PSUReceivingApplications());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUDelay", ext.getHl7PSUDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTimeout", ext.getHl7PSUTimeout(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUOnTimeout", ext.isHl7PSUOnTimeout(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTaskPollingInterval", ext.getHl7PSUTaskPollingInterval(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUTaskFetchSize", ext.getHl7PSUTaskFetchSize(), 100);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7PSUMWL", ext.isHl7PSUMWL(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptConflictingPatientID",
                 ext.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAuditRecordRepositoryURL", ext.getAuditRecordRepositoryURL(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmElasticSearchURL", ext.getElasticSearchURL(), null);
-        LdapUtils.storeNotNullOrDef(attrs,"dcmAudit2JsonFhirTemplateURI", ext.getAudit2JsonFhirTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs,"dcmAudit2XmlFhirTemplateURI", ext.getAudit2XmlFhirTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmCopyMoveUpdatePolicy", ext.getCopyMoveUpdatePolicy(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmLinkMWLEntryUpdatePolicy", ext.getLinkMWLEntryUpdatePolicy(), null);
-        LdapUtils.storeNotDef(attrs, "hl7TrackChangedPatientID", ext.isHl7TrackChangedPatientID(), true);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7ADTSendingApplication", ext.getHl7ADTSendingApplication(), null);
-        LdapUtils.storeNotEmpty(attrs, "hl7ADTReceivingApplication", ext.getHl7ADTReceivingApplication());
-        LdapUtils.storeNotNullOrDef(attrs, "hl7ScheduledProtocolCodeInOrder",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditRecordRepositoryURL", ext.getAuditRecordRepositoryURL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmElasticSearchURL", ext.getElasticSearchURL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmAudit2JsonFhirTemplateURI", ext.getAudit2JsonFhirTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmAudit2XmlFhirTemplateURI", ext.getAudit2XmlFhirTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCopyMoveUpdatePolicy", ext.getCopyMoveUpdatePolicy(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLinkMWLEntryUpdatePolicy", ext.getLinkMWLEntryUpdatePolicy(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7TrackChangedPatientID", ext.isHl7TrackChangedPatientID(), true);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ADTSendingApplication", ext.getHl7ADTSendingApplication(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7ADTReceivingApplication", ext.getHl7ADTReceivingApplication());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledProtocolCodeInOrder",
                 ext.getHl7ScheduledProtocolCodeInOrder(), ScheduledProtocolCodeInOrder.OBR_4_4);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7ScheduledStationAETInOrder", ext.getHl7ScheduledStationAETInOrder(), null);
-        LdapUtils.storeNotEmpty(attrs, "hl7NoPatientCreateMessageType", ext.getHl7NoPatientCreateMessageTypes());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAuditUnknownStudyInstanceUID",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledStationAETInOrder", ext.getHl7ScheduledStationAETInOrder(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7NoPatientCreateMessageType", ext.getHl7NoPatientCreateMessageTypes());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditUnknownStudyInstanceUID",
                 ext.getAuditUnknownStudyInstanceUID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAuditUnknownPatientID",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditUnknownPatientID",
                 ext.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
     }
 
@@ -372,7 +373,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     @Override
-    protected void storeDiffs(Device prev, Device device, List<ModificationItem> mods) {
+    protected void storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, Device prev, Device device, List<ModificationItem> mods) {
         ArchiveDeviceExtension aa = prev.getDeviceExtension(ArchiveDeviceExtension.class);
         ArchiveDeviceExtension bb = device.getDeviceExtension(ArchiveDeviceExtension.class);
         if (aa == null && bb == null)
@@ -386,240 +387,240 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             mods.add(new ModificationItem(DirContext.ADD_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
         }
-        LdapUtils.storeDiffObject(mods, "dcmFuzzyAlgorithmClass", aa.getFuzzyAlgorithmClass(), bb.getFuzzyAlgorithmClass(), null);
-        LdapUtils.storeDiff(mods, "dcmSeriesMetadataStorageID",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFuzzyAlgorithmClass", aa.getFuzzyAlgorithmClass(), bb.getFuzzyAlgorithmClass(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSeriesMetadataStorageID",
                 aa.getSeriesMetadataStorageIDs(),
                 bb.getSeriesMetadataStorageIDs());
-        LdapUtils.storeDiffObject(mods, "dcmSeriesMetadataDelay", aa.getSeriesMetadataDelay(), bb.getSeriesMetadataDelay(), null);
-        LdapUtils.storeDiffObject(mods, "dcmSeriesMetadataPollingInterval",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataDelay", aa.getSeriesMetadataDelay(), bb.getSeriesMetadataDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataPollingInterval",
                 aa.getSeriesMetadataPollingInterval(),
                 bb.getSeriesMetadataPollingInterval(), null);
-        LdapUtils.storeDiff(mods, "dcmSeriesMetadataFetchSize",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSeriesMetadataFetchSize",
                 aa.getSeriesMetadataFetchSize(),
                 bb.getSeriesMetadataFetchSize(),
                 100);
-        LdapUtils.storeDiffObject(mods, "dcmPurgeInstanceRecordsDelay",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeInstanceRecordsDelay",
                 aa.getPurgeInstanceRecordsDelay(),
                 bb.getPurgeInstanceRecordsDelay(), null);
-        LdapUtils.storeDiffObject(mods, "dcmPurgeInstanceRecordsPollingInterval",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeInstanceRecordsPollingInterval",
                 aa.getPurgeInstanceRecordsPollingInterval(),
                 bb.getPurgeInstanceRecordsPollingInterval(), null);
-        LdapUtils.storeDiff(mods, "dcmPurgeInstanceRecordsFetchSize",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmPurgeInstanceRecordsFetchSize",
                 aa.getPurgeInstanceRecordsFetchSize(),
                 bb.getPurgeInstanceRecordsFetchSize(),
                 100);
-        LdapUtils.storeDiffObject(mods, "dcmOverwritePolicy", aa.getOverwritePolicy(), bb.getOverwritePolicy(), OverwritePolicy.NEVER);
-        LdapUtils.storeDiffObject(mods, "dcmBulkDataSpoolDirectory",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmOverwritePolicy", aa.getOverwritePolicy(), bb.getOverwritePolicy(), OverwritePolicy.NEVER);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmBulkDataSpoolDirectory",
                 aa.getBulkDataSpoolDirectory(),
                 bb.getBulkDataSpoolDirectory(),
                 ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
-        LdapUtils.storeDiffObject(mods, "dcmQueryRetrieveViewID", aa.getQueryRetrieveViewID(), bb.getQueryRetrieveViewID(), null);
-        LdapUtils.storeDiff(mods, "dcmPersonNameComponentOrderInsensitiveMatching",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmQueryRetrieveViewID", aa.getQueryRetrieveViewID(), bb.getQueryRetrieveViewID(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmPersonNameComponentOrderInsensitiveMatching",
                 aa.isPersonNameComponentOrderInsensitiveMatching(),
                 bb.isPersonNameComponentOrderInsensitiveMatching(),
                 false);
-        LdapUtils.storeDiff(mods, "dcmSendPendingCGet", aa.isSendPendingCGet(), bb.isSendPendingCGet(), false);
-        LdapUtils.storeDiffObject(mods, "dcmSendPendingCMoveInterval",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSendPendingCGet", aa.isSendPendingCGet(), bb.isSendPendingCGet(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSendPendingCMoveInterval",
                 aa.getSendPendingCMoveInterval(), bb.getSendPendingCMoveInterval(), null);
-        LdapUtils.storeDiffObject(mods, "dcmSpanningCFindSCP",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSpanningCFindSCP",
                 aa.getSpanningCFindSCP(), bb.getSpanningCFindSCP(), null);
-        LdapUtils.storeDiff(mods, "dcmSpanningCFindSCPRetrieveAET",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSpanningCFindSCPRetrieveAET",
                 aa.getSpanningCFindSCPRetrieveAETitles(), bb.getSpanningCFindSCPRetrieveAETitles());
-        LdapUtils.storeDiffObject(mods, "dcmSpanningCFindSCPPolicy",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSpanningCFindSCPPolicy",
                 aa.getSpanningCFindSCPPolicy(), bb.getSpanningCFindSCPPolicy(), SpanningCFindSCPPolicy.REPLACE);
-        LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCP", aa.getFallbackCMoveSCP(), bb.getFallbackCMoveSCP(), null);
-        LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPDestination",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCP", aa.getFallbackCMoveSCP(), bb.getFallbackCMoveSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCPDestination",
                 aa.getFallbackCMoveSCPDestination(), bb.getFallbackCMoveSCPDestination(), null);
-        LdapUtils.storeDiff(mods, "dcmFallbackCMoveSCPRetries",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmFallbackCMoveSCPRetries",
                 aa.getFallbackCMoveSCPRetries(), bb.getFallbackCMoveSCPRetries(),  0);
-        LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPLeadingCFindSCP",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCPLeadingCFindSCP",
                 aa.getFallbackCMoveSCPLeadingCFindSCP(), bb.getFallbackCMoveSCPLeadingCFindSCP(), null);
-        LdapUtils.storeDiffObject(mods, "dcmAltCMoveSCP", aa.getAlternativeCMoveSCP(), bb.getAlternativeCMoveSCP(), null);
-        LdapUtils.storeDiffObject(mods, "dcmWadoSR2HtmlTemplateURI",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAltCMoveSCP", aa.getAlternativeCMoveSCP(), bb.getAlternativeCMoveSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoSR2HtmlTemplateURI",
                 aa.getWadoSR2HtmlTemplateURI(), bb.getWadoSR2HtmlTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods, "dcmWadoSR2TextTemplateURI",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoSR2TextTemplateURI",
                 aa.getWadoSR2TextTemplateURI(), bb.getWadoSR2TextTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods, "hl7ImportReportTemplateURI",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportTemplateURI",
                 aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods, "hl7PatientUpdateTemplateURI",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PatientUpdateTemplateURI",
                 aa.getPatientUpdateTemplateURI(), bb.getPatientUpdateTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods, "hl7ScheduleProcedureTemplateURI", aa.getScheduleProcedureTemplateURI(),
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ScheduleProcedureTemplateURI", aa.getScheduleProcedureTemplateURI(),
                 bb.getScheduleProcedureTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods, "hl7OutgoingPatientUpdateTemplateURI", aa.getOutgoingPatientUpdateTemplateURI(),
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7OutgoingPatientUpdateTemplateURI", aa.getOutgoingPatientUpdateTemplateURI(),
                 bb.getOutgoingPatientUpdateTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods, "hl7LogFilePattern", aa.getHl7LogFilePattern(), bb.getHl7LogFilePattern(), null);
-        LdapUtils.storeDiffObject(mods, "hl7ErrorLogFilePattern", aa.getHl7ErrorLogFilePattern(), bb.getHl7ErrorLogFilePattern(), null);
-        LdapUtils.storeDiffObject(mods, "dcmUnzipVendorDataToURI",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7LogFilePattern", aa.getHl7LogFilePattern(), bb.getHl7LogFilePattern(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ErrorLogFilePattern", aa.getHl7ErrorLogFilePattern(), bb.getHl7ErrorLogFilePattern(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUnzipVendorDataToURI",
                 aa.getUnzipVendorDataToURI(), bb.getUnzipVendorDataToURI(), null);
-        LdapUtils.storeDiff(mods, "dcmWadoSupportedSRClasses",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmWadoSupportedSRClasses",
                 aa.getWadoSupportedSRClasses(), bb.getWadoSupportedSRClasses());
-        LdapUtils.storeDiff(mods, "dcmQueryFetchSize",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmQueryFetchSize",
                 aa.getQueryFetchSize(), bb.getQueryFetchSize(),  100);
-        LdapUtils.storeDiff(mods, "dcmQueryMaxNumberOfResults",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmQueryMaxNumberOfResults",
                 aa.getQueryMaxNumberOfResults(), bb.getQueryMaxNumberOfResults(),  0);
-        LdapUtils.storeDiff(mods, "dcmQidoMaxNumberOfResults",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmQidoMaxNumberOfResults",
                 aa.getQidoMaxNumberOfResults(), bb.getQidoMaxNumberOfResults(),  0);
-        LdapUtils.storeDiff(mods, "dcmFwdMppsDestination",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmFwdMppsDestination",
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
-        LdapUtils.storeDiff(mods, "dcmIanDestination", aa.getIanDestinations(), bb.getIanDestinations());
-        LdapUtils.storeDiffObject(mods, "dcmIanDelay", aa.getIanDelay(), bb.getIanDelay(), null);
-        LdapUtils.storeDiffObject(mods, "dcmIanTimeout", aa.getIanTimeout(), bb.getIanTimeout(), null);
-        LdapUtils.storeDiff(mods, "dcmIanOnTimeout", aa.isIanOnTimeout(), bb.isIanOnTimeout(), false);
-        LdapUtils.storeDiffObject(mods, "dcmIanTaskPollingInterval",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIanDestination", aa.getIanDestinations(), bb.getIanDestinations());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanDelay", aa.getIanDelay(), bb.getIanDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanTimeout", aa.getIanTimeout(), bb.getIanTimeout(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIanOnTimeout", aa.isIanOnTimeout(), bb.isIanOnTimeout(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanTaskPollingInterval",
                 aa.getIanTaskPollingInterval(), bb.getIanTaskPollingInterval(), null);
-        LdapUtils.storeDiff(mods, "dcmIanTaskFetchSize", aa.getIanTaskFetchSize(), bb.getIanTaskFetchSize(), 100);
-        LdapUtils.storeDiffObject(mods, "dcmExportTaskPollingInterval",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIanTaskFetchSize", aa.getIanTaskFetchSize(), bb.getIanTaskFetchSize(), 100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExportTaskPollingInterval",
                 aa.getExportTaskPollingInterval(), bb.getExportTaskPollingInterval(), null);
-        LdapUtils.storeDiff(mods, "dcmExportTaskFetchSize",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmExportTaskFetchSize",
                 aa.getExportTaskFetchSize(), bb.getExportTaskFetchSize(), 5);
-        LdapUtils.storeDiffObject(mods, "dcmPurgeStoragePollingInterval",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeStoragePollingInterval",
                 aa.getPurgeStoragePollingInterval(), bb.getPurgeStoragePollingInterval(), null);
-        LdapUtils.storeDiff(mods, "dcmPurgeStorageFetchSize",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmPurgeStorageFetchSize",
                 aa.getPurgeStorageFetchSize(), bb.getPurgeStorageFetchSize(), 100);
-        LdapUtils.storeDiffObject(mods, "dcmDeleteRejectedPollingInterval",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleteRejectedPollingInterval",
                 aa.getDeleteRejectedPollingInterval(), bb.getDeleteRejectedPollingInterval(), null);
-        LdapUtils.storeDiff(mods, "dcmDeleteRejectedFetchSize",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteRejectedFetchSize",
                 aa.getDeleteRejectedFetchSize(), bb.getDeleteRejectedFetchSize(), 100);
-        LdapUtils.storeDiff(mods, "dcmDeleteStudyBatchSize",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleteStudyBatchSize",
                 aa.getDeleteStudyBatchSize(), bb.getDeleteStudyBatchSize(), 10);
-        LdapUtils.storeDiff(mods, "dcmDeletePatientOnDeleteLastStudy",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeletePatientOnDeleteLastStudy",
                 aa.isDeletePatientOnDeleteLastStudy(), bb.isDeletePatientOnDeleteLastStudy(), false);
-        LdapUtils.storeDiffObject(mods, "dcmMaxAccessTimeStaleness",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMaxAccessTimeStaleness",
                 aa.getMaxAccessTimeStaleness(), bb.getMaxAccessTimeStaleness(), null);
-        LdapUtils.storeDiffObject(mods, "dcmAECacheStaleTimeout",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAECacheStaleTimeout",
                 aa.getAECacheStaleTimeout(), bb.getAECacheStaleTimeout(), null);
-        LdapUtils.storeDiffObject(mods, "dcmLeadingCFindSCPQueryCacheStaleTimeout",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmLeadingCFindSCPQueryCacheStaleTimeout",
                 aa.getLeadingCFindSCPQueryCacheStaleTimeout(), bb.getLeadingCFindSCPQueryCacheStaleTimeout(), null);
-        LdapUtils.storeDiff(mods, "dcmLeadingCFindSCPQueryCacheSize",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmLeadingCFindSCPQueryCacheSize",
                 aa.getLeadingCFindSCPQueryCacheSize(), bb.getLeadingCFindSCPQueryCacheSize(), 10);
-        LdapUtils.storeDiffObject(mods, "dcmAuditSpoolDirectory",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAuditSpoolDirectory",
                 aa.getAuditSpoolDirectory(),
                 bb.getAuditSpoolDirectory(),
                 ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
-        LdapUtils.storeDiffObject(mods, "dcmAuditPollingInterval",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAuditPollingInterval",
                 aa.getAuditPollingInterval(), bb.getAuditPollingInterval(), null);
-        LdapUtils.storeDiffObject(mods, "dcmAuditAggregateDuration",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAuditAggregateDuration",
                 aa.getAuditAggregateDuration(), bb.getAuditAggregateDuration(), null);
-        LdapUtils.storeDiffObject(mods, "dcmStowSpoolDirectory",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStowSpoolDirectory",
                 aa.getStowSpoolDirectory(),
                 bb.getStowSpoolDirectory(),
                 ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
-        LdapUtils.storeDiffObject(mods, "dcmPurgeQueueMessagePollingInterval", aa.getPurgeQueueMessagePollingInterval(),
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessagePollingInterval", aa.getPurgeQueueMessagePollingInterval(),
                 bb.getPurgeQueueMessagePollingInterval(), null);
-        LdapUtils.storeDiffObject(mods, "dcmWadoSpoolDirectory",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoSpoolDirectory",
                 aa.getWadoSpoolDirectory(),
                 bb.getWadoSpoolDirectory(),
                 ArchiveDeviceExtension.JBOSS_SERVER_TEMP_DIR);
-        LdapUtils.storeDiff(mods, "dcmHideSPSWithStatusFromMWL", aa.getHideSPSWithStatusFrom(), bb.getHideSPSWithStatusFrom());
-        LdapUtils.storeDiffObject(mods, "dcmRejectExpiredStudiesPollingInterval",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmHideSPSWithStatusFromMWL", aa.getHideSPSWithStatusFrom(), bb.getHideSPSWithStatusFrom());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRejectExpiredStudiesPollingInterval",
                 aa.getRejectExpiredStudiesPollingInterval(), bb.getRejectExpiredStudiesPollingInterval(), null);
-        LdapUtils.storeDiffObject(mods, "dcmRejectExpiredStudiesPollingStartTime",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRejectExpiredStudiesPollingStartTime",
                 aa.getRejectExpiredStudiesPollingStartTime(), bb.getRejectExpiredStudiesPollingStartTime(), null);
-        LdapUtils.storeDiff(mods, "dcmRejectExpiredStudiesFetchSize",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRejectExpiredStudiesFetchSize",
                 aa.getRejectExpiredStudiesFetchSize(), bb.getRejectExpiredStudiesFetchSize(), 0);
-        LdapUtils.storeDiff(mods, "dcmRejectExpiredSeriesFetchSize",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRejectExpiredSeriesFetchSize",
                 aa.getRejectExpiredSeriesFetchSize(), bb.getRejectExpiredSeriesFetchSize(), 0);
-        LdapUtils.storeDiffObject(mods, "dcmRejectExpiredStudiesAETitle",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRejectExpiredStudiesAETitle",
                 aa.getRejectExpiredStudiesAETitle(), bb.getRejectExpiredStudiesAETitle(), null);
-        LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPStudyOlderThan",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCPStudyOlderThan",
                 aa.getFallbackCMoveSCPStudyOlderThan(), bb.getFallbackCMoveSCPStudyOlderThan(), null);
-        LdapUtils.storeDiffObject(mods, "dcmStorePermissionServiceURL",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceURL",
                 aa.getStorePermissionServiceURL(), bb.getStorePermissionServiceURL(), null);
-        LdapUtils.storeDiffObject(mods, "dcmStorePermissionServiceResponsePattern",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceResponsePattern",
                 aa.getStorePermissionServiceResponsePattern(), bb.getStorePermissionServiceResponsePattern(), null);
-        LdapUtils.storeDiffObject(mods, "dcmStorePermissionCacheStaleTimeout",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionCacheStaleTimeout",
                 aa.getStorePermissionCacheStaleTimeout(), bb.getStorePermissionCacheStaleTimeout(), null);
-        LdapUtils.storeDiff(mods, "dcmStorePermissionCacheSize",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStorePermissionCacheSize",
                 aa.getStorePermissionCacheSize(), bb.getStorePermissionCacheSize(), 10);
-        LdapUtils.storeDiffObject(mods, "dcmMergeMWLCacheStaleTimeout",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMergeMWLCacheStaleTimeout",
                 aa.getMergeMWLCacheStaleTimeout(), bb.getMergeMWLCacheStaleTimeout(), null);
-        LdapUtils.storeDiff(mods, "dcmMergeMWLCacheSize",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMergeMWLCacheSize",
                 aa.getMergeMWLCacheSize(), bb.getMergeMWLCacheSize(), 10);
-        LdapUtils.storeDiff(mods, "dcmStoreUpdateDBMaxRetries",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStoreUpdateDBMaxRetries",
                 aa.getStoreUpdateDBMaxRetries(), bb.getStoreUpdateDBMaxRetries(), 1);
-        LdapUtils.storeDiff(mods, "dcmStoreUpdateDBMaxRetryDelay",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStoreUpdateDBMaxRetryDelay",
                 aa.getStoreUpdateDBMaxRetryDelay(), bb.getStoreUpdateDBMaxRetryDelay(), 1000);
-        LdapUtils.storeDiffObject(mods, "dcmAllowRejectionForDataRetentionPolicyExpired",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAllowRejectionForDataRetentionPolicyExpired",
                 aa.getAllowRejectionForDataRetentionPolicyExpired(), bb.getAllowRejectionForDataRetentionPolicyExpired(),
                 AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY);
-        LdapUtils.storeDiffObject(mods, "dcmAcceptMissingPatientID",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptMissingPatientID",
                 aa.getAcceptMissingPatientID(), bb.getAcceptMissingPatientID(), AcceptMissingPatientID.CREATE);
-        LdapUtils.storeDiffObject(mods, "dcmAllowDeleteStudyPermanently",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAllowDeleteStudyPermanently",
                 aa.getAllowDeleteStudyPermanently(), bb.getAllowDeleteStudyPermanently(),
                 AllowDeleteStudyPermanently.REJECTED);
-        LdapUtils.storeDiffObject(mods, "dcmStorePermissionServiceExpirationDatePattern",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceExpirationDatePattern",
                 aa.getStorePermissionServiceExpirationDatePattern(), bb.getStorePermissionServiceExpirationDatePattern(), null);
-        LdapUtils.storeDiffObject(mods, "dcmShowPatientInfoInSystemLog",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmShowPatientInfoInSystemLog",
                 aa.getShowPatientInfoInSystemLog(), bb.getShowPatientInfoInSystemLog(), ShowPatientInfo.PLAIN_TEXT);
-        LdapUtils.storeDiffObject(mods, "dcmShowPatientInfoInAuditLog",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmShowPatientInfoInAuditLog",
                 aa.getShowPatientInfoInAuditLog(), bb.getShowPatientInfoInAuditLog(), ShowPatientInfo.PLAIN_TEXT);
-        LdapUtils.storeDiffObject(mods, "dcmPurgeStgCmtCompletedDelay",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeStgCmtCompletedDelay",
                 aa.getPurgeStgCmtCompletedDelay(), bb.getPurgeStgCmtCompletedDelay(), null);
-        LdapUtils.storeDiffObject(mods, "dcmPurgeStgCmtPollingInterval",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeStgCmtPollingInterval",
                 aa.getPurgeStgCmtPollingInterval(), bb.getPurgeStgCmtPollingInterval(), null);
-        LdapUtils.storeDiffObject(mods, "dcmDefaultCharacterSet",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDefaultCharacterSet",
                 aa.getDefaultCharacterSet(), bb.getDefaultCharacterSet(), null);
-        LdapUtils.storeDiffObject(mods, "dcmStorePermissionServiceErrorCommentPattern",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceErrorCommentPattern",
                 aa.getStorePermissionServiceErrorCommentPattern(), bb.getStorePermissionServiceErrorCommentPattern(), null);
-        LdapUtils.storeDiffObject(mods, "dcmStorePermissionServiceErrorCodePattern",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceErrorCodePattern",
                 aa.getStorePermissionServiceErrorCodePattern(), bb.getStorePermissionServiceErrorCodePattern(), null);
-        LdapUtils.storeDiff(mods, "dcmRetrieveAET", aa.getRetrieveAETitles(), bb.getRetrieveAETitles());
-        LdapUtils.storeDiffObject(mods, "dcmExternalRetrieveAEDestination",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveAET", aa.getRetrieveAETitles(), bb.getRetrieveAETitles());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalRetrieveAEDestination",
                 aa.getExternalRetrieveAEDestination(), bb.getExternalRetrieveAEDestination(), null);
-        LdapUtils.storeDiffObject(mods, "dcmXDSiImagingDocumentSourceAETitle",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmXDSiImagingDocumentSourceAETitle",
                 aa.getXDSiImagingDocumentSourceAETitle(), bb.getXDSiImagingDocumentSourceAETitle(), null);
-        LdapUtils.storeDiffObject(mods, "dcmRemapRetrieveURL",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRemapRetrieveURL",
                 aa.getRemapRetrieveURL(), bb.getRemapRetrieveURL(), null);
-        LdapUtils.storeDiffObject(mods, "dcmValidateCallingAEHostname",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmValidateCallingAEHostname",
                 aa.isValidateCallingAEHostname(), bb.isValidateCallingAEHostname(), null);
-        LdapUtils.storeDiffObject(mods, "hl7PSUSendingApplication",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUSendingApplication",
                 aa.getHl7PSUSendingApplication(), bb.getHl7PSUSendingApplication(), null);
-        LdapUtils.storeDiff(mods, "hl7PSUReceivingApplication",
+        LdapUtils.storeDiff(ldapObj, mods, "hl7PSUReceivingApplication",
                 aa.getHl7PSUReceivingApplications(), bb.getHl7PSUReceivingApplications());
-        LdapUtils.storeDiffObject(mods, "hl7PSUDelay", aa.getHl7PSUDelay(), bb.getHl7PSUDelay(), null);
-        LdapUtils.storeDiffObject(mods, "hl7PSUTimeout", aa.getHl7PSUTimeout(), bb.getHl7PSUTimeout(), null);
-        LdapUtils.storeDiff(mods, "hl7PSUOnTimeout", aa.isHl7PSUOnTimeout(), bb.isHl7PSUOnTimeout(), false);
-        LdapUtils.storeDiffObject(mods, "hl7PSUTaskPollingInterval",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUDelay", aa.getHl7PSUDelay(), bb.getHl7PSUDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUTimeout", aa.getHl7PSUTimeout(), bb.getHl7PSUTimeout(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "hl7PSUOnTimeout", aa.isHl7PSUOnTimeout(), bb.isHl7PSUOnTimeout(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUTaskPollingInterval",
                 aa.getHl7PSUTaskPollingInterval(), bb.getHl7PSUTaskPollingInterval(), null);
-        LdapUtils.storeDiff(mods, "hl7PSUTaskFetchSize",
+        LdapUtils.storeDiff(ldapObj, mods, "hl7PSUTaskFetchSize",
                 aa.getHl7PSUTaskFetchSize(), bb.getHl7PSUTaskFetchSize(), 100);
-        LdapUtils.storeDiff(mods, "hl7PSUMWL", aa.isHl7PSUMWL(), bb.isHl7PSUMWL(), false);
-        LdapUtils.storeDiffObject(mods, "dcmAcceptConflictingPatientID",
+        LdapUtils.storeDiff(ldapObj, mods, "hl7PSUMWL", aa.isHl7PSUMWL(), bb.isHl7PSUMWL(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptConflictingPatientID",
                 aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(),
                 AcceptConflictingPatientID.MERGED);
-        LdapUtils.storeDiffObject(mods, "dcmAuditRecordRepositoryURL",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAuditRecordRepositoryURL",
                 aa.getAuditRecordRepositoryURL(), bb.getAuditRecordRepositoryURL(), null);
-        LdapUtils.storeDiffObject(mods, "dcmElasticSearchURL",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmElasticSearchURL",
                 aa.getElasticSearchURL(), bb.getElasticSearchURL(), null);
-        LdapUtils.storeDiffObject(mods,"dcmAudit2JsonFhirTemplateURI",
+        LdapUtils.storeDiffObject(ldapObj, mods,"dcmAudit2JsonFhirTemplateURI",
                 aa.getAudit2JsonFhirTemplateURI(), bb.getAudit2JsonFhirTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods,"dcmAudit2XmlFhirTemplateURI",
+        LdapUtils.storeDiffObject(ldapObj, mods,"dcmAudit2XmlFhirTemplateURI",
                 aa.getAudit2XmlFhirTemplateURI(), bb.getAudit2XmlFhirTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods, "dcmCopyMoveUpdatePolicy",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmCopyMoveUpdatePolicy",
                 aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy(), null);
-        LdapUtils.storeDiffObject(mods, "dcmLinkMWLEntryUpdatePolicy",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmLinkMWLEntryUpdatePolicy",
                 aa.getLinkMWLEntryUpdatePolicy(), bb.getLinkMWLEntryUpdatePolicy(), null);
-        LdapUtils.storeDiff(mods, "hl7TrackChangedPatientID",
+        LdapUtils.storeDiff(ldapObj, mods, "hl7TrackChangedPatientID",
                 aa.isHl7TrackChangedPatientID(), bb.isHl7TrackChangedPatientID(), true);
-        LdapUtils.storeDiffObject(mods, "dcmInvokeImageDisplayPatientURL",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayPatientURL",
                 aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL(), null);
-        LdapUtils.storeDiffObject(mods, "dcmInvokeImageDisplayStudyURL",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayStudyURL",
                 aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL(), null);
-        LdapUtils.storeDiff(mods, "hl7ADTReceivingApplication",
+        LdapUtils.storeDiff(ldapObj, mods, "hl7ADTReceivingApplication",
                 aa.getHl7ADTReceivingApplication(), bb.getHl7ADTReceivingApplication());
-        LdapUtils.storeDiffObject(mods, "hl7ADTSendingApplication",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ADTSendingApplication",
                 aa.getHl7ADTSendingApplication(), bb.getHl7ADTSendingApplication(), null);
-        LdapUtils.storeDiffObject(mods, "hl7ScheduledProtocolCodeInOrder",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ScheduledProtocolCodeInOrder",
                 aa.getHl7ScheduledProtocolCodeInOrder(), bb.getHl7ScheduledProtocolCodeInOrder(),
                 ScheduledProtocolCodeInOrder.OBR_4_4);
-        LdapUtils.storeDiffObject(mods, "hl7ScheduledStationAETInOrder",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ScheduledStationAETInOrder",
                 aa.getHl7ScheduledStationAETInOrder(), bb.getHl7ScheduledStationAETInOrder(), null);
-        LdapUtils.storeDiff(mods, "hl7NoPatientCreateMessageType",
+        LdapUtils.storeDiff(ldapObj, mods, "hl7NoPatientCreateMessageType",
                 aa.getHl7NoPatientCreateMessageTypes(), bb.getHl7NoPatientCreateMessageTypes());
-        LdapUtils.storeDiffObject(mods, "dcmAuditUnknownStudyInstanceUID",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAuditUnknownStudyInstanceUID",
                 aa.getAuditUnknownStudyInstanceUID(), bb.getAuditUnknownStudyInstanceUID(),
                 ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);
-        LdapUtils.storeDiffObject(mods, "dcmAuditUnknownPatientID",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAuditUnknownPatientID",
                 aa.getAuditUnknownPatientID(), bb.getAuditUnknownPatientID(),
                 ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
         if (remove)
@@ -628,30 +629,30 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     @Override
-    protected void storeChilds(String deviceDN, Device device)
+    protected void storeChilds(ConfigurationChanges.ModifiedObject ldapObj, String deviceDN, Device device)
             throws NamingException, ConfigurationException {
         ArchiveDeviceExtension arcDev = device
                 .getDeviceExtension(ArchiveDeviceExtension.class);
         if (arcDev == null)
             return;
 
-        storeAttributeFilter(deviceDN, arcDev);
-        storeStorageDescriptors(deviceDN, arcDev);
-        storeQueueDescriptors(deviceDN, arcDev);
-        storeExporterDescriptors(deviceDN, arcDev);
-        storeExportRules(arcDev.getExportRules(), deviceDN);
-        storeCompressionRules(arcDev.getCompressionRules(), deviceDN);
-        storeStoreAccessControlIDRules(arcDev.getStoreAccessControlIDRules(), deviceDN);
-        storeAttributeCoercions(arcDev.getAttributeCoercions(), deviceDN);
-        storeQueryRetrieveViews(deviceDN, arcDev);
-        storeRejectNotes(deviceDN, arcDev);
-        storeStudyRetentionPolicies(arcDev.getStudyRetentionPolicies(), deviceDN);
-        storeIDGenerators(deviceDN, arcDev);
-        storeHL7ForwardRules(arcDev.getHL7ForwardRules(), deviceDN, config);
-        storeRSForwardRules(arcDev.getRSForwardRules(), deviceDN);
-        storeAttributeSet(deviceDN, arcDev);
-        storeScheduledStations(arcDev.getHL7OrderScheduledStations(), deviceDN, config);
-        storeHL7OrderSPSStatus(arcDev.getHL7OrderSPSStatuses(), deviceDN, config);
+        storeAttributeFilter(ldapObj, deviceDN, arcDev);
+        storeStorageDescriptors(ldapObj, deviceDN, arcDev);
+        storeQueueDescriptors(ldapObj, deviceDN, arcDev);
+        storeExporterDescriptors(ldapObj, deviceDN, arcDev);
+        storeExportRules(ldapObj, arcDev.getExportRules(), deviceDN);
+        storeCompressionRules(ldapObj, arcDev.getCompressionRules(), deviceDN);
+        storeStoreAccessControlIDRules(ldapObj, arcDev.getStoreAccessControlIDRules(), deviceDN);
+        storeAttributeCoercions(ldapObj, arcDev.getAttributeCoercions(), deviceDN);
+        storeQueryRetrieveViews(ldapObj, deviceDN, arcDev);
+        storeRejectNotes(ldapObj, deviceDN, arcDev);
+        storeStudyRetentionPolicies(ldapObj, arcDev.getStudyRetentionPolicies(), deviceDN);
+        storeIDGenerators(ldapObj, deviceDN, arcDev);
+        storeHL7ForwardRules(ldapObj, arcDev.getHL7ForwardRules(), deviceDN, config);
+        storeRSForwardRules(ldapObj, arcDev.getRSForwardRules(), deviceDN);
+        storeAttributeSet(ldapObj, deviceDN, arcDev);
+        storeScheduledStations(ldapObj, arcDev.getHL7OrderScheduledStations(), deviceDN, config);
+        storeHL7OrderSPSStatus(ldapObj, arcDev.getHL7OrderSPSStatuses(), deviceDN, config);
     }
 
     @Override
@@ -681,7 +682,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     @Override
-    protected void mergeChilds(Device prev, Device device, String deviceDN)
+    protected void mergeChilds(ConfigurationChanges diffs, Device prev, Device device, String deviceDN)
             throws NamingException, ConfigurationException {
         ArchiveDeviceExtension aa = prev
                 .getDeviceExtension(ArchiveDeviceExtension.class);
@@ -695,91 +696,91 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         else if (bb == null)
             bb = new ArchiveDeviceExtension();
 
-        mergeAttributeFilters(aa, bb, deviceDN);
-        mergeStorageDescriptors(aa, bb, deviceDN);
-        mergeQueueDescriptors(aa, bb, deviceDN);
-        mergeExportDescriptors(aa, bb, deviceDN);
-        mergeExportRules(aa.getExportRules(), bb.getExportRules(), deviceDN);
-        mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
-        mergeStoreAccessControlIDRules(aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), deviceDN);
-        mergeAttributeCoercions(aa.getAttributeCoercions(), bb.getAttributeCoercions(), deviceDN);
-        mergeQueryRetrieveViews(aa, bb, deviceDN);
-        mergeRejectNotes(aa, bb, deviceDN);
-        mergeStudyRetentionPolicies(aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), deviceDN);
-        mergeIDGenerators(aa, bb, deviceDN);
-        mergeHL7ForwardRules(aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), deviceDN, config);
-        mergeRSForwardRules(aa.getRSForwardRules(), bb.getRSForwardRules(), deviceDN);
-        mergeAttributeSet(aa, bb, deviceDN);
-        mergeScheduledStations(aa.getHL7OrderScheduledStations(), bb.getHL7OrderScheduledStations(), deviceDN, config);
-        mergeHL7OrderSPSStatus(aa.getHL7OrderSPSStatuses(), bb.getHL7OrderSPSStatuses(), deviceDN, config);
+        mergeAttributeFilters(diffs, aa, bb, deviceDN);
+        mergeStorageDescriptors(diffs, aa, bb, deviceDN);
+        mergeQueueDescriptors(diffs, aa, bb, deviceDN);
+        mergeExportDescriptors(diffs, aa, bb, deviceDN);
+        mergeExportRules(diffs, aa.getExportRules(), bb.getExportRules(), deviceDN);
+        mergeCompressionRules(diffs, aa.getCompressionRules(), bb.getCompressionRules(), deviceDN);
+        mergeStoreAccessControlIDRules(diffs, aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), deviceDN);
+        mergeAttributeCoercions(diffs, aa.getAttributeCoercions(), bb.getAttributeCoercions(), deviceDN);
+        mergeQueryRetrieveViews(diffs, aa, bb, deviceDN);
+        mergeRejectNotes(diffs, aa, bb, deviceDN);
+        mergeStudyRetentionPolicies(diffs, aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), deviceDN);
+        mergeIDGenerators(diffs, aa, bb, deviceDN);
+        mergeHL7ForwardRules(diffs, aa.getHL7ForwardRules(), bb.getHL7ForwardRules(), deviceDN, config);
+        mergeRSForwardRules(diffs, aa.getRSForwardRules(), bb.getRSForwardRules(), deviceDN);
+        mergeAttributeSet(diffs, aa, bb, deviceDN);
+        mergeScheduledStations(diffs, aa.getHL7OrderScheduledStations(), bb.getHL7OrderScheduledStations(), deviceDN, config);
+        mergeHL7OrderSPSStatus(diffs, aa.getHL7OrderSPSStatuses(), bb.getHL7OrderSPSStatuses(), deviceDN, config);
     }
 
     @Override
-    protected void storeTo(ApplicationEntity ae, Attributes attrs) {
+    protected void storeTo(ConfigurationChanges.ModifiedObject ldapObj, ApplicationEntity ae, Attributes attrs) {
         ArchiveAEExtension ext = ae.getAEExtension(ArchiveAEExtension.class);
         if (ext == null)
             return;
 
         attrs.get("objectclass").add("dcmArchiveNetworkAE");
-        LdapUtils.storeNotEmpty(attrs, "dcmObjectStorageID", ext.getObjectStorageIDs());
-        LdapUtils.storeNotDef(attrs, "dcmObjectStorageCount", ext.getObjectStorageCount(), 1);
-        LdapUtils.storeNotEmpty(attrs, "dcmMetadataStorageID", ext.getMetadataStorageIDs());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmSeriesMetadataDelay", ext.getSeriesMetadataDelay(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmPurgeInstanceRecordsDelay", ext.getPurgeInstanceRecordsDelay(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStoreAccessControlID", ext.getStoreAccessControlID(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmAccessControlID", ext.getAccessControlIDs());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmOverwritePolicy", ext.getOverwritePolicy(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmBulkDataSpoolDirectory", ext.getBulkDataSpoolDirectory(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmQueryRetrieveViewID", ext.getQueryRetrieveViewID(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmPersonNameComponentOrderInsensitiveMatching",
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmObjectStorageID", ext.getObjectStorageIDs());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmObjectStorageCount", ext.getObjectStorageCount(), 1);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMetadataStorageID", ext.getMetadataStorageIDs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSeriesMetadataDelay", ext.getSeriesMetadataDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeInstanceRecordsDelay", ext.getPurgeInstanceRecordsDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoreAccessControlID", ext.getStoreAccessControlID(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAccessControlID", ext.getAccessControlIDs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOverwritePolicy", ext.getOverwritePolicy(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmBulkDataSpoolDirectory", ext.getBulkDataSpoolDirectory(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQueryRetrieveViewID", ext.getQueryRetrieveViewID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPersonNameComponentOrderInsensitiveMatching",
                 ext.getPersonNameComponentOrderInsensitiveMatching(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmSendPendingCGet", ext.getSendPendingCGet(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmSpanningCFindSCP", ext.getSpanningCFindSCP(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmSpanningCFindSCPRetrieveAET", ext.getSpanningCFindSCPRetrieveAETitles());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmSpanningCFindSCPPolicy", ext.getSpanningCFindSCPPolicy(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCP", ext.getFallbackCMoveSCP(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCPDestination", ext.getFallbackCMoveSCPDestination(), null);
-        LdapUtils.storeNotNull(attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCPLeadingCFindSCP", ext.getFallbackCMoveSCPLeadingCFindSCP(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI(), null);
-        LdapUtils.storeNotNull(attrs, "dcmQueryMaxNumberOfResults", ext.getQueryMaxNumberOfResults());
-        LdapUtils.storeNotNull(attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults());
-        LdapUtils.storeNotEmpty(attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
-        LdapUtils.storeNotEmpty(attrs, "dcmIanDestination", ext.getIanDestinations());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmIanDelay", ext.getIanDelay(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmIanTimeout", ext.getIanTimeout(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmIanOnTimeout", ext.getIanOnTimeout(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFromMWL());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmFallbackCMoveSCPStudyOlderThan", ext.getFallbackCMoveSCPStudyOlderThan(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStorePermissionServiceURL", ext.getStorePermissionServiceURL(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStorePermissionServiceResponsePattern", ext.getStorePermissionServiceResponsePattern(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAllowRejectionForDataRetentionPolicyExpired", ext.getAllowRejectionForDataRetentionPolicyExpired(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmAcceptedUserRole", ext.getAcceptedUserRoles());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAcceptMissingPatientID", ext.getAcceptMissingPatientID(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAllowDeleteStudyPermanently", ext.getAllowDeleteStudyPermanently(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStorePermissionServiceExpirationDatePattern", ext.getStorePermissionServiceExpirationDatePattern(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmDefaultCharacterSet", ext.getDefaultCharacterSet(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStorePermissionServiceErrorCommentPattern", ext.getStorePermissionServiceErrorCommentPattern(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStorePermissionServiceErrorCodePattern", ext.getStorePermissionServiceErrorCodePattern(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", ext.getRetrieveAETitles());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmExternalRetrieveAEDestination", ext.getExternalRetrieveAEDestination(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmAcceptedMoveDestination", ext.getAcceptedMoveDestinations());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmValidateCallingAEHostname", ext.getValidateCallingAEHostname(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7PSUSendingApplication", ext.getHl7PSUSendingApplication(), null);
-        LdapUtils.storeNotEmpty(attrs, "hl7PSUReceivingApplication", ext.getHl7PSUReceivingApplications());
-        LdapUtils.storeNotNullOrDef(attrs, "hl7PSUDelay", ext.getHl7PSUDelay(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7PSUTimeout", ext.getHl7PSUTimeout(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7PSUOnTimeout", ext.getHl7PSUOnTimeout(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "hl7PSUMWL", ext.getHl7PSUMWL(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAcceptConflictingPatientID",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSendPendingCGet", ext.getSendPendingCGet(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSendPendingCMoveInterval", ext.getSendPendingCMoveInterval(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSpanningCFindSCP", ext.getSpanningCFindSCP(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSpanningCFindSCPRetrieveAET", ext.getSpanningCFindSCPRetrieveAETitles());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSpanningCFindSCPPolicy", ext.getSpanningCFindSCPPolicy(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCP", ext.getFallbackCMoveSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPDestination", ext.getFallbackCMoveSCPDestination(), null);
+        LdapUtils.storeNotNull(ldapObj, attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPLeadingCFindSCP", ext.getFallbackCMoveSCPLeadingCFindSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI(), null);
+        LdapUtils.storeNotNull(ldapObj, attrs, "dcmQueryMaxNumberOfResults", ext.getQueryMaxNumberOfResults());
+        LdapUtils.storeNotNull(ldapObj, attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmFwdMppsDestination", ext.getMppsForwardDestinations());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanDestination", ext.getIanDestinations());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanDelay", ext.getIanDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanTimeout", ext.getIanTimeout(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIanOnTimeout", ext.getIanOnTimeout(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideSPSWithStatusFromMWL", ext.getHideSPSWithStatusFromMWL());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPStudyOlderThan", ext.getFallbackCMoveSCPStudyOlderThan(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceURL", ext.getStorePermissionServiceURL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceResponsePattern", ext.getStorePermissionServiceResponsePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowRejectionForDataRetentionPolicyExpired", ext.getAllowRejectionForDataRetentionPolicyExpired(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", ext.getAcceptedUserRoles());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptMissingPatientID", ext.getAcceptMissingPatientID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowDeleteStudyPermanently", ext.getAllowDeleteStudyPermanently(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceExpirationDatePattern", ext.getStorePermissionServiceExpirationDatePattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultCharacterSet", ext.getDefaultCharacterSet(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCommentPattern", ext.getStorePermissionServiceErrorCommentPattern(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCodePattern", ext.getStorePermissionServiceErrorCodePattern(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRetrieveAET", ext.getRetrieveAETitles());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalRetrieveAEDestination", ext.getExternalRetrieveAEDestination(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedMoveDestination", ext.getAcceptedMoveDestinations());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmValidateCallingAEHostname", ext.getValidateCallingAEHostname(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUSendingApplication", ext.getHl7PSUSendingApplication(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUReceivingApplication", ext.getHl7PSUReceivingApplications());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUDelay", ext.getHl7PSUDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUTimeout", ext.getHl7PSUTimeout(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUOnTimeout", ext.getHl7PSUOnTimeout(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUMWL", ext.getHl7PSUMWL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptConflictingPatientID",
                 ext.getAcceptConflictingPatientID(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmCopyMoveUpdatePolicy", ext.getCopyMoveUpdatePolicy(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmLinkMWLEntryUpdatePolicy", ext.getLinkMWLEntryUpdatePolicy(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCopyMoveUpdatePolicy", ext.getCopyMoveUpdatePolicy(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLinkMWLEntryUpdatePolicy", ext.getLinkMWLEntryUpdatePolicy(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL(), null);
     }
 
     @Override
@@ -856,7 +857,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     @Override
-    protected void storeDiffs(ApplicationEntity prev, ApplicationEntity ae, List<ModificationItem> mods) {
+    protected void storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, ApplicationEntity prev, ApplicationEntity ae, List<ModificationItem> mods) {
         ArchiveAEExtension aa = prev.getAEExtension(ArchiveAEExtension.class);
         ArchiveAEExtension bb = ae.getAEExtension(ArchiveAEExtension.class);
         if (aa == null && bb == null)
@@ -870,108 +871,108 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             mods.add(new ModificationItem(DirContext.ADD_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));
         }
-        LdapUtils.storeDiff(mods, "dcmObjectStorageID", aa.getObjectStorageIDs(), bb.getObjectStorageIDs());
-        LdapUtils.storeDiffObject(mods, "dcmObjectStorageCount", aa.getObjectStorageCount(), bb.getObjectStorageCount(), null);
-        LdapUtils.storeDiff(mods, "dcmMetadataStorageID", aa.getMetadataStorageIDs(), bb.getMetadataStorageIDs());
-        LdapUtils.storeDiffObject(mods, "dcmSeriesMetadataDelay",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmObjectStorageID", aa.getObjectStorageIDs(), bb.getObjectStorageIDs());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmObjectStorageCount", aa.getObjectStorageCount(), bb.getObjectStorageCount(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMetadataStorageID", aa.getMetadataStorageIDs(), bb.getMetadataStorageIDs());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSeriesMetadataDelay",
                 aa.getSeriesMetadataDelay(),
                 bb.getSeriesMetadataDelay(), null);
-        LdapUtils.storeDiffObject(mods, "dcmPurgeInstanceRecordsDelay",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeInstanceRecordsDelay",
                 aa.getPurgeInstanceRecordsDelay(),
                 bb.getPurgeInstanceRecordsDelay(), null);
-        LdapUtils.storeDiffObject(mods, "dcmStoreAccessControlID", aa.getStoreAccessControlID(), bb.getStoreAccessControlID(), null);
-        LdapUtils.storeDiff(mods, "dcmAccessControlID", aa.getAccessControlIDs(), bb.getAccessControlIDs());
-        LdapUtils.storeDiffObject(mods, "dcmOverwritePolicy", aa.getOverwritePolicy(), bb.getOverwritePolicy(), null);
-        LdapUtils.storeDiffObject(mods, "dcmBulkDataSpoolDirectory",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStoreAccessControlID", aa.getStoreAccessControlID(), bb.getStoreAccessControlID(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAccessControlID", aa.getAccessControlIDs(), bb.getAccessControlIDs());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmOverwritePolicy", aa.getOverwritePolicy(), bb.getOverwritePolicy(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmBulkDataSpoolDirectory",
                 aa.getBulkDataSpoolDirectory(), bb.getBulkDataSpoolDirectory(), null);
-        LdapUtils.storeDiffObject(mods, "dcmQueryRetrieveViewID", aa.getQueryRetrieveViewID(), bb.getQueryRetrieveViewID(), null);
-        LdapUtils.storeDiffObject(mods, "dcmPersonNameComponentOrderInsensitiveMatching",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmQueryRetrieveViewID", aa.getQueryRetrieveViewID(), bb.getQueryRetrieveViewID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPersonNameComponentOrderInsensitiveMatching",
                 aa.getPersonNameComponentOrderInsensitiveMatching(),
                 bb.getPersonNameComponentOrderInsensitiveMatching(), null);
-        LdapUtils.storeDiffObject(mods, "dcmSendPendingCGet", aa.getSendPendingCGet(), bb.getSendPendingCGet(), null);
-        LdapUtils.storeDiffObject(mods, "dcmSendPendingCMoveInterval",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSendPendingCGet", aa.getSendPendingCGet(), bb.getSendPendingCGet(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSendPendingCMoveInterval",
                 aa.getSendPendingCMoveInterval(), bb.getSendPendingCMoveInterval(), null);
-        LdapUtils.storeDiffObject(mods, "dcmSpanningCFindSCP",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSpanningCFindSCP",
                 aa.getSpanningCFindSCP(), bb.getSpanningCFindSCP(), null);
-        LdapUtils.storeDiff(mods, "dcmSpanningCFindSCPRetrieveAET",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSpanningCFindSCPRetrieveAET",
                 aa.getSpanningCFindSCPRetrieveAETitles(), bb.getSpanningCFindSCPRetrieveAETitles());
-        LdapUtils.storeDiffObject(mods, "dcmSpanningCFindSCPPolicy",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSpanningCFindSCPPolicy",
                 aa.getSpanningCFindSCPPolicy(), bb.getSpanningCFindSCPPolicy(), null);
-        LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCP", aa.getFallbackCMoveSCP(), bb.getFallbackCMoveSCP(), null);
-        LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPDestination",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCP", aa.getFallbackCMoveSCP(), bb.getFallbackCMoveSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCPDestination",
                 aa.getFallbackCMoveSCPDestination(), bb.getFallbackCMoveSCPDestination(), null);
-        LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPRetries",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCPRetries",
                 aa.getFallbackCMoveSCPRetries(), bb.getFallbackCMoveSCPRetries(),  null);
-        LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPLeadingCFindSCP",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCPLeadingCFindSCP",
                 aa.getFallbackCMoveSCPLeadingCFindSCP(), bb.getFallbackCMoveSCPLeadingCFindSCP(), null);
-        LdapUtils.storeDiffObject(mods, "dcmAltCMoveSCP", aa.getAlternativeCMoveSCP(), bb.getAlternativeCMoveSCP(), null);
-        LdapUtils.storeDiffObject(mods, "dcmWadoSR2HtmlTemplateURI",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAltCMoveSCP", aa.getAlternativeCMoveSCP(), bb.getAlternativeCMoveSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoSR2HtmlTemplateURI",
                 aa.getWadoSR2HtmlTemplateURI(), bb.getWadoSR2HtmlTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods, "dcmWadoSR2TextTemplateURI",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoSR2TextTemplateURI",
                 aa.getWadoSR2TextTemplateURI(), bb.getWadoSR2TextTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods, "dcmQueryMaxNumberOfResults",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmQueryMaxNumberOfResults",
                 aa.getQueryMaxNumberOfResults(), bb.getQueryMaxNumberOfResults(), null);
-        LdapUtils.storeDiffObject(mods, "dcmQidoMaxNumberOfResults",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmQidoMaxNumberOfResults",
                 aa.getQidoMaxNumberOfResults(), bb.getQidoMaxNumberOfResults(), null);
-        LdapUtils.storeDiff(mods, "dcmFwdMppsDestination",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmFwdMppsDestination",
                 aa.getMppsForwardDestinations(), bb.getMppsForwardDestinations());
-        LdapUtils.storeDiff(mods, "dcmIanDestination", aa.getIanDestinations(), bb.getIanDestinations());
-        LdapUtils.storeDiffObject(mods, "dcmIanDelay", aa.getIanDelay(), bb.getIanDelay(), null);
-        LdapUtils.storeDiffObject(mods, "dcmIanTimeout", aa.getIanTimeout(), bb.getIanTimeout(), null);
-        LdapUtils.storeDiffObject(mods, "dcmIanOnTimeout", aa.getIanOnTimeout(), bb.getIanOnTimeout(), null);
-        LdapUtils.storeDiff(mods, "dcmHideSPSWithStatusFromMWL", aa.getHideSPSWithStatusFromMWL(), bb.getHideSPSWithStatusFromMWL());
-        LdapUtils.storeDiffObject(mods, "dcmFallbackCMoveSCPStudyOlderThan",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIanDestination", aa.getIanDestinations(), bb.getIanDestinations());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanDelay", aa.getIanDelay(), bb.getIanDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanTimeout", aa.getIanTimeout(), bb.getIanTimeout(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmIanOnTimeout", aa.getIanOnTimeout(), bb.getIanOnTimeout(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmHideSPSWithStatusFromMWL", aa.getHideSPSWithStatusFromMWL(), bb.getHideSPSWithStatusFromMWL());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCPStudyOlderThan",
                 aa.getFallbackCMoveSCPStudyOlderThan(), bb.getFallbackCMoveSCPStudyOlderThan(), null);
-        LdapUtils.storeDiffObject(mods, "dcmStorePermissionServiceURL",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceURL",
                 aa.getStorePermissionServiceURL(), bb.getStorePermissionServiceURL(), null);
-        LdapUtils.storeDiffObject(mods, "dcmStorePermissionServiceResponsePattern",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceResponsePattern",
                 aa.getStorePermissionServiceResponsePattern(), bb.getStorePermissionServiceResponsePattern(), null);
-        LdapUtils.storeDiffObject(mods, "dcmAllowRejectionForDataRetentionPolicyExpired",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAllowRejectionForDataRetentionPolicyExpired",
                 aa.getAllowRejectionForDataRetentionPolicyExpired(), bb.getAllowRejectionForDataRetentionPolicyExpired(), null);
-        LdapUtils.storeDiff(mods, "dcmAcceptedUserRole", aa.getAcceptedUserRoles(), bb.getAcceptedUserRoles());
-        LdapUtils.storeDiffObject(mods, "dcmAcceptMissingPatientID", aa.getAcceptMissingPatientID(), bb.getAcceptMissingPatientID(), null);
-        LdapUtils.storeDiffObject(mods, "dcmAllowDeleteStudyPermanently", aa.getAllowDeleteStudyPermanently(), bb.getAllowDeleteStudyPermanently(), null);
-        LdapUtils.storeDiffObject(mods, "dcmStorePermissionServiceExpirationDatePattern",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedUserRole", aa.getAcceptedUserRoles(), bb.getAcceptedUserRoles());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptMissingPatientID", aa.getAcceptMissingPatientID(), bb.getAcceptMissingPatientID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAllowDeleteStudyPermanently", aa.getAllowDeleteStudyPermanently(), bb.getAllowDeleteStudyPermanently(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceExpirationDatePattern",
                 aa.getStorePermissionServiceExpirationDatePattern(), bb.getStorePermissionServiceExpirationDatePattern(), null);
-        LdapUtils.storeDiffObject(mods, "dcmDefaultCharacterSet", aa.getDefaultCharacterSet(), bb.getDefaultCharacterSet(), null);
-        LdapUtils.storeDiffObject(mods, "dcmStorePermissionServiceErrorCommentPattern",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDefaultCharacterSet", aa.getDefaultCharacterSet(), bb.getDefaultCharacterSet(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceErrorCommentPattern",
                 aa.getStorePermissionServiceErrorCommentPattern(), bb.getStorePermissionServiceErrorCommentPattern(), null);
-        LdapUtils.storeDiffObject(mods, "dcmStorePermissionServiceErrorCodePattern",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceErrorCodePattern",
                 aa.getStorePermissionServiceErrorCodePattern(), bb.getStorePermissionServiceErrorCodePattern(), null);
-        LdapUtils.storeDiff(mods, "dcmRetrieveAET", aa.getRetrieveAETitles(), bb.getRetrieveAETitles());
-        LdapUtils.storeDiffObject(mods, "dcmExternalRetrieveAEDestination",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveAET", aa.getRetrieveAETitles(), bb.getRetrieveAETitles());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalRetrieveAEDestination",
                 aa.getExternalRetrieveAEDestination(), bb.getExternalRetrieveAEDestination(), null);
-        LdapUtils.storeDiff(mods, "dcmAcceptedMoveDestination", aa.getAcceptedMoveDestinations(), bb.getAcceptedMoveDestinations());
-        LdapUtils.storeDiffObject(mods, "dcmValidateCallingAEHostname", aa.getValidateCallingAEHostname(), bb.getValidateCallingAEHostname(), null);
-        LdapUtils.storeDiffObject(mods, "hl7PSUSendingApplication", aa.getHl7PSUSendingApplication(), bb.getHl7PSUSendingApplication(), null);
-        LdapUtils.storeDiff(mods, "hl7PSUReceivingApplication", aa.getHl7PSUReceivingApplications(), bb.getHl7PSUReceivingApplications());
-        LdapUtils.storeDiffObject(mods, "hl7PSUDelay", aa.getHl7PSUDelay(), bb.getHl7PSUDelay(), null);
-        LdapUtils.storeDiffObject(mods, "hl7PSUTimeout", aa.getHl7PSUTimeout(), bb.getHl7PSUTimeout(), null);
-        LdapUtils.storeDiffObject(mods, "hl7PSUOnTimeout", aa.getHl7PSUOnTimeout(), bb.getHl7PSUOnTimeout(), null);
-        LdapUtils.storeDiffObject(mods, "hl7PSUMWL", aa.getHl7PSUMWL(), bb.getHl7PSUMWL(), null);
-        LdapUtils.storeDiffObject(mods, "dcmAcceptConflictingPatientID",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedMoveDestination", aa.getAcceptedMoveDestinations(), bb.getAcceptedMoveDestinations());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmValidateCallingAEHostname", aa.getValidateCallingAEHostname(), bb.getValidateCallingAEHostname(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUSendingApplication", aa.getHl7PSUSendingApplication(), bb.getHl7PSUSendingApplication(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "hl7PSUReceivingApplication", aa.getHl7PSUReceivingApplications(), bb.getHl7PSUReceivingApplications());
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUDelay", aa.getHl7PSUDelay(), bb.getHl7PSUDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUTimeout", aa.getHl7PSUTimeout(), bb.getHl7PSUTimeout(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUOnTimeout", aa.getHl7PSUOnTimeout(), bb.getHl7PSUOnTimeout(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUMWL", aa.getHl7PSUMWL(), bb.getHl7PSUMWL(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptConflictingPatientID",
                 aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(), null);
-        LdapUtils.storeDiffObject(mods, "dcmCopyMoveUpdatePolicy", aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy(), null);
-        LdapUtils.storeDiffObject(mods, "dcmLinkMWLEntryUpdatePolicy", aa.getLinkMWLEntryUpdatePolicy(), bb.getLinkMWLEntryUpdatePolicy(), null);
-        LdapUtils.storeDiffObject(mods, "dcmInvokeImageDisplayPatientURL", aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL(), null);
-        LdapUtils.storeDiffObject(mods, "dcmInvokeImageDisplayStudyURL", aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmCopyMoveUpdatePolicy", aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmLinkMWLEntryUpdatePolicy", aa.getLinkMWLEntryUpdatePolicy(), bb.getLinkMWLEntryUpdatePolicy(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayPatientURL", aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayStudyURL", aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));
     }
 
     @Override
-    protected void storeChilds(String aeDN, ApplicationEntity ae) throws NamingException {
+    protected void storeChilds(ConfigurationChanges.ModifiedObject ldapObj, String aeDN, ApplicationEntity ae) throws NamingException {
         ArchiveAEExtension aeExt = ae.getAEExtension(ArchiveAEExtension.class);
         if (aeExt == null)
             return;
 
-        storeExportRules(aeExt.getExportRules(), aeDN);
-        storeCompressionRules(aeExt.getCompressionRules(), aeDN);
-        storeStoreAccessControlIDRules(aeExt.getStoreAccessControlIDRules(), aeDN);
-        storeAttributeCoercions(aeExt.getAttributeCoercions(), aeDN);
-        storeStudyRetentionPolicies(aeExt.getStudyRetentionPolicies(), aeDN);
-        storeRSForwardRules(aeExt.getRSForwardRules(), aeDN);
+        storeExportRules(ldapObj, aeExt.getExportRules(), aeDN);
+        storeCompressionRules(ldapObj, aeExt.getCompressionRules(), aeDN);
+        storeStoreAccessControlIDRules(ldapObj, aeExt.getStoreAccessControlIDRules(), aeDN);
+        storeAttributeCoercions(ldapObj, aeExt.getAttributeCoercions(), aeDN);
+        storeStudyRetentionPolicies(ldapObj, aeExt.getStudyRetentionPolicies(), aeDN);
+        storeRSForwardRules(ldapObj, aeExt.getRSForwardRules(), aeDN);
     }
 
     @Override
@@ -989,7 +990,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     @Override
-    protected void mergeChilds(ApplicationEntity prev, ApplicationEntity ae, String aeDN) throws NamingException {
+    protected void mergeChilds(ConfigurationChanges diffs, ApplicationEntity prev, ApplicationEntity ae, String aeDN)
+            throws NamingException {
         ArchiveAEExtension aa = prev.getAEExtension(ArchiveAEExtension.class);
         ArchiveAEExtension bb = ae.getAEExtension(ArchiveAEExtension.class);
         if (aa == null && bb == null)
@@ -1000,63 +1002,76 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         else if (bb == null)
             bb = new ArchiveAEExtension();
 
-        mergeExportRules(aa.getExportRules(), bb.getExportRules(), aeDN);
-        mergeCompressionRules(aa.getCompressionRules(), bb.getCompressionRules(), aeDN);
-        mergeStoreAccessControlIDRules(aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), aeDN);
-        mergeAttributeCoercions(aa.getAttributeCoercions(), bb.getAttributeCoercions(), aeDN);
-        mergeStudyRetentionPolicies(aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), aeDN);
-        mergeRSForwardRules(aa.getRSForwardRules(), bb.getRSForwardRules(), aeDN);
+        mergeExportRules(diffs, aa.getExportRules(), bb.getExportRules(), aeDN);
+        mergeCompressionRules(diffs, aa.getCompressionRules(), bb.getCompressionRules(), aeDN);
+        mergeStoreAccessControlIDRules(diffs, aa.getStoreAccessControlIDRules(), bb.getStoreAccessControlIDRules(), aeDN);
+        mergeAttributeCoercions(diffs, aa.getAttributeCoercions(), bb.getAttributeCoercions(), aeDN);
+        mergeStudyRetentionPolicies(diffs, aa.getStudyRetentionPolicies(), bb.getStudyRetentionPolicies(), aeDN);
+        mergeRSForwardRules(diffs, aa.getRSForwardRules(), bb.getRSForwardRules(), aeDN);
     }
 
-    private void storeAttributeFilter(String deviceDN, ArchiveDeviceExtension arcDev)
+    private void storeAttributeFilter(ConfigurationChanges.ModifiedObject ldapObj, String deviceDN, ArchiveDeviceExtension arcDev)
             throws NamingException {
         for (Map.Entry<Entity, AttributeFilter> entry : arcDev.getAttributeFilters().entrySet()) {
             config.createSubcontext(
                     LdapUtils.dnOf("dcmEntity", entry.getKey().name(), deviceDN),
-                    storeTo(entry.getValue(), entry.getKey(), new BasicAttributes(true)));
+                    storeTo(ldapObj, entry.getValue(), entry.getKey(), new BasicAttributes(true)));
         }
     }
 
-    private void storeAttributeSet(String deviceDN, ArchiveDeviceExtension arcDev)
+    private void storeAttributeSet(ConfigurationChanges.ModifiedObject ldapObj, String deviceDN, ArchiveDeviceExtension arcDev)
             throws NamingException {
         for (Map<String, AttributeSet> map : arcDev.getAttributeSet().values()) {
             for (AttributeSet attributeSet : map.values()) {
                 config.createSubcontext(
                         LdapUtils.dnOf("dcmAttributeSetType", attributeSet.getType().name(),
                                 "dcmAttributeSetID", attributeSet.getID(), deviceDN),
-                        storeTo(attributeSet, new BasicAttributes(true)));
+                        storeTo(ldapObj, attributeSet, new BasicAttributes(true)));
             }
         }
     }
 
-    private Attributes storeTo(AttributeSet attributeSet, BasicAttributes attrs) {
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, AttributeSet attributeSet, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmAttributeSet");
         attrs.put("dcmAttributeSetType", attributeSet.getType().name());
         attrs.put("dcmAttributeSetID", attributeSet.getID());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAttributeSetTitle", attributeSet.getTitle(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dicomDescription", attributeSet.getDescription(), null);
-        LdapUtils.storeNotDef(attrs, "dcmAttributeSetNumber", attributeSet.getNumber(), 0);
-        LdapUtils.storeNotDef(attrs, "dicomInstalled", attributeSet.isInstalled(), true);
-        storeNotEmptyTags(attrs, "dcmTag", attributeSet.getSelection());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAttributeSetTitle", attributeSet.getTitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", attributeSet.getDescription(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmAttributeSetNumber", attributeSet.getNumber(), 0);
+        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(attributeSet.getProperties()));
+        LdapUtils.storeNotDef(ldapObj, attrs, "dicomInstalled", attributeSet.isInstalled(), true);
+        storeNotEmptyTags(ldapObj, attrs, "dcmTag", attributeSet.getSelection());
         return attrs;
     }
 
-    private static Attributes storeTo(AttributeFilter filter, Entity entity,  BasicAttributes attrs) {
+    private static Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, AttributeFilter filter, Entity entity,  BasicAttributes attrs) {
         attrs.put("objectclass", "dcmAttributeFilter");
         attrs.put("dcmEntity", entity.name());
-        storeNotEmptyTags(attrs, "dcmTag", filter.getSelection());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmCustomAttribute1", filter.getCustomAttribute1(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmCustomAttribute2", filter.getCustomAttribute2(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmCustomAttribute3", filter.getCustomAttribute3(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAttributeUpdatePolicy", filter.getAttributeUpdatePolicy(), null);
+        storeNotEmptyTags(ldapObj, attrs, "dcmTag", filter.getSelection());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCustomAttribute1", filter.getCustomAttribute1(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCustomAttribute2", filter.getCustomAttribute2(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCustomAttribute3", filter.getCustomAttribute3(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAttributeUpdatePolicy", filter.getAttributeUpdatePolicy(), null);
         return attrs;
     }
 
-    private static Attributes storeTo(HL7OrderSPSStatus hl7OrderSPSStatus, SPSStatus spsStatus, BasicAttributes attrs) {
+    private static Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, HL7OrderSPSStatus hl7OrderSPSStatus, SPSStatus spsStatus, BasicAttributes attrs) {
         attrs.put("objectclass", "hl7OrderSPSStatus");
         attrs.put("dcmSPSStatus", spsStatus.name());
-        LdapUtils.storeNotEmpty(attrs, "hl7OrderControlStatus", hl7OrderSPSStatus.getOrderControlStatusCodes());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7OrderControlStatus", hl7OrderSPSStatus.getOrderControlStatusCodes());
         return attrs;
+    }
+
+    private static void storeNotEmptyTags(ConfigurationChanges.ModifiedObject ldapObj, Attributes attrs, String attrid, int[] vals) {
+        if (vals != null && vals.length > 0) {
+            attrs.put(tagsAttr(attrid, vals));
+            if (ldapObj != null) {
+                ConfigurationChanges.ModifiedAttribute attribute = new ConfigurationChanges.ModifiedAttribute(attrid);
+                for (int val : vals)
+                    attribute.addValue(val);
+                ldapObj.add(attribute);
+            }
+        }
     }
 
     private static void storeNotEmptyTags(Attributes attrs, String attrid, int[] vals) {
@@ -1108,6 +1123,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attributeSet.setTitle(LdapUtils.stringValue(attrs.get("dcmAttributeSetTitle"), null));
                 attributeSet.setDescription(LdapUtils.stringValue(attrs.get("dicomDescription"), null));
                 attributeSet.setNumber(LdapUtils.intValue(attrs.get("dcmAttributeSetNumber"), 0));
+                attributeSet.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 attributeSet.setInstalled(LdapUtils.booleanValue(attrs.get("dicomInstalled"), true));
                 attributeSet.setSelection(tags(attrs.get("dcmTag")));
                 device.addAttributeSet(attributeSet);
@@ -1151,33 +1167,51 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return is;
     }
 
-    private void mergeAttributeFilters(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev,
+    private void mergeAttributeFilters(ConfigurationChanges diffs, ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev,
                                        String deviceDN) throws NamingException {
         for (Entity entity : prev.getAttributeFilters().keySet())
-            if (!arcDev.getAttributeFilters().containsKey(entity))
-                config.destroySubcontext(LdapUtils.dnOf("dcmEntity", entity.name(), deviceDN));
+            if (!arcDev.getAttributeFilters().containsKey(entity)) {
+                String dn = LdapUtils.dnOf("dcmEntity", entity.name(), deviceDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         for (Map.Entry<Entity, AttributeFilter> entry : arcDev.getAttributeFilters().entrySet()) {
             Entity entity = entry.getKey();
             String dn = LdapUtils.dnOf("dcmEntity", entity.name(), deviceDN);
             AttributeFilter prevFilter = prev.getAttributeFilters().get(entity);
-            if (prevFilter == null)
+            if (prevFilter == null) {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
                 config.createSubcontext(dn,
-                        storeTo(entry.getValue(), entity, new BasicAttributes(true)));
-            else
+                        storeTo(ldapObj, entry.getValue(), entity, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
                 config.modifyAttributes(dn,
-                        storeDiffs(prevFilter, entry.getValue(), new ArrayList<ModificationItem>()));
+                        storeDiffs(ldapObj, prevFilter, entry.getValue(), new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
+            }
         }
     }
 
-    private void mergeAttributeSet(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev,
-                                       String deviceDN) throws NamingException {
+    private void mergeAttributeSet(ConfigurationChanges diffs, ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev,
+                                   String deviceDN) throws NamingException {
         for (Map.Entry<AttributeSet.Type, Map<String, AttributeSet>> prevEntry : prev.getAttributeSet().entrySet()) {
             AttributeSet.Type type = prevEntry.getKey();
             Map<String, AttributeSet> map = arcDev.getAttributeSet(type);
             for (String name : prevEntry.getValue().keySet()) {
-                if (!map.containsKey(name))
-                    config.destroySubcontext(LdapUtils.dnOf("dcmAttributeSetType", type.name(),
-                                "dcmAttributeSetID", name, deviceDN));
+                if (!map.containsKey(name)) {
+                    String dn = LdapUtils.dnOf("dcmAttributeSetType", type.name(),
+                            "dcmAttributeSetID", name, deviceDN);
+                    config.destroySubcontext(dn);
+                    if (diffs != null)
+                        diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+                }
             }
         }
         for (Map.Entry<AttributeSet.Type, Map<String, AttributeSet>> entry : arcDev.getAttributeSet().entrySet()) {
@@ -1186,55 +1220,80 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 String dn = LdapUtils.dnOf("dcmAttributeSetType", attributeSet.getType().name(),
                         "dcmAttributeSetID", attributeSet.getID(), deviceDN);
                 AttributeSet prevAttributeSet = prevMap.get(attributeSet.getID());
-                if (prevAttributeSet == null)
-                    config.createSubcontext(dn, storeTo(attributeSet, new BasicAttributes(true)));
-                else
+                if (prevAttributeSet == null) {
+                    ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                            ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                            : null;
+                    config.createSubcontext(dn, storeTo(ldapObj, attributeSet, new BasicAttributes(true)));
+                    if (diffs != null)
+                        diffs.add(ldapObj);
+                } else {
+                    ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                            ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                            : null;
                     config.modifyAttributes(dn,
-                            storeDiffs(prevAttributeSet, attributeSet, new ArrayList<ModificationItem>()));
+                            storeDiffs(ldapObj, prevAttributeSet, attributeSet, new ArrayList<ModificationItem>()));
+                    if (diffs != null) diffs.add(ldapObj);
+                }
             }
         }
     }
 
     protected static void mergeHL7OrderSPSStatus(
-            Map<SPSStatus, HL7OrderSPSStatus> prev, Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String deviceDN,
+            ConfigurationChanges diffs, Map<SPSStatus, HL7OrderSPSStatus> prev, Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String deviceDN,
             LdapDicomConfiguration config) throws NamingException {
         for (SPSStatus spsStatus : prev.keySet())
-            if (!hl7OrderSPSStatusMap.containsKey(spsStatus))
-                config.destroySubcontext(LdapUtils.dnOf("dcmSPSStatus", spsStatus.toString(), deviceDN));
+            if (!hl7OrderSPSStatusMap.containsKey(spsStatus)) {
+                String dn = LdapUtils.dnOf("dcmSPSStatus", spsStatus.toString(), deviceDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         for (Map.Entry<SPSStatus, HL7OrderSPSStatus> entry : hl7OrderSPSStatusMap.entrySet()) {
             SPSStatus spsStatus = entry.getKey();
             String dn = LdapUtils.dnOf("dcmSPSStatus", spsStatus.toString(), deviceDN);
             HL7OrderSPSStatus prevHL7OrderSPSStatus = prev.get(spsStatus);
-            if (prevHL7OrderSPSStatus == null)
-                config.createSubcontext(dn, storeTo(entry.getValue(), spsStatus, new BasicAttributes(true)));
-            else
-                config.modifyAttributes(dn, storeDiffs(prevHL7OrderSPSStatus, entry.getValue(), new ArrayList<ModificationItem>()));
+            if (prevHL7OrderSPSStatus == null) {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
+                config.createSubcontext(dn, storeTo(ldapObj, entry.getValue(), spsStatus, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevHL7OrderSPSStatus, entry.getValue(), new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
+            }
         }
     }
 
-    private List<ModificationItem> storeDiffs(AttributeFilter prev, AttributeFilter filter,
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, AttributeFilter prev, AttributeFilter filter,
                                               List<ModificationItem> mods) {
         storeDiffTags(mods, "dcmTag", prev.getSelection(), filter.getSelection());
-        LdapUtils.storeDiffObject(mods, "dcmCustomAttribute1",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmCustomAttribute1",
                 prev.getCustomAttribute1(), filter.getCustomAttribute1(), null);
-        LdapUtils.storeDiffObject(mods, "dcmCustomAttribute2",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmCustomAttribute2",
                 prev.getCustomAttribute2(), filter.getCustomAttribute2(), null);
-        LdapUtils.storeDiffObject(mods, "dcmCustomAttribute3",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmCustomAttribute3",
                 prev.getCustomAttribute3(), filter.getCustomAttribute3(), null);
-        LdapUtils.storeDiffObject(mods, "dcmAttributeUpdatePolicy",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAttributeUpdatePolicy",
                 prev.getAttributeUpdatePolicy(), filter.getAttributeUpdatePolicy(), null);
         return mods;
     }
 
-    private List<ModificationItem> storeDiffs(AttributeSet prev, AttributeSet attributeSet,
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, AttributeSet prev, AttributeSet attributeSet,
                                               List<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(mods, "dcmAttributeSetTitle",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAttributeSetTitle",
                 prev.getTitle(), attributeSet.getTitle(), null);
-        LdapUtils.storeDiffObject(mods, "dicomDescription",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomDescription",
                 prev.getDescription(), attributeSet.getDescription(), null);
-        LdapUtils.storeDiff(mods, "dcmAttributeSetNumber",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAttributeSetNumber",
                 prev.getNumber(), attributeSet.getNumber(), 0);
-        LdapUtils.storeDiff(mods, "dicomInstalled",
+        storeDiffProperties(mods, prev.getProperties(), attributeSet.getProperties());
+        LdapUtils.storeDiff(ldapObj, mods, "dicomInstalled",
                 prev.isInstalled(), attributeSet.isInstalled(), true);
         storeDiffTags(mods, "dcmTag", prev.getSelection(), attributeSet.getSelection());
         return mods;
@@ -1247,27 +1306,27 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     : new ModificationItem(DirContext.REPLACE_ATTRIBUTE, tagsAttr(attrId, vals)));
     }
 
-    private void storeStorageDescriptors(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
+    private void storeStorageDescriptors(ConfigurationChanges.ModifiedObject ldapObj, String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
         for (StorageDescriptor descriptor : arcDev.getStorageDescriptors()) {
             String storageID = descriptor.getStorageID();
             config.createSubcontext(
                     LdapUtils.dnOf("dcmStorageID", storageID, deviceDN),
-                    storeTo(descriptor, new BasicAttributes(true)));
+                    storeTo(ldapObj, descriptor, new BasicAttributes(true)));
         }
     }
 
-    private Attributes storeTo(StorageDescriptor descriptor, BasicAttributes attrs) {
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, StorageDescriptor descriptor, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmStorage");
         attrs.put("dcmStorageID", descriptor.getStorageID());
         attrs.put("dcmURI", descriptor.getStorageURIStr());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmDigestAlgorithm", descriptor.getDigestAlgorithm(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmInstanceAvailability",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDigestAlgorithm", descriptor.getDigestAlgorithm(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInstanceAvailability",
                 descriptor.getInstanceAvailability(), Availability.ONLINE);
-        LdapUtils.storeNotDef(attrs, "dcmReadOnly", descriptor.isReadOnly(), false);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStorageThreshold", descriptor.getStorageThreshold(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmDeleterThreshold", descriptor.getDeleterThresholdsAsStrings());
-        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(descriptor.getProperties()));
-        LdapUtils.storeNotNullOrDef(attrs, "dcmExternalRetrieveAET", descriptor.getExternalRetrieveAETitle(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmReadOnly", descriptor.isReadOnly(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageThreshold", descriptor.getStorageThreshold(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleterThreshold", descriptor.getDeleterThresholdsAsStrings());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(descriptor.getProperties()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalRetrieveAET", descriptor.getExternalRetrieveAETitle(), null);
         return attrs;
     }
 
@@ -1306,38 +1365,52 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attr != null ? StorageThreshold.valueOf((String) attr.get()) : null;
     }
 
-    private void mergeStorageDescriptors(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
+    private void mergeStorageDescriptors(ConfigurationChanges diffs, ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
             throws NamingException {
         for (StorageDescriptor descriptor : prev.getStorageDescriptors()) {
             String storageID = descriptor.getStorageID();
-            if (arcDev.getStorageDescriptor(storageID) == null)
-                config.destroySubcontext(LdapUtils.dnOf("dcmStorageID", storageID, deviceDN));
+            if (arcDev.getStorageDescriptor(storageID) == null) {
+                String dn = LdapUtils.dnOf("dcmStorageID", storageID, deviceDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (StorageDescriptor descriptor : arcDev.getStorageDescriptors()) {
             String storageID = descriptor.getStorageID();
             String dn = LdapUtils.dnOf("dcmStorageID", storageID, deviceDN);
             StorageDescriptor prevDescriptor = prev.getStorageDescriptor(storageID);
-            if (prevDescriptor == null)
+            if (prevDescriptor == null) {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
                 config.createSubcontext(dn,
-                        storeTo(descriptor, new BasicAttributes(true)));
-            else
+                        storeTo(ldapObj, descriptor, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
                 config.modifyAttributes(dn,
-                        storeDiffs(prevDescriptor, descriptor, new ArrayList<ModificationItem>()));
+                        storeDiffs(ldapObj, prevDescriptor, descriptor, new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
+            }
         }
     }
 
-    private List<ModificationItem> storeDiffs(StorageDescriptor prev, StorageDescriptor desc,
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, StorageDescriptor prev, StorageDescriptor desc,
                                               List<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(mods, "dcmURI", prev.getStorageURIStr(), desc.getStorageURIStr(), null);
-        LdapUtils.storeDiffObject(mods, "dcmDigestAlgorithm", prev.getDigestAlgorithm(), desc.getDigestAlgorithm(), null);
-        LdapUtils.storeDiffObject(mods, "dcmInstanceAvailability",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getStorageURIStr(), desc.getStorageURIStr(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDigestAlgorithm", prev.getDigestAlgorithm(), desc.getDigestAlgorithm(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability(), Availability.ONLINE);
-        LdapUtils.storeDiff(mods, "dcmReadOnly", prev.isReadOnly(), desc.isReadOnly(), false);
-        LdapUtils.storeDiffObject(mods, "dcmStorageThreshold", prev.getStorageThreshold(), desc.getStorageThreshold(), null);
-        LdapUtils.storeDiff(mods, "dcmDeleterThreshold",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmReadOnly", prev.isReadOnly(), desc.isReadOnly(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageThreshold", prev.getStorageThreshold(), desc.getStorageThreshold(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThreshold",
                 prev.getDeleterThresholdsAsStrings(), desc.getDeleterThresholdsAsStrings());
         storeDiffProperties(mods, prev.getProperties(), desc.getProperties());
-        LdapUtils.storeDiffObject(mods, "dcmExternalRetrieveAET", prev.getExternalRetrieveAETitle(), desc.getExternalRetrieveAETitle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalRetrieveAET", prev.getExternalRetrieveAETitle(), desc.getExternalRetrieveAETitle(), null);
         return mods;
     }
 
@@ -1351,27 +1424,27 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void storeQueueDescriptors(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
+    private void storeQueueDescriptors(ConfigurationChanges.ModifiedObject ldapObj, String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
         for (QueueDescriptor descriptor : arcDev.getQueueDescriptors()) {
             String queueName = descriptor.getQueueName();
             config.createSubcontext(
                     LdapUtils.dnOf("dcmQueueName", queueName, deviceDN),
-                    storeTo(descriptor, new BasicAttributes(true)));
+                    storeTo(ldapObj, descriptor, new BasicAttributes(true)));
         }
     }
 
-    private Attributes storeTo(QueueDescriptor descriptor, BasicAttributes attrs) {
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, QueueDescriptor descriptor, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmQueue");
         attrs.put("dcmQueueName", descriptor.getQueueName());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmJndiName", descriptor.getJndiName(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dicomDescription", descriptor.getDescription(), null);
-        LdapUtils.storeNotDef(attrs, "dcmMaxRetries", descriptor.getMaxRetries(), 0);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmRetryDelay",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmJndiName", descriptor.getJndiName(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", descriptor.getDescription(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxRetries", descriptor.getMaxRetries(), 0);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetryDelay",
                 descriptor.getRetryDelay(), QueueDescriptor.DEFAULT_RETRY_DELAY);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmMaxRetryDelay", descriptor.getMaxRetryDelay(), null);
-        LdapUtils.storeNotDef(attrs, "dcmRetryDelayMultiplier", descriptor.getRetryDelayMultiplier(), 100);
-        LdapUtils.storeNotDef(attrs, "dcmRetryOnWarning", descriptor.isRetryOnWarning(), false);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmPurgeQueueMessageCompletedDelay", descriptor.getPurgeQueueMessageCompletedDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMaxRetryDelay", descriptor.getMaxRetryDelay(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryDelayMultiplier", descriptor.getRetryDelayMultiplier(), 100);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryOnWarning", descriptor.isRetryOnWarning(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessageCompletedDelay", descriptor.getPurgeQueueMessageCompletedDelay(), null);
         return attrs;
     }
 
@@ -1397,68 +1470,82 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void mergeQueueDescriptors(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
+    private void mergeQueueDescriptors(ConfigurationChanges diffs, ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
             throws NamingException {
         for (QueueDescriptor descriptor : prev.getQueueDescriptors()) {
             String queueName = descriptor.getQueueName();
-            if (arcDev.getQueueDescriptor(queueName) == null)
-                config.destroySubcontext(LdapUtils.dnOf("dcmQueueName", queueName, deviceDN));
+            if (arcDev.getQueueDescriptor(queueName) == null) {
+                String dn = LdapUtils.dnOf("dcmQueueName", queueName, deviceDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (QueueDescriptor descriptor : arcDev.getQueueDescriptors()) {
             String queueName = descriptor.getQueueName();
             String dn = LdapUtils.dnOf("dcmQueueName", queueName, deviceDN);
             QueueDescriptor prevDescriptor = prev.getQueueDescriptor(queueName);
-            if (prevDescriptor == null)
+            if (prevDescriptor == null) {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
                 config.createSubcontext(dn,
-                        storeTo(descriptor, new BasicAttributes(true)));
-            else
+                        storeTo(ldapObj, descriptor, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
                 config.modifyAttributes(dn,
-                        storeDiffs(prevDescriptor, descriptor, new ArrayList<ModificationItem>()));
+                        storeDiffs(ldapObj, prevDescriptor, descriptor, new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
+            }
         }
     }
 
-    private List<ModificationItem> storeDiffs(QueueDescriptor prev, QueueDescriptor desc,
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, QueueDescriptor prev, QueueDescriptor desc,
                                               List<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(mods, "dicomDescription",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomDescription",
                 prev.getDescription(), desc.getDescription(), null);
-        LdapUtils.storeDiffObject(mods, "dcmJndiName", prev.getJndiName(), desc.getJndiName(), null);
-        LdapUtils.storeDiff(mods, "dcmMaxRetries", prev.getMaxRetries(), desc.getMaxRetries(), 0);
-        LdapUtils.storeDiffObject(mods, "dcmRetryDelay",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmJndiName", prev.getJndiName(), desc.getJndiName(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMaxRetries", prev.getMaxRetries(), desc.getMaxRetries(), 0);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetryDelay",
                 prev.getRetryDelay(), desc.getRetryDelay(), QueueDescriptor.DEFAULT_RETRY_DELAY);
-        LdapUtils.storeDiffObject(mods, "dcmMaxRetryDelay",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMaxRetryDelay",
                 prev.getMaxRetryDelay(), desc.getMaxRetryDelay(), null);
-        LdapUtils.storeDiff(mods, "dcmRetryDelayMultiplier",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRetryDelayMultiplier",
                 prev.getRetryDelayMultiplier(), desc.getRetryDelayMultiplier(), 100);
-        LdapUtils.storeDiff(mods, "dcmRetryOnWarning", prev.isRetryOnWarning(), desc.isRetryOnWarning(), false);
-        LdapUtils.storeDiffObject(mods, "dcmPurgeQueueMessageCompletedDelay",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRetryOnWarning", prev.isRetryOnWarning(), desc.isRetryOnWarning(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessageCompletedDelay",
                 prev.getPurgeQueueMessageCompletedDelay(), desc.getPurgeQueueMessageCompletedDelay(), null);
         return mods;
     }
 
-    private void storeExporterDescriptors(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
+    private void storeExporterDescriptors(ConfigurationChanges.ModifiedObject ldapObj, String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
         for (ExporterDescriptor descriptor : arcDev.getExporterDescriptors()) {
             String storageID = descriptor.getExporterID();
             config.createSubcontext(
                     LdapUtils.dnOf("dcmExporterID", storageID, deviceDN),
-                    storeTo(descriptor, new BasicAttributes(true)));
+                    storeTo(ldapObj, descriptor, new BasicAttributes(true)));
         }
     }
 
-    private Attributes storeTo(ExporterDescriptor descriptor, BasicAttributes attrs) {
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, ExporterDescriptor descriptor, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmExporter");
         attrs.put("dcmExporterID", descriptor.getExporterID());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmURI", descriptor.getExportURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dicomDescription", descriptor.getDescription(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmQueueName", descriptor.getQueueName(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dicomAETitle", descriptor.getAETitle(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStgCmtSCP", descriptor.getStgCmtSCPAETitle(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmIanDestination", descriptor.getIanDestinations());
-        LdapUtils.storeNotEmpty(attrs, "dcmRetrieveAET", descriptor.getRetrieveAETitles());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmRetrieveLocationUID", descriptor.getRetrieveLocationUID(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmInstanceAvailability",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", descriptor.getExportURI(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", descriptor.getDescription(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQueueName", descriptor.getQueueName(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomAETitle", descriptor.getAETitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStgCmtSCP", descriptor.getStgCmtSCPAETitle(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIanDestination", descriptor.getIanDestinations());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRetrieveAET", descriptor.getRetrieveAETitles());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveLocationUID", descriptor.getRetrieveLocationUID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInstanceAvailability",
                 descriptor.getInstanceAvailability(), Availability.ONLINE);
-        LdapUtils.storeNotEmpty(attrs, "dcmSchedule", descriptor.getSchedules());
-        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(descriptor.getProperties()));
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", descriptor.getSchedules());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(descriptor.getProperties()));
         return attrs;
     }
 
@@ -1495,62 +1582,76 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return schedules;
     }
 
-    private void mergeExportDescriptors(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
+    private void mergeExportDescriptors(ConfigurationChanges diffs, ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
             throws NamingException {
         for (ExporterDescriptor descriptor : prev.getExporterDescriptors()) {
             String exporterID = descriptor.getExporterID();
-            if (arcDev.getExporterDescriptor(exporterID) == null)
-                config.destroySubcontext(LdapUtils.dnOf("dcmExporterID", exporterID, deviceDN));
+            if (arcDev.getExporterDescriptor(exporterID) == null) {
+                String dn = LdapUtils.dnOf("dcmExporterID", exporterID, deviceDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (ExporterDescriptor descriptor : arcDev.getExporterDescriptors()) {
             String exporterID = descriptor.getExporterID();
             String dn = LdapUtils.dnOf("dcmExporterID", exporterID, deviceDN);
             ExporterDescriptor prevDescriptor = prev.getExporterDescriptor(exporterID);
-            if (prevDescriptor == null)
+            if (prevDescriptor == null) {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
                 config.createSubcontext(dn,
-                        storeTo(descriptor, new BasicAttributes(true)));
-            else
+                        storeTo(ldapObj, descriptor, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
                 config.modifyAttributes(dn,
-                        storeDiffs(prevDescriptor, descriptor, new ArrayList<ModificationItem>()));
+                        storeDiffs(ldapObj, prevDescriptor, descriptor, new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
+            }
         }
     }
 
-    private List<ModificationItem> storeDiffs(ExporterDescriptor prev, ExporterDescriptor desc,
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, ExporterDescriptor prev, ExporterDescriptor desc,
                                               List<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(mods, "dcmURI", prev.getExportURI().toString(), desc.getExportURI().toString(), null);
-        LdapUtils.storeDiffObject(mods, "dicomDescription", prev.getDescription(), desc.getDescription(), null);
-        LdapUtils.storeDiffObject(mods, "dcmQueueName", prev.getQueueName(), desc.getQueueName(), null);
-        LdapUtils.storeDiffObject(mods, "dicomAETitle", prev.getAETitle(), desc.getAETitle(), null);
-        LdapUtils.storeDiffObject(mods, "dcmStgCmtSCP", prev.getStgCmtSCPAETitle(), desc.getStgCmtSCPAETitle(), null);
-        LdapUtils.storeDiff(mods, "dcmIanDestination", prev.getIanDestinations(), desc.getIanDestinations());
-        LdapUtils.storeDiff(mods, "dcmRetrieveAET", prev.getRetrieveAETitles(), desc.getRetrieveAETitles());
-        LdapUtils.storeDiffObject(mods, "dcmRetrieveLocationUID",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getExportURI().toString(), desc.getExportURI().toString(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomDescription", prev.getDescription(), desc.getDescription(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmQueueName", prev.getQueueName(), desc.getQueueName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomAETitle", prev.getAETitle(), desc.getAETitle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStgCmtSCP", prev.getStgCmtSCPAETitle(), desc.getStgCmtSCPAETitle(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIanDestination", prev.getIanDestinations(), desc.getIanDestinations());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveAET", prev.getRetrieveAETitles(), desc.getRetrieveAETitles());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveLocationUID",
                 prev.getRetrieveLocationUID(), desc.getRetrieveLocationUID(), null);
-        LdapUtils.storeDiffObject(mods, "dcmInstanceAvailability",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability(), Availability.ONLINE);
-        LdapUtils.storeDiff(mods, "dcmSchedule", prev.getSchedules(), desc.getSchedules());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), desc.getSchedules());
         storeDiffProperties(mods, prev.getProperties(), desc.getProperties());
         return mods;
     }
 
-    private void storeExportRules(Collection<ExportRule> exportRules, String parentDN) throws NamingException {
+    private void storeExportRules(ConfigurationChanges.ModifiedObject ldapObj, Collection<ExportRule> exportRules, String parentDN) throws NamingException {
         for (ExportRule rule : exportRules) {
             String cn = rule.getCommonName();
             config.createSubcontext(
                     LdapUtils.dnOf("cn", cn, parentDN),
-                    storeTo(rule, new BasicAttributes(true)));
+                    storeTo(ldapObj, rule, new BasicAttributes(true)));
         }
     }
 
-    private Attributes storeTo(ExportRule rule, BasicAttributes attrs) {
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, ExportRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmExportRule");
         attrs.put("cn", rule.getCommonName());
-        LdapUtils.storeNotEmpty(attrs, "dcmSchedule", rule.getSchedules());
-        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
-        LdapUtils.storeNotEmpty(attrs, "dcmExporterID", rule.getExporterIDs());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmEntity", rule.getEntity(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmDuration", rule.getExportDelay(), null);
-        LdapUtils.storeNotDef(attrs, "dcmExportPreviousEntity", rule.isExportPreviousEntity(), false);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", rule.getSchedules());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmExporterID", rule.getExporterIDs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmEntity", rule.getEntity(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDuration", rule.getExportDelay(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportPreviousEntity", rule.isExportPreviousEntity(), false);
         return attrs;
     }
 
@@ -1594,31 +1695,45 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return attr != null ? Pattern.compile((String) attr.get()) : null;
     }
 
-    private void mergeExportRules(Collection<ExportRule> prevRules, Collection<ExportRule> rules, String parentDN)
+    private void mergeExportRules(ConfigurationChanges diffs, Collection<ExportRule> prevRules, Collection<ExportRule> rules, String parentDN)
             throws NamingException {
         for (ExportRule prevRule : prevRules) {
             String cn = prevRule.getCommonName();
-            if (findExportRuleByCN(rules, cn) == null)
-                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+            if (findExportRuleByCN(rules, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (ExportRule rule : rules) {
             String cn = rule.getCommonName();
             String dn = LdapUtils.dnOf("cn", cn, parentDN);
             ExportRule prevRule = findExportRuleByCN(prevRules, cn);
-            if (prevRule == null)
-                config.createSubcontext(dn, storeTo(rule, new BasicAttributes(true)));
-            else
-                config.modifyAttributes(dn, storeDiffs(prevRule, rule, new ArrayList<ModificationItem>()));
+            if (prevRule == null) {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
+                config.createSubcontext(dn, storeTo(ldapObj, rule, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
+            }
         }
     }
 
-    private List<ModificationItem> storeDiffs(ExportRule prev, ExportRule rule, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiff(mods, "dcmSchedule", prev.getSchedules(), rule.getSchedules());
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, ExportRule prev, ExportRule rule, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), rule.getSchedules());
         storeDiffProperties(mods, prev.getConditions().getMap(), rule.getConditions().getMap());
-        LdapUtils.storeDiff(mods, "dcmExporterID", prev.getExporterIDs(), rule.getExporterIDs());
-        LdapUtils.storeDiffObject(mods, "dcmEntity", prev.getEntity(), rule.getEntity(), null);
-        LdapUtils.storeDiffObject(mods, "dcmDuration", prev.getExportDelay(), rule.getExportDelay(), null);
-        LdapUtils.storeDiff(mods, "dcmExportPreviousEntity",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmExporterID", prev.getExporterIDs(), rule.getExporterIDs());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmEntity", prev.getEntity(), rule.getEntity(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration", prev.getExportDelay(), rule.getExportDelay(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmExportPreviousEntity",
                 prev.isExportPreviousEntity(), rule.isExportPreviousEntity(), false);
         return mods;
     }
@@ -1630,131 +1745,131 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return null;
     }
 
-    private void storeCompressionRules(Collection<ArchiveCompressionRule> rules, String parentDN)
+    private void storeCompressionRules(ConfigurationChanges.ModifiedObject ldapObj, Collection<ArchiveCompressionRule> rules, String parentDN)
             throws NamingException {
         for (ArchiveCompressionRule rule : rules) {
             String cn = rule.getCommonName();
             config.createSubcontext(
                     LdapUtils.dnOf("cn", cn, parentDN),
-                    storeTo(rule, new BasicAttributes(true)));
+                    storeTo(ldapObj, rule, new BasicAttributes(true)));
         }
     }
 
-    private void storeStudyRetentionPolicies(Collection<StudyRetentionPolicy> policies, String parentDN)
+    private void storeStudyRetentionPolicies(ConfigurationChanges.ModifiedObject ldapObj, Collection<StudyRetentionPolicy> policies, String parentDN)
             throws NamingException {
         for (StudyRetentionPolicy policy : policies) {
             String cn = policy.getCommonName();
             config.createSubcontext(
                     LdapUtils.dnOf("cn", cn, parentDN),
-                    storeTo(policy, new BasicAttributes(true)));
+                    storeTo(ldapObj, policy, new BasicAttributes(true)));
         }
     }
 
-    private void storeStoreAccessControlIDRules(Collection<StoreAccessControlIDRule> rules, String parentDN)
+    private void storeStoreAccessControlIDRules(ConfigurationChanges.ModifiedObject ldapObj, Collection<StoreAccessControlIDRule> rules, String parentDN)
             throws NamingException {
         for (StoreAccessControlIDRule rule : rules) {
             String cn = rule.getCommonName();
             config.createSubcontext(
                     LdapUtils.dnOf("cn", cn, parentDN),
-                    storeTo(rule, new BasicAttributes(true)));
+                    storeTo(ldapObj, rule, new BasicAttributes(true)));
         }
     }
 
 
-    protected static void storeHL7ForwardRules(
+    protected static void storeHL7ForwardRules(ConfigurationChanges.ModifiedObject ldapObj,
             Collection<HL7ForwardRule> rules, String parentDN, LdapDicomConfiguration config)
             throws NamingException{
         for (HL7ForwardRule rule : rules) {
             String cn = rule.getCommonName();
             config.createSubcontext(
                     LdapUtils.dnOf("cn", cn, parentDN),
-                    storeTo(rule, new BasicAttributes(true)));
+                    storeTo(ldapObj, rule, new BasicAttributes(true)));
         }
     }
 
-    protected static void storeScheduledStations(
+    protected static void storeScheduledStations(ConfigurationChanges.ModifiedObject ldapObj,
             Collection<HL7OrderScheduledStation> stations, String parentDN, LdapDicomConfiguration config)
             throws NamingException{
         for (HL7OrderScheduledStation station : stations) {
             String cn = station.getCommonName();
             config.createSubcontext(
                     LdapUtils.dnOf("cn", cn, parentDN),
-                    storeTo(station, new BasicAttributes(true), config));
+                    storeTo(ldapObj, station, new BasicAttributes(true), config));
         }
     }
 
-    protected static void storeHL7OrderSPSStatus(
+    protected static void storeHL7OrderSPSStatus(ConfigurationChanges.ModifiedObject ldapObj,
             Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (Map.Entry<SPSStatus, HL7OrderSPSStatus> entry : hl7OrderSPSStatusMap.entrySet()) {
             config.createSubcontext(
                     LdapUtils.dnOf("dcmSPSStatus", entry.getKey().toString(), parentDN),
-                    storeTo(entry.getValue(), entry.getKey(), new BasicAttributes(true)));
+                    storeTo(ldapObj, entry.getValue(), entry.getKey(), new BasicAttributes(true)));
         }
     }
 
-    private void storeRSForwardRules(Collection<RSForwardRule> rules, String parentDN)
+    private void storeRSForwardRules(ConfigurationChanges.ModifiedObject ldapObj, Collection<RSForwardRule> rules, String parentDN)
             throws NamingException {
         for (RSForwardRule rule : rules) {
             String cn = rule.getCommonName();
             config.createSubcontext(
                     LdapUtils.dnOf("cn", cn, parentDN),
-                    storeTo(rule, new BasicAttributes(true)));
+                    storeTo(ldapObj, rule, new BasicAttributes(true)));
         }
     }
 
-    private Attributes storeTo(ArchiveCompressionRule rule, BasicAttributes attrs) {
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, ArchiveCompressionRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmArchiveCompressionRule");
         attrs.put("cn", rule.getCommonName());
-        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
-        LdapUtils.storeNotNullOrDef(attrs, "dicomTransferSyntax", rule.getTransferSyntax(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmImageWriteParam", rule.getImageWriteParams());
-        LdapUtils.storeNotDef(attrs, "dcmRulePriority", rule.getPriority(), 0);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomTransferSyntax", rule.getTransferSyntax(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmImageWriteParam", rule.getImageWriteParams());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", rule.getPriority(), 0);
         return attrs;
     }
 
-    private Attributes storeTo(StoreAccessControlIDRule rule, BasicAttributes attrs) {
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, StoreAccessControlIDRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmStoreAccessControlIDRule");
         attrs.put("cn", rule.getCommonName());
-        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
-        LdapUtils.storeNotNullOrDef(attrs, "dcmStoreAccessControlID", rule.getStoreAccessControlID(), null);
-        LdapUtils.storeNotDef(attrs, "dcmRulePriority", rule.getPriority(), 0);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoreAccessControlID", rule.getStoreAccessControlID(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", rule.getPriority(), 0);
         return attrs;
     }
 
-    private Attributes storeTo(StudyRetentionPolicy policy, BasicAttributes attrs) {
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, StudyRetentionPolicy policy, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmStudyRetentionPolicy");
         attrs.put("cn", policy.getCommonName());
-        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(policy.getConditions().getMap()));
-        LdapUtils.storeNotNullOrDef(attrs, "dcmRetentionPeriod", policy.getRetentionPeriod(), null);
-        LdapUtils.storeNotDef(attrs, "dcmRulePriority", policy.getPriority(), 0);
-        LdapUtils.storeNotDef(attrs, "dcmExpireSeriesIndividually", policy.isExpireSeriesIndividually(), false);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(policy.getConditions().getMap()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetentionPeriod", policy.getRetentionPeriod(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", policy.getPriority(), 0);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmExpireSeriesIndividually", policy.isExpireSeriesIndividually(), false);
         return attrs;
     }
 
-    private static Attributes storeTo(HL7ForwardRule rule, BasicAttributes attrs) {
+    private static Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, HL7ForwardRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "hl7ForwardRule");
         attrs.put("cn", rule.getCommonName());
-        LdapUtils.storeNotEmpty(attrs, "hl7FwdApplicationName", rule.getDestinations());
-        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7FwdApplicationName", rule.getDestinations());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
         return attrs;
     }
 
-    private static Attributes storeTo(HL7OrderScheduledStation station, BasicAttributes attrs, LdapDicomConfiguration config) {
+    private static Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, HL7OrderScheduledStation station, BasicAttributes attrs, LdapDicomConfiguration config) {
         attrs.put("objectclass", "hl7OrderScheduledStation");
         attrs.put("cn", station.getCommonName());
-        LdapUtils.storeNotNullOrDef(attrs, "hl7OrderScheduledStationDeviceReference",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OrderScheduledStationDeviceReference",
                 scheduledStationDeviceRef(station, config), null);
-        LdapUtils.storeNotDef(attrs, "dcmRulePriority", station.getPriority(), 0);
-        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(station.getConditions().getMap()));
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", station.getPriority(), 0);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(station.getConditions().getMap()));
         return attrs;
     }
 
-    private Attributes storeTo(RSForwardRule rule, BasicAttributes attrs) {
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, RSForwardRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmRSForwardRule");
         attrs.put("cn", rule.getCommonName());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmURI", rule.getBaseURI(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmRSOperation", rule.getRSOperations());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", rule.getBaseURI(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRSOperation", rule.getRSOperations());
         return attrs;
     }
 
@@ -1882,193 +1997,290 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private void mergeCompressionRules(
-            Collection<ArchiveCompressionRule> prevRules, Collection<ArchiveCompressionRule> rules, String parentDN)
+            ConfigurationChanges diffs, Collection<ArchiveCompressionRule> prevRules, Collection<ArchiveCompressionRule> rules, String parentDN)
             throws NamingException {
         for (ArchiveCompressionRule prevRule : prevRules) {
             String cn = prevRule.getCommonName();
-            if (findCompressionRuleByCN(rules, cn) == null)
-                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+            if (findCompressionRuleByCN(rules, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (ArchiveCompressionRule rule : rules) {
             String cn = rule.getCommonName();
             String dn = LdapUtils.dnOf("cn", cn, parentDN);
             ArchiveCompressionRule prevRule = findCompressionRuleByCN(prevRules, cn);
-            if (prevRule == null)
-                config.createSubcontext(dn, storeTo(rule, new BasicAttributes(true)));
-            else
-                config.modifyAttributes(dn, storeDiffs(prevRule, rule, new ArrayList<ModificationItem>()));
+            if (prevRule == null) {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
+                config.createSubcontext(dn, storeTo(ldapObj, rule, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
+            }
         }
     }
 
     private void mergeStoreAccessControlIDRules(
-            Collection<StoreAccessControlIDRule> prevRules, Collection<StoreAccessControlIDRule> rules, String parentDN)
+            ConfigurationChanges diffs, Collection<StoreAccessControlIDRule> prevRules, Collection<StoreAccessControlIDRule> rules, String parentDN)
             throws NamingException {
         for (StoreAccessControlIDRule prevRule : prevRules) {
             String cn = prevRule.getCommonName();
-            if (findStoreAccessControlIDRuleByCN(rules, cn) == null)
-                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+            if (findStoreAccessControlIDRuleByCN(rules, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (StoreAccessControlIDRule rule : rules) {
             String cn = rule.getCommonName();
             String dn = LdapUtils.dnOf("cn", cn, parentDN);
             StoreAccessControlIDRule prevRule = findStoreAccessControlIDRuleByCN(prevRules, cn);
-            if (prevRule == null)
-                config.createSubcontext(dn, storeTo(rule, new BasicAttributes(true)));
-            else
-                config.modifyAttributes(dn, storeDiffs(prevRule, rule, new ArrayList<ModificationItem>()));
+            if (prevRule == null) {ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                    ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                    : null;
+                config.createSubcontext(dn, storeTo(ldapObj, rule, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
+            }
         }
     }
 
     private void mergeStudyRetentionPolicies(
-            Collection<StudyRetentionPolicy> prevPolicies, Collection<StudyRetentionPolicy> policies, String parentDN)
+            ConfigurationChanges diffs, Collection<StudyRetentionPolicy> prevPolicies, Collection<StudyRetentionPolicy> policies, String parentDN)
             throws NamingException {
         for (StudyRetentionPolicy prevRule : prevPolicies) {
             String cn = prevRule.getCommonName();
-            if (findStudyRetentionPolicyByCN(policies, cn) == null)
-                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+            if (findStudyRetentionPolicyByCN(policies, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (StudyRetentionPolicy policy : policies) {
             String cn = policy.getCommonName();
             String dn = LdapUtils.dnOf("cn", cn, parentDN);
             StudyRetentionPolicy prevPolicy = findStudyRetentionPolicyByCN(prevPolicies, cn);
-            if (prevPolicy == null)
-                config.createSubcontext(dn, storeTo(policy, new BasicAttributes(true)));
-            else
-                config.modifyAttributes(dn, storeDiffs(prevPolicy, policy, new ArrayList<ModificationItem>()));
+            if (prevPolicy == null) {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
+                config.createSubcontext(dn, storeTo(ldapObj, policy, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevPolicy, policy, new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
+            }
         }
     }
 
-    protected static void mergeHL7ForwardRules(Collection<HL7ForwardRule> prevRules, Collection<HL7ForwardRule> rules,
-               String parentDN, LdapDicomConfiguration config)
+    protected static void mergeHL7ForwardRules(ConfigurationChanges diffs, Collection<HL7ForwardRule> prevRules, Collection<HL7ForwardRule> rules,
+                                               String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (HL7ForwardRule prevRule : prevRules) {
             String cn = prevRule.getCommonName();
-            if (findHL7ForwardRuleByCN(rules, cn) == null)
-                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+            if (findHL7ForwardRuleByCN(rules, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (HL7ForwardRule rule : rules) {
             String cn = rule.getCommonName();
             String dn = LdapUtils.dnOf("cn", cn, parentDN);
             HL7ForwardRule prevRule = findHL7ForwardRuleByCN(prevRules, cn);
-            if (prevRule == null)
-                config.createSubcontext(dn, storeTo(rule, new BasicAttributes(true)));
-            else
-                config.modifyAttributes(dn, storeDiffs(prevRule, rule, new ArrayList<ModificationItem>()));
+            if (prevRule == null) {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
+                config.createSubcontext(dn, storeTo(ldapObj, rule, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
+            }
         }
     }
 
-    protected static void mergeScheduledStations(Collection<HL7OrderScheduledStation> prevStations, Collection<HL7OrderScheduledStation> stations,
+    protected static void mergeScheduledStations(ConfigurationChanges diffs, Collection<HL7OrderScheduledStation> prevStations, Collection<HL7OrderScheduledStation> stations,
                                                  String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (HL7OrderScheduledStation prevRule : prevStations) {
             String cn = prevRule.getCommonName();
-            if (findScheduledStationByCN(stations, cn) == null)
-                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+            if (findScheduledStationByCN(stations, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (HL7OrderScheduledStation station : stations) {
             String cn = station.getCommonName();
             String dn = LdapUtils.dnOf("cn", cn, parentDN);
             HL7OrderScheduledStation prevStation = findScheduledStationByCN(prevStations, cn);
-            if (prevStation == null)
-                config.createSubcontext(dn, storeTo(station, new BasicAttributes(true), config));
-            else
-                config.modifyAttributes(dn, storeDiffs(prevStation, station, new ArrayList<ModificationItem>(), config));
+            if (prevStation == null) {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
+                config.createSubcontext(dn, storeTo(ldapObj, station, new BasicAttributes(true), config));
+                if (diffs != null)
+                    diffs.add(ldapObj);
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevStation, station, new ArrayList<ModificationItem>(), config));
+                if (diffs != null) diffs.add(ldapObj);
+            }
         }
     }
 
     private void mergeAttributeCoercions(
-            Collection<ArchiveAttributeCoercion> prevCoercions,
+            ConfigurationChanges diffs, Collection<ArchiveAttributeCoercion> prevCoercions,
             Collection<ArchiveAttributeCoercion> coercions,
             String parentDN) throws NamingException {
         for (ArchiveAttributeCoercion prev : prevCoercions) {
             String cn = prev.getCommonName();
-            if (findAttributeCoercionByCN(coercions, cn) == null)
-                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+            if (findAttributeCoercionByCN(coercions, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (ArchiveAttributeCoercion coercion : coercions) {
             String cn = coercion.getCommonName();
             String dn = LdapUtils.dnOf("cn", cn, parentDN);
             ArchiveAttributeCoercion prev = findAttributeCoercionByCN(prevCoercions, cn);
-            if (prev == null)
-                config.createSubcontext(dn, storeTo(coercion, new BasicAttributes(true)));
-            else
-                config.modifyAttributes(dn, storeDiffs(prev, coercion, new ArrayList<ModificationItem>()));
+            if (prev == null) {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
+                config.createSubcontext(dn, storeTo(ldapObj, coercion, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prev, coercion, new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
+            }
         }
     }
 
     private void mergeRSForwardRules(
-            Collection<RSForwardRule> prevRules, Collection<RSForwardRule> rules, String parentDN)
+            ConfigurationChanges diffs, Collection<RSForwardRule> prevRules, Collection<RSForwardRule> rules, String parentDN)
             throws NamingException {
         for (RSForwardRule prevRule : prevRules) {
             String cn = prevRule.getCommonName();
-            if (findRSForwardRuleByCN(rules, cn) == null)
-                config.destroySubcontext(LdapUtils.dnOf("cn", cn, parentDN));
+            if (findRSForwardRuleByCN(rules, cn) == null) {
+                String dn = LdapUtils.dnOf("cn", cn, parentDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (RSForwardRule rule : rules) {
             String cn = rule.getCommonName();
             String dn = LdapUtils.dnOf("cn", cn, parentDN);
             RSForwardRule prevRule = findRSForwardRuleByCN(prevRules, cn);
-            if (prevRule == null)
-                config.createSubcontext(dn, storeTo(rule, new BasicAttributes(true)));
-            else
-                config.modifyAttributes(dn, storeDiffs(prevRule, rule, new ArrayList<ModificationItem>()));
+            if (prevRule == null) {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
+                config.createSubcontext(dn, storeTo(ldapObj, rule, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
+            }
         }
     }
 
     private List<ModificationItem> storeDiffs(
-            ArchiveCompressionRule prev, ArchiveCompressionRule rule, ArrayList<ModificationItem> mods) {
+            ConfigurationChanges.ModifiedObject ldapObj, ArchiveCompressionRule prev, ArchiveCompressionRule rule, ArrayList<ModificationItem> mods) {
         storeDiffProperties(mods, prev.getConditions().getMap(), rule.getConditions().getMap());
-        LdapUtils.storeDiffObject(mods, "dicomTransferSyntax", prev.getTransferSyntax(), rule.getTransferSyntax(), null);
-        LdapUtils.storeDiff(mods, "dcmImageWriteParam", prev.getImageWriteParams(), rule.getImageWriteParams());
-        LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), rule.getPriority(), 0);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomTransferSyntax", prev.getTransferSyntax(), rule.getTransferSyntax(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmImageWriteParam", prev.getImageWriteParams(), rule.getImageWriteParams());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), rule.getPriority(), 0);
         return mods;
     }
 
     private List<ModificationItem> storeDiffs(
-            StoreAccessControlIDRule prev, StoreAccessControlIDRule rule, ArrayList<ModificationItem> mods) {
+            ConfigurationChanges.ModifiedObject ldapObj, StoreAccessControlIDRule prev, StoreAccessControlIDRule rule, ArrayList<ModificationItem> mods) {
         storeDiffProperties(mods, prev.getConditions().getMap(), rule.getConditions().getMap());
-        LdapUtils.storeDiffObject(mods, "dcmStoreAccessControlID",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStoreAccessControlID",
                 prev.getStoreAccessControlID(), rule.getStoreAccessControlID(), null);
-        LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), rule.getPriority(), 0);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), rule.getPriority(), 0);
         return mods;
     }
 
     private List<ModificationItem> storeDiffs(
-            StudyRetentionPolicy prev, StudyRetentionPolicy policy, ArrayList<ModificationItem> mods) {
+            ConfigurationChanges.ModifiedObject ldapObj, StudyRetentionPolicy prev, StudyRetentionPolicy policy, ArrayList<ModificationItem> mods) {
         storeDiffProperties(mods, prev.getConditions().getMap(), policy.getConditions().getMap());
-        LdapUtils.storeDiffObject(mods, "dcmRetentionPeriod", prev.getRetentionPeriod(), policy.getRetentionPeriod(), null);
-        LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), policy.getPriority(), 0);
-        LdapUtils.storeDiff(mods, "dcmExpireSeriesIndividually", prev.isExpireSeriesIndividually(),
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetentionPeriod", prev.getRetentionPeriod(), policy.getRetentionPeriod(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), policy.getPriority(), 0);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmExpireSeriesIndividually", prev.isExpireSeriesIndividually(),
                 policy.isExpireSeriesIndividually(), false);
         return mods;
     }
 
     private static List<ModificationItem> storeDiffs(
-            HL7ForwardRule prev, HL7ForwardRule rule, ArrayList<ModificationItem> mods) {
+            ConfigurationChanges.ModifiedObject ldapObj, HL7ForwardRule prev, HL7ForwardRule rule, ArrayList<ModificationItem> mods) {
         storeDiffProperties(mods, prev.getConditions().getMap(), rule.getConditions().getMap());
-        LdapUtils.storeDiff(mods, "hl7FwdApplicationName", prev.getDestinations(), rule.getDestinations());
+        LdapUtils.storeDiff(ldapObj, mods, "hl7FwdApplicationName", prev.getDestinations(), rule.getDestinations());
         return mods;
     }
 
-    private static List<ModificationItem> storeDiffs(HL7OrderScheduledStation prev, HL7OrderScheduledStation station,
+    private static List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, HL7OrderScheduledStation prev, HL7OrderScheduledStation station,
                                                      ArrayList<ModificationItem> mods, LdapDicomConfiguration config) {
-        LdapUtils.storeDiffObject(mods, "hl7OrderScheduledStationDeviceReference",
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7OrderScheduledStationDeviceReference",
                 scheduledStationDeviceRef(prev, config),
                 scheduledStationDeviceRef(station, config), null);
-        LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), station.getPriority(), 0);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), station.getPriority(), 0);
         return mods;
     }
 
     private static List<ModificationItem> storeDiffs(
-            HL7OrderSPSStatus prev, HL7OrderSPSStatus hl7OrderSPSStatus, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiff(mods, "hl7OrderControlStatus", prev.getOrderControlStatusCodes(), hl7OrderSPSStatus.getOrderControlStatusCodes());
+            ConfigurationChanges.ModifiedObject ldapObj, HL7OrderSPSStatus prev, HL7OrderSPSStatus hl7OrderSPSStatus, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(ldapObj, mods, "hl7OrderControlStatus", prev.getOrderControlStatusCodes(), hl7OrderSPSStatus.getOrderControlStatusCodes());
         return mods;
     }
 
     private List<ModificationItem> storeDiffs(
-            RSForwardRule prev, RSForwardRule rule, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(mods, "dcmURI", prev.getBaseURI(), rule.getBaseURI(), null);
-        LdapUtils.storeDiff(mods, "dcmRSOperation", prev.getRSOperations(), rule.getRSOperations());
+            ConfigurationChanges.ModifiedObject ldapObj, RSForwardRule prev, RSForwardRule rule, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getBaseURI(), rule.getBaseURI(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRSOperation", prev.getRSOperations(), rule.getRSOperations());
         return mods;
     }
 
@@ -2116,19 +2328,20 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return null;
     }
 
-    private void storeQueryRetrieveViews(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
+    private void storeQueryRetrieveViews(ConfigurationChanges.ModifiedObject ldapObj, String deviceDN,
+                                         ArchiveDeviceExtension arcDev) throws NamingException {
         for (QueryRetrieveView view : arcDev.getQueryRetrieveViews())
             config.createSubcontext(
                     LdapUtils.dnOf("dcmQueryRetrieveViewID", view.getViewID(), deviceDN),
-                    storeTo(view, new BasicAttributes(true)));
+                    storeTo(ldapObj, view, new BasicAttributes(true)));
     }
 
-    private Attributes storeTo(QueryRetrieveView qrView, BasicAttributes attrs) {
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, QueryRetrieveView qrView, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmQueryRetrieveView");
         attrs.put("dcmQueryRetrieveViewID", qrView.getViewID());
-        LdapUtils.storeNotEmpty(attrs, "dcmShowInstancesRejectedByCode", qrView.getShowInstancesRejectedByCodes());
-        LdapUtils.storeNotEmpty(attrs, "dcmHideRejectionNoteWithCode", qrView.getHideRejectionNotesWithCodes());
-        LdapUtils.storeNotDef(attrs, "dcmHideNotRejectedInstances", qrView.isHideNotRejectedInstances(), false);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmShowInstancesRejectedByCode", qrView.getShowInstancesRejectedByCodes());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHideRejectionNoteWithCode", qrView.getHideRejectionNotesWithCodes());
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmHideNotRejectedInstances", qrView.isHideNotRejectedInstances(), false);
         return attrs;
     }
 
@@ -2153,69 +2366,82 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void mergeQueryRetrieveViews(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
+    private void mergeQueryRetrieveViews(ConfigurationChanges diffs, ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
             throws NamingException {
         for (QueryRetrieveView entry : prev.getQueryRetrieveViews()) {
             String viewID = entry.getViewID();
-            if (arcDev.getQueryRetrieveView(viewID) == null)
-                config.destroySubcontext( LdapUtils.dnOf("dcmQueryRetrieveViewID", viewID, deviceDN));
+            if (arcDev.getQueryRetrieveView(viewID) == null) {
+                String dn = LdapUtils.dnOf("dcmQueryRetrieveViewID", viewID, deviceDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (QueryRetrieveView entryNew : arcDev.getQueryRetrieveViews()) {
             String viewID = entryNew.getViewID();
             String dn = LdapUtils.dnOf("dcmQueryRetrieveViewID", viewID, deviceDN);
             QueryRetrieveView entryOld = prev.getQueryRetrieveView(viewID);
             if (entryOld == null) {
-                config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
+                config.createSubcontext(dn, storeTo(ldapObj, entryNew, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
             } else{
-                config.modifyAttributes(dn, storeDiffs(entryOld, entryNew, new ArrayList<ModificationItem>()));
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
+                config.modifyAttributes(dn, storeDiffs(ldapObj, entryOld, entryNew, new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
             }
         }
     }
 
     private List<ModificationItem> storeDiffs(
-            QueryRetrieveView prev, QueryRetrieveView view, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiff(mods, "dcmShowInstancesRejectedByCode",
+            ConfigurationChanges.ModifiedObject ldapObj, QueryRetrieveView prev, QueryRetrieveView view, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(ldapObj, mods, "dcmShowInstancesRejectedByCode",
                 prev.getShowInstancesRejectedByCodes(),
                 view.getShowInstancesRejectedByCodes());
-        LdapUtils.storeDiff(mods, "dcmHideRejectionNoteWithCode",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmHideRejectionNoteWithCode",
                 prev.getHideRejectionNotesWithCodes(),
                 view.getHideRejectionNotesWithCodes());
-        LdapUtils.storeDiff(mods, "dcmHideNotRejectedInstances",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmHideNotRejectedInstances",
                 prev.isHideNotRejectedInstances(),
                 view.isHideNotRejectedInstances(),
                 false);
         return mods;
     }
 
-    private void storeAttributeCoercions(Collection<ArchiveAttributeCoercion> coercions, String parentDN)
+    private void storeAttributeCoercions(ConfigurationChanges.ModifiedObject ldapObj, Collection<ArchiveAttributeCoercion> coercions, String parentDN)
             throws NamingException {
         for (ArchiveAttributeCoercion coercion : coercions) {
             String cn = coercion.getCommonName();
             config.createSubcontext(
                     LdapUtils.dnOf("cn", cn, parentDN),
-                    storeTo(coercion, new BasicAttributes(true)));
+                    storeTo(ldapObj, coercion, new BasicAttributes(true)));
         }
     }
 
-    private Attributes storeTo(ArchiveAttributeCoercion coercion, BasicAttributes attrs) {
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, ArchiveAttributeCoercion coercion, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmArchiveAttributeCoercion");
         attrs.put("cn", coercion.getCommonName());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmDIMSE", coercion.getDIMSE(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dicomTransferRole", coercion.getRole(), null);
-        LdapUtils.storeNotEmpty(attrs, "dcmHostname", coercion.getHostNames());
-        LdapUtils.storeNotEmpty(attrs, "dcmAETitle", coercion.getAETitles());
-        LdapUtils.storeNotEmpty(attrs, "dcmSOPClass", coercion.getSOPClasses());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmURI", coercion.getXSLTStylesheetURI(), null);
-        LdapUtils.storeNotDef(attrs, "dcmNoKeywords", coercion.isNoKeywords(), false);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmLeadingCFindSCP", coercion.getLeadingCFindSCP(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmMergeMWLTemplateURI",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDIMSE", coercion.getDIMSE(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomTransferRole", coercion.getRole(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmHostname", coercion.getHostNames());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAETitle", coercion.getAETitles());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSOPClass", coercion.getSOPClasses());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", coercion.getXSLTStylesheetURI(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoKeywords", coercion.isNoKeywords(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLeadingCFindSCP", coercion.getLeadingCFindSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLTemplateURI",
                 coercion.getMergeMWLTemplateURI(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmMergeMWLMatchingKey",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMergeMWLMatchingKey",
                 coercion.getMergeMWLMatchingKey(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAttributeUpdatePolicy",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAttributeUpdatePolicy",
                 coercion.getAttributeUpdatePolicy(), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
-        LdapUtils.storeNotDef(attrs, "dcmRulePriority", coercion.getPriority(), 0);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmSupplementFromDeviceReference",
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", coercion.getPriority(), 0);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSupplementFromDeviceReference",
                supplementDeviceRef(coercion), null);
         return attrs;
     }
@@ -2270,27 +2496,27 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private List<ModificationItem> storeDiffs(
-            ArchiveAttributeCoercion prev, ArchiveAttributeCoercion coercion, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(mods, "dcmDIMSE", prev.getDIMSE(), coercion.getDIMSE(), null);
-        LdapUtils.storeDiffObject(mods, "dicomTransferRole", prev.getRole(), coercion.getRole(), null);
-        LdapUtils.storeDiff(mods, "dcmHostname", prev.getHostNames(), coercion.getHostNames());
-        LdapUtils.storeDiff(mods, "dcmAETitle", prev.getAETitles(), coercion.getAETitles());
-        LdapUtils.storeDiff(mods, "dcmSOPClass", prev.getSOPClasses(), coercion.getSOPClasses());
-        LdapUtils.storeDiffObject(mods, "dcmURI", prev.getXSLTStylesheetURI(), coercion.getXSLTStylesheetURI(), null);
-        LdapUtils.storeDiff(mods, "dcmNoKeywords", prev.isNoKeywords(), coercion.isNoKeywords(), false);
-        LdapUtils.storeDiffObject(mods, "dcmLeadingCFindSCP", prev.getLeadingCFindSCP(), coercion.getLeadingCFindSCP(), null);
-        LdapUtils.storeDiffObject(mods, "dcmMergeMWLTemplateURI",
+            ConfigurationChanges.ModifiedObject ldapObj, ArchiveAttributeCoercion prev, ArchiveAttributeCoercion coercion, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDIMSE", prev.getDIMSE(), coercion.getDIMSE(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomTransferRole", prev.getRole(), coercion.getRole(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmHostname", prev.getHostNames(), coercion.getHostNames());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAETitle", prev.getAETitles(), coercion.getAETitles());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmSOPClass", prev.getSOPClasses(), coercion.getSOPClasses());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getXSLTStylesheetURI(), coercion.getXSLTStylesheetURI(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmNoKeywords", prev.isNoKeywords(), coercion.isNoKeywords(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmLeadingCFindSCP", prev.getLeadingCFindSCP(), coercion.getLeadingCFindSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMergeMWLTemplateURI",
                 prev.getMergeMWLTemplateURI(),
                 coercion.getMergeMWLTemplateURI(), null);
-        LdapUtils.storeDiffObject(mods, "dcmMergeMWLMatchingKey",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMergeMWLMatchingKey",
                 prev.getMergeMWLMatchingKey(),
                 coercion.getMergeMWLMatchingKey(), null);
-        LdapUtils.storeDiffObject(mods, "dcmAttributeUpdatePolicy",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAttributeUpdatePolicy",
                 prev.getAttributeUpdatePolicy(),
                 coercion.getAttributeUpdatePolicy(),
                 org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
-        LdapUtils.storeDiff(mods, "dcmRulePriority", prev.getPriority(), coercion.getPriority(), 0);
-        LdapUtils.storeDiffObject(mods, "dcmSupplementFromDeviceReference",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), coercion.getPriority(), 0);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmSupplementFromDeviceReference",
                 supplementDeviceRef(prev),
                 supplementDeviceRef(coercion), null);
         return mods;
@@ -2304,41 +2530,41 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         return null;
     }
 
-    private void storeRejectNotes(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
+    private void storeRejectNotes(ConfigurationChanges.ModifiedObject ldapObj, String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
         for (RejectionNote rejectionNote : arcDev.getRejectionNotes()) {
             String id = rejectionNote.getRejectionNoteLabel();
             config.createSubcontext(
                     LdapUtils.dnOf("dcmRejectionNoteLabel", id, deviceDN),
-                    storeTo(rejectionNote, new BasicAttributes(true)));
+                    storeTo(ldapObj, rejectionNote, new BasicAttributes(true)));
         }
     }
 
-    private void storeIDGenerators(String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
+    private void storeIDGenerators(ConfigurationChanges.ModifiedObject ldapObj, String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
         for (IDGenerator generator : arcDev.getIDGenerators().values()) {
             config.createSubcontext(
                     LdapUtils.dnOf("dcmIDGeneratorName", generator.getName().name(), deviceDN),
-                    storeTo(generator, new BasicAttributes(true)));
+                    storeTo(ldapObj, generator, new BasicAttributes(true)));
         }
     }
 
-    private Attributes storeTo(RejectionNote rjNote, BasicAttributes attrs) {
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, RejectionNote rjNote, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmRejectionNote");
         attrs.put("dcmRejectionNoteLabel", rjNote.getRejectionNoteLabel());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmRejectionNoteType", rjNote.getRejectionNoteType(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmRejectionNoteCode", rjNote.getRejectionNoteCode(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmAcceptPreviousRejectedInstance",
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectionNoteType", rjNote.getRejectionNoteType(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectionNoteCode", rjNote.getRejectionNoteCode(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptPreviousRejectedInstance",
                 rjNote.getAcceptPreviousRejectedInstance(), RejectionNote.AcceptPreviousRejectedInstance.REJECT);
-        LdapUtils.storeNotEmpty(attrs, "dcmOverwritePreviousRejection", rjNote.getOverwritePreviousRejection());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmDeleteRejectedInstanceDelay", rjNote.getDeleteRejectedInstanceDelay(), null);
-        LdapUtils.storeNotNullOrDef(attrs, "dcmDeleteRejectionNoteDelay", rjNote.getDeleteRejectionNoteDelay(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmOverwritePreviousRejection", rjNote.getOverwritePreviousRejection());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteRejectedInstanceDelay", rjNote.getDeleteRejectedInstanceDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDeleteRejectionNoteDelay", rjNote.getDeleteRejectionNoteDelay(), null);
         return attrs;
     }
 
-    private Attributes storeTo(IDGenerator generator, BasicAttributes attrs) {
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, IDGenerator generator, BasicAttributes attrs) {
         attrs.put("objectClass", "dcmIDGenerator");
         attrs.put("dcmIDGeneratorName", generator.getName().name());
-        LdapUtils.storeNotNullOrDef(attrs, "dcmIDGeneratorFormat", generator.getFormat(), null);
-        LdapUtils.storeNotDef(attrs, "dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmIDGeneratorFormat", generator.getFormat(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmIDGeneratorInitialValue", generator.getInitialValue(), 1);
         return attrs;
     }
 
@@ -2386,68 +2612,94 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void mergeRejectNotes(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
+    private void mergeRejectNotes(ConfigurationChanges diffs, ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
             throws NamingException {
         for (RejectionNote entry : prev.getRejectionNotes()) {
             String rjNoteID = entry.getRejectionNoteLabel();
-            if (arcDev.getRejectionNote(rjNoteID) == null)
-                config.destroySubcontext(LdapUtils.dnOf("dcmRejectionNoteLabel", rjNoteID, deviceDN));
+            if (arcDev.getRejectionNote(rjNoteID) == null) {
+                String dn = LdapUtils.dnOf("dcmRejectionNoteLabel", rjNoteID, deviceDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (RejectionNote entryNew : arcDev.getRejectionNotes()) {
             String rjNoteID = entryNew.getRejectionNoteLabel();
             String dn = LdapUtils.dnOf("dcmRejectionNoteLabel", rjNoteID, deviceDN);
             RejectionNote entryOld = prev.getRejectionNote(rjNoteID);
             if (entryOld == null) {
-                config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
+                config.createSubcontext(dn, storeTo(ldapObj, entryNew, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
             } else{
-                config.modifyAttributes(dn, storeDiffs(entryOld, entryNew, new ArrayList<ModificationItem>()));
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
+                config.modifyAttributes(dn, storeDiffs(ldapObj, entryOld, entryNew, new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
             }
         }
     }
 
-    private void mergeIDGenerators(ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
+    private void mergeIDGenerators(ConfigurationChanges diffs, ArchiveDeviceExtension prev, ArchiveDeviceExtension arcDev, String deviceDN)
             throws NamingException {
         for (IDGenerator.Name name : prev.getIDGenerators().keySet()) {
-            if (!arcDev.getIDGenerators().containsKey(name))
-                            config.destroySubcontext(LdapUtils.dnOf("dcmIDGeneratorName", name.name(), deviceDN));
+            if (!arcDev.getIDGenerators().containsKey(name)) {
+                String dn = LdapUtils.dnOf("dcmIDGeneratorName", name.name(), deviceDN);
+                config.destroySubcontext(dn);
+                if (diffs != null)
+                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.D));
+            }
         }
         for (IDGenerator entryNew : arcDev.getIDGenerators().values()) {
             IDGenerator.Name name = entryNew.getName();
             String dn = LdapUtils.dnOf("dcmIDGeneratorName", name.name(), deviceDN);
             IDGenerator entryOld = prev.getIDGenerators().get(name);
             if (entryOld == null) {
-                config.createSubcontext(dn, storeTo(entryNew, new BasicAttributes(true)));
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
+                        : null;
+                config.createSubcontext(dn, storeTo(ldapObj, entryNew, new BasicAttributes(true)));
+                if (diffs != null)
+                    diffs.add(ldapObj);
             } else{
-                config.modifyAttributes(dn, storeDiffs(entryOld, entryNew, new ArrayList<ModificationItem>()));
+                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
+                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
+                        : null;
+                config.modifyAttributes(dn, storeDiffs(ldapObj, entryOld, entryNew, new ArrayList<ModificationItem>()));
+                if (diffs != null) diffs.add(ldapObj);
             }
         }
     }
 
-    private List<ModificationItem> storeDiffs(RejectionNote prev, RejectionNote rjNote,
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, RejectionNote prev, RejectionNote rjNote,
                                               ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(mods, "dcmRejectionNoteType", prev.getRejectionNoteType(), rjNote.getRejectionNoteType(), null);
-        LdapUtils.storeDiffObject(mods, "dcmRejectionNoteCode", prev.getRejectionNoteCode(), rjNote.getRejectionNoteCode(), null);
-        LdapUtils.storeDiffObject(mods, "dcmAcceptPreviousRejectedInstance",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRejectionNoteType", prev.getRejectionNoteType(), rjNote.getRejectionNoteType(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRejectionNoteCode", prev.getRejectionNoteCode(), rjNote.getRejectionNoteCode(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptPreviousRejectedInstance",
                 prev.getAcceptPreviousRejectedInstance(),
                 rjNote.getAcceptPreviousRejectedInstance(),
                 RejectionNote.AcceptPreviousRejectedInstance.REJECT);
-        LdapUtils.storeDiff(mods, "dcmOverwritePreviousRejection",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmOverwritePreviousRejection",
                 prev.getOverwritePreviousRejection(),
                 rjNote.getOverwritePreviousRejection());
-        LdapUtils.storeDiffObject(mods, "dcmDeleteRejectedInstanceDelay",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleteRejectedInstanceDelay",
                 prev.getDeleteRejectedInstanceDelay(),
                 rjNote.getDeleteRejectedInstanceDelay(), null);
-        LdapUtils.storeDiffObject(mods, "dcmDeleteRejectionNoteDelay",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDeleteRejectionNoteDelay",
                 prev.getDeleteRejectionNoteDelay(),
                 rjNote.getDeleteRejectionNoteDelay(), null);
         return mods;
     }
 
-    private List<ModificationItem> storeDiffs(IDGenerator prev, IDGenerator generator,
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, IDGenerator prev, IDGenerator generator,
                                               ArrayList<ModificationItem> mods) {
 //        LdapUtils.storeDiffObject(mods, "dcmIDGeneratorName", prev.getId(), generator.getId());
-        LdapUtils.storeDiffObject(mods, "dcmIDGeneratorFormat", prev.getFormat(), generator.getFormat(), null);
-        LdapUtils.storeDiff(mods, "dcmIDGeneratorInitialValue", prev.getInitialValue(), generator.getInitialValue(), 1);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmIDGeneratorFormat", prev.getFormat(), generator.getFormat(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIDGeneratorInitialValue", prev.getInitialValue(), generator.getInitialValue(), 1);
         return mods;
     }
 
