@@ -1,0 +1,43 @@
+/*.attribute_info{
+    position: absolute;
+    left: 0;
+    top: 1px;
+    color: #777;
+    font-style: italic;
+    width: 100%;
+    background: white;
+    padding-left: 7px;
+    height: 30px;
+    vertical-align: middle;
+    padding-top: 4px;
+    border: 1px solid #ccc;
+    z-index: 1;
+}
+input{
+    border: 1px solid #ccc;
+    float: left;
+    height: 30px;
+    padding-left: 7px;
+    width: 100%;
+    transition: 0.2s all;
+    color: transparent;
+    z-index: 2;
+    position: relative;
+    background: transparent;
+}
+.delete{
+    z-index: 4;
+}*/
+.attribute_info{
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 3px 10px;
+    font-size: 12px;
+    position: absolute;
+    /*width: 147px;*/
+    left: 0;
+    bottom: 33px;
+    -webkit-box-shadow: 2px 4px 4px #ccc;
+    -moz-box-shadow: 2px 4px 4px #ccc;
+    box-shadow: 2px 4px 4px #ccc;
+}
