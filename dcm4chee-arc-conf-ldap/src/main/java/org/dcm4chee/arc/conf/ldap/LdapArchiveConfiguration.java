@@ -1042,7 +1042,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAttributeSetTitle", attributeSet.getTitle(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomDescription", attributeSet.getDescription(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmAttributeSetNumber", attributeSet.getNumber(), 0);
-        LdapUtils.storeNotEmpty(attrs, "dcmProperty", toStrings(attributeSet.getProperties()));
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(attributeSet.getProperties()));
         LdapUtils.storeNotDef(ldapObj, attrs, "dicomInstalled", attributeSet.isInstalled(), true);
         storeNotEmptyTags(ldapObj, attrs, "dcmTag", attributeSet.getSelection());
         return attrs;

@@ -292,26 +292,7 @@ public class AuditService {
                                 .callingHost(request.getRemoteAddr())
                                 .calledUserID(softwareConfiguration.getDeviceName())
                                 .build();
-
-        boolean auditAggregate = getArchiveDevice().isAuditAggregate();
-        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
-        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
-            if (auditLogger.isInstalled()) {
-                Path dir = toDirPath(auditLogger);
-                try {
-                    Files.createDirectories(dir);
-                    Path file = Files.createTempFile(dir, String.valueOf(AuditServiceUtils.EventType.LDAP_CHNGS), null);
-                    try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                            StandardOpenOption.APPEND))) {
-                        writer.writeLine(new AuditInfo(info), softwareConfiguration.getLdapDiff().toString());
-                    }
-                    if (!auditAggregate)
-                        auditAndProcessFile(auditLogger, file);
-                } catch (Exception e) {
-                    LOG.warn("Failed to write to Audit Spool File - {} ", auditLogger.getCommonName(), e);
-                }
-            }
-        }
+        writeSpoolFile(AuditServiceUtils.EventType.LDAP_CHNGS, info, softwareConfiguration.getLdapDiff().toString());
     }
 
     private void auditSoftwareConfiguration(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
@@ -1480,6 +1461,28 @@ public class AuditService {
         return Paths.get(
                 StringUtils.replaceSystemProperties(getArchiveDevice().getAuditSpoolDirectory()),
                 auditLogger.getCommonName().replaceAll(" ", "_"));
+    }
+
+    private void writeSpoolFile(AuditServiceUtils.EventType eventType, AuditInfoBuilder auditInfoBuilder, String data) {
+        boolean auditAggregate = getArchiveDevice().isAuditAggregate();
+        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
+        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
+            if (auditLogger.isInstalled()) {
+                Path dir = toDirPath(auditLogger);
+                try {
+                    Files.createDirectories(dir);
+                    Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
+                    try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
+                            StandardOpenOption.APPEND))) {
+                        writer.writeLine(new AuditInfo(auditInfoBuilder), data);
+                    }
+                    if (!auditAggregate)
+                        auditAndProcessFile(auditLogger, file);
+                } catch (Exception e) {
+                    LOG.warn("Failed to write to Audit Spool File - {} ", auditLogger.getCommonName(), e);
+                }
+            }
+        }
     }
 
     private void writeSpoolFile(AuditServiceUtils.EventType eventType, AuditInfoBuilder... auditInfoBuilders) {
