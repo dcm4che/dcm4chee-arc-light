@@ -300,12 +300,6 @@ public class AuditService {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
 
-        List<String> ldapDiffs = reader.getInstanceLines();
-        StringBuilder sb = new StringBuilder();
-        sb.append(ldapDiffs.get(0));
-        for (int i = 1; i < ldapDiffs.size(); i++)
-            sb.append('\n').append(ldapDiffs.get(i));
-
         EventIdentificationBuilder ei = toBuildEventIdentification(eventType, null, getEventTime(path, auditLogger));
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[1];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
@@ -318,7 +312,7 @@ public class AuditService {
                                                     AuditInfo.CALLED_USERID),
                                                     AuditMessages.ParticipantObjectIDTypeCode.DeviceName,
                                                     AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                                                    null).detail(getPod("Alert Description", sb.toString()))
+                                                    null).detail(getPod("Alert Description", getData(reader)))
                                                     .build();
         emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poiLDAPDiff);
     }
@@ -1406,6 +1400,15 @@ public class AuditService {
 
     private String getLocalHostName(AuditLogger log) {
         return log.getConnections().get(0).getHostname();
+    }
+
+    private String getData(SpoolFileReader reader) {
+        List<String> ldapDiffs = reader.getInstanceLines();
+        StringBuilder sb = new StringBuilder();
+        sb.append(ldapDiffs.get(0));
+        for (int i = 1; i < ldapDiffs.size(); i++)
+            sb.append('\n').append(ldapDiffs.get(i));
+        return sb.toString();
     }
 
     private void writeSpoolFile(AuditServiceUtils.EventType eventType, LinkedHashSet<Object> obj) {
