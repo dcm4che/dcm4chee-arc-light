@@ -313,6 +313,9 @@ export class DynamicFormElementComponent{
         this.dialogRef.componentInstance.toCloneElement = formelement;
         this.dialogRef.afterClosed().subscribe((selected) => {
             if (selected){
+                if(formelement.key === "dicomNetworkAE"){
+
+                }
                 let cloneUrl = formelement.addUrl + '/' + selected.currentElementUrl;
                 $this.router.navigateByUrl(cloneUrl);
             }
