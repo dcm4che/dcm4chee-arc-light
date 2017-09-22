@@ -947,7 +947,7 @@ public class AuditService {
         UnparsedHL7Message hl7msg = ctx.getUnparsedHL7Message();
         String[] sourceDest = sourceDest(ctx);
         String callingHost = ctx.getRemoteHostName();
-        AuditInfoBuilder i = new AuditInfoBuilder.Builder()
+        AuditInfoBuilder auditInfoBuilder = new AuditInfoBuilder.Builder()
                             .callingHost(callingHost)
                             .callingUserID(sourceDest[0])
                             .calledUserID(sourceDest[1])
@@ -955,12 +955,13 @@ public class AuditService {
                             .outcome(getOD(ctx.getException()))
                             .build();
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forHL7(ctx);
-        if (hl7msg != null) {
-            writeHL7Audit(eventType, hl7msg, i);
-        } else
-            writeSpoolFile(eventType, i);
+        String data = hl7msg != null ? new String(hl7msg.data()) : null;
+        if (data != null)
+            writeSpoolFile(eventType, auditInfoBuilder, data);
+        else
+            writeSpoolFile(eventType, auditInfoBuilder);
         if (ctx.getPreviousAttributes() != null) {
-            AuditInfoBuilder prev = new AuditInfoBuilder.Builder()
+            AuditInfoBuilder prevAuditInfoBuilder = new AuditInfoBuilder.Builder()
                                     .callingHost(callingHost)
                                     .callingUserID(sourceDest[0])
                                     .calledUserID(sourceDest[1])
@@ -968,32 +969,10 @@ public class AuditService {
                                     .outcome(getOD(ctx.getException()))
                                     .build();
             AuditServiceUtils.EventType prevEventType = AuditServiceUtils.EventType.PAT_DELETE;
-            if (hl7msg != null) {
-                writeHL7Audit(prevEventType, hl7msg, prev);
-            } else
-                writeSpoolFile(prevEventType, prev);
-        }
-    }
-
-    private void writeHL7Audit(AuditServiceUtils.EventType eventType, UnparsedHL7Message hl7msg, AuditInfoBuilder i) {
-        boolean auditAggregate = getArchiveDevice().isAuditAggregate();
-        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
-        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
-            if (auditLogger.isInstalled()) {
-                Path dir = toDirPath(auditLogger);
-                try {
-                    Files.createDirectories(dir);
-                    Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
-                    try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
-                            StandardOpenOption.APPEND))) {
-                        writer.writeLine(new AuditInfo(i), hl7msg.data());
-                    }
-                    if (!auditAggregate)
-                        auditAndProcessFile(auditLogger, file);
-                } catch (Exception e) {
-                    LOG.warn("Failed to write to Audit Spool File - {} ", auditLogger.getCommonName(), e);
-                }
-            }
+            if (data != null)
+                writeSpoolFile(prevEventType, prevAuditInfoBuilder, data);
+            else
+                writeSpoolFile(prevEventType, prevAuditInfoBuilder);
         }
     }
 

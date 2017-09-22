@@ -40,8 +40,6 @@
 
 package org.dcm4chee.arc.audit;
 
-import org.dcm4che3.net.hl7.UnparsedHL7Message;
-
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.IOException;
@@ -66,11 +64,6 @@ class SpoolFileWriter implements Closeable {
     void writeLine(AuditInfo auditInfo, String data) throws IOException {
         writeLine(auditInfo);
         writer.write(data);
-    }
-
-    void writeLine(AuditInfo auditInfo, byte[] data) throws IOException {
-        writeLine(auditInfo);
-        writer.write(new String(data));
     }
 
     @Override
