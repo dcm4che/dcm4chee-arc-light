@@ -994,12 +994,6 @@ public class AuditService {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
 
-        List<String> hl7msg = reader.getInstanceLines();
-        StringBuilder sb = new StringBuilder();
-        sb.append(hl7msg.get(0));
-        for (int i = 1; i < hl7msg.size(); i++)
-            sb.append('\n').append(hl7msg.get(i));
-
         EventIdentificationBuilder ei = toBuildEventIdentification(et, auditInfo.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
         ActiveParticipantBuilder[] activeParticipantBuilder = buildPatientRecordActiveParticipants(auditLogger, et, auditInfo);
 
@@ -1009,7 +1003,7 @@ public class AuditService {
                                                                 AuditMessages.ParticipantObjectTypeCode.Person,
                                                                 AuditMessages.ParticipantObjectTypeCodeRole.Patient)
                                                                 .name(auditInfo.getField(AuditInfo.P_NAME))
-                                                                .detail(getPod("HL7v2", sb.toString()))
+                                                                .detail(getPod("HL7v2", getData(reader)))
                                                                 .build();
 
         emitAuditMessage(auditLogger, ei, activeParticipantBuilder, patientPOI);
