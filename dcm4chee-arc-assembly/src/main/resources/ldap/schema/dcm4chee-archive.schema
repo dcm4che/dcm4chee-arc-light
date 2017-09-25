@@ -1109,6 +1109,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.186 NAME 'dcmLinkMWLEntryUpdatePolicy'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.187 NAME 'dcmAuditSoftwareConfigurationVerbose'
+  DESC 'Specifies if Child Objects and Attributes of created Objects should be included in Software Configuration Audit Message. Disabled if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY

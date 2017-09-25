@@ -174,6 +174,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
     private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private boolean hl7TrackChangedPatientID = true;
+    private boolean auditSoftwareConfigurationVerbose = false;
     private String invokeImageDisplayPatientURL;
     private String invokeImageDisplayStudyURL;
     private String[] hl7ADTReceivingApplication = {};
@@ -1533,6 +1534,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7TrackChangedPatientID = hl7TrackChangedPatientID;
     }
 
+    public boolean isAuditSoftwareConfigurationVerbose() {
+        return auditSoftwareConfigurationVerbose;
+    }
+
+    public void setAuditSoftwareConfigurationVerbose(boolean auditSoftwareConfigurationVerbose) {
+        this.auditSoftwareConfigurationVerbose = auditSoftwareConfigurationVerbose;
+    }
+
     public String getInvokeImageDisplayPatientURL() {
         return invokeImageDisplayPatientURL;
     }
@@ -1726,6 +1735,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7ScheduledStationAETInOrder = arcdev.hl7ScheduledStationAETInOrder;
         auditUnknownStudyInstanceUID = arcdev.auditUnknownStudyInstanceUID;
         auditUnknownPatientID = arcdev.auditUnknownPatientID;
+        auditSoftwareConfigurationVerbose = arcdev.auditSoftwareConfigurationVerbose;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();
