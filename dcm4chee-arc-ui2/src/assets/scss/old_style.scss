@@ -922,11 +922,19 @@ table{
       vertical-align: middle;
       padding: 3px 0;
       color: #dddddd;
+      &:focus,&:active{
+        border:none;
+        outline: none;
+      }
       &.disabled{
         color:#a7a7a7;
       }
       i{
         font-size:19px;
+        &:focus,&:active{
+          border:none;
+          outline: none;
+        }
       }
       &:hover{
         font-weight:bold;
@@ -937,6 +945,10 @@ table{
       border: 1px solid white;
       display: inline-block;
       margin-top: 2px;
+    }
+    .activate_checkboxes:focus,.activate_checkboxes:active{
+      border:none;
+      outline: none;
     }
 /*    .activate_checkboxes{
     }

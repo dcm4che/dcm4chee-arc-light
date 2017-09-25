@@ -24,6 +24,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     params = [];
     recentParams;
     inClone;
+    pressedKey = [];
     submitValue;
     constructor(
         private route: ActivatedRoute,
@@ -412,6 +413,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             }
             this.router.navigateByUrl(breadcrumb.url);
         }
+
+
         ngOnDestroy(){
 
 
