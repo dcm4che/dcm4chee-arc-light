@@ -221,6 +221,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getAuditUnknownStudyInstanceUID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditUnknownPatientID",
                 ext.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmAuditSoftwareConfigurationVerbose", ext.isAuditSoftwareConfigurationVerbose(), false);
     }
 
     @Override
@@ -368,6 +369,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmAuditUnknownStudyInstanceUID"), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID));
         ext.setAuditUnknownPatientID(LdapUtils.stringValue(
                 attrs.get("dcmAuditUnknownPatientID"), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID));
+        ext.setAuditSoftwareConfigurationVerbose(LdapUtils.booleanValue(attrs.get("dcmAuditSoftwareConfigurationVerbose"), false));
     }
 
     @Override
@@ -619,6 +621,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAuditUnknownPatientID",
                 aa.getAuditUnknownPatientID(), bb.getAuditUnknownPatientID(),
                 ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAuditSoftwareConfigurationVerbose",
+                aa.isAuditSoftwareConfigurationVerbose(), bb.isAuditSoftwareConfigurationVerbose(), false);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
