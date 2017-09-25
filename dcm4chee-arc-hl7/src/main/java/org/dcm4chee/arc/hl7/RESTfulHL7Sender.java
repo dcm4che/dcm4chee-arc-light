@@ -109,6 +109,7 @@ public class RESTfulHL7Sender {
                         tr.setParameter("dateTime", HL7Segment.timeStamp(new Date()));
                         tr.setParameter("msgType", msgType);
                         tr.setParameter("msgControlID", msgControlID);
+                        tr.setParameter("charset", hl7cs);
                     }
                 });
 

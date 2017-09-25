@@ -5,7 +5,6 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.HL7Charset;
 import org.dcm4che3.hl7.HL7ContentHandler;
-import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Parser;
 import org.dcm4che3.io.ContentHandlerAdapter;
 import org.dcm4che3.io.SAXTransformer.SetupTransformer;
@@ -55,7 +54,7 @@ class SAXTransformer {
 
         Templates tpl = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(uri));
         TransformerHandler th = factory.newTransformerHandler(tpl);
-        th.setResult(new SAXResult(new HL7ContentHandler(new OutputStreamWriter(out, "US-ASCII"))));
+        th.setResult(new SAXResult(new HL7ContentHandler(new OutputStreamWriter(out, hl7charset))));
         if (setup != null)
             setup.setup(th.getTransformer());
 

@@ -9,6 +9,7 @@
     <xsl:param name="dateTime" />
     <xsl:param name="msgType" />
     <xsl:param name="msgControlID" />
+    <xsl:param name="charset" />
     <xsl:param name="modifiedAttrSq" />
 
     <xsl:template match="/NativeDicomModel">
@@ -45,6 +46,12 @@
             </field>
             <field>P</field>
             <field>2.5.1</field>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field/>
+            <field><xsl:value-of select="$charset"/></field>
         </MSH>
     </xsl:template>
 
