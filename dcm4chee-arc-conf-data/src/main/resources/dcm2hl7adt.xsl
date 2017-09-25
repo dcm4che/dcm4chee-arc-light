@@ -10,7 +10,7 @@
     <xsl:param name="msgType" />
     <xsl:param name="msgControlID" />
     <xsl:param name="charset" />
-    <xsl:param name="modifiedAttrSq" />
+    <xsl:param name="priorPatientID" />
 
     <xsl:template match="/NativeDicomModel">
         <hl7>
@@ -139,10 +139,10 @@
     </xsl:template>
 
     <xsl:template name="MRG">
-        <xsl:if test="$modifiedAttrSq">
+        <xsl:if test="$priorPatientID">
             <MRG>
                 <field>
-                    <xsl:value-of select="$modifiedAttrSq/Item[1]/DicomAttribute[@tag='00100020']/Value"/>
+                    <xsl:value-of select="$priorPatientID"/>
                 </field>
                 <field/>
                 <field/>

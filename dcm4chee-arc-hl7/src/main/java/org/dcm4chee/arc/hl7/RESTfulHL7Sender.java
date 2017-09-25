@@ -95,7 +95,7 @@ public class RESTfulHL7Sender {
         String[] receivingAppWithFacility = appWithFacility(receiver);
 
         HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
-        String hl7cs = hl7Dev.getHL7Application(sender, true).getHL7SendingCharacterSet();
+        String hl7cs = hl7Dev.getHL7Application(sender, true).getHl7SendingCharacterSet();
 
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         byte[] hl7msg = SAXTransformer.transform(
@@ -110,6 +110,7 @@ public class RESTfulHL7Sender {
                         tr.setParameter("msgType", msgType);
                         tr.setParameter("msgControlID", msgControlID);
                         tr.setParameter("charset", hl7cs);
+                        tr.setParameter("priorPatientID", ctx.getPreviousPatientID().toString());
                     }
                 });
 
