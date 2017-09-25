@@ -1422,7 +1422,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private static void storeDiffProperties(ConfigurationChanges.ModifiedObject ldapObj, List<ModificationItem> mods, Map<String, ?> prevs, Map<String, ?> props) {
-        if (!prevs.equals(props)) {
+        if (!equalsProperties(prevs, props)) {
             mods.add(props.size() == 0
                     ? new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                         new BasicAttribute("dcmProperty"))
@@ -1437,6 +1437,24 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ldapObj.add(attribute);
             }
         }
+    }
+
+    private static boolean equalsProperties(Map<String, ?> prevs, Map<String, ?> props) {
+        if (prevs == props)
+            return true;
+
+        if (prevs.size() != props.size())
+            return false;
+
+        for (Map.Entry<String, ?> prop : props.entrySet()) {
+            Object value = prop.getValue();
+            Object prevValue = prevs.get(prop.getKey());
+            if (!(value == null
+                    ? prevValue == null && prevs.containsKey(prop.getKey())
+                    : prevValue != null && prevValue.toString().equals(value.toString())))
+                return false;
+        }
+        return true;
     }
 
     private void storeQueueDescriptors(ConfigurationChanges diffs, String deviceDN, ArchiveDeviceExtension arcDev) throws NamingException {
