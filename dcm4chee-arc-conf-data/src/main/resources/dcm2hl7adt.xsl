@@ -142,14 +142,7 @@
         <xsl:if test="$priorPatientID">
             <MRG>
                 <field>
-                    <xsl:value-of select="$priorPatientID"/>
-                </field>
-                <field/>
-                <field/>
-                <field/>
-                <field/>
-                <field/>
-                <field>
+                    <xsl:call-template name="priorIDWithIssuer" />
                 </field>
             </MRG>
         </xsl:if>
@@ -223,6 +216,44 @@
                 </xsl:choose>
             </component>
         </xsl:if>
+    </xsl:template>
+
+    <xsl:template name="priorIDWithIssuer">
+        <xsl:variable name="id">
+            <xsl:call-template name="decodePriorPatientID">
+                <xsl:with-param name="val" select="$priorPatientID" />
+                <xsl:with-param name="delimiter" select="'^'" />
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="issuer" select="substring-after(substring-after(substring-after($priorPatientID, '^'), '^'), '^')" />
+        <xsl:variable name="issuerOfPIDSq" select="substring-after($issuer, '&amp;')" />
+        <xsl:value-of select="$id"/>
+        <component/><component/>
+        <component>
+            <xsl:call-template name="decodePriorPatientID">
+                <xsl:with-param name="val" select="$issuer" />
+                <xsl:with-param name="delimiter" select="'&amp;'" />
+            </xsl:call-template>
+            <subcomponent>
+                <xsl:value-of select="substring-before($issuerOfPIDSq, '&amp;')" />
+            </subcomponent>
+            <subcomponent>
+                <xsl:value-of select="substring-after($issuerOfPIDSq, '&amp;')" />
+            </subcomponent>
+        </component>
+    </xsl:template>
+
+    <xsl:template name="decodePriorPatientID">
+        <xsl:param name="val" />
+        <xsl:param name="delimiter" />
+        <xsl:choose>
+            <xsl:when test="contains($val, $delimiter)">
+                <xsl:value-of select="substring-before($val, $delimiter)" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$val" />
+            </xsl:otherwise>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template name="ce2codeItemWithDesc">
