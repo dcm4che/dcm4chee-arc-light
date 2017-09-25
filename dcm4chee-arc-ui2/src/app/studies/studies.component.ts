@@ -264,11 +264,6 @@ export class StudiesComponent implements OnDestroy{
         public config: MdDialogConfig,
         public httpErrorHandler:HttpErrorHandler
     ) {
-        // $('.clockpicker').clockpicker()
-        //     .find('input').change(function(){
-        //     // TODO: time changed
-        //     console.log(this.value);
-        // });
         this.showFilterWarning = true;
         console.log('getglobal', this.mainservice.global);
         let $this = this;
@@ -305,7 +300,6 @@ export class StudiesComponent implements OnDestroy{
         // }
         this.cfpLoadingBar.interval = 200;
         this.modalities = Globalvar.MODALITIES;
-        console.log('modalities', this.modalities);
         this.initAETs(2);
         this.getAllAes(2);
         this.initAttributeFilter('Patient', 1);
@@ -336,7 +330,6 @@ export class StudiesComponent implements OnDestroy{
                     },
                     (response) => {
                         // $this.user = $this.user || {};
-                        console.log('get user error');
                         $this.user.user = 'user';
                         $this.mainservice.user.user = 'user';
                         $this.user.roles = ['user', 'admin'];
@@ -358,7 +351,6 @@ export class StudiesComponent implements OnDestroy{
         }
         this.hoverdic.forEach((m, i) => {
             $(document.body).on('mouseover mouseleave', m, function(e){
-
                 if (e.type === 'mouseover' && $this.visibleHeaderIndex != i){
                     $($this).addClass('hover');
                     $(m).addClass('hover');
@@ -373,12 +365,8 @@ export class StudiesComponent implements OnDestroy{
                 }
             });
         });
-
-        console.log('thisrole=', this.isRole);
         $(document).keydown(function(e){
-
             $this.pressedKey = e.keyCode;
-            // Do we already know it's down?
             if ($this.keysdown && $this.keysdown[e.keyCode]) {
                 // Ignore it
                 return;
@@ -478,7 +466,6 @@ export class StudiesComponent implements OnDestroy{
     // }
 
     aetModeChange(e){
-        console.log("in aetmodechange e=",e);
         if(e === "internal"){
             this.aetmodel = this.aes[0];
             this.showoptionlist = false;
@@ -3074,11 +3061,11 @@ export class StudiesComponent implements OnDestroy{
                                 let object = {
                                     priorPatientID: $this.clipboard.patients
                                 };
-                                console.log('object', object);
+/*                                console.log('object', object);
                                 console.log('in merge clipboard', $this.clipboard);
                                 console.log('in merge selected', $this.selected['otherObjects']);
                                 console.log('in merge selected', $this.selected.patients[0].PatientID);
-                                console.log('getpatientid', $this.service.getPatientId($this.selected.patients));
+                                console.log('getpatientid', $this.service.getPatientId($this.selected.patients));*/
                                 let url;
                                 if(this.externalInternalAetMode === 'external'){
                                     url = `../hl7apps/${$this.getHl7ApplicationNameFormAETtitle($this.aet)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.selected.patients)}/merge`;
