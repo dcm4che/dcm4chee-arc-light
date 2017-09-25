@@ -50,6 +50,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DeviceInfo;
 import org.dcm4che3.net.HL7ApplicationInfo;
 import org.dcm4che3.util.ByteUtils;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -93,6 +94,9 @@ public class ConfigurationRS {
 
     @Inject
     private Event<SoftwareConfiguration> softwareConfigurationEvent;
+
+    @Inject
+    private Device device;
 
     @QueryParam("options")
     @Pattern(regexp = "true|false")
@@ -245,10 +249,12 @@ public class ConfigurationRS {
     }
 
     private EnumSet<DicomConfiguration.Option> options() {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         EnumSet<DicomConfiguration.Option> options = EnumSet.of(
                 DicomConfiguration.Option.PRESERVE_VENDOR_DATA,
                 DicomConfiguration.Option.PRESERVE_CERTIFICATE,
-                DicomConfiguration.Option.CONFIGURATION_CHANGES);
+                arcDev.isAuditSoftwareConfigurationVerbose()
+                    ? DicomConfiguration.Option.CONFIGURATION_CHANGES_VERBOSE : DicomConfiguration.Option.CONFIGURATION_CHANGES);
         if (register == null || Boolean.parseBoolean(register))
             options.add(DicomConfiguration.Option.REGISTER);
         return options;

@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.store.scu.impl;
 
-import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
@@ -73,9 +72,6 @@ public class CStoreSCUImpl implements CStoreSCU {
 
     @Inject @RetrieveEnd
     private Event<RetrieveContext> retrieveEnd;
-
-    @Inject
-    private IApplicationEntityCache aeCache;
 
     private Association openAssociation(RetrieveContext ctx)
             throws DicomServiceException {
@@ -143,11 +139,11 @@ public class CStoreSCUImpl implements CStoreSCU {
     }
 
     @Override
-    public Attributes store(ApplicationEntity localAE, String calledAET, int priority, Attributes inst)
+    public Attributes store(ApplicationEntity localAE, ApplicationEntity remoteAE, int priority, Attributes inst)
             throws Exception {
         String cuid = inst.getString(Tag.SOPClassUID);
         String iuid = inst.getString(Tag.SOPInstanceUID);
-        Association as = localAE.connect(aeCache.get(calledAET), createAARQ(localAE, calledAET, cuid));
+        Association as = localAE.connect(remoteAE, createAARQ(localAE, remoteAE.getAETitle(), cuid));
         try {
             DimseRSP rsp = as.cstore(cuid, iuid, priority, new DataWriterAdapter(inst),
                     selectTransferSyntax(as.getTransferSyntaxesFor(cuid)));

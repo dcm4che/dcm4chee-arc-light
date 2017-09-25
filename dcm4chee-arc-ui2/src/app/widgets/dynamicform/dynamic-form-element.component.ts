@@ -313,6 +313,9 @@ export class DynamicFormElementComponent{
         this.dialogRef.componentInstance.toCloneElement = formelement;
         this.dialogRef.afterClosed().subscribe((selected) => {
             if (selected){
+                if(formelement.key === "dicomNetworkAE"){
+
+                }
                 let cloneUrl = formelement.addUrl + '/' + selected.currentElementUrl;
                 $this.router.navigateByUrl(cloneUrl);
             }
@@ -435,5 +438,20 @@ export class DynamicFormElementComponent{
                 }
             }
         }
+    }
+    onMouseEnter(formelement,i=null){
+        if(formelement.format){
+            if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass'){
+                if(i != null){
+                    formelement.showPickerTooltipp = formelement.showPickerTooltipp || {};
+                    formelement.showPickerTooltipp[i] = true;
+                }else{
+                    formelement.showPickerTooltipp = true;
+                }
+            }
+        }
+    }
+    onMouseLeave(formelement){
+        formelement.showPickerTooltipp = false;
     }
 }

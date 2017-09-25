@@ -23,6 +23,7 @@ export class DynamicFormComponent implements OnInit{
     payLoad = '';
     partSearch = '';
     prevPartSearch = '';
+    pressedKey = [];
     listStateBeforeSearch: FormElement<any>[];
     filteredFormElements: FormElement<any>[];
     constructor(private formservice: FormService){}
@@ -114,5 +115,19 @@ export class DynamicFormComponent implements OnInit{
     setForm(form: any){
         this.form = form;
     }
-
+    keyDown(e){
+        console.log("e2",e.keyCode);
+        this.pressedKey.push(e.keyCode);
+        if(this.pressedKey.indexOf(17) > -1 && e.keyCode === 13){
+            console.log("combinatnion pressed");
+            this.onSubmit(this.form.valid);
+        }
+    }
+    keyUp(e){
+        console.log("e2",e.keyCode);
+        let index = this.pressedKey.indexOf(e.keyCode);
+        if (index > -1) {
+            this.pressedKey.splice(index, 1);
+        }
+    }
 }

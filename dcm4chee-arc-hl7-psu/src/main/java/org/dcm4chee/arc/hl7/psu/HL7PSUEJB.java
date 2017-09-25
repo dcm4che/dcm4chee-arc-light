@@ -40,12 +40,16 @@
 
 package org.dcm4chee.arc.hl7.psu;
 
+
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.hl7.HL7Message;
+import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.HL7PSUTask;
 import org.dcm4chee.arc.entity.MWLItem;
@@ -152,7 +156,8 @@ public class HL7PSUEJB {
     public void scheduleHL7PSUTask(HL7PSUTask task, HL7PSUScheduler.HL7PSU action) {
         ApplicationEntity ae = device.getApplicationEntity(task.getAETitle());
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        String sendingAppWithFacility = arcAE.hl7PSUSendingApplication();
+        String hl7cs = device.getDeviceExtension(HL7DeviceExtension.class).getHL7Application(sendingAppWithFacility).getHL7SendingCharacterSet();
         HL7PSUMessage msg = new HL7PSUMessage(task);
         if (task.getMpps() == null) {
             List<MWLItem> mwlItems = findMWLItems(task.getStudyInstanceUID());
@@ -160,19 +165,9 @@ public class HL7PSUEJB {
                 LOG.warn("No MWL for {} - no HL7 Procedure Status Update", task);
                 return;
             }
-            if (action == HL7PSUScheduler.HL7PSU.MWL || action == HL7PSUScheduler.HL7PSU.BOTH) {
-                for (MWLItem mwl : mwlItems) {
-                    Attributes mwlAttrs = mwl.getAttributes();
-                    Iterator<Attributes> spsItems = mwlAttrs.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
-                    while (spsItems.hasNext()) {
-                        Attributes sps = spsItems.next();
-                        spsItems.remove();
-                        sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.COMPLETED.toString());
-                        mwlAttrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(sps);
-                    }
-                    mwl.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
-                }
-            }
+            if (action == HL7PSUScheduler.HL7PSU.MWL || action == HL7PSUScheduler.HL7PSU.BOTH)
+                updateStatusToCompleted(arcAE, mwlItems);
+
             if (action != HL7PSUScheduler.HL7PSU.MWL)
                 msg.setMWLItem(mwlItems.get(0).getAttributes());
         }
@@ -180,15 +175,48 @@ public class HL7PSUEJB {
             removeHL7PSUTask(task);
             return;
         }
-        msg.setSendingApplicationWithFacility(arcAE.hl7PSUSendingApplication());
+        msg.setSendingApplicationWithFacility(sendingAppWithFacility);
+        if (!hl7cs.equals("ISO IR-6"))
+            msg.setCharacterSet(hl7cs);
+        scheduleMessage(arcAE, hl7cs, msg);
+        removeHL7PSUTask(task);
+    }
+
+    private void updateStatusToCompleted(ArchiveAEExtension arcAE, List<MWLItem> mwlItems) {
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        for (MWLItem mwl : mwlItems) {
+            Attributes mwlAttrs = mwl.getAttributes();
+            Iterator<Attributes> spsItems = mwlAttrs.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
+            while (spsItems.hasNext()) {
+                Attributes sps = spsItems.next();
+                spsItems.remove();
+                sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.COMPLETED.toString());
+                mwlAttrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(sps);
+            }
+            mwl.setAttributes(mwlAttrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
+        }
+    }
+
+    private void scheduleMessage(ArchiveAEExtension arcAE, String hl7cs, HL7PSUMessage msg) {
         for (String receivingApp : arcAE.hl7PSUReceivingApplications()) {
             msg.setReceivingApplicationWithFacility(receivingApp);
             try {
-                hl7Sender.scheduleMessage(msg.getHL7Message());
+                scheduleMessage(msg.getHL7Message(), hl7cs);
             } catch (Exception e) {
                 LOG.warn("Failed to schedule HL7 Procedure Status Update to {}:\n", receivingApp, e);
             }
         }
-        removeHL7PSUTask(task);
+    }
+
+    private void scheduleMessage(HL7Message hl7Message, String hl7cs) throws ConfigurationException {
+        HL7Segment msh = hl7Message.get(0);
+        hl7Sender.scheduleMessage(
+                msh.getField(2, ""),
+                msh.getField(3, ""),
+                msh.getField(4, ""),
+                msh.getField(5, ""),
+                msh.getField(8, ""),
+                msh.getField(9, ""),
+                hl7Message.getBytes(hl7cs));
     }
 }

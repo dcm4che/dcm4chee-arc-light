@@ -14,6 +14,7 @@
     -webkit-box-shadow: 3px 4px 8px 6px #cccccc;
     -moz-box-shadow:  3px 4px 8px 6px #cccccc;
     box-shadow:  3px 4px 8px 6px #cccccc;
+    width: 650px;
 }
 .dictionary_widget .no_result{
     padding: 0px 15px 30px 15px;
@@ -29,4 +30,10 @@
 .dictionary_widget ul li:hover{
     background:#ccc;
     cursor: pointer;
+}
+.close{
+    position: absolute;
+    z-index: 999999;
+    margin-left: 610px;
+    margin-top: 8px;
 }

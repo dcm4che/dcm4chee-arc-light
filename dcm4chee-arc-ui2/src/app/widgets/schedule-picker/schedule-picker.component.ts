@@ -129,7 +129,6 @@ export class SchedulePickerComponent implements OnInit {
         }
     }
     dragstart(ev,mode){
-        console.log("in original dragstart");
         ev.dataTransfer.setData('text', 'foo');
         this.currentDraggedElement = {
             mode:mode,

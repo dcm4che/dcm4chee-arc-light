@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4chee.arc.ArchiveServiceEvent;
@@ -86,12 +85,8 @@ public class AuditTriggerObserver {
     }
 
     public void onStore(@Observes StoreContext ctx) {
-        if (deviceHasAuditLoggers()) {
-            if (ctx.getRejectionNote() != null)
-                auditService.spoolInstancesDeleted(ctx);
-            else if (ctx.getStoredInstance() != null || ctx.getException() != null)
-                auditService.spoolInstanceStored(ctx);
-        }
+        if (deviceHasAuditLoggers())
+            auditService.spoolInstanceStored(ctx);
     }
 
     public void onQuery(@Observes QueryContext ctx) {
@@ -161,7 +156,7 @@ public class AuditTriggerObserver {
             auditService.spoolStgCmt(stgCmtEventInfo);
     }
 
-    public void onRejectionNoteSent(@Observes RejectionNoteSent rejectionNoteSent) throws ConfigurationException {
+    public void onRejectionNoteSent(@Observes RejectionNoteSent rejectionNoteSent) {
         if (deviceHasAuditLoggers())
             auditService.spoolExternalRejection(rejectionNoteSent);
     }

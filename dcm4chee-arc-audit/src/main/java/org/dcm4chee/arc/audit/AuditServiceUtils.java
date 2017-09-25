@@ -84,8 +84,6 @@ class AuditServiceUtils {
 
         PRMDLT_SCH(EventClass.SCHEDULER_DELETED, AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete,
                 null, null, null),
-        PRMDLT_WEB(EventClass.USER_DELETED, AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete,
-                null, null, null),
 
         APPLNSTART(EventClass.APPLN_ACTIVITY, AuditMessages.EventID.ApplicationActivity, AuditMessages.EventActionCode.Execute,
                 AuditMessages.RoleIDCode.ApplicationLauncher, AuditMessages.RoleIDCode.Application,
@@ -159,9 +157,8 @@ class AuditServiceUtils {
         }
 
         static EventType forInstanceStored(StoreContext ctx) {
-            return !ctx.getLocations().isEmpty()
-                    ? ctx.getPreviousInstance() != null ? STORE_UPDT : STORE_CREA
-                    : ctx.getStoredInstance() != null ? STORE_CREA : null;
+            return !ctx.getLocations().isEmpty() && ctx.getPreviousInstance() != null
+                        ? STORE_UPDT : STORE_CREA;
         }
 
         static EventType forHL7(PatientMgtContext ctx) {

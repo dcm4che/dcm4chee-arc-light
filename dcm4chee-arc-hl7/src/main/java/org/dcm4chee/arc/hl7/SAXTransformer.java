@@ -54,7 +54,7 @@ class SAXTransformer {
 
         Templates tpl = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(uri));
         TransformerHandler th = factory.newTransformerHandler(tpl);
-        th.setResult(new SAXResult(new HL7ContentHandler(new OutputStreamWriter(out, hl7charset))));
+        th.setResult(new SAXResult(new HL7ContentHandler(new OutputStreamWriter(out, HL7Charset.toCharsetName(hl7charset)))));
         if (setup != null)
             setup.setup(th.getTransformer());
 

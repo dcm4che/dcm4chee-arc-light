@@ -1,4 +1,4 @@
-<div>
+<div (keydown)="keyDown($event)" (keyup)="keyUp($event)">
     <input placeholder="Search in this part..." [(ngModel)]="partSearch" (keyup)="filterFormElements()">
     <form  [formGroup]="form">
         <div *ngFor="let formelement of formelements" class="form-row">

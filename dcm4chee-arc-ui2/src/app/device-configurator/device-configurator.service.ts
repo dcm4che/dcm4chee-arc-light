@@ -14,6 +14,7 @@ import {DevicesService} from "../devices/devices.service";
 import {AeListService} from "../ae-list/ae-list.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
 import {Globalvar} from "../constants/globalvar";
+import {j4care} from "../helpers/j4care.service";
 
 @Injectable()
 export class DeviceConfiguratorService{
@@ -80,6 +81,15 @@ export class DeviceConfiguratorService{
                 }
             }
         })
+    }
+    replaceOldAETitleWithTheNew(object, newAeTitle){
+        let oldAETitle = object.dicomAETitle;
+        j4care.traverse(object,(m,i)=>{
+            if(i != "dicomAETitle" && m === oldAETitle){
+                m = newAeTitle;
+            }
+            return m;
+        });
     }
     getPaginationTitleFromModel(model, schemaObject){
         let title = 'object';
@@ -176,7 +186,6 @@ export class DeviceConfiguratorService{
             }
         });
         _.forEach(device, (m, i) => {
-            console.log("isnanne",isNaN(m));
             if (m === null || (_.isNumber(m) && _.isNaN(m)) || m === '' || (_.isArray(m) && m.length === 0) || m === "inherent"){
                 delete device[i];
             }

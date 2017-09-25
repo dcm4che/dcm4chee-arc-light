@@ -178,7 +178,7 @@ ul.nav#mainmenu {
     z-index: 998;
 }
 .form_content{
-	z-index: 999;
+	z-index: 98;
 	.btn {
 	    //background: rgba(54, 54, 54, 0.55) none repeat scroll 0 0;
 	    //border: 1px solid #ccc;
@@ -189,7 +189,11 @@ ul.nav#mainmenu {
 	    float: right;
 	    margin-top: 20px;
 	}
-
+    &.text{
+      .content.format{
+        position: relative;
+      }
+    }
 	.btn-group{
 		.btn{
 			background:white;
@@ -918,11 +922,19 @@ table{
       vertical-align: middle;
       padding: 3px 0;
       color: #dddddd;
+      &:focus,&:active{
+        border:none;
+        outline: none;
+      }
       &.disabled{
         color:#a7a7a7;
       }
       i{
         font-size:19px;
+        &:focus,&:active{
+          border:none;
+          outline: none;
+        }
       }
       &:hover{
         font-weight:bold;
@@ -933,6 +945,10 @@ table{
       border: 1px solid white;
       display: inline-block;
       margin-top: 2px;
+    }
+    .activate_checkboxes:focus,.activate_checkboxes:active{
+      border:none;
+      outline: none;
     }
 /*    .activate_checkboxes{
     }

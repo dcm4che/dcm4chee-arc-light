@@ -61,7 +61,7 @@ class HL7PSUMessage {
     private final HL7Segment obr;
     private final HL7Message hl7Message;
 
-    public HL7PSUMessage(HL7PSUTask task) {
+    HL7PSUMessage(HL7PSUTask task) {
         msh = HL7Segment.makeMSH();
         msh.setField(8, "OMG^O19^OMG_O19");
         orc = new HL7Segment(6);
@@ -84,19 +84,23 @@ class HL7PSUMessage {
             setStartDateTime(task.getCreatedTime());
     }
 
-    public HL7Message getHL7Message() {
+    HL7Message getHL7Message() {
         return hl7Message;
     }
 
-    public void setSendingApplicationWithFacility(String sendingApp) {
+    void setSendingApplicationWithFacility(String sendingApp) {
         msh.setSendingApplicationWithFacility(sendingApp);
     }
 
-    public void setReceivingApplicationWithFacility(String receivingApp) {
+    void setReceivingApplicationWithFacility(String receivingApp) {
         msh.setReceivingApplicationWithFacility(receivingApp);
     }
 
-    public void setMWLItem(Attributes mwlAttrs) {
+    void setCharacterSet(String hl7cs) {
+        msh.setField(17, hl7cs);
+    }
+
+    void setMWLItem(Attributes mwlAttrs) {
         setPlacerOrder(mwlAttrs);
         setFillerOrder(mwlAttrs);
         setAccessionNumber(mwlAttrs);

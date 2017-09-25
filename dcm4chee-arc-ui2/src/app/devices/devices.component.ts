@@ -176,7 +176,6 @@ export class DevicesComponent {
             result: {input: ''},
             saveButton: 'CLONE'
         };
-        console.log('parameters', parameters);
         let $this = this;
         this.confirm(parameters).subscribe(result => {
             if (result){
@@ -201,6 +200,7 @@ export class DevicesComponent {
                         (device) => {
                             console.log('response', device);
                             $this.service.changeAetOnClone(device,$this.aes);
+                            $this.service.changeHl7ApplicationNameOnClone(device, $this.mainservice.global.hl7);
                             console.log('device afterchange', device);
                             device.dicomDeviceName = parameters.result.input;
                             $this.$http.post('../devices/' + parameters.result.input, device, headers)

@@ -5,7 +5,7 @@
     <!--form:{{form.controls.arraytest.controls | json}}-->
     <div  class="form_content" [ngSwitch]="formelement.controlType" [ngClass]="formelement.controlType">
         <!--<br> in ngswitch {{formelement |json}}<br>-->
-        <div *ngIf="formelement.show || partSearch != ''" class="content">
+        <div *ngIf="formelement.show || partSearch != ''" class="content" [ngClass]="{format: formelement.format}">
             <div class="download_content" *ngIf="formelement.show || partSearch != ''">
                 <a class="vendordata_button" *ngSwitchCase="'filedownload'" href="{{formelement.downloadUrl}}">Download</a>
                 <a class="vendordata_delete" *ngSwitchCase="'filedownload'"  (click)="$event.preventDefault();deleteFile(formelement.deviceName,formelement)" title="Delete File"><i class="material-icons">clear</i></a>
@@ -17,8 +17,9 @@
                 <input class="simple_input text disabled" *ngSwitchCase="'constantField'" disabled value="{{formelement.value}}" type="text" />
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
-                <input class="simple_input text" *ngSwitchCase="'text'" [formControlName]="formelement.key" [id]="formelement.key" [type]="formelement.type" (click)="onFocuse(formelement)"/>
+                <input class="simple_input text" *ngSwitchCase="'text'" [formControlName]="formelement.key" [id]="formelement.key" [type]="formelement.type" (click)="onFocuse(formelement)" (mouseenter)="onMouseEnter(formelement)" (mouseleave)="onMouseLeave(formelement)"/>
                 <dictionary-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showPicker" [dictionary]="formelement.format" [formelement]="formelement" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></dictionary-picker>
+                <attribute-info *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showPickerTooltipp && form.controls[formelement.key].value" [dictionary]="formelement.format" [value]="form.controls[formelement.key].value"></attribute-info>
                 <time-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showTimePicker" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></time-picker>
                 <duration-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showDurationPicker" [value]="form.controls[formelement.key].value" [mode]="formelement.format" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></duration-picker>
                 <schedule-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showSchedulePicker" [value]="form.controls[formelement.key].value" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></schedule-picker>
@@ -61,8 +62,9 @@
                     <div class="array_single"
                          [ngClass]="{picker: (formelement.showDurationPicker && formelement.showDurationPicker[i])}" *ngFor="let item of formelement.value; let i=index">
                         <input *ngIf="formelement.type == 'number'" formControlName="{{i}}" type="number">
-                        <input *ngIf="formelement.type != 'number'" formControlName="{{i}}" [type]="formelement.type" (click)="onFocuse(formelement,i)">
+                        <input *ngIf="formelement.type != 'number'" formControlName="{{i}}" [type]="formelement.type" (click)="onFocuse(formelement,i)"  (mouseenter)="onMouseEnter(formelement,i)" (mouseleave)="onMouseLeave(formelement)">
                         <span class="delete" title="Remove this value from the array" (click)="removeArrayElement(formelement, i, form)"><i class="material-icons">clear</i></span>
+                        <attribute-info *ngIf="formelement.controlType === 'arrayelement' && formelement.format && formelement.showPickerTooltipp && formelement.showPickerTooltipp[i] && item" [dictionary]="formelement.format" [value]="item"></attribute-info>
                         <dictionary-picker *ngIf="formelement.controlType === 'arrayelement'  && formelement.format && formelement.showPicker && formelement.showPicker[i]" [dictionary]="formelement.format" [formelement]="formelement" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key].controls,i)"></dictionary-picker>
                         <time-picker *ngIf="formelement.controlType === 'arrayelement'  && formelement.format && formelement.showTimePicker && formelement.showTimePicker[i]" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key].controls,i)"></time-picker>
                         <schedule-picker *ngIf="formelement.controlType === 'arrayelement' && formelement.format && formelement.showSchedulePicker && formelement.showSchedulePicker[i]" [value]="item" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key].controls,i)"></schedule-picker>

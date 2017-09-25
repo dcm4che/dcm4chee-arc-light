@@ -81,15 +81,15 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
     }
 
     @Override
-    public void storeChilds(ConfigurationChanges.ModifiedObject ldapObj, String appDN, HL7Application hl7App) throws NamingException {
+    public void storeChilds(ConfigurationChanges diffs, String appDN, HL7Application hl7App) throws NamingException {
         ArchiveHL7ApplicationExtension ext =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         if (ext == null)
             return;
 
-        LdapArchiveConfiguration.storeHL7ForwardRules(ldapObj, ext.getHL7ForwardRules(), appDN, getDicomConfiguration());
-        LdapArchiveConfiguration.storeScheduledStations(ldapObj, ext.getHL7OrderScheduledStations(), appDN, getDicomConfiguration());
-        LdapArchiveConfiguration.storeHL7OrderSPSStatus(ldapObj, ext.getHL7OrderSPSStatuses(), appDN, getDicomConfiguration());
+        LdapArchiveConfiguration.storeHL7ForwardRules(diffs, ext.getHL7ForwardRules(), appDN, getDicomConfiguration());
+        LdapArchiveConfiguration.storeScheduledStations(diffs, ext.getHL7OrderScheduledStations(), appDN, getDicomConfiguration());
+        LdapArchiveConfiguration.storeHL7OrderSPSStatus(diffs, ext.getHL7OrderSPSStatuses(), appDN, getDicomConfiguration());
     }
 
     @Override

@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.hl7;
 
 import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 
@@ -57,8 +56,6 @@ public interface HL7Sender {
 
     void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                          String receivingFacility, String messageType, String messageControlID, byte[] hl7msg) throws ConfigurationException;
-
-    void scheduleMessage(HL7Message hl7Message) throws ConfigurationException;
 
     HL7Message sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                         String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)

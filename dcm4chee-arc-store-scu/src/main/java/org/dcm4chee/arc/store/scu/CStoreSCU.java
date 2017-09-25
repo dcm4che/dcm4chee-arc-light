@@ -59,5 +59,5 @@ public interface CStoreSCU {
 
     RetrieveTask newRetrieveTaskGET(Association as, PresentationContext pc, Attributes rq, RetrieveContext ctx) throws DicomServiceException;
 
-    Attributes store(ApplicationEntity localAE, String calledAET, int priority, Attributes inst) throws Exception;
+    Attributes store(ApplicationEntity localAE, ApplicationEntity remoteAE, int priority, Attributes inst) throws Exception;
 }

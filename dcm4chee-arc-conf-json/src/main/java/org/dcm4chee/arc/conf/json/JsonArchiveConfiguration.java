@@ -223,6 +223,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getAuditUnknownStudyInstanceUID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_STUDY_INSTANCE_UID);
         writer.writeNotNullOrDef("dcmAuditUnknownPatientID",
                 arcDev.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
+        writer.writeNotDef("dcmAuditSoftwareConfigurationVerbose", arcDev.isAuditSoftwareConfigurationVerbose(), false);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -987,6 +988,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAuditUnknownPatientID":
                     arcDev.setAuditUnknownPatientID(reader.stringValue());
+                    break;
+                case "dcmAuditSoftwareConfigurationVerbose":
+                    arcDev.setAuditSoftwareConfigurationVerbose(reader.booleanValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

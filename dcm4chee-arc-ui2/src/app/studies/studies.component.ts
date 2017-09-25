@@ -485,9 +485,10 @@ export class StudiesComponent implements OnDestroy{
             this.filter.orderby = "-StudyDate,-StudyTime";
             this.orderbytext = '<label>Study</label><span class=\"orderbydateasc\"></span>';
             this.filterMode = "study";
-
+            this.patients = [];
         }
         if(e === "external"){
+            this.patients = [];
             this.externalInternalAetModel = this.allAes[0];
             this.showoptionlist = false;
             this.filter.orderby = "";
@@ -3078,8 +3079,15 @@ export class StudiesComponent implements OnDestroy{
                                 console.log('in merge selected', $this.selected['otherObjects']);
                                 console.log('in merge selected', $this.selected.patients[0].PatientID);
                                 console.log('getpatientid', $this.service.getPatientId($this.selected.patients));
+                                let url;
+                                if(this.externalInternalAetMode === 'external'){
+                                    url = `../hl7apps/${$this.getHl7ApplicationNameFormAETtitle($this.aet)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.selected.patients)}/merge`;
+                                }else{
+                                    url = '../aets/' + $this.aet + '/rs/patients/' + $this.service.getPatientId($this.selected.patients) + '/merge';
+                                }
+                                console.log("url",url);
                                 $this.$http.post(
-                                    '../aets/' + $this.aet + '/rs/patients/' + $this.service.getPatientId($this.selected.patients) + '/merge',
+                                    url,
                                     object.priorPatientID,
                                     headers
                                 )
@@ -3161,6 +3169,7 @@ export class StudiesComponent implements OnDestroy{
                                                         .subscribe((response) => {
                                                             console.log('in then function', response);
                                                             $this.clipboard = {};
+                                                            $this.selected = {};
                                                              $this.mainservice.setMessage({
                                                              'title': 'Info',
                                                              'text': 'Object with the Study Instance UID ' + m.StudyInstanceUID + ' copied successfully!',
@@ -3208,13 +3217,14 @@ export class StudiesComponent implements OnDestroy{
                                             })
                                             .subscribe((response) => {
                                                 console.log('in then function');
-                                                $this.clipboard = {};
                                                 $this.cfpLoadingBar.stop();
                                                 $this.mainservice.setMessage({
                                                     'title': 'Info',
                                                     'text': 'Object with the Study Instance UID ' + $this.target.attrs['0020000D'].Value[0] + ' copied successfully!',
                                                     'status': 'info'
                                                 });
+                                                $this.clipboard = {};
+                                                $this.selected = {};
                                                 $this.fireRightQuery();
                                                 // $this.callBackFree = true;
                                             }, (response) => {
@@ -3276,6 +3286,7 @@ export class StudiesComponent implements OnDestroy{
                                                         .subscribe((response) => {
                                                             console.log('in then function');
                                                             $this.clipboard = {};
+                                                            $this.selected = {};
                                                             $this.cfpLoadingBar.stop();
                                                             $this.mainservice.setMessage({
                                                                 'title': 'Info',

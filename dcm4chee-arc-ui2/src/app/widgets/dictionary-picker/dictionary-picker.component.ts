@@ -63,5 +63,7 @@ export class DictionaryPickerComponent implements OnInit {
             }
         }
     }
-
+    close(){
+        this.onValueSet.emit("");
+    }
 }

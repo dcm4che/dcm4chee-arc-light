@@ -51,7 +51,11 @@
             <field/>
             <field/>
             <field/>
-            <field><xsl:value-of select="$charset"/></field>
+            <field>
+                <xsl:if test="$charset != 'ISO IR-6'">
+                    <xsl:value-of select="$charset"/>
+                </xsl:if>
+            </field>
         </MSH>
     </xsl:template>
 
