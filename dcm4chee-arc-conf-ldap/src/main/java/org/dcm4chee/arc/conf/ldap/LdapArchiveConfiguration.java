@@ -1206,7 +1206,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -1247,7 +1247,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     if (ldapObj != null)
                         diffs.add(ldapObj);
                     if (isNonVerbose(diffs))
-                        diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                        diffs.add(dn);
                 } else {
                     ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                             ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -1282,7 +1282,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -1415,7 +1415,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -1551,7 +1551,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -1668,7 +1668,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -1785,7 +1785,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -2111,7 +2111,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -2146,7 +2146,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -2181,7 +2181,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -2216,7 +2216,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -2251,7 +2251,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -2287,7 +2287,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -2322,7 +2322,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -2500,7 +2500,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else{
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -2758,7 +2758,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else{
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
@@ -2791,7 +2791,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 if (ldapObj != null)
                     diffs.add(ldapObj);
                 if (isNonVerbose(diffs))
-                    diffs.add(new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C));
+                    diffs.add(dn);
             } else{
                 ConfigurationChanges.ModifiedObject ldapObj = diffs != null
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
