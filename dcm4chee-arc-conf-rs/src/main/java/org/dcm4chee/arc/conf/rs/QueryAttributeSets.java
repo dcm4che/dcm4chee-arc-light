@@ -106,7 +106,7 @@ public class QueryAttributeSets {
     private AttributeSet.Type attrSetTypeOf(String type) {
         try {
             return AttributeSet.Type.valueOf(type);
-        } finally {
+        } catch (IllegalArgumentException e) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
     }
