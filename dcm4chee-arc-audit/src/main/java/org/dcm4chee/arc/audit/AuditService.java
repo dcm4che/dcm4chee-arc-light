@@ -200,7 +200,7 @@ public class AuditService {
         return activeParticipantBuilder;
     }
 
-    void spoolInstancesDeleted(StoreContext ctx) {
+    private void spoolInstancesDeleted(StoreContext ctx) {
         Attributes attrs = ctx.getAttributes();
         HashMap<String, HashSet<String>> sopClassMap = buildRejectionSOPClassMap(attrs);
         LinkedHashSet<Object> deleteObjs = getDeletionObjsForSpooling(sopClassMap, new AuditInfo(getAIStoreCtx(ctx)));
