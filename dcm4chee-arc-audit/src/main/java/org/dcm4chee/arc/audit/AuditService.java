@@ -41,8 +41,6 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.io.DicomOutputStream;
@@ -95,9 +93,6 @@ public class AuditService {
     private final String studyDate = "StudyDate";
     @Inject
     private Device device;
-
-    @Inject
-    private IApplicationEntityCache aeCache;
 
     private void aggregateAuditMessage(AuditLogger auditLogger, Path path) throws IOException {
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.fromFile(path);
@@ -1236,26 +1231,21 @@ public class AuditService {
     }
 
     private String storageCmtCallingHost(StgCmtEventInfo stgCmtEventInfo) {
-        try {
-            return stgCmtEventInfo.getRemoteAET() != null
-                    ? aeCache.findApplicationEntity(stgCmtEventInfo.getRemoteAET()).getConnections().get(0).getHostname()
-                    : stgCmtEventInfo.getRequest().getRemoteHost();
-        } catch (ConfigurationException e) {
-            LOG.error(e.getMessage(), stgCmtEventInfo.getRemoteAET());
-        }
-        return null;
+        return stgCmtEventInfo.getRequest() != null
+                ? stgCmtEventInfo.getRequest().getRemoteHost()
+                : stgCmtEventInfo.getRemoteAE().getConnections().get(0).getHostname();
     }
 
     private String storageCmtCalledAET(StgCmtEventInfo stgCmtEventInfo) {
         return stgCmtEventInfo.getRequest() != null
-                            ? stgCmtEventInfo.getRequest().getRequestURI()
-                            : stgCmtEventInfo.getLocalAET();
+                ? stgCmtEventInfo.getRequest().getRequestURI()
+                : stgCmtEventInfo.getLocalAET();
     }
 
     private String storageCmtCallingAET(StgCmtEventInfo stgCmtEventInfo) {
         return stgCmtEventInfo.getRequest() != null
-                                ? KeycloakContext.valueOf(stgCmtEventInfo.getRequest()).getUserName()
-                                : stgCmtEventInfo.getRemoteAET();
+                ? KeycloakContext.valueOf(stgCmtEventInfo.getRequest()).getUserName()
+                : stgCmtEventInfo.getRemoteAE().getAETitle();
     }
 
     private void auditStorageCommit(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) throws IOException {

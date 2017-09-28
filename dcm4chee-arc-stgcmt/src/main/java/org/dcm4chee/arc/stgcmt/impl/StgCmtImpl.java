@@ -244,10 +244,9 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     }
 
     @Override
-    public Outcome sendNEventReport(String localAET, String remoteAET, Attributes eventInfo)
+    public Outcome sendNEventReport(String localAET, ApplicationEntity remoteAE, Attributes eventInfo)
             throws Exception  {
             ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
-            ApplicationEntity remoteAE = aeCache.findApplicationEntity(remoteAET);
             AAssociateRQ aarq = mkAAssociateRQ(localAE, localAET, TransferCapability.Role.SCP);
             Association as = localAE.connect(remoteAE, aarq);
             try {
@@ -260,12 +259,12 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
                 neventReport.next();
                 return new Outcome(failed > 0 ? QueueMessage.Status.WARNING : QueueMessage.Status.COMPLETED,
                         "Return Storage Commitment Result[successful: " + successful + ", failed: " + failed
-                                + "] to AE: " + remoteAET);
+                                + "] to AE: " + remoteAE.getAETitle());
             } finally {
                 try {
                     as.release();
                 } catch (IOException e) {
-                    LOG.info("{}: Failed to release association to {}", as, remoteAET);
+                    LOG.info("{}: Failed to release association to {}", as, remoteAE.getAETitle());
                 }
             }
     }

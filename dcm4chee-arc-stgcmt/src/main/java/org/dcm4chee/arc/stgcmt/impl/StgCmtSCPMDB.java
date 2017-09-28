@@ -40,9 +40,10 @@
 
 package org.dcm4chee.arc.stgcmt.impl;
 
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.net.Device;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
@@ -77,11 +78,10 @@ public class StgCmtSCPMDB implements MessageListener {
     private static final Logger LOG = LoggerFactory.getLogger(StgCmtSCPMDB.class);
 
     @Inject
-    private Device device;
+    private IApplicationEntityCache aeCache;
 
     @Inject
     private Event<StgCmtEventInfo> stgCmtEvent;
-
 
     @Inject
     private QueueManager queueManager;
@@ -107,14 +107,14 @@ public class StgCmtSCPMDB implements MessageListener {
             return;
         try {
             String localAET = msg.getStringProperty("LocalAET");
-            String remoteAET = msg.getStringProperty("RemoteAET");
+            ApplicationEntity remoteAE = aeCache.findApplicationEntity(msg.getStringProperty("RemoteAET"));
             Attributes actionInfo = (Attributes) ((ObjectMessage) msg).getObject();
             Attributes eventInfo = stgCmtMgr.calculateResult(
                     actionInfo.getSequence(Tag.ReferencedSOPSequence),
                     actionInfo.getString(Tag.TransactionUID));
-            stgCmtEvent.fire(new StgCmtEventInfoImpl(remoteAET, localAET, eventInfo));
+            stgCmtEvent.fire(new StgCmtEventInfoImpl(remoteAE, localAET, eventInfo));
             removeExtendedEventInfo(eventInfo);
-            Outcome outcome = stgCmtSCP.sendNEventReport(localAET, remoteAET, eventInfo);
+            Outcome outcome = stgCmtSCP.sendNEventReport(localAET, remoteAE, eventInfo);
             queueManager.onProcessingSuccessful(msgID, outcome);
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
