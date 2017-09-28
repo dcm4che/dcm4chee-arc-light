@@ -56,6 +56,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -76,10 +78,9 @@ public class QueryExporters {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                ArchiveDeviceExtension ext = device.getDeviceExtension(ArchiveDeviceExtension.class);
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
-                for (ExporterDescriptor exporter : ext.getExporterDescriptors()) {
+                for (ExporterDescriptor exporter : sortedExporterDescriptors()) {
                     JsonWriter writer = new JsonWriter(gen);
                     gen.writeStartObject();
                     writer.writeNotNullOrDef("id", exporter.getExporterID(), null);
@@ -90,5 +91,12 @@ public class QueryExporters {
                 gen.flush();
             }
         };
+    }
+
+    private ExporterDescriptor[] sortedExporterDescriptors() {
+        ArchiveDeviceExtension ext = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ExporterDescriptor[] exporterDescriptors = ext.getExporterDescriptors().toArray(new ExporterDescriptor[ext.getExporterDescriptors().size()]);
+        Arrays.sort(exporterDescriptors, Comparator.comparing(ExporterDescriptor::getExporterID));
+        return exporterDescriptors;
     }
 }
