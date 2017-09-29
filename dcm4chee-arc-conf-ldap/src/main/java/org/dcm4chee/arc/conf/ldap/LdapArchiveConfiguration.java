@@ -1190,10 +1190,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 entry.getValue(), entity, new BasicAttributes(true)));
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn,
                         storeDiffs(ldapObj, prevFilter, entry.getValue(), new ArrayList<ModificationItem>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -1224,13 +1224,12 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     config.createSubcontext(dn,
                             storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                     attributeSet, new BasicAttributes(true)));
-                    ConfigurationChanges.addModifiedObject(diffs, ldapObj);
                 } else {
                     ConfigurationChanges.ModifiedObject ldapObj =
-                            ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                            ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                     config.modifyAttributes(dn,
                             storeDiffs(ldapObj, prevAttributeSet, attributeSet, new ArrayList<ModificationItem>()));
-                    ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                    ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
                 }
             }
         }
@@ -1257,9 +1256,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 entry.getValue(), spsStatus, new BasicAttributes(true)));
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, prevHL7OrderSPSStatus, entry.getValue(), new ArrayList<ModificationItem>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -1383,10 +1382,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 descriptor, new BasicAttributes(true)));
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn,
                         storeDiffs(ldapObj, prevDescriptor, descriptor, new ArrayList<>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -1510,9 +1509,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 descriptor, new BasicAttributes(true)));
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn,
                         storeDiffs(ldapObj, prevDescriptor, descriptor, new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -1617,10 +1617,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 descriptor, new BasicAttributes(true)));
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn,
                         storeDiffs(ldapObj, prevDescriptor, descriptor, new ArrayList<ModificationItem>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -1726,9 +1726,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 rule, new BasicAttributes(true)));
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<ModificationItem>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -2026,9 +2026,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 rule, new BasicAttributes(true)));
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<ModificationItem>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -2056,9 +2056,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 rule, new BasicAttributes(true)));
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<ModificationItem>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -2085,11 +2085,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 policy, new BasicAttributes(true)));
             } else {
-                ConfigurationChanges.ModifiedObject ldapObj = diffs != null
-                        ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
-                        : null;
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, prevPolicy, policy, new ArrayList<ModificationItem>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -2117,9 +2116,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 rule, new BasicAttributes(true)));
              } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<ModificationItem>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -2147,9 +2146,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 station, new BasicAttributes(true), config));
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, prevStation, station, new ArrayList<ModificationItem>(), config));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -2178,9 +2177,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 coercion, new BasicAttributes(true)));
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, prev, coercion, new ArrayList<ModificationItem>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -2208,9 +2207,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 rule, new BasicAttributes(true)));
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, prevRule, rule, new ArrayList<ModificationItem>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -2378,9 +2377,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 entryNew, new BasicAttributes(true)));
             } else{
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, entryOld, entryNew, new ArrayList<ModificationItem>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -2620,12 +2619,11 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 config.createSubcontext(dn,
                         storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 entryNew, new BasicAttributes(true)));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
             } else {
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, entryOld, entryNew, new ArrayList<ModificationItem>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
@@ -2651,9 +2649,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                                 entryNew, new BasicAttributes(true)));
             } else{
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.newModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dn, storeDiffs(ldapObj, entryOld, entryNew, new ArrayList<ModificationItem>()));
-                ConfigurationChanges.addModifiedObject(diffs, ldapObj);
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
     }
