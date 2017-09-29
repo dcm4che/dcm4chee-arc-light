@@ -9,9 +9,10 @@ export class DevicesService {
     constructor(private $http:Http) { }
 
     appendExporterToDevice(device, exporter){
-        device.dcmArchiveDevice = device.dcmArchiveDevice || {};
-        device.dcmArchiveDevice.dcmExporter = device.dcmArchiveDevice.dcmExporter || [];
-        device.dcmArchiveDevice.dcmExporter.push(exporter);
+        device.dcmDevice = device.dcmDevice || {};
+        device.dcmDevice.dcmArchiveDevice = device.dcmDevice.dcmArchiveDevice || {};
+        device.dcmDevice.dcmArchiveDevice.dcmExporter = device.dcmDevice.dcmArchiveDevice.dcmExporter || [];
+        device.dcmDevice.dcmArchiveDevice.dcmExporter.push(exporter);
         return device;
     }
     changeAetOnClone(device,aes){
