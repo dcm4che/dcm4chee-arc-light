@@ -1194,7 +1194,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 entry.getValue(), entity, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -1235,7 +1235,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                             ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                             : null;
                     config.createSubcontext(dn,
-                            storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                            storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                     attributeSet, new BasicAttributes(true)));
                     if (ldapObj != null)
                         diffs.add(ldapObj);
@@ -1270,7 +1270,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 entry.getValue(), spsStatus, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -1327,7 +1327,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                     : null;
             config.createSubcontext(dn,
-                    storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                    storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                             descriptor, new BasicAttributes(true)));
             if (ldapObj != null)
                 diffs.add(ldapObj);
@@ -1404,7 +1404,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 descriptor, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -1413,7 +1413,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.U)
                         : null;
                 config.modifyAttributes(dn,
-                        storeDiffs(ldapObj, prevDescriptor, descriptor, new ArrayList<ModificationItem>()));
+                        storeDiffs(ldapObj, prevDescriptor, descriptor, new ArrayList<>()));
                 if (diffs != null) diffs.add(ldapObj);
             }
         }
@@ -1539,7 +1539,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 descriptor, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -1655,7 +1655,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 descriptor, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -1772,7 +1772,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 rule, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -2098,7 +2098,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 rule, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -2133,7 +2133,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                     ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                     : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 rule, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -2168,7 +2168,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 policy, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -2203,7 +2203,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 rule, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -2238,7 +2238,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 station, new BasicAttributes(true), config));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -2274,7 +2274,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 coercion, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -2309,7 +2309,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 rule, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -2487,7 +2487,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 entryNew, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -2745,7 +2745,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 entryNew, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
@@ -2778,7 +2778,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         ? new ConfigurationChanges.ModifiedObject(dn, ConfigurationChanges.ChangeType.C)
                         : null;
                 config.createSubcontext(dn,
-                        storeTo(diffs != null && diffs.isVerbose() ? ldapObj : null,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
                                 entryNew, new BasicAttributes(true)));
                 if (ldapObj != null)
                     diffs.add(ldapObj);
