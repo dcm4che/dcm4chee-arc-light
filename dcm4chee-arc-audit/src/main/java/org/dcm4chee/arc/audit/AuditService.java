@@ -944,7 +944,7 @@ public class AuditService {
                             .outcome(getOD(ctx.getException()))
                             .build();
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forHL7(ctx);
-        String data = hl7msg != null ? new String(hl7msg.data()) : null;
+        byte[] data = hl7msg != null ? hl7msg.data() : null;
         if (data != null)
             writeSpoolFile(eventType, auditInfoBuilder, data);
         else
@@ -1387,11 +1387,11 @@ public class AuditService {
     }
 
     private String getData(SpoolFileReader reader) {
-        List<String> ldapDiffs = reader.getInstanceLines();
+        List<String> data = reader.getInstanceLines();
         StringBuilder sb = new StringBuilder();
-        sb.append(ldapDiffs.get(0));
-        for (int i = 1; i < ldapDiffs.size(); i++)
-            sb.append('\n').append(ldapDiffs.get(i));
+        sb.append(data.get(0));
+        for (int i = 1; i < data.size(); i++)
+            sb.append('\n').append(data.get(i));
         return sb.toString();
     }
 
@@ -1441,6 +1441,30 @@ public class AuditService {
                     try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                             StandardOpenOption.APPEND))) {
                         writer.writeLine(new AuditInfo(auditInfoBuilder), data);
+                    }
+                    if (!auditAggregate)
+                        auditAndProcessFile(auditLogger, file);
+                } catch (Exception e) {
+                    LOG.warn("Failed to write to Audit Spool File - {} ", auditLogger.getCommonName(), e);
+                }
+            }
+        }
+    }
+
+    private void writeSpoolFile(AuditServiceUtils.EventType eventType, AuditInfoBuilder auditInfoBuilder, byte[] data) {
+        boolean auditAggregate = getArchiveDevice().isAuditAggregate();
+        AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
+        for (AuditLogger auditLogger : ext.getAuditLoggers()) {
+            if (auditLogger.isInstalled()) {
+                Path dir = toDirPath(auditLogger);
+                try {
+                    Files.createDirectories(dir);
+                    Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
+                    try (BufferedOutputStream out = new BufferedOutputStream(
+                            Files.newOutputStream(file, StandardOpenOption.APPEND))) {
+                        out.write(new AuditInfo(auditInfoBuilder).toString().getBytes());
+                        out.write('\n');
+                        out.write(data);
                     }
                     if (!auditAggregate)
                         auditAndProcessFile(auditLogger, file);
