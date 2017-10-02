@@ -114,6 +114,7 @@ public class ConfigurationRS {
     @Path("/devices/{DeviceName}")
     @Produces("application/json")
     public StreamingOutput getDevice(@PathParam("DeviceName") String deviceName) throws Exception {
+        logRequest();
         final Device device;
         try {
             device = conf.findDevice(deviceName);
@@ -137,6 +138,7 @@ public class ConfigurationRS {
     @Path("/devices")
     @Produces("application/json")
     public StreamingOutput listDevices() throws Exception {
+        logRequest();
         try {
             final DeviceInfo[] deviceInfos = conf.listDeviceInfos(new DeviceInfoBuilder(uriInfo).deviceInfo);
             Arrays.sort(deviceInfos, Comparator.comparing(DeviceInfo::getDeviceName));
@@ -161,6 +163,7 @@ public class ConfigurationRS {
     @Path("/aes")
     @Produces("application/json")
     public StreamingOutput listAETs() throws Exception {
+        logRequest();
         try {
             final ApplicationEntityInfo[] aeInfos =
                     conf.listAETInfos(new ApplicationEntityInfoBuilder(uriInfo).aetInfo);
@@ -186,6 +189,7 @@ public class ConfigurationRS {
     @Path("/hl7apps")
     @Produces("application/json")
     public StreamingOutput listHL7Apps() throws Exception {
+        logRequest();
         try {
             HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
             final HL7ApplicationInfo[] hl7AppInfos =
@@ -212,6 +216,7 @@ public class ConfigurationRS {
     @Path("/unique/aets")
     @Produces("application/json")
     public StreamingOutput listRegisteredAETS() throws Exception {
+        logRequest();
         try {
             String[] registeredAETs = conf.listRegisteredAETitles();
             return writeJsonArray(registeredAETs);
@@ -225,6 +230,7 @@ public class ConfigurationRS {
     @Path("/unique/hl7apps")
     @Produces("application/json")
     public StreamingOutput listRegisteredHL7Apps() throws Exception {
+        logRequest();
         try {
             HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
             String[] registeredHL7Apps = hl7Conf.listRegisteredHL7ApplicationNames();
@@ -394,6 +400,7 @@ public class ConfigurationRS {
     @Path("/devices/{deviceName}/vendordata")
     @Produces("application/zip")
     public Response getVendorData(@PathParam("deviceName") String deviceName) throws Exception {
+        logRequest();
         byte[] content = ByteUtils.EMPTY_BYTES;
         Response.Status status = Response.Status.NO_CONTENT;
         try {
@@ -414,6 +421,7 @@ public class ConfigurationRS {
     @Path("/devices/{deviceName}/vendordata")
     @Consumes("application/zip")
     public Response updateVendorData(@PathParam("deviceName") String deviceName, File file) throws Exception {
+        logRequest();
         try {
             ConfigurationChanges diffs = conf.updateDeviceVendorData(deviceName, Files.readAllBytes(file.toPath()));
             if (!diffs.isEmpty())
@@ -429,6 +437,7 @@ public class ConfigurationRS {
     @DELETE
     @Path("/devices/{deviceName}/vendordata")
     public Response deleteVendorData(@PathParam("deviceName") String deviceName) throws Exception {
+        logRequest();
         try {
             ConfigurationChanges diffs = conf.updateDeviceVendorData(deviceName);
             if (!diffs.isEmpty())

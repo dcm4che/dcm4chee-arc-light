@@ -103,6 +103,7 @@ public class QueueManagerRS {
     @NoCache
     @Produces("application/json")
     public Response search() throws Exception {
+        logRequest();
         return Response.ok(toEntity(mgr.search(queueName, parseStatus(status), parseInt(offset), parseInt(limit))))
                 .build();
     }
@@ -148,6 +149,7 @@ public class QueueManagerRS {
     @DELETE
     @Produces("application/json")
     public String deleteMessages() {
+        logRequest();
         return "{\"deleted\":"
                 + mgr.deleteMessages(queueName, parseStatus(status), parseDate(updatedBefore))
                 + '}';

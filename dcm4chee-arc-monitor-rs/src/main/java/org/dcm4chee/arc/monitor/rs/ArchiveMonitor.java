@@ -83,6 +83,7 @@ public class ArchiveMonitor {
     @Path("associations")
     @Produces("application/json")
     public StreamingOutput listOpenAssociations() throws Exception {
+        logRequest();
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {

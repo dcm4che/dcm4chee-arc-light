@@ -97,6 +97,7 @@ public class ArchiveCtrl {
     @Path("status")
     @Produces("application/json")
     public String status() {
+        logRequest();
         return "{\"status\":\"" + service.status(request) + "\"}";
     }
 

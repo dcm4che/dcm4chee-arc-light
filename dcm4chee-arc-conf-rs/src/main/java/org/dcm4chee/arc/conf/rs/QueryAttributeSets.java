@@ -43,12 +43,16 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
@@ -65,15 +69,20 @@ import java.util.Map;
 @Path("attribute-set")
 @RequestScoped
 public class QueryAttributeSets {
+    private static final Logger LOG = LoggerFactory.getLogger(QueryAttributeSets.class);
 
     @Inject
     private Device device;
+
+    @Context
+    private HttpServletRequest request;
 
     @GET
     @NoCache
     @Path("/{type}")
     @Produces("application/json")
     public StreamingOutput listAttributeSets(@PathParam("type") String type) {
+        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         final AttributeSet.Type attrSetType = attrSetTypeOf(type);
         return new StreamingOutput() {
             @Override
