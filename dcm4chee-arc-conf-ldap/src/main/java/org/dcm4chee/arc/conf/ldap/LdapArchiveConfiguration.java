@@ -1135,7 +1135,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    protected static void loadHL7OrderSPSStatus(
+    static void loadHL7OrderSPSStatus(
             Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String deviceDN, LdapDicomConfiguration config)
             throws NamingException {
         NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=hl7OrderSPSStatus)");
@@ -1235,7 +1235,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    protected static void mergeHL7OrderSPSStatus(
+    static void mergeHL7OrderSPSStatus(
             ConfigurationChanges diffs, Map<SPSStatus, HL7OrderSPSStatus> prev, Map<SPSStatus, HL7OrderSPSStatus> hl7OrderSPSStatusMap, String deviceDN,
             LdapDicomConfiguration config) throws NamingException {
         for (SPSStatus spsStatus : prev.keySet())
@@ -1936,7 +1936,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    protected static void loadHL7ForwardRules(
+    static void loadHL7ForwardRules(
             Collection<HL7ForwardRule> rules, String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=hl7ForwardRule)");
@@ -1954,7 +1954,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    protected static void loadScheduledStations(
+    static void loadScheduledStations(
             Collection<HL7OrderScheduledStation> stations, String parentDN, LdapDicomConfiguration config, Device device)
             throws NamingException, ConfigurationException {
         NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=hl7OrderScheduledStation)");
@@ -2093,7 +2093,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    protected static void mergeHL7ForwardRules(ConfigurationChanges diffs, Collection<HL7ForwardRule> prevRules, Collection<HL7ForwardRule> rules,
+    static void mergeHL7ForwardRules(ConfigurationChanges diffs, Collection<HL7ForwardRule> prevRules, Collection<HL7ForwardRule> rules,
                                                String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (HL7ForwardRule prevRule : prevRules) {
@@ -2123,7 +2123,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    protected static void mergeScheduledStations(ConfigurationChanges diffs, Collection<HL7OrderScheduledStation> prevStations, Collection<HL7OrderScheduledStation> stations,
+    static void mergeScheduledStations(ConfigurationChanges diffs, Collection<HL7OrderScheduledStation> prevStations, Collection<HL7OrderScheduledStation> stations,
                                                  String parentDN, LdapDicomConfiguration config)
             throws NamingException {
         for (HL7OrderScheduledStation prevRule : prevStations) {
