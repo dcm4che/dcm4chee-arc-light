@@ -39,7 +39,13 @@
             </field>
             <field/>
             <field>
-                <xsl:value-of select="$msgType" />
+                <xsl:value-of select="substring($msgType, 1, 3)" />
+                <component>
+                    <xsl:value-of select="substring($msgType, 5, 3)" />
+                </component>
+                <component>
+                    <xsl:value-of select="substring($msgType, 9, 7)" />
+                </component>
             </field>
             <field>
                 <xsl:value-of select="$msgControlID" />
