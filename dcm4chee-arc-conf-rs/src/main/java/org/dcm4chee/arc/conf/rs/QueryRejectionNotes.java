@@ -57,6 +57,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -83,7 +85,7 @@ public class QueryRejectionNotes {
             public void write(OutputStream out) throws IOException {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
-                for (RejectionNote rjNote : device.getDeviceExtension(ArchiveDeviceExtension.class).getRejectionNotes()) {
+                for (RejectionNote rjNote : sortedRejectionNotes()) {
                     if (rjNote.isRevokeRejection() != Boolean.parseBoolean(revokeRejection))
                         continue;
 
@@ -101,6 +103,13 @@ public class QueryRejectionNotes {
                 gen.flush();
             }
         };
+    }
+
+    private RejectionNote[] sortedRejectionNotes() {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        RejectionNote[] rejectionNotes = arcDev.getRejectionNotes().toArray(new RejectionNote[arcDev.getRejectionNotes().size()]);
+        Arrays.sort(rejectionNotes, Comparator.comparing(RejectionNote::getRejectionNoteLabel));
+        return rejectionNotes;
     }
 
 }

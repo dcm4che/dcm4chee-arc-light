@@ -56,6 +56,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -76,10 +78,9 @@ public class QueryQueues {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                ArchiveDeviceExtension ext = device.getDeviceExtension(ArchiveDeviceExtension.class);
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
-                for (QueueDescriptor queueDesc : ext.getQueueDescriptors()) {
+                for (QueueDescriptor queueDesc : sortedQueueDescriptors()) {
                     JsonWriter writer = new JsonWriter(gen);
                     gen.writeStartObject();
                     writer.writeNotNullOrDef("name", queueDesc.getQueueName(), null);
@@ -90,5 +91,12 @@ public class QueryQueues {
                 gen.flush();
             }
         };
+    }
+
+    private QueueDescriptor[] sortedQueueDescriptors() {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        QueueDescriptor[] queueDescriptors = arcDev.getQueueDescriptors().toArray(new QueueDescriptor[arcDev.getQueueDescriptors().size()]);
+        Arrays.sort(queueDescriptors, Comparator.comparing(QueueDescriptor::getQueueName));
+        return queueDescriptors;
     }
 }

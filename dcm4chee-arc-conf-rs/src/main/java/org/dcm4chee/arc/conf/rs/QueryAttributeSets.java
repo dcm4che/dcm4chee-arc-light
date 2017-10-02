@@ -38,7 +38,6 @@
 
 package org.dcm4chee.arc.conf.rs;
 
-import org.dcm4che3.conf.json.JsonConfiguration;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -69,9 +68,6 @@ public class QueryAttributeSets {
 
     @Inject
     private Device device;
-
-    @Inject
-    private JsonConfiguration jsonConf;
 
     @GET
     @NoCache
@@ -106,7 +102,7 @@ public class QueryAttributeSets {
     private AttributeSet.Type attrSetTypeOf(String type) {
         try {
             return AttributeSet.Type.valueOf(type);
-        } finally {
+        } catch (IllegalArgumentException e) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
     }

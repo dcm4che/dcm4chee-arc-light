@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.stgcmt.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,13 +52,13 @@ import javax.servlet.http.HttpServletRequest;
  * @since March 2017
  */
 public class StgCmtEventInfoImpl implements StgCmtEventInfo {
-    private String remoteAET;
+    private ApplicationEntity remoteAE;
     private String localAET;
     private HttpServletRequest request;
     private Attributes extendedEventInfo;
 
-    public StgCmtEventInfoImpl(String remoteAET, String localAET, Attributes extendedEventInfo) {
-        this.remoteAET = remoteAET;
+    public StgCmtEventInfoImpl(ApplicationEntity remoteAE, String localAET, Attributes extendedEventInfo) {
+        this.remoteAE = remoteAE;
         this.localAET = localAET;
         this.extendedEventInfo = extendedEventInfo;
     }
@@ -68,8 +69,8 @@ public class StgCmtEventInfoImpl implements StgCmtEventInfo {
     }
 
     @Override
-    public String getRemoteAET() {
-        return remoteAET;
+    public ApplicationEntity getRemoteAE() {
+        return remoteAE;
     }
 
     @Override

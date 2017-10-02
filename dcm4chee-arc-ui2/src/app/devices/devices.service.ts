@@ -9,10 +9,19 @@ export class DevicesService {
     constructor(private $http:Http) { }
 
     appendExporterToDevice(device, exporter){
-        device.dcmArchiveDevice = device.dcmArchiveDevice || {};
-        device.dcmArchiveDevice.dcmExporter = device.dcmArchiveDevice.dcmExporter || [];
-        device.dcmArchiveDevice.dcmExporter.push(exporter);
+        device.dcmDevice = device.dcmDevice || {};
+        device.dcmDevice.dcmArchiveDevice = device.dcmDevice.dcmArchiveDevice || {};
+        device.dcmDevice.dcmArchiveDevice.dcmExporter = device.dcmDevice.dcmArchiveDevice.dcmExporter || [];
+        device.dcmDevice.dcmArchiveDevice.dcmExporter.push(this.removeEmptyFieldsFromExporter(exporter));
         return device;
+    }
+    removeEmptyFieldsFromExporter(exporter){
+        _.forEach(exporter,(m,i)=>{
+            if(m === "" || m === undefined){
+                delete exporter[i];
+            }
+        });
+        return exporter;
     }
     changeAetOnClone(device,aes){
         if (_.hasIn(device, 'dicomNetworkAE') && _.size(device.dicomNetworkAE) > 0){

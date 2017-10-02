@@ -234,7 +234,7 @@ export class DynamicFormElementComponent{
                                 $this.mainservice.setMessage({
                                     'title': 'Info',
                                     'text': `Element removed from object successfully!`,
-                                    'status': 'Info'
+                                    'status': 'info'
                                 });
                                 $this.mainservice.setMessage({
                                     'title': 'Click to save',
