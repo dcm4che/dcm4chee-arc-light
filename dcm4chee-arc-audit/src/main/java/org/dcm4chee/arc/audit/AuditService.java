@@ -1368,6 +1368,8 @@ public class AuditService {
 
     private String getData(SpoolFileReader reader) {
         List<String> data = reader.getInstanceLines();
+        if (data.isEmpty())
+            return null;
         StringBuilder sb = new StringBuilder();
         sb.append(data.get(0));
         for (int i = 1; i < data.size(); i++)
