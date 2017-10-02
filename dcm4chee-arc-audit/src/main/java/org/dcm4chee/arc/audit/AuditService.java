@@ -1367,11 +1367,11 @@ public class AuditService {
     }
 
     private String getData(SpoolFileReader reader) {
-        List<String> ldapDiffs = reader.getInstanceLines();
+        List<String> data = reader.getInstanceLines();
         StringBuilder sb = new StringBuilder();
-        sb.append(ldapDiffs.get(0));
-        for (int i = 1; i < ldapDiffs.size(); i++)
-            sb.append('\n').append(ldapDiffs.get(i));
+        sb.append(data.get(0));
+        for (int i = 1; i < data.size(); i++)
+            sb.append('\n').append(data.get(i));
         return sb.toString();
     }
 
