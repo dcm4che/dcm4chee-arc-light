@@ -116,8 +116,8 @@ public class RESTfulHL7Sender {
                         tr.setParameter("msgType", msgType);
                         tr.setParameter("msgControlID", msg.msgControlID);
                         tr.setParameter("charset", msg.hl7cs);
-                        tr.setParameter("priorPatientID",
-                                ctx.getPreviousPatientID() != null ? ctx.getPreviousPatientID().toString() : null);
+                        if (ctx.getPreviousPatientID() != null)
+                            tr.setParameter("priorPatientID", ctx.getPreviousPatientID().toString());
                     }
                 });
     }
