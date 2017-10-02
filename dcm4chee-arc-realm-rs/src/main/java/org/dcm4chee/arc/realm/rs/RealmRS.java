@@ -58,6 +58,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import org.dcm4chee.arc.keycloak.KeycloakContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -68,6 +70,8 @@ import org.dcm4chee.arc.keycloak.KeycloakContext;
 @Path("realm")
 public class RealmRS {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RealmRS.class);
+
     @Context
     private HttpServletRequest request;
 
@@ -75,6 +79,7 @@ public class RealmRS {
     @NoCache
     @Produces("application/json")
     public StreamingOutput query() throws Exception {
+        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {

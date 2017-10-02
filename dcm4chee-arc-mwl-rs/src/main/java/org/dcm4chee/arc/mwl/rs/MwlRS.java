@@ -77,7 +77,6 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

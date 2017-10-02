@@ -40,12 +40,16 @@ package org.dcm4chee.arc.conf.rs;
 
 import org.dcm4che3.net.Device;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -54,14 +58,19 @@ import javax.ws.rs.Produces;
 @Path("devicename")
 @RequestScoped
 public class QueryDeviceName {
+    private static final Logger LOG = LoggerFactory.getLogger(QueryDeviceName.class);
 
     @Inject
     private Device device;
+
+    @Context
+    private HttpServletRequest request;
 
     @GET
     @NoCache
     @Produces("application/json")
     public String devicename() {
+        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         return "{\"dicomDeviceName\":\"" + device.getDeviceName() + "\"}";
     }
 }

@@ -46,12 +46,16 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.json.JsonArchiveConfiguration;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
@@ -65,6 +69,7 @@ import java.io.OutputStream;
 @Path("attribute-filter")
 @RequestScoped
 public class QueryAttributeFilter {
+    private static final Logger LOG = LoggerFactory.getLogger(QueryAttributeFilter.class);
 
     @Inject
     private Device device;
@@ -72,11 +77,15 @@ public class QueryAttributeFilter {
     @Inject
     private JsonConfiguration jsonConf;
 
+    @Context
+    private HttpServletRequest request;
+
     @GET
     @NoCache
     @Path("/{Entity}")
     @Produces("application/json")
     public StreamingOutput getAttributeFilter(@PathParam("Entity") String entityName) throws Exception {
+        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         final Entity entity;
         try {
             entity = Entity.valueOf(entityName);

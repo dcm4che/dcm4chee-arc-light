@@ -45,6 +45,8 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.impl.StgCmtEventInfoImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
@@ -66,6 +68,7 @@ import java.io.OutputStream;
 @RequestScoped
 @Path("aets/{aet}/rs")
 public class StorageCmtRS {
+    private static final Logger LOG = LoggerFactory.getLogger(StorageCmtRS.class);
 
     @Inject
     private StgCmtManager stgCmtMgr;
@@ -107,6 +110,7 @@ public class StorageCmtRS {
     }
 
     private StreamingOutput storageCommit(String studyUID, String seriesUID, String sopUID) {
+        LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         Attributes eventInfo = stgCmtMgr.calculateResult(studyUID, seriesUID, sopUID);
         stgCmtEvent.fire(new StgCmtEventInfoImpl(request, eventInfo));
         return new StreamingOutput() {

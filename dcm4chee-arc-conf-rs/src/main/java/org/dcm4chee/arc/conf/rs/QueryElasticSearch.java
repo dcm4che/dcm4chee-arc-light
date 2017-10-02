@@ -43,12 +43,16 @@ package org.dcm4chee.arc.conf.rs;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 
 
 /**
@@ -58,14 +62,19 @@ import javax.ws.rs.Produces;
 @Path("elasticsearch")
 @RequestScoped
 public class QueryElasticSearch {
+    private static final Logger LOG = LoggerFactory.getLogger(QueryElasticSearch.class);
 
     @Inject
     private Device device;
+
+    @Context
+    private HttpServletRequest request;
 
     @GET
     @NoCache
     @Produces("application/json")
     public String getElasticSearchURL() throws Exception {
+        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         return "{\"url\":\"" + device.getDeviceExtension(ArchiveDeviceExtension.class).getElasticSearchURL() + "\"}";
     }
 }
