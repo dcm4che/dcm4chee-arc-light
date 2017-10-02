@@ -740,11 +740,11 @@
                     <div style="width:6%" class="th" title="Scheduled Station AE Title">SS AE Title</div>
                 </div>
             </div>
-            <div class="headerbuttons" *ngIf="filterMode != 'diff' && isRole('admin') && externalInternalAetMode === 'internal'">
+            <div class="headerbuttons" *ngIf="filterMode != 'diff' && isRole('admin')">
                 <button title="Toggle checkboxes for selection" class="activate_checkboxes" (click)="showCheckBoxes()"><i class="material-icons">playlist_add_check</i></button>
                 <div class="movegroup">
-                    <button [ngClass]="{'disabled':selected.hasPatient===true}" title="Copy selected studies/series/instances to clipboard" class="copyselected" (click)="ctrlC()"><i class="material-icons">content_copy</i></button>
-                    <button [ngClass]="{'disabled':selected.hasPatient===true}" title="Cut selected studies/series/instances to clipboard" class="moveselected" (click)="ctrlX()"><i class="material-icons">content_cut</i></button>
+                    <button *ngIf="externalInternalAetMode === 'internal'" [ngClass]="{'disabled':selected.hasPatient===true}" title="Copy selected studies/series/instances to clipboard" class="copyselected" (click)="ctrlC()"><i class="material-icons">content_copy</i></button>
+                    <button *ngIf="externalInternalAetMode === 'internal'" [ngClass]="{'disabled':selected.hasPatient===true}" title="Cut selected studies/series/instances to clipboard" class="moveselected" (click)="ctrlX()"><i class="material-icons">content_cut</i></button>
                     <button title="Add for merge (Add selected patient in the clipboard for Merge)" class="moveselected" (click)="merge()"><i class="material-icons">supervisor_account</i></button>
                     <button title="Paste/merge studies/series/instances/patient that are in the clipboard to the selected object - open the copy/move/merge dialog" class="pasteselected" (click)="ctrlV()"><i class="material-icons">content_paste</i></button>
                 </div>
@@ -767,7 +767,7 @@
                     </div>
                       <div class="exeq_buttons">
                           <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,3)"></div>
-                          <div class="checkbox_content hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'">
+                          <div class="checkbox_content hiddenbuttons">
                               <input type="checkbox" [ngModel]="patient._VALUE.selected" name="select" (change)='select(patient._VALUE,"patient",{"patientkey":patient._KEY},"fromcheckbox")'>
                           </div>
                           <a class="table_btn hiddenbuttons" *ngIf="isRole('admin')" (click)="$event.preventDefault();editPatient(patient._VALUE, patient._KEY);" href="" title="Edit Patient">
@@ -820,7 +820,7 @@
                 <div class="tbody">
                     <div class="tr_row">
                         <div class="more_menu_content" *ngIf="filterMode != 'diff'">
-                            <div class="more_menu_study" [ngClass]="{show_checkboxes:showCheckboxes}">
+                            <div class="more_menu_study" [ngClass]="{show_checkboxes:showCheckboxes && externalInternalAetMode === 'internal'}">
                                 <div class="colcell" [innerHtml]="study._VALUE.offset+1+'.'"> </div>
                                 <div class="exeq_buttons">
                                     <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event, 5)"></div>
@@ -936,7 +936,7 @@
                                 <div class="repeat2" *ngFor="let series of study._VALUE.series | getKey" contextmenu-item="series" >
                                     <div class="subblock">
                                         <div class="more_menu_content">
-                                            <div class="more_menu_study" [ngClass]="{show_checkboxes:showCheckboxes}">
+                                            <div class="more_menu_study" [ngClass]="{show_checkboxes:showCheckboxes && externalInternalAetMode === 'internal'}">
                                                 <div class="td_cell colcell" [innerHtml]="series._VALUE.offset+1+'.'"> </div>
                                                 <div class="exeq_buttons" >
                                                     <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,6)"></div>
@@ -986,7 +986,7 @@
                                         </div>
                                         <div class="repeat3" *ngFor="let instance of series._VALUE.instances | getKey" contextmenu-item="instance">
                                             <div class="more_menu_content instance_level">
-                                                <div class="more_menu_study repeat3block" [ngClass]="{show_checkboxes:showCheckboxes}">
+                                                <div class="more_menu_study repeat3block" [ngClass]="{show_checkboxes:showCheckboxes && externalInternalAetMode === 'internal'}">
                                                     <div class="td_cell colcell" [innerHtml]="instance._VALUE.offset+1+'.'"> </div>
                                                     <div class="exeq_buttons">
                                                         <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,7)"></div>

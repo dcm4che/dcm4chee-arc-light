@@ -9,6 +9,9 @@
             <label *ngIf="noDicomExporters.length > 0">
                 <input type="radio" name="exportType" value="nonedicom" [(ngModel)]="result.exportType"> Queued exporter
             </label>
+            <label *ngIf="noDicomExporters.length === 0" class="text-danger">
+                <input type="radio" name="exportType" value="nonedicom" DISABLED> For queued exporter create an exporter first!
+            </label>
             <div class="dicomBlock" *ngIf="result.exportType == 'dicom'">
                 <p>Select the destination AETitle:</p>
 <!--                <select class="prefix" [(ngModel)]="result.dicomPrefix">

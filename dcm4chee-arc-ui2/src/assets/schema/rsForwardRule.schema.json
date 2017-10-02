@@ -14,7 +14,7 @@
     },
     "dcmURI": {
       "title": "Target Base URL",
-      "description": "Target URL without operation specific part: http://<host>:<port>/dcm4chee-arc/aets/<aet>/rs/.",
+      "description": "Target URL without operation specific part, eg. http://<host>:<port>/dcm4chee-arc/aets/<aet>/rs/",
       "type": "string"
     },
     "dcmRSOperation": {

@@ -221,12 +221,12 @@ public class PurgeStorageScheduler extends Scheduler {
                     storage.deleteObject(m.getStoragePath());
                     ejb.removeMetadata(m);
                     LOG.debug("Successfully delete {} from {}", m, desc.getStorageURI());
-                } catch (IOException e) {
+                } catch (Exception e) {
                     ejb.failedToDelete(m);
                     LOG.warn("Failed to delete {} from {}", m, desc.getStorageURI(), e);
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.warn("Failed to access {}", desc.getStorageURI(), e);
         }
         return metadata.size() == fetchSize;
@@ -243,12 +243,12 @@ public class PurgeStorageScheduler extends Scheduler {
                     storage.deleteObject(location.getStoragePath());
                     ejb.removeLocation(location);
                     LOG.debug("Successfully delete {} from {}", location, desc.getStorageURI());
-                } catch (IOException e) {
+                } catch (Exception e) {
                     ejb.failedToDelete(location);
                     LOG.warn("Failed to delete {} from {}", location, desc.getStorageURI(), e);
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.warn("Failed to access {}", desc.getStorageURI(), e);
         }
         return locations.size() == fetchSize;

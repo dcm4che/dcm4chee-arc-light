@@ -1,6 +1,7 @@
 import {Injectable} from "@angular/core";
 import {AppService} from "../app.service";
 import * as _ from 'lodash';
+import {WindowRefService} from "./window-ref.service";
 
 @Injectable()
 export class HttpErrorHandler {
@@ -27,12 +28,16 @@ export class HttpErrorHandler {
                 });
 
             }catch (e){
-                this.mainservice.setMessage({
-                    'title': 'Error ' + error.status,
-                    'text': error.statusText + '!',
-                    'status': 'error',
-                    'detailError': error._body
-                });
+                if(error.status === 0 && error.statusText === ""){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }else{
+                    this.mainservice.setMessage({
+                        'title': 'Error ' + error.status,
+                        'text': error.statusText + '!',
+                        'status': 'error',
+                        'detailError': error._body
+                    });
+                }
             }
         }else{
             this.mainservice.setMessage({

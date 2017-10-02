@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.stgcmt;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.ApplicationEntity;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -50,7 +51,7 @@ import javax.servlet.http.HttpServletRequest;
  * @since March 2017
  */
 public interface StgCmtEventInfo {
-    String getRemoteAET();
+    ApplicationEntity getRemoteAE();
 
     String getLocalAET();
 

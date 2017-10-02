@@ -57,6 +57,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -82,7 +84,7 @@ public class QueryAETs {
             public void write(OutputStream out) throws IOException {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
-                for (ApplicationEntity ae : device.getApplicationEntities())
+                for (ApplicationEntity ae : sortedApplicationEntities())
                     writeTo(ae, gen);
                 gen.writeEnd();
                 gen.flush();
@@ -107,5 +109,12 @@ public class QueryAETs {
             writer.writeNotEmpty("dcmAcceptedUserRole", arcAE.getAcceptedUserRoles());
         }
         gen.writeEnd();
+    }
+
+    private ApplicationEntity[] sortedApplicationEntities() {
+        ApplicationEntity[] applicationEntities = device.getApplicationEntities().toArray(
+                new ApplicationEntity[device.getApplicationEntities().size()]);
+        Arrays.sort(applicationEntities, Comparator.comparing(ApplicationEntity::getAETitle));
+        return applicationEntities;
     }
 }

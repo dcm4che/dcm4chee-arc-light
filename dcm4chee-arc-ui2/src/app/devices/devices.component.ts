@@ -199,7 +199,6 @@ export class DevicesComponent {
                     .subscribe(
                         (device) => {
                             console.log('response', device);
-                            //TODO change hl7applicationname
                             $this.service.changeAetOnClone(device,$this.aes);
                             $this.service.changeHl7ApplicationNameOnClone(device, $this.mainservice.global.hl7);
                             console.log('device afterchange', device);

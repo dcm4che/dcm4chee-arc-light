@@ -17,7 +17,6 @@
       "title": "DICOM Transfer Syntax UID",
       "description": "A Transfer Syntax UID",
       "type": "string",
-      "pattern": "^[0-2]((\\.0)|(\\.[1-9][0-9]*))*$",
       "format": "dcmTransferSyntax"
     },
     "dcmRulePriority": {

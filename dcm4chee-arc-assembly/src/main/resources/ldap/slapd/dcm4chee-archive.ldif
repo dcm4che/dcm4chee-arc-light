@@ -925,6 +925,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.186 NAME 'dcmLinkMWLEntryUpdatePolic
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.187 NAME 'dcmAuditSoftwareConfigurationVerbose'
+  DESC 'Specifies if Child Objects and Attributes of created Objects should be included in Software Configuration Audit Message. Disabled if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1041,6 +1046,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmInvokeImageDisplayStudyURL $
     dcmCopyMoveUpdatePolicy $
     dcmLinkMWLEntryUpdatePolicy $
+    dcmAuditSoftwareConfigurationVerbose $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $

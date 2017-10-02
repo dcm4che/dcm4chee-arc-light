@@ -24,6 +24,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     params = [];
     recentParams;
     inClone;
+    pressedKey = [];
     submitValue;
     constructor(
         private route: ActivatedRoute,
@@ -52,6 +53,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
 
         if(this.inClone){
             let clonePart =  _.cloneDeep(_.get(this.service.device, this.recentParams.clone));
+            this.service.replaceOldAETitleWithTheNew(clonePart,value.dicomAETitle);
             _.set(this.service.device,  this.recentParams.devicereff,  clonePart);
         }
         this.service.addChangesToDevice(value, this.recentParams.devicereff);
@@ -300,6 +302,10 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         let newSchema = $this.service.getSchemaFromPath($this.service.schema, params['schema']);
         if (_.hasIn(params, 'clone')){
             newModel = _.get(this.service.device, params['clone']);
+            //TODO
+            if(params["schema"] === "properties.dicomNetworkAE"){
+
+            }
             this.inClone = true;
         }else{
             newModel = _.get(this.service.device, params['devicereff']);
@@ -364,6 +370,9 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     _.set(newSchema, refPath, subRefSchema);
                     refPath = '.' + refPath;
                 }
+                if(this.inClone){
+                    //TODO
+                }
                 _.set($this.service.schema, params['schema'], newSchema);
                 form = $this.service.convertSchemaToForm($this.model, newSchema, params);
                 $this.formObj = form;
@@ -404,6 +413,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             }
             this.router.navigateByUrl(breadcrumb.url);
         }
+
+
         ngOnDestroy(){
 
 
