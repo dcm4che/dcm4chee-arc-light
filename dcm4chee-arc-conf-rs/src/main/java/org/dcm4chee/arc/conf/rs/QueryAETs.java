@@ -44,6 +44,8 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -68,6 +70,7 @@ import java.util.Comparator;
 @Path("aets")
 @RequestScoped
 public class QueryAETs {
+    private static final Logger LOG = LoggerFactory.getLogger(QueryAETs.class);
 
     @Inject
     private Device device;
@@ -79,6 +82,7 @@ public class QueryAETs {
     @NoCache
     @Produces("application/json")
     public StreamingOutput query() throws Exception {
+        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {

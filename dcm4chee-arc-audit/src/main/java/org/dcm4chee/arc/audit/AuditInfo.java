@@ -68,9 +68,8 @@ class AuditInfo {
     static final int SOP_CUID = 17;
     static final int SOP_IUID = 18;
     static final int MPPS_UID = 19;
-    static final int HL7_MESSAGE_TYPE = 20;
-    static final int SUBMISSION_SET_UID = 21;
-    static final int IS_EXPORT = 22;
+    static final int SUBMISSION_SET_UID = 20;
+    static final int IS_EXPORT = 21;
 
     private final String[] fields;
 
@@ -96,7 +95,6 @@ class AuditInfo {
                 i.sopCUID,
                 i.sopIUID,
                 i.mppsUID,
-                i.hl7MessageType,
                 i.submissionSetUID,
                 i.isExport ? String.valueOf(true) : null
         };

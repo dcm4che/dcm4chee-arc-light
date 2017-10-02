@@ -45,6 +45,7 @@ import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.*;
@@ -88,10 +89,10 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public PatientMgtContext createPatientMgtContextHL7(HL7Application hl7App, Socket socket, HL7Segment msh) {
+    public PatientMgtContext createPatientMgtContextHL7(HL7Application hl7App, Socket socket, UnparsedHL7Message msg) {
         PatientMgtContextImpl ctx = new PatientMgtContextImpl(device);
         ctx.setSocket(socket);
-        ctx.setMSH(msh);
+        ctx.setUnparsedHL7Message(msg);
         ctx.setHL7Application(hl7App);
         return ctx;
     }

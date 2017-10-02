@@ -136,7 +136,7 @@ public class PatientServiceEJB {
     }
 
     private void logSuppressPatientCreate(PatientMgtContext ctx) {
-        LOG.info("{}: Suppress creation of Patient[id={}] by {}",  ctx, ctx.getPatientID(), ctx.getHL7MessageHeader());
+        LOG.info("{}: Suppress creation of Patient[id={}] by {}",  ctx, ctx.getPatientID(), ctx.getUnparsedHL7Message().msh());
     }
 
     public Patient findPatient(IDWithIssuer pid)

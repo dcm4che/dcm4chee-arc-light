@@ -46,6 +46,8 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAbort;
 import org.dcm4che3.net.pdu.AAssociateRJ;
 import org.dcm4che3.net.pdu.AAssociateRQ;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -67,6 +69,7 @@ import java.io.Writer;
 @RequestScoped
 @Path("aets/{AETitle}/dimse/{RemoteAET}")
 public class EchoRS {
+    private static final Logger LOG = LoggerFactory.getLogger(EchoRS.class);
 
     @Inject
     private DicomConfiguration conf;
@@ -116,6 +119,7 @@ public class EchoRS {
     @POST
     @Produces("application/json")
     public StreamingOutput echo() throws Exception {
+        LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity ae = getApplicationEntity();
         ApplicationEntity remote = getRemoteApplicationEntity();
         Association as = null;

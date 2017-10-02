@@ -115,6 +115,7 @@ public class ExportTaskRS {
     @NoCache
     @Produces("application/json")
     public Response search() throws Exception {
+        logRequest();
         return Response.ok(toEntity(
                 mgr.search(deviceName, exporterID, studyUID, parseDate(updatedBefore), parseStatus(status),
                     parseInt(offset), parseInt(limit))))

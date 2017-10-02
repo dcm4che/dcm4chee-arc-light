@@ -41,10 +41,10 @@
 package org.dcm4chee.arc.store.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.AcceptConflictingPatientID;
 import org.dcm4chee.arc.conf.AcceptMissingPatientID;
@@ -79,7 +79,7 @@ class StoreSessionImpl implements StoreSession {
     private HL7Application hl7App;
     private String calledAET;
     private Socket socket;
-    private HL7Segment msh;
+    private UnparsedHL7Message msg;
     private final StoreService storeService;
     private final Map<String, Storage> storageMap = new HashMap<>();
     private Study cachedStudy;
@@ -102,7 +102,7 @@ class StoreSessionImpl implements StoreSession {
         return httpRequest != null
                 ? httpRequest.getRemoteUser() + '@' + httpRequest.getRemoteHost() + "->" + ae.getAETitle()
                 : as != null ? as.toString()
-                : msh != null ? msh.toString()
+                : msg != null ? msg.msh().toString()
                 : ae.getAETitle();
     }
 
@@ -132,8 +132,8 @@ class StoreSessionImpl implements StoreSession {
         this.socket = socket;
     }
 
-    public void setMSH(HL7Segment msh) {
-        this.msh = msh;
+    public void setMsg(UnparsedHL7Message msg) {
+        this.msg = msg;
     }
 
     void setAssociation(Association as) {
@@ -164,8 +164,8 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
-    public HL7Segment getHL7MessageHeader() {
-        return msh;
+    public UnparsedHL7Message getUnparsedHL7Message() {
+        return msg;
     }
 
     @Override
@@ -205,7 +205,7 @@ class StoreSessionImpl implements StoreSession {
 
     @Override
     public String getCallingAET() {
-        return as != null ? as.getCallingAET() : msh != null ? msh.getSendingApplicationWithFacility() : null;
+        return as != null ? as.getCallingAET() : msg != null ? msg.msh().getSendingApplicationWithFacility() : null;
     }
 
     @Override

@@ -42,11 +42,10 @@ package org.dcm4chee.arc.patient.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.hl7.HL7Segment;
-import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
@@ -71,7 +70,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private HL7Application hl7app;
     private Association as;
     private Socket socket;
-    private HL7Segment msh;
+    private UnparsedHL7Message msg;
     private IDWithIssuer patientID;
     private Attributes attributes;
     private IDWithIssuer previousPatientID;
@@ -99,8 +98,8 @@ public class PatientMgtContextImpl implements PatientMgtContext {
         this.socket = socket;
     }
 
-    void setMSH(HL7Segment msh) {
-        this.msh = msh;
+    void setUnparsedHL7Message(UnparsedHL7Message msg) {
+        this.msg = msg;
     }
 
     void setAssociation(Association as) {
@@ -137,13 +136,16 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
-    public HL7Segment getHL7MessageHeader() {
-        return msh;
+    public UnparsedHL7Message getUnparsedHL7Message() {
+        return msg;
     }
 
     @Override
     public String getRemoteHostName() {
-        return httpRequest != null ? httpRequest.getRemoteHost() : socket.getInetAddress().getHostName();
+        return httpRequest != null
+                ? httpRequest.getRemoteHost()
+                : socket != null
+                    ? socket.getInetAddress().getHostName() : null;
     }
 
     @Override
@@ -153,7 +155,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
         ArchiveHL7ApplicationExtension arcHL7App =
                 hl7app.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
-        return arcHL7App != null && arcHL7App.isHl7NoPatientCreateMessageType(msh.getMessageType());
+        return arcHL7App != null && arcHL7App.isHl7NoPatientCreateMessageType(msg.msh().getMessageType());
     }
 
     @Override

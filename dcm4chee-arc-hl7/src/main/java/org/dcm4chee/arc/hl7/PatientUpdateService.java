@@ -69,7 +69,7 @@ class PatientUpdateService extends AbstractHL7Service {
         HL7Segment msh = msg.msh();
         String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
         Attributes attrs = SAXTransformer.transform(msg.data(), hl7cs, arcHL7App.patientUpdateTemplateURI(), null);
-        PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msh);
+        PatientMgtContext ctx = patientService.createPatientMgtContextHL7(hl7App, s, msg);
         ctx.setAttributes(attrs);
         if (ctx.getPatientID() == null)
             throw new HL7Exception(

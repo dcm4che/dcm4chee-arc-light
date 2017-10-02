@@ -105,6 +105,7 @@ public class StgCmtRS {
     @NoCache
     @Produces("application/json")
     public StreamingOutput listStgCmts() throws Exception {
+        logRequest();
         final List<StgCmtResult> stgCmtResults = mgr.listStgCmts(
                 statusOf(status), studyUID, exporterID, parseInt(offset), parseInt(limit));
         return new StreamingOutput() {
