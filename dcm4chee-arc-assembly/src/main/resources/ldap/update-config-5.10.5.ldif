@@ -11,6 +11,9 @@ dicomVendorData:< file:vendor-data.zip
 replace: dcmLinkMWLEntryUpdatePolicy
 dcmLinkMWLEntryUpdatePolicy: MERGE
 -
+replace: hl7OutgoingPatientUpdateTemplateURI
+hl7OutgoingPatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-dcm2adt.xsl
+-
 
 dn: dicomAETitle=UNKNOWN,dicomDeviceName=unknown,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: delete

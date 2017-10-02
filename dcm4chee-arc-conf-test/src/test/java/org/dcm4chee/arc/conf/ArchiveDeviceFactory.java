@@ -952,6 +952,7 @@ class ArchiveDeviceFactory {
     static final String DCM4CHEE_ARC_VERSION = "5.10.5";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
+    static final String HL7_DCM2ADT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-dcm2adt.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
     static final String DSR2TEXT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl";
     static final String HL7_ORU2DSR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-oru2dsr.xsl";
@@ -1310,6 +1311,7 @@ class ArchiveDeviceFactory {
         ext.setWadoSR2HtmlTemplateURI(DSR2HTML_XSL);
         ext.setWadoSR2TextTemplateURI(DSR2TEXT_XSL);
         ext.setPatientUpdateTemplateURI(HL7_ADT2DCM_XSL);
+        ext.setOutgoingPatientUpdateTemplateURI(HL7_DCM2ADT_XSL);
         ext.setUnzipVendorDataToURI(UNZIP_VENDOR_DATA);
         ext.setQidoMaxNumberOfResults(QIDO_MAX_NUMBER_OF_RESULTS);
         ext.setIanTaskPollingInterval(IAN_TASK_POLLING_INTERVAL);

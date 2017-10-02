@@ -1,5 +1,21 @@
 version: 1
 
+dn: cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomConfigurationRoot
+cn: DICOM Configuration
+
+dn: cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomDevicesRoot
+cn: Devices
+
+dn: cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomUniqueAETitlesRegistryRoot
+cn: Unique AE Titles Registry
+
+dn: cn=Unique HL7 Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: hl7UniqueApplicationNamesRegistryRoot
+cn: Unique HL7 Application Names Registry
+
 dn: dicomDeviceName=getscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
 dicomIssuerOfPatientID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
@@ -164,6 +180,7 @@ dicomManufacturerModelName: dcm4chee-arc
 dcmSeriesMetadataPollingInterval: PT1M
 dcmOverwritePolicy: SAME_SOURCE
 dcmSendPendingCGet: TRUE
+hl7OutgoingPatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-dcm2adt.xsl
 dcmQueryRetrieveViewID: hideRejected
 dcmAudit2JsonFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl
 dicomDeviceName: dcm4chee-arc
@@ -191,8 +208,8 @@ dcmRejectExpiredStudiesPollingInterval: P1D
 dcmDeleteRejectedPollingInterval: PT5M
 dcmRejectExpiredStudiesPollingStartTime: 00:00
 dcmLeadingCFindSCPQueryCacheStaleTimeout: PT5M
-dcmUnzipVendorDataToURI: ${jboss.server.temp.url}/dcm4chee-arc
 dcmAuditPollingInterval: PT1M
+dcmUnzipVendorDataToURI: ${jboss.server.temp.url}/dcm4chee-arc
 dcmHideSPSWithStatusFromMWL: STARTED
 dcmHideSPSWithStatusFromMWL: DEPARTED
 dcmHideSPSWithStatusFromMWL: CANCELLED

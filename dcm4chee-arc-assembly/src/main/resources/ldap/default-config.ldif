@@ -55,6 +55,7 @@ dcmLinkMWLEntryUpdatePolicy: MERGE
 dicomManufacturerModelName: dcm4chee-arc
 dcmOverwritePolicy: SAME_SOURCE
 dcmSendPendingCGet: TRUE
+hl7OutgoingPatientUpdateTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-dcm2adt.xsl
 dcmQueryRetrieveViewID: hideRejected
 dcmAudit2JsonFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2json+fhir.xsl
 dicomDeviceName: dcm4chee-arc
