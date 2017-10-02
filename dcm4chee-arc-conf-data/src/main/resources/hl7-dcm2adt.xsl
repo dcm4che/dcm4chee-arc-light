@@ -52,7 +52,7 @@
             <field/>
             <field/>
             <field>
-                <xsl:if test="$charset != 'ISO IR-6'">
+                <xsl:if test="$charset != 'ASCII'">
                     <xsl:value-of select="$charset"/>
                 </xsl:if>
             </field>
