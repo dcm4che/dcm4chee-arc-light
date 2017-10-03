@@ -92,7 +92,7 @@ import java.util.*;
 public class AuditService {
     private final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     private final String studyDate = "StudyDate";
-    private final String hl7v2msg = "HL7 v2 Message";
+    private final String hl7v2msg = "HL7v2 Message";
 
     @Inject
     private Device device;
