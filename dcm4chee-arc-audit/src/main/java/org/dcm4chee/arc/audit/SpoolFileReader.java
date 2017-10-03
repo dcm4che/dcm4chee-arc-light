@@ -43,8 +43,7 @@ package org.dcm4chee.arc.audit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -59,7 +58,7 @@ class SpoolFileReader {
     private static final Logger LOG = LoggerFactory.getLogger(SpoolFileReader.class);
     private String mainInfo;
     private List<String> instanceLines = new ArrayList<>();
-
+    private byte[] data;
 
     SpoolFileReader(Path p) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(p, StandardCharsets.UTF_8)) {
@@ -73,11 +72,30 @@ class SpoolFileReader {
         }
     }
 
+    SpoolFileReader(File file) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            this.mainInfo = reader.readLine();
+            int read;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            while ((read = reader.read()) != -1)
+                out.write(read);
+            data = out.toByteArray();
+            out.close();
+            reader.close();
+        } catch (Exception e) {
+            LOG.warn("Failed to read audit spool file", e);
+        }
+    }
+
     String getMainInfo() {
         return mainInfo;
     }
 
     List<String> getInstanceLines() {
         return instanceLines;
+    }
+
+    byte[] getData() {
+        return data;
     }
 }
