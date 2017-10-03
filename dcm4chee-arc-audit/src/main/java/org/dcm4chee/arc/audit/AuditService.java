@@ -92,7 +92,6 @@ import java.util.*;
 public class AuditService {
     private final Logger LOG = LoggerFactory.getLogger(AuditService.class);
     private final String studyDate = "StudyDate";
-    private final String hl7v2msg = "HL7v2 Message";
 
     @Inject
     private Device device;
@@ -990,12 +989,6 @@ public class AuditService {
     private void auditPatientRecord(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) throws IOException {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        ParticipantObjectDetail detail = null;
-        if (reader.getData().length > 0) {
-            detail = new ParticipantObjectDetail();
-            detail.setType(hl7v2msg);
-            detail.setValue(reader.getData());
-        }
         EventIdentificationBuilder ei = toBuildEventIdentification(et, auditInfo.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
         ActiveParticipantBuilder[] activeParticipantBuilder = buildPatientRecordActiveParticipants(auditLogger, et, auditInfo);
 
@@ -1005,10 +998,20 @@ public class AuditService {
                                                                 AuditMessages.ParticipantObjectTypeCode.Person,
                                                                 AuditMessages.ParticipantObjectTypeCodeRole.Patient)
                                                                 .name(auditInfo.getField(AuditInfo.P_NAME))
-                                                                .detail(detail)
+                                                                .detail(getHL7ParticipantObjectDetail(reader))
                                                                 .build();
 
         emitAuditMessage(auditLogger, ei, activeParticipantBuilder, patientPOI);
+    }
+
+    private ParticipantObjectDetail getHL7ParticipantObjectDetail(SpoolFileReader reader) {
+        ParticipantObjectDetail detail = null;
+        if (reader.getData().length > 0) {
+            detail = new ParticipantObjectDetail();
+            detail.setType("HL7v2 Message");
+            detail.setValue(reader.getData());
+        }
+        return detail;
     }
 
     private ActiveParticipantBuilder[] buildPatientRecordActiveParticipants(AuditLogger auditLogger, AuditServiceUtils.EventType et, AuditInfo auditInfo) {
