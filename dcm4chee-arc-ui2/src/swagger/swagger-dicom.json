@@ -111,7 +111,7 @@
           {
             "name": "count",
             "in": "query",
-            "description": "query number of matches",
+            "description": "query number of matches. Ignored for multipart/related;type=application/dicom+xml",
             "type": "boolean",
             "default": false
           },
@@ -233,7 +233,7 @@
           {
             "name": "count",
             "in": "query",
-            "description": "query number of matches",
+            "description": "query number of matches. Ignored for multipart/related;type=application/dicom+xml",
             "type": "boolean",
             "default": false
           },
@@ -425,7 +425,7 @@
           {
             "name": "count",
             "in": "query",
-            "description": "query number of matches",
+            "description": "query number of matches. Ignored for multipart/related;type=application/dicom+xml",
             "type": "boolean",
             "default": false
           },
@@ -553,7 +553,7 @@
           {
             "name": "count",
             "in": "query",
-            "description": "query number of matches",
+            "description": "query number of matches. Ignored for multipart/related;type=application/dicom+xml",
             "type": "boolean",
             "default": false
           },
@@ -667,7 +667,7 @@
           {
             "name": "count",
             "in": "query",
-            "description": "query number of matches",
+            "description": "query number of matches. Ignored for multipart/related;type=application/dicom+xml",
             "type": "boolean",
             "default": false
           },
@@ -775,7 +775,7 @@
           {
             "name": "count",
             "in": "query",
-            "description": "query number of matches",
+            "description": "query number of matches. Ignored for multipart/related;type=application/dicom+xml",
             "type": "boolean",
             "default": false
           },
@@ -883,7 +883,7 @@
           {
             "name": "count",
             "in": "query",
-            "description": "query number of matches",
+            "description": "query number of matches. Ignored for multipart/related;type=application/dicom+xml",
             "type": "boolean",
             "default": false
           },
