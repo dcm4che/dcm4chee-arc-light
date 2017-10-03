@@ -1476,6 +1476,7 @@ public class AuditService {
                                 StandardOpenOption.APPEND))) {
                             writer.writeLine(new AuditInfo(auditInfoBuilder));
                         }
+                        out.close();
                     }
                     if (!auditAggregate)
                         auditAndProcessFile(auditLogger, file);
