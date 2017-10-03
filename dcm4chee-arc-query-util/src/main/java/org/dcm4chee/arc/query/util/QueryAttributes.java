@@ -76,6 +76,7 @@ public class QueryAttributes {
                     addOrderByTag(entry.getValue());
                     break;
                 case "comparefield":
+                case "count":
                 case "different":
                 case "missing":
                 case "offset":

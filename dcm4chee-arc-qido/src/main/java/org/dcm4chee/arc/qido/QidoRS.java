@@ -118,6 +118,10 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String fuzzymatching;
 
+    @QueryParam("count")
+    @Pattern(regexp = "true|false")
+    private String count;
+
     @QueryParam("offset")
     @Pattern(regexp = "0|([1-9]\\d{0,4})")
     private String offset;
@@ -302,16 +306,16 @@ public class QidoRS {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, qido.includetags, model);
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
-        Query query = model.createQuery(service, ctx);
-        Transaction transaction = null;
-        try {
+        try (Query query = model.createQuery(service, ctx)) {
             query.initQuery();
-            query.setFetchSize(arcAE.getArchiveDeviceExtension().getQueryFetchSize());
+            if (Boolean.parseBoolean(count) && output == Output.JSON)
+                return Response.ok("{\"count\":" + query.count() + '}').build();
+
             int maxResults = arcAE.qidoMaxNumberOfResults();
             int offsetInt = parseInt(offset);
             int limitInt = parseInt(limit);
             int remaining = 0;
-            if (maxResults > 0 && (limitInt == 0 || limitInt >  maxResults) && !ctx.isConsiderPurgedInstances()) {
+            if (maxResults > 0 && (limitInt == 0 || limitInt > maxResults) && !ctx.isConsiderPurgedInstances()) {
                 int numResults = (int) (query.count() - offsetInt);
                 if (numResults <= 0)
                     return Response.noContent().build();
@@ -336,26 +340,27 @@ public class QidoRS {
                     list.add(model.getPk().asc());
                 query.orderBy(list.toArray(new OrderSpecifier<?>[list.size()]));
             }
-            transaction = query.beginTransaction();
-            query.executeQuery();
-            if (!query.hasMoreMatches())
-                return Response.noContent().build();
+            Transaction transaction = query.beginTransaction();
+            try {
+                query.setFetchSize(arcAE.getArchiveDeviceExtension().getQueryFetchSize());
+                query.executeQuery();
+                if (!query.hasMoreMatches())
+                    return Response.noContent().build();
 
-            Response.ResponseBuilder builder = Response.ok();
-            if (remaining > 0)
-                builder.header("Warning", warning(remaining));
+                Response.ResponseBuilder builder = Response.ok();
+                if (remaining > 0)
+                    builder.header("Warning", warning(remaining));
 
-            return builder.entity(
-                    output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
-                    .build();
-        } finally {
-            if (transaction != null)
+                return builder.entity(
+                        output.entity(this, method, query, model, model.getAttributesCoercion(service, ctx)))
+                        .build();
+            } finally {
                 try {
                     transaction.commit();
                 } catch (Exception e) {
                     LOG.warn("Failed to commit transaction:\n{}", e);
                 }
-            query.close();
+            }
         }
     }
 

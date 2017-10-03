@@ -45,11 +45,13 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.hibernate.Transaction;
 
+import java.io.Closeable;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Aug 2015
  */
-public interface Query {
+public interface Query extends Closeable {
     boolean isOptionalKeysNotSupported();
 
     void close();
