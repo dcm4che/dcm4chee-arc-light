@@ -986,9 +986,14 @@ public class AuditService {
     }
 
     private void auditPatientRecord(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) throws IOException {
-        SpoolFileReader reader = new SpoolFileReader(path);
+        SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-
+        ParticipantObjectDetail detail = null;
+        if (reader.getData().length > 0) {
+            detail = new ParticipantObjectDetail();
+            detail.setType("HL7v2");
+            detail.setValue(reader.getData());
+        }
         EventIdentificationBuilder ei = toBuildEventIdentification(et, auditInfo.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
         ActiveParticipantBuilder[] activeParticipantBuilder = buildPatientRecordActiveParticipants(auditLogger, et, auditInfo);
 
@@ -998,7 +1003,7 @@ public class AuditService {
                                                                 AuditMessages.ParticipantObjectTypeCode.Person,
                                                                 AuditMessages.ParticipantObjectTypeCodeRole.Patient)
                                                                 .name(auditInfo.getField(AuditInfo.P_NAME))
-                                                                .detail(getPod("HL7v2", getData(reader)))
+                                                                .detail(detail)
                                                                 .build();
 
         emitAuditMessage(auditLogger, ei, activeParticipantBuilder, patientPOI);
@@ -1464,9 +1469,11 @@ public class AuditService {
                     Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
                     try (BufferedOutputStream out = new BufferedOutputStream(
                             Files.newOutputStream(file, StandardOpenOption.APPEND))) {
-                        out.write(new AuditInfo(auditInfoBuilder).toString().getBytes());
-                        out.write('\n');
                         out.write(data);
+                        try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
+                                StandardOpenOption.APPEND))) {
+                            writer.writeLine(new AuditInfo(auditInfoBuilder));
+                        }
                     }
                     if (!auditAggregate)
                         auditAndProcessFile(auditLogger, file);
