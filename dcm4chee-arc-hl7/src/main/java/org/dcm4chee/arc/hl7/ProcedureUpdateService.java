@@ -117,7 +117,7 @@ public class ProcedureUpdateService extends AbstractHL7Service {
                     + attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence).getString(Tag.ScheduledProcedureStepStatus));
             return;
         }
-        ProcedureContext ctx = procedureService.createProcedureContextHL7(s, msh);
+        ProcedureContext ctx = procedureService.createProcedureContextHL7(s, msg);
         ctx.setPatient(pat);
         ctx.setAttributes(attrs);
         procedureService.updateProcedure(ctx);

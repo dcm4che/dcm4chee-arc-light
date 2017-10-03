@@ -43,8 +43,8 @@ package org.dcm4chee.arc.procedure.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 
@@ -61,7 +61,7 @@ import java.util.Set;
 public class ProcedureContextImpl implements ProcedureContext {
     private final HttpServletRequest httpRequest;
     private final Socket socket;
-    private final HL7Segment msh;
+    private final UnparsedHL7Message hl7msg;
     private Patient patient;
     private String studyInstanceUID;
     private Attributes attributes;
@@ -72,11 +72,11 @@ public class ProcedureContextImpl implements ProcedureContext {
     private Attributes sourceInstanceRefs;
 
     ProcedureContextImpl(HttpServletRequest httpRequest, Association as, Socket socket,
-                         HL7Segment msh) {
+                         UnparsedHL7Message hl7msg) {
         this.httpRequest = httpRequest;
         this.socket = socket;
-        this.msh = msh;
         this.as = as;
+        this.hl7msg = hl7msg;
     }
 
     @Override
@@ -102,8 +102,8 @@ public class ProcedureContextImpl implements ProcedureContext {
     }
 
     @Override
-    public HL7Segment getHL7MessageHeader() {
-        return msh;
+    public UnparsedHL7Message getUnparsedHL7Message() {
+        return hl7msg;
     }
 
     @Override

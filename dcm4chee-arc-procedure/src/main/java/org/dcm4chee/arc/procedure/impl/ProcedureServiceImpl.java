@@ -41,8 +41,8 @@
 package org.dcm4chee.arc.procedure.impl;
 
 import org.dcm4che3.data.*;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.entity.MWLItem;
@@ -75,8 +75,8 @@ public class ProcedureServiceImpl implements ProcedureService {
     private Event<ProcedureContext> procedureEvent;
 
     @Override
-    public ProcedureContext createProcedureContextHL7(Socket s, HL7Segment msh) {
-        return new ProcedureContextImpl(null, null, s, msh);
+    public ProcedureContext createProcedureContextHL7(Socket s, UnparsedHL7Message hl7msg) {
+        return new ProcedureContextImpl(null, null, s, hl7msg);
     }
 
     @Override

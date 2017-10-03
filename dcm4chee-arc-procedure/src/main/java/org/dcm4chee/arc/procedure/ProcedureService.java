@@ -40,8 +40,8 @@
 
 package org.dcm4chee.arc.procedure;
 
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.entity.MWLItem;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,7 +53,7 @@ import java.net.Socket;
  * @since Jun 2016
  */
 public interface ProcedureService {
-    ProcedureContext createProcedureContextHL7(Socket s, HL7Segment msh);
+    ProcedureContext createProcedureContextHL7(Socket s, UnparsedHL7Message hl7msg);
 
     ProcedureContext createProcedureContextWEB(HttpServletRequest httpRequest);
 

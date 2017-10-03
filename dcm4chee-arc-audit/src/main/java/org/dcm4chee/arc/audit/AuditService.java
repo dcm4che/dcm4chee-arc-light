@@ -990,12 +990,6 @@ public class AuditService {
     private void auditPatientRecord(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) throws IOException {
         SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        ParticipantObjectDetail detail = null;
-        if (reader.getData().length > 0) {
-            detail = new ParticipantObjectDetail();
-            detail.setType(hl7v2msg);
-            detail.setValue(reader.getData());
-        }
         EventIdentificationBuilder ei = toBuildEventIdentification(et, auditInfo.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
         ActiveParticipantBuilder[] activeParticipantBuilder = buildPatientRecordActiveParticipants(auditLogger, et, auditInfo);
 
@@ -1005,10 +999,20 @@ public class AuditService {
                                                                 AuditMessages.ParticipantObjectTypeCode.Person,
                                                                 AuditMessages.ParticipantObjectTypeCodeRole.Patient)
                                                                 .name(auditInfo.getField(AuditInfo.P_NAME))
-                                                                .detail(detail)
+                                                                .detail(getHL7ParticipantObjectDetail(reader))
                                                                 .build();
 
         emitAuditMessage(auditLogger, ei, activeParticipantBuilder, patientPOI);
+    }
+
+    private ParticipantObjectDetail getHL7ParticipantObjectDetail(SpoolFileReader reader) {
+        ParticipantObjectDetail detail = null;
+        if (reader.getData().length > 0) {
+            detail = new ParticipantObjectDetail();
+            detail.setType(hl7v2msg);
+            detail.setValue(reader.getData());
+        }
+        return detail;
     }
 
     private ActiveParticipantBuilder[] buildPatientRecordActiveParticipants(AuditLogger auditLogger, AuditServiceUtils.EventType et, AuditInfo auditInfo) {
@@ -1046,10 +1050,16 @@ public class AuditService {
     }
 
     void spoolProcedureRecord(ProcedureContext ctx) {
+        UnparsedHL7Message hl7msg = ctx.getUnparsedHL7Message();
         AuditInfoBuilder info = ctx.getHttpRequest() != null
-                ? buildAuditInfoFORRestful(ctx)
-                : ctx.getAssociation() != null ? buildAuditInfoForAssociation(ctx) : buildAuditInfoFORHL7(ctx);
-        writeSpoolFile(AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode()), info);
+                                ? buildAuditInfoFORRestful(ctx)
+                                : hl7msg != null
+                                    ? buildAuditInfoFORHL7(ctx, hl7msg.msh()) : buildAuditInfoForAssociation(ctx);
+        AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode());
+        if (hl7msg != null)
+            writeSpoolFile(eventType, info, hl7msg.data());
+        else
+            writeSpoolFile(eventType, info);
     }
 
     private AuditInfoBuilder buildAuditInfoForAssociation(ProcedureContext ctx) {
@@ -1076,8 +1086,7 @@ public class AuditService {
                 .build();
     }
 
-    private AuditInfoBuilder buildAuditInfoFORHL7(ProcedureContext ctx) {
-        HL7Segment msh = ctx.getHL7MessageHeader();
+    private AuditInfoBuilder buildAuditInfoFORHL7(ProcedureContext ctx, HL7Segment msh) {
         return new AuditInfoBuilder.Builder()
                 .callingHost(ctx.getRemoteHostName())
                 .callingUserID(msh.getSendingApplicationWithFacility())
@@ -1085,7 +1094,6 @@ public class AuditService {
                 .studyUIDAccNumDate(ctx.getAttributes())
                 .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
-                .hl7MessageType(msh.getMessageType())
                 .build();
     }
 
@@ -1104,8 +1112,9 @@ public class AuditService {
     }
 
     private void auditProcedureRecord(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) throws IOException {
-        SpoolFileReader reader = new SpoolFileReader(path);
+        SpoolFileReader reader = new SpoolFileReader(path.toFile());
         AuditInfo prI = new AuditInfo(reader.getMainInfo());
+
         EventIdentificationBuilder ei = toBuildEventIdentification(et, prI.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
 
         ActiveParticipantBuilder[] activeParticipantBuilder = buildProcedureRecordActiveParticipants(auditLogger, prI);
@@ -1120,6 +1129,7 @@ public class AuditService {
                                                         AuditMessages.ParticipantObjectTypeCodeRole.Report)
                                                         .desc(desc)
                                                         .detail(getPod(studyDate, prI.getField(AuditInfo.STUDY_DATE)))
+                                                        .detail(getHL7ParticipantObjectDetail(reader))
                                                         .build();
         emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poiStudy, patientPOI(prI));
     }
