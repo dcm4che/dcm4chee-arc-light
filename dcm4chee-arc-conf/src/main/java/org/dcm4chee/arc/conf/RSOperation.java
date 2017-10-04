@@ -63,5 +63,6 @@ public enum RSOperation {
     UpdateSeriesExpirationDate,
     CreateMWL,
     UpdateMWL,
-    DeleteMWL
+    DeleteMWL,
+    LinkInstancesWithMWL
 }

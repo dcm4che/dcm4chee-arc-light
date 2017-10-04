@@ -508,6 +508,7 @@ public class IocmRS {
         ArchiveAEExtension arcAE = getArchiveAE();
         RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
         Attributes instanceRefs = parseSOPInstanceReferences(in);
+        Attributes forwardOriginal = new Attributes(instanceRefs);
 
         ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
         ctx.setStudyInstanceUID(studyUID);
@@ -542,7 +543,7 @@ public class IocmRS {
             result = storeService.copyInstances(session, instanceLocations);
             rejectInstances(instanceRefs, rjNote, session, result);
         }
-
+        rsForward.forward(RSOperation.LinkInstancesWithMWL, arcAE, forwardOriginal, request);
         return toResponse(result);
     }
 

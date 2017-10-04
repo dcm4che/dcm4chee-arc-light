@@ -61,6 +61,7 @@ import java.net.URI;
 import java.util.List;
 
 /**
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2017
  */
 
@@ -145,6 +146,7 @@ public class RSForward {
             case MoveInstances:
             case CreateMWL:
             case UpdateMWL:
+            case LinkInstancesWithMWL:
                 method = "POST";
                 break;
             case DeletePatient:
