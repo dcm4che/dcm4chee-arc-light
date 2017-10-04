@@ -52,6 +52,7 @@
       "type": "string",
       "default": "ASCII",
       "enum": [
+        "ASCII",
         "GB 18030-2000",
         "8859/1",
         "KS X 1001",
@@ -77,6 +78,7 @@
       "type": "string",
       "default": "ASCII",
       "enum": [
+        "ASCII",
         "GB 18030-2000",
         "8859/1",
         "KS X 1001",
