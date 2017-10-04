@@ -770,6 +770,8 @@ dcmTag: 00080050
 dcmTag: 00080051
 dcmAttributeSetType: DIFF_RS
 dcmAttributeSetID: accno
+dcmProperty: groupButtons=synchronize,export,reject
+dcmProperty: actions=study-reject-export,study-reject,study-export
 objectClass: dcmAttributeSet
 dcmAttributeSetNumber: 3
 
@@ -792,6 +794,8 @@ dcmTag: 00201206
 dcmTag: 00201208
 dcmAttributeSetType: DIFF_RS
 dcmAttributeSetID: study
+dcmProperty: groupButtons=synchronize,export,reject
+dcmProperty: actions=study-reject-export,study-reject,study-export
 objectClass: dcmAttributeSet
 dcmAttributeSetNumber: 1
 
@@ -805,6 +809,8 @@ dcmTag: 00100030
 dcmTag: 00100040
 dcmAttributeSetType: DIFF_RS
 dcmAttributeSetID: patient
+dcmProperty: groupButtons=synchronize
+dcmProperty: actions=patient-update
 objectClass: dcmAttributeSet
 dcmAttributeSetNumber: 2
 

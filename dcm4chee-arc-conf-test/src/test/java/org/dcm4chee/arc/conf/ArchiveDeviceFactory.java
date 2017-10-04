@@ -1374,17 +1374,23 @@ class ArchiveDeviceFactory {
                 1, "study",
                 "Study attributes",
                 "Compares only Study attributes",
-                DIFF_STUDY_ATTRS));
+                DIFF_STUDY_ATTRS,
+                "groupButtons=synchronize,export,reject",
+                "actions=study-reject-export,study-reject,study-export"));
         ext.addAttributeSet(newAttributeSet(AttributeSet.Type.DIFF_RS,
                 2, "patient",
                 "Patient attributes",
                 "Compares only Patient attributes",
-                DIFF_PAT_ATTRS));
+                DIFF_PAT_ATTRS,
+                "groupButtons=synchronize",
+                "actions=patient-update"));
         ext.addAttributeSet(newAttributeSet(AttributeSet.Type.DIFF_RS,
                 3, "accno",
                 "Request attributes",
                 "Compares Request attributes",
-                DIFF_ACCESSION_NUMBER));
+                DIFF_ACCESSION_NUMBER,
+                "groupButtons=synchronize,export,reject",
+                "actions=study-reject-export,study-reject,study-export"));
         ext.addAttributeSet(newAttributeSet(AttributeSet.Type.DIFF_RS,
                 4, "all",
                 "Patient and Study attributes",
@@ -1601,7 +1607,8 @@ class ArchiveDeviceFactory {
         }
     }
 
-    private static AttributeSet newAttributeSet(AttributeSet.Type type, int number, String id, String title, String desc, int[] tags) {
+    private static AttributeSet newAttributeSet(
+            AttributeSet.Type type, int number, String id, String title, String desc, int[] tags, String... props) {
         AttributeSet attributeSet = new AttributeSet();
         attributeSet.setType(type);
         attributeSet.setID(id);
@@ -1609,6 +1616,7 @@ class ArchiveDeviceFactory {
         attributeSet.setNumber(number);
         attributeSet.setDescription(desc);
         attributeSet.setSelection(tags);
+        attributeSet.setProperties(props);
         return attributeSet;
     }
 

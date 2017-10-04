@@ -17,3 +17,24 @@ changetype: modify
 replace: hl7SendingCharacterSet
 hl7SendingCharacterSet: 8859/1
 -
+
+dn: dcmAttributeSetID=accno+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmProperty
+dcmProperty: groupButtons=synchronize,export,reject
+dcmProperty: actions=study-reject-export,study-reject,study-export
+-
+
+dn: dcmAttributeSetID=study+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmProperty
+dcmProperty: groupButtons=synchronize,export,reject
+dcmProperty: actions=study-reject-export,study-reject,study-export
+-
+
+dn: dcmAttributeSetID=patient+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dcmProperty
+dcmProperty: groupButtons=synchronize
+dcmProperty: actions=patient-update
+-
