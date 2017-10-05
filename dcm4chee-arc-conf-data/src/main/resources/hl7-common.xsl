@@ -115,7 +115,7 @@
     <xsl:param name="tattoo"/>
     <xsl:if test="$chip/text() or $tattoo/text()">
       <DicomAttribute tag="00101002" vr="SQ">
-        <xsl:if test="$chip/text()">
+        <xsl:if test="not(contains($chip/text(), '&quot;&quot;'))">
           <xsl:call-template name="pidItem">
             <xsl:with-param name="itemNo" select="'1'"/>
             <xsl:with-param name="cx" select="$chip"/>
@@ -123,7 +123,7 @@
             <xsl:with-param name="pid-type" select="'RFID'"/>
           </xsl:call-template>
         </xsl:if>
-        <xsl:if test="$tattoo/text()">
+        <xsl:if test="not(contains($tattoo/text(), '&quot;&quot;'))">
           <xsl:call-template name="pidItem">
             <xsl:with-param name="itemNo">
               <xsl:choose>
@@ -332,10 +332,16 @@
         <xsl:with-param name="xpn" select="$owner"/>
       </xsl:call-template>
       <!-- Responsible Person Role -->
+      <xsl:variable name="ownerRole">
+        <xsl:call-template name="nullifyIfAbsent">
+          <xsl:with-param name="val" select="$owner/text()"/>
+          <xsl:with-param name="defaultVal" select="'OWNER'" />
+        </xsl:call-template>
+      </xsl:variable>
       <xsl:call-template name="attr">
         <xsl:with-param name="tag" select="'00102298'"/>
         <xsl:with-param name="vr" select="'CS'"/>
-        <xsl:with-param name="val" select="'OWNER'"/>
+        <xsl:with-param name="val" select="$ownerRole"/>
       </xsl:call-template>
     </xsl:if>
     <!-- Patient Species Description and Code Sequence -->
@@ -360,6 +366,19 @@
         </xsl:call-template>
       </xsl:with-param>
     </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="nullifyIfAbsent">
+    <xsl:param name="val" />
+    <xsl:param name="defaultVal" />
+    <xsl:choose>
+      <xsl:when test="not(contains($val, '&quot;&quot;'))">
+        <xsl:value-of select="$defaultVal" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$val" />
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template name="pidItem">

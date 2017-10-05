@@ -111,9 +111,11 @@ public class ProcedureServiceEJB {
                 if (mwlItem.getPatient().getPk() != patient.getPk())
                     throw new PatientMismatchException("" + patient + " does not match " +
                             mwlItem.getPatient() + " in previous " + mwlItem);
-                if (!mwlItem.getAttributes().updateSelected(ctx.getAttributeUpdatePolicy(), mwlAttrs, null))
+
+                Attributes attrs = mwlItem.getAttributes();
+                if (!attrs.update(ctx.getAttributeUpdatePolicy(), mwlAttrs, null))
                     return;
-                updateMWL(ctx, issuerOfAccessionNumber, mwlItem, mwlAttrs);
+                updateMWL(ctx, issuerOfAccessionNumber, mwlItem, attrs);
             }
         }
         for (Attributes mwlAttrs : mwlAttrsMap.values())
