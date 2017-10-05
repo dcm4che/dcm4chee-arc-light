@@ -792,11 +792,11 @@
                           <a class="table_btn" (click)="$event.preventDefault();patient._VALUE.showAttributes = !patient._VALUE.showAttributes" href="" title="Show Attributes">
                               <span class="glyphicon glyphicon-th-list"></span>
                           </a>
-                          <a *ngIf="isRole('admin') && !(patient._VALUE.studies || patient._VALUE.mwls) && filterMode != 'diff'" class="table_btn"  (click)="queryAllStudiesOfPatient(patient._VALUE,0, $event)" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
-                          <a *ngIf="isRole('admin') && (patient._VALUE.studies) && filterMode != 'diff'" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].studies = null" href="" title="Hide Studies">&#9660;</a>
+                          <a *ngIf="!(patient._VALUE.studies || patient._VALUE.mwls) && filterMode != 'diff'" class="table_btn"  (click)="queryAllStudiesOfPatient(patient._VALUE,0, $event)" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
+                          <a *ngIf="(patient._VALUE.studies) && filterMode != 'diff'" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].studies = null" href="" title="Hide Studies">&#9660;</a>
 
-                          <a *ngIf="isRole('admin') && !patients[patient._KEY].showStudies && filterMode === 'diff'" class="table_btn"  (click)="$event.preventDefault();patients[patient._KEY].showStudies = true" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
-                          <a *ngIf="isRole('admin') && patients[patient._KEY].showStudies && filterMode === 'diff'" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].showStudies = false" href="" title="Hide Studies">&#9660;</a>
+                          <a *ngIf="!patients[patient._KEY].showStudies && filterMode === 'diff'" class="table_btn"  (click)="$event.preventDefault();patients[patient._KEY].showStudies = true" href="" title="Show Studies">&#9658;</a> <!--[hidden]="patient._VALUE.studies || patient._VALUE.mwls"-->
+                          <a *ngIf="patients[patient._KEY].showStudies && filterMode === 'diff'" class="table_btn" (click)="$event.preventDefault();patients[patient._KEY].showStudies = false" href="" title="Hide Studies">&#9660;</a>
 
                           <a class="table_btn" *ngIf="!patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = true" href="" title="Show MWLs">&#9658;</a>
                           <a class="table_btn" *ngIf="patient._VALUE.showmwls && patient._VALUE.mwls" (click)="$event.preventDefault();patient._VALUE.showmwls = false" href="" title="Hide MWLs">&#9660;</a>
