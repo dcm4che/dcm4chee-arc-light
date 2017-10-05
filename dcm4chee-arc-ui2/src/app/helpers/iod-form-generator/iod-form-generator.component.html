@@ -9,7 +9,7 @@
                 <p-calendar class="{{o}}" *ngIf="object[o].vr === 'DA' && o != '00100040' && o != '00080005'" dataType="string" [(ngModel)]="object[o].Value[i]" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100"></p-calendar>
                 <select class="selectelement {{o}}" *ngIf="o === '00100040'"
                         [ngModel]="object[o].Value[0]"
-                        (ngModelChange)="onChange($event, 'object.00100040.Value[i]')"
+                        (ngModelChange)="onChange($event, 'object.00100040.Value[0]')"
                 >
                     <option [ngValue]="g.obj.Value[0]"  *ngFor="let g of options.genders" >{{g.title}}</option>
                 </select>
