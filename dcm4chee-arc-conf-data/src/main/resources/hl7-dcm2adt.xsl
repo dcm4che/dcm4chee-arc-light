@@ -11,6 +11,7 @@
     <xsl:param name="msgControlID" />
     <xsl:param name="charset" />
     <xsl:param name="priorPatientID" />
+    <xsl:param name="includeNullValues" />
 
     <xsl:template match="/NativeDicomModel">
         <hl7>
@@ -95,7 +96,9 @@
                 </xsl:call-template>
             </field>
             <field>
-                <xsl:value-of select="DicomAttribute[@tag='00100030']/Value" />
+                <xsl:call-template name="value">
+                    <xsl:with-param name="val" select="DicomAttribute[@tag='00100030']/Value" />
+                </xsl:call-template>
             </field>
             <field>
                 <xsl:value-of select="DicomAttribute[@tag='00100040']/Value" />
@@ -216,6 +219,18 @@
         </component>
     </xsl:template>
 
+    <xsl:template name="value">
+        <xsl:param name="val" />
+        <xsl:choose>
+            <xsl:when test="$val">
+                <xsl:value-of select="$val" />
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$includeNullValues" />
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
     <xsl:template name="neutered">
         <xsl:param name="val" />
         <xsl:if test="$val">
@@ -282,7 +297,9 @@
             </xsl:when>
             <xsl:otherwise>
                 <component>
-                    <xsl:value-of select="DicomAttribute[@tag=$descTag]/Value" />
+                    <xsl:call-template name="value">
+                        <xsl:with-param name="val" select="DicomAttribute[@tag=$descTag]/Value" />
+                    </xsl:call-template>
                 </component>
             </xsl:otherwise>
         </xsl:choose>

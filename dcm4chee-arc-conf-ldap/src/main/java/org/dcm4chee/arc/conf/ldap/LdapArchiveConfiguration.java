@@ -223,6 +223,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditUnknownPatientID",
                 ext.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmAuditSoftwareConfigurationVerbose", ext.isAuditSoftwareConfigurationVerbose(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7IncludeNullValues", ext.isHl7IncludeNullValues(), false);
     }
 
     @Override
@@ -372,6 +373,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditUnknownPatientID(LdapUtils.stringValue(
                 attrs.get("dcmAuditUnknownPatientID"), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID));
         ext.setAuditSoftwareConfigurationVerbose(LdapUtils.booleanValue(attrs.get("dcmAuditSoftwareConfigurationVerbose"), false));
+        ext.setHl7IncludeNullValues(LdapUtils.booleanValue(attrs.get("hl7IncludeNullValues"), false));
     }
 
     @Override
@@ -627,6 +629,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
         LdapUtils.storeDiff(ldapObj, mods, "dcmAuditSoftwareConfigurationVerbose",
                 aa.isAuditSoftwareConfigurationVerbose(), bb.isAuditSoftwareConfigurationVerbose(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "hl7IncludeNullValues",
+                aa.isHl7IncludeNullValues(), bb.isHl7IncludeNullValues(), false);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

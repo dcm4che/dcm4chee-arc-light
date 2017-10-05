@@ -91,4 +91,8 @@ public interface ProcedureContext {
     void setSourceInstanceRefs(Attributes sourceInstanceRefs);
 
     Set<String> getSourceSeriesInstanceUIDs();
+
+    Attributes.UpdatePolicy getAttributeUpdatePolicy();
+
+    void setAttributeUpdatePolicy(Attributes.UpdatePolicy updatePolicy);
 }

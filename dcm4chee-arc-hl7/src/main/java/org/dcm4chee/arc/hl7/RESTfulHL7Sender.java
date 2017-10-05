@@ -43,8 +43,10 @@ package org.dcm4chee.arc.hl7;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -118,6 +120,8 @@ public class RESTfulHL7Sender {
                         tr.setParameter("charset", msg.hl7cs);
                         if (ctx.getPreviousPatientID() != null)
                             tr.setParameter("priorPatientID", ctx.getPreviousPatientID().toString());
+                        if (msg.hl7IncludeNullValues && msgType.equals("ADT^A31^ADT_A05"))
+                            tr.setParameter("includeNullValues", "\"\"");
                     }
                 });
     }
@@ -126,14 +130,19 @@ public class RESTfulHL7Sender {
         private final String[] sendingAppWithFacility;
         private final String[] receivingAppWithFacility;
         private final String hl7cs;
+        private final boolean hl7IncludeNullValues;
         private final String msgControlID;
         private final String msgTimestamp;
+        private final ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
 
         HL7Msg(String sender, String receiver) {
             sendingAppWithFacility = appWithFacility(sender);
             receivingAppWithFacility = appWithFacility(receiver);
-            HL7DeviceExtension hl7Dev = device.getDeviceExtension(HL7DeviceExtension.class);
-            hl7cs = hl7Dev.getHL7Application(sender, true).getHL7SendingCharacterSet();
+            HL7Application hl7Application = device.getDeviceExtension(HL7DeviceExtension.class)
+                                                .getHL7Application(sender, true);
+            ArchiveHL7ApplicationExtension arcHL7AppExt = hl7Application.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+            hl7cs = hl7Application.getHL7SendingCharacterSet();
+            hl7IncludeNullValues = arcHL7AppExt != null ? arcHL7AppExt.hl7IncludeNullValues() : arcDev.isHl7IncludeNullValues();
             msgControlID = HL7Segment.nextMessageControlID();
             msgTimestamp = HL7Segment.timeStamp(new Date());
         }

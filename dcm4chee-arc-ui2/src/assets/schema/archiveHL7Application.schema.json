@@ -62,6 +62,12 @@
         "type": "string"
       }
     },
+    "hl7IncludeNullValues": {
+      "title": "HL7 Include Null Values",
+      "description": "Specifies if HL7 v2 null values (|\"\"|) in sent ADT^A31 messages, to communicate that the correspondent DICOM Attribute is absent or has no value, is used or not.",
+      "type": "boolean",
+      "default": false
+    },
     "hl7ForwardRule": {
       "title": "HL7 Forward Rule",
       "description": "HL7 Forward Rule. Supplements values specified on Device level.",

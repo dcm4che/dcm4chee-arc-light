@@ -78,6 +78,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledProtocolCodeInOrder", ext.getHl7ScheduledProtocolCodeInOrder(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ScheduledStationAETInOrder", ext.getHl7ScheduledStationAETInOrder(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7NoPatientCreateMessageType", ext.getHl7NoPatientCreateMessageTypes());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7IncludeNullValues", ext.getHl7IncludeNullValues(), null);
     }
 
     @Override
@@ -111,6 +112,7 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
         ext.setHl7ScheduledStationAETInOrder(LdapUtils.enumValue(ScheduledStationAETInOrder.class,
                 attrs.get("hl7ScheduledStationAETInOrder"), null));
         ext.setHl7NoPatientCreateMessageTypes(LdapUtils.stringArray(attrs.get("hl7NoPatientCreateMessageType")));
+        ext.setHl7IncludeNullValues(LdapUtils.booleanValue(attrs.get("hl7IncludeNullValues"), null));
     }
 
     @Override
@@ -162,6 +164,8 @@ public class LdapArchiveHL7Configuration extends LdapHL7ConfigurationExtension {
                 aa.getHl7ScheduledStationAETInOrder(), bb.getHl7ScheduledStationAETInOrder(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7NoPatientCreateMessageType",
                 aa.getHl7NoPatientCreateMessageTypes(), bb.getHl7NoPatientCreateMessageTypes());
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7IncludeNullValues",
+                aa.getHl7IncludeNullValues(), bb.getHl7IncludeNullValues(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveHL7Application")));

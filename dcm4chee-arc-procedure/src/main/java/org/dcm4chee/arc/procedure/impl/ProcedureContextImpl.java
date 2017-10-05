@@ -70,6 +70,7 @@ public class ProcedureContextImpl implements ProcedureContext {
     private String spsID;
     private Association as;
     private Attributes sourceInstanceRefs;
+    private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.OVERWRITE;
 
     ProcedureContextImpl(HttpServletRequest httpRequest, Association as, Socket socket,
                          UnparsedHL7Message hl7msg) {
@@ -175,6 +176,16 @@ public class ProcedureContextImpl implements ProcedureContext {
     @Override
     public void setSourceInstanceRefs(Attributes sourceInstanceRefs) {
         this.sourceInstanceRefs = sourceInstanceRefs;
+    }
+
+    @Override
+    public Attributes.UpdatePolicy getAttributeUpdatePolicy() {
+        return attributeUpdatePolicy;
+    }
+
+    @Override
+    public void setAttributeUpdatePolicy(Attributes.UpdatePolicy updatePolicy) {
+        this.attributeUpdatePolicy = updatePolicy;
     }
 
     @Override
