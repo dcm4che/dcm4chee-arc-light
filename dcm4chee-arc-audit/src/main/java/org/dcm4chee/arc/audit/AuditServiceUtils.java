@@ -40,10 +40,8 @@
 package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
-import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.patient.PatientMgtContext;
-import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.store.StoreContext;
 import java.nio.file.Path;
 
@@ -92,9 +90,7 @@ class AuditServiceUtils {
                 AuditMessages.RoleIDCode.ApplicationLauncher, AuditMessages.RoleIDCode.Application,
                 AuditMessages.EventTypeCode.ApplicationStop),
 
-        QUERY_QIDO(EventClass.QUERY, AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute,
-                AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
-        QUERY_FIND(EventClass.QUERY, AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute,
+        QUERY__EVT(EventClass.QUERY, AuditMessages.EventID.Query, AuditMessages.EventActionCode.Execute,
                 AuditMessages.RoleIDCode.Source, AuditMessages.RoleIDCode.Destination, null),
 
         CONN__RJCT(EventClass.CONN_REJECT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
@@ -150,10 +146,6 @@ class AuditServiceUtils {
             return event.getType() == ArchiveServiceEvent.Type.STARTED
                     ? AuditServiceUtils.EventType.APPLNSTART
                     : AuditServiceUtils.EventType.APPLN_STOP;
-        }
-
-        static EventType forQuery(QueryContext ctx) {
-            return (ctx.getHttpRequest() != null) ? QUERY_QIDO : QUERY_FIND;
         }
 
         static EventType forInstanceStored(StoreContext ctx) {

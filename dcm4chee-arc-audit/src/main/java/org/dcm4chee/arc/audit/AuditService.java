@@ -480,7 +480,7 @@ public class AuditService {
     void spoolQuery(QueryContext ctx) {
         boolean auditAggregate = getArchiveDevice().isAuditAggregate();
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
-        AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forQuery(ctx);
+        AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.QUERY__EVT;
         AuditInfo auditInfo = ctx.getHttpRequest() != null ? createAuditInfoForQIDO(ctx) : createAuditInfoForFIND(ctx);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
             if (!isSpoolingSuppressed(eventType, ctx.getCallingAET(), auditLogger)) {
@@ -586,7 +586,7 @@ public class AuditService {
                                     .roleIDCode(eventType.destination)
                                     .build();
             ParticipantObjectIdentificationBuilder poi;
-            if (eventType == AuditServiceUtils.EventType.QUERY_QIDO) {
+            if (archiveUserIDTypeCode == AuditMessages.UserIDTypeCode.URI) {
                 poi = new ParticipantObjectIdentificationBuilder.Builder(
                         qrI.getField(AuditInfo.Q_POID),
                         AuditMessages.ParticipantObjectIDTypeCode.QIDO_QUERY,

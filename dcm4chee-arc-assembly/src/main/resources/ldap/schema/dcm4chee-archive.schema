@@ -990,7 +990,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.166 NAME 'dcmAuditUnknownPatientID'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.167 NAME 'hl7ScheduledStationAETInOrder'
-  DESC 'Specifies location of Scheduled Station AE Title in received HL7 Order message. Enumerated values: ORC_18. Not effective for HL7 v2.5.1 OMI^O23 with IPC segment. If absent or no value is provided in the configured field, the Scheduled Station AE Title is selected according configured rules.'
+  DESC 'Specifies location of Scheduled Station AE Title in received HL7 Order message. Enumerated values: ORC_18. Should not be configured for HL7 v2.5.1 OMI^O23 with IPC segment. If absent or no value is provided in the configured field, the Scheduled Station AE Title is selected according configured rules.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )

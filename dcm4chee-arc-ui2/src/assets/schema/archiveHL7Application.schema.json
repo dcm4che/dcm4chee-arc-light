@@ -38,7 +38,7 @@
     },
     "hl7ScheduledStationAETInOrder": {
       "title": "HL7 Schedule Station AET in Order",
-      "description": "Specifies location of Scheduled Station AE Title in received HL7 Order message. Not effective for HL7 v2.5.1 OMI^O23 with IPC segment. Overwrites value specified on Device level.",
+      "description": "Specifies location of Scheduled Station AE Title in received HL7 Order message. Should not be configured for HL7 v2.5.1 OMI^O23 with IPC segment. Overwrites value specified on Device level.",
       "type": "string",
       "enum": [
         "ORC_18"
