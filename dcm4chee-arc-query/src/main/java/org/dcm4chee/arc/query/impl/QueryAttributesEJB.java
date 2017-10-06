@@ -96,7 +96,11 @@ public class QueryAttributesEJB {
                 .fetch()) {
             Integer numberOfInstancesI = tuple.get(QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances);
             if (numberOfInstancesI == null) {
-                builder.add(tuple, calculateSeriesQueryAttributes(tuple.get(QSeries.series.pk), queryParam));
+                builder.add(tuple, calculateSeriesQueryAttributes(
+                        tuple.get(QSeries.series.pk),
+                        queryParam.getQueryRetrieveView(),
+                        queryParam.getHideRejectionNotesWithCode(),
+                        queryParam.getShowInstancesRejectedByCode()));
             } else {
                 builder.add(tuple);
             }
@@ -106,11 +110,6 @@ public class QueryAttributesEJB {
         queryAttrs.setStudy(em.getReference(Study.class, studyPk));
         em.persist(queryAttrs);
         return queryAttrs;
-    }
-
-    private SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryParam queryParam) {
-        return calculateSeriesQueryAttributes(seriesPk, queryParam.getQueryRetrieveView(),
-                queryParam.getHideRejectionNotesWithCode(), queryParam.getShowInstancesRejectedByCode());
     }
 
     public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView,
