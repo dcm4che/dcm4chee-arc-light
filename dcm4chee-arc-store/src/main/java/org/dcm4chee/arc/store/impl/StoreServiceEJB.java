@@ -137,7 +137,8 @@ public class StoreServiceEJB {
             LOG.info("{}: Found previous received {}", session, prevInstance);
             Series prevSeries = prevInstance.getSeries();
             Study prevStudy = prevSeries.getStudy();
-            if (session.getCallingAET().equals(prevInstance.getExternalRetrieveAET())) {
+            String callingAET = session.getCallingAET();
+            if (callingAET != null && callingAET.equals(prevInstance.getExternalRetrieveAET())) {
                 if (containsDicomFile(locations)) {
                     logInfo(IGNORE, ctx);
                     return result;
