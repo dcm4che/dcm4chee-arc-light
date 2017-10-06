@@ -165,16 +165,20 @@
         <xsl:value-of select="DicomAttribute[@tag='00100020']/Value" />
         <xsl:variable name="issuerOfPID" select="DicomAttribute[@tag='00100021']/Value" />
         <xsl:variable name="issuerOfPIDSq" select="DicomAttribute[@tag='00100024']/Item" />
-        <component/><component/>
-        <component>
-            <xsl:value-of select="$issuerOfPID" />
-            <subcomponent>
-                <xsl:value-of select="$issuerOfPIDSq/DicomAttribute[@tag='00400032']/Value" />
-            </subcomponent>
-            <subcomponent>
-                <xsl:value-of select="$issuerOfPIDSq/DicomAttribute[@tag='00400033']/Value" />
-            </subcomponent>
-        </component>
+        <xsl:if test="$issuerOfPID">
+            <component/><component/>
+            <component>
+                <xsl:value-of select="$issuerOfPID" />
+                <xsl:if test="$issuerOfPIDSq">
+                    <subcomponent>
+                        <xsl:value-of select="$issuerOfPIDSq/DicomAttribute[@tag='00400032']/Value" />
+                    </subcomponent>
+                    <subcomponent>
+                        <xsl:value-of select="$issuerOfPIDSq/DicomAttribute[@tag='00400033']/Value" />
+                    </subcomponent>
+                </xsl:if>
+            </component>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template name="name">
@@ -213,10 +217,13 @@
         <xsl:param name="itemNo" />
         <xsl:variable name="item" select="$sq/Item[$itemNo]" />
         <xsl:value-of select="$item/DicomAttribute[@tag='00100020']/Value" />
-        <component/><component/>
-        <component>
-            <xsl:value-of select="$item/DicomAttribute[@tag='00100021']/Value" />
-        </component>
+        <xsl:variable name="issuerOfPID" select="$item/DicomAttribute[@tag='00100021']/Value" />
+        <xsl:if test="$issuerOfPID">
+            <component/><component/>
+            <component>
+                <xsl:value-of select="$issuerOfPID" />
+            </component>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template name="value">
@@ -253,19 +260,23 @@
         <xsl:variable name="issuer" select="substring-after(substring-after(substring-after($priorPatientID, '^'), '^'), '^')" />
         <xsl:variable name="issuerOfPIDSq" select="substring-after($issuer, '&amp;')" />
         <xsl:value-of select="$id"/>
-        <component/><component/>
-        <component>
-            <xsl:call-template name="decodePriorPatientID">
-                <xsl:with-param name="val" select="$issuer" />
-                <xsl:with-param name="delimiter" select="'&amp;'" />
-            </xsl:call-template>
-            <subcomponent>
-                <xsl:value-of select="substring-before($issuerOfPIDSq, '&amp;')" />
-            </subcomponent>
-            <subcomponent>
-                <xsl:value-of select="substring-after($issuerOfPIDSq, '&amp;')" />
-            </subcomponent>
-        </component>
+        <xsl:if test="$issuer">
+            <component/><component/>
+            <component>
+                <xsl:call-template name="decodePriorPatientID">
+                    <xsl:with-param name="val" select="$issuer" />
+                    <xsl:with-param name="delimiter" select="'&amp;'" />
+                </xsl:call-template>
+                <xsl:if test="$issuerOfPIDSq">
+                    <subcomponent>
+                        <xsl:value-of select="substring-before($issuerOfPIDSq, '&amp;')" />
+                    </subcomponent>
+                    <subcomponent>
+                        <xsl:value-of select="substring-after($issuerOfPIDSq, '&amp;')" />
+                    </subcomponent>
+                </xsl:if>
+            </component>
+        </xsl:if>
     </xsl:template>
 
     <xsl:template name="decodePriorPatientID">
@@ -285,6 +296,7 @@
         <xsl:param name="descTag" />
         <xsl:param name="sqTag" />
         <xsl:variable name="item" select="DicomAttribute[@tag=$sqTag]/Item" />
+        <xsl:variable name="desc" select="DicomAttribute[@tag=$descTag]/Value" />
         <xsl:choose>
             <xsl:when test="$item">
                 <xsl:value-of select="$item/DicomAttribute[@tag='00080100']/Value" />
@@ -295,13 +307,14 @@
                     <xsl:value-of select="$item/DicomAttribute[@tag='00080102']/Value" />
                 </component>
             </xsl:when>
-            <xsl:otherwise>
+            <xsl:when test="$desc">
                 <component>
                     <xsl:call-template name="value">
-                        <xsl:with-param name="val" select="DicomAttribute[@tag=$descTag]/Value" />
+                        <xsl:with-param name="val" select="$desc" />
                     </xsl:call-template>
                 </component>
-            </xsl:otherwise>
+            </xsl:when>
+            <xsl:otherwise/>
         </xsl:choose>
     </xsl:template>
 
