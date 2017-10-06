@@ -272,7 +272,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public boolean validateCallingAEHostname() {
         return validateCallingAEHostname != null
-                ? validateCallingAEHostname.booleanValue()
+                ? validateCallingAEHostname
                 : getArchiveDeviceExtension().isValidateCallingAEHostname();
     }
 
@@ -286,7 +286,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public boolean personNameComponentOrderInsensitiveMatching() {
         return personNameComponentOrderInsensitiveMatching != null
-                ? personNameComponentOrderInsensitiveMatching.booleanValue()
+                ? personNameComponentOrderInsensitiveMatching
                 : getArchiveDeviceExtension().isPersonNameComponentOrderInsensitiveMatching();
     }
 
@@ -300,7 +300,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public boolean sendPendingCGet() {
         return sendPendingCGet != null
-                ? sendPendingCGet.booleanValue()
+                ? sendPendingCGet
                 : getArchiveDeviceExtension().isSendPendingCGet();
     }
 
@@ -412,7 +412,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public boolean ianOnTimeout() {
         return ianOnTimeout != null
-                ? ianOnTimeout.booleanValue()
+                ? ianOnTimeout
                 : getArchiveDeviceExtension().isIanOnTimeout();
     }
 
@@ -510,7 +510,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public int fallbackCMoveSCPRetries() {
         return fallbackCMoveSCPRetries != null
-                ? fallbackCMoveSCPRetries.intValue()
+                ? fallbackCMoveSCPRetries
                 : getArchiveDeviceExtension().getFallbackCMoveSCPRetries();
     }
 
@@ -558,7 +558,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public int queryMaxNumberOfResults() {
         return queryMaxNumberOfResults != null
-                ? queryMaxNumberOfResults.intValue()
+                ? queryMaxNumberOfResults
                 : getArchiveDeviceExtension().getQueryMaxNumberOfResults();
     }
 
@@ -572,7 +572,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public int qidoMaxNumberOfResults() {
         return qidoMaxNumberOfResults != null
-                ? qidoMaxNumberOfResults.intValue()
+                ? qidoMaxNumberOfResults
                 : getArchiveDeviceExtension().getQidoMaxNumberOfResults();
     }
 
@@ -912,7 +912,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public boolean hl7PSUOnTimeout() {
         return hl7PSUOnTimeout != null
-                ? hl7PSUOnTimeout.booleanValue()
+                ? hl7PSUOnTimeout
                 : getArchiveDeviceExtension().isHl7PSUOnTimeout();
     }
 
@@ -926,7 +926,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public boolean hl7PSUMWL() {
         return hl7PSUMWL != null
-                ? hl7PSUMWL.booleanValue()
+                ? hl7PSUMWL
                 : getArchiveDeviceExtension().isHl7PSUMWL();
     }
 
