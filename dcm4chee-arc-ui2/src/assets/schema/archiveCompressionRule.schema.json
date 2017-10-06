@@ -27,8 +27,8 @@
       "minimum": 0
     },
     "dcmProperty": {
-      "title": "Property",
-      "description": "Property in format <name>=<value>",
+      "title": "Conditions",
+      "description": "Conditions in format {attributeID}[!]={regEx}",
       "type": "array",
       "items": {
         "type": "string"

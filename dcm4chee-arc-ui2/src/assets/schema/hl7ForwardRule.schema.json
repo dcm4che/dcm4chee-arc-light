@@ -22,8 +22,8 @@
       "format": "hl7ApplicationName"
     },
     "dcmProperty": {
-      "title": "Property",
-      "description": "Property in format <name>=<value>",
+      "title": "Conditions",
+      "description": "Conditions in format {attributeID}[!]={regEx} or MSH-#[!]={regEx}",
       "type": "array",
       "items": {
         "type": "string"
