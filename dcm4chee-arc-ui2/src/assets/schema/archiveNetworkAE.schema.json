@@ -396,13 +396,15 @@
     "hl7PSUSendingApplication": {
       "title": "HL7 Procedure Status Update Sending Application",
       "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. Overwrites value specified on Device level.",
-      "type": "string"
+      "type": "string",
+      "format": "hl7ApplicationName"
     },
     "hl7PSUReceivingApplication": {
       "title": "HL7 Procedure Status Update Receiving Application",
       "description": "Application|Facility name of Receiving Application for HL7 Procedure Status Update. Overwrites value specified on Device level.",
       "type": "array",
-      "items" : { "type": "string" }
+      "items" : { "type": "string" },
+      "format": "hl7ApplicationName"
     },
     "hl7PSUDelay": {
       "title": "HL7 Procedure Status Update Delay",

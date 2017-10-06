@@ -826,24 +826,28 @@
     "hl7ADTSendingApplication": {
       "title": "HL7 ADT Sending Application",
       "description": "Application|Facility name of Sending Application for HL7 ADT messages to synchronize external systems about performed Patient Information updates. If absent, synchronization of external systems by HL7 ADT messages is disabled.",
-      "type": "string"
+      "type": "string",
+      "format": "hl7ApplicationName"
     },
     "hl7ADTReceivingApplication": {
       "title": "HL7 ADT Receiving Application",
       "description": "Application|Facility name of Receiving Application for HL7 ADT messages to synchronize external systems about performed Patient Information updates. If absent, synchronization of external systems by HL7 ADT messages is disabled.",
       "type": "array",
-      "items" : { "type": "string" }
+      "items" : { "type": "string" },
+      "format": "hl7ApplicationName"
     },
     "hl7PSUSendingApplication": {
       "title": "HL7 Procedure Status Update Sending Application",
       "description": "Application|Facility name of Sending Application for HL7 Procedure Status Update. HL7 Procedure Status Update disabled, if absent. May be overwritten by configured values for particular Archive Network AEs.",
-      "type": "string"
+      "type": "string",
+      "format": "hl7ApplicationName"
     },
     "hl7PSUReceivingApplication": {
       "title": "HL7 Procedure Status Update Receiving Application",
       "description": "Application|Facility name of Receiving Application for HL7 Procedure Status Update. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "array",
-      "items" : { "type": "string" }
+      "items" : { "type": "string" },
+      "format": "hl7ApplicationName"
     },
     "hl7PSUDelay": {
       "title": "HL7 Procedure Status Update Delay",
