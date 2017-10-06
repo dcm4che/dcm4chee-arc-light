@@ -10,6 +10,9 @@ import {ControlService} from '../control/control.service';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {WindowRefService} from "../helpers/window-ref.service";
 import {HttpErrorHandler} from "../helpers/http-error-handler";
+import {AeListService} from "../ae-list/ae-list.service";
+import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
+import {DevicesService} from "../devices/devices.service";
 
 @Component({
   selector: 'app-device-configurator',
@@ -33,8 +36,11 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         private $http: Http,
         private mainservice: AppService,
         private controlService: ControlService,
-        public cfpLoadingBar: SlimLoadingBarService,
-        public httpErrorHandler:HttpErrorHandler
+        private cfpLoadingBar: SlimLoadingBarService,
+        private httpErrorHandler:HttpErrorHandler,
+        private aeService:AeListService,
+        private hl7Service:Hl7ApplicationsService,
+        private devicesService:DevicesService
     ) { }
     addModel(){
         let explod = this.params['device'].split('|');
@@ -173,6 +179,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                     $this.cfpLoadingBar.complete();
                                 }
                             );
+                            $this.refreshExternalRefferences();
                         },
                         (err) => {
                             _.assign($this.service.device, deviceClone);
@@ -194,6 +201,70 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             }
         }
     }
+    refreshExternalRefferences(){
+        this.getAes();
+        this.getHl7ApplicationsList();
+        this.getDevices();
+    }
+    getAes(){
+        let $this = this;
+        this.aeService.getAes()
+            .subscribe((response) => {
+                if ($this.mainservice.global && !$this.mainservice.global.aes){
+                    let global = _.cloneDeep($this.mainservice.global);
+                    global.aes = response;
+                    $this.mainservice.setGlobal(global);
+                }else{
+                    if ($this.mainservice.global && $this.mainservice.global.aes){
+                        $this.mainservice.global.aes = response;
+                    }else{
+                        $this.mainservice.setGlobal({aes: response});
+                    }
+                }
+            }, (response) => {
+                // vex.dialog.alert("Error loading aes, please reload the page and try again!");
+            });
+        // }
+    }
+    getHl7ApplicationsList(){
+        let $this = this;
+        this.hl7Service.getHl7ApplicationsList('').subscribe(
+            (response)=>{
+                if ($this.mainservice.global && !$this.mainservice.global.hl7){
+                    let global = _.cloneDeep($this.mainservice.global); //,...[{hl7:response}]];
+                    global.hl7 = response;
+                    $this.mainservice.setGlobal(global);
+                }else{
+                    if ($this.mainservice.global && $this.mainservice.global.hl7){
+                        $this.mainservice.global.hl7 = response;
+                    }else{
+                        $this.mainservice.setGlobal({hl7: response});
+                    }
+                }
+            },
+            (err)=>{
+            }
+        );
+    }
+    getDevices(){
+        let $this = this;
+        this.devicesService.getDevices().subscribe((response) => {
+            if ($this.mainservice.global && !$this.mainservice.global.devices){
+                let global = _.cloneDeep($this.mainservice.global); //,...[{devices:response}]];
+                global.devices = response;
+                $this.mainservice.setGlobal(global);
+            }else{
+                if ($this.mainservice.global && $this.mainservice.global.devices){
+                    $this.mainservice.global.devices = response;
+                }else{
+                    $this.mainservice.setGlobal({devices: response});
+                }
+            }
+        }, (err) => {
+            // vex.dialog.alert("Error loading device names, please reload the page and try again!");
+        });
+        // }
+    };
     ngOnInit() {
         let $this = this;
         let form;
