@@ -1562,7 +1562,7 @@ export class StudiesComponent implements OnDestroy{
                     console.log("oldPatientID",oldPatientID);
                     console.log("$this.service.getPatientId(patient.attrs)",$this.service.getPatientId(patient.attrs));
                     if(oldPatientID === $this.service.getPatientId(patient.attrs) || $this.externalInternalAetMode === "internal" || mode === "create"){
-                        let modifyPatientService = $this.service.modifyPatient(patient, res, oldPatientID, $this.aet, $this.getHl7ApplicationNameFormAETtitle($this.aet), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode);
+                        let modifyPatientService = $this.service.modifyPatient(patient, res, oldPatientID, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode);
                         if(modifyPatientService){
                             modifyPatientService.save.subscribe((response)=>{
                                 this.fireRightQuery();
@@ -1578,7 +1578,7 @@ export class StudiesComponent implements OnDestroy{
                         }
                     }else{
                         //If patient id was changed and the aetmode is external than change the patient id first than update the patient
-                        let changeExternalPatientIdService = $this.service.changeExternalPatientID($this.service.preparePatientObjectForExternalPatiendIdChange(originalPatientObject.attrs, patient.attrs), $this.getHl7ApplicationNameFormAETtitle($this.aet) ,  $this.externalInternalAetModel.hl7ApplicationName, oldPatientID);
+                        let changeExternalPatientIdService = $this.service.changeExternalPatientID($this.service.preparePatientObjectForExternalPatiendIdChange(originalPatientObject.attrs, patient.attrs), $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes) ,  $this.externalInternalAetModel.hl7ApplicationName, oldPatientID);
                         if(changeExternalPatientIdService){
                             changeExternalPatientIdService.save.subscribe((response)=>{
                                 this.mainservice.setMessage({
@@ -1586,7 +1586,7 @@ export class StudiesComponent implements OnDestroy{
                                     'text': changeExternalPatientIdService.successMsg,
                                     'status': 'info'
                                 });
-                                let modifyPatientService = $this.service.modifyPatient(patient, res, oldPatientID,$this.aet, $this.getHl7ApplicationNameFormAETtitle($this.aet), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode);
+                                let modifyPatientService = $this.service.modifyPatient(patient, res, oldPatientID,$this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode);
                                 if(modifyPatientService){
                                     modifyPatientService.save.subscribe((response)=>{
                                         this.fireRightQuery();
@@ -3073,7 +3073,7 @@ export class StudiesComponent implements OnDestroy{
                                 let object;
                                 let url;
                                 if(this.externalInternalAetMode === 'external'){
-                                    url = `../hl7apps/${$this.getHl7ApplicationNameFormAETtitle($this.aet)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.clipboard.patients)}/merge`;
+                                    url = `../hl7apps/${$this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.clipboard.patients)}/merge`;
                                     object = $this.selected.patients[0].attrs;
 
                                 }else{

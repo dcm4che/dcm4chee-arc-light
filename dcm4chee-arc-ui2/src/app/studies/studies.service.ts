@@ -574,6 +574,13 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             successMsg:'Patient ID changed successfully!'
         };
     }
+    getHl7ApplicationNameFormAETtitle(aet, aes){
+        for(let i = 0; i < aes.length; i++){
+            if(aet === aes[i].dicomAETitle){
+                return aes[i].hl7ApplicationName;
+            }
+        };
+    }
     modifyPatient(patient, iod, oldPatientID, aet,internalAppName, externalAppName,  modifyMode, externalInternalAetMode){
         let url;
         if(externalInternalAetMode === 'external'){
