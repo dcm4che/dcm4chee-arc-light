@@ -280,7 +280,8 @@ class ArchiveDeviceFactory {
             Tag.PertinentDocumentsSequence,
             Tag.PatientState,
             Tag.PatientClinicalTrialParticipationSequence,
-            Tag.ConfidentialityConstraintOnPatientDataDescription
+            Tag.ConfidentialityConstraintOnPatientDataDescription,
+            Tag.PatientSexNeutered
     };
 
     static final int[] STUDY_ATTRS = {
