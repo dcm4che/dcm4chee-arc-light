@@ -62,9 +62,9 @@
         "type": "string"
       }
     },
-    "hl7IncludeNullValues": {
-      "title": "HL7 Include Null Values",
-      "description": "Specifies if HL7 v2 null values (|\"\"|) in sent ADT^A31 messages, to communicate that the correspondent DICOM Attribute is absent or has no value, is used or not. Overwrites value specified on Device level.",
+    "hl7UseNullValue": {
+      "title": "Use HL7 Null Value",
+      "description": "Specifies if HL7 v2 null values (|\"\"|) are used in sent HL7 messages for not present or empty entity attributes. Required to unset entity attributes at the remote HL7 Application. Overwrites value specified on Device level.",
       "type": "boolean"
     },
     "hl7ForwardRule": {

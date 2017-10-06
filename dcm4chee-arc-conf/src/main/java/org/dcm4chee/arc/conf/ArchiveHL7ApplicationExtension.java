@@ -62,7 +62,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private String hl7ErrorLogFilePattern;
     private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
-    private Boolean hl7IncludeNullValues;
+    private Boolean hl7UseNullValue;
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
     private final ArrayList<HL7OrderScheduledStation> hl7OrderScheduledStations = new ArrayList<>();
     private final EnumMap<SPSStatus,HL7OrderSPSStatus> hl7OrderSPSStatuses = new EnumMap<>(SPSStatus.class);
@@ -83,7 +83,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7ErrorLogFilePattern = arcapp.hl7ErrorLogFilePattern;
         hl7ScheduledProtocolCodeInOrder = arcapp.hl7ScheduledProtocolCodeInOrder;
         hl7ScheduledStationAETInOrder = arcapp.hl7ScheduledStationAETInOrder;
-        hl7IncludeNullValues = arcapp.hl7IncludeNullValues;
+        hl7UseNullValue = arcapp.hl7UseNullValue;
         hl7ForwardRules.clear();
         hl7ForwardRules.addAll(arcapp.hl7ForwardRules);
         hl7OrderScheduledStations.clear();
@@ -184,18 +184,18 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
             : hl7NoPatientCreateMessageTypes.contains(messageType);
     }
 
-    public Boolean getHl7IncludeNullValues() {
-        return hl7IncludeNullValues;
+    public Boolean getHl7UseNullValue() {
+        return hl7UseNullValue;
     }
 
-    public void setHl7IncludeNullValues(Boolean hl7IncludeNullValues) {
-        this.hl7IncludeNullValues = hl7IncludeNullValues;
+    public void setHl7UseNullValue(Boolean hl7UseNullValue) {
+        this.hl7UseNullValue = hl7UseNullValue;
     }
 
-    public boolean hl7IncludeNullValues() {
-        return hl7IncludeNullValues != null
-                ? hl7IncludeNullValues
-                : getArchiveDeviceExtension().isHl7IncludeNullValues();
+    public boolean hl7UseNullValue() {
+        return hl7UseNullValue != null
+                ? hl7UseNullValue
+                : getArchiveDeviceExtension().isHl7UseNullValue();
     }
 
     public void removeHL7ForwardRule(HL7ForwardRule rule) {

@@ -176,7 +176,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private boolean hl7TrackChangedPatientID = true;
     private boolean auditSoftwareConfigurationVerbose = false;
-    private boolean hl7IncludeNullValues = false;
+    private boolean hl7UseNullValue = false;
     private String invokeImageDisplayPatientURL;
     private String invokeImageDisplayStudyURL;
     private String[] hl7ADTReceivingApplication = {};
@@ -1624,12 +1624,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return StringUtils.maskNull(auditUnknownPatientID, "<none>");
     }
 
-    public boolean isHl7IncludeNullValues() {
-        return hl7IncludeNullValues;
+    public boolean isHl7UseNullValue() {
+        return hl7UseNullValue;
     }
 
-    public void setHl7IncludeNullValues(boolean hl7IncludeNullValues) {
-        this.hl7IncludeNullValues = hl7IncludeNullValues;
+    public void setHl7UseNullValue(boolean hl7UseNullValue) {
+        this.hl7UseNullValue = hl7UseNullValue;
     }
 
     @Override
@@ -1755,7 +1755,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         auditUnknownStudyInstanceUID = arcdev.auditUnknownStudyInstanceUID;
         auditUnknownPatientID = arcdev.auditUnknownPatientID;
         auditSoftwareConfigurationVerbose = arcdev.auditSoftwareConfigurationVerbose;
-        hl7IncludeNullValues = arcdev.hl7IncludeNullValues;
+        hl7UseNullValue = arcdev.hl7UseNullValue;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

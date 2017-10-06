@@ -120,7 +120,7 @@ public class RESTfulHL7Sender {
                         tr.setParameter("charset", msg.hl7cs);
                         if (ctx.getPreviousPatientID() != null)
                             tr.setParameter("priorPatientID", ctx.getPreviousPatientID().toString());
-                        if (msg.hl7IncludeNullValues && msgType.equals("ADT^A31^ADT_A05"))
+                        if (msg.hl7UseNullValue && msgType.equals("ADT^A31^ADT_A05"))
                             tr.setParameter("includeNullValues", "\"\"");
                     }
                 });
@@ -130,7 +130,7 @@ public class RESTfulHL7Sender {
         private final String[] sendingAppWithFacility;
         private final String[] receivingAppWithFacility;
         private final String hl7cs;
-        private final boolean hl7IncludeNullValues;
+        private final boolean hl7UseNullValue;
         private final String msgControlID;
         private final String msgTimestamp;
         private final ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -142,7 +142,7 @@ public class RESTfulHL7Sender {
                                                 .getHL7Application(sender, true);
             ArchiveHL7ApplicationExtension arcHL7AppExt = hl7Application.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
             hl7cs = hl7Application.getHL7SendingCharacterSet();
-            hl7IncludeNullValues = arcHL7AppExt != null ? arcHL7AppExt.hl7IncludeNullValues() : arcDev.isHl7IncludeNullValues();
+            hl7UseNullValue = arcHL7AppExt != null ? arcHL7AppExt.hl7UseNullValue() : arcDev.isHl7UseNullValue();
             msgControlID = HL7Segment.nextMessageControlID();
             msgTimestamp = HL7Segment.timeStamp(new Date());
         }
