@@ -115,7 +115,7 @@
     <xsl:param name="tattoo"/>
     <xsl:if test="$chip/text() or $tattoo/text()">
       <DicomAttribute tag="00101002" vr="SQ">
-        <xsl:if test="not(contains($chip/text(), '&quot;&quot;'))">
+        <xsl:if test="not(contains($chip/text(), '&quot;&quot;')) and string-length($chip/text())>0">
           <xsl:call-template name="pidItem">
             <xsl:with-param name="itemNo" select="'1'"/>
             <xsl:with-param name="cx" select="$chip"/>
@@ -123,7 +123,7 @@
             <xsl:with-param name="pid-type" select="'RFID'"/>
           </xsl:call-template>
         </xsl:if>
-        <xsl:if test="not(contains($tattoo/text(), '&quot;&quot;'))">
+        <xsl:if test="not(contains($tattoo/text(), '&quot;&quot;')) and string-length($tattoo/text())>0">
           <xsl:call-template name="pidItem">
             <xsl:with-param name="itemNo">
               <xsl:choose>
