@@ -68,7 +68,7 @@
                         <div class="col-md-6">
                         </div>
                         <div class="col-md-6">
-                            <button class="btn btn-danger col-md-12" (click)="flushBefore()">Flush before</button>
+                            <button *ngIf="isRole('admin')" class="btn btn-danger col-md-12" (click)="flushBefore()">Flush before</button>
                         </div>
                     </div>
                 </div>
