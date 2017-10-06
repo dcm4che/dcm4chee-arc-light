@@ -96,6 +96,9 @@ class QueryServiceImpl implements QueryService {
     private QueryServiceEJB ejb;
 
     @Inject
+    QueryAttributesEJB queryAttributesEJB;
+
+    @Inject
     private CFindSCU cfindscu;
 
     @Inject
@@ -189,7 +192,7 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryParam queryParam) {
-        return ejb.calculateStudyQueryAttributes(studyPk, queryParam);
+        return queryAttributesEJB.calculateStudyQueryAttributes(studyPk, queryParam);
     }
 
     @Override
@@ -199,7 +202,7 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
-        return ejb.calculateSeriesQueryAttributes(seriesPk, qrView,
+        return queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView,
                 codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()),
                 codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()));
     }
