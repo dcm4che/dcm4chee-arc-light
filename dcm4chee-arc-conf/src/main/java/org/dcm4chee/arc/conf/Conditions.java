@@ -24,7 +24,7 @@ public class Conditions {
          for (String s : props) {
             int index = s.indexOf('=');
             if (index == -1)
-                throw new IllegalArgumentException(s);
+                throw new IllegalArgumentException("Condition in incorrect format : " + s);
             setCondition(s.substring(0, index), s.substring(index+1));
         }
     }

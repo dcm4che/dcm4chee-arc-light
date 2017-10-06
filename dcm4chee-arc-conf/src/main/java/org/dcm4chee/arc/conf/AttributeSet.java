@@ -125,7 +125,7 @@ public class AttributeSet implements Comparable<AttributeSet> {
         for (String s : ss) {
             int index = s.indexOf('=');
             if (index < 0)
-                throw new IllegalArgumentException(s);
+                throw new IllegalArgumentException("Property in incorrect format : " + s);
             setProperty(s.substring(0, index), s.substring(index+1));
         }
     }
