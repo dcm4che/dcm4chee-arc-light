@@ -2638,6 +2638,7 @@ export class StudiesComponent implements OnDestroy{
                         patientInSelectedObject = true;
                     }
                 });
+                patientobject["attrs"] = object.attrs || {};
                 console.log('patientobject =', this.service.getPatientId(patientobject));
                 if (!patientInSelectedObject){
                     this.selected['patients'].push(patientobject);
@@ -3058,24 +3059,25 @@ export class StudiesComponent implements OnDestroy{
                             $this.reject = result;
                             console.log("reject",$this.reject);
                             if ($this.clipboard.action === 'merge') {
-                                let object = {
-                                    priorPatientID: $this.clipboard.patients
-                                };
 /*                                console.log('object', object);
                                 console.log('in merge clipboard', $this.clipboard);
                                 console.log('in merge selected', $this.selected['otherObjects']);
                                 console.log('in merge selected', $this.selected.patients[0].PatientID);
                                 console.log('getpatientid', $this.service.getPatientId($this.selected.patients));*/
+                                let object;
                                 let url;
                                 if(this.externalInternalAetMode === 'external'){
-                                    url = `../hl7apps/${$this.getHl7ApplicationNameFormAETtitle($this.aet)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.selected.patients)}/merge`;
+                                    url = `../hl7apps/${$this.getHl7ApplicationNameFormAETtitle($this.aet)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.clipboard.patients)}/merge`;
+                                    object = $this.selected.patients[0].attrs;
                                 }else{
+                                    delete $this.clipboard.patients[0].attrs;
+                                    object =  $this.clipboard.patients;
                                     url = '../aets/' + $this.aet + '/rs/patients/' + $this.service.getPatientId($this.selected.patients) + '/merge';
                                 }
                                 console.log("url",url);
                                 $this.$http.post(
                                     url,
-                                    object.priorPatientID,
+                                    object,
                                     headers
                                 )
                                     .subscribe((response) => {
