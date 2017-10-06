@@ -19,6 +19,7 @@ import {ConfirmComponent} from '../dialogs/confirm/confirm.component';
 import {Http} from '@angular/http';
 import {RemovePartSelectorComponent} from '../dialogs/remove-part-selector/remove-part-selector.component';
 import {AppService} from '../../app.service';
+import {ControlService} from "../../control/control.service";
 
 @Component({
     selector: 'df-element',
@@ -47,6 +48,7 @@ export class DynamicFormElementComponent{
         public $http: Http,
         private ref: ChangeDetectorRef,
         private mainservice: AppService,
+        private controlService:ControlService
     ){
         // dcl.resolveComponentFactory(DynamicFormComponent);
         this.partRemoved = false;
@@ -140,9 +142,21 @@ export class DynamicFormElementComponent{
                 console.log($this.formelements);
                 $this.deviceConfiguratorService.device = {};
                 $this.deviceConfiguratorService.schema = {};
-                $this.router.navigateByUrl('blank').then(() => {
-                    $this.router.navigateByUrl(`/device/edit/${deviceName}`);
-                });
+                $this.controlService.reloadArchive().subscribe((res) => {
+                        $this.mainservice.setMessage({
+                            'title': 'Info',
+                            'text': 'Archive reloaded successfully',
+                            'status': 'info'
+                        });
+                        $this.router.navigateByUrl('blank').then(() => {
+                            $this.router.navigateByUrl(`/device/edit/${deviceName}`);
+                        });
+                    }, (err) => {
+                        $this.router.navigateByUrl('blank').then(() => {
+                            $this.router.navigateByUrl(`/device/edit/${deviceName}`);
+                        });
+                    }
+                );
             }
         });
     }
