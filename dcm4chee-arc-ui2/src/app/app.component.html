@@ -31,8 +31,8 @@
     <li (click)="showMenu = false;"><a routerLink="studies" routerLinkActive="active">Studies</a></li>
     <!--<li (click)="showMenu = false;"><a routerLink="queues" routerLinkActive="active">Queues</a></li>-->
     <li (click)="showMenu = false;"><a routerLink="monitoring/queues" routerLinkActive="active">Monitoring</a></li>
-    <li (click)="showMenu = false;"><a routerLink="control" routerLinkActive="active">Control</a></li>
-    <li (click)="showMenu = false;"><a routerLink="device/devicelist" routerLinkActive="active">Configuration</a></li>
+    <li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="control" routerLinkActive="active">Control</a></li>
+    <li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="device/devicelist" routerLinkActive="active">Configuration</a></li>
 </ul>
 <img src="assets/img/logo.png" class="logo" title="Product labelling" (click)="productLabelling()" >
 <router-outlet></router-outlet>
