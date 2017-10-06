@@ -392,7 +392,7 @@ export class Globalvar {
             },
             dcmExporterID:{
                 key:'dcmExporterID',
-                labelKey:'{dcmQueueName}',
+                labelKey:'{dcmExporterID}',
                 msg:'Create first an Exporter!',
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmExporter'
             },
