@@ -210,6 +210,9 @@ export class DeviceConfiguratorService{
             if (_.isArray(obj) && _.isArray(obj2)){
                 return obj2;
             }
+            if (obj === undefined && _.isArray(obj2) && obj2.length === 1 && obj2[0] === ""){
+                return null;
+            }
             if (obj != undefined  && obj2 != undefined && ((obj2 != '' && obj2 != 'inherent') || (obj2.length == 1 && obj2[0] != ''))){
                 return obj2;
             }
