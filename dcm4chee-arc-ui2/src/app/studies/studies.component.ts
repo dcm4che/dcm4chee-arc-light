@@ -3043,7 +3043,13 @@ export class StudiesComponent implements OnDestroy{
                         });
                         $this.clipboard.action = 'move';
                     }
-                    console.log("reject",this.reject);
+                    if(this.externalInternalAetMode === 'external' && ($this.selected.patients.length > 1 || $this.clipboard.patients.length > 1)){
+                        $this.mainservice.setMessage({
+                            'title': 'Warning',
+                            'text': 'External merge of multiple patients is not allowed, just the first selected patient will be taken for merge!',
+                            'status': 'warning'
+                        });
+                    }
                     this.dialogRef.componentInstance.clipboard = this.clipboard;
                     this.dialogRef.componentInstance.rjnotes = this.rjnotes;
                     this.dialogRef.componentInstance.selected = this.selected['otherObjects'];
@@ -3069,8 +3075,14 @@ export class StudiesComponent implements OnDestroy{
                                 if(this.externalInternalAetMode === 'external'){
                                     url = `../hl7apps/${$this.getHl7ApplicationNameFormAETtitle($this.aet)}/hl7/${$this.externalInternalAetModel.hl7ApplicationName}/patients/${$this.service.getPatientId($this.clipboard.patients)}/merge`;
                                     object = $this.selected.patients[0].attrs;
+
                                 }else{
                                     delete $this.clipboard.patients[0].attrs;
+                                    _.forEach($this.clipboard.patients,(pat,ind)=>{
+                                        if(_.hasIn(pat,"attrs")){
+                                            delete $this.clipboard.patients[ind].attrs;
+                                        }
+                                    });
                                     object =  $this.clipboard.patients;
                                     url = '../aets/' + $this.aet + '/rs/patients/' + $this.service.getPatientId($this.selected.patients) + '/merge';
                                 }
