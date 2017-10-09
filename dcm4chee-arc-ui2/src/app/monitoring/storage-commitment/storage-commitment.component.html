@@ -122,13 +122,13 @@
                     </td>
                     <td [innerHtml]="match.properties.dicomDeviceName"></td>
                     <td [innerHtml]="match.properties.status" ></td>
-                    <td [innerHtml]="match.properties.ExporterID"></td>
+                    <td [innerHtml]="match.properties.exporterID"></td>
                     <td [innerHtml]="match.properties.requested"></td>
                     <td [innerHtml]="match.properties.failures"></td>
                     <td [innerHtml]="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
                     <td [innerHtml]="match.properties.updatedTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
                     <td [innerHtml]="match.properties.transactionUID"></td>
-                    <td [innerHtml]="match.properties.StudyUID"></td>
+                    <td [innerHtml]="match.properties.studyUID"></td>
                 </tr>
                 <tr *ngIf="match.showProperties">
                     <td colspan="11">
