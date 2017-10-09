@@ -716,7 +716,8 @@
         "ISO_IR 192",
         "GB18030",
         "GBK"
-      ]
+      ],
+      "format": "dcmCharset"
     },
     "dcmStorePermissionServiceErrorCommentPattern": {
       "title": "Store Permission Service Error Comment Pattern",

@@ -109,7 +109,8 @@
           "ISO_IR 192",
           "GB18030",
           "GBK"
-        ]
+        ],
+        "format": "dcmCharset"
       }
     },
     "dicomInstalled": {

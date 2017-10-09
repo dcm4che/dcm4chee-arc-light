@@ -70,7 +70,8 @@
         "8859/9",
         "ISO IR159",
         "UNICODE"
-      ]
+      ],
+      "format": "hl7Charset"
     },
     "hl7SendingCharacterSet": {
       "title": "Sending Character Set",
@@ -96,7 +97,8 @@
         "8859/9",
         "ISO IR159",
         "UNICODE"
-      ]
+      ],
+      "format": "hl7Charset"
     },
     "dicomDescription": {
       "title": "HL7 Description",

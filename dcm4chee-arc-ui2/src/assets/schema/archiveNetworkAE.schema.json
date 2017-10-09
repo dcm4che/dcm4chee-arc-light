@@ -344,7 +344,8 @@
         "ISO_IR 192",
         "GB18030",
         "GBK"
-      ]
+      ],
+      "format": "dcmCharset"
     },
     "dcmRetrieveAET": {
       "title": "Retrieve AE Title",
