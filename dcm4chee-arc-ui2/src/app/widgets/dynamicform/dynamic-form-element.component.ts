@@ -415,6 +415,7 @@ export class DynamicFormElementComponent{
         formelement.showTimePicker = false;
         formelement.showDurationPicker = false;
         formelement.showSchedulePicker = false;
+        formelement.showCharSetPicker = false;
     }
 
     onFocuse(formelement,i=null) {
@@ -441,6 +442,14 @@ export class DynamicFormElementComponent{
                     formelement.showDurationPicker[i] = true;
                 }else{
                     formelement.showDurationPicker = true;
+                }
+            }
+            if(formelement.format === 'dcmCharset' || formelement.format === 'hl7Charset'){
+                if(i != null){
+                    formelement.showCharSetPicker = formelement.showCharSetPicker || {};
+                    formelement.showCharSetPicker[i] = true;
+                }else{
+                    formelement.showCharSetPicker = true;
                 }
             }
             if(formelement.format === 'dcmSchedule'){

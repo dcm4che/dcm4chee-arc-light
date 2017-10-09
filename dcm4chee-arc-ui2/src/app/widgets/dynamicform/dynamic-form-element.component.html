@@ -23,6 +23,7 @@
                 <time-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showTimePicker" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></time-picker>
                 <duration-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showDurationPicker" [value]="form.controls[formelement.key].value" [mode]="formelement.format" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></duration-picker>
                 <schedule-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showSchedulePicker" [value]="form.controls[formelement.key].value" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></schedule-picker>
+                <specific-char-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showCharSetPicker" [mode]="'configurator'" [value]="form.controls[formelement.key].value" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></specific-char-picker>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <input class="simple_input number" *ngSwitchCase="'number'" [formControlName]="formelement.key" [id]="formelement.key" type="number" />
@@ -68,6 +69,7 @@
                         <dictionary-picker *ngIf="formelement.controlType === 'arrayelement'  && formelement.format && formelement.showPicker && formelement.showPicker[i]" [dictionary]="formelement.format" [formelement]="formelement" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key].controls,i)"></dictionary-picker>
                         <time-picker *ngIf="formelement.controlType === 'arrayelement'  && formelement.format && formelement.showTimePicker && formelement.showTimePicker[i]" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key].controls,i)"></time-picker>
                         <schedule-picker *ngIf="formelement.controlType === 'arrayelement' && formelement.format && formelement.showSchedulePicker && formelement.showSchedulePicker[i]" [value]="item" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key].controls,i)"></schedule-picker>
+                        <specific-char-picker *ngIf="formelement.controlType === 'arrayelement' && formelement.format && formelement.showCharSetPicker && formelement.showCharSetPicker[i]" [mode]="'configurator'" [value]="item"  (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key].controls,i)"></specific-char-picker>
                     </div>
                     <div class="add" (click)="addArrayElement(formelement.value, form.controls[formelement.key].controls, form)"><i class="material-icons">add</i> Add</div>
                 </div>
