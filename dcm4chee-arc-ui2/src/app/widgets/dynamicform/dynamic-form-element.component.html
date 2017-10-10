@@ -29,7 +29,7 @@
                 <input class="simple_input number" *ngSwitchCase="'number'" [formControlName]="formelement.key" [id]="formelement.key" type="number" />
             </div>
             <div class="dropdown_parent" *ngIf="formelement.show || partSearch != ''">
-                    <select class="dropdown" *ngSwitchCase="'dropdown'" [id]="formelement.key" [formControlName]="formelement.key">
+                    <select class="dropdown" *ngSwitchCase="'dropdown'" [id]="formelement.key" [formControlName]="formelement.key" (change)="dropdownChange(formelement,form.controls[formelement.key])">
                         <option value="">-</option>
                         <option *ngFor="let opt of formelement.options " [value]="opt.value" [selected]="opt.active">{{opt.label}}</option>
                     </select>

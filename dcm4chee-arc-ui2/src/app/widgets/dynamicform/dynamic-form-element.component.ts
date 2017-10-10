@@ -417,7 +417,23 @@ export class DynamicFormElementComponent{
         formelement.showSchedulePicker = false;
         formelement.showCharSetPicker = false;
     }
-
+    dropdownChange(formelement,formcontrols){
+        if(formelement.options && formelement.options.length > 0){
+            let oneOptActive = false;
+            //Check active attriubte on change
+            _.forEach(formelement.options,(m,i)=>{
+                if(m.value === formcontrols.value){
+                    oneOptActive = true;
+                    m.active = true;
+                }else{
+                    m.active = false;
+                }
+            });
+            if(!oneOptActive && formcontrols.value === ""){
+                formcontrols.setValue("");
+            }
+        }
+    }
     onFocuse(formelement,i=null) {
         if(formelement.format){
             if(formelement.format === 'dcmTag' || formelement.format === 'dcmTransferSyntax' || formelement.format === 'dcmSOPClass'){
