@@ -123,7 +123,8 @@ public class StgCmtRS {
                     gen.write("objectUID", stgCmtResult.getSopInstanceUID());
                     gen.write("exporterID", stgCmtResult.getExporterID());
                     gen.write("requested", stgCmtResult.getNumberOfInstances());
-                    gen.write("failures", stgCmtResult.getNumberOfFailures());
+                    if (stgCmtResult.getNumberOfFailures() > 0)
+                        gen.write("failures", stgCmtResult.getNumberOfFailures());
                     gen.write("createdTime", stgCmtResult.getCreatedTime().toString());
                     gen.write("updatedTime", stgCmtResult.getUpdatedTime().toString());
                     gen.writeEnd();
