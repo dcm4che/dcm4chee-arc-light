@@ -6,8 +6,9 @@
     min-width: 175px;
     left: 0px;
     width: 100% !important;
+    top:35px;
 }
-.dictionary_widget{
+.char_widget{
     padding-top:45px;
     max-height: 300px;
     overflow: auto;
@@ -18,19 +19,20 @@
     -moz-box-shadow:  3px 4px 8px 6px #cccccc;
     box-shadow:  3px 4px 8px 6px #cccccc;
     width: 650px;
+    top:35px;
 }
-.dictionary_widget .no_result{
+.char_widget .no_result{
     padding: 0px 15px 30px 15px;
     min-width: 205px;
     font-size:18px;
     color: #914f4f;
 }
-.dictionary_widget ul.list{
+.char_widget ul.list{
     list-style: none;
     padding: 10px 15px;
     margin-top:30px;
 }
-.dictionary_widget ul li:hover{
+.char_widget ul li:hover{
     background:#ccc;
     cursor: pointer;
 }
@@ -39,6 +41,7 @@
     z-index: 999999;
     margin-left: 610px;
     margin-top: 8px;
+    top:35px;
 }
 .widghet_content .list_element{
     padding-left:10px;

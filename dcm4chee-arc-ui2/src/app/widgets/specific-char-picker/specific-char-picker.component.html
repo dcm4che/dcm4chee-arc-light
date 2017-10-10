@@ -7,11 +7,11 @@
 <div *ngIf="mode && mode === 'configurator'"  class="widghet_content" (keydown)="keyDown($event)">
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
     <input class="dictionary_widget_search" [(ngModel)]="filter" placeholder="  Search..">
-    <div class="dictionary_widget" >
+    <div class="char_widget" >
         <div class="list">
             <div *ngFor="let chargroup of specificChar|search:filter" >
                 <span title="{{chargroup.groupName}}" class="groupName">{{chargroup.groupName}}</span>
-                <div class="list_element" title="{{ char.title }} ({{char.value}})" *ngFor="let char of chargroup.groupValues" (click)="addSelectedElement(char.value)">{{ char.title }}</div>
+                <div class="list_element" title="{{ char.title }} ({{char.value}})" *ngFor="let char of chargroup.groupValues|search:filter" (click)="addSelectedElement(char.value)">{{ char.title }}</div>
             </div>
         </div>
     </div>

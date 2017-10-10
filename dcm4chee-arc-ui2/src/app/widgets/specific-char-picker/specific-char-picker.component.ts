@@ -16,12 +16,17 @@ export class SpecificCharPickerComponent implements OnInit {
     @Output() onValueSet = new EventEmitter();
     @Input() value;
     @Input() mode;
+    @Input() format;
     specificChar;
     filter = "";
     constructor() { }
 
     ngOnInit() {
-        this.specificChar = Globalvar.DICOM_SPECIFIC_CHAR;
+        if(this.format && this.format === "hl7Charset"){
+            this.specificChar = Globalvar.HL7_SPECIFIC_CHAR;
+        }else{
+            this.specificChar = Globalvar.DICOM_SPECIFIC_CHAR;
+        }
     }
     addSelectedElement(element){
         this.onValueSet.emit(element);

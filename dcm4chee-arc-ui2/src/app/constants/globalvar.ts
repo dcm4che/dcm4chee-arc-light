@@ -234,6 +234,91 @@ export class Globalvar {
             }
         };
     }
+
+    public static get HL7_SPECIFIC_CHAR(): any{
+        return [
+            {
+                groupName:"Single-Byte Character Sets",
+                groupValues:[
+                    {
+                        title: "ASCII",
+                        value: "ASCII"
+                    },
+                    {
+                        title:"GB 18030-2000",
+                        value:"GB 18030-2000"
+                    },
+                    {
+                        title:"Latin alphabet No. 1",
+                        value:"8859/1"
+                    },
+
+                    {
+                        title:"Latin alphabet No. 2",
+                        value:"8859/2"
+                    },
+                    {
+                        title:"Thai",
+                        value:"CNS 11643-1992"
+                    },
+                    {
+                        title:"Latin alphabet No. 3",
+                        value:"8859/3"
+                    },
+                    {
+                        title:"Latin alphabet No. 4",
+                        value:"8859/4"
+                    },
+                    {
+                        title:"Japanese",
+                        value:"ISO IR14"
+                    },
+                    {
+                        title:"Cyrillic",
+                        value:"8859/5"
+                    },
+                    {
+                        title:"Arabic",
+                        value:"8859/6"
+                    },
+                    {
+                        title:"Greek",
+                        value:"8859/7"
+                    },
+
+                    {
+                        title:"Hebrew",
+                        value:"8859/8"
+                    },
+                    {
+                        title:"Latin alphabet No. 5",
+                        value:"8859/9"
+                    }
+                ]
+            },{
+                groupName:"Multi-Byte Character Sets",
+                groupValues:[
+                    {
+                        title:"Japanese (Kanji)",
+                        value:"ISO IR87"
+                    },{
+                        title:"Japanese (Supplementary Kanji set)",
+                        value:"ISO IR159"
+                    },{
+                        title:"Korean",
+                        value:"KS X 1001"
+                    },{
+                        title:"Unicode",
+                        value:"UNICODE"
+                    },
+                    {
+                        title:"Unicode in UTF-8",
+                        value:"UNICODE UTF-8"
+                    }
+                ]
+            }
+        ]
+    }
     public static get DICOM_SPECIFIC_CHAR(): any{
         return [
             {
