@@ -46,7 +46,6 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.hl7.RESTfulHL7Sender;
@@ -623,26 +622,22 @@ public class IocmRS {
     private void reject(RSOperation rsOp, String studyUID, String seriesUID, String objectUID,
                         String codeValue, String designator) throws IOException {
         logRequest();
-        try {
-            ArchiveAEExtension arcAE = getArchiveAE();
-            RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
-            StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
-            storeService.restoreInstances(session, studyUID, seriesUID);
+        ArchiveAEExtension arcAE = getArchiveAE();
+        RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
+        StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
+        storeService.restoreInstances(session, studyUID, seriesUID);
 
-            Attributes attrs = queryService.createRejectionNote(
-                    arcAE.getApplicationEntity(), studyUID, seriesUID, objectUID, rjNote);
-            if (attrs == null)
-                throw new WebApplicationException(getResponse("No Study with UID: " + studyUID, Response.Status.NOT_FOUND));
+        Attributes attrs = queryService.createRejectionNote(
+                arcAE.getApplicationEntity(), studyUID, seriesUID, objectUID, rjNote);
+        if (attrs == null)
+            throw new WebApplicationException(getResponse("No Study with UID: " + studyUID, Response.Status.NOT_FOUND));
 
-            StoreContext ctx = storeService.newStoreContext(session);
-            ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
-            ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
-            ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
-            storeService.store(ctx, attrs);
-            rsForward.forward(rsOp, arcAE, null, request);
-        } catch (DicomServiceException e) {
-            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.fromStatusCode(e.getStatus())));
-        }
+        StoreContext ctx = storeService.newStoreContext(session);
+        ctx.setSopClassUID(attrs.getString(Tag.SOPClassUID));
+        ctx.setSopInstanceUID(attrs.getString(Tag.SOPInstanceUID));
+        ctx.setReceiveTransferSyntax(UID.ExplicitVRLittleEndian);
+        storeService.store(ctx, attrs);
+        rsForward.forward(rsOp, arcAE, null, request);
     }
 
     private Response copyOrMoveInstances(
