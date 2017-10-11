@@ -641,7 +641,7 @@ public class IocmRS {
             storeService.store(ctx, attrs);
             rsForward.forward(rsOp, arcAE, null, request);
         } catch (DicomServiceException e) {
-            throw new WebApplicationException(getResponse(e.getStatus() + " : " + e.getMessage(), Response.Status.FORBIDDEN));
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.FORBIDDEN));
         } catch (Exception e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
         }
