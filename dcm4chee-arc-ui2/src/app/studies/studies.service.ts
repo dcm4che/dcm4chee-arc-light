@@ -584,7 +584,16 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
     modifyPatient(patient, iod, oldPatientID, aet,internalAppName, externalAppName,  modifyMode, externalInternalAetMode){
         let url;
         if(externalInternalAetMode === 'external'){
-            url = `../hl7apps/${internalAppName}/hl7/${externalAppName}/patients`;
+            if(!internalAppName || !externalAppName){
+                this.mainservice.setMessage({
+                    'title': 'Error',
+                    'text': 'Hl7Applications not found!',
+                    'status': 'error'
+                });
+                return null;
+            }else{
+                url = `../hl7apps/${internalAppName}/hl7/${externalAppName}/patients`;
+            }
         }else{
             url = `../aets/${aet}/rs/patients/`;
         }

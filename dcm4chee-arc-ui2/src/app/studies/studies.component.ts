@@ -1612,6 +1612,7 @@ export class StudiesComponent implements OnDestroy{
                 $this.dialogRef = null;
             });
         }, (err) => {
+            $this.httpErrorHandler.handleError(err);
             console.log('error', err);
         });
     };
