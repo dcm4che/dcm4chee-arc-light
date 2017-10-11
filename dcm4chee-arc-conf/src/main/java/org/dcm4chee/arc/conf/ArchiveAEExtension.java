@@ -111,6 +111,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private String invokeImageDisplayPatientURL;
     private String invokeImageDisplayStudyURL;
+    private Integer maxPendingStgCmtRequests;
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -721,6 +722,19 @@ public class ArchiveAEExtension extends AEExtension {
                 return true;
 
         return false;
+    }
+
+    public Integer getMaxPendingStgCmtRequests() {
+        return maxPendingStgCmtRequests;
+    }
+
+    public void setMaxPendingStgCmtRequests(Integer maxPendingStgCmtRequests) {
+        this.maxPendingStgCmtRequests = maxPendingStgCmtRequests;
+    }
+
+    public int maxPendingStgCmtRequests() {
+        return maxPendingStgCmtRequests != null
+                ? maxPendingStgCmtRequests : getArchiveDeviceExtension().getMaxPendingStgCmtRequests();
     }
 
     public void removeExportRule(ExportRule rule) {

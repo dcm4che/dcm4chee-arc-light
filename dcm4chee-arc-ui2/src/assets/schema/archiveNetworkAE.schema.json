@@ -397,6 +397,12 @@
       "description": "Specifies if the HL7 Procedure Status Update is sent if the timeout for waiting on receive of instances referenced is exceeded. Overwrites value specified on Device level.",
       "type": "boolean"
     },
+    "dcmMaxPendingStgCmtRequests": {
+      "title": "Max Pending Stg. Cmt. Requests",
+      "description": "Maximal number of pending Storage Commitment Requests. If the number of pending Storage Commitment Requests reaches the limit, further Storage Commitment requests will be refused. 0 = no limitation.",
+      "type": "integer",
+      "minimum": 0
+    },
     "dcmExportRule": {
       "title": "Export Rule",
       "description": "Export Rules. Supplements Export Rules specified on Device level.",

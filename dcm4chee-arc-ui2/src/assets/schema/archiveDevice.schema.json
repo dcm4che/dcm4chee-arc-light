@@ -46,7 +46,8 @@
     "hl7PSUTaskFetchSize",
     "hl7TrackChangedPatientID",
     "dcmAuditSoftwareConfigurationVerbose",
-    "hl7UseNullValue"
+    "hl7UseNullValue",
+    "dcmMaxPendingStgCmtRequests"
   ],
   "properties": {
     "dcmFuzzyAlgorithmClass": {
@@ -717,6 +718,13 @@
       "description": "AE Title of local Application Entity associated with XDS-I Imaging Document Source.",
       "type": "string",
       "format": "dcmArchiveAETitle"
+    },
+    "dcmMaxPendingStgCmtRequests": {
+      "title": "Max Pending Stg. Cmt. Requests",
+      "description": "Maximal number of pending Storage Commitment Requests. If the number of pending Storage Commitment Requests reaches the limit, further Storage Commitment requests will be refused. 0 = no limitation.",
+      "type": "integer",
+      "default": 0,
+      "minimum": 0
     },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",
