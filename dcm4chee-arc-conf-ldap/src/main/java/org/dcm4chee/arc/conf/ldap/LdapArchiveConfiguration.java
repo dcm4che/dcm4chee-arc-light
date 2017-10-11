@@ -172,7 +172,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStoreUpdateDBMaxRetries", ext.getStoreUpdateDBMaxRetries(), 1);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStoreUpdateDBMaxRetryDelay", ext.getStoreUpdateDBMaxRetryDelay(), 1000);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowRejectionForDataRetentionPolicyExpired",
-                ext.getAllowRejectionForDataRetentionPolicyExpired(), AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY);
+                ext.getAllowRejectionForDataRetentionPolicyExpired(), AllowRejectionForDataRetentionPolicyExpired.EXPIRED_UNSET);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptMissingPatientID",
                 ext.getAcceptMissingPatientID(), AcceptMissingPatientID.CREATE);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowDeleteStudyPermanently",
@@ -320,7 +320,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAllowRejectionForDataRetentionPolicyExpired(
                 LdapUtils.enumValue(AllowRejectionForDataRetentionPolicyExpired.class,
                         attrs.get("dcmAllowRejectionForDataRetentionPolicyExpired"),
-                        AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY));
+                        AllowRejectionForDataRetentionPolicyExpired.EXPIRED_UNSET));
         ext.setAcceptMissingPatientID(
                 LdapUtils.enumValue(AcceptMissingPatientID.class,
                         attrs.get("dcmAcceptMissingPatientID"), AcceptMissingPatientID.CREATE));
@@ -548,7 +548,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStoreUpdateDBMaxRetryDelay(), bb.getStoreUpdateDBMaxRetryDelay(), 1000);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAllowRejectionForDataRetentionPolicyExpired",
                 aa.getAllowRejectionForDataRetentionPolicyExpired(), bb.getAllowRejectionForDataRetentionPolicyExpired(),
-                AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY);
+                AllowRejectionForDataRetentionPolicyExpired.EXPIRED_UNSET);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptMissingPatientID",
                 aa.getAcceptMissingPatientID(), bb.getAcceptMissingPatientID(), AcceptMissingPatientID.CREATE);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAllowDeleteStudyPermanently",

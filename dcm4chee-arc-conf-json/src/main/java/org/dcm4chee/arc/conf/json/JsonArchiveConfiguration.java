@@ -173,7 +173,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmStoreUpdateDBMaxRetryDelay", arcDev.getStoreUpdateDBMaxRetryDelay(), 1000);
         writer.writeNotNullOrDef("dcmAllowRejectionForDataRetentionPolicyExpired",
                 arcDev.getAllowRejectionForDataRetentionPolicyExpired(),
-                AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY);
+                AllowRejectionForDataRetentionPolicyExpired.EXPIRED_UNSET);
         writer.writeNotNullOrDef("dcmAcceptMissingPatientID", arcDev.getAcceptMissingPatientID(), AcceptMissingPatientID.CREATE);
         writer.writeNotNullOrDef("dcmAllowDeleteStudyPermanently", arcDev.getAllowDeleteStudyPermanently(), null);
         writer.writeNotNullOrDef("dcmStorePermissionServiceExpirationDatePattern",

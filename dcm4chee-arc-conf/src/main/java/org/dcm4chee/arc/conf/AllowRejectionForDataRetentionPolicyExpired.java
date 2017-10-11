@@ -46,5 +46,5 @@ package org.dcm4chee.arc.conf;
  */
 
 public enum AllowRejectionForDataRetentionPolicyExpired {
-    NEVER, ALWAYS, STUDY_RETENTION_POLICY
+    NEVER, ALWAYS, EXPIRED_UNSET, ONLY_EXPIRED
 }

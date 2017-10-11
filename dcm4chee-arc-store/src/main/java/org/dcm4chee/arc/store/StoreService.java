@@ -29,10 +29,8 @@ public interface StoreService {
     int REJECTION_FAILED_NO_SUCH_INSTANCE = 0xA772;
     int REJECTION_FAILED_CLASS_INSTANCE_CONFLICT  = 0xA773;
     int REJECTION_FAILED_ALREADY_REJECTED  = 0xA774;
-    int REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_AUTHORIZED = 0xA775;
-    int RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED = 0xA776;
-    int PATIENT_ID_MISSING_IN_OBJECT = 0xA777;
-    int CONFLICTING_PID_NOT_ACCEPTED = 0xA778;
+    int PATIENT_ID_MISSING_IN_OBJECT = 0xA775;
+    int CONFLICTING_PID_NOT_ACCEPTED = 0xA776;
 
     String DUPLICATE_REJECTION_NOTE_MSG = "Rejection Note [uid={0}] already received.";
     String SUBSEQUENT_OCCURENCE_OF_REJECTED_OBJECT_MSG = "Subsequent occurrence of rejected Object [uid={0}, rejection={1}]";
@@ -40,7 +38,7 @@ public interface StoreService {
     String REJECTION_FAILED_NO_SUCH_SERIES_MSG = "Failed to reject Instance of Series[uid={0}] - no such Series.";
     String REJECTION_FAILED_CLASS_INSTANCE_CONFLICT_MSG  = "Failed to reject Instance[uid={0}] - class-instance conflict.";
     String REJECTION_FAILED_ALREADY_REJECTED_MSG  = "Failed to reject Instance[uid={0}] - already rejected.";
-    String REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_AUTHORIZED_MSG = "Rejection for Retention Policy Expired not authorized.";
+    String REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_ALLOWED_MSG = "Rejection for Retention Policy Expired not allowed.";
     String RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG = "Retention Period of Study not yet expired.";
     String PATIENT_ID_MISSING_IN_OBJECT_MSG = "Patient ID missing in object.";
     String NOT_AUTHORIZED = "Storage denied.";
