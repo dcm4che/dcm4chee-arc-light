@@ -69,7 +69,6 @@
     <jclouds.version>1.9.2</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
     <querydsl.version>4.1.4</querydsl.version>
-    <keycloak.version>2.1.0.Final</keycloak.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
     <glassfish-json.version>1.0.4</glassfish-json.version>
     <junit.version>4.11</junit.version>
