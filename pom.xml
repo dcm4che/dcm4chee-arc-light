@@ -72,6 +72,7 @@
     <keycloak.version>2.1.0.Final</keycloak.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
     <glassfish-json.version>1.0.4</glassfish-json.version>
+    <junit.version>4.11</junit.version>
 
     <!-- JPA -->
     <ds>java:/PacsDS</ds>
@@ -399,6 +400,13 @@
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+      <version>${junit.version}</version>
     </dependency>
 
   </dependencies>
