@@ -304,7 +304,8 @@ public class StowRS {
         }
 
         response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
-        ar.resume(Response.status(status()).entity(output.entity(response)).build());
+        Response.ResponseBuilder responseBuilder = Response.status(status());
+        ar.resume(responseBuilder.entity(output.entity(response)).header("Warning", response.getString(Tag.ErrorComment)).build());
     }
 
     private void purgeSpoolDirectory() {
@@ -393,6 +394,7 @@ public class StowRS {
             sopSequence().add(mkSOPRefWithRetrieveURL(ctx));
         } catch (DicomServiceException e) {
             LOG.info("{}: Failed to store {}", session, UID.nameOf(ctx.getSopClassUID()), e);
+            response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
             failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
         }
     }
@@ -410,6 +412,7 @@ public class StowRS {
         } catch (DicomServiceException e) {
             ctx.setAttributes(attrs);
             LOG.info("{}: Failed to store {}", session, UID.nameOf(ctx.getSopClassUID()), e);
+            response.setString(Tag.ErrorComment, VR.LO, e.getMessage());
             failedSOPSequence().add(mkSOPRefWithFailureReason(ctx, e));
         }
     }
