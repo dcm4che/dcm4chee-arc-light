@@ -72,7 +72,6 @@ class AuditInfoBuilder {
     final String moveAET;
     final String warning;
     final boolean failedIUIDShow;
-    final String hl7MessageType;
     final String submissionSetUID;
     final boolean isExport;
 
@@ -97,7 +96,6 @@ class AuditInfoBuilder {
         private String moveAET;
         private String warning;
         private boolean failedIUIDShow;
-        private String hl7MessageType;
         private String submissionSetUID;
         private boolean isExport;
 
@@ -177,10 +175,6 @@ class AuditInfoBuilder {
             failedIUIDShow = val;
             return this;
         }
-        Builder hl7MessageType(String val) {
-            hl7MessageType = val;
-            return this;
-        }
         Builder submissionSetUID(String val) {
             submissionSetUID = val;
             return this;
@@ -215,7 +209,6 @@ class AuditInfoBuilder {
         moveAET = builder.moveAET;
         warning = builder.warning;
         failedIUIDShow = builder.failedIUIDShow;
-        hl7MessageType = builder.hl7MessageType;
         submissionSetUID = builder.submissionSetUID;
         isExport = builder.isExport;
     }
