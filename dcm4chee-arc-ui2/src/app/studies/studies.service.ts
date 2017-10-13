@@ -5,6 +5,7 @@ import * as _ from 'lodash';
 import {Observable} from 'rxjs';
 import {WindowRefService} from "../helpers/window-ref.service";
 import {AppService} from "../app.service";
+import {J4careHttpService} from "../helpers/j4care-http.service";
 declare var DCM4CHE: any;
 declare var window: any;
 
@@ -16,7 +17,7 @@ export class StudiesService {
     integerVr = ['DS', 'FL', 'FD', 'IS', 'SL', 'SS', 'UL', 'US'];
 
     constructor(
-        public $http: Http,
+        public $http: J4careHttpService,
         public datePipe: DatePipe,
         public mainservice:AppService
     ) { }

@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import {Http} from "@angular/http";
 import {WindowRefService} from "../helpers/window-ref.service";
 import {DevicesService} from "../devices/devices.service";
+import {J4careHttpService} from "../helpers/j4care-http.service";
 
 @Injectable()
 export class AeListService {
 
     constructor(
-      private $http:Http,
+      private $http:J4careHttpService,
       private devicesService:DevicesService
     ) { }
 

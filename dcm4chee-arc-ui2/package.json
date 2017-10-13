@@ -46,7 +46,7 @@
     "ts-helpers": "1.1.2",
     "typescript": "2.2.0",
     "vex-js": "3.1.0",
-    "zone.js": "0.8.10"
+    "zone.js": "0.8.14"
   },
   "devDependencies": {
     "@types/jasmine": "2.5.38",

@@ -15,6 +15,7 @@ import {AeListService} from "../ae-list/ae-list.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
 import {Globalvar} from "../constants/globalvar";
 import {j4care} from "../helpers/j4care.service";
+import {J4careHttpService} from "../helpers/j4care-http.service";
 
 @Injectable()
 export class DeviceConfiguratorService{
@@ -23,7 +24,7 @@ export class DeviceConfiguratorService{
     schema;
     pagination = [];
     constructor(
-        private $http: Http,
+        private $http:J4careHttpService,
         private mainservice:AppService,
         private deviceService:DevicesService,
         private aeListService:AeListService,

@@ -10,6 +10,7 @@ import {DevicesService} from '../devices/devices.service';
 import {WindowRefService} from "../helpers/window-ref.service";
 import {AeListService} from "./ae-list.service";
 import {HttpErrorHandler} from "../helpers/http-error-handler";
+import {J4careHttpService} from "../helpers/j4care-http.service";
 
 @Component({
   selector: 'app-ae-list',
@@ -38,7 +39,7 @@ export class AeListComponent{
     dialogRef: MdDialogRef<any>;
 
     constructor(
-      public $http: Http,
+      public $http:J4careHttpService,
       public cfpLoadingBar: SlimLoadingBarService,
       public mainservice: AppService,
       public viewContainerRef: ViewContainerRef ,

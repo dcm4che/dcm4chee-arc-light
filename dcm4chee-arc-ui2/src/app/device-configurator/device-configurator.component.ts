@@ -13,6 +13,7 @@ import {HttpErrorHandler} from "../helpers/http-error-handler";
 import {AeListService} from "../ae-list/ae-list.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
 import {DevicesService} from "../devices/devices.service";
+import {J4careHttpService} from "../helpers/j4care-http.service";
 
 @Component({
   selector: 'app-device-configurator',
@@ -33,7 +34,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private router: Router,
         private service: DeviceConfiguratorService,
-        private $http: Http,
+        private $http:J4careHttpService,
         private mainservice: AppService,
         private controlService: ControlService,
         private cfpLoadingBar: SlimLoadingBarService,

@@ -10,6 +10,7 @@ import {ExportService} from './export.service';
 import {ExportDialogComponent} from '../../widgets/dialogs/export/export.component';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 
 @Component({
   selector: 'app-export',
@@ -36,7 +37,7 @@ export class ExportComponent implements OnInit {
     _ = _;
 
     constructor(
-        public $http: Http,
+        public $http:J4careHttpService,
         public cfpLoadingBar: SlimLoadingBarService,
         public mainservice: AppService,
         public  service: ExportService,

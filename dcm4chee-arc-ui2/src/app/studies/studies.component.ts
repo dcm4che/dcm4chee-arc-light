@@ -26,6 +26,7 @@ import {FormatAttributeValuePipe} from "../pipes/format-attribute-value.pipe";
 import {FormatDAPipe} from "../pipes/format-da.pipe";
 import {FormatTMPipe} from "../pipes/format-tm.pipe";
 import {HttpErrorHandler} from "../helpers/http-error-handler";
+import {J4careHttpService} from "../helpers/j4care-http.service";
 declare var Keycloak: any;
 
 @Component({
@@ -254,7 +255,7 @@ export class StudiesComponent implements OnDestroy{
     subscription: Subscription;
 
     constructor(
-        public $http: Http,
+        public $http: J4careHttpService,
         public service: StudiesService,
         public mainservice: AppService,
         public cfpLoadingBar: SlimLoadingBarService,
@@ -262,7 +263,7 @@ export class StudiesComponent implements OnDestroy{
         public viewContainerRef: ViewContainerRef ,
         public dialog: MdDialog,
         public config: MdDialogConfig,
-        public httpErrorHandler:HttpErrorHandler
+        public httpErrorHandler:HttpErrorHandler,
     ) {
         this.showFilterWarning = true;
         console.log('getglobal', this.mainservice.global);
@@ -3917,44 +3918,56 @@ export class StudiesComponent implements OnDestroy{
     }
 
     testToken(){
-/*        var keycloak = new Keycloak('./assets/keycloak.json');
-
-        keycloak.init().success(function(authenticated) {
-            console.log(authenticated ? 'authenticated' : 'not authenticated');
-        }).error(function() {
-            console.log('failed to initialize');
-        });
-        keycloak.updateToken(30).success(function() {
-            console.log("success")
-        }).error(function() {
-            console.log('Failed to refresh token');
-        });*/
-/*        var x = document.cookie;
-        console.log("cookie",x);
-        this.mainservice.getRealmOfLogedinUser()
+        this.$http.get('../aes')
+            .map(res => {let resjson; try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
             .subscribe((res)=>{
-                let token = res.token;
-                // this.$http.get('../reject')
-                this.kc.init().then(init => {
-                    console.log("init",init);
-                this.kc.getToken(token)
-                    .then(token => {
-                        console.log("token",token);
-                        let headers = new Headers({
-                            'Accept': 'application/json',
-                            'Authorization': 'Bearer ' + token
-                        });
+                console.log("testres",res);
+            },(err)=>{
 
-        /!*                let options = new RequestOptions({ headers });
-
-                        this.http.get('/database/products', options)
-                            .map(res => res.json())
-                            .subscribe(prods => this.products = prods,
-                                error => console.log(error));*!/
-                    })
-                    .catch(error => console.log(error));
-                }).catch(error => console.log(error));
-            });*/
+            });
+        // var keycloak = new Keycloak('./assets/keycloak.json');
+        //
+        // keycloak.init().success(function(authenticated) {
+        //     console.log(authenticated ? 'authenticated' : 'not authenticated');
+        // }).error(function() {
+        //     console.log('failed to initialize');
+        // });
+        // keycloak.updateToken(30).success(function() {
+        //     console.log("success")
+        // }).error(function() {
+        //     console.log('Failed to refresh token');
+        // });
+        // var x = document.cookie;
+        // console.log("cookie",x);
+        // this.mainservice.getRealmOfLogedinUser()
+        //     .subscribe((res)=>{
+        //         let token = res.token;
+        //         // this.$http.get('../reject')
+        //         this.kc.init().then(init => {
+        //             console.log("init",init);
+        //         this.kc.getToken(token)
+        //             .then(token => {
+        //                 console.log("token",token);
+        //                 let headers = new Headers({
+        //                     'Accept': 'application/json',
+        //                     'Authorization': 'Bearer ' + token
+        //                 });
+        //
+        // /*                let options = new RequestOptions({ headers });
+        //
+        //                 this.http.get('/database/products', options)
+        //                     .map(res => res.json())
+        //                     .subscribe(prods => this.products = prods,
+        //                         error => console.log(error));*/
+        //             })
+        //             .catch(error => console.log(error));
+        //         }).catch(error => console.log(error));
+        //     });
     }
     ngOnDestroy() {
         // Save state of the study page in a global variable after leaving it

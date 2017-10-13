@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import {Http} from '@angular/http';
 import {AppService} from '../../app.service';
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 
 @Injectable()
 export class ExportService {
 
 
-    constructor(public $http: Http, public mainservice: AppService) {
+    constructor(public $http:J4careHttpService, public mainservice: AppService) {
     }
 
     search(filters, offset) {

@@ -7,6 +7,7 @@ import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {MessagingComponent} from '../../widgets/messaging/messaging.component';
 import {AppService} from '../../app.service';
 import {WindowRefService} from "../../helpers/window-ref.service";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 
 @Component({
   selector: 'app-associations',
@@ -21,7 +22,7 @@ export class AssociationsComponent{
     others   = false;
     associationStatus;
     // myValue = 10;
-    constructor(public $http: Http, public appservices: AppService, private cfpLoadingBar: SlimLoadingBarService, public messaging: MessagingComponent) {
+    constructor(public $http:J4careHttpService, public appservices: AppService, private cfpLoadingBar: SlimLoadingBarService, public messaging: MessagingComponent) {
         this.cfpLoadingBar.interval = 200;
     }
 

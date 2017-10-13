@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import {Http, Headers} from '@angular/http';
 import {DatePipe} from '@angular/common';
 import {AppService} from '../../app.service';
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 
 @Injectable()
 export class QueuesService {
 
     header = new Headers({ 'Content-Type': 'application/json' });
-    constructor(public $http: Http, public mainservice: AppService) { }
+    constructor(public $http:J4careHttpService, public mainservice: AppService) { }
 
     search(queueName, status, offset, limit) {
         return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit)));

@@ -6,6 +6,7 @@ import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import * as _ from 'lodash';
 import {CreateExporterService} from './create-exporter.service';
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
+import {J4careHttpService} from "../../../helpers/j4care-http.service";
 
 @Component({
   selector: 'app-create-exporter',
@@ -33,7 +34,7 @@ export class CreateExporterComponent {
     private _devices;
     _ = _;
     constructor(
-        public $http: Http,
+        public $http:J4careHttpService,
         public dialogRef: MdDialogRef<CreateExporterComponent>,
         public mainservice: AppService,
         public cfpLoadingBar: SlimLoadingBarService,

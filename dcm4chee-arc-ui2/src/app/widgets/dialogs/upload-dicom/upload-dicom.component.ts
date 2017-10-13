@@ -5,6 +5,7 @@ import {Http} from '@angular/http';
 import {UploadDicomService} from './upload-dicom.service';
 import * as _ from 'lodash';
 import {AppService} from "../../../app.service";
+import {J4careHttpService} from "../../../helpers/j4care-http.service";
 
 @Component({
   selector: 'app-upload-dicom',
@@ -27,7 +28,7 @@ export class UploadDicomComponent implements OnInit{
     });
     constructor(
         public dialogRef: MdDialogRef<UploadDicomComponent>,
-        private $http: Http,
+        private $http:J4careHttpService,
         private service: UploadDicomService,
         public mainservice:AppService
     ) {

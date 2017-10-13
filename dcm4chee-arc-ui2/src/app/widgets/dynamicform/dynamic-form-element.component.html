@@ -77,7 +77,7 @@
             <div *ngIf="formelement.show || partSearch != ''">
                 <div class="button_parent" *ngSwitchCase="'button'">
                     <div class="button_content" *ngIf="formelement.value > 0">
-                        <a [ngClass]="{'disabled':!form.valid}" class="button edit" [routerLink]="[formelement.url]" title="{{formelement.description}}"><i class="material-icons">mode_edit</i> Edit extension</a>
+                        <a [ngClass]="{'disabled':!form.valid}" class="button edit" [routerLink]="[formelement.url]" title="{{formelement.description}}"><i class="material-icons">mode_edit</i> <span class="text">Edit extension</span></a>
                         <a [ngClass]="{'disabled':!form.valid}" class="delete button" (click)="$event.preventDefault();removeObject(formelement,form.controls[formelement.key])" title="Remove {{formelement.title}} extension from device"><i class="material-icons">clear</i></a>
                     </div>
                     <div class="button_content" *ngIf="formelement.value === 0">

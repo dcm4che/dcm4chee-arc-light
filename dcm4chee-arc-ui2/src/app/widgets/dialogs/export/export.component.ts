@@ -4,6 +4,7 @@ import {AppService} from '../../../app.service';
 import {Http} from '@angular/http';
 import * as _ from 'lodash';
 import {WindowRefService} from "../../../helpers/window-ref.service";
+import {J4careHttpService} from "../../../helpers/j4care-http.service";
 
 @Component({
     selector: 'app-export',
@@ -37,7 +38,7 @@ export class ExportDialogComponent{
         }
     };
     private _preselectedAet;
-    constructor(public dialogRef: MdDialogRef<ExportDialogComponent>, private $http: Http, private mainservice: AppService) {
+    constructor(public dialogRef: MdDialogRef<ExportDialogComponent>, private $http:J4careHttpService, private mainservice: AppService) {
         this.getAes();
 
         console.log('resultfilter', );
