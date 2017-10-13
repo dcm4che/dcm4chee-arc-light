@@ -93,9 +93,6 @@ public class ExportManagerEJB implements ExportManager {
     private Device device;
 
     @Inject
-    private QueueManager mgr;
-
-    @Inject
     private QueryService queryService;
 
     @Inject

@@ -171,6 +171,9 @@ public class QueueMessage {
     @OneToOne(mappedBy = "queueMessage")
     private ExportTask exportTask;
 
+    @OneToOne(mappedBy = "queueMessage")
+    private RetrieveTask retrieveTask;
+
     public QueueMessage() {
     }
 
@@ -268,6 +271,14 @@ public class QueueMessage {
 
     public void setExportTask(ExportTask exportTask) {
         this.exportTask = exportTask;
+    }
+
+    public RetrieveTask getRetrieveTask() {
+        return retrieveTask;
+    }
+
+    public void setRetrieveTask(RetrieveTask retrieveTask) {
+        this.retrieveTask = retrieveTask;
     }
 
     public void reschedule(ObjectMessage msg, Date date) {

@@ -47,7 +47,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>dcm4chee-arc-dimse-rs</artifactId>
+  <artifactId>dcm4chee-arc-retrieve-mgt</artifactId>
 
   <dependencies>
     <dependency>
@@ -58,19 +58,13 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-event</artifactId>
+      <artifactId>dcm4chee-arc-entity</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-query-scu</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-query-util</artifactId>
+      <artifactId>dcm4chee-arc-qmgt</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -82,31 +76,7 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-retrieve-mgt</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-retrieve-scu</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-store</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-store-scu</artifactId>
-      <version>${project.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-validation</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>

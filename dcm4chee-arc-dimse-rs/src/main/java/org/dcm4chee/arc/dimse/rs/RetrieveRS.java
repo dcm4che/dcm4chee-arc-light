@@ -46,6 +46,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
+import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +100,9 @@ public class RetrieveRS {
     @Inject
     private CMoveSCU moveSCU;
 
+    @Inject
+    private RetrieveManager retrieveManager;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -149,7 +153,7 @@ public class RetrieveRS {
     }
 
     private Response queueExport(String destAET, Attributes keys) {
-        moveSCU.scheduleCMove(priority(), toInstancesRetrieved(destAET, keys));
+        retrieveManager.scheduleRetrieveTask(priority(), toInstancesRetrieved(destAET, keys));
         return Response.accepted().build();
     }
 
