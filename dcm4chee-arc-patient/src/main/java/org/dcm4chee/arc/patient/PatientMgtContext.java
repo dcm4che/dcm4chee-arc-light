@@ -66,6 +66,8 @@ public interface PatientMgtContext {
 
     UnparsedHL7Message getUnparsedHL7Message();
 
+    void setUnparsedHL7Message(UnparsedHL7Message msg);
+
     String getRemoteHostName();
 
     boolean isNoPatientCreate();

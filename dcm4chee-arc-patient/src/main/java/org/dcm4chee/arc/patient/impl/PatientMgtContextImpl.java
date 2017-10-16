@@ -98,10 +98,6 @@ public class PatientMgtContextImpl implements PatientMgtContext {
         this.socket = socket;
     }
 
-    void setUnparsedHL7Message(UnparsedHL7Message msg) {
-        this.msg = msg;
-    }
-
     void setAssociation(Association as) {
         this.as = as;
         this.socket = as.getSocket();
@@ -138,6 +134,11 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public UnparsedHL7Message getUnparsedHL7Message() {
         return msg;
+    }
+
+    @Override
+    public void setUnparsedHL7Message(UnparsedHL7Message msg) {
+        this.msg = msg;
     }
 
     @Override
