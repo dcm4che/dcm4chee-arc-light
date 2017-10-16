@@ -11,7 +11,6 @@ export class J4careHttpService{
     header;
     token;
     get(url,header?){
-        let $this = this;
         return this.refershToken().flatMap((response)=>{
             if(response && response.length != 0){
                 this.resetAuthenticationInfo(response);
@@ -24,7 +23,6 @@ export class J4careHttpService{
         });
     }
     head(url,header?){
-        let $this = this;
         return this.refershToken().flatMap((response)=>{
             if(response && response.length != 0){
                 this.resetAuthenticationInfo(response);
@@ -110,9 +108,14 @@ export class J4careHttpService{
 
     setHeader(header){
         if(header){
-            this.header = header;
             if(this.token){
-                    this.header.set('Authorization', `Bearer ${this.token}`);
+                console.log("header",header);
+                if(_.hasIn(header,"headers")){
+                    header.headers.set('Authorization', `Bearer ${this.token}`);
+                }else{
+                    header.set('Authorization', `Bearer ${this.token}`);
+                }
+                this.header = header;
             }
         }else{
             this.header = new Headers();

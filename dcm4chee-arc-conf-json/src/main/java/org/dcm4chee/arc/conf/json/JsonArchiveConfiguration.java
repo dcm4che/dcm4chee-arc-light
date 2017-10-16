@@ -225,7 +225,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
         writer.writeNotDef("dcmAuditSoftwareConfigurationVerbose", arcDev.isAuditSoftwareConfigurationVerbose(), false);
         writer.writeNotDef("hl7UseNullValue", arcDev.isHl7UseNullValue(), false);
-        writer.writeNotDef("dcmMaxPendingStgCmtRequests", arcDev.getMaxPendingStgCmtRequests(), 0);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -341,6 +340,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotDef("dcmRetryDelayMultiplier", qd.getRetryDelayMultiplier(), 100);
             writer.writeNotDef("dcmRetryOnWarning", qd.isRetryOnWarning(), false);
             writer.writeNotNullOrDef("dcmPurgeQueueMessageCompletedDelay", qd.getPurgeQueueMessageCompletedDelay(), null);
+            writer.writeNotDef("dcmMaxQueueSize", qd.getMaxQueueSize(), 0);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -614,7 +614,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy", arcAE.getLinkMWLEntryUpdatePolicy(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcAE.getInvokeImageDisplayPatientURL(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcAE.getInvokeImageDisplayStudyURL(), null);
-        writer.writeNotNullOrDef("dcmMaxPendingStgCmtRequests", arcAE.getMaxPendingStgCmtRequests(), null);
         writeExportRule(writer, arcAE.getExportRules());
         writeArchiveCompressionRules(writer, arcAE.getCompressionRules());
         writeStoreAccessControlIDRules(writer, arcAE.getStoreAccessControlIDRules());
@@ -998,9 +997,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "hl7UseNullValue":
                     arcDev.setHl7UseNullValue(reader.booleanValue());
                     break;
-                case "dcmMaxPendingStgCmtRequests":
-                    arcDev.setMaxPendingStgCmtRequests(reader.intValue());
-                    break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
                     break;
@@ -1246,6 +1242,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmPurgeQueueMessageCompletedDelay":
                         qd.setPurgeQueueMessageCompletedDelay(Duration.parse(reader.stringValue()));
+                        break;
+                    case "dcmMaxQueueSize":
+                        qd.setMaxQueueSize(reader.intValue());
                         break;
                     default:
                         reader.skipUnknownProperty();
@@ -1911,9 +1910,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmInvokeImageDisplayStudyURL":
                     arcAE.setInvokeImageDisplayStudyURL(reader.stringValue());
-                    break;
-                case "dcmMaxPendingStgCmtRequests":
-                    arcAE.setMaxPendingStgCmtRequests(reader.intValue());
                     break;
                 case "dcmExportRule":
                     loadExportRule(arcAE.getExportRules(), reader);

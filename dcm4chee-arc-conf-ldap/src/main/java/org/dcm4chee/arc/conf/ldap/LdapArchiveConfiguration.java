@@ -224,7 +224,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmAuditSoftwareConfigurationVerbose", ext.isAuditSoftwareConfigurationVerbose(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7UseNullValue", ext.isHl7UseNullValue(), false);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxPendingStgCmtRequests", ext.getMaxPendingStgCmtRequests(), 0);
     }
 
     @Override
@@ -375,7 +374,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmAuditUnknownPatientID"), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID));
         ext.setAuditSoftwareConfigurationVerbose(LdapUtils.booleanValue(attrs.get("dcmAuditSoftwareConfigurationVerbose"), false));
         ext.setHl7UseNullValue(LdapUtils.booleanValue(attrs.get("hl7UseNullValue"), false));
-        ext.setMaxPendingStgCmtRequests(LdapUtils.intValue(attrs.get("dcmMaxPendingStgCmtRequests"), 0));
     }
 
     @Override
@@ -633,8 +631,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isAuditSoftwareConfigurationVerbose(), bb.isAuditSoftwareConfigurationVerbose(), false);
         LdapUtils.storeDiff(ldapObj, mods, "hl7UseNullValue",
                 aa.isHl7UseNullValue(), bb.isHl7UseNullValue(), false);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmMaxPendingStgCmtRequests",
-                aa.getMaxPendingStgCmtRequests(), bb.getMaxPendingStgCmtRequests(), 0);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -793,7 +789,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLinkMWLEntryUpdatePolicy", ext.getLinkMWLEntryUpdatePolicy(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMaxPendingStgCmtRequests", ext.getMaxPendingStgCmtRequests(), null);
     }
 
     @Override
@@ -867,7 +862,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setLinkMWLEntryUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmLinkMWLEntryUpdatePolicy"), null));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
         ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
-        ext.setMaxPendingStgCmtRequests(LdapUtils.intValue(attrs.get("dcmMaxPendingStgCmtRequests"), null));
     }
 
     @Override
@@ -970,8 +964,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmLinkMWLEntryUpdatePolicy", aa.getLinkMWLEntryUpdatePolicy(), bb.getLinkMWLEntryUpdatePolicy(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayPatientURL", aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayStudyURL", aa.getInvokeImageDisplayStudyURL(), bb.getInvokeImageDisplayStudyURL(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmMaxPendingStgCmtRequests",
-                aa.getMaxPendingStgCmtRequests(), bb.getMaxPendingStgCmtRequests(), null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveNetworkAE")));
@@ -1478,6 +1470,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryDelayMultiplier", descriptor.getRetryDelayMultiplier(), 100);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetryOnWarning", descriptor.isRetryOnWarning(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeQueueMessageCompletedDelay", descriptor.getPurgeQueueMessageCompletedDelay(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmMaxQueueSize", descriptor.getMaxQueueSize(), 0);
         return attrs;
     }
 
@@ -1496,6 +1489,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setRetryDelayMultiplier(LdapUtils.intValue(attrs.get("dcmRetryDelayMultiplier"), 100));
                 desc.setRetryOnWarning(LdapUtils.booleanValue(attrs.get("dcmRetryOnWarning"), false));
                 desc.setPurgeQueueMessageCompletedDelay(toDuration(attrs.get("dcmPurgeQueueMessageCompletedDelay"), null));
+                desc.setMaxQueueSize(LdapUtils.intValue(attrs.get("dcmMaxQueueSize"), 0));
                 arcdev.addQueueDescriptor(desc);
             }
         } finally {
@@ -1548,6 +1542,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmRetryOnWarning", prev.isRetryOnWarning(), desc.isRetryOnWarning(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeQueueMessageCompletedDelay",
                 prev.getPurgeQueueMessageCompletedDelay(), desc.getPurgeQueueMessageCompletedDelay(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMaxQueueSize", prev.getMaxQueueSize(), desc.getMaxQueueSize(), 0);
         return mods;
     }
 
