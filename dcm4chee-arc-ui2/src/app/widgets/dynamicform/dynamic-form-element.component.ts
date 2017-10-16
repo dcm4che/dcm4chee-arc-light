@@ -20,6 +20,7 @@ import {Http} from '@angular/http';
 import {RemovePartSelectorComponent} from '../dialogs/remove-part-selector/remove-part-selector.component';
 import {AppService} from '../../app.service';
 import {ControlService} from "../../control/control.service";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 
 @Component({
     selector: 'df-element',
@@ -45,7 +46,7 @@ export class DynamicFormElementComponent{
         public dialog: MdDialog,
         public config: MdDialogConfig,
         public viewContainerRef: ViewContainerRef,
-        public $http: Http,
+        public $http:J4careHttpService,
         private ref: ChangeDetectorRef,
         private mainservice: AppService,
         private controlService:ControlService

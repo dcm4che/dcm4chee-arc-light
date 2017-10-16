@@ -8,6 +8,8 @@ import {Http} from '@angular/http';
 import {ProductLabellingComponent} from './widgets/dialogs/product-labelling/product-labelling.component';
 import {HostListener} from '@angular/core';
 import {WindowRefService} from "./helpers/window-ref.service";
+import * as _ from 'lodash';
+import {J4careHttpService} from "./helpers/j4care-http.service";
 // import {DCM4CHE} from "./constants/dcm4-che";
 // declare var $:JQueryStatic;
 // import * as vex from "vex-js";
@@ -35,7 +37,7 @@ export class AppComponent {
     @ViewChild(MessagingComponent) msg;
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
 
-    constructor( public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig, public messaging: MessagingComponent, public mainservice: AppService, public $http: Http){
+    constructor( public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig, public messaging: MessagingComponent, public mainservice: AppService, public $http:J4careHttpService){
         let $this = this;
         if (!this.mainservice.user){
             this.mainservice.user = this.mainservice.getUserInfo().share();
@@ -43,6 +45,22 @@ export class AppComponent {
                 .subscribe(
                     (response) => {
                         console.log('in userauth response', response);
+                        let browserTime = Math.floor(Date.now() / 1000);
+                        if(response.systemCurrentTime != browserTime){
+                            let diffTime = browserTime - response.systemCurrentTime;
+                            response.expiration = response.expiration + diffTime;
+                        }
+                        if ($this.mainservice.global && !$this.mainservice.global.authentication){
+                            let global = _.cloneDeep($this.mainservice.global);
+                            global.authentication = response;
+                            $this.mainservice.setGlobal(global);
+                        }else{
+                            if ($this.mainservice.global && $this.mainservice.global.authentication){
+                                $this.mainservice.global.authentication = response;
+                            }else{
+                                $this.mainservice.setGlobal({authentication: response});
+                            }
+                        }
                         $this.mainservice.user.user = response.user;
                         $this.mainservice.user.roles = response.roles;
                         $this.mainservice.user.realm = response.realm;
@@ -65,6 +83,7 @@ export class AppComponent {
                         let host    = location.protocol + '//' + location.host;
                         $this.logoutUrl = response['auth-server-url'] + `/realms/${response.realm}/protocol/openid-connect/logout?redirect_uri=`
                             + encodeURIComponent(host + location.pathname);
+                        $this.initGetDevicename(2);
                     },
                     (response) => {
                         // this.user = this.user || {};
@@ -79,28 +98,20 @@ export class AppComponent {
                             }
                         };
                         $this.isRole = $this.mainservice.isRole;
+                        $this.initGetDevicename(2);
                     }
                 );
         }
 
-        this.initGetDevicename(2);
+
         // this.initGetAuth(2)
     }
 
     progress(){
         let changeTo = function (t) {
-            console.log('t', t);
             this.progressValue = t;
         };
-        // let getValue = function(){
-        //   return this.value;
-        // }
-        // let changeTo =  function(d){
-        //     this.value = d;
-        // }
-        // let getVal = function () {
-        //     return this.value;
-        // }
+
         return{
             getValue: this.progressValue,
             setValue: (v) => {

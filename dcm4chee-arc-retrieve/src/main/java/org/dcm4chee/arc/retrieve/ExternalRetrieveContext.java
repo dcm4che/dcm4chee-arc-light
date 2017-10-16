@@ -156,6 +156,14 @@ public class ExternalRetrieveContext {
         return keys.getString(Tag.StudyInstanceUID);
     }
 
+    public String getSeriesInstanceUID() {
+        return keys.getString(Tag.SeriesInstanceUID);
+    }
+
+    public String getSOPInstanceUID() {
+        return keys.getString(Tag.SOPInstanceUID);
+    }
+
     public int getStatus() {
         return response.getInt(Tag.Status, -1);
     }

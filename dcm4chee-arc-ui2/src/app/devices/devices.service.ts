@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 import * as _ from 'lodash';
 import {WindowRefService} from "../helpers/window-ref.service";
 import {Http} from "@angular/http";
+import {J4careHttpService} from "../helpers/j4care-http.service";
 
 @Injectable()
 export class DevicesService {
 
-    constructor(private $http:Http) { }
+    constructor(private $http:J4careHttpService) { }
 
     appendExporterToDevice(device, exporter){
         device.dcmDevice = device.dcmDevice || {};

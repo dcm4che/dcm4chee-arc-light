@@ -1229,8 +1229,13 @@ md-dialog-container{
         width:89%;
         position:relative;
         i{
-          position: absolute;
-          left: 30%;
+/*          position: absolute;
+          left: 30%;*/
+          margin-right: 4px;
+        }
+        .text{
+          top: -7px;
+          position: relative;
         }
         &.gray{
           color:#aaaaaa;

@@ -65,6 +65,7 @@ import {Hl7ApplicationsService} from "./hl7-applications/hl7-applications.servic
 import {AeListService} from "./ae-list/ae-list.service";
 import {HttpErrorHandler} from "./helpers/http-error-handler";
 import {j4care} from "./helpers/j4care.service";
+import {J4careHttpService} from "./helpers/j4care-http.service";
 
 @NgModule({
     declarations: [
@@ -161,6 +162,7 @@ import {j4care} from "./helpers/j4care.service";
         QueuesService,
         DevicesService,
         ExportService,
+        J4careHttpService,
         DatePipe,
         CalendarModule,
         DropdownModule,

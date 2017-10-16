@@ -36,12 +36,14 @@
  *
  */
 
-package org.dcm4chee.arc.retrieve.scu.impl;
+package org.dcm4chee.arc.retrieve.mgt.impl;
 
 import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
+import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,19 +64,22 @@ import javax.jms.ObjectMessage;
  */
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = CMoveSCU.JNDI_NAME),
+        @ActivationConfigProperty(propertyName = "destination", propertyValue = RetrieveManager.JNDI_NAME),
         @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "5")
 })
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-public class CMoveSCUMDB implements MessageListener {
+public class RetrieveManagerMDB implements MessageListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CMoveSCUMDB.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RetrieveManagerMDB.class);
+
+    @Inject
+    private RetrieveManager retrieveManager;
 
     @Inject
     private QueueManager queueManager;
 
     @Inject
-    private CMoveSCU cmoveSCU;
+    private RetrieveManagerEJB ejb;
 
     @Override
     public void onMessage(Message msg) {
@@ -84,13 +89,16 @@ public class CMoveSCUMDB implements MessageListener {
         } catch (JMSException e) {
             LOG.error("Failed to process {}", msg, e);
         }
-        if (queueManager.onProcessingStart(msgID) == null)
+        QueueMessage queueMessage = queueManager.onProcessingStart(msgID);
+        if (queueMessage == null)
             return;
+
         try {
             Attributes keys = (Attributes) ((ObjectMessage) msg).getObject();
-            Outcome outcome = cmoveSCU.cmove(
+            Outcome outcome = retrieveManager.cmove(
                     msg.getIntProperty("Priority"),
-                    toExternalRetrieveContext(msg, keys));
+                    toExternalRetrieveContext(msg, keys),
+                    queueMessage);
             queueManager.onProcessingSuccessful(msgID, outcome);
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);

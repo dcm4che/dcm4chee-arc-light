@@ -58,7 +58,7 @@ class RetrieveContextAuditInfoBuilder {
     private final RetrieveContext ctx;
     private final ArchiveDeviceExtension arcDev;
     private final HttpServletRequestInfo httpServletRequestInfo;
-    private AuditInfoBuilder[][] auditInfoBuilder = new AuditInfoBuilder[2][];
+    private AuditInfoBuilder[][] auditInfoBuilder;
     private AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.RTRV___TRF;
 
     RetrieveContextAuditInfoBuilder(RetrieveContext ctx, ArchiveDeviceExtension arcDev, AuditServiceUtils.EventType et) {
@@ -72,11 +72,14 @@ class RetrieveContextAuditInfoBuilder {
     private void processRetrieve() {
         if (someInstancesRetrieveFailed())
             processPartialRetrieve();
-        else
+        else {
+            auditInfoBuilder = new AuditInfoBuilder[1][];
             auditInfoBuilder[0] = buildAuditInfos(toBuildAuditInfo(true), ctx.getMatches());
+        }
     }
 
     private void processPartialRetrieve() {
+        auditInfoBuilder = new AuditInfoBuilder[2][];
         HashSet<InstanceLocations> failed = new HashSet<>();
         HashSet<InstanceLocations> success = new HashSet<>();
         List<String> failedList = Arrays.asList(ctx.failedSOPInstanceUIDs());

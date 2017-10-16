@@ -57,6 +57,10 @@
     {
       "name": "QUEUE-RS",
       "description": "Queue Management"
+    },
+    {
+      "name": "RETRIEVE-RS",
+      "description": "Retrieve Tasks"
     }
   ],
   "paths": {
@@ -1116,6 +1120,192 @@
         }
       }
     },
+    "/monitor/retrieve": {
+      "get": {
+        "tags": [
+          "MONITOR-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "List Retrieve Tasks",
+        "operationId": "listRetrieveTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "RemoteAET",
+            "in": "query",
+            "description": "C-MOVE SCP AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "DestinationAET",
+            "in": "query",
+            "description": "Destination AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "TO SCHEDULE",
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "updatedBefore",
+            "in": "query",
+            "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped tasks before first task in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of tasks in returned list",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "retrieveTaskList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/{taskPK}": {
+      "delete": {
+        "tags": [
+          "MONITOR-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Delete Retrieve Task",
+        "operationId": "deleteRetrieveTask",
+        "parameters": [
+          {
+            "name": "taskPK",
+            "in": "path",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/{taskPK}/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Cancel Retrieve Task",
+        "operationId": "cancelRetrieveTask",
+        "parameters": [
+          {
+            "name": "taskPK",
+            "in": "path",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "409": {
+            "description": "tasks with status TO SCHEDULE, CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/{taskPK}/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Reschedule Retrieve Task",
+        "operationId": "rescheduleRetrieveTask",
+        "parameters": [
+          {
+            "name": "taskPK",
+            "in": "path",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "409": {
+            "description": "tasks with status SCHEDULED or IN PROCESS cannot be rescheduled"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/queue": {
       "get": {
         "tags": [
@@ -1826,10 +2016,10 @@
       "post": {
         "tags": [
           "DIMSE-RS",
-          "EXPORT-RS"
+          "RETRIEVE-RS"
         ],
-        "summary": "Export Study external",
-        "operationId": "ExportStudyExternal",
+        "summary": "Retrieve Study from external C-MOVE SCP",
+        "operationId": "RetrieveStudy",
         "produces": [
           "application/json"
         ],
@@ -1913,10 +2103,10 @@
       "post": {
         "tags": [
           "DIMSE-RS",
-          "EXPORT-RS"
+          "RETRIEVE-RS"
         ],
-        "summary": "Export Series external",
-        "operationId": "ExportSeriesExternal",
+        "summary": "Retrieve Series  from external C-MOVE SCP",
+        "operationId": "RetrieveSeries",
         "produces": [
           "application/json"
         ],
@@ -2007,10 +2197,10 @@
       "post": {
         "tags": [
           "DIMSE-RS",
-          "EXPORT-RS"
+          "RETRIEVE-RS"
         ],
-        "summary": "Export Instance external",
-        "operationId": "ExportInstanceExternal",
+        "summary": "Retrieve Instance from external C-MOVE SCP",
+        "operationId": "RetrieveInstance",
         "produces": [
           "application/json"
         ],

@@ -197,6 +197,8 @@ public class QueueManagerEJB implements QueueManager {
         entity.setStatus(QueueMessage.Status.CANCELED);
         if (entity.getExportTask() != null)
             entity.getExportTask().setUpdatedTime();
+        if (entity.getRetrieveTask() != null)
+            entity.getRetrieveTask().setUpdatedTime();
         LOG.info("Cancel processing of Task[id={}] at Queue {}", msgId, entity.getQueueName());
         messageCanceledEvent.fire(new MessageCanceled(msgId));
         return true;
@@ -229,6 +231,8 @@ public class QueueManagerEJB implements QueueManager {
         entity.reschedule(msg, new Date(System.currentTimeMillis() + delay));
         if (entity.getExportTask() != null)
             entity.getExportTask().setUpdatedTime();
+        if (entity.getRetrieveTask() != null)
+            entity.getRetrieveTask().setUpdatedTime();
         LOG.info("Reschedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
     }
 
@@ -240,6 +244,8 @@ public class QueueManagerEJB implements QueueManager {
 
         if (entity.getExportTask() != null)
             em.remove(entity.getExportTask());
+        else if (entity.getRetrieveTask() != null)
+            em.remove(entity.getRetrieveTask());
         else
             em.remove(entity);
         LOG.info("Delete Task[id={}] from Queue {}", entity.getMessageID(), entity.getQueueName());

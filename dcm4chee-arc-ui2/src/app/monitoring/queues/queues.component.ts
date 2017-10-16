@@ -10,6 +10,7 @@ import {DatePipe} from '@angular/common';
 import * as _ from 'lodash';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 
 @Component({
   selector: 'app-queues',
@@ -28,7 +29,7 @@ export class QueuesComponent {
     _ = _;
 
     constructor(
-        public $http: Http,
+        public $http:J4careHttpService,
         public service: QueuesService,
         public mainservice: AppService,
         public cfpLoadingBar: SlimLoadingBarService,

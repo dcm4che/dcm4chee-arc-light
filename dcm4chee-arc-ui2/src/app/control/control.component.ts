@@ -7,6 +7,7 @@ import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {MessagingComponent} from '../widgets/messaging/messaging.component';
 import {ControlService} from './control.service';
 import {WindowRefService} from "../helpers/window-ref.service";
+import {J4careHttpService} from "../helpers/j4care-http.service";
 
 @Component({
     selector: 'app-control',
@@ -16,7 +17,7 @@ import {WindowRefService} from "../helpers/window-ref.service";
 export class ControlComponent {
     status: any;
     message = '';
-    constructor(public $http: Http, public appservices: AppService, private cfpLoadingBar: SlimLoadingBarService, public messaging: MessagingComponent, private service: ControlService) {
+    constructor(public $http:J4careHttpService, public appservices: AppService, private cfpLoadingBar: SlimLoadingBarService, public messaging: MessagingComponent, private service: ControlService) {
         this.fetchStatus();
         this.cfpLoadingBar.interval = 200;
     }

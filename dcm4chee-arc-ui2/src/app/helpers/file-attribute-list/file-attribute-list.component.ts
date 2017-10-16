@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import {AppService} from '../../app.service';
 import {WindowRefService} from "../window-ref.service";
 import {HttpErrorHandler} from "../http-error-handler";
+import {J4careHttpService} from "../j4care-http.service";
 
 @Component({
   selector: 'file-attribute-list',
@@ -19,7 +20,7 @@ export class FileAttributeListComponent implements OnInit {
     @Input() aet;
     rows2 = [];
     constructor(
-        public $http: Http,
+        public $http:J4careHttpService,
         public cfpLoadingBar: SlimLoadingBarService,
         public mainservice: AppService,
         public httpErrorHandler:HttpErrorHandler

@@ -9,6 +9,7 @@ import {AppService} from '../../app.service';
 import {StorageCommitmentService} from './storage-commitment.service';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 
 @Component({
   selector: 'app-storage-commitment',
@@ -34,7 +35,7 @@ export class StorageCommitmentComponent implements OnInit {
     _ = _;
 
     constructor(
-        public $http: Http,
+        public $http:J4careHttpService,
         public cfpLoadingBar: SlimLoadingBarService,
         public mainservice: AppService,
         public  service: StorageCommitmentService,

@@ -12,6 +12,7 @@ import {Router} from '@angular/router';
 import {WindowRefService} from "../helpers/window-ref.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
 import {HttpErrorHandler} from "../helpers/http-error-handler";
+import {J4careHttpService} from "../helpers/j4care-http.service";
 
 @Component({
   selector: 'app-devices',
@@ -46,7 +47,7 @@ export class DevicesComponent {
     dialogRef: MdDialogRef<any>;
 
     constructor(
-        public $http: Http,
+        public $http:J4careHttpService,
         public cfpLoadingBar: SlimLoadingBarService,
         public mainservice: AppService,
         public viewContainerRef: ViewContainerRef ,

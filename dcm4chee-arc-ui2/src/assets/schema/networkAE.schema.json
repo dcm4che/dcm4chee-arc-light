@@ -28,14 +28,14 @@
       "title": "Association Initiator",
       "description": "True if the Network AE can initiate associations.",
       "type": "boolean",
-      "default": false,
+      "default": true,
       "order":3
     },
     "dicomAssociationAcceptor": {
       "title": "Association Acceptor",
       "description": "True if the Network AE can accept associations.",
       "type": "boolean",
-      "default": false,
+      "default": true,
       "order":4
     },
     "dicomDescription": {
