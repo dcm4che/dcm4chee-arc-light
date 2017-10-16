@@ -85,8 +85,9 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             }
         }
         if (_.hasIn(this.service.pagination, '[1].title') && this.service.pagination[1].title === '[new_device]'){
-            if (this.service.createDevice()){
-                this.service.createDevice()
+            let creatDevice = this.service.createDevice();
+            if (creatDevice){
+                creatDevice
                     .subscribe(
                         (success) => {
                             console.log('succes', success);
@@ -142,9 +143,9 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 });
             }
         }else{
-            let updateDeviceService = this.service.updateDevice();
-            if (updateDeviceService){
-                updateDeviceService
+            let updateDevice = this.service.updateDevice();
+            if (updateDevice){
+                updateDevice
                     .subscribe(
                         (success) => {
                             console.log('succes', success);
