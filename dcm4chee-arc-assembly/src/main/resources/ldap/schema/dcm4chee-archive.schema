@@ -624,7 +624,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.104 NAME 'dcmStorePermissionCacheSize'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.105 NAME 'dcmAllowRejectionForDataRetentionPolicyExpired'
-  DESC 'Allow Rejection For Data Retention Policy Expired. Enumerated values: NEVER, ALWAYS, STUDY_RETENTION_POLICY. If absent, STUDY_RETENTION_POLICY will be applied.'
+  DESC 'Allow Rejection For Data Retention Policy Expired. Enumerated values: NEVER, ALWAYS, EXPIRED_UNSET, ONLY_EXPIRED. If absent, EXPIRED_UNSET will be applied.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )

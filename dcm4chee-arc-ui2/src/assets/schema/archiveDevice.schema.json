@@ -648,11 +648,12 @@
       "title": "Allow Rejection For Data Retention Policy Expired",
       "description": "Allow Rejection For Data Retention Policy Expired. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
-      "default": "STUDY_RETENTION_POLICY",
+      "default": "EXPIRED_UNSET",
       "enum": [
         "NEVER",
         "ALWAYS",
-        "STUDY_RETENTION_POLICY"
+        "EXPIRED_UNSET",
+        "ONLY_EXPIRED"
       ]
     },
     "dcmAllowDeleteStudyPermanently": {

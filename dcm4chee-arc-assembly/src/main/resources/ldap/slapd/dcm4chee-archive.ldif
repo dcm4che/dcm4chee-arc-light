@@ -522,7 +522,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.104 NAME 'dcmStorePermissionCacheSiz
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.105 NAME 'dcmAllowRejectionForDataRetentionPolicyExpired'
-  DESC 'Allow Rejection For Data Retention Policy Expired. Enumerated values: NEVER, ALWAYS, STUDY_RETENTION_POLICY. If absent, STUDY_RETENTION_POLICY will be applied.'
+  DESC 'Allow Rejection For Data Retention Policy Expired. Enumerated values: NEVER, ALWAYS, EXPIRED_UNSET, ONLY_EXPIRED. If absent, EXPIRED_UNSET will be applied.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -941,6 +941,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.189 NAME 'hl7UseNullValue'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.190 NAME 'dcmMaxPendingStgCmtRequests'
+  DESC 'Maximal number of pending Storage Commitment Requests. If the number of pending Storage Commitment Requests reaches the limit, further Storage Commitment requests will be refused. 0 = no limitation.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1059,6 +1064,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmCopyMoveUpdatePolicy $
     dcmLinkMWLEntryUpdatePolicy $
     dcmAuditSoftwareConfigurationVerbose $
+    dcmMaxPendingStgCmtRequests $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
@@ -1129,6 +1135,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmInvokeImageDisplayStudyURL $
     dcmCopyMoveUpdatePolicy $
     dcmLinkMWLEntryUpdatePolicy $
+    dcmMaxPendingStgCmtRequests $
     hl7PSUDelay $
     hl7PSUMWL $
     hl7PSUTimeout $

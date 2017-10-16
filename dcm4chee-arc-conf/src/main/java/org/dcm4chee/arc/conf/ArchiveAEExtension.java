@@ -684,8 +684,7 @@ public class ArchiveAEExtension extends AEExtension {
     public AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired() {
         return allowRejectionForDataRetentionPolicyExpired != null
                 ? allowRejectionForDataRetentionPolicyExpired
-                : StringUtils.maskNull(getArchiveDeviceExtension().getAllowRejectionForDataRetentionPolicyExpired(),
-                    AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY);
+                : getArchiveDeviceExtension().getAllowRejectionForDataRetentionPolicyExpired();
     }
 
     public String[] getAcceptedMoveDestinations() {
