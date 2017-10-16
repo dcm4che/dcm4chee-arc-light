@@ -19,6 +19,7 @@ public class QueueDescriptor {
     private int retryDelayMultiplier = 100;
     private boolean retryOnWarning;
     private Duration purgeQueueMessageCompletedDelay;
+    private int maxQueueSize = 0;
 
     public QueueDescriptor(String queueName) {
         setQueueName(queueName);
@@ -108,5 +109,13 @@ public class QueueDescriptor {
 
     public void setPurgeQueueMessageCompletedDelay(Duration purgeQueueMessageCompletedDelay) {
         this.purgeQueueMessageCompletedDelay = purgeQueueMessageCompletedDelay;
+    }
+
+    public int getMaxQueueSize() {
+        return maxQueueSize;
+    }
+
+    public void setMaxQueueSize(int maxQueueSize) {
+        this.maxQueueSize = maxQueueSize;
     }
 }

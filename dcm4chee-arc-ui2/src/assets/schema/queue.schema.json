@@ -8,7 +8,8 @@
     "dcmRetryDelay",
     "dcmRetryOnWarning",
     "dcmRetryDelayMultiplier",
-    "dcmMaxRetries"
+    "dcmMaxRetries",
+    "dcmMaxQueueSize"
   ],
   "properties": {
     "dcmQueueName": {
@@ -64,6 +65,13 @@
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS after which completed queue messages are purged. If absent, there is no deletion for that particular queue",
       "type": "string",
       "format": "dcmDuration"
+    },
+    "dcmMaxQueueSize": {
+      "title": "Maximum Queue Size",
+      "description": "Maximal number of scheduled tasks in the queue. If the number of scheduled tasks reaches the limit, an attempt to schedule another tasks will fail. 0 = no limitation.",
+      "type": "integer",
+      "default": 0,
+      "minimum": 0
     }
   }
 }
