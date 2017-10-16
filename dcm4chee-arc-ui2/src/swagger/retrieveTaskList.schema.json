@@ -94,9 +94,14 @@
         "title": "Number of Warning Sub-Operations",
         "type": "integer"
       },
+      "failures": {
+        "title": "Failures",
+        "description": "number of failed attempts to process this task",
+        "type": "integer"
+      },
       "createdTime": {
         "title": "Created Time",
-        "description": "time when this messages was created",
+        "description": "time when this task was created",
         "type": "string",
         "format": "date-time"
       },

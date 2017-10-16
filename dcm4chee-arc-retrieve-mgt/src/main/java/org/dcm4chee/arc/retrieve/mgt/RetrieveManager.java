@@ -40,6 +40,7 @@ package org.dcm4chee.arc.retrieve.mgt;
 
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 
@@ -68,4 +69,10 @@ public interface RetrieveManager {
             QueueMessage.Status status,
             int offset,
             int limit);
+
+    boolean deleteRetrieveTask(Long pk);
+
+    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
+
+    boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException;
 }
