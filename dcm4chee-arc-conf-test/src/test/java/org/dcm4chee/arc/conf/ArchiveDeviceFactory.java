@@ -182,7 +182,7 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("Export3", "XDS-I Export Tasks"),
         newQueueDescriptor("HL7Send", "HL7 Forward Tasks"),
         newQueueDescriptor("RSClient", "RESTful Forward Tasks"),
-        newQueueDescriptor("CMoveSCU", "External Dicom Export Tasks")
+        newQueueDescriptor("CMoveSCU", "Dicom Retrieve Tasks")
     };
 
     static final HL7OrderSPSStatus[] HL7_ORDER_SPS_STATUSES = {
@@ -950,7 +950,7 @@ class ArchiveDeviceFactory {
             "ORU^R01"
     };
 
-    static final String DCM4CHEE_ARC_VERSION = "5.10.6";
+    static final String DCM4CHEE_ARC_VERSION = "5.11.0";
     static final String DCM4CHEE_ARC_KEY_JKS =  "${jboss.server.config.url}/dcm4chee-arc/key.jks";
     static final String HL7_ADT2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-adt2dcm.xsl";
     static final String HL7_DCM2ADT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-dcm2adt.xsl";

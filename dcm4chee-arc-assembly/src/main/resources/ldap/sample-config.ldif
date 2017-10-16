@@ -185,7 +185,7 @@ dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
 dcmSeriesMetadataStorageID: series-metadata
-dicomSoftwareVersion: 5.10.6
+dicomSoftwareVersion: 5.11.0
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D
@@ -1095,7 +1095,7 @@ dcmImageWriteParam: maxPixelValueError=0.0
 cn: JPEG 2000 Lossless
 
 dn: dcmQueueName=CMoveSCU,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomDescription: External Dicom Export Tasks
+dicomDescription: Dicom Retrieve Tasks
 dcmQueueName: CMoveSCU
 dcmMaxRetries: 10
 dcmRetryDelayMultiplier: 200
