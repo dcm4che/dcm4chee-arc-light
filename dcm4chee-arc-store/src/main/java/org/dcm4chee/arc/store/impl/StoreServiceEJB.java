@@ -355,10 +355,11 @@ public class StoreServiceEJB {
                     && (seriesExpirationDate != null ? seriesExpirationDate : studyExpirationDate).isBefore(LocalDate.now()))
                 return;
 
-        String errorMsg = policy == AllowRejectionForDataRetentionPolicyExpired.NEVER
-                            ? StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_ALLOWED_MSG
-                            : StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG;
-        throw new DicomServiceException(Status.NotAuthorized, errorMsg);
+        throw policy == AllowRejectionForDataRetentionPolicyExpired.NEVER
+                ? new DicomServiceException(StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_ALLOWED,
+                    StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_ALLOWED_MSG)
+                : new DicomServiceException(StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED,
+                    StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG);
     }
 
     private boolean hasRejectedInstances(Series series) {
