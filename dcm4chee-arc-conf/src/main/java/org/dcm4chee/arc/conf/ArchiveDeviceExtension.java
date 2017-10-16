@@ -153,7 +153,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int storeUpdateDBMaxRetries = 1;
     private int storeUpdateDBMaxRetryDelay = 1000;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired =
-            AllowRejectionForDataRetentionPolicyExpired.STUDY_RETENTION_POLICY;
+            AllowRejectionForDataRetentionPolicyExpired.EXPIRED_UNSET;
     private AcceptMissingPatientID acceptMissingPatientID = AcceptMissingPatientID.CREATE;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently = AllowDeleteStudyPermanently.REJECTED;
     private AcceptConflictingPatientID acceptConflictingPatientID = AcceptConflictingPatientID.MERGED;

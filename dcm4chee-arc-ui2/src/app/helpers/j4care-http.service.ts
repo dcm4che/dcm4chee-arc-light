@@ -12,12 +12,12 @@ export class J4careHttpService{
     token;
     get(url,header?){
         let $this = this;
-        return this.refreshTolken().flatMap((response)=>{
+        return this.refershToken().flatMap((response)=>{
             if(response && response.length != 0){
                 this.resetAuthenticationInfo(response);
                 this.token = response['token'];
+                this.setHeader(header);
             }
-            this.setHeader(header);
             return this.$http.get(url,{
                 headers: this.header
             });
@@ -25,12 +25,12 @@ export class J4careHttpService{
     }
     head(url,header?){
         let $this = this;
-        return this.refreshTolken().flatMap((response)=>{
+        return this.refershToken().flatMap((response)=>{
             if(response && response.length != 0){
                 this.resetAuthenticationInfo(response);
                 this.token = response['token'];
+                this.setHeader(header);
             }
-            this.setHeader(header);
             return this.$http.get(url,{
                 headers: this.header
             });
@@ -38,12 +38,12 @@ export class J4careHttpService{
     }
     post(url,data,header?){
         this.setHeader(header);
-        return this.refreshTolken().flatMap((response)=>{
+        return this.refershToken().flatMap((response)=>{
             if(response && response.length != 0){
                 this.resetAuthenticationInfo(response);
                 this.token = response['token'];
+                this.setHeader(header);
             }
-            this.setHeader(header);
             return this.$http.post(url,data,{
                 headers: this.header
             });
@@ -51,25 +51,23 @@ export class J4careHttpService{
     }
     put(url,data,header?){
         this.setHeader(header);
-        return this.refreshTolken().flatMap((response)=>{
+        return this.refershToken().flatMap((response)=>{
             if(response && response.length != 0){
                 this.resetAuthenticationInfo(response);
                 this.token = response['token'];
+                this.setHeader(header);
             }
-            this.setHeader(header);
-            return this.put(url,data,{
-                headers: this.header
-            });
+            return this.$http.put(url,data,this.header);
         });
     }
     delete(url,header?){
         this.setHeader(header);
-        return this.refreshTolken().flatMap((response)=>{
+        return this.refershToken().flatMap((response)=>{
             if(response && response.length != 0){
                 this.resetAuthenticationInfo(response);
                 this.token = response['token'];
+                this.setHeader(header);
             }
-            this.setHeader(header);
             return this.$http.delete(url,{
                 headers: this.header
             });
@@ -94,7 +92,7 @@ export class J4careHttpService{
             }
         }
     }
-    refreshTolken():Observable<any>{
+    refershToken():Observable<any>{
         if(!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()){
             return this.$http.get('rs/realm').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
         }else{
@@ -113,11 +111,14 @@ export class J4careHttpService{
     setHeader(header){
         if(header){
             this.header = header;
+            if(this.token){
+                    this.header.set('Authorization', `Bearer ${this.token}`);
+            }
         }else{
             this.header = new Headers();
-        }
-        if(this.token){
-            this.header.set('Authorization', `Bearer ${this.token}`);
+            if(this.token){
+                this.header.append('Authorization', `Bearer ${this.token}`);
+            }
         }
     }
 }

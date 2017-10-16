@@ -8,18 +8,22 @@ export class HttpErrorHandler {
     constructor(private mainservice:AppService){}
 
     public handleError(error){
-        if (error._body && error._body != '') {
+        if ((error._body && error._body != '')|| _.hasIn(error,"message")) {
             try{
-                let msgObject = JSON.parse(error._body);
                 let msg = "Error";
-                if(_.hasIn(msgObject,"msa-3")){
-                    msg = msgObject["msa-3"];
-                }
-                if(_.hasIn(msgObject,"err-8")){
-                    msg = msgObject["err-8"];
-                }
-                if(_.hasIn(msgObject,"errorMessage")){
-                    msg = msgObject["errorMessage"];
+                if(_.hasIn(error,"message")){
+                    msg = error["message"];
+                }else{
+                    let msgObject = JSON.parse(error._body);
+                    if(_.hasIn(msgObject,"msa-3")){
+                        msg = msgObject["msa-3"];
+                    }
+                    if(_.hasIn(msgObject,"err-8")){
+                        msg = msgObject["err-8"];
+                    }
+                    if(_.hasIn(msgObject,"errorMessage")){
+                        msg = msgObject["errorMessage"];
+                    }
                 }
                 this.mainservice.setMessage({
                     'title': 'Error ' + error.status,
