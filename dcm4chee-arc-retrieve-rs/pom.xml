@@ -13,13 +13,13 @@
     <dependencies>
         <dependency>
             <groupId>org.dcm4che.dcm4chee-arc</groupId>
-            <artifactId>dcm4chee-arc-retrieve-mgt</artifactId>
+            <artifactId>dcm4chee-arc-entity</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.dcm4che.dcm4chee-arc</groupId>
-            <artifactId>dcm4chee-arc-entity</artifactId>
+            <artifactId>dcm4chee-arc-retrieve-mgt</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -30,6 +30,5 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
 
 </project>

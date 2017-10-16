@@ -66,6 +66,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2017
  */
 @RequestScoped
@@ -117,8 +118,8 @@ public class RetrieveTaskRS {
     public Response listRetrieveTasks() {
         logRequest();
         return Response.ok(toEntity(
-                mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, parseDate(updatedBefore), parseStatus(status),
-                        parseInt(offset), parseInt(limit))))
+                mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, parseDate(updatedBefore),
+                        parseStatus(status), parseInt(offset), parseInt(limit))))
                 .build();
     }
 
