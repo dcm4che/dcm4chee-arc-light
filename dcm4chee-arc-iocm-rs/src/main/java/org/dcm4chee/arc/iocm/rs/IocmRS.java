@@ -642,7 +642,6 @@ public class IocmRS {
             rsForward.forward(rsOp, arcAE, null, request);
         } catch (DicomServiceException e) {
             Response response = getResponse(e.getMessage(), Response.Status.CONFLICT);
-            response.getHeaders().add("Warning", e.getStatus());
             throw new WebApplicationException(response);
         } catch (Exception e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
