@@ -142,8 +142,9 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 });
             }
         }else{
-            if (this.service.updateDevice()){
-                this.service.updateDevice()
+            let updateDeviceService = this.service.updateDevice();
+            if (updateDeviceService){
+                updateDeviceService
                     .subscribe(
                         (success) => {
                             console.log('succes', success);
