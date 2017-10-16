@@ -63,6 +63,7 @@ import java.util.Date;
 @NamedQueries({
         @NamedQuery(name = RetrieveTask.UPDATE_BY_QUEUE_MESSAGE,
                 query = "update RetrieveTask o set " +
+                        "o.updatedTime=current_timestamp, " +
                         "o.remaining=?2, " +
                         "o.completed=?3, " +
                         "o.failed=?4, " +
