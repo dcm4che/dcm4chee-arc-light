@@ -339,27 +339,28 @@ public class StoreServiceEJB {
 
     private void checkExpirationDate(Series series, AllowRejectionForDataRetentionPolicyExpired policy)
             throws DicomServiceException {
-        if (policy == AllowRejectionForDataRetentionPolicyExpired.ALWAYS)
-            return;
+        switch (policy) {
+            case NEVER:
+                throw new DicomServiceException(StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_ALLOWED,
+                    StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_ALLOWED_MSG);
+            case EXPIRED_UNSET:
+                if (!isExpired(series, true))
+                    throw new DicomServiceException(StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED,
+                        StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG);
+            case ONLY_EXPIRED:
+                if (!isExpired(series, false))
+                    throw new DicomServiceException(StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED,
+                            StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG);
+        }
+    }
 
+    private static boolean isExpired(Series series, boolean matchUnset) {
         LocalDate studyExpirationDate = series.getStudy().getExpirationDate();
+        if (studyExpirationDate == null)
+            return matchUnset;
+
         LocalDate seriesExpirationDate = series.getExpirationDate();
-
-        if (policy == AllowRejectionForDataRetentionPolicyExpired.EXPIRED_UNSET)
-            if (studyExpirationDate == null
-                    || (seriesExpirationDate != null ? seriesExpirationDate : studyExpirationDate).isBefore(LocalDate.now()))
-                return;
-
-        if (policy == AllowRejectionForDataRetentionPolicyExpired.ONLY_EXPIRED)
-            if (studyExpirationDate != null
-                    && (seriesExpirationDate != null ? seriesExpirationDate : studyExpirationDate).isBefore(LocalDate.now()))
-                return;
-
-        throw policy == AllowRejectionForDataRetentionPolicyExpired.NEVER
-                ? new DicomServiceException(StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_ALLOWED,
-                    StoreService.REJECTION_FOR_RETENTION_POLICY_EXPIRED_NOT_ALLOWED_MSG)
-                : new DicomServiceException(StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED,
-                    StoreService.RETENTION_PERIOD_OF_STUDY_NOT_YET_EXPIRED_MSG);
+        return (seriesExpirationDate != null ? seriesExpirationDate : studyExpirationDate).isBefore(LocalDate.now());
     }
 
     private boolean hasRejectedInstances(Series series) {
