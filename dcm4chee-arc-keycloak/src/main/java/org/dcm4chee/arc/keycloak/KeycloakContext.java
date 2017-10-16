@@ -75,11 +75,6 @@ public class KeycloakContext {
 
     private void initializeSecured() {
         try {
-            Method getIdToken = refreshableKeycloakSecurityContext.getClass().getMethod("getIdToken");
-            Object idToken = getIdToken.invoke(refreshableKeycloakSecurityContext);
-            Method getPreferredUsername = idToken.getClass().getMethod("getPreferredUsername");
-            userName = String.valueOf(getPreferredUsername.invoke(idToken));
-
             Method getToken = refreshableKeycloakSecurityContext.getClass().getMethod("getToken");
             Object accessToken = getToken.invoke(refreshableKeycloakSecurityContext);
             Method getRealmAccess = accessToken.getClass().getMethod("getRealmAccess");
@@ -87,6 +82,9 @@ public class KeycloakContext {
             Method getRoles = access.getClass().getMethod("getRoles");
             Set<String> roles = (Set<String>) getRoles.invoke(access);
             userRoles = roles.toArray(new String[roles.size()]);
+
+            Method getPreferredUsername = accessToken.getClass().getMethod("getPreferredUsername");
+            userName = String.valueOf(getPreferredUsername.invoke(accessToken));
 
             Method getTokenString = refreshableKeycloakSecurityContext.getClass().getMethod("getTokenString");
             token = String.valueOf(getTokenString.invoke(refreshableKeycloakSecurityContext));
