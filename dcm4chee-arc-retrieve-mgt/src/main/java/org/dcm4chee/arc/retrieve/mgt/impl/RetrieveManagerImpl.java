@@ -44,8 +44,8 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
@@ -55,8 +55,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.ObjectMessage;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -154,5 +152,20 @@ public class RetrieveManagerImpl implements RetrieveManager {
             int limit) {
         return ejb.search(deviceName, localAET, remoteAET, destinationAET, studyUID, updatedBefore, status,
                 offset, limit);
+    }
+
+    @Override
+    public boolean deleteRetrieveTask(Long pk) {
+        return ejb.deleteRetrieveTask(pk);
+    }
+
+    @Override
+    public boolean cancelProcessing(Long pk) throws IllegalTaskStateException {
+        return ejb.cancelProcessing(pk);
+    }
+
+    @Override
+    public boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException {
+        return ejb.rescheduleRetrieveTask(pk);
     }
 }
