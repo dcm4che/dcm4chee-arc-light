@@ -36,44 +36,20 @@
  *
  */
 
-package org.dcm4chee.arc.retrieve.mgt;
+package org.dcm4chee.arc.qmgt;
 
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.RetrieveTask;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
+import org.dcm4chee.arc.conf.QueueDescriptor;
 
-import java.util.Date;
-import java.util.List;
+import javax.ejb.ApplicationException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2017
  */
-public interface RetrieveManager {
-    String QUEUE_NAME = "CMoveSCU";
-    String JNDI_NAME = "jms/queue/CMoveSCU";
-
-    Outcome cmove(int priority, ExternalRetrieveContext ctx, QueueMessage queueMessage) throws Exception;
-
-    void scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx) throws QueueSizeLimitExceededException;
-
-    List<RetrieveTask> search(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            Date updatedBefore,
-            QueueMessage.Status status,
-            int offset,
-            int limit);
-
-    boolean deleteRetrieveTask(Long pk);
-
-    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
-
-    boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException;
+@ApplicationException(rollback = true)
+public class QueueSizeLimitExceededException extends Exception {
+    public QueueSizeLimitExceededException(QueueDescriptor descriptor) {
+        super("Maximal number (=" + descriptor.getMaxQueueSize()
+                + ") of Tasks in Queue " + descriptor.getQueueName() + " reached");
+    }
 }

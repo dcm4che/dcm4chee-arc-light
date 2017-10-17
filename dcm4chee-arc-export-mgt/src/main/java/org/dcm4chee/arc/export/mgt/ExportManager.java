@@ -44,6 +44,7 @@ import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.StoreContext;
 
@@ -62,7 +63,7 @@ public interface ExportManager {
     int scheduleExportTasks(int fetchSize);
 
     void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                            HttpServletRequestInfo httpServletRequestInfo);
+                            HttpServletRequestInfo httpServletRequestInfo) throws QueueSizeLimitExceededException;
 
     void updateExportTask(Long pk);
 

@@ -45,6 +45,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
@@ -153,7 +154,11 @@ public class RetrieveRS {
     }
 
     private Response queueExport(String destAET, Attributes keys) {
-        retrieveManager.scheduleRetrieveTask(priority(), toInstancesRetrieved(destAET, keys));
+        try {
+            retrieveManager.scheduleRetrieveTask(priority(), toInstancesRetrieved(destAET, keys));
+        } catch (QueueSizeLimitExceededException e) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        }
         return Response.accepted().build();
     }
 

@@ -43,6 +43,7 @@ package org.dcm4chee.arc.rs.client.impl;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.rs.client.RSClient;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -68,7 +69,7 @@ public class RSClientImpl implements RSClient {
     private QueueManager queueManager;
 
     @Override
-    public void scheduleRequest(String method, String uri, byte[] content) {
+    public void scheduleRequest(String method, String uri, byte[] content) throws QueueSizeLimitExceededException {
         try {
             ObjectMessage msg = queueManager.createObjectMessage(content);
             msg.setStringProperty("Method", method);

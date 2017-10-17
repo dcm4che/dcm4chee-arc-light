@@ -54,6 +54,7 @@ import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.JMSUtils;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.StoreContext;
@@ -216,21 +217,31 @@ public class ExportManagerEJB implements ExportManager {
                 .setMaxResults(fetchSize)
                 .getResultList();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int count = 0;
         for (ExportTask exportTask : resultList) {
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
-            scheduleExportTask(exportTask, exporter, null);
+            try {
+                scheduleExportTask(exportTask, exporter, null);
+            } catch (QueueSizeLimitExceededException e) {
+                LOG.info(e.getLocalizedMessage() + " - retry to schedule Export Tasks");
+                return count;
+            }
+            count++;
         }
-        return resultList.size();
+        return count;
     }
 
     @Override
     public void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                                   HttpServletRequestInfo httpServletRequestInfo) {
+                                   HttpServletRequestInfo httpServletRequestInfo)
+            throws QueueSizeLimitExceededException {
         ExportTask task = createExportTask(exporter.getExporterID(), studyUID, seriesUID, objectUID, new Date());
         scheduleExportTask(task, exporter, httpServletRequestInfo);
     }
 
-    private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter, HttpServletRequestInfo httpServletRequestInfo) {
+    private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter,
+                                    HttpServletRequestInfo httpServletRequestInfo)
+            throws QueueSizeLimitExceededException {
         QueueMessage queueMessage = queueManager.scheduleMessage(exporter.getQueueName(),
                 createMessage(exportTask, exporter.getAETitle(), httpServletRequestInfo));
         exportTask.setQueueMessage(queueMessage);

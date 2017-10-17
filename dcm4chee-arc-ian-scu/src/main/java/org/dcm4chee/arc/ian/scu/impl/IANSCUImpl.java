@@ -49,6 +49,7 @@ import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.ian.scu.IANSCU;
+import org.dcm4chee.arc.ian.scu.IANScheduler;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

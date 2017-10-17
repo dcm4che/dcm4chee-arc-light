@@ -49,6 +49,7 @@ import org.dcm4chee.arc.entity.IanTask;
 import org.dcm4chee.arc.entity.MPPS;
 import org.dcm4chee.arc.ian.scu.IANSCU;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -135,13 +136,14 @@ public class IANEJB {
                 .getResultList();
     }
 
-    public void scheduleIANTask(IanTask task, Attributes attrs) {
+    public void scheduleIANTask(IanTask task, Attributes attrs) throws QueueSizeLimitExceededException {
         for (String remoteAET : task.getIanDestinations())
             scheduleMessage(task.getCallingAET(), attrs, remoteAET);
         removeIANTask(task);
     }
 
-    public void scheduleMessage(String callingAET, Attributes attrs, String remoteAET) {
+    public void scheduleMessage(String callingAET, Attributes attrs, String remoteAET)
+            throws QueueSizeLimitExceededException {
         try {
             ObjectMessage msg = queueManager.createObjectMessage(attrs);
             msg.setStringProperty("LocalAET", callingAET);

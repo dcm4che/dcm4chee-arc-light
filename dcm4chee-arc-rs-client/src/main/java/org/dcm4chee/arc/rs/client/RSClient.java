@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.rs.client;
 
 import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -50,7 +51,7 @@ public interface RSClient {
     String QUEUE_NAME = "RSClient";
     String JNDI_NAME = "jms/queue/RSClient";
 
-    void scheduleRequest(String method, String uri, byte[] content);
+    void scheduleRequest(String method, String uri, byte[] content) throws QueueSizeLimitExceededException;
 
     Outcome request(String method, String uri, byte[] content) throws Exception;
 }

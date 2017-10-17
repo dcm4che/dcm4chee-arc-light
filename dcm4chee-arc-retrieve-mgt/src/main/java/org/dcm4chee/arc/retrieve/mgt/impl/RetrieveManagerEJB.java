@@ -49,6 +49,7 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.hibernate.Session;
@@ -78,7 +79,8 @@ public class RetrieveManagerEJB {
     @Inject
     private QueueManager queueManager;
 
-    public void scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx) {
+    public void scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx)
+            throws QueueSizeLimitExceededException {
         try {
             ObjectMessage msg = queueManager.createObjectMessage(ctx.getKeys());
             msg.setStringProperty("LocalAET", ctx.getLocalAET());

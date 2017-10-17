@@ -51,6 +51,7 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +115,7 @@ public class HL7SenderImpl implements HL7Sender {
     @Override
     public void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                                 String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
-            throws ConfigurationException {
+            throws ConfigurationException, QueueSizeLimitExceededException {
         getSendingHl7Application(sendingApplication, sendingFacility);
         hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
         try {

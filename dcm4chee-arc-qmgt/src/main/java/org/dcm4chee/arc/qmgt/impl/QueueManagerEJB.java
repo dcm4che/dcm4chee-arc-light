@@ -45,10 +45,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.MessageCanceled;
-import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +95,7 @@ public class QueueManagerEJB implements QueueManager {
     }
 
     @Override
-    public QueueMessage scheduleMessage(String queueName, ObjectMessage msg) {
+    public QueueMessage scheduleMessage(String queueName, ObjectMessage msg) throws QueueSizeLimitExceededException {
         sendMessage(descriptorOf(queueName), msg, 0L);
         QueueMessage entity = new QueueMessage(queueName, msg);
         em.persist(entity);

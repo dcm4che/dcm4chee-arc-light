@@ -941,8 +941,8 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.189 NAME 'hl7UseNullValue'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
-olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.190 NAME 'dcmMaxPendingStgCmtRequests'
-  DESC 'Maximal number of pending Storage Commitment Requests. If the number of pending Storage Commitment Requests reaches the limit, further Storage Commitment requests will be refused. 0 = no limitation.'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.190 NAME 'dcmMaxQueueSize'
+  DESC 'Maximal number of scheduled tasks in the queue. If the number of scheduled tasks reaches the limit, an attempt to schedule another tasks will fail. 0 = no limitation.'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -1064,7 +1064,6 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmCopyMoveUpdatePolicy $
     dcmLinkMWLEntryUpdatePolicy $
     dcmAuditSoftwareConfigurationVerbose $
-    dcmMaxPendingStgCmtRequests $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
@@ -1135,7 +1134,6 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmInvokeImageDisplayStudyURL $
     dcmCopyMoveUpdatePolicy $
     dcmLinkMWLEntryUpdatePolicy $
-    dcmMaxPendingStgCmtRequests $
     hl7PSUDelay $
     hl7PSUMWL $
     hl7PSUTimeout $
@@ -1204,7 +1202,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.14 NAME 'dcmQueue'
     dcmMaxRetryDelay $
     dcmRetryDelayMultiplier $
     dcmRetryOnWarning $
-    dcmPurgeQueueMessageCompletedDelay ) )
+    dcmPurgeQueueMessageCompletedDelay $
+    dcmMaxQueueSize ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
   DESC 'Exporter Descriptor'
   SUP top STRUCTURAL

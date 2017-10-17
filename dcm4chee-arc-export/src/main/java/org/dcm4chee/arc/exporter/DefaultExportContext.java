@@ -20,8 +20,6 @@ public class DefaultExportContext implements ExportContext {
     private String sopInstanceUID;
     private String aeTitle;
     private Outcome outcome;
-    private boolean onlyStgCmt;
-    private boolean onlyIAN;
     private String submissionSetUID;
     private Attributes xdsiManifest;
     private RegistryResponseType registryResponse;
@@ -95,26 +93,6 @@ public class DefaultExportContext implements ExportContext {
     @Override
     public void setOutcome(Outcome outcome) {
         this.outcome = outcome;
-    }
-
-    @Override
-    public boolean isOnlyStgCmt() {
-        return onlyStgCmt;
-    }
-
-    @Override
-    public void setOnlyStgCmt(boolean onlyStgCmt) {
-        this.onlyStgCmt = onlyStgCmt;
-    }
-
-    @Override
-    public boolean isOnlyIAN() {
-        return onlyIAN;
-    }
-
-    @Override
-    public void setOnlyIAN(boolean onlyIAN) {
-        this.onlyIAN = onlyIAN;
     }
 
     @Override
