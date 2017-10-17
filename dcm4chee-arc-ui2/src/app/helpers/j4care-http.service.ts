@@ -30,14 +30,16 @@ export class J4careHttpService{
         let headerIndex = (param.length === 3) ? 2:1;
         $this.setHeader(param[headerIndex]);
         return $this.refreshToken().flatMap((response)=>{
-            if(response && response.length != 0){
-                $this.resetAuthenticationInfo(response);
-                $this.token = response['token'];
+                if(response && response.length != 0){
+                    $this.resetAuthenticationInfo(response);
+                    $this.token = response['token'];
+                    // $this.setHeader(param[headerIndex]);
+                    $this.mainservice.global.getRealmState = 'notActive';
+                }
                 $this.setHeader(param[headerIndex]);
-            }
-            param[headerIndex] = $this.header;
-            return $this.$http[requestFunctionName].apply($this.$http,param);
-        });
+                param[headerIndex] = {"headers":$this.header};
+                return $this.$http[requestFunctionName].apply($this.$http , param);
+            });
     }
     resetAuthenticationInfo(response){
         let $this = this;
@@ -80,10 +82,11 @@ export class J4careHttpService{
                 console.log("header",header);
                 if(_.hasIn(header,"headers")){
                     header.headers.set('Authorization', `Bearer ${this.token}`);
+                    this.header = header.headers;
                 }else{
                     header.set('Authorization', `Bearer ${this.token}`);
+                    this.header = header;
                 }
-                this.header = header;
             }
         }else{
             this.header = new Headers();

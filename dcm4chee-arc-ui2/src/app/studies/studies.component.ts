@@ -301,6 +301,7 @@ export class StudiesComponent implements OnDestroy{
         // }
         this.cfpLoadingBar.interval = 200;
         this.modalities = Globalvar.MODALITIES;
+
         this.initAETs(2);
         this.getAllAes(2);
         this.initAttributeFilter('Patient', 1);
