@@ -45,10 +45,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     ) { }
     addModel(){
         let explod = this.params['device'].split('|');
-        console.log('explod', explod);
         this.model = this.device[explod[1]];
-        console.log('this.model', this.model);
-
     }
     submitFunction(value){
         let extensionAdded = false;
