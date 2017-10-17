@@ -43,7 +43,25 @@ export class StorageSystemsComponent implements OnInit {
         public dialog: MdDialog,
         public config: MdDialogConfig,
         public httpErrorHandler:HttpErrorHandler
-    ) {
+    ){}
+    ngOnInit(){
+        this.initCheck(10);
+    }
+    initCheck(retries){
+        let $this = this;
+        if(_.hasIn(this.mainservice,"global.authentication")){
+            this.init();
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
+    }
+    init(){
         // this.initExporters(1);
         // this.init();
         this.getAets();
@@ -321,8 +339,6 @@ export class StorageSystemsComponent implements OnInit {
                         });
             }
         });
-    }
-    ngOnInit() {
     }
     getAets(){
 

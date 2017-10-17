@@ -250,8 +250,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         public dialog: MdDialog,
         public config: MdDialogConfig,
         public httpErrorHandler:HttpErrorHandler,
-    ) {
-    }
+    ) {}
     ngOnInit(){
         this.initCheck(10);
     }

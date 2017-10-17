@@ -30,7 +30,7 @@ export class StorageCommitmentComponent implements OnInit {
         updatedBefore: undefined,
         dicomDeviceName: undefined
     };
-    isRole: any;
+    isRole: any = (user)=>{return false;};
     dialogRef: MdDialogRef<any>;
     _ = _;
 
@@ -43,7 +43,25 @@ export class StorageCommitmentComponent implements OnInit {
         public dialog: MdDialog,
         public config: MdDialogConfig,
         public httpErrorHandler:HttpErrorHandler
-    ) {
+    ) {}
+    ngOnInit(){
+        this.initCheck(10);
+    }
+    initCheck(retries){
+        let $this = this;
+        if(_.hasIn(this.mainservice,"global.authentication")){
+            this.init();
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
+    }
+    init(){
         this.initExporters(2);
         // this.init();
         let $this = this;
@@ -275,8 +293,6 @@ export class StorageCommitmentComponent implements OnInit {
                         });
             }
         });
-    }
-    ngOnInit() {
     }
     hasOlder(objs) {
         return objs && (objs.length === this.filters.limit);

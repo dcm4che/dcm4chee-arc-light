@@ -1,4 +1,4 @@
-import {Component, ViewContainerRef, HostListener} from '@angular/core';
+import {Component, ViewContainerRef, HostListener, OnInit} from '@angular/core';
 import {Http, Headers} from '@angular/http';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import * as _ from 'lodash';
@@ -16,7 +16,7 @@ import {J4careHttpService} from "../helpers/j4care-http.service";
   selector: 'app-ae-list',
   templateUrl: './ae-list.component.html'
 })
-export class AeListComponent{
+export class AeListComponent implements OnInit{
     _ = _;
     aes;
     advancedConfig;
@@ -47,11 +47,29 @@ export class AeListComponent{
       public config: MdDialogConfig,
       public service: AeListService,
       public httpErrorHandler:HttpErrorHandler
-  ) {
+  ){}
+    ngOnInit(){
+        this.initCheck(10);
+    }
+    initCheck(retries){
+        let $this = this;
+        if(_.hasIn(this.mainservice,"global.authentication")){
+            this.init();
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
+    }
+    init(){
       this.getAes();
       this.getAets();
       this.getDevices();
-  }
+    }
 
     getKeys(obj){
         console.log('getkeys obj', obj);
