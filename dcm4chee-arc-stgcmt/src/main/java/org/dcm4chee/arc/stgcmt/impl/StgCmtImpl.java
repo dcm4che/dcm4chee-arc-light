@@ -163,6 +163,9 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             scheduleNEventReport(localAET, remoteAET, actionInfo);
         } catch (ConfigurationNotFoundException e) {
             throw new DicomServiceException(Status.ProcessingFailure, "Unknown Calling AET: " + remoteAET);
+        } catch (QueueSizeLimitExceededException e) {
+            throw new DicomServiceException(Status.ResourceLimitation,
+                    "Maximum number of pending Storage Commitment requests reached");
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e.getMessage());
         }
