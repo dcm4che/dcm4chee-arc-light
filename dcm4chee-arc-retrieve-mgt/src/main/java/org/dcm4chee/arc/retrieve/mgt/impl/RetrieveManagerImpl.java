@@ -46,6 +46,7 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
@@ -135,7 +136,8 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public void scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx) {
+    public void scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx)
+            throws QueueSizeLimitExceededException {
         ejb.scheduleRetrieveTask(device, priority, ctx);
     }
 

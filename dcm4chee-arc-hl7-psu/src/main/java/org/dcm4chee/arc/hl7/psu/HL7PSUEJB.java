@@ -54,6 +54,7 @@ import org.dcm4chee.arc.entity.HL7PSUTask;
 import org.dcm4chee.arc.entity.MWLItem;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.mpps.MPPSContext;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.store.StoreContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,7 +208,8 @@ public class HL7PSUEJB {
         }
     }
 
-    private void scheduleMessage(HL7Message hl7Message, String hl7cs) throws ConfigurationException {
+    private void scheduleMessage(HL7Message hl7Message, String hl7cs)
+            throws ConfigurationException, QueueSizeLimitExceededException {
         HL7Segment msh = hl7Message.get(0);
         hl7Sender.scheduleMessage(
                 msh.getField(2, ""),

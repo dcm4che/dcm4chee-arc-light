@@ -419,7 +419,7 @@ public class WadoRS {
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(
                     "No such Application Entity: " + aet,
-                    Response.Status.SERVICE_UNAVAILABLE);
+                    Response.Status.NOT_FOUND);
     }
 
     private enum Output {

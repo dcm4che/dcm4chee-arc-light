@@ -11,65 +11,35 @@ export class J4careHttpService{
     header;
     token;
     get(url,header?){
-        return this.refershToken().flatMap((response)=>{
-            if(response && response.length != 0){
-                this.resetAuthenticationInfo(response);
-                this.token = response['token'];
-                this.setHeader(header);
-            }
-            return this.$http.get(url,{
-                headers: this.header
-            });
-        });
+       return this.request.apply(this,['get', [url, header]]);
     }
     head(url,header?){
-        return this.refershToken().flatMap((response)=>{
-            if(response && response.length != 0){
-                this.resetAuthenticationInfo(response);
-                this.token = response['token'];
-                this.setHeader(header);
-            }
-            return this.$http.get(url,{
-                headers: this.header
-            });
-        });
+        return this.request.apply(this,['head', [url, header]]);
     }
     post(url,data,header?){
-        this.setHeader(header);
-        return this.refershToken().flatMap((response)=>{
-            if(response && response.length != 0){
-                this.resetAuthenticationInfo(response);
-                this.token = response['token'];
-                this.setHeader(header);
-            }
-            return this.$http.post(url,data,{
-                headers: this.header
-            });
-        });
+        return this.request.apply(this,['post', [url, data, header]]);
     }
     put(url,data,header?){
-        this.setHeader(header);
-        return this.refershToken().flatMap((response)=>{
-            if(response && response.length != 0){
-                this.resetAuthenticationInfo(response);
-                this.token = response['token'];
-                this.setHeader(header);
-            }
-            return this.$http.put(url,data,this.header);
-        });
+        return this.request.apply(this,['put', [url, data, header]]);
     }
     delete(url,header?){
-        this.setHeader(header);
-        return this.refershToken().flatMap((response)=>{
-            if(response && response.length != 0){
-                this.resetAuthenticationInfo(response);
-                this.token = response['token'];
-                this.setHeader(header);
-            }
-            return this.$http.delete(url,{
-                headers: this.header
+        return this.request.apply(this,['delete', [url, header]]);
+    }
+    private request(requestFunctionName, param){
+        let $this = this;
+        let headerIndex = (param.length === 3) ? 2:1;
+        $this.setHeader(param[headerIndex]);
+        return $this.refreshToken().flatMap((response)=>{
+                if(response && response.length != 0){
+                    $this.resetAuthenticationInfo(response);
+                    $this.token = response['token'];
+                    // $this.setHeader(param[headerIndex]);
+                    $this.mainservice.global.getRealmState = 'notActive';
+                }
+                $this.setHeader(param[headerIndex]);
+                param[headerIndex] = {"headers":$this.header};
+                return $this.$http[requestFunctionName].apply($this.$http , param);
             });
-        });
     }
     resetAuthenticationInfo(response){
         let $this = this;
@@ -90,7 +60,7 @@ export class J4careHttpService{
             }
         }
     }
-    refershToken():Observable<any>{
+    refreshToken():Observable<any>{
         if(!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()){
             return this.$http.get('rs/realm').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
         }else{
@@ -112,10 +82,11 @@ export class J4careHttpService{
                 console.log("header",header);
                 if(_.hasIn(header,"headers")){
                     header.headers.set('Authorization', `Bearer ${this.token}`);
+                    this.header = header.headers;
                 }else{
                     header.set('Authorization', `Bearer ${this.token}`);
+                    this.header = header;
                 }
-                this.header = header;
             }
         }else{
             this.header = new Headers();

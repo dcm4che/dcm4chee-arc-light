@@ -50,9 +50,12 @@ import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterFactory;
+import org.dcm4chee.arc.ian.scu.IANScheduler;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.stgcmt.StgCmtSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +99,10 @@ public class ExporterRS {
     private ExporterFactory exporterFactory;
 
     @Inject
-    private Event<ExportContext> exportEvent;
+    private IANScheduler ianScheduler;
+
+    @Inject
+    private StgCmtSCU stgCmtSCU;
 
     @PathParam("AETitle")
     private String aet;
@@ -146,7 +152,7 @@ public class ExporterRS {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            return errResponse(Response.Status.SERVICE_UNAVAILABLE, "No such Application Entity: " + aet);
+            return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
 
         boolean bOnlyIAN = Boolean.parseBoolean(onlyIAN);
         boolean bOnlyStgCmt = Boolean.parseBoolean(onlyStgCmt);
@@ -159,10 +165,19 @@ public class ExporterRS {
             if (bOnlyStgCmt && exporter.getStgCmtSCPAETitle() == null)
                 return errResponse(Response.Status.NOT_FOUND, "No Storage Commitment SCP configured");
 
-            if (bOnlyIAN || bOnlyStgCmt)
-                exportEvent.fire(createExportContext(studyUID, seriesUID, objectUID, exporter, aet, bOnlyIAN, bOnlyStgCmt));
-            else
-                exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter, HttpServletRequestInfo.valueOf(request));
+            try {
+                if (bOnlyIAN || bOnlyStgCmt) {
+                    ExportContext ctx = createExportContext(studyUID, seriesUID, objectUID, exporter, aet);
+                    if (bOnlyIAN)
+                        ianScheduler.scheduleIAN(ctx, exporter);
+                    if (bOnlyStgCmt)
+                        stgCmtSCU.scheduleStorageCommit(ctx, exporter);
+                } else
+                    exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter,
+                            HttpServletRequestInfo.valueOf(request));
+            } catch (QueueSizeLimitExceededException e) {
+                return errResponse(Response.Status.SERVICE_UNAVAILABLE, e.getMessage());
+            }
 
             return Response.accepted().build();
         }
@@ -235,16 +250,13 @@ public class ExporterRS {
     }
 
     private ExportContext createExportContext(
-            String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter, String aeTitle,
-            boolean bOnlyIAN, boolean bOnlyStgCmt) {
+            String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter, String aeTitle) {
         Exporter e = exporterFactory.getExporter(exporter);
         ExportContext ctx = e.createExportContext();
         ctx.setStudyInstanceUID(studyUID);
         ctx.setSeriesInstanceUID(seriesUID);
         ctx.setSopInstanceUID(objectUID);
         ctx.setAETitle(aeTitle);
-        ctx.setOnlyStgCmt(bOnlyStgCmt);
-        ctx.setOnlyIAN(bOnlyIAN);
         return ctx;
     }
 }

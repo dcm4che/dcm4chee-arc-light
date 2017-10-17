@@ -43,6 +43,7 @@ package org.dcm4chee.arc.hl7;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -55,7 +56,7 @@ public interface HL7Sender {
     void forwardMessage(HL7Segment msh, byte[] hl7msg, String... destinations);
 
     void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
-                         String receivingFacility, String messageType, String messageControlID, byte[] hl7msg) throws ConfigurationException;
+                         String receivingFacility, String messageType, String messageControlID, byte[] hl7msg) throws ConfigurationException, QueueSizeLimitExceededException;
 
     HL7Message sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                         String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)

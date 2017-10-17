@@ -120,7 +120,7 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
         ApplicationEntity ae = getApplicationEntity(arcDev.getRejectExpiredStudiesAETitle());
         if (ae == null || !ae.isInstalled()) {
             LOG.warn("No such Application Entity: " + arcDev.getRejectExpiredStudiesAETitle(),
-                    Response.Status.SERVICE_UNAVAILABLE);
+                    Response.Status.NOT_FOUND);
         }
         RejectionNote rn = getRejectionNote(arcDev.getRejectionNotes());
         if (rn == null) {

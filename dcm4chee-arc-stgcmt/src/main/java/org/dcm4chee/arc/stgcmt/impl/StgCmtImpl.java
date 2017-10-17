@@ -60,6 +60,7 @@ import org.dcm4chee.arc.entity.StgCmtResult;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.StgCmtSCP;
@@ -122,15 +123,24 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     public void onExport(@Observes ExportContext ctx) {
         ExporterDescriptor descriptor = ctx.getExporter().getExporterDescriptor();
         String stgCmtSCPAETitle = descriptor.getStgCmtSCPAETitle();
-        if (stgCmtSCPAETitle != null)
-            if (ctx.isOnlyStgCmt()
-                    || !ctx.isOnlyIAN() && ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)
-                triggerStorageCommit(ctx, descriptor, stgCmtSCPAETitle);
+        if (stgCmtSCPAETitle != null && ctx.getOutcome().getStatus() == QueueMessage.Status.COMPLETED)
+            try {
+                scheduleStorageCommit(ctx, descriptor);
+            } catch (QueueSizeLimitExceededException e) {
+                LOG.warn(e.getMessage()
+                        + " - no Storage Commitment triggered for Export to "
+                        + descriptor.getExporterID());
+            }
     }
 
-    private void triggerStorageCommit(ExportContext ctx, ExporterDescriptor descriptor, String stgCmtSCPAETitle) {
-        Attributes actionInfo = createActionInfo(ctx);
-        scheduleNAction(ctx.getAETitle(), stgCmtSCPAETitle, actionInfo, ctx, descriptor.getExporterID());
+    @Override
+    public void scheduleStorageCommit(ExportContext ctx, ExporterDescriptor descriptor)
+            throws QueueSizeLimitExceededException {
+        String stgCmtSCPAETitle = descriptor.getStgCmtSCPAETitle();
+        if (stgCmtSCPAETitle != null) {
+            Attributes actionInfo = createActionInfo(ctx);
+            scheduleNAction(ctx.getAETitle(), stgCmtSCPAETitle, actionInfo, ctx, descriptor.getExporterID());
+        }
     }
 
     private Attributes createActionInfo(ExportContext ctx) {
@@ -153,6 +163,9 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             scheduleNEventReport(localAET, remoteAET, actionInfo);
         } catch (ConfigurationNotFoundException e) {
             throw new DicomServiceException(Status.ProcessingFailure, "Unknown Calling AET: " + remoteAET);
+        } catch (QueueSizeLimitExceededException e) {
+            throw new DicomServiceException(Status.ResourceLimitation,
+                    "Maximum number of pending Storage Commitment requests reached");
         } catch (Exception e) {
             throw new DicomServiceException(Status.ProcessingFailure, e.getMessage());
         }
@@ -173,7 +186,8 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
     }
 
     private void scheduleNAction(String localAET, String remoteAET, Attributes actionInfo,
-                                 ExportContext ctx, String exporterID) {
+                                 ExportContext ctx, String exporterID)
+            throws QueueSizeLimitExceededException {
         try {
             ObjectMessage msg = queueManager.createObjectMessage(actionInfo);
             msg.setStringProperty("LocalAET", localAET);
@@ -188,7 +202,8 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         }
     }
 
-    private void scheduleNEventReport(String localAET, String remoteAET, Attributes eventInfo) {
+    private void scheduleNEventReport(String localAET, String remoteAET, Attributes eventInfo)
+            throws QueueSizeLimitExceededException {
         try {
             ObjectMessage msg = queueManager.createObjectMessage(eventInfo);
             msg.setStringProperty("LocalAET", localAET);

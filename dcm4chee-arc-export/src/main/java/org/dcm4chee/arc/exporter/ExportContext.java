@@ -37,14 +37,6 @@ public interface ExportContext {
 
     void setOutcome(Outcome outcome);
 
-    boolean isOnlyStgCmt();
-
-    void setOnlyStgCmt(boolean onlyStgCmt);
-
-    boolean isOnlyIAN();
-
-    void setOnlyIAN(boolean onlyIAN);
-
     String getSubmissionSetUID();
 
     void setSubmissionSetUID(String submissionSetUID);

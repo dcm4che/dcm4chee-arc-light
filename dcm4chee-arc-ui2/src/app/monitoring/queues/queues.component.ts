@@ -1,4 +1,4 @@
-import {Component, ViewContainerRef} from '@angular/core';
+import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {Http} from '@angular/http';
 import {QueuesService} from './queues.service';
 import {AppService} from '../../app.service';
@@ -16,14 +16,14 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
   selector: 'app-queues',
   templateUrl: './queues.component.html'
 })
-export class QueuesComponent {
+export class QueuesComponent implements OnInit{
     matches = [];
     limit = 20;
     queues = [];
     queueName = null;
     status = '*';
     before;
-    isRole: any;
+    isRole: any = (user)=>{return false;};
     user: User;
     dialogRef: MdDialogRef<any>;
     _ = _;
@@ -37,8 +37,26 @@ export class QueuesComponent {
         public dialog: MdDialog,
         public config: MdDialogConfig,
         private httpErrorHandler:HttpErrorHandler
-    ) {
-        this.init();
+    ) {};
+    ngOnInit(){
+        this.initCheck(10);
+    }
+    initCheck(retries){
+        let $this = this;
+        if(_.hasIn(this.mainservice,"global.authentication")){
+            this.init();
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
+    }
+    init(){
+        this.initQuery();
         this.before = new Date();
         let $this = this;
         if (!this.mainservice.user){
@@ -84,7 +102,7 @@ export class QueuesComponent {
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
         }
-    };
+    }
     filterKeyUp(e){
         let code = (e.keyCode ? e.keyCode : e.which);
         if (code === 13){
@@ -120,7 +138,6 @@ export class QueuesComponent {
                 $this.matches = [];
             });
     };
-
     scrollToDialog(){
         let counter = 0;
         let i = setInterval(function(){
@@ -243,8 +260,7 @@ export class QueuesComponent {
     olderOffset(objs) {
         return objs[0].offset + this.limit;
     };
-
-    init() {
+    initQuery() {
         let $this = this;
         $this.cfpLoadingBar.start();
         this.$http.get('../queue')

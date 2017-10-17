@@ -32,7 +32,7 @@ export class ExportComponent implements OnInit {
         dicomDeviceName: undefined,
         StudyInstanceUID: undefined
     };
-    isRole: any;
+    isRole: any = (user)=>{return false;};
     dialogRef: MdDialogRef<any>;
     _ = _;
 
@@ -45,7 +45,26 @@ export class ExportComponent implements OnInit {
         public dialog: MdDialog,
         public config: MdDialogConfig,
         private httpErrorHandler:HttpErrorHandler
-    ) {
+    ) {}
+
+    ngOnInit(){
+        this.initCheck(10);
+    }
+    initCheck(retries){
+        let $this = this;
+        if(_.hasIn(this.mainservice,"global.authentication")){
+            this.init();
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
+    }
+    init(){
         this.initExporters(1);
         // this.init();
         let $this = this;
@@ -92,7 +111,7 @@ export class ExportComponent implements OnInit {
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
         }
-    };
+    }
     filterKeyUp(e){
         let code = (e.keyCode ? e.keyCode : e.which);
         if (code === 13){
@@ -304,8 +323,7 @@ export class ExportComponent implements OnInit {
             }
         });
     };
-    ngOnInit() {
-    }
+
     hasOlder(objs) {
         return objs && (objs.length === this.filters.limit);
     };

@@ -1,27 +1,48 @@
-import { Component } from '@angular/core';
-import {Http} from '@angular/http';
+import {Component, OnInit} from '@angular/core';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import {AppService} from '../app.service';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
-import {MessagingComponent} from '../widgets/messaging/messaging.component';
 import {ControlService} from './control.service';
 import {WindowRefService} from "../helpers/window-ref.service";
 import {J4careHttpService} from "../helpers/j4care-http.service";
+import * as _ from 'lodash';
 
 @Component({
     selector: 'app-control',
     templateUrl: './control.component.html',
     styleUrls: ['./control.component.css']
 })
-export class ControlComponent {
+export class ControlComponent implements OnInit{
     status: any;
     message = '';
-    constructor(public $http:J4careHttpService, public appservices: AppService, private cfpLoadingBar: SlimLoadingBarService, public messaging: MessagingComponent, private service: ControlService) {
+    constructor(
+        public $http:J4careHttpService,
+        public appservices: AppService,
+        private cfpLoadingBar: SlimLoadingBarService,
+        private service: ControlService
+    ) {}
+    ngOnInit(){
+        this.initCheck(10);
+    }
+    initCheck(retries){
+        let $this = this;
+        if(_.hasIn(this.appservices,"global.authentication")){
+            this.init();
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
+    }
+    init(){
         this.fetchStatus();
         this.cfpLoadingBar.interval = 200;
     }
-
     // reverse = false;
     fetchStatus() {
         let $this = this;

@@ -263,7 +263,7 @@ public class WadoURI {
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(
                     "No such Application Entity: " + aet,
-                    Response.Status.SERVICE_UNAVAILABLE);
+                    Response.Status.NOT_FOUND);
     }
 
     private StreamingOutput entityOf(RetrieveContext ctx, InstanceLocations inst, ObjectType objectType,

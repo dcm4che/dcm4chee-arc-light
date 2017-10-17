@@ -1,4 +1,4 @@
-import {Component, ViewContainerRef} from '@angular/core';
+import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {Http, Headers} from '@angular/http';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import * as _ from 'lodash';
@@ -19,7 +19,7 @@ import {J4careHttpService} from "../helpers/j4care-http.service";
   templateUrl: './devices.component.html',
   styleUrls: ['./devices.component.css']
 })
-export class DevicesComponent {
+export class DevicesComponent implements OnInit{
     debugpre = false;
     _ = _;
     devices;
@@ -57,12 +57,29 @@ export class DevicesComponent {
         private router: Router,
         private hl7service:Hl7ApplicationsService,
         public httpErrorHandler:HttpErrorHandler
-    ) {
+    ) {}
+    ngOnInit(){
+        this.initCheck(10);
+    }
+    initCheck(retries){
+        let $this = this;
+        if(_.hasIn(this.mainservice,"global.authentication")){
+            this.init();
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
+    }
+    init(){
         this.getDevices();
         this.getAes();
         this.getHl7ApplicationsList(2);
     }
-
 
     @HostListener('window:scroll', ['$event'])
     loadMoreDeviceOnScroll(event) {
