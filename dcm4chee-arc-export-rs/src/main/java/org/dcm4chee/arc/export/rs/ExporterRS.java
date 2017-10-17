@@ -176,7 +176,7 @@ public class ExporterRS {
                     exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter,
                             HttpServletRequestInfo.valueOf(request));
             } catch (QueueSizeLimitExceededException e) {
-                return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+                return errResponse(Response.Status.SERVICE_UNAVAILABLE, e.getMessage());
             }
 
             return Response.accepted().build();
