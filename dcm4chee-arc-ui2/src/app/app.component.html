@@ -35,7 +35,7 @@
     <li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="device/devicelist" routerLinkActive="active">Configuration</a></li>
 </ul>
 <img src="assets/img/logo.png" class="logo" title="Product labelling" (click)="productLabelling()" >
-<router-outlet></router-outlet>
+<router-outlet ></router-outlet>
 <div
         class="scroll_up glyphicon glyphicon-menu-up animated"
         *ngIf="showScrollButton"

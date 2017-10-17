@@ -1,4 +1,4 @@
-import {Component, ViewContainerRef, OnDestroy, trigger, transition, style, animate} from '@angular/core';
+import {Component, ViewContainerRef, OnDestroy, trigger, transition, style, animate, OnInit} from '@angular/core';
 import {Http, Headers, RequestOptionsArgs} from '@angular/http';
 import {StudiesService} from './studies.service';
 import {AppService} from '../app.service';
@@ -31,22 +31,9 @@ declare var Keycloak: any;
 
 @Component({
     selector: 'app-studies',
-    templateUrl: './studies.component.html',
-    animations: [
-        trigger('enterAnimation', [
-                transition(':enter', [
-                    style({transform: 'translateY(-50%)', opacity: 0}),
-                    animate('500ms', style({transform: 'translateY(0)', opacity: 1}))
-                ]),
-                transition(':leave', [
-                    style({transform: 'translateY(0)', opacity: 1}),
-                    animate('500ms', style({transform: 'translateY(-50%)', opacity: 0}))
-                ])
-            ]
-        )
-    ],
+    templateUrl: './studies.component.html'
 })
-export class StudiesComponent implements OnDestroy{
+export class StudiesComponent implements OnDestroy,OnInit{
 
     // @ViewChildren(MessagingComponent) msg;
 
@@ -259,12 +246,30 @@ export class StudiesComponent implements OnDestroy{
         public service: StudiesService,
         public mainservice: AppService,
         public cfpLoadingBar: SlimLoadingBarService,
-        public messaging: MessagingComponent,
         public viewContainerRef: ViewContainerRef ,
         public dialog: MdDialog,
         public config: MdDialogConfig,
         public httpErrorHandler:HttpErrorHandler,
     ) {
+    }
+    ngOnInit(){
+        this.initCheck(10);
+    }
+    initCheck(retries){
+        let $this = this;
+        if(_.hasIn(this.mainservice,"global.authentication")){
+            this.init();
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
+    }
+    private init(){
         this.showFilterWarning = true;
         console.log('getglobal', this.mainservice.global);
         let $this = this;
@@ -449,7 +454,6 @@ export class StudiesComponent implements OnDestroy{
             this.createPatient();
         });
     }
-
     // initAETs(retries) {
     //
     //     this.$http.get("/dcm4chee-arc/aets")

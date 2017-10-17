@@ -1,4 +1,4 @@
-import {Component, ViewContainerRef} from '@angular/core';
+import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {MdDialog, MdDialogRef, MdDialogConfig} from '@angular/material';
 import {MessagingComponent} from './widgets/messaging/messaging.component';
 import {AppService} from './app.service';
@@ -20,7 +20,7 @@ declare var DCM4CHE: any;
   selector: 'app-root',
   templateUrl: './app.component.html'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
     progressValue = 30;
     //Detect witch header should be shown.
     user: any = {};
@@ -36,15 +36,21 @@ export class AppComponent {
     showScrollButton = false;
     @ViewChild(MessagingComponent) msg;
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
+    constructor(
+        public viewContainerRef: ViewContainerRef,
+        public dialog: MdDialog,
+        public config: MdDialogConfig,
+        public mainservice: AppService,
+        public $http:J4careHttpService
+    ){}
 
-    constructor( public viewContainerRef: ViewContainerRef, public dialog: MdDialog, public config: MdDialogConfig, public messaging: MessagingComponent, public mainservice: AppService, public $http:J4careHttpService){
+    ngOnInit(){
         let $this = this;
         if (!this.mainservice.user){
             this.mainservice.user = this.mainservice.getUserInfo().share();
             this.mainservice.user
                 .subscribe(
                     (response) => {
-                        console.log('in userauth response', response);
                         let browserTime = Math.floor(Date.now() / 1000);
                         if(response.systemCurrentTime != browserTime){
                             let diffTime = browserTime - response.systemCurrentTime;
@@ -103,8 +109,6 @@ export class AppComponent {
                 );
         }
 
-
-        // this.initGetAuth(2)
     }
 
     progress(){
