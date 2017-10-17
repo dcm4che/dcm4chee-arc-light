@@ -341,7 +341,7 @@ public class StowRS {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(getResponse(
-                    "No such Application Entity: " + aet, Response.Status.SERVICE_UNAVAILABLE));
+                    "No such Application Entity: " + aet, Response.Status.NOT_FOUND));
         return ae;
     }
 

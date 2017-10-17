@@ -87,20 +87,15 @@ public class EchoRS {
     private HttpServletRequest request;
 
     private ApplicationEntity getApplicationEntity() {
-        ApplicationEntity ae = device.getApplicationEntity(aet);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    "No such Application Entity: " + aet,
-                    Response.Status.SERVICE_UNAVAILABLE);
-        return ae;
-    }
-
-    private ApplicationEntity getRemoteApplicationEntity() throws ConfigurationException {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(
                     "No such Application Entity: " + aet,
-                    Response.Status.SERVICE_UNAVAILABLE);
+                    Response.Status.NOT_FOUND);
+        return ae;
+    }
+
+    private ApplicationEntity getRemoteApplicationEntity() throws ConfigurationException {
         try {
             return conf.findApplicationEntity(remoteAET);
         } catch (ConfigurationNotFoundException e) {

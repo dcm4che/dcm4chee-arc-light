@@ -169,7 +169,7 @@ public class QueryRS {
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(
                     "No such Application Entity: " + aet,
-                    Response.Status.SERVICE_UNAVAILABLE);
+                    Response.Status.NOT_FOUND);
         return ae;
     }
 

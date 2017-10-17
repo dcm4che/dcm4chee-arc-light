@@ -604,7 +604,7 @@ public class IocmRS {
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(getResponse(
                     "No such Application Entity: " + aet,
-                    Response.Status.SERVICE_UNAVAILABLE));
+                    Response.Status.NOT_FOUND));
         ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
         if (request.getAttribute(ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT) != null)
             if(!authenticatedUser(arcAE.getAcceptedUserRoles()))

@@ -152,7 +152,7 @@ public class ExporterRS {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            return errResponse(Response.Status.SERVICE_UNAVAILABLE, "No such Application Entity: " + aet);
+            return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
 
         boolean bOnlyIAN = Boolean.parseBoolean(onlyIAN);
         boolean bOnlyStgCmt = Boolean.parseBoolean(onlyStgCmt);
