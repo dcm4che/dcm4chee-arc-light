@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -38,7 +38,7 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.retrieve;
+package org.dcm4chee.arc.util;
 
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
@@ -50,7 +50,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Aug 2017
+ * @since Oct 2017
  */
 public class HttpServletRequestInfo {
 
