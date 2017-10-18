@@ -44,8 +44,6 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.impl.StgCmtEventInfoImpl;
@@ -64,7 +62,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -143,18 +140,6 @@ public class StorageCmtRS {
             throw new WebApplicationException(getResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
-        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-        if (request.getAttribute(ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT) != null)
-            if(!authenticatedUser(arcAE.getAcceptedUserRoles()))
-                throw new WebApplicationException(getResponse("User not allowed to perform this service.",
-                        Response.Status.FORBIDDEN));
-    }
-
-    private boolean authenticatedUser(String[] acceptedUserRoles) {
-        for (String s : KeycloakContext.valueOf(request).getUserRoles())
-            if (Arrays.asList(acceptedUserRoles).contains(s))
-                return true;
-        return false;
     }
 
     private Response getResponse(String errorMessage, Response.Status status) {
