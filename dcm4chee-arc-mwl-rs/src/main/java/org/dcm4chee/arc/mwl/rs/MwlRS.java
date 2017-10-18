@@ -200,17 +200,6 @@ public class MwlRS {
             throw new WebApplicationException(getResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
-        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-        if (request.getAttribute(ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT) != null)
-            if(!authenticatedUser(arcAE.getAcceptedUserRoles()))
-                throw new WebApplicationException(getResponse("User not allowed to perform this service.", Response.Status.FORBIDDEN));
-        return arcAE;
-    }
-
-    private boolean authenticatedUser(String[] acceptedUserRoles) {
-        for (String s : KeycloakContext.valueOf(request).getUserRoles())
-            if (Arrays.asList(acceptedUserRoles).contains(s))
-                return true;
-        return false;
+        return ae.getAEExtension(ArchiveAEExtension.class);
     }
 }
