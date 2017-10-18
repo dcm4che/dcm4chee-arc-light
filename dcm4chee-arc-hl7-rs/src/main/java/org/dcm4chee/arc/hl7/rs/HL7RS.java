@@ -173,6 +173,7 @@ public class HL7RS {
             }
             else {
                 HL7Message ack = rsHL7Sender.sendHL7Message(msgType, ctx, appName, externalAppName);
+                patientMgtEvent.fire(ctx);
                 return buildResponse(ack);
             }
         } catch (ConnectException e) {
@@ -183,8 +184,6 @@ public class HL7RS {
             return buildErrorResponse(e.getMessage(), Response.Status.NOT_FOUND);
         } catch (Exception e) {
             return buildErrorResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            patientMgtEvent.fire(ctx);
         }
     }
 
