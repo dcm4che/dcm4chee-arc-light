@@ -63,11 +63,11 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
     }
 
     public static AttributesCoercion forInstance(Device device, AttributesCoercion next) {
-        return device != null ? new SupplementAssigningAuthorities(Entity.Instance, device, next) : null;
+        return device != null ? new SupplementAssigningAuthorities(Entity.Instance, device, next) : next;
     }
 
     public static AttributesCoercion forMPPS(Device device, AttributesCoercion next) {
-        return device != null ? new SupplementAssigningAuthorities(Entity.MPPS, device, next) : null;
+        return device != null ? new SupplementAssigningAuthorities(Entity.MPPS, device, next) : next;
     }
 
     @Override
