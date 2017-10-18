@@ -56,7 +56,6 @@ import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.conf.SPSStatus;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.id.IDService;
-import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
@@ -75,7 +74,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -88,7 +86,6 @@ import java.util.Date;
 public class MwlRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(MwlRS.class);
-    private static final String ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT = "org.keycloak.KeycloakSecurityContext";
 
     @Inject
     private Device device;
