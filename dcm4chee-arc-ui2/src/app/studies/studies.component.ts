@@ -4005,11 +4005,13 @@ export class StudiesComponent implements OnDestroy,OnInit{
             orderbytext: this.orderbytext,
             rjcode: this.rjcode
         };
+        let global = this.mainservice.global;
+        global.state = state || {};
         // if(_.hasIn(this.mainservice.global,"state")){
         //     this.mainservice.setGlobal({state:{}});
         //     this.mainservice.setGlobal({state:state});
         // }else{
-            this.mainservice.setGlobal({state: state});
+            this.mainservice.setGlobal(global);
         // }
     }
 }
