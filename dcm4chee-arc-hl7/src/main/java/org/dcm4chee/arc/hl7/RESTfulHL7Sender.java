@@ -45,6 +45,7 @@ import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -106,7 +107,7 @@ public class RESTfulHL7Sender {
 
     private byte[] hl7MsgData(String msgType, PatientMgtContext ctx, HL7Msg msg) throws Exception {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return SAXTransformer.transform(
+        byte[] data = SAXTransformer.transform(
                 ctx.getAttributes(), msg.hl7cs, arcDev.getOutgoingPatientUpdateTemplateURI(), new org.dcm4che3.io.SAXTransformer.SetupTransformer() {
                     @Override
                     public void setup(Transformer tr) {
@@ -124,6 +125,8 @@ public class RESTfulHL7Sender {
                             tr.setParameter("includeNullValues", "\"\"");
                     }
                 });
+        ctx.setUnparsedHL7Message(new UnparsedHL7Message(data));
+        return data;
     }
 
     private class HL7Msg {

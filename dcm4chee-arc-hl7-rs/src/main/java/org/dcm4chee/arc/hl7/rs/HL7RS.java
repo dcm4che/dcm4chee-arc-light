@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.hl7.rs;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
@@ -55,6 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -83,6 +85,9 @@ public class HL7RS {
     @Inject
     private RESTfulHL7Sender rsHL7Sender;
 
+    @Inject
+    private Event<PatientMgtContext> patientMgtEvent;
+
     @Context
     private HttpServletRequest request;
 
@@ -99,20 +104,20 @@ public class HL7RS {
     @Consumes({"application/dicom+json,application/json"})
     @Produces("application/json")
     public Response createPatient(InputStream in) {
-        return createOrUpdatePatient(in, "ADT^A28^ADT_A05");
+        logRequest();
+        PatientMgtContext ctx = toPatientMgtContext(toAttributes(in));
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
+        return scheduleOrSendHL7("ADT^A28^ADT_A05", ctx);
     }
 
     @PUT
     @Consumes({"application/dicom+json,application/json"})
     @Produces("application/json")
     public Response updatePatient(InputStream in) {
-        return createOrUpdatePatient(in, "ADT^A31^ADT_A05");
-    }
-
-    private Response createOrUpdatePatient(InputStream in, String msgType) {
         logRequest();
         PatientMgtContext ctx = toPatientMgtContext(toAttributes(in));
-        return scheduleOrSendHL7(msgType, ctx);
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        return scheduleOrSendHL7("ADT^A31^ADT_A05", ctx);
     }
 
     private PatientMgtContext toPatientMgtContext(Attributes attrs) {
@@ -156,6 +161,7 @@ public class HL7RS {
         logRequest();
         PatientMgtContext ctx = toPatientMgtContext(toAttributes(in));
         ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         return scheduleOrSendHL7(msgType, ctx);
     }
 
@@ -167,6 +173,7 @@ public class HL7RS {
             }
             else {
                 HL7Message ack = rsHL7Sender.sendHL7Message(msgType, ctx, appName, externalAppName);
+                patientMgtEvent.fire(ctx);
                 return buildResponse(ack);
             }
         } catch (ConnectException e) {
