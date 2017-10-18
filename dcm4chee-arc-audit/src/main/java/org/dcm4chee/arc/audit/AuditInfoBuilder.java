@@ -74,6 +74,9 @@ class AuditInfoBuilder {
     final boolean failedIUIDShow;
     final String submissionSetUID;
     final boolean isExport;
+    final boolean isExternalHL7;
+    final String hl7SenderExternal;
+    final String hl7ReceiverExternal;
 
     static class Builder {
         private String callingHost;
@@ -98,6 +101,9 @@ class AuditInfoBuilder {
         private boolean failedIUIDShow;
         private String submissionSetUID;
         private boolean isExport;
+        private boolean isExternalHL7;
+        private String hl7SenderExternal;
+        private String hl7ReceiverExternal;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -183,6 +189,18 @@ class AuditInfoBuilder {
             isExport = true;
             return this;
         }
+        Builder isExternalHL7() {
+            isExternalHL7 = true;
+            return this;
+        }
+        Builder hl7SenderExternal(String val) {
+            hl7SenderExternal = val;
+            return this;
+        }
+        Builder hl7ReceiverExternal(String val) {
+            hl7ReceiverExternal = val;
+            return this;
+        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -211,6 +229,9 @@ class AuditInfoBuilder {
         failedIUIDShow = builder.failedIUIDShow;
         submissionSetUID = builder.submissionSetUID;
         isExport = builder.isExport;
+        isExternalHL7 = builder.isExternalHL7;
+        hl7SenderExternal = builder.hl7SenderExternal;
+        hl7ReceiverExternal = builder.hl7ReceiverExternal;
     }
 
     private static String[] toPIDAndName(Attributes attr, ArchiveDeviceExtension arcDev) {
