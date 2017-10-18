@@ -50,7 +50,6 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.hl7.RESTfulHL7Sender;
-import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
@@ -99,7 +98,6 @@ import java.util.*;
 public class IocmRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(IocmRS.class);
-    private static final String ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT = "org.keycloak.KeycloakSecurityContext";
 
     @Inject
     private Device device;
@@ -605,19 +603,7 @@ public class IocmRS {
             throw new WebApplicationException(getResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
-        ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-        if (request.getAttribute(ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT) != null)
-            if(!authenticatedUser(arcAE.getAcceptedUserRoles()))
-                throw new WebApplicationException(getResponse("User not allowed to perform this service.",
-                        Response.Status.FORBIDDEN));
-        return arcAE;
-    }
-
-    private boolean authenticatedUser(String[] acceptedUserRoles) {
-        for (String s : KeycloakContext.valueOf(request).getUserRoles())
-            if (Arrays.asList(acceptedUserRoles).contains(s))
-                return true;
-        return false;
+        return ae.getAEExtension(ArchiveAEExtension.class);
     }
 
     private void reject(RSOperation rsOp, String studyUID, String seriesUID, String objectUID,
