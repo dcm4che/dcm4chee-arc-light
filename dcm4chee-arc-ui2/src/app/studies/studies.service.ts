@@ -250,6 +250,35 @@ export class StudiesService {
             return resjson;
         });
     };
+    otherAttributesButIDWasChanged(originalAttr,changedAttr){
+        let firstObject = _.cloneDeep(originalAttr);
+        let secondObject = _.cloneDeep(changedAttr);
+        if (_.hasIn(firstObject, '["00100020"].Value[0]')){
+            delete firstObject["00100020"];
+        }
+        if (_.hasIn(firstObject, '["00100021"].Value[0]')){
+            delete firstObject["00100021"];
+        }
+        if (_.hasIn(firstObject, '["00100024"].Value[0]["00400032"].Value[0]')){
+            delete firstObject['00100024'].Value[0]['00400032'];
+        }
+        if (_.hasIn(firstObject, '["00100024"].Value[0]["00400033"].Value[0]')){
+            delete firstObject['00100024'].Value[0]['00400033'];
+        }
+        if (_.hasIn(secondObject, '["00100020"].Value[0]')){
+            delete secondObject["00100020"];
+        }
+        if (_.hasIn(secondObject, '["00100021"].Value[0]')){
+            delete secondObject["00100021"];
+        }
+        if (_.hasIn(secondObject, '["00100024"].Value[0]["00400032"].Value[0]')){
+            delete secondObject['00100024'].Value[0]['00400032'];
+        }
+        if (_.hasIn(secondObject, '["00100024"].Value[0]["00400033"].Value[0]')){
+            delete secondObject['00100024'].Value[0]['00400033'];
+        }
+        return !_.isEqual(firstObject, secondObject);
+    }
     appendPatientIdTo(patient, obj){
         if (_.hasIn(patient, '00100020')){
             obj['00100020'] = obj['00100020'] || {};
