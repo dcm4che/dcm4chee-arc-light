@@ -680,4 +680,15 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         });
         return contains;
     }
+
+    rsURL(externalInternalAetMode,aet, aetTitle, externalInternalAetModelAETitle) {
+        let url;
+        if(externalInternalAetMode === "external"){
+            url = `../aets/${aetTitle}/dimse/${externalInternalAetModelAETitle}`;
+        }
+        if(externalInternalAetMode === "internal"){
+            url = `../aets/${aet}/rs`;
+        }
+        return url;
+    }
 }

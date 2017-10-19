@@ -2791,14 +2791,14 @@ export class StudiesComponent implements OnDestroy,OnInit{
         console.log('this.selected[\'otherObjects\']', this.selected['otherObjects']);
     }
     rsURL() {
-        let url;
+/*        let url;
         if(this.externalInternalAetMode === "external"){
             url = `../aets/${this.aetmodel.dicomAETitle}/dimse/${this.externalInternalAetModel.dicomAETitle}`;
         }
         if(this.externalInternalAetMode === "internal"){
             url = `../aets/${this.aet}/rs`;
-        }
-        return url;
+        }*/
+        return this.service.rsURL(this.externalInternalAetMode,this.aet,this.aetmodel.dicomAETitle,this.externalInternalAetModel.dicomAETitle);
     }
     diffUrl(){
         if(!this.aet1){
