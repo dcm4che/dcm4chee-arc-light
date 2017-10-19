@@ -13,6 +13,7 @@ import {WindowRefService} from "../helpers/window-ref.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
 import {HttpErrorHandler} from "../helpers/http-error-handler";
 import {J4careHttpService} from "../helpers/j4care-http.service";
+import {DeviceConfiguratorService} from "../device-configurator/device-configurator.service";
 
 @Component({
   selector: 'app-devices',
@@ -56,7 +57,8 @@ export class DevicesComponent implements OnInit{
         public service: DevicesService,
         private router: Router,
         private hl7service:Hl7ApplicationsService,
-        public httpErrorHandler:HttpErrorHandler
+        public httpErrorHandler:HttpErrorHandler,
+        private deviceConfigurator:DeviceConfiguratorService
     ) {}
     ngOnInit(){
         this.initCheck(10);
@@ -79,6 +81,16 @@ export class DevicesComponent implements OnInit{
         this.getDevices();
         this.getAes();
         this.getHl7ApplicationsList(2);
+        console.log("deviceconfiguratorservice paginantion",this.deviceConfigurator.pagination)
+        if(this.deviceConfigurator.pagination){
+            this.deviceConfigurator.pagination = [
+                {
+                    url: '/device/devicelist',
+                    title: 'devicelist',
+                    devicereff: undefined
+                }
+            ];
+        }
     }
 
     @HostListener('window:scroll', ['$event'])

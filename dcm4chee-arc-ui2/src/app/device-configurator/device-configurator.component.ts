@@ -504,7 +504,14 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
 
 
         ngOnDestroy(){
-
-
+/*            this.service.pagination = [
+                {
+                    url: '/device/devicelist',
+                    title: 'devicelist',
+                    devicereff: undefined
+                }
+            ];*/
+            console.log("param",this.recentParams);
+            console.log("ondestroy",this.service.pagination);
         }
 }
