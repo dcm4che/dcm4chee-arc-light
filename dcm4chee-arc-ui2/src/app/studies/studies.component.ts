@@ -27,6 +27,8 @@ import {FormatDAPipe} from "../pipes/format-da.pipe";
 import {FormatTMPipe} from "../pipes/format-tm.pipe";
 import {HttpErrorHandler} from "../helpers/http-error-handler";
 import {J4careHttpService} from "../helpers/j4care-http.service";
+import {j4care} from "../helpers/j4care.service";
+import {ViewerComponent} from "../widgets/dialogs/viewer/viewer.component";
 declare var Keycloak: any;
 
 @Component({
@@ -250,6 +252,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         public dialog: MdDialog,
         public config: MdDialogConfig,
         public httpErrorHandler:HttpErrorHandler,
+        public j4care:j4care
     ) {}
     ngOnInit(){
         this.initCheck(10);
@@ -2414,7 +2417,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             exQueryParams["transferSyntax"] = {};
             exQueryParams["transferSyntax"] = transferSyntax;
         }
-        return this.wadoURL(inst.wadoQueryParams, exQueryParams);
+        this.j4care.download(this.wadoURL(inst.wadoQueryParams, exQueryParams));
     };
     viewInstance(inst) {
         this.select_show = false;
@@ -2423,13 +2426,44 @@ export class StudiesComponent implements OnDestroy,OnInit{
         }else{
 
         }
-        this.$http.head(this.renderURL(inst)).subscribe((res)=>{
-/*            console.log("res",res);
-            console.log("res",res.headers.get("content-type"));*/
+/*        this.$http.head(this.renderURL(inst)).subscribe((res)=>{
+/!*            console.log("res",res);
+            console.log("res",res.headers.get("content-type"));*!/
             let contentType = res["headers"].get("content-type");
             // if(contentType === )
+        });*/
+        let url;
+        let contentType;
+        if(inst.video || inst.numberOfFrames || inst.gspsQueryParams.length){
+            if (inst.video){
+                contentType = 'video/mpeg';
+                url =  this.wadoURL(inst.wadoQueryParams, { contentType: 'video/mpeg' });
+            }
+            if (inst.numberOfFrames){
+                contentType = 'image/jpeg';
+                url =  this.wadoURL(inst.wadoQueryParams, { contentType: 'image/jpeg'});
+            }
+            if (inst.gspsQueryParams.length){
+                url =  this.wadoURL(inst.gspsQueryParams[inst.view - 1]);
+            }
+        }else{
+            url = this.wadoURL(inst.wadoQueryParams);
+        }
+        this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(ViewerComponent, {
+            height: 'auto',
+            width: 'auto'
         });
-        window.open(this.renderURL(inst));
+        this.dialogRef.componentInstance.views = inst.views;
+        this.dialogRef.componentInstance.view = inst.view;
+        this.dialogRef.componentInstance.contentType = contentType;
+        this.dialogRef.componentInstance.url = this.renderURL(inst);
+        this.dialogRef.afterClosed().subscribe((result) => {
+            console.log('result', result);
+            if (result){
+            }
+        });
+        // window.open(this.renderURL(inst));
     };
     select(object, modus, keys, fromcheckbox){
         console.log('in select = fromcheckbox', fromcheckbox);

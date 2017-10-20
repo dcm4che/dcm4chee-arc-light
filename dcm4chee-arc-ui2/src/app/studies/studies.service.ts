@@ -720,4 +720,5 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         }
         return url;
     }
+
 }

@@ -28,6 +28,7 @@ import { TimePickerComponent } from './time-picker/time-picker.component';
 import { DurationPickerComponent } from './duration-picker/duration-picker.component';
 import { SchedulePickerComponent } from './schedule-picker/schedule-picker.component';
 import { AttributeInfoComponent } from './attribute-info/attribute-info.component';
+import { ViewerComponent } from './dialogs/viewer/viewer.component';
 
 
 @NgModule({
@@ -37,7 +38,7 @@ import { AttributeInfoComponent } from './attribute-info/attribute-info.componen
         FormsModule,
         CalendarModule
     ],
-    declarations: [WidgetsComponent],
+    declarations: [WidgetsComponent ],
     exports: [WidgetsComponent],
     providers: [MdDialogConfig]
 })
@@ -65,5 +66,6 @@ export const WidgetsComponents = [
     TimePickerComponent,
     DurationPickerComponent,
     SchedulePickerComponent,
-    AttributeInfoComponent
+    AttributeInfoComponent,
+    ViewerComponent
 ];

@@ -1003,10 +1003,10 @@
                                                         <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('instance', instance._VALUE)" *ngIf="isRole('admin') && externalInternalAetMode === 'internal'" href="" title="Verify storage commitment">
                                                             <span class="glyphicon glyphicon-ok"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" *ngIf="!instance._VALUE.video && externalInternalAetMode === 'internal'" href="{{downloadURL(instance._VALUE)}}" title="Download Uncompressed DICOM Object">
+                                                        <a class="hiddenbuttons" *ngIf="!instance._VALUE.video && externalInternalAetMode === 'internal'" (click)="$event.preventDefault();downloadURL(instance._VALUE)" title="Download Uncompressed DICOM Object">
                                                             <span class="glyphicon glyphicon-save"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" href="{{downloadURL(instance._VALUE, '*')}}" *ngIf="externalInternalAetMode === 'internal'" title="Download DICOM Object">
+                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();downloadURL(instance._VALUE, '*')" *ngIf="externalInternalAetMode === 'internal'" title="Download DICOM Object">
                                                             <span class="glyphicon glyphicon-download-alt"></span>
                                                         </a>
                                                         <a class="hiddenbuttons" *ngIf="instance._VALUE.views.length === 1 && externalInternalAetMode === 'internal'" (click)="$event.preventDefault();viewInstance(instance._VALUE)" href="#" title="View DICOM Object">

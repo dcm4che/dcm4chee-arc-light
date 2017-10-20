@@ -21,6 +21,7 @@ import {RemovePartSelectorComponent} from '../dialogs/remove-part-selector/remov
 import {AppService} from '../../app.service';
 import {ControlService} from "../../control/control.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {j4care} from "../../helpers/j4care.service";
 
 @Component({
     selector: 'df-element',
@@ -49,7 +50,8 @@ export class DynamicFormElementComponent{
         public $http:J4careHttpService,
         private ref: ChangeDetectorRef,
         private mainservice: AppService,
-        private controlService:ControlService
+        private controlService:ControlService,
+        private j4care:j4care
     ){
         // dcl.resolveComponentFactory(DynamicFormComponent);
         this.partRemoved = false;
@@ -70,6 +72,9 @@ export class DynamicFormElementComponent{
          });*/
         return this.dialogRef.afterClosed();
     };
+    downloadFile(url){
+        this.j4care.download(url);
+    }
     deleteFile(deviceName, formelement){
         let $this = this;
         this.confirm({
