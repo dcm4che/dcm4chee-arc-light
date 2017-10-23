@@ -56,7 +56,54 @@ md-grid-list{
 .icon-20{
     font-size:20px;
 }
+.arrow{
+  float: left;
+  position: absolute;
+  top: 50%;
+  margin-top: -20px;
+  font-size: 30px;
+  height: 40px;
+  vertical-align: middle;
+  line-height: 40px;
+  color: $lightBlue;
+  &.left{
+    left:25px;
+  }
+  &.right{
+    right:25px;
+  }
+  &:hover{
+    cursor: pointer;
+  }
+}
+.mat-progress-spinner path, .mat-spinner path{
+  stroke: $lightBlue;
+}
 
+.loader{
+  position: absolute;
+  top: 50%;
+  left:50%;
+}
+.viewer{
+  .content{
+    min-height:40%;
+    min-width:30%;
+  }
+  .arrow{
+    display: none;
+  }
+  &:hover .arrow{
+    display: block;
+  }
+  .spinner-icon{
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    margin-top: -50px;
+    margin-right: -60px;
+  }
+}
 //#mainmenu
 #mainmenu{
   li{

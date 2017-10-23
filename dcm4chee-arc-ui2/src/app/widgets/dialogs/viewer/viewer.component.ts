@@ -12,8 +12,11 @@ export class ViewerComponent implements OnInit {
 
     private _url;
     private _views;
+    private _view;
     private _contentType;
     renderedUrl;
+    xhr = new XMLHttpRequest();
+    showLoader;
     constructor(
         public dialogRef: MdDialogRef<ViewerComponent>,
         private j4care:j4care,
@@ -25,23 +28,30 @@ export class ViewerComponent implements OnInit {
         console.log("_views",this._views);
         //, frameNumber: inst.view
         // this.j4care.download(this._url);
+        this.loadImage();
+    }
+    loadImage(){
+        this.showLoader = true;
         let $this = this;
-        let xhr = new XMLHttpRequest();
-
-        xhr.open("GET", this._url, true);   // Make sure file is in same server
-        xhr.overrideMimeType('text/plain; charset=x-user-defined');
+        let url = this._url;
+        if(this._views.length > 1 && this._contentType != 'video/mpeg'){
+            url = this._url + `&frameNumber=${this._view}`;
+        }
+        $this.xhr.open("GET", url, true);   // Make sure file is in same server
+        $this.xhr.overrideMimeType('text/plain; charset=x-user-defined');
         let token = this.mainservice.global.authentication.token;
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-        xhr.send(null);
+        $this.xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        $this.xhr.send(null);
 
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4){
-                if ((xhr.status == 200) || (xhr.status == 0)){
-                    $this.renderedUrl = `data:image/jpeg;base64,` + encode64(xhr.responseText);
+        $this.xhr.onreadystatechange = function() {
+            if ($this.xhr.readyState == 4){
+                if (($this.xhr.status == 200) || ($this.xhr.status == 0)){
+                    $this.renderedUrl = `data:${$this.contentType};base64,` + encode64($this.xhr.responseText);
+                    $this.showLoader = false;
                 }else{
                     alert("Something misconfiguration : " +
-                        "\nError Code : " + xhr.status +
-                        "\nError Message : " + xhr.responseText);
+                        "\nError Code : " + $this.xhr.status +
+                        "\nError Message : " + $this.xhr.responseText);
                 }
             }
         };
@@ -73,9 +83,16 @@ export class ViewerComponent implements OnInit {
             }
             return outputStr;
         }
-}
-
-
+    }
+    changeImage(mode){
+        if(mode === "prev" && this._view > 1){
+            this.view--;
+        }
+        if(mode === "next" && this._view < this._views.length){
+            this.view++;
+        }
+        this.loadImage();
+    }
     get url() {
       return this._url;
     }
@@ -90,6 +107,14 @@ export class ViewerComponent implements OnInit {
 
     set views(value) {
         this._views = value;
+    }
+
+    get view() {
+        return this._view;
+    }
+
+    set view(value) {
+        this._view = value;
     }
 
     get contentType() {

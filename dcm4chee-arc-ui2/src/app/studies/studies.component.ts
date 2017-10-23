@@ -2435,16 +2435,16 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let url;
         let contentType;
         if(inst.video || inst.numberOfFrames || inst.gspsQueryParams.length){
-            if (inst.video){
-                contentType = 'video/mpeg';
-                url =  this.wadoURL(inst.wadoQueryParams, { contentType: 'video/mpeg' });
+            if (inst.gspsQueryParams.length){
+                url =  this.wadoURL(inst.gspsQueryParams[inst.view - 1]);
             }
             if (inst.numberOfFrames){
                 contentType = 'image/jpeg';
                 url =  this.wadoURL(inst.wadoQueryParams, { contentType: 'image/jpeg'});
             }
-            if (inst.gspsQueryParams.length){
-                url =  this.wadoURL(inst.gspsQueryParams[inst.view - 1]);
+            if (inst.video){
+                contentType = 'video/mpeg';
+                url =  this.wadoURL(inst.wadoQueryParams, { contentType: 'video/mpeg' });
             }
         }else{
             url = this.wadoURL(inst.wadoQueryParams);
@@ -2457,7 +2457,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.dialogRef.componentInstance.views = inst.views;
         this.dialogRef.componentInstance.view = inst.view;
         this.dialogRef.componentInstance.contentType = contentType;
-        this.dialogRef.componentInstance.url = this.renderURL(inst);
+        this.dialogRef.componentInstance.url = url;
         this.dialogRef.afterClosed().subscribe((result) => {
             console.log('result', result);
             if (result){

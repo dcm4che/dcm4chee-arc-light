@@ -183,6 +183,8 @@ export class UploadFilesComponent implements OnInit {
                         const payload = uint8Array.buffer;*/
                         $this.xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type=application/dicom+json;boundary=' + boundary + ';');
                         $this.xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
+                        let token = this.mainservice.global.authentication.token;
+                        $this.xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
                         $this.xmlHttpRequest.upload.onprogress = function (e) {
                             if (e.lengthComputable) {
                                 $this.percentComplete[file.name]['value'] = (e.loaded / e.total) * 100;

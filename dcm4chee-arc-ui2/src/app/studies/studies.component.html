@@ -1009,15 +1009,15 @@
                                                         <a class="hiddenbuttons" (click)="$event.preventDefault();downloadURL(instance._VALUE, '*')" *ngIf="externalInternalAetMode === 'internal'" title="Download DICOM Object">
                                                             <span class="glyphicon glyphicon-download-alt"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" *ngIf="instance._VALUE.views.length === 1 && externalInternalAetMode === 'internal'" (click)="$event.preventDefault();viewInstance(instance._VALUE)" href="#" title="View DICOM Object">
+                                                        <a class="hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" (click)="$event.preventDefault();viewInstance(instance._VALUE)" href="#" title="View DICOM Object">
                                                             <span class="glyphicon glyphicon-picture"></span>
                                                         </a>
-                                                        <span class="selecta hiddenbuttons" *ngIf="instance._VALUE.views.length > 1 && externalInternalAetMode === 'internal'" title="View DICOM Object">
+<!--                                                        <span class="selecta hiddenbuttons" *ngIf="instance._VALUE.views.length > 1 && externalInternalAetMode === 'internal'" title="View DICOM Object">
                                                             <span class="glyphicon glyphicon-picture" (click)="select_show = !select_show"></span>
                                                             <div *ngIf="select_show" class="select_block">
                                                                 <a *ngFor="let value of instance._VALUE.views" (click)="$event.preventDefault();instance._VALUE.view=value;viewInstance(instance._VALUE)">{{value}}</a>
                                                             </div>
-                                                        </span>
+                                                        </span>-->
                                                     </div>
                                                 </div>
                                             </div>

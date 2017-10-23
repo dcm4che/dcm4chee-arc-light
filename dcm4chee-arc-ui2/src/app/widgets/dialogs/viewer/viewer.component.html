@@ -1,1 +1,18 @@
-<img src="{{renderedUrl}}" />
+<div class="viewer">
+    <span class="pull-right" *ngIf="views.length > 1">{{view}} / {{views.length}}</span>
+    <div *ngIf="views.length > 1" class="arrow left" (click)="changeImage('prev')">
+        <span class="glyphicon glyphicon-chevron-left"></span>
+    </div>
+    <div class="content">
+        <img *ngIf="contentType === 'image/jpeg'" src="{{renderedUrl}}" />
+        <video *ngIf="contentType === 'video/mpeg'"  autoplay>
+            <source src="{{renderedUrl}}" type="video/mpeg">
+        </video>
+    </div>
+    <div *ngIf="views.length > 1" class="arrow right" (click)="changeImage('next')">
+        <span class="glyphicon glyphicon-chevron-right"></span>
+    </div>
+    <div class="spinner-icon" *ngIf="showLoader">
+        <md-progress-spinner mode="indeterminate" ></md-progress-spinner>
+    </div>
+</div>
