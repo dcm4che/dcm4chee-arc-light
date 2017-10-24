@@ -34,14 +34,20 @@ export class ViewerComponent implements OnInit {
         this.showLoader = true;
         let $this = this;
         let url = this._url;
-        if(this._views.length > 1 && this._contentType != 'video/mpeg'){
+        if(this._contentType != 'video/mpeg'){
             url = this._url + `&frameNumber=${this._view}`;
+        }
+        if(!this._contentType){
+            this._contentType = 'image/jpeg';
         }
         $this.xhr.open("GET", url, true);   // Make sure file is in same server
         $this.xhr.overrideMimeType('text/plain; charset=x-user-defined');
         let token = this.mainservice.global.authentication.token;
         $this.xhr.setRequestHeader('Authorization', `Bearer ${token}`);
         $this.xhr.send(null);
+        $this.xhr.onloadstart = (res)=>{
+            console.log("onloade res",res);
+        };
 
         $this.xhr.onreadystatechange = function() {
             if ($this.xhr.readyState == 4){

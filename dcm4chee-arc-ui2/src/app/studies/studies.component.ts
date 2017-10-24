@@ -2434,6 +2434,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         });*/
         let url;
         let contentType;
+        let token = this.mainservice.global.authentication.token;
         if(inst.video || inst.numberOfFrames || inst.gspsQueryParams.length){
             if (inst.gspsQueryParams.length){
                 url =  this.wadoURL(inst.gspsQueryParams[inst.view - 1]);
@@ -2449,20 +2450,31 @@ export class StudiesComponent implements OnDestroy,OnInit{
         }else{
             url = this.wadoURL(inst.wadoQueryParams);
         }
-        this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(ViewerComponent, {
-            height: 'auto',
-            width: 'auto'
-        });
-        this.dialogRef.componentInstance.views = inst.views;
-        this.dialogRef.componentInstance.view = inst.view;
-        this.dialogRef.componentInstance.contentType = contentType;
-        this.dialogRef.componentInstance.url = url;
-        this.dialogRef.afterClosed().subscribe((result) => {
-            console.log('result', result);
-            if (result){
+        if(!contentType){
+            if(_.hasIn(inst,"attrs.00420012.Value.0") && inst.attrs['00420012'].Value[0] != ''){
+                contentType = inst.attrs['00420012'].Value[0];
             }
-        });
+        }
+        if(contentType === 'application/pdf' || contentType === 'video/mpeg'){
+            this.j4care.download(url);
+            // window.open(this.renderURL(inst) + `&access_token:${token}`);
+        }else{
+            this.config.viewContainerRef = this.viewContainerRef;
+            this.dialogRef = this.dialog.open(ViewerComponent, {
+                height: 'auto',
+                width: 'auto'
+            });
+            this.dialogRef.componentInstance.views = inst.views;
+            this.dialogRef.componentInstance.view = inst.view;
+            this.dialogRef.componentInstance.contentType = contentType;
+            this.dialogRef.componentInstance.url = url;
+            this.dialogRef.afterClosed().subscribe((result) => {
+                console.log('result', result);
+                if (result){
+                }
+            });
+            console.log("this.renderURL(inst)",this.renderURL(inst));
+        }
         // window.open(this.renderURL(inst));
     };
     select(object, modus, keys, fromcheckbox){
