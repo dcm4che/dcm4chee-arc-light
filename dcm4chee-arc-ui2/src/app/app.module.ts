@@ -66,6 +66,8 @@ import {AeListService} from "./ae-list/ae-list.service";
 import {HttpErrorHandler} from "./helpers/http-error-handler";
 import {j4care} from "./helpers/j4care.service";
 import {J4careHttpService} from "./helpers/j4care-http.service";
+import { ExternalRetrieveComponent } from './monitoring/external-retrieve/external-retrieve.component';
+import {ExternalRetrieveService} from "./monitoring/external-retrieve/external-retrieve.service";
 
 @NgModule({
     declarations: [
@@ -107,7 +109,8 @@ import {J4careHttpService} from "./helpers/j4care-http.service";
         CustomValidatorDirective,
         StorageSystemsComponent,
         MonitoringTabsComponent,
-        Hl7ApplicationsComponent
+        Hl7ApplicationsComponent,
+        ExternalRetrieveComponent
 
     ],
     imports: [
@@ -175,7 +178,8 @@ import {J4careHttpService} from "./helpers/j4care-http.service";
         Hl7ApplicationsService,
         AeListService,
         HttpErrorHandler,
-        j4care
+        j4care,
+        ExternalRetrieveService
     ],
     bootstrap: [AppComponent]
 })
