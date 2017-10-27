@@ -39,7 +39,12 @@ export class J4careHttpService{
                 $this.setHeader(param[headerIndex]);
                 param[headerIndex] = {"headers":$this.header};
                 return $this.$http[requestFunctionName].apply($this.$http , param);
-            });
+            }).catch(res=>{
+                if(res.ok === false && res.status === 0 && res.type === 3){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                return res;
+        });
     }
     resetAuthenticationInfo(response){
         let $this = this;
@@ -62,7 +67,16 @@ export class J4careHttpService{
     }
     refreshToken():Observable<any>{
         if(!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()){
-            return this.$http.get('rs/realm').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
+            return this.$http.get('rs/realm').map(res => {
+                let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json();
+                }catch (e){
+                    resjson = [];
+                } return resjson;
+            });
         }else{
             this.token = this.mainservice.global.authentication.token;
             return Observable.of([]);
