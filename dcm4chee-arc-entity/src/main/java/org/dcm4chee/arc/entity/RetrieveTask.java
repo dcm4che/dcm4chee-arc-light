@@ -70,11 +70,29 @@ import java.util.Date;
                         "o.warning=?5, " +
                         "o.statusCode=?6, " +
                         "o.errorComment=?7 " +
-                        "where o.queueMessage=?1")
+                        "where o.queueMessage=?1"),
+        @NamedQuery(name = RetrieveTask.DELETE_BY_QUEUE_NAME,
+                query = "delete from RetrieveTask t where t.queueMessage in " +
+                        "(select o from QueueMessage o where o.queueName=?1)"),
+        @NamedQuery(name = RetrieveTask.DELETE_BY_QUEUE_NAME_AND_STATUS,
+                query = "delete from RetrieveTask t where t.queueMessage in " +
+                        "(select o from QueueMessage o where o.queueName=?1 and o.status=?2)"),
+        @NamedQuery(name = RetrieveTask.DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE,
+                query = "delete from RetrieveTask t where t.queueMessage in " +
+                        "(select o from QueueMessage o where o.queueName=?1 and o.updatedTime<?2)"),
+        @NamedQuery(name = RetrieveTask.DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE,
+                query = "delete from RetrieveTask t where t.queueMessage in " +
+                        "(select o from QueueMessage o where o.queueName=?1 and o.status=?2 and o.updatedTime<?3)")
 })
 public class RetrieveTask {
 
     public static final String UPDATE_BY_QUEUE_MESSAGE = "RetrieveTask.UpdateByQueueMessage";
+    public static final String DELETE_BY_QUEUE_NAME = "RetrieveTask.DeleteByQueueName";
+    public static final String DELETE_BY_QUEUE_NAME_AND_STATUS = "RetrieveTask.DeleteByQueueNameAndStatus";
+    public static final String DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE =
+            "RetrieveTask.DeleteByQueueNameAndUpdatedBefore";
+    public static final String DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE =
+            "RetrieveTask.DeleteByQueueNameAndStatusAndUpdatedBefore";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
