@@ -4378,7 +4378,7 @@
     "/aets/{aet}/rs/patients/count": {
       "get": {
         "tags": [
-          "QIDO-RS"
+          "COUNT-RS"
         ],
         "summary": "Count Patients",
         "operationId": "CountPatients",
@@ -4444,7 +4444,7 @@
     "/aets/{aet}/rs/studies/count": {
       "get": {
         "tags": [
-          "QIDO-RS"
+          "COUNT-RS"
         ],
         "summary": "Count Studies",
         "operationId": "CountStudies",
@@ -4555,7 +4555,7 @@
     "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/count": {
       "get": {
         "tags": [
-          "QIDO-RS"
+          "COUNT-RS"
         ],
         "summary": "Count Series of Study",
         "operationId": "CountStudySeries",
@@ -4655,7 +4655,7 @@
     "/aets/{aet}/rs/series/count": {
       "get": {
         "tags": [
-          "QIDO-RS"
+          "COUNT-RS"
         ],
         "summary": "Count Series",
         "operationId": "CountSeries",
@@ -4748,7 +4748,7 @@
     "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/count": {
       "get": {
         "tags": [
-          "QIDO-RS"
+          "COUNT-RS"
         ],
         "summary": "Count Instances of Series of Study",
         "operationId": "CountStudySeriesInstances",
@@ -4821,7 +4821,7 @@
     "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/count": {
       "get": {
         "tags": [
-          "QIDO-RS"
+          "COUNT-RS"
         ],
         "summary": "Count Instances of Study",
         "operationId": "CountStudyInstances",
@@ -4894,7 +4894,7 @@
     "/aets/{aet}/rs/instances/count": {
       "get": {
         "tags": [
-          "QIDO-RS"
+          "COUNT-RS"
         ],
         "summary": "Count Instances",
         "operationId": "CountInstances",
