@@ -118,10 +118,6 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String fuzzymatching;
 
-    @QueryParam("count")
-    @Pattern(regexp = "true|false")
-    private String count;
-
     @QueryParam("offset")
     @Pattern(regexp = "0|([1-9]\\d{0,4})")
     private String offset;
@@ -299,6 +295,82 @@ public class QidoRS {
         return search("SearchForSPS", Model.MWL, null, null, QIDO.MWL, Output.JSON);
     }
 
+    @GET
+    @NoCache
+    @Path("/patients/count")
+    @Produces("application/json")
+    public Response countPatients() throws Exception {
+        return search("CountPatients", Model.PATIENT, null, null,
+                QIDO.PATIENT, Output.COUNT);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/count")
+    @Produces("application/json")
+    public Response countStudies() throws Exception {
+        return search("CountStudies", Model.STUDY, null, null,
+                QIDO.STUDY, Output.COUNT);
+    }
+
+    @GET
+    @NoCache
+    @Path("/series/count")
+    @Produces("application/json")
+    public Response countSeries() throws Exception {
+        return search("CountSeries", Model.SERIES, null, null,
+                QIDO.STUDY_SERIES, Output.COUNT);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/series/count")
+    @Produces("application/json")
+    public Response countSeriesOfStudy(
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+        return search("CountStudySeries", Model.SERIES, studyInstanceUID, null,
+                QIDO.SERIES, Output.COUNT);
+    }
+
+    @GET
+    @NoCache
+    @Path("/instances/count")
+    @Produces("application/json")
+    public Response countInstances() throws Exception {
+        return search("CountInstances", Model.INSTANCE, null, null,
+                QIDO.STUDY_SERIES_INSTANCE, Output.COUNT);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/instances/count")
+    @Produces("application/json")
+    public Response countInstancesOfStudy(
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+        return search("CountStudyInstances", Model.INSTANCE, studyInstanceUID, null,
+                QIDO.SERIES_INSTANCE, Output.COUNT);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/count")
+    @Produces("application/json")
+    public Response countInstancesOfSeries(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
+        return search("CountStudySeriesInstances", Model.INSTANCE, studyInstanceUID, seriesInstanceUID,
+                QIDO.INSTANCE, Output.COUNT);
+    }
+
+    @GET
+    @NoCache
+    @Path("/mwlitems/count")
+    @Produces("application/json")
+    public Response countSPS() throws Exception {
+        return search("CountSPS", Model.MWL, null, null,
+                QIDO.MWL, Output.COUNT);
+    }
+
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID,
                             QIDO qido, Output output)
             throws Exception {
@@ -308,8 +380,8 @@ public class QidoRS {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         try (Query query = model.createQuery(service, ctx)) {
             query.initQuery();
-            if (Boolean.parseBoolean(count) && output == Output.JSON)
-                return Response.ok("{\"count\":" + query.count() + '}').build();
+            if (output == Output.COUNT)
+                return Response.ok(output.entity(this, method, query, model, null)).build();
 
             int maxResults = arcAE.qidoMaxNumberOfResults();
             int offsetInt = parseInt(offset);
@@ -528,6 +600,13 @@ public class QidoRS {
             Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
                     throws DicomServiceException {
                 return service.writeJSON(method, query, model, coercion);
+            }
+        },
+        COUNT {
+            @Override
+            Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
+                    throws DicomServiceException {
+                return "{\"count\":" + query.count() + '}';
             }
         };
 
