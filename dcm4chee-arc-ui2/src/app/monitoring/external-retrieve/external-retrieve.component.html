@@ -1,3 +1,6 @@
-<p>
-  external-retrieve works!
-</p>
+<div class="main_content queues monitoring">
+  <monitoring-tabs></monitoring-tabs>
+  <div class="tab-content">
+    <filter-generator [filterObject]="filter" (submit)="onSubmit($event)"></filter-generator>
+  </div>
+</div>

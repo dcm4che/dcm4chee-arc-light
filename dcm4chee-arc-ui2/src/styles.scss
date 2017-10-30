@@ -9,6 +9,54 @@ $lightBlueNoTransparence:#2c404f;
 $blue:#061d2f;
 $hoverBlue:#5293C1;
 
+@media screen and (min-width: 600px) {
+  .filter{
+    .filter_block{
+      width:415px;
+    }
+  }
+}
+@media screen and (max-width: 599px) {
+  .filter{
+    .filter_block{
+      width:100%;
+    }
+  }
+}
+
+@media screen and (min-width: 450px) {
+  .filter{
+    .filter_block{
+      .line{
+        float: left;
+        width: 100%;
+        & > *{
+          width:48%;
+        }
+        & > label:first-child{
+          text-align: right;
+        }
+      }
+    }
+  }
+}
+@media screen and (max-width: 449px) {
+  .filter{
+    .filter_block{
+      width:100%;
+      .line{
+        float: left;
+        width: 100%;
+        & > *{
+          width:100%;
+        }
+        & > label:first-child{
+          text-align: left;
+        }
+      }
+    }
+  }
+}
 
 body{
     margin: 0;
@@ -55,6 +103,40 @@ md-grid-list{
 }
 .icon-20{
     font-size:20px;
+}
+.filter{
+  .filter_block{
+    float: left;
+    border:1px solid #cccccc;
+    margin-right:10px;
+    box-sizing: border-box;
+    padding: 15px 20px;
+    margin-bottom:10px;
+    .line{
+      float: left;
+      width: 100%;
+      padding-top: 4px;
+      min-height: 37px;
+      & > *{
+
+        height:28px;
+        &:first-child{
+          float: left;
+        }
+        &:last-child{
+          float: right;
+        }
+      }
+      & > input,p-calendar input{
+        border:none;
+        border-bottom:1px solid #cccccc;
+      }
+      button{
+        border:none;
+      }
+
+    }
+  }
 }
 .arrow{
   float: left;
@@ -786,6 +868,12 @@ md-dialog-container{
     padding: 30px 10px 0px 10px;
     border: 1px solid #ccc;
     border-top: none;
+    float: left;
+    width: 100%;
+  }
+  &.main_content{
+    float: left;
+    width: 100%;
   }
   md-select{
     padding:0;

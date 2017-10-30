@@ -1,0 +1,32 @@
+<div class="filter">
+  <div class="filter_block" *ngFor="let filter of filterObject">
+    <div *ngFor="let line of filter.filter_block" class="line" [ngSwitch]="filter.type">
+      <ng-container [ngSwitch]="line.firstChild.tag">
+        <label *ngSwitchCase="'label'">{{line.firstChild.text}}</label>
+        <ng-container *ngIf="line.firstChild.filterKey">
+          <input [(ngModel)]="filterModel[line.firstChild.filterKey]" type="{{line.firstChild.type}}" *ngSwitchCase="'input'">
+          <md-select [(ngModel)]="filterModel[line.firstChild.filterKey]" *ngSwitchCase="'select'" [(ngModel)]="status">
+            <md-option *ngIf="line.firstChild.showStar" value="">*</md-option>
+            <md-option *ngFor="let option of line.firstChild.options" value="{{option.value}}">{{option.text}}</md-option>
+          </md-select>
+          <p-calendar [(ngModel)]="filterModel[line.firstChild.filterKey]" *ngSwitchCase="'p-calendar'"  dataType="string" dateFormat="{{line.firstChild.dateFormat}}" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line.firstChild.description}}"></p-calendar>
+        </ng-container>
+        <div *ngSwitchCase="'dummy'"></div>
+        <button (click)="submitEmit(filterModel)" class="btn-default submit" *ngSwitchCase="'button'" title="{{line.secondChild.description}}">{{line.secondChild.text}}</button>
+      </ng-container>
+      <ng-container [ngSwitch]="line.secondChild.tag">
+        <label *ngSwitchCase="'label'">{{line.secondChild.text}}</label>
+        <ng-container *ngIf="line.secondChild.filterKey">
+          <input [(ngModel)]="filterModel[line.secondChild.filterKey]" type="{{line.secondChild.type}}" *ngSwitchCase="'input'">
+          <md-select [(ngModel)]="filterModel[line.secondChild.filterKey]" *ngSwitchCase="'select'" [(ngModel)]="status">
+            <md-option *ngIf="line.secondChild.showStar" value="">*</md-option>
+            <md-option *ngFor="let option of line.secondChild.options" value="{{option.value}}">{{option.text}}</md-option>
+          </md-select>
+          <p-calendar [(ngModel)]="filterModel[line.secondChild.filterKey]" *ngSwitchCase="'p-calendar'"  dataType="string" dateFormat="{{line.secondChild.dateFormat}}" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line.secondChild.description}}"></p-calendar>
+        </ng-container>
+        <div *ngSwitchCase="'dummy'"></div>
+        <button (click)="submitEmit(filterModel)" class="btn-default submit" *ngSwitchCase="'button'" title="{{line.secondChild.description}}">{{line.secondChild.text}}</button>
+      </ng-container>
+    </div>
+  </div>
+</div>

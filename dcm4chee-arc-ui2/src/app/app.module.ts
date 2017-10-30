@@ -68,6 +68,7 @@ import {j4care} from "./helpers/j4care.service";
 import {J4careHttpService} from "./helpers/j4care-http.service";
 import { ExternalRetrieveComponent } from './monitoring/external-retrieve/external-retrieve.component';
 import {ExternalRetrieveService} from "./monitoring/external-retrieve/external-retrieve.service";
+import { FilterGeneratorComponent } from './helpers/filter-generator/filter-generator.component';
 
 @NgModule({
     declarations: [
@@ -110,7 +111,8 @@ import {ExternalRetrieveService} from "./monitoring/external-retrieve/external-r
         StorageSystemsComponent,
         MonitoringTabsComponent,
         Hl7ApplicationsComponent,
-        ExternalRetrieveComponent
+        ExternalRetrieveComponent,
+        FilterGeneratorComponent
 
     ],
     imports: [
@@ -140,6 +142,7 @@ import {ExternalRetrieveService} from "./monitoring/external-retrieve/external-r
             { path: 'studies', component: StudiesComponent },
             { path: 'control', component: ControlComponent },
             { path: 'monitoring/export', component: ExportComponent },
+            { path: 'monitoring/external', component: ExternalRetrieveComponent },
             { path: 'monitoring/queues', component: QueuesComponent },
             { path: 'monitoring/associations', component: AssociationsComponent },
             { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent },
