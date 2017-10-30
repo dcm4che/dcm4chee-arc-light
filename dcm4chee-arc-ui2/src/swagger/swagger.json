@@ -4404,16 +4404,6 @@
             "collectionFormat": "multi"
           },
           {
-            "name": "includefield",
-            "in": "query",
-            "description": "includefield={attributeID} | all",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
             "name": "withoutstudies",
             "in": "query",
             "description": "count Patient w/o Studies",
@@ -4463,16 +4453,6 @@
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "includefield",
-            "in": "query",
-            "description": "includefield={attributeID} | all",
             "type": "array",
             "items": {
               "type": "string"
@@ -4588,16 +4568,6 @@
             "collectionFormat": "multi"
           },
           {
-            "name": "includefield",
-            "in": "query",
-            "description": "includefield={attributeID} | all",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
             "name": "returnempty",
             "in": "query",
             "description": "count also empty Series",
@@ -4674,16 +4644,6 @@
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "includefield",
-            "in": "query",
-            "description": "includefield={attributeID} | all",
             "type": "array",
             "items": {
               "type": "string"
@@ -4788,16 +4748,6 @@
             "collectionFormat": "multi"
           },
           {
-            "name": "includefield",
-            "in": "query",
-            "description": "includefield={attributeID} | all",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -4861,16 +4811,6 @@
             "collectionFormat": "multi"
           },
           {
-            "name": "includefield",
-            "in": "query",
-            "description": "includefield={attributeID} | all",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -4927,16 +4867,6 @@
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "includefield",
-            "in": "query",
-            "description": "includefield={attributeID} | all",
             "type": "array",
             "items": {
               "type": "string"
