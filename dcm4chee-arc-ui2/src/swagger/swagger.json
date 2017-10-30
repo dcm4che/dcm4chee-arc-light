@@ -4431,6 +4431,56 @@
         }
       }
     },
+    "/aets/{aet}/rs/mwlitems/count": {
+      "get": {
+        "tags": [
+          "MWL-RS",
+          "COUNT-RS"
+        ],
+        "summary": "Count Scheduled Procedure Steps",
+        "operationId": "CountSPS",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching Scheduled Procedure Steps",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies/count": {
       "get": {
         "tags": [
