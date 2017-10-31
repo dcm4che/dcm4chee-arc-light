@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import {AppService} from "../../app.service";
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 import * as _ from 'lodash';
+import {AeListService} from "../../ae-list/ae-list.service";
+import {Observable} from "rxjs/Observable";
+import {ExternalRetrieveService} from "./external-retrieve.service";
+import {HttpErrorHandler} from "../../helpers/http-error-handler";
 
 @Component({
   selector: 'external-retrieve',
@@ -12,10 +16,16 @@ export class ExternalRetrieveComponent implements OnInit {
     localAET;
     remoteAET;
     destinationAET;
-    filter;
+    filterSchema;
+    filterObject;
+    externalRetrieveEntries;
+    _ = _;
   constructor(
       public cfpLoadingBar: SlimLoadingBarService,
-      public mainservice: AppService
+      public mainservice: AppService,
+      public aeListService:AeListService,
+      public service:ExternalRetrieveService,
+      public httpErrorHandler:HttpErrorHandler,
   ) { }
 
     ngOnInit(){
@@ -36,195 +46,40 @@ export class ExternalRetrieveComponent implements OnInit {
         }
     }
     init(){
-        this.localAET = this.remoteAET = this.destinationAET = [
-            {
-                value:"TO SCHEDULE",
-                text:"TO SCHEDULE"
-            },
-            {
-                value:"SCHEDULED",
-                text:"SCHEDULED"
-            },
-            {
-                value:"IN PROCESS",
-                text:"IN PROCESS"
-            },
-            {
-                value:"COMPLETED",
-                text:"COMPLETED"
-            },
-            {
-                value:"WARNING",
-                text:"WARNING"
-            },
-            {
-                value:"FAILED",
-                text:"FAILED"
-            },
-            {
-                value:"CANCELED",
-                text:"CANCELED"
-            }
-        ];
-        this.filter = [
-            {
-                filter_block:[
-                    {
-                        firstChild:{
-                            tag:"label",
-                            text:"Device name"
-                        },
-                        secondChild:{
-                            tag:"input",
-                            type:"text",
-                            filterKey:"dicomDeviceName",
-                            description:"Device Name to filter by"
-                        }
-                    },
-                    {
-                        firstChild:{
-                            tag:"label",
-                            text:"LocalAET"
-                        },
-                        secondChild:{
-                            tag:"select",
-                            options:this.localAET,
-                            showStar:true,
-                            filterKey:"LocalAET",
-                            description:"Archive AE Title to filter by"
-                        }
-                    },
-                    {
-                        firstChild:{
-                            tag:"label",
-                            text:"RemoteAET"
-                        },
-                        secondChild:{
-                            tag:"select",
-                            options:this.remoteAET,
-                            showStar:true,
-                            filterKey:"RemoteAET",
-                            description:"C-MOVE SCP AE Title to filter by"
-                        }
-                    }
-                ]
-            },
-            {
-                filter_block:[
-                    {
-                        firstChild:{
-                            tag:"label",
-                            text:"DestinationAET"
-                        },
-                        secondChild:{
-                            tag:"select",
-                            options:this.destinationAET,
-                            showStar:true,
-                            filterKey:"DestinationAET",
-                            description:"Destination AE Title to filter by"
-                        }
-                    },
-                    {
-                        firstChild:{
-                            tag:"label",
-                            text:"StudyInstanceUID"
-                        },
-                        secondChild:{
-                            tag:"input",
-                            type:"text",
-                            filterKey:"StudyInstanceUID",
-                            description:"Unique Identifier of the Study to filter by"
-                        }
-                    },
-                    {
-                        firstChild:{
-                            tag:"label",
-                            text:"Status"
-                        },
-                        secondChild:{
-                            tag:"select",
-                            options:[
-                                {
-                                    value:"",
-                                    text:"*"
-                                },
-                                {
-                                    value:"TO SCHEDULE",
-                                    text:"TO SCHEDULE"
-                                },
-                                {
-                                    value:"SCHEDULED",
-                                    text:"SCHEDULED"
-                                },
-                                {
-                                    value:"IN PROCESS",
-                                    text:"IN PROCESS"
-                                },
-                                {
-                                    value:"COMPLETED",
-                                    text:"COMPLETED"
-                                },
-                                {
-                                    value:"WARNING",
-                                    text:"WARNING"
-                                },
-                                {
-                                    value:"FAILED",
-                                    text:"FAILED"
-                                },
-                                {
-                                    value:"CANCELED",
-                                    text:"CANCELED"
-                                }
-                            ],
-                            filterKey:"status",
-                            showStar:true,
-                            description:"Status of tasks to filter by"
-                        }
-                    }
-                ]
-            },
-            {
-                filter_block:[
-                    {
-                        firstChild:{
-                            tag:"label",
-                            text:"Update before"
-                        },
-                        secondChild:{
-                            tag:"p-calendar",
-                            filterKey:"updatedBefore",
-                            dateFormat:"yy-mm-dd",
-                            description:"maximum update date of tasks to filter by. Format: YYYY-MM-DD"
-                        }
-                    },
-                    {
-                        firstChild:{
-                            tag:"label",
-                            text:"Page size"
-                        },
-                        secondChild:{
-                            tag:"input",
-                            type:"number",
-                            filterKey:"limit",
-                            description:"Maximal number of tasks in returned list"
-                        }
-                    },
-                    {
-                        firstChild:{
-                            tag:"dummy"
-                        },
-                        secondChild:{
-                            tag:"button",
-                            text:"SUBMIT",
-                            description:"Maximal number of tasks in returned list"
-                        }
-                    }
-                ]
-            }
-        ];
+        this.filterObject = {
+            limit:20
+        };
+        Observable.forkJoin(
+            this.aeListService.getAes(),
+            this.aeListService.getAets()
+        ).subscribe((response)=>{
+            this.remoteAET = this.destinationAET = (<any[]>response[0]).map(ae => {
+                return {
+                    value:ae.dicomAETitle,
+                    text:ae.dicomAETitle
+                }
+            });
+            this.localAET = (<any[]>response[1]).map(ae => {
+                return {
+                    value:ae.dicomAETitle,
+                    text:ae.dicomAETitle
+                }
+            });
+            this.initSchema();
+        });
+    }
+
+    initSchema(){
+        this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET);
+
     }
     onSubmit(e){
-        console.log("in external e",e);
+        this.service.getExternalRetrieveEntries(e).subscribe(
+            res =>  {
+                this.externalRetrieveEntries = res;
+            },
+            err => {
+                this.httpErrorHandler.handleError(err);
+            });
     }
 }

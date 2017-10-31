@@ -5,6 +5,8 @@ import {Http, ResponseContentType, Headers} from "@angular/http";
 import {Subscriber} from "rxjs/Subscriber";
 import {Observable} from "rxjs/Observable";
 declare var fetch;
+import * as _ from 'lodash';
+
 @Injectable()
 export class j4care {
     header = new Headers();
@@ -136,6 +138,19 @@ export class j4care {
                 });*/
         });
     }
+    static clearEmptyObject(obj){
+        _.forEach(obj,(m,i)=>{
+            if(!m || m === "" || m === undefined){
+                delete obj[i];
+            }
+        });
+        return obj;
+    };
+
+    static getUrlParams(params){
+        return '?' + jQuery.param(params);
+    };
+
     get(url: string): Observable<any> {
         return new Observable((observer: Subscriber<any>) => {
             let objectUrl: string = null;

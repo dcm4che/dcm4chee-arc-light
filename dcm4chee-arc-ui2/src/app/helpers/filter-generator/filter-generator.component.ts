@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {j4care} from "../j4care.service";
 
 @Component({
   selector: 'filter-generator',
@@ -6,14 +7,15 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 })
 export class FilterGeneratorComponent implements OnInit {
 
-  @Input() filterObject;
+  @Input() schema;
+  @Input() model;
   @Output() submit  = new EventEmitter();
-  filterModel = {dicomDeviceName:""};
   constructor() { }
 
   ngOnInit() {
   }
-  submitEmit(filter){
-      this.submit.emit(this.filterModel);
+  submitEmit(){
+      this.model = j4care.clearEmptyObject(this.model);
+      this.submit.emit(this.model);
   }
 }

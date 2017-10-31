@@ -2478,14 +2478,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         // window.open(this.renderURL(inst));
     };
     select(object, modus, keys, fromcheckbox){
-        console.log('in select = fromcheckbox', fromcheckbox);
         // let test = true;
-        console.log('object', object);
-        console.log('object.selected', object.selected);
-        // console.log("patient object selected",this.patients[keys.patientkey].studies[keys.studykey].selected);
-        console.log('object', object);
-        console.log('modus', modus);
-        console.log('keys', keys);
         let clickFromCheckbox = (fromcheckbox && fromcheckbox === 'fromcheckbox');
         if (this.isRole('admin')){
             this.anySelected = true;
