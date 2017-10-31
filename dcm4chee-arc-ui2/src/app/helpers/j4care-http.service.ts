@@ -4,10 +4,15 @@ import {Observable} from 'rxjs';
 import {AppService} from "../app.service";
 import * as _ from 'lodash';
 import {WindowRefService} from "./window-ref.service";
+import {HttpErrorHandler} from "./http-error-handler";
 
 @Injectable()
 export class J4careHttpService{
-    constructor (public $http:Http, public mainservice:AppService) {}
+    constructor (
+        public $http:Http,
+        public mainservice:AppService,
+        public httpErrorHandler:HttpErrorHandler,
+    ) {}
     header;
     token;
     get(url,header?){
@@ -43,7 +48,7 @@ export class J4careHttpService{
                 if(res.ok === false && res.status === 0 && res.type === 3){
                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 }
-                return res;
+                return Observable.throw(res);
         });
     }
     resetAuthenticationInfo(response){
