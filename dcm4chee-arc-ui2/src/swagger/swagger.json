@@ -1967,16 +1967,6 @@
             "collectionFormat": "multi"
           },
           {
-            "name": "includefield",
-            "in": "query",
-            "description": "includefield={attributeID} | all",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -2006,6 +1996,284 @@
           },
           "204": {
             "description": "no matching instances found"
+          },
+          "404": {
+            "description": "External AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/patients/count": {
+      "get": {
+        "tags": [
+          "DIMSE-RS",
+          "COUNT-RS"
+        ],
+        "summary": "Count Patients external",
+        "operationId": "CountPatientsExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for querying for Patients",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Patients",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "External AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/count": {
+      "get": {
+        "tags": [
+          "DIMSE-RS",
+          "COUNT-RS"
+        ],
+        "summary": "Count Studies external",
+        "operationId": "CountStudiesExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for querying for Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "External AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/count": {
+      "get": {
+        "tags": [
+          "DIMSE-RS",
+          "COUNT-RS"
+        ],
+        "summary": "Count Series of Study external",
+        "operationId": "CountStudySeriesExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for querying for Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "External AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/count": {
+      "get": {
+        "tags": [
+          "DIMSE-RS",
+          "COUNT-RS"
+        ],
+        "summary": "Count Instances of Series of Study external",
+        "operationId": "CountStudySeriesInstancesExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for querying for Instances",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Instances",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
           },
           "404": {
             "description": "External AE Title not found"
@@ -4420,7 +4688,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "Number of matching Patients",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -4470,7 +4738,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Matching Scheduled Procedure Steps",
+            "description": "Number of matching Scheduled Procedure Steps",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -4571,7 +4839,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "Number of matching Studies",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -4661,7 +4929,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "Number of matching Series",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -4744,7 +5012,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "Number of matching Series",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -4807,7 +5075,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "Number of matching Instances",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -4870,7 +5138,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "Number of matching Instances",
             "schema": {
               "$ref": "#/definitions/Count"
             }
@@ -4933,7 +5201,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "Number of matching Instances",
             "schema": {
               "$ref": "#/definitions/Count"
             }
