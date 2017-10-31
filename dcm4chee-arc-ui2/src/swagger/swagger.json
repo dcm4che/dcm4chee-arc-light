@@ -2839,6 +2839,273 @@
         }
       }
     },
+    "/aets/{aet}/cfind/{externalAET}/cmove/{sourceAET}/to/{destinationAET}/studies": {
+      "post": {
+        "tags": [
+          "DIMSE-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Retrieve matching Studies from external C-MOVE SCP",
+        "operationId": "RetrieveMatchingStudies",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for connecting external C-FIND and C-MOVE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "sourceAET",
+            "in": "path",
+            "description": "AE Title of C-MOVE SCP from which matching Studies are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "destinationAET",
+            "in": "path",
+            "description": "AE Title of STORE-SCP to which matching Studies are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully scheduled retrieve of matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/cfind/{externalAET}/cmove/{sourceAET}/to/{destinationAET}/studies/{StudyInstanceUID}/series": {
+      "post": {
+        "tags": [
+          "DIMSE-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Retrieve matching Series from external C-MOVE SCP",
+        "operationId": "RetrieveMatchingSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for connecting external C-FIND and C-MOVE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "sourceAET",
+            "in": "path",
+            "description": "AE Title of C-MOVE SCP from which matching Series are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "destinationAET",
+            "in": "path",
+            "description": "AE Title of STORE-SCP to which matching Series are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully scheduled retrieve of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/cfind/{externalAET}/cmove/{sourceAET}/to/{destinationAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+      "post": {
+        "tags": [
+          "DIMSE-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Retrieve matching Instances from external C-MOVE SCP",
+        "operationId": "RetrieveMatchingInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for connecting external C-FIND and C-MOVE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Instances",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "sourceAET",
+            "in": "path",
+            "description": "AE Title of C-MOVE SCP from which matching Instances are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "destinationAET",
+            "in": "path",
+            "description": "AE Title of STORE-SCP to which matching Instances are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully scheduled retrieve of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/dimse/{externalAET}/diff/{originalAET}/studies": {
       "get": {
         "tags": [
