@@ -257,15 +257,12 @@ export class ExternalRetrieveComponent implements OnInit {
                         if (_.hasIn(properties, 'Modality')){
                             properties.Modality = properties.Modality.join(',');
                         }
-                        console.log("processingEndtime",new Date(properties.processingEndTime).getTime());
-                        console.log("processingEndtime/1000",new Date(properties.processingEndTime).getTime()/1000);
-                        console.log("processingStartTime",new Date(properties.processingStartTime).getTime());
-                        console.log("processingStartTime/1000",new Date(properties.processingStartTime).getTime()/1000);
-                        console.log("/1",((new Date(properties.processingEndTime).getTime()) - (new Date(properties.processingStartTime).getTime())));
-                        console.log("/2",((new Date(properties.processingEndTime).getTime()/1000) - (new Date(properties.processingStartTime).getTime()/1000)));
-                        properties.NumberOfInstances = ((properties.failed ? properties.failed*1:0) + (properties.completed ? properties.completed*1:0) + (properties.warning ? properties.warning*1:0));
-                        console.log("without round",(((new Date(properties.processingEndTime).getTime()/1000) - (new Date(properties.processingStartTime).getTime()/1000)) / properties.NumberOfInstances));
-                        properties.InstancePerSec = Math.round((((new Date(properties.processingEndTime).getTime()/1000) - (new Date(properties.processingStartTime).getTime()/1000)) / properties.NumberOfInstances)*1000)/1000;
+                            properties.NumberOfInstances = ((properties.failed ? properties.failed*1:0) + (properties.completed ? properties.completed*1:0) + (properties.warning ? properties.warning*1:0));
+                        try{
+                            properties.InstancePerSec = Math.round((((new Date(properties.processingEndTime).getTime()/1000) - (new Date(properties.processingStartTime).getTime()/1000)) / properties.NumberOfInstances)*1000)/1000;
+                        }catch (e){
+                            properties.InstancePerSec = '';
+                        }
                         return {
                             offset: offset + index,
                             properties: properties,
