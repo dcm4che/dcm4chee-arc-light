@@ -117,7 +117,7 @@ public class QueryAttributes {
         }
     }
 
-    public void addReturnTags(int[] tags) {
+    public void addReturnTags(int... tags) {
         for (int tag : tags)
             builder.setNullIfAbsent(tag);
     }

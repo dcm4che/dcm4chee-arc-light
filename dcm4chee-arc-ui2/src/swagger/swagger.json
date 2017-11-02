@@ -2839,7 +2839,7 @@
         }
       }
     },
-    "/aets/{aet}/cfind/{externalAET}/cmove/{sourceAET}/to/{destinationAET}/studies": {
+    "/aets/{aet}/dimse/{externalAET}/studies/query:{queryAET}/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "DIMSE-RS",
@@ -2861,14 +2861,14 @@
           {
             "name": "externalAET",
             "in": "path",
-            "description": "AE Title of C-FIND SCP to query for Studies",
+            "description": "AE Title of C-MOVE SCP from which matching Studies are retrieved",
             "required": true,
             "type": "string"
           },
           {
-            "name": "sourceAET",
+            "name": "queryAET",
             "in": "path",
-            "description": "AE Title of C-MOVE SCP from which matching Studies are retrieved",
+            "description": "AE Title of C-FIND SCP to query for matching Studies",
             "required": true,
             "type": "string"
           },
@@ -2906,11 +2906,14 @@
           }
         ],
         "responses": {
-          "200": {
+          "202": {
             "description": "Successfully scheduled retrieve of matching Studies",
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "502": {
+            "description": "C-FIND-SCP Failure"
           },
           "404": {
             "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
@@ -2921,7 +2924,7 @@
         }
       }
     },
-    "/aets/{aet}/cfind/{externalAET}/cmove/{sourceAET}/to/{destinationAET}/studies/{StudyInstanceUID}/series": {
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/query:{queryAET}/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "DIMSE-RS",
@@ -2943,14 +2946,14 @@
           {
             "name": "externalAET",
             "in": "path",
-            "description": "AE Title of C-FIND SCP to query for Series",
+            "description": "AE Title of C-MOVE SCP from which matching Series are retrieved",
             "required": true,
             "type": "string"
           },
           {
-            "name": "sourceAET",
+            "name": "queryAET",
             "in": "path",
-            "description": "AE Title of C-MOVE SCP from which matching Series are retrieved",
+            "description": "AE Title of C-FIND SCP to query for Series",
             "required": true,
             "type": "string"
           },
@@ -3001,6 +3004,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "502": {
+            "description": "C-FIND-SCP Failure"
+          },
           "404": {
             "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
           },
@@ -3010,7 +3016,7 @@
         }
       }
     },
-    "/aets/{aet}/cfind/{externalAET}/cmove/{sourceAET}/to/{destinationAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{queryAET}/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
           "DIMSE-RS",
@@ -3032,14 +3038,14 @@
           {
             "name": "externalAET",
             "in": "path",
-            "description": "AE Title of C-FIND SCP to query for Instances",
+            "description": "AE Title of C-MOVE SCP from which matching Instances are retrieved",
             "required": true,
             "type": "string"
           },
           {
-            "name": "sourceAET",
+            "name": "queryAET",
             "in": "path",
-            "description": "AE Title of C-MOVE SCP from which matching Instances are retrieved",
+            "description": "AE Title of C-FIND SCP to query for matching Instances",
             "required": true,
             "type": "string"
           },
@@ -3091,11 +3097,14 @@
           }
         ],
         "responses": {
-          "200": {
+          "202": {
             "description": "Successfully scheduled retrieve of matching Instances",
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "502": {
+            "description": "C-FIND-SCP Failure"
           },
           "404": {
             "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
