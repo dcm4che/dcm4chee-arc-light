@@ -309,6 +309,9 @@ public class RetrieveTask {
         gen.write("createdTime", df.format(createdTime));
         gen.write("updatedTime", df.format(updatedTime));
         gen.write("dicomDeviceName", deviceName);
+        gen.write("LocalAET", localAET);
+        gen.write("RemoteAET", remoteAET);
+        gen.write("DestinationAET", destinationAET);
         gen.write("StudyInstanceUID", studyInstanceUID);
         if (seriesInstanceUID != null) {
             gen.write("SeriesInstanceUID", seriesInstanceUID);
