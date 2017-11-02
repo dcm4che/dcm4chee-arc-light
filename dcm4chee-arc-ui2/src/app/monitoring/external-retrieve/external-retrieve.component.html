@@ -20,12 +20,14 @@
           </button>
         </th>
         <th>Status</th>
-        <th>Failures</th>
-        <th>Created</th>
-        <th>Updated</th>
-        <th>Scheduled</th>
-        <th>Started</th>
-        <th>Finished</th>
+        <th>StudyInstanceUID</th>
+        <th>RemoteAET</th>
+        <th>DestinationAET</th>
+        <th class="hideMobile hideOn800px">Scheduled</th>
+        <th class="hideMobile hideOn800px">Started</th>
+        <th class="hideMobile">Finished</th>
+        <th class="hideMobile hideOn600px">NumberOfInstances</th>
+        <th class="hideMobile hideOn600px">Instance/sec</th>
       </tr>
       </thead>
       <tbody>
@@ -47,12 +49,14 @@
             </a>
           </td>
           <td [innerHtml]="match.properties.status" title="{{match.properties.outcomeMessage}}"></td>
-          <td [innerHtml]="match.properties.failures" title="{{match.properties.errorMessage}}"></td>
-          <td [innerHtml]="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-          <td [innerHtml]="match.properties.updatedTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-          <td [innerHtml]="match.properties.scheduledTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-          <td [innerHtml]="match.properties.processingStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-          <td [innerHtml]="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+          <td [innerHtml]="match.properties.StudyInstanceUID"></td>
+          <td [innerHtml]="match.properties.RemoteAET"></td>
+          <td [innerHtml]="match.properties.DestinationAET"></td>
+          <td class="hideMobile hideOn800px" [innerHtml]="match.properties.scheduledTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+          <td class="hideMobile hideOn800px" [innerHtml]="match.properties.processingStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+          <td class="hideMobile" [innerHtml]="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+          <td [innerHtml]="match.properties.NumberOfInstances"></td>
+          <td [innerHtml]="match.properties.InstancePerSec"></td>
         </tr>
         <tr *ngIf="match.showProperties">
           <td colspan="9">

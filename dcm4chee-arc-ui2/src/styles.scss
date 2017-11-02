@@ -16,11 +16,19 @@ $hoverBlue:#5293C1;
     }
   }
 }
+@media screen and (max-width: 800px) {
+  .hideOn800px{
+    display: none;
+  }
+}
 @media screen and (max-width: 599px) {
   .filter{
     .filter_block{
       width:100%;
     }
+  }
+  .hideOn600px{
+    display: none;
   }
 }
 
@@ -55,6 +63,9 @@ $hoverBlue:#5293C1;
         }
       }
     }
+  }
+  .hideMobile{
+    display: none;
   }
 }
 
