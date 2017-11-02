@@ -249,9 +249,11 @@ export class QueuesComponent implements OnInit{
         });
     };
     hasOlder(objs) {
+        console.log("hasOlder",(objs && (objs.length == this.limit)));
         return objs && (objs.length === this.limit);
     };
     hasNewer(objs) {
+        console.log("hasNewer",(objs && objs.length && objs[0].offset));
         return objs && objs.length && objs[0].offset;
     };
     newerOffset(objs) {

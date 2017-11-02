@@ -141,7 +141,7 @@ export class ExportDialogComponent{
         });
     }
     validForm(){
-        if (this._result.exportType === 'dicom'){
+        if (this._result && _.hasIn(this._result,"exportType") && this._result.exportType === 'dicom'){
            // if (this._result.dicomPrefix && this._result.selectedAet){
             if (this._result.selectedAet){
                 return true;
@@ -149,7 +149,7 @@ export class ExportDialogComponent{
                 return false;
             }
         }else{
-            if (this._result.selectedExporter){
+            if (this._result && this._result.selectedExporter){
                 return true;
             }else{
                 return false;

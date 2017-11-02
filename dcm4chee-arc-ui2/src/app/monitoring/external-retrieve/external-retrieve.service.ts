@@ -6,15 +6,31 @@ import {j4care} from "../../helpers/j4care.service";
 @Injectable()
 export class ExternalRetrieveService {
 
-  constructor(
+    constructor(
       public $http:J4careHttpService
-  ) { }
+    ) { }
 
-  getExternalRetrieveEntries(filter){
-    return this.$http.get('../monitor/retrieve' + j4care.getUrlParams(filter)).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
-  };
+    getExternalRetrieveEntries(filter, offset){
+        filter.offset = (offset && offset != '') ? offset : 0;
+        return this.$http.get('../monitor/retrieve' + j4care.getUrlParams(filter))
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+    };
 
-  getFilterSchema(localAET,destinationAET,remoteAET){
+    getExporters(){
+      return this.$http.get('../export')
+          .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+
+    }
+    delete(pk){
+        return this.$http.delete('../monitor/retrieve/' + pk);
+    }
+    reschedule(pk){
+        return this.$http.post(`../monitor/retrieve/${pk}/reschedule`, {});
+    }
+    cancel(pk){
+        return this.$http.post('../monitor/retrieve/' + pk + '/cancel', {});
+    }
+    getFilterSchema(localAET,destinationAET,remoteAET){
     return [
         {
             filter_block:[
@@ -168,5 +184,5 @@ export class ExternalRetrieveService {
             ]
         }
     ];
-  }
+    }
 }

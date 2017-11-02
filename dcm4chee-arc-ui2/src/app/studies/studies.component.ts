@@ -240,6 +240,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.showModalitySelector = false;
     };
 
+
     dialogRef: MdDialogRef<any>;
     subscription: Subscription;
 
