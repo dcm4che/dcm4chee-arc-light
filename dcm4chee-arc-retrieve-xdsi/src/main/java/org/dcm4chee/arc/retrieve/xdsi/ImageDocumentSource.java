@@ -211,10 +211,10 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
 
         public DocumentRequests(List<RetrieveImagingDocumentSetRequestType.StudyRequest> studyReqs) {
             for (RetrieveImagingDocumentSetRequestType.StudyRequest studyReq : studyReqs) {
-                studyUIDs.add(studyReq.getStudyIUID());
+                studyUIDs.add(studyReq.getStudyInstanceUID());
                 for (RetrieveImagingDocumentSetRequestType.StudyRequest.SeriesRequest seriesReq
                         : studyReq.getSeriesRequest()) {
-                    seriesUIDs.add(seriesReq.getSeriesIUID());
+                    seriesUIDs.add(seriesReq.getSeriesInstanceUID());
                     for (RetrieveDocumentSetRequestType.DocumentRequest docReq : seriesReq.getDocumentRequest()) {
                         String documentUniqueId = docReq.getDocumentUniqueId();
                         objectUIDs.add(documentUniqueId);
