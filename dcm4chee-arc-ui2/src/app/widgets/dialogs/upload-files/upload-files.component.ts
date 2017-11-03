@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {MdDialogRef} from "@angular/material";
 import * as _ from 'lodash';
 import {AppService} from "../../../app.service";
+import {J4careHttpService} from "../../../helpers/j4care-http.service";
 
 @Component({
   selector: 'app-upload-files',
@@ -38,7 +39,8 @@ export class UploadFilesComponent implements OnInit {
     ]
     constructor(
         public dialogRef: MdDialogRef<UploadFilesComponent>,
-        public mainservice:AppService
+        public mainservice:AppService,
+        public $http:J4careHttpService
     ) {
     }
 
@@ -57,38 +59,46 @@ export class UploadFilesComponent implements OnInit {
         let boundary = Math.random().toString().substr(2);
         let filetype;
         let descriptionPart;
+        let token;
         this.showFileList = true;
         // this.fileList = this.file;
-        if (this.fileList) {
-            _.forEach(this.fileList, (file, i) => {
-                let transfareSyntax;
-                switch (file.type) {
-                    case "image/jpeg":
-                        transfareSyntax = "1.2.840.10008.1.2.4.50";
-                        $this.modality = $this.selectedSopClass.modality;
-                        descriptionPart = "Image";
-                        break;
-                    case "video/mpeg":
-                        transfareSyntax = "1.2.840.10008.1.2.4.100";
-                        descriptionPart = "Video";
-                        $this.modality = "XC";
-                        break;
-                    case "application/pdf":
-                        transfareSyntax = "";
-                        descriptionPart = "PDF";
-                        $this.modality = "DOC";
-                        break;
-                }
-                if(transfareSyntax || transfareSyntax === ""){
-                    this.percentComplete[file.name] = {};
-                    // this.percentComplete[file.name]['value'] = 0;
+        this.$http.refreshToken().subscribe((response) => {
+            if (response && response.length != 0) {
+                $this.$http.resetAuthenticationInfo(response);
+                token = response['token'];
+            } else {
+                token = this.mainservice.global.authentication.token;
+            }
+            if (this.fileList) {
+                _.forEach(this.fileList, (file, i) => {
+                    let transfareSyntax;
+                    switch (file.type) {
+                        case "image/jpeg":
+                            transfareSyntax = "1.2.840.10008.1.2.4.50";
+                            $this.modality = $this.selectedSopClass.modality;
+                            descriptionPart = "Image";
+                            break;
+                        case "video/mpeg":
+                            transfareSyntax = "1.2.840.10008.1.2.4.100";
+                            descriptionPart = "Video";
+                            $this.modality = "XC";
+                            break;
+                        case "application/pdf":
+                            transfareSyntax = "";
+                            descriptionPart = "PDF";
+                            $this.modality = "DOC";
+                            break;
+                    }
+                    if (transfareSyntax || transfareSyntax === "") {
+                        this.percentComplete[file.name] = {};
+                        // this.percentComplete[file.name]['value'] = 0;
 
-                    $this.percentComplete[file.name]['showTicker'] = false;
-                    $this.percentComplete[file.name]['showLoader'] = true;
-/*                    let reader = new FileReader();
-                    // reader.readAsBinaryString(file);
-                    reader.readAsArrayBuffer(file);
-                    reader.onload = function (e) {*/
+                        $this.percentComplete[file.name]['showTicker'] = false;
+                        $this.percentComplete[file.name]['showLoader'] = true;
+                        /*                    let reader = new FileReader();
+                                            // reader.readAsBinaryString(file);
+                                            reader.readAsArrayBuffer(file);
+                                            reader.onload = function (e) {*/
 
                         $this.xmlHttpRequest = new XMLHttpRequest();
                         //Some AJAX-y stuff - callbacks, handlers etc.
@@ -96,47 +106,47 @@ export class UploadFilesComponent implements OnInit {
                         let dashes = '--';
                         let crlf = '\r\n';
                         //Post with the correct MIME type (If the OS can identify one)
-                        let studyObject  = _.pickBy($this._dicomObject.attrs,(o,i)=>{
-                            console.log("o",o);
-                            console.log("i",i);
-                                return (i.toString().indexOf("777") === -1);
+                        let studyObject = _.pickBy($this._dicomObject.attrs, (o, i) => {
+                            console.log("o", o);
+                            console.log("i", i);
+                            return (i.toString().indexOf("777") === -1);
                         })
-                        if(file.type === "application/pdf"){
+                        if (file.type === "application/pdf") {
                             studyObject["00420011"] = {
                                 "vr": "OB",
                                 "BulkDataURI": "file/" + file.name
                             };
-                            studyObject["00080016"] =  {
-                                "vr":"UI",
-                                "Value":[
+                            studyObject["00080016"] = {
+                                "vr": "UI",
+                                "Value": [
                                     "1.2.840.10008.5.1.4.1.1.104.1"
                                 ]
                             }
-                            studyObject["00280301"] =  {
-                                "vr":"CS",
-                                "Value":[
+                            studyObject["00280301"] = {
+                                "vr": "CS",
+                                "Value": [
                                     "YES"
                                 ]
                             };
-                            studyObject["00420012"] =  {
-                                "vr":"LO",
-                                "Value":[
+                            studyObject["00420012"] = {
+                                "vr": "LO",
+                                "Value": [
                                     "application/pdf"
                                 ]
                             };
 
-                        }else{
-                            if(file.type === "video/mpeg"){
-                                studyObject["00080016"] =  {
-                                    "vr":"UI",
-                                    "Value":[
+                        } else {
+                            if (file.type === "video/mpeg") {
+                                studyObject["00080016"] = {
+                                    "vr": "UI",
+                                    "Value": [
                                         "1.2.840.10008.5.1.4.1.1.77.1.4.1"
                                     ]
                                 }
-                            }else{
-                                studyObject["00080016"] =  {
-                                    "vr":"UI",
-                                    "Value":[
+                            } else {
+                                studyObject["00080016"] = {
+                                    "vr": "UI",
+                                    "Value": [
                                         $this.selectedSopClass.value
                                     ]
                                 }
@@ -147,18 +157,18 @@ export class UploadFilesComponent implements OnInit {
                             }
                             transfareSyntax = ';transfer-syntax=' + transfareSyntax;
                         }
-                        studyObject["00080060"] =  {
-                            "vr":"CS",
-                            "Value":[
+                        studyObject["00080060"] = {
+                            "vr": "CS",
+                            "Value": [
                                 $this.modality
                             ]
                         };
-                        if(!$this.description || $this.description === ""){
-                         $this.description = "Imported " + descriptionPart;
+                        if (!$this.description || $this.description === "") {
+                            $this.description = "Imported " + descriptionPart;
                         }
-                        studyObject["0008103E"] =  {
-                            "vr":"LO",
-                            "Value":[
+                        studyObject["0008103E"] = {
+                            "vr": "LO",
+                            "Value": [
                                 $this.description
                             ]
                         }
@@ -169,7 +179,6 @@ export class UploadFilesComponent implements OnInit {
 
                         $this.xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type=application/dicom+json;boundary=' + boundary + ';');
                         $this.xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
-                        let token = this.mainservice.global.authentication.token;
                         $this.xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
                         $this.xmlHttpRequest.upload.onprogress = function (e) {
                             if (e.lengthComputable) {
@@ -197,25 +206,26 @@ export class UploadFilesComponent implements OnInit {
                         };
                         $this.xmlHttpRequest.upload.onloadend = function (e) {
                             if ($this.xmlHttpRequest.status === 200) {
-                            $this.percentComplete[file.name]['showLoader'] = false;
+                                $this.percentComplete[file.name]['showLoader'] = false;
                                 $this.percentComplete[file.name]['value'] = 100;
                             }
                         };
                         //Send the binary data
                         // $this.xmlHttpRequest.send(payload);
-                    $this.xmlHttpRequest.send(new Blob([new Blob([postDataStart]),file, new Blob([postDataEnd])]));
-                    // };
-                }else{
-                    $this.mainservice.setMessage({
-                        'title': 'Error',
-                        'text': `Filetype "${file.type}" not allowed!`,
-                        'status': 'error'
-                    });
-                    $this.fileList = [];
-                    $this.file = null;
-                }
-            });
-        }
+                        $this.xmlHttpRequest.send(new Blob([new Blob([postDataStart]), file, new Blob([postDataEnd])]));
+                        // };
+                    } else {
+                        $this.mainservice.setMessage({
+                            'title': 'Error',
+                            'text': `Filetype "${file.type}" not allowed!`,
+                            'status': 'error'
+                        });
+                        $this.fileList = [];
+                        $this.file = null;
+                    }
+                });
+            }
+        });
     }
     close(dialogRef){
         if (this.xmlHttpRequest){
