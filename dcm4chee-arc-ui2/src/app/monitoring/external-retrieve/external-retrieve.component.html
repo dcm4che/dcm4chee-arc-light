@@ -20,14 +20,14 @@
           </button>
         </th>
         <th>Status</th>
-        <th>StudyInstanceUID</th>
-        <th>RemoteAET</th>
-        <th>DestinationAET</th>
+        <th class="hideOn1000px">Study Instance UID</th>
+        <th class="hideOn1200px">Remote AET</th>
+        <th class="hideOn1100px">Destination AET</th>
         <th class="hideMobile hideOn800px">Scheduled</th>
-        <th class="hideMobile hideOn800px">Started</th>
+        <th class="hideMobile hideOn1400px">Started</th>
         <th class="hideMobile">Finished</th>
-        <th class="hideMobile hideOn600px">NumberOfInstances</th>
-        <th class="hideMobile hideOn600px">Instance/sec</th>
+        <th class="hideMobile hideOn1200px" title="Number of Instances">Nr. of Inst.</th>
+        <th class="hideMobile hideOn1200px">Instance / sec</th>
       </tr>
       </thead>
       <tbody>
@@ -49,14 +49,14 @@
             </a>
           </td>
           <td [innerHtml]="match.properties.status" title="{{match.properties.outcomeMessage}}"></td>
-          <td [innerHtml]="match.properties.StudyInstanceUID"></td>
-          <td [innerHtml]="match.properties.RemoteAET"></td>
-          <td [innerHtml]="match.properties.DestinationAET"></td>
+          <td [innerHtml]="match.properties.StudyInstanceUID" class="hideOn1000px"></td>
+          <td [innerHtml]="match.properties.RemoteAET" class="hideOn1200px"></td>
+          <td [innerHtml]="match.properties.DestinationAET" class="hideOn1100px"></td>
           <td class="hideMobile hideOn800px" [innerHtml]="match.properties.scheduledTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-          <td class="hideMobile hideOn800px" [innerHtml]="match.properties.processingStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+          <td class="hideMobile hideOn1400px" [innerHtml]="match.properties.processingStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
           <td class="hideMobile" [innerHtml]="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-          <td [innerHtml]="match.properties.NumberOfInstances"></td>
-          <td [innerHtml]="match.properties.InstancePerSec"></td>
+          <td [innerHtml]="match.properties.NumberOfInstances" class="hideOn1200px"></td>
+          <td [innerHtml]="match.properties.InstancePerSec" class="hideOn1200px"></td>
         </tr>
         <tr *ngIf="match.showProperties">
           <td colspan="9">

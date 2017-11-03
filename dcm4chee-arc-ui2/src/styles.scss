@@ -16,6 +16,26 @@ $hoverBlue:#5293C1;
     }
   }
 }
+@media screen and (max-width: 1400px) {
+  .hideOn1400px{
+    display: none;
+  }
+}
+@media screen and (max-width: 1200px) {
+  .hideOn1200px{
+    display: none;
+  }
+}
+@media screen and (max-width: 1100px) {
+  .hideOn1100px{
+    display: none;
+  }
+}
+@media screen and (max-width: 1000px) {
+  .hideOn1000px{
+    display: none;
+  }
+}
 @media screen and (max-width: 800px) {
   .hideOn800px{
     display: none;
