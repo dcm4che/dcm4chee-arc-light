@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {j4care} from "../../../helpers/j4care.service";
 import {AppService} from "../../../app.service";
 import {MdDialogRef} from "@angular/material";
+import {J4careHttpService} from "../../../helpers/j4care-http.service";
 
 @Component({
   selector: 'app-viewer',
@@ -20,7 +21,8 @@ export class ViewerComponent implements OnInit {
     constructor(
         public dialogRef: MdDialogRef<ViewerComponent>,
         private j4care:j4care,
-        private mainservice:AppService
+        private mainservice:AppService,
+        private $http:J4careHttpService
     ) { }
 
     ngOnInit() {
@@ -31,64 +33,70 @@ export class ViewerComponent implements OnInit {
         this.loadImage();
     }
     loadImage(){
-        this.showLoader = true;
+        let token;
         let $this = this;
-        let url = this._url;
-        if(this._contentType != 'video/mpeg'){
-            url = this._url + `&frameNumber=${this._view}`;
-        }
-        if(!this._contentType){
-            this._contentType = 'image/jpeg';
-        }
-        $this.xhr.open("GET", url, true);   // Make sure file is in same server
-        $this.xhr.overrideMimeType('text/plain; charset=x-user-defined');
-        let token = this.mainservice.global.authentication.token;
-        $this.xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-        $this.xhr.send(null);
-        $this.xhr.onloadstart = (res)=>{
-            console.log("onloade res",res);
-        };
-
-        $this.xhr.onreadystatechange = function() {
-            if ($this.xhr.readyState == 4){
-                if (($this.xhr.status == 200) || ($this.xhr.status == 0)){
-                    $this.renderedUrl = `data:${$this.contentType};base64,` + encode64($this.xhr.responseText);
-                    $this.showLoader = false;
-                }else{
-                    alert("Something misconfiguration : " +
-                        "\nError Code : " + $this.xhr.status +
-                        "\nError Message : " + $this.xhr.responseText);
-                }
+        this.$http.refreshToken().subscribe((response)=>{
+            if(response && response.length != 0){
+                $this.$http.resetAuthenticationInfo(response);
+                token = response['token'];
+            }else{
+                token = this.mainservice.global.authentication.token;
             }
-        };
-        function encode64(inputStr){
-            var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-            var outputStr = "";
-            var i = 0;
+            this.showLoader = true;
+            let url = this._url;
+            if(this._contentType != 'video/mpeg'){
+                url = this._url + `&frameNumber=${this._view}`;
+            }
+            if(!this._contentType){
+                this._contentType = 'image/jpeg';
+            }
+            $this.xhr.open("GET", url, true);   // Make sure file is in same server
+            $this.xhr.overrideMimeType('text/plain; charset=x-user-defined');
+            $this.xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+            $this.xhr.send(null);
+            $this.xhr.onloadstart = (res)=>{
+                console.log("onloade res",res);
+            };
 
-            while (i<inputStr.length){
-                var byte1 = inputStr.charCodeAt(i++) & 0xff;
-                var byte2 = inputStr.charCodeAt(i++) & 0xff;
-                var byte3 = inputStr.charCodeAt(i++) & 0xff;
-
-                var enc1 = byte1 >> 2;
-                var enc2 = ((byte1 & 3) << 4) | (byte2 >> 4);
-
-                var enc3, enc4;
-                if (isNaN(byte2)){
-                    enc3 = enc4 = 64;
-                } else{
-                    enc3 = ((byte2 & 15) << 2) | (byte3 >> 6);
-                    if (isNaN(byte3)){
-                        enc4 = 64;
-                    } else {
-                        enc4 = byte3 & 63;
+            $this.xhr.onreadystatechange = function() {
+                if ($this.xhr.readyState == 4){
+                    if (($this.xhr.status == 200) || ($this.xhr.status == 0)){
+                        $this.renderedUrl = `data:${$this.contentType};base64,` + encode64($this.xhr.responseText);
+                        $this.showLoader = false;
+                    }else{
+                        console.error("Something misconfiguration : ",$this.xhr);
                     }
                 }
-                outputStr +=  b64.charAt(enc1) + b64.charAt(enc2) + b64.charAt(enc3) + b64.charAt(enc4);
+            };
+            function encode64(inputStr){
+                var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+                var outputStr = "";
+                var i = 0;
+
+                while (i<inputStr.length){
+                    var byte1 = inputStr.charCodeAt(i++) & 0xff;
+                    var byte2 = inputStr.charCodeAt(i++) & 0xff;
+                    var byte3 = inputStr.charCodeAt(i++) & 0xff;
+
+                    var enc1 = byte1 >> 2;
+                    var enc2 = ((byte1 & 3) << 4) | (byte2 >> 4);
+
+                    var enc3, enc4;
+                    if (isNaN(byte2)){
+                        enc3 = enc4 = 64;
+                    } else{
+                        enc3 = ((byte2 & 15) << 2) | (byte3 >> 6);
+                        if (isNaN(byte3)){
+                            enc4 = 64;
+                        } else {
+                            enc4 = byte3 & 63;
+                        }
+                    }
+                    outputStr +=  b64.charAt(enc1) + b64.charAt(enc2) + b64.charAt(enc3) + b64.charAt(enc4);
+                }
+                return outputStr;
             }
-            return outputStr;
-        }
+        });
     }
     changeImage(mode){
         if(mode === "prev" && this._view > 1){
