@@ -35,6 +35,28 @@ $hoverBlue:#5293C1;
   .hideOn1000px{
     display: none;
   }
+  monitoring-tabs{
+    .nav-tabs{
+      border: 1px solid #ddd;
+      &>li{
+        clear: left;
+        border-bottom: 1px solid #ccc;
+        margin-bottom:0px;
+        width:100%;
+        &.active{
+          a{
+            margin-right:0px;
+            background: $lightBlueNoTransparence;
+            color: white;
+            -webkit-border-radius: 0px;
+            -moz-border-radius: 0px;
+            border-radius: 0px;
+            border:none;
+          }
+        }
+      }
+    }
+  }
 }
 @media screen and (max-width: 800px) {
   .hideOn800px{
