@@ -2,7 +2,8 @@
     <div class="vex-dialog-form">
         <h5>Upload vendor device data</h5>
         <div class="content">
-            <input type="file" ng2FileSelect [uploader]="vendorUpload" />
+            <!--<input type="file" ng2FileSelect [uploader]="vendorUpload" />-->
+            <input type="file" (change)="setFile($event)" />
         </div>
         <div class="dialogbuttons">
             <button class="save" (click)="uploadFile(dialogRef)">Upload</button>

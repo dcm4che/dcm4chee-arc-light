@@ -22,6 +22,7 @@ import {AppService} from '../../app.service';
 import {ControlService} from "../../control/control.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
+import {WindowRefService} from "../../helpers/window-ref.service";
 
 @Component({
     selector: 'df-element',
@@ -73,7 +74,17 @@ export class DynamicFormElementComponent{
         return this.dialogRef.afterClosed();
     };
     downloadFile(url){
-        this.j4care.download(url);
+        let $this = this;
+        let token;
+        this.$http.refreshToken().subscribe((response)=>{
+            if(response && response.length != 0){
+                $this.$http.resetAuthenticationInfo(response);
+                token = response['token'];
+            }else{
+                token = this.mainservice.global.authentication.token;
+            }
+            WindowRefService.nativeWindow.open(url + `?access_token=${token}`);
+        });
     }
     deleteFile(deviceName, formelement){
         let $this = this;

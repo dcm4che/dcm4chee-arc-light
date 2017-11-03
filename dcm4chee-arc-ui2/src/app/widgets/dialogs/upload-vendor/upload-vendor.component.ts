@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {FileUploader} from 'ng2-file-upload';
 import {MdDialogRef} from '@angular/material';
+import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {AppService} from "../../../app.service";
 
 @Component({
   selector: 'app-upload-files',
@@ -9,28 +11,37 @@ import {MdDialogRef} from '@angular/material';
 export class UploadVendorComponent implements OnInit {
 
     private _deviceName;
-    public vendorUpload: FileUploader = new FileUploader({url: ``, allowedMimeType: ['application/octet-stream', 'application/zip'], disableMultipart: true});
-    constructor(public dialogRef: MdDialogRef<UploadVendorComponent>) { }
+    selectedFile;
+    constructor(
+        public dialogRef: MdDialogRef<UploadVendorComponent>,
+        public $http:J4careHttpService,
+        public mainservice:AppService
+    ) { }
 
     ngOnInit() {
-/*        this.vendorUpload = new FileUploader({
-            url:`/devices/${this._deviceName}/vendordata`,
-            allowedMimeType:['application/octet-stream','application/zip']
-        });*/
-        this.vendorUpload.onAfterAddingFile = (item) => {
-            item.method = 'PUT';
-        };
-        this.vendorUpload.onBeforeUploadItem = (item) => {
-            this.addFileNameHeader(item.file.name);
-        };
     }
-    addFileNameHeader(fileName) {
-        this.vendorUpload.setOptions({headers: [{name: 'Content-Type', value: 'application/zip'}]});
+    setFile(event){
+        this.selectedFile = event.target.files[0];
     }
     uploadFile(dialogRef){
-        this.vendorUpload.setOptions({url: `../devices/${this._deviceName}/vendordata`});
-        this.vendorUpload.uploadAll();
-        dialogRef.close('ok');
+        let $this = this;
+        let token;
+        this.$http.refreshToken().subscribe((response)=>{
+            if(response && response.length != 0){
+                $this.$http.resetAuthenticationInfo(response);
+                token = response['token'];
+            }else{
+                token = this.mainservice.global.authentication.token;
+            }
+            let xmlHttpRequest = new XMLHttpRequest();
+            console.log("$this.selectedFile",$this.selectedFile);
+            xmlHttpRequest.open('PUT', `../devices/${this._deviceName}/vendordata`, true);
+            xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
+            xmlHttpRequest.upload.onloadend = (e)=>{
+                dialogRef.close('ok');
+            }
+            xmlHttpRequest.send($this.selectedFile);
+        });
     }
 
     get deviceName() {

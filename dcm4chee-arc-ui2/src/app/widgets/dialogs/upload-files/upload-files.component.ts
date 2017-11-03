@@ -166,21 +166,7 @@ export class UploadFilesComponent implements OnInit {
                         const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(studyObject) + crlf;
                         const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + transfareSyntax + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
                         const postDataEnd = crlf + dashes + boundary + dashes;
-/*                        const size = postDataStart.length + dataView.byteLength + postDataEnd.length;
-                        const uint8Array = new Uint8Array(size);
-                        let i = 0;
-                        for (; i < postDataStart.length; i++) {
-                            uint8Array[i] = postDataStart.charCodeAt(i) & 0xFF;
-                        }
 
-                        for (let j = 0; j < dataView.byteLength; i++, j++) {
-                            uint8Array[i] = dataView.getUint8(j);
-                        }
-
-                        for (let j = 0; j < postDataEnd.length; i++, j++) {
-                            uint8Array[i] = postDataEnd.charCodeAt(j) & 0xFF;
-                        }
-                        const payload = uint8Array.buffer;*/
                         $this.xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type=application/dicom+json;boundary=' + boundary + ';');
                         $this.xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
                         let token = this.mainservice.global.authentication.token;
