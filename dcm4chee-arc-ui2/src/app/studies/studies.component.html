@@ -110,7 +110,7 @@
         <div class="row filter">
             <div class="main_filter_block">
                 <div class="col-md-3 block-1-1">
-                    <div class="row">
+                    <div class="row group_input">
                         <!--<label class="col-md-6 text-right control-label">AET:</label>-->
                         <div class=" col-md-6">
                             <md-select [(ngModel)]="externalInternalAetMode" (ngModelChange)="aetModeChange($event)">
@@ -389,7 +389,10 @@
                         <md-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</md-option>
                     </md-select>
                 </div>
-                <div class="orderbyblock" [ngClass]="{notrash:trashaktive==false}">
+                <div class="count_block" *ngIf="filterMode != 'diff'" [ngClass]="{count:(count || count == '0')}" title="Total count found">
+                   <span *ngIf="count || count == '0'">Total count: <b>{{count}}</b></span>
+                </div>
+                <div class="orderbyblock" [ngClass]="{notrash:trashaktive==false,diff:filterMode==='diff'}">
                     <div class="btn-group" role="group" >
                         <button id="showoptionlistbutton" type="button" class="btn btn-default selectedorderbutton" (click)="showoptionlist = !showoptionlist" >
                             <span id="selectedorder" class="selectedorder"  [innerHtml]="orderbytext"></span>

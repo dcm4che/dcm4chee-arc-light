@@ -229,8 +229,27 @@ export class StudiesService {
             return resjson;
         });
     };
+
+    getCount(url,mode,params) {
+        return this.$http.get(
+            `${url}/${mode}/count${this._config(params)}`
+        )
+            .map(res => {
+            let resjson;
+            try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json();
+            }catch (e){
+                resjson = {};
+            }
+            return resjson;
+        });
+    };
+
     queryStudies = function(url, params) {
-        console.log('in querystudies');
         return this.$http.get(
             url + '/studies' + this._config(params),
             {

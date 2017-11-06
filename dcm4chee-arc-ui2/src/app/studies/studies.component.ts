@@ -107,6 +107,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     jsonHeader = new Headers({ 'Content-Type': 'application/json' });
     aet1;
     aet2;
+    count;
     studyDateChanged(){
         console.log('on studydate changed', this.studyDate);
         if (this.studyDate.from === '' && this.studyDate.to === ''){
@@ -662,6 +663,13 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let $this = this;
         if (offset < 0 || offset === undefined) offset = 0;
         this.cfpLoadingBar.start();
+        this.service.getCount(
+            this.rsURL(),
+            'studies',
+            queryParameters
+        ).subscribe((res)=>{
+            this.count = res.count;
+        });
         this.service.queryStudies(
             this.rsURL(),
             queryParameters
@@ -2090,6 +2098,13 @@ export class StudiesComponent implements OnDestroy,OnInit{
         if (offset < 0 || offset === undefined) offset = 0;
         this.cfpLoadingBar.start();
         let $this = this;
+        this.service.getCount(
+            this.rsURL(),
+            'mwlitems',
+            this.createPatientFilterParams()
+        ).subscribe((res)=>{
+            this.count = res.count;
+        });
         this.service.queryMwl(
             this.rsURL(),
             this.createQueryParams(offset, this.limit + 1, this.createMwlFilterParams())
@@ -2348,6 +2363,13 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.cfpLoadingBar.start();
         let $this = this;
         if (offset < 0) offset = 0;
+        this.service.getCount(
+            this.rsURL(),
+            'patients',
+            this.createPatientFilterParams()
+        ).subscribe((res)=>{
+            this.count = res.count;
+        });
         this.service.queryPatients(
             this.rsURL(),
             this.createQueryParams(offset, this.limit + 1, this.createPatientFilterParams())

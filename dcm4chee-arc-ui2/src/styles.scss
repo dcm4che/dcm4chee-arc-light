@@ -138,6 +138,20 @@ md-grid-list{
 /*[draggable=true] {
   -khtml-user-drag: element;
 }*/
+.group_input{
+  border: 1px solid #ccc;
+  margin-left: 0;
+  margin-right: 0;
+}
+.count_block{
+  margin-top: 48px;
+  padding: 3px 7px;
+  text-align: right;
+  min-height:28px;
+  &.count{
+    border: 1px solid #ccc;
+  }
+}
 .mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{
   color: $blue;
 }

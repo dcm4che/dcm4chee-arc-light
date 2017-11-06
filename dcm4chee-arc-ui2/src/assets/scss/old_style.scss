@@ -1984,7 +1984,10 @@ table{
 		// 	}
 		// }
 		.orderbyblock {
-          margin-top: 80px;
+			margin-top: 4px;
+			&.diff{
+				margin-top:80px;
+			}
 			label{
 				font-weight: normal;
 				width: 70px;
