@@ -96,6 +96,9 @@ class QueryServiceImpl implements QueryService {
     private QueryServiceEJB ejb;
 
     @Inject
+    QuerySizeEJB querySizeEJB;
+
+    @Inject
     QueryAttributesEJB queryAttributesEJB;
 
     @Inject
@@ -188,6 +191,16 @@ class QueryServiceImpl implements QueryService {
     @Override
     public Attributes getSeriesAttributes(Long seriesPk, QueryParam queryParam) {
         return ejb.getSeriesAttributes(seriesPk, queryParam);
+    }
+
+    @Override
+    public long calculateStudySize(Long studyPk) {
+        return querySizeEJB.calculateStudySize(studyPk);
+    }
+
+    @Override
+    public long calculateSeriesSize(Long seriesPk) {
+        return querySizeEJB.calculateSeriesSize(seriesPk);
     }
 
     @Override

@@ -88,6 +88,10 @@ public interface QueryService {
 
     Attributes getSeriesAttributes(Long seriesPk, QueryParam queryParam);
 
+    long calculateStudySize(Long studyPk);
+
+    long calculateSeriesSize(Long seriesPk);
+
     StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryParam queryParam);
 
     SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryParam queryParam);

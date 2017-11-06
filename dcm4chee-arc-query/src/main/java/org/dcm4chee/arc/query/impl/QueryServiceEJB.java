@@ -87,6 +87,7 @@ public class QueryServiceEJB {
         QStudy.study.failedRetrieves,
         QStudy.study.accessControlID,
         QStudy.study.storageIDs,
+        QStudy.study.size,
         QSeries.series.createdTime,
         QSeries.series.updatedTime,
         QSeries.series.expirationDate,
@@ -97,6 +98,7 @@ public class QueryServiceEJB {
         QSeries.series.metadataScheduledUpdateTime,
         QSeries.series.instancePurgeTime,
         QSeries.series.instancePurgeState,
+        QSeries.series.size,
         QMetadata.metadata.storageID,
         QMetadata.metadata.storagePath,
         QMetadata.metadata.digest,
@@ -142,6 +144,9 @@ public class QueryServiceEJB {
     EntityManager em;
 
     @Inject
+    QuerySizeEJB querySizeEJB;
+
+    @Inject
     QueryAttributesEJB queryAttributesEJB;
 
     public Attributes getSeriesAttributes(Long seriesPk, QueryParam queryParam) {
@@ -162,6 +167,12 @@ public class QueryServiceEJB {
                 .where(QSeries.series.pk.eq(seriesPk))
                 .fetchOne();
 
+        Long studySize = result.get(QStudy.study.size);
+        if (studySize < 0)
+            studySize = querySizeEJB.calculateSeriesSize(result.get(QStudy.study.pk));
+        Long seriesSize = result.get(QSeries.series.size);
+        if (seriesSize < 0)
+            seriesSize = querySizeEJB.calculateSeriesSize(seriesPk);
         Integer numberOfSeriesRelatedInstances =
                 result.get(QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances);
         if (numberOfSeriesRelatedInstances == null) {
@@ -236,6 +247,8 @@ public class QueryServiceEJB {
                     result.get(QStudy.study.accessControlID));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,
                 result.get(QStudy.study.storageIDs));
+        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeInKB, VR.UL, (int) (studySize / 1000));
+        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeBytes, VR.US, (int) (studySize % 1000));
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesReceiveDateTime, VR.DT,
                 result.get(QSeries.series.createdTime));
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.SeriesUpdateDateTime, VR.DT,
@@ -271,6 +284,8 @@ public class QueryServiceEJB {
                 attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectDigest, VR.LO,
                         result.get(QMetadata.metadata.digest));
         }
+        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.SeriesSizeInKB, VR.UL, (int) (seriesSize / 1000));
+        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.SeriesSizeBytes, VR.US, (int) (seriesSize % 1000));
         return attrs;
     }
 

@@ -81,6 +81,7 @@ class StudyQuery extends AbstractQuery {
             QStudy.study.accessControlID,
             QStudy.study.storageIDs,
             QStudy.study.externalRetrieveAET,
+            QStudy.study.size,
             QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
             QStudyQueryAttributes.studyQueryAttributes.modalitiesInStudy,
@@ -120,6 +121,9 @@ class StudyQuery extends AbstractQuery {
     @Override
     protected Attributes toAttributes(Tuple results) {
         Long studyPk = results.get(QStudy.study.pk);
+        long studySize = results.get(QStudy.study.size);
+        if (studySize < 0)
+            studySize = context.getQueryService().calculateStudySize(studyPk);
         Integer numberOfInstancesI = results.get(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances);
         int numberOfStudyRelatedInstances;
         int numberOfStudyRelatedSeries;
@@ -193,6 +197,8 @@ class StudyQuery extends AbstractQuery {
                     results.get(QStudy.study.accessControlID));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,
                 StringUtils.split(results.get(QStudy.study.storageIDs), '\\'));
+        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeInKB, VR.UL, (int) (studySize / 1000));
+        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeBytes, VR.US, (int) (studySize % 1000));
         return attrs;
     }
 

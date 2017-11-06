@@ -146,6 +146,9 @@ public class StoreServiceEJB {
                 prevStudy.addStorageID(session.getObjectStorageID());
                 prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                 createLocation(ctx, prevInstance, result, Location.ObjectType.DICOM_FILE);
+                Series series = prevInstance.getSeries();
+                series.resetSize();
+                series.getStudy().resetSize();
                 result.setStoredInstance(prevInstance);
                 return result;
             }
@@ -216,6 +219,8 @@ public class StoreServiceEJB {
         result.setStoredInstance(instance);
         deleteQueryAttributes(instance);
         Series series = instance.getSeries();
+        series.resetSize();
+        series.getStudy().resetSize();
         series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
         if(rjNote == null) {
             updateSeriesRejectionState(ctx, series);
@@ -442,6 +447,10 @@ public class StoreServiceEJB {
     }
 
     public void removeOrMarkToDelete(Location location) {
+        Instance instance = location.getInstance();
+        Series series = instance.getSeries();
+        series.resetSize();
+        series.getStudy().resetSize();
         if (countLocationsByMultiRef(location.getMultiReference()) > 1)
             em.remove(location);
         else
