@@ -389,7 +389,7 @@
                         <md-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</md-option>
                     </md-select>
                 </div>
-                <div class="count_block" *ngIf="filterMode != 'diff'" [ngClass]="{count:(count || count == '0')}" title="Total count found">
+                <div class="count_block_total" *ngIf="filterMode != 'diff'" [ngClass]="{count:(count || count == '0')}" title="Total count found">
                    <span *ngIf="count || count == '0'">Total count: <b>{{count}}</b></span>
                 </div>
                 <div class="orderbyblock" [ngClass]="{notrash:trashaktive==false,diff:filterMode==='diff'}">
