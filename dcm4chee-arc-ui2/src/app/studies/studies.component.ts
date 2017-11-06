@@ -663,13 +663,17 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let $this = this;
         if (offset < 0 || offset === undefined) offset = 0;
         this.cfpLoadingBar.start();
-        this.service.getCount(
-            this.rsURL(),
-            'studies',
-            queryParameters
-        ).subscribe((res)=>{
-            this.count = res.count;
-        });
+        if(this.externalInternalAetMode === 'internal'){
+            this.service.getCount(
+                this.rsURL(),
+                'studies',
+                queryParameters
+            ).subscribe((res)=>{
+                this.count = res.count;
+            });
+        }else{
+            this.count = "";
+        }
         this.service.queryStudies(
             this.rsURL(),
             queryParameters
@@ -2098,13 +2102,17 @@ export class StudiesComponent implements OnDestroy,OnInit{
         if (offset < 0 || offset === undefined) offset = 0;
         this.cfpLoadingBar.start();
         let $this = this;
-        this.service.getCount(
-            this.rsURL(),
-            'mwlitems',
-            this.createPatientFilterParams()
-        ).subscribe((res)=>{
-            this.count = res.count;
-        });
+        if(this.externalInternalAetMode === 'internal'){
+            this.service.getCount(
+                this.rsURL(),
+                'mwlitems',
+                this.createPatientFilterParams()
+            ).subscribe((res)=>{
+                this.count = res.count;
+            });
+        }else{
+            this.count = "";
+        }
         this.service.queryMwl(
             this.rsURL(),
             this.createQueryParams(offset, this.limit + 1, this.createMwlFilterParams())
@@ -2356,6 +2364,25 @@ export class StudiesComponent implements OnDestroy,OnInit{
             this.cfpLoadingBar.complete();
         });
     };
+    getCount(){
+        let mode;
+        if(this.queryMode === "queryStudies"){
+            mode = "studies"
+        }
+        if(this.queryMode === "queryPatients"){
+            mode = "patients"
+        }
+        if(this.queryMode === "queryMWL"){
+            mode = "mwlitems"
+        }
+        this.service.getCount(
+            this.rsURL(),
+            mode,
+            this.createPatientFilterParams()
+        ).subscribe((res)=>{
+            this.count = res.count;
+        });
+    }
     queryPatients = function(offset){
         this.queryMode = 'queryPatients';
         this.moreStudies = undefined;
@@ -2363,13 +2390,17 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.cfpLoadingBar.start();
         let $this = this;
         if (offset < 0) offset = 0;
-        this.service.getCount(
-            this.rsURL(),
-            'patients',
-            this.createPatientFilterParams()
-        ).subscribe((res)=>{
-            this.count = res.count;
-        });
+        if(this.externalInternalAetMode === 'internal'){
+            this.service.getCount(
+                this.rsURL(),
+                'patients',
+                this.createPatientFilterParams()
+            ).subscribe((res)=>{
+                this.count = res.count;
+            });
+        }else{
+            this.count = "";
+        }
         this.service.queryPatients(
             this.rsURL(),
             this.createQueryParams(offset, this.limit + 1, this.createPatientFilterParams())
@@ -4063,7 +4094,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
             studyDate: this.studyDate,
             studyTime: this.studyTime,
             orderbytext: this.orderbytext,
-            rjcode: this.rjcode
+            rjcode: this.rjcode,
+            count: this.count
         };
         let global = this.mainservice.global;
         global.state = state || {};

@@ -145,11 +145,21 @@ md-grid-list{
 }
 .count_block_total{
   margin-top: 48px;
-  padding: 3px 7px;
-  text-align: right;
+  //padding: 3px 7px;
+  text-align: left;
   min-height:28px;
-  &.count{
-    border: 1px solid #ccc;
+  border: 1px solid #ccc;
+  .count_text{
+    display: inline-block;
+    margin: 3px 7px;
+  }
+  .glyphicon-refresh{
+    width: 36px;
+    border-left: 1px solid #ccc;
+    text-align: center;
+    float: right;
+    padding: 6px;
+    height: 100%;
   }
 }
 .mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{

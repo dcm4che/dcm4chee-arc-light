@@ -217,7 +217,7 @@
                 </div>
                 <div class="col-md-3 block-1-2" *ngIf="filterMode === 'mwl'">
                     <div class="row">
-                        <label for="StudyDateFrom" class="col-md-12">Scheduled Procedure Step Start Date / Time:</label>
+                        <label class="col-md-12">Scheduled Procedure Step Start Date / Time:</label>
                     </div>
                     <div class="row datetime">
                         <div class="block_seid">
@@ -282,8 +282,7 @@
                 </div>
                 <div class="col-md-3 block-1-2" *ngIf="filterMode === 'study' || filterMode === 'diff' || filterMode === 'diff'">
                     <div class="row">
-                        <label for="StudyDateFrom" class="col-md-12">Study Date / Time:</label>
-
+                        <label class="col-md-12">Study Date / Time:</label>
                     </div>
                     <div class="row datetime">
                         <div class="block_seid">
@@ -389,8 +388,8 @@
                         <md-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</md-option>
                     </md-select>
                 </div>
-                <div class="count_block_total" *ngIf="filterMode != 'diff'" [ngClass]="{count:(count || count == '0')}" title="Total count found">
-                   <span *ngIf="count || count == '0'">Total count: <b>{{count}}</b></span>
+                <div class="count_block_total" *ngIf="filterMode != 'diff'" >
+                   <span class="count_text" title="Total count found">Total count: <b>{{count}}</b></span>  <span (click)="getCount()" title="Get total count" class="glyphicon glyphicon-refresh"></span>
                 </div>
                 <div class="orderbyblock" [ngClass]="{notrash:trashaktive==false,diff:filterMode==='diff'}">
                     <div class="btn-group" role="group" >
