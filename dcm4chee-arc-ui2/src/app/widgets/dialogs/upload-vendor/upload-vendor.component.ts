@@ -34,8 +34,8 @@ export class UploadVendorComponent implements OnInit {
                 token = this.mainservice.global.authentication.token;
             }
             let xmlHttpRequest = new XMLHttpRequest();
-            console.log("$this.selectedFile",$this.selectedFile);
             xmlHttpRequest.open('PUT', `../devices/${this._deviceName}/vendordata`, true);
+            xmlHttpRequest.setRequestHeader("Content-Type","application/zip");
             xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
             xmlHttpRequest.upload.onloadend = (e)=>{
                 dialogRef.close('ok');
