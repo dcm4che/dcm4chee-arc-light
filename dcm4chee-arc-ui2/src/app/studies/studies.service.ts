@@ -109,6 +109,9 @@ export class StudiesService {
             if(_.hasIn(msg,"errorMessage")){
                 endMsg = endMsg + `${msg.errorMessage}<br>`;
             }
+            if(endMsg === ""){
+                endMsg = defaultMsg;
+            }
         }catch (e){
             if(defaultMsg){
                 endMsg = defaultMsg;
