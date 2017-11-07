@@ -36,11 +36,13 @@ export class ViewerComponent implements OnInit {
         let token;
         let $this = this;
         this.$http.refreshToken().subscribe((response)=>{
-            if(response && response.length != 0){
-                $this.$http.resetAuthenticationInfo(response);
-                token = response['token'];
-            }else{
-                token = this.mainservice.global.authentication.token;
+            if(!this.mainservice.global.notSecure){
+                if(response && response.length != 0){
+                    $this.$http.resetAuthenticationInfo(response);
+                    token = response['token'];
+                }else{
+                    token = this.mainservice.global.authentication.token;
+                }
             }
             this.showLoader = true;
             let url = this._url;
@@ -52,7 +54,9 @@ export class ViewerComponent implements OnInit {
             }
             $this.xhr.open("GET", url, true);   // Make sure file is in same server
             $this.xhr.overrideMimeType('text/plain; charset=x-user-defined');
-            $this.xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+            if(!this.mainservice.global.notSecure) {
+                $this.xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+            }
             $this.xhr.send(null);
             $this.xhr.onloadstart = (res)=>{
                 console.log("onloade res",res);

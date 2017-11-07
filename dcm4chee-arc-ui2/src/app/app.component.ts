@@ -51,45 +51,66 @@ export class AppComponent implements OnInit {
             this.mainservice.user
                 .subscribe(
                     (response) => {
-                        let browserTime = Math.floor(Date.now() / 1000);
-                        if(response.systemCurrentTime != browserTime){
-                            let diffTime = browserTime - response.systemCurrentTime;
-                            response.expiration = response.expiration + diffTime;
-                        }
-                        if ($this.mainservice.global && !$this.mainservice.global.authentication){
-                            let global = _.cloneDeep($this.mainservice.global);
-                            global.authentication = response;
-                            $this.mainservice.setGlobal(global);
-                        }else{
-                            if ($this.mainservice.global && $this.mainservice.global.authentication){
-                                $this.mainservice.global.authentication = response;
+                        if(_.hasIn(response,"token") && response.token === null){
+                            if ($this.mainservice.global && !$this.mainservice.global.notSecure){
+                                let global = _.cloneDeep($this.mainservice.global);
+                                global.notSecure = true;
+                                $this.mainservice.setGlobal(global);
                             }else{
-                                $this.mainservice.setGlobal({authentication: response});
-                            }
-                        }
-                        $this.mainservice.user.user = response.user;
-                        $this.mainservice.user.roles = response.roles;
-                        $this.mainservice.user.realm = response.realm;
-                        $this.mainservice.user.authServerUrl = response['auth-server-url'];
-                        $this.mainservice.isRole = function(role){
-                            if (response.user === null && response.roles.length === 0){
-                                return true;
-                            }else{
-                                if (response.roles && response.roles.indexOf(role) > -1){
-                                    return true;
+                                if ($this.mainservice.global && $this.mainservice.global.notSecure){
+                                    $this.mainservice.global.notSecure = true;
                                 }else{
-                                    return false;
+                                    $this.mainservice.setGlobal({notSecure: true});
                                 }
                             }
-                        };
-                        $this.user = $this.mainservice.user;
-                        $this.isRole = $this.mainservice.isRole;
-                        $this.realm = response.realm;
-                        $this.authServerUrl = response['auth-server-url'];
-                        let host    = location.protocol + '//' + location.host;
-                        $this.logoutUrl = response['auth-server-url'] + `/realms/${response.realm}/protocol/openid-connect/logout?redirect_uri=`
-                            + encodeURIComponent(host + location.pathname);
-                        $this.initGetDevicename(2);
+                            $this.mainservice.user.user = 'admin';
+                            $this.mainservice.user.roles = ['user', 'admin'];
+                            $this.mainservice.isRole = (role) => {
+                                return true;
+                            };
+                            $this.isRole = $this.mainservice.isRole;
+                            $this.initGetDevicename(2);
+                        }else{
+                            let browserTime = Math.floor(Date.now() / 1000);
+                            if(response.systemCurrentTime != browserTime){
+                                let diffTime = browserTime - response.systemCurrentTime;
+                                response.expiration = response.expiration + diffTime;
+                            }
+                            if ($this.mainservice.global && !$this.mainservice.global.authentication){
+                                let global = _.cloneDeep($this.mainservice.global);
+                                global.authentication = response;
+                                $this.mainservice.setGlobal(global);
+                            }else{
+                                if ($this.mainservice.global && $this.mainservice.global.authentication){
+                                    $this.mainservice.global.authentication = response;
+                                }else{
+                                    $this.mainservice.setGlobal({authentication: response});
+                                }
+                            }
+                            $this.mainservice.user.user = response.user;
+                            $this.mainservice.user.roles = response.roles;
+                            $this.mainservice.user.realm = response.realm;
+                            $this.mainservice.user.authServerUrl = response['auth-server-url'];
+                            $this.mainservice.isRole = function(role){
+                                if (response.user === null && response.roles.length === 0){
+                                    return true;
+                                }else{
+                                    if (response.roles && response.roles.indexOf(role) > -1){
+                                        return true;
+                                    }else{
+                                        return false;
+                                    }
+                                }
+                            };
+                            $this.user = $this.mainservice.user;
+                            $this.isRole = $this.mainservice.isRole;
+                            $this.realm = response.realm;
+                            $this.authServerUrl = response['auth-server-url'];
+                            let host    = location.protocol + '//' + location.host;
+                            $this.logoutUrl = response['auth-server-url'] + `/realms/${response.realm}/protocol/openid-connect/logout?redirect_uri=`
+                                + encodeURIComponent(host + location.pathname);
+                            $this.initGetDevicename(2);
+                        }
                     },
                     (response) => {
                         // this.user = this.user || {};

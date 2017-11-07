@@ -27,16 +27,20 @@ export class UploadVendorComponent implements OnInit {
         let $this = this;
         let token;
         this.$http.refreshToken().subscribe((response)=>{
-            if(response && response.length != 0){
-                $this.$http.resetAuthenticationInfo(response);
-                token = response['token'];
-            }else{
-                token = this.mainservice.global.authentication.token;
+            if(!this.mainservice.global.notSecure) {
+                if(response && response.length != 0){
+                    $this.$http.resetAuthenticationInfo(response);
+                    token = response['token'];
+                }else{
+                    token = this.mainservice.global.authentication.token;
+                }
             }
             let xmlHttpRequest = new XMLHttpRequest();
             xmlHttpRequest.open('PUT', `../devices/${this._deviceName}/vendordata`, true);
             xmlHttpRequest.setRequestHeader("Content-Type","application/zip");
-            xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
+            if(!this.mainservice.global.notSecure) {
+                xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
+            }
             xmlHttpRequest.upload.onloadend = (e)=>{
                 dialogRef.close('ok');
             }

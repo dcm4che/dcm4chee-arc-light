@@ -72,11 +72,13 @@ export class UploadDicomComponent implements OnInit{
 
         if (this.fileList) {
             this.$http.refreshToken().subscribe((response) => {
-                if (response && response.length != 0) {
-                    $this.$http.resetAuthenticationInfo(response);
-                    token = response['token'];
-                } else {
-                    token = this.mainservice.global.authentication.token;
+                if(!this.mainservice.global.notSecure){
+                    if (response && response.length != 0) {
+                        $this.$http.resetAuthenticationInfo(response);
+                        token = response['token'];
+                    } else {
+                        token = this.mainservice.global.authentication.token;
+                    }
                 }
                 _.forEach(this.fileList, (file, i) => {
     /*                {
@@ -117,7 +119,9 @@ export class UploadDicomComponent implements OnInit{
                         const postDataEnd = crlf + dashes + boundary + dashes;
                         xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type=application/dicom;boundary=' + boundary + ';');
                         xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
-                        xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
+                        if(!this.mainservice.global.notSecure) {
+                            xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
+                        }
                         xmlHttpRequest.upload.onprogress = function (e) {
                             if (e.lengthComputable) {
                                 $this.percentComplete[file.name]['value'] = (e.loaded / e.total) * 100;

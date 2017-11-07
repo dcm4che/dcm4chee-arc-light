@@ -261,7 +261,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication")){
+        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){
@@ -2479,11 +2479,13 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let url;
         let contentType;
         this.$http.refreshToken().subscribe((response)=>{
-            if(response && response.length != 0){
-                $this.$http.resetAuthenticationInfo(response);
-                token = response['token'];
-            }else{
-                token = this.mainservice.global.authentication.token;
+            if(!this.mainservice.global.notSecure){
+                if(response && response.length != 0){
+                    $this.$http.resetAuthenticationInfo(response);
+                    token = response['token'];
+                }else{
+                    token = this.mainservice.global.authentication.token;
+                }
             }
             this.select_show = false;
             if(inst.video || inst.numberOfFrames || inst.gspsQueryParams.length){
@@ -2508,7 +2510,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
             if(contentType === 'application/pdf' || contentType === 'video/mpeg'){
                 // this.j4care.download(url);
-                WindowRefService.nativeWindow.open(this.renderURL(inst) + `&access_token=${token}`);
+                if(!this.mainservice.global.notSecure){
+                    WindowRefService.nativeWindow.open(this.renderURL(inst) + `&access_token=${token}`);
+                }
+                WindowRefService.nativeWindow.open(this.renderURL(inst));
             }else{
                 this.config.viewContainerRef = this.viewContainerRef;
                 this.dialogRef = this.dialog.open(ViewerComponent, {
