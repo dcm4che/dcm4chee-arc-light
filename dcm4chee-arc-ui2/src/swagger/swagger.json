@@ -5829,7 +5829,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/count": {
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/size": {
       "get": {
         "tags": [
           "SIZE-RS"
