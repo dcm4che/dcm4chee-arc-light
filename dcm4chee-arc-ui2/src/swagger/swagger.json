@@ -6285,7 +6285,7 @@
         "expiration": {
           "title": "expiration",
           "description": "Access token lifetime in seconds",
-          "type": ""
+          "type": "integer"
         },
         "systemCurrentTime": {
           "title": "systemCurrentTime",
