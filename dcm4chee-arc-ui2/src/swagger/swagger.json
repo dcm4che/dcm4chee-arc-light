@@ -3380,7 +3380,10 @@
             "name": "patientAttributes",
             "in": "body",
             "description": "Patient Attributes encoded as JSON Dataset",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "queue",
@@ -3449,7 +3452,10 @@
             "name": "patientAttributes",
             "in": "body",
             "description": "Updated Patient Attributes encoded as JSON Dataset",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "queue",
@@ -3527,7 +3533,10 @@
             "name": "patientAttributes",
             "in": "body",
             "description": "Target Patient Attributes encoded as JSON Dataset",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "queue",
@@ -3605,7 +3614,10 @@
             "name": "patientAttributes",
             "in": "body",
             "description": "Patient Attributes with changed Patient ID and Issuer encoded as JSON Dataset",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "queue",
