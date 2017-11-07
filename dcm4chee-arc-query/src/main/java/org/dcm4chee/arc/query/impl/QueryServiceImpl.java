@@ -199,11 +199,6 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public long calculateSeriesSize(Long seriesPk) {
-        return querySizeEJB.calculateSeriesSize(seriesPk);
-    }
-
-    @Override
     public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryParam queryParam) {
         return queryAttributesEJB.calculateStudyQueryAttributes(studyPk, queryParam);
     }

@@ -91,7 +91,6 @@ class SeriesQuery extends AbstractQuery {
             QSeries.series.metadataScheduledUpdateTime,
             QSeries.series.instancePurgeTime,
             QSeries.series.instancePurgeState,
-            QSeries.series.size,
             QMetadata.metadata.storageID,
             QMetadata.metadata.storagePath,
             QMetadata.metadata.digest,
@@ -148,9 +147,6 @@ class SeriesQuery extends AbstractQuery {
     protected Attributes toAttributes(Tuple results) {
         Long studyPk = results.get(QStudy.study.pk);
         Long seriesPk = results.get(QSeries.series.pk);
-        long seriesSize = results.get(QSeries.series.size);
-        if (seriesSize < 0)
-            seriesSize = context.getQueryService().calculateSeriesSize(seriesPk);
         Integer numberOfInstancesI = results.get(QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances);
         int numberOfSeriesRelatedInstances;
         String retrieveAETs;
@@ -224,8 +220,6 @@ class SeriesQuery extends AbstractQuery {
                 attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectDigest, VR.LO,
                         results.get(QMetadata.metadata.digest));
         }
-        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.SeriesSizeInKB, VR.UL, (int) (seriesSize / 1000));
-        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.SeriesSizeBytes, VR.US, (int) (seriesSize % 1000));
         return attrs;
     }
 

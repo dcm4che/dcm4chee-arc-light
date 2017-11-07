@@ -71,20 +71,8 @@ public class QuerySizeEJB {
                 ZERO);
         em.createNamedQuery(Study.SET_STUDY_SIZE)
                 .setParameter(1, studyPk)
-                .setParameter(2, size);
-        return size;
-    }
-
-    public long calculateSeriesSize(Long seriesPk) {
-        Long size = StringUtils.maskNull(
-                em.createNamedQuery(Location.SIZE_OF_SERIES, Long.class)
-                    .setParameter(1, seriesPk)
-                    .setParameter(2, Location.ObjectType.DICOM_FILE)
-                    .getSingleResult(),
-                ZERO);
-        em.createNamedQuery(Series.SET_SERIES_SIZE)
-                .setParameter(1, seriesPk)
-                .setParameter(2, size);
+                .setParameter(2, size)
+                .executeUpdate();
         return size;
     }
 }

@@ -98,7 +98,6 @@ public class QueryServiceEJB {
         QSeries.series.metadataScheduledUpdateTime,
         QSeries.series.instancePurgeTime,
         QSeries.series.instancePurgeState,
-        QSeries.series.size,
         QMetadata.metadata.storageID,
         QMetadata.metadata.storagePath,
         QMetadata.metadata.digest,
@@ -169,10 +168,7 @@ public class QueryServiceEJB {
 
         Long studySize = result.get(QStudy.study.size);
         if (studySize < 0)
-            studySize = querySizeEJB.calculateSeriesSize(result.get(QStudy.study.pk));
-        Long seriesSize = result.get(QSeries.series.size);
-        if (seriesSize < 0)
-            seriesSize = querySizeEJB.calculateSeriesSize(seriesPk);
+            studySize = querySizeEJB.calculateStudySize(result.get(QStudy.study.pk));
         Integer numberOfSeriesRelatedInstances =
                 result.get(QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances);
         if (numberOfSeriesRelatedInstances == null) {
@@ -284,8 +280,6 @@ public class QueryServiceEJB {
                 attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectDigest, VR.LO,
                         result.get(QMetadata.metadata.digest));
         }
-        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.SeriesSizeInKB, VR.UL, (int) (seriesSize / 1000));
-        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.SeriesSizeBytes, VR.US, (int) (seriesSize % 1000));
         return attrs;
     }
 

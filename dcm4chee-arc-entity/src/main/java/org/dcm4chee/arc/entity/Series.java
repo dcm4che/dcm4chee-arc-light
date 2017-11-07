@@ -104,9 +104,6 @@ import java.util.Date;
             "where ser.pk in (" +
             "select ser1.pk from Series ser1 where ser1.study.studyInstanceUID = ?1 and ser1.seriesInstanceUID = ?2)"),
 @NamedQuery(
-    name=Series.SET_SERIES_SIZE,
-    query="update Series ser set ser.size = ?2 where ser.pk = ?1"),
-@NamedQuery(
     name=Series.COUNT_SERIES_OF_STUDY,
     query="select count(se) from Series se " +
             "where se.study = ?1"),
@@ -188,8 +185,7 @@ import java.util.Date;
         @Index(columnList = "completeness"),
         @Index(columnList = "metadata_update_time"),
         @Index(columnList = "inst_purge_time"),
-        @Index(columnList = "inst_purge_state"),
-        @Index(columnList = "series_size")
+        @Index(columnList = "inst_purge_state")
 })
 public class Series {
 
@@ -200,7 +196,6 @@ public class Series {
     public static final String SET_COMPLETENESS = "Series.SetCompleteness";
     public static final String SET_COMPLETENESS_OF_STUDY = "Series.SetCompletenessOfStudy";
     public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";
-    public static final String SET_SERIES_SIZE = "Series.SetSeriesSize";
     public static final String GET_EXPIRED_SERIES = "Series.GetExpiredSeries";
     public static final String FIND_SERIES_OF_STUDY = "Series.FindSeriesOfStudy";
     public static final String FIND_SERIES_OF_STUDY_BY_INSTANCE_PURGE_STATE = "Series.FindSeriesOfStudyByInstancePurgeState";
@@ -352,10 +347,6 @@ public class Series {
     @Column(name = "inst_purge_state")
     private InstancePurgeState instancePurgeState;
 
-    @Basic(optional = false)
-    @Column(name = "series_size")
-    private long size;
-
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
     private AttributesBlob attributesBlob;
@@ -498,10 +489,6 @@ public class Series {
 
     public void setExternalRetrieveAET(String externalRetrieveAET) {
         this.externalRetrieveAET = externalRetrieveAET;
-    }
-
-    public void resetSize() {
-        this.size = -1L;
     }
 
     public RejectionState getRejectionState() {
