@@ -232,7 +232,10 @@ export class StudiesService {
 
     getCount(url,mode,params) {
         return this.$http.get(
-            `${url}/${mode}/count${this._config(params)}`
+            `${url}/${mode}/count${this._config(params)}`,
+            {
+                headers:  new Headers({'Accept': 'application/json'})
+            }
         )
             .map(res => {
             let resjson;
