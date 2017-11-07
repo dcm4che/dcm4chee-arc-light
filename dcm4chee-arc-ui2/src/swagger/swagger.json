@@ -6022,7 +6022,7 @@
         "size"
       ],
       "properties": {
-        "count": {
+        "size": {
           "title": "size",
           "description": "size of matches",
           "type": "integer"
