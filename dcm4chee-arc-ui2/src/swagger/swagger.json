@@ -517,7 +517,9 @@
             "in": "body",
             "description": "updated device vendor data",
             "required": true,
-            "type": "file"
+            "schema": {
+              "type": "file"
+            }
           }
         ],
         "responses": {

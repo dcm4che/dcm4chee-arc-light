@@ -371,6 +371,64 @@ public class QidoRS {
                 QIDO.MWL, Output.COUNT);
     }
 
+    @GET
+    @NoCache
+    @Path("/studies/size")
+    @Produces("application/json")
+    public Response sizeOfStudies() throws Exception {
+        return search(" SizeOfStudies", Model.STUDY, null, null,
+                QIDO.STUDY, Output.SIZE);
+    }
+
+    @GET
+    @NoCache
+    @Path("/series/size")
+    @Produces("application/json")
+    public Response sizeOfSeries() throws Exception {
+        return search(" SizeOfSeries", Model.SERIES, null, null,
+                QIDO.STUDY_SERIES, Output.SIZE);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/series/size")
+    @Produces("application/json")
+    public Response sizeOfSeriesOfStudy(
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+        return search(" SizeOfStudySeries", Model.SERIES, studyInstanceUID, null,
+                QIDO.SERIES, Output.SIZE);
+    }
+
+    @GET
+    @NoCache
+    @Path("/instances/size")
+    @Produces("application/json")
+    public Response sizeOfInstances() throws Exception {
+        return search(" SizeOfInstances", Model.INSTANCE, null, null,
+                QIDO.STUDY_SERIES_INSTANCE, Output.SIZE);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/instances/size")
+    @Produces("application/json")
+    public Response sizeOfInstancesOfStudy(
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+        return search(" SizeOfStudyInstances", Model.INSTANCE, studyInstanceUID, null,
+                QIDO.SERIES_INSTANCE, Output.SIZE);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/size")
+    @Produces("application/json")
+    public Response sizeOfInstancesOfSeries(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
+        return search(" SizeOfStudySeriesInstances", Model.INSTANCE, studyInstanceUID, seriesInstanceUID,
+                QIDO.INSTANCE, Output.SIZE);
+    }
+
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID,
                             QIDO qido, Output output)
             throws Exception {
@@ -608,10 +666,21 @@ public class QidoRS {
                     throws DicomServiceException {
                 return "{\"count\":" + query.count() + '}';
             }
+        },
+        SIZE {
+            @Override
+            Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
+                    throws DicomServiceException {
+                return "{\"size\":" + service.size(query) + '}';
+            }
         };
 
         abstract Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
                 throws DicomServiceException;
+    }
+
+    private long size(Query query) {
+        return 0L;
     }
 
     private Object writeXML(String method, Query query, Model model, AttributesCoercion coercion)
