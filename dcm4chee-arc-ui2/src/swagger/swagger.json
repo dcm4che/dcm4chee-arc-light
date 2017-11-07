@@ -27,10 +27,6 @@
       "description": "Count number of matching Entities"
     },
     {
-      "name": "SIZE-RS",
-      "description": "Size of matching Entities"
-    },
-    {
       "name": "DIMSE-RS",
       "description": "Invoke DIMSE Service on remote AE"
     },
@@ -5510,7 +5506,7 @@
     "/aets/{aet}/rs/studies/size": {
       "get": {
         "tags": [
-          "SIZE-RS"
+          "MONITOR-RS"
         ],
         "summary": "Size of Studies",
         "operationId": "SizeOfStudies",
