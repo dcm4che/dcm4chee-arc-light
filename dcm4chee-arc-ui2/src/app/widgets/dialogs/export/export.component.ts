@@ -9,12 +9,6 @@ import {J4careHttpService} from "../../../helpers/j4care-http.service";
 @Component({
     selector: 'app-export',
     templateUrl: './export.component.html',
-    styles: [`
-        .vex-theme-os.export{
-            width:500px;
-            
-        }
-    `]
 })
 export class ExportDialogComponent{
 
@@ -26,6 +20,8 @@ export class ExportDialogComponent{
     private _title;
     private _okButtonLabel;
     private _externalAetMode;
+    private _mode;
+    private _count;
     private _result = {
         exportType: 'dicom',
         selectedAet: undefined,
@@ -114,6 +110,21 @@ export class ExportDialogComponent{
 
     set externalInternalAetMode(value) {
         this._externalAetMode = value;
+    }
+    get mode() {
+        return this._mode;
+    }
+
+    set mode(value) {
+        this._mode = value;
+    }
+
+    get count() {
+        return this._count;
+    }
+
+    set count(value) {
+        this._count = value;
     }
 
     getAes(){

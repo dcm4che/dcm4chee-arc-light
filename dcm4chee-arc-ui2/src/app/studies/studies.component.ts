@@ -2011,29 +2011,47 @@ export class StudiesComponent implements OnDestroy,OnInit{
             this.fireRightQuery();
         }
     }
-
+    retrieveMultipleStudies(){
+        this.service.getCount(
+            this.rsURL(),
+            'studies',
+            this.createPatientFilterParams()
+        ).subscribe((res)=>{
+            this.count = res.count;
+            this.exporter(
+                // `/aets/${this.aet}/dimse/${this.externalAET}/studies/query:${this.queryAET}/export/dicom:${destinationAET}`,
+                '',
+                'Retrieve matching studies depending on selected filters, from external C-MOVE SCP',
+                '',
+                'multiple'
+            );
+        });
+    }
     exportStudy(study) {
         this.exporter(
             this.studyURL(study.attrs),
             'Export study',
-            'Study will not be sent!'
+            'Study will not be sent!',
+            'single'
         );
     };
     exportSeries(series) {
         this.exporter(
             this.seriesURL(series.attrs),
             'Export series',
-            'Series will not be sent!'
+            'Series will not be sent!',
+            'single'
         );
     };
     exportInstance(instance) {
         this.exporter(
             this.instanceURL(instance.attrs),
             'Export instance',
-            'Instance will not be sent!'
+            'Instance will not be sent!',
+            'single'
         );
     };
-    exporter(url, title, warning){
+    exporter(url, title, warning, mode){
         let $this = this;
         let id;
         let urlRest;
@@ -2047,27 +2065,42 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
         });
         this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(ExportDialogComponent, this.config);
+        let config = {
+            height: 'auto',
+            width: '500px'
+        };
+        if(mode === "multiple"){
+            config = {
+                height: 'auto',
+                width: '600px'
+            };
+        }
+        this.dialogRef = this.dialog.open(ExportDialogComponent, );
         this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
         this.dialogRef.componentInstance.externalInternalAetMode = this.externalInternalAetMode;
         this.dialogRef.componentInstance.title = title;
+        this.dialogRef.componentInstance.mode = mode;
         this.dialogRef.componentInstance.warning = warning;
+        this.dialogRef.componentInstance.count = this.count;
         this.dialogRef.afterClosed().subscribe(result => {
             if (result){
-
                 $this.cfpLoadingBar.start();
-                if($this.externalInternalAetMode === 'external'){
-                    id = 'dicom:' + result.selectedAet;
-                    urlRest = url  + '/export/' + id + '?' + this.mainservice.param({queue:result.queue});
+                if(mode === "multiple"){
+                    urlRest = `/aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}`;
                 }else{
-                    if (result.exportType === 'dicom'){
-                        //id = result.dicomPrefix + result.selectedAet;
+                    if($this.externalInternalAetMode === 'external'){
                         id = 'dicom:' + result.selectedAet;
+                        urlRest = url  + '/export/' + id + '?' + this.mainservice.param({queue:result.queue});
                     }else{
-                        id = result.selectedExporter;
+                        if (result.exportType === 'dicom'){
+                            //id = result.dicomPrefix + result.selectedAet;
+                            id = 'dicom:' + result.selectedAet;
+                        }else{
+                            id = result.selectedExporter;
+                        }
+                        urlRest = url  + '/export/' + id + '?' + this.mainservice.param(result.checkboxes);
                     }
-                    urlRest = url  + '/export/' + id + '?' + this.mainservice.param(result.checkboxes);
                 }
                 $this.$http.post(
                     urlRest,

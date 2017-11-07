@@ -614,6 +614,7 @@
                     <li (click)="moreFunctionsButtons = false;createPatient()" title="Create new patient">Create patient</li>
                     <li (click)="moreFunctionsButtons = false;uploadDicom()" *ngIf="externalInternalAetMode === 'internal'" title="Upload a DICOM Object">Upload DICOM Object</li>
                     <li (click)="moreFunctionsButtons = false;deleteRejectedInstances()" *ngIf="externalInternalAetMode === 'internal'" title="Delete Rejected Instances permanently">Permanent delete</li>
+                    <li (click)="moreFunctionsButtons = false;retrieveMultipleStudies()" title="Retrieve multiple studies">Retrieve multiple studies</li>
                 </ul>
             </div>
         </div>
