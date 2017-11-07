@@ -5599,7 +5599,7 @@
           "SIZE-RS"
         ],
         "summary": "Size of Series of Study",
-        "operationId": "SizeOfStudySeries",
+        "operationId": "SizeOfStudyOfSeries",
         "produces": [
           "application/json"
         ],
@@ -5772,7 +5772,7 @@
           "SIZE-RS"
         ],
         "summary": "Size of Instances of Series of Study",
-        "operationId": "SizeOfStudySeriesInstances",
+        "operationId": "SizeOfStudyOfSeriesOfInstances",
         "produces": [
           "application/json"
         ],
@@ -5835,7 +5835,7 @@
           "SIZE-RS"
         ],
         "summary": "Size of Instances of Study",
-        "operationId": "SizeOfStudyInstances",
+        "operationId": "SizeOfStudyOfInstances",
         "produces": [
           "application/json"
         ],
