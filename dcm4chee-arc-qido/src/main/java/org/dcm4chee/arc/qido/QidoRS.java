@@ -373,6 +373,23 @@ public class QidoRS {
         QueryContext ctx = newQueryContext(
                 "SizeOfStudies", queryAttrs, null, null, Model.STUDY);
         try (Query query = service.createQuery(ctx)) {
+            query.initUnknownSizeQuery();
+            Transaction transaction = query.beginTransaction();
+            try {
+                query.setFetchSize(device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize());
+                query.executeQuery();
+                Long studyPk;
+                while ((studyPk = query.nextPk()) != null)
+                    ctx.getQueryService().calculateStudySize(studyPk);
+            } finally {
+                try {
+                    transaction.commit();
+                } catch (Exception e) {
+                    LOG.warn("Failed to commit transaction:\n{}", e);
+                }
+            }
+        }
+        try (Query query = service.createQuery(ctx)) {
             query.initSizeQuery();
             return Response.ok("{\"size\":" + query.size() + '}').build();
         }

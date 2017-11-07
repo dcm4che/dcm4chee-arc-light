@@ -72,6 +72,8 @@ public interface Query extends Closeable {
 
     long size();
 
+    Long nextPk();
+
     void limit(long limit);
 
     void offset(long offset);

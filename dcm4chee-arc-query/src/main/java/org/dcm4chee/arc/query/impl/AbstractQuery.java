@@ -134,6 +134,13 @@ abstract class AbstractQuery implements Query {
     }
 
     @Override
+    public Long nextPk() {
+        return results.hasNext()
+                ? results.next().get(0, Long.class)
+                : null;
+    }
+
+    @Override
     public void limit(long limit) {
         checkQuery();
         query.limit(limit);
