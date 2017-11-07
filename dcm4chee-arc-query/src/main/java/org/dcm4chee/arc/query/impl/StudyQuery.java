@@ -98,7 +98,11 @@ class StudyQuery extends AbstractQuery {
 
     @Override
     protected HibernateQuery<Tuple> newHibernateQuery() {
-        HibernateQuery<Tuple> q = new HibernateQuery<Void>(session).select(SELECT).from(QStudy.study);
+        return newHibernateQuery(new BooleanBuilder(), SELECT);
+    }
+
+    private HibernateQuery<Tuple> newHibernateQuery(BooleanBuilder predicates, Expression<?>... select) {
+        HibernateQuery<Tuple> q = new HibernateQuery<Void>(session).select(select).from(QStudy.study);
         q = QueryBuilder.applyStudyLevelJoins(q,
                 context.getQueryKeys(),
                 context.getQueryParam());
@@ -107,7 +111,6 @@ class StudyQuery extends AbstractQuery {
                 context.getQueryKeys(),
                 context.getQueryParam(),
                 context.isOrderByPatientName());
-        BooleanBuilder predicates = new BooleanBuilder();
         QueryBuilder.addPatientLevelPredicates(predicates,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
@@ -116,6 +119,16 @@ class StudyQuery extends AbstractQuery {
                 context.getQueryKeys(),
                 context.getQueryParam(), QueryRetrieveLevel2.STUDY);
         return q.where(predicates);
+    }
+
+    @Override
+    public void initSizeQuery() {
+        query = newHibernateQuery(new BooleanBuilder(), QStudy.study.size.sum());
+    }
+
+    @Override
+    public void initUnknownSizeQuery() {
+        query = newHibernateQuery(new BooleanBuilder(QStudy.study.size.eq(-1L)), QStudy.study.pk);
     }
 
     @Override

@@ -61,7 +61,7 @@ abstract class AbstractQuery implements Query {
 
     protected final QueryContext context;
     protected final StatelessSession session;
-    private HibernateQuery<Tuple> query;
+    protected HibernateQuery<Tuple> query;
     private Iterator<Tuple> results;
     private long offset;
     private long limit;
@@ -75,6 +75,16 @@ abstract class AbstractQuery implements Query {
 
     public void initQuery() {
         query = newHibernateQuery();
+    }
+
+    @Override
+    public void initSizeQuery() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void initUnknownSizeQuery() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -114,6 +124,13 @@ abstract class AbstractQuery implements Query {
     public long count() {
         checkQuery();
         return query.fetchCount();
+    }
+
+    @Override
+    public long size() {
+        checkQuery();
+        Long size = query.fetchOne().get(0, Long.class);
+        return size != null ? size.longValue() : 0L;
     }
 
     @Override

@@ -300,8 +300,7 @@ public class QidoRS {
     @Path("/patients/count")
     @Produces("application/json")
     public Response countPatients() throws Exception {
-        return search("CountPatients", Model.PATIENT, null, null,
-                QIDO.PATIENT, Output.COUNT);
+        return count("CountPatients", Model.PATIENT, null, null);
     }
 
     @GET
@@ -309,8 +308,7 @@ public class QidoRS {
     @Path("/studies/count")
     @Produces("application/json")
     public Response countStudies() throws Exception {
-        return search("CountStudies", Model.STUDY, null, null,
-                QIDO.STUDY, Output.COUNT);
+        return count("CountStudies", Model.STUDY, null, null);
     }
 
     @GET
@@ -318,8 +316,7 @@ public class QidoRS {
     @Path("/series/count")
     @Produces("application/json")
     public Response countSeries() throws Exception {
-        return search("CountSeries", Model.SERIES, null, null,
-                QIDO.STUDY_SERIES, Output.COUNT);
+        return count("CountSeries", Model.SERIES, null, null);
     }
 
     @GET
@@ -328,8 +325,7 @@ public class QidoRS {
     @Produces("application/json")
     public Response countSeriesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
-        return search("CountStudySeries", Model.SERIES, studyInstanceUID, null,
-                QIDO.SERIES, Output.COUNT);
+        return count("CountStudySeries", Model.SERIES, studyInstanceUID, null);
     }
 
     @GET
@@ -337,8 +333,7 @@ public class QidoRS {
     @Path("/instances/count")
     @Produces("application/json")
     public Response countInstances() throws Exception {
-        return search("CountInstances", Model.INSTANCE, null, null,
-                QIDO.STUDY_SERIES_INSTANCE, Output.COUNT);
+        return count("CountInstances", Model.INSTANCE, null, null);
     }
 
     @GET
@@ -347,8 +342,7 @@ public class QidoRS {
     @Produces("application/json")
     public Response countInstancesOfStudy(
             @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
-        return search("CountStudyInstances", Model.INSTANCE, studyInstanceUID, null,
-                QIDO.SERIES_INSTANCE, Output.COUNT);
+        return count("CountStudyInstances", Model.INSTANCE, studyInstanceUID, null);
     }
 
     @GET
@@ -358,8 +352,7 @@ public class QidoRS {
     public Response countInstancesOfSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
             @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
-        return search("CountStudySeriesInstances", Model.INSTANCE, studyInstanceUID, seriesInstanceUID,
-                QIDO.INSTANCE, Output.COUNT);
+        return count("CountStudySeriesInstances", Model.INSTANCE, studyInstanceUID, seriesInstanceUID);
     }
 
     @GET
@@ -367,8 +360,7 @@ public class QidoRS {
     @Path("/mwlitems/count")
     @Produces("application/json")
     public Response countSPS() throws Exception {
-        return search("CountSPS", Model.MWL, null, null,
-                QIDO.MWL, Output.COUNT);
+        return count("CountSPS", Model.MWL, null, null);
     }
 
     @GET
@@ -376,71 +368,37 @@ public class QidoRS {
     @Path("/studies/size")
     @Produces("application/json")
     public Response sizeOfStudies() throws Exception {
-        return search(" SizeOfStudies", Model.STUDY, null, null,
-                QIDO.STUDY, Output.SIZE);
+        logRequest();
+        QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
+        QueryContext ctx = newQueryContext(
+                "SizeOfStudies", queryAttrs, null, null, Model.STUDY);
+        try (Query query = service.createQuery(ctx)) {
+            query.initSizeQuery();
+            return Response.ok("{\"size\":" + query.size() + '}').build();
+        }
     }
 
-    @GET
-    @NoCache
-    @Path("/series/size")
-    @Produces("application/json")
-    public Response sizeOfSeries() throws Exception {
-        return search(" SizeOfSeries", Model.SERIES, null, null,
-                QIDO.STUDY_SERIES, Output.SIZE);
-    }
-
-    @GET
-    @NoCache
-    @Path("/studies/{StudyInstanceUID}/series/size")
-    @Produces("application/json")
-    public Response sizeOfSeriesOfStudy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
-        return search(" SizeOfStudySeries", Model.SERIES, studyInstanceUID, null,
-                QIDO.SERIES, Output.SIZE);
-    }
-
-    @GET
-    @NoCache
-    @Path("/instances/size")
-    @Produces("application/json")
-    public Response sizeOfInstances() throws Exception {
-        return search(" SizeOfInstances", Model.INSTANCE, null, null,
-                QIDO.STUDY_SERIES_INSTANCE, Output.SIZE);
-    }
-
-    @GET
-    @NoCache
-    @Path("/studies/{StudyInstanceUID}/instances/size")
-    @Produces("application/json")
-    public Response sizeOfInstancesOfStudy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
-        return search(" SizeOfStudyInstances", Model.INSTANCE, studyInstanceUID, null,
-                QIDO.SERIES_INSTANCE, Output.SIZE);
-    }
-
-    @GET
-    @NoCache
-    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/size")
-    @Produces("application/json")
-    public Response sizeOfInstancesOfSeries(
-            @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
-        return search(" SizeOfStudySeriesInstances", Model.INSTANCE, studyInstanceUID, seriesInstanceUID,
-                QIDO.INSTANCE, Output.SIZE);
+    private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID)
+            throws Exception {
+        logRequest();
+        QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
+        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
+        try (Query query = model.createQuery(service, ctx)) {
+            query.initQuery();
+            return Response.ok("{\"count\":" + query.count() + '}').build();
+        }
     }
 
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID,
                             QIDO qido, Output output)
             throws Exception {
-        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
-        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, qido.includetags, model);
+        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
+        ctx.setReturnKeys(queryAttrs.getReturnKeys(qido.includetags));
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         try (Query query = model.createQuery(service, ctx)) {
             query.initQuery();
-            if (output == Output.COUNT)
-                return Response.ok(output.entity(this, method, query, model, null)).build();
-
             int maxResults = arcAE.qidoMaxNumberOfResults();
             int offsetInt = parseInt(offset);
             int limitInt = parseInt(limit);
@@ -494,13 +452,17 @@ public class QidoRS {
         }
     }
 
+    private void logRequest() {
+        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+    }
+
     private String warning(int remaining) {
         return "299 " + request.getServerName() + ':' + request.getServerPort()
                 + " \"There are " + remaining + " additional results that can be requested\"";
     }
 
     private QueryContext newQueryContext(String method, QueryAttributes queryAttrs, String studyInstanceUID,
-                                         String seriesInstanceUID, int[] includetags, Model model) {
+                                         String seriesInstanceUID, Model model) {
         ApplicationEntity ae = getApplicationEntity();
 
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
@@ -527,7 +489,6 @@ public class QidoRS {
         if (seriesInstanceUID != null)
             keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
         ctx.setQueryKeys(keys);
-        ctx.setReturnKeys(queryAttrs.getReturnKeys(includetags));
         ctx.setOrderByPatientName(queryAttrs.isOrderByPatientName());
         return ctx;
     }
@@ -659,28 +620,10 @@ public class QidoRS {
                     throws DicomServiceException {
                 return service.writeJSON(method, query, model, coercion);
             }
-        },
-        COUNT {
-            @Override
-            Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
-                    throws DicomServiceException {
-                return "{\"count\":" + query.count() + '}';
-            }
-        },
-        SIZE {
-            @Override
-            Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
-                    throws DicomServiceException {
-                return "{\"size\":" + service.size(query) + '}';
-            }
         };
 
         abstract Object entity(QidoRS service, String method, Query query, Model model, AttributesCoercion coercion)
                 throws DicomServiceException;
-    }
-
-    private long size(Query query) {
-        return 0L;
     }
 
     private Object writeXML(String method, Query query, Model model, AttributesCoercion coercion)

@@ -58,6 +58,10 @@ public interface Query extends Closeable {
 
     void initQuery();
 
+    void initSizeQuery();
+
+    void initUnknownSizeQuery();
+
     Transaction beginTransaction();
 
     void setFetchSize(int fetchSize);
@@ -65,6 +69,8 @@ public interface Query extends Closeable {
     void executeQuery();
 
     long count();
+
+    long size();
 
     void limit(long limit);
 
