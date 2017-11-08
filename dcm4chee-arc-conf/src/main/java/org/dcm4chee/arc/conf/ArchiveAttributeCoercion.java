@@ -66,6 +66,7 @@ public class ArchiveAttributeCoercion {
     private MergeMWLMatchingKey mergeMWLMatchingKey;
     private String mergeMWLTemplateURI;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.MERGE;
+    private int[] nullifyTags = {};
     private Device supplementFromDevice;
 
     public ArchiveAttributeCoercion() {
@@ -190,6 +191,14 @@ public class ArchiveAttributeCoercion {
     public ArchiveAttributeCoercion setAttributeUpdatePolicy(Attributes.UpdatePolicy attributeUpdatePolicy) {
         this.attributeUpdatePolicy = attributeUpdatePolicy;
         return this;
+    }
+
+    public int[] getNullifyTags() {
+        return nullifyTags;
+    }
+
+    public void setNullifyTags(int[] nullifyTags) {
+        this.nullifyTags = nullifyTags;
     }
 
     public final Device getSupplementFromDevice() {

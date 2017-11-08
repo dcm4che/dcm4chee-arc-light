@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.mpps.impl;
 
 import org.dcm4che3.data.AttributesCoercion;
+import org.dcm4che3.data.NullifyAttributesCoercion;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
@@ -109,6 +110,7 @@ public class MPPSServiceImpl implements MPPSService {
         AttributesCoercion coercion = null;
         coercion = coerceAttributesByXSL(ctx, rule, coercion);
         coercion = SupplementAssigningAuthorities.forMPPS(rule.getSupplementFromDevice(), coercion);
+        coercion = NullifyAttributesCoercion.valueOf(rule.getNullifyTags(), coercion);
         if (coercion != null)
             coercion.coerce(ctx.getAttributes(), null);
     }
