@@ -2523,12 +2523,27 @@ export class StudiesComponent implements OnDestroy,OnInit{
     //     }
     // };
     downloadURL(inst, transferSyntax) {
-        let exQueryParams = { contentType: 'application/dicom'};
-        if (transferSyntax){
-            exQueryParams["transferSyntax"] = {};
-            exQueryParams["transferSyntax"] = transferSyntax;
-        }
-        this.j4care.download(this.wadoURL(inst.wadoQueryParams, exQueryParams));
+        let token;
+        this.$http.refreshToken().subscribe((response)=>{
+            if(!this.mainservice.global.notSecure){
+                if(response && response.length != 0){
+                    this.$http.resetAuthenticationInfo(response);
+                    token = response['token'];
+                }else{
+                    token = this.mainservice.global.authentication.token;
+                }
+            }
+            let exQueryParams = { contentType: 'application/dicom'};
+            if (transferSyntax){
+                exQueryParams["transferSyntax"] = {};
+                exQueryParams["transferSyntax"] = transferSyntax;
+            }
+            if(!this.mainservice.global.notSecure){
+                WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`);
+            }else{
+                WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams));
+            }
+        });
     };
     viewInstance(inst) {
         let $this = this;
@@ -2569,8 +2584,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 // this.j4care.download(url);
                 if(!this.mainservice.global.notSecure){
                     WindowRefService.nativeWindow.open(this.renderURL(inst) + `&access_token=${token}`);
+                }else{
+                    WindowRefService.nativeWindow.open(this.renderURL(inst));
                 }
-                WindowRefService.nativeWindow.open(this.renderURL(inst));
             }else{
                 this.config.viewContainerRef = this.viewContainerRef;
                 this.dialogRef = this.dialog.open(ViewerComponent, {
