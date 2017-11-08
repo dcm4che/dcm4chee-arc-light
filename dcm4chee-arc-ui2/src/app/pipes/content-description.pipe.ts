@@ -36,7 +36,8 @@ export class ContentDescriptionPipe implements PipeTransform {
       return valueOf(value, '00700081') // ContentDescription
               || imageDescriptionOf(value)
               || srDescriptionOf(value)
-              || valueOf(value, '00420010'); // Document Title
+              || valueOf(value, '00420010')// Document Title
+              || '';
   }
 
 }
