@@ -27,6 +27,7 @@ export class ExportDialogComponent{
         selectedAet: undefined,
         selectedExporter: undefined,
         queue:false,
+        externalAET:undefined,
         dicomPrefix: undefined,
         checkboxes: {
             'only-stgcmt': undefined,
@@ -36,8 +37,6 @@ export class ExportDialogComponent{
     private _preselectedAet;
     constructor(public dialogRef: MdDialogRef<ExportDialogComponent>, private $http:J4careHttpService, private mainservice: AppService) {
         this.getAes();
-
-        console.log('resultfilter', );
     }
 
     get preselectedAet() {
@@ -47,6 +46,9 @@ export class ExportDialogComponent{
     set preselectedAet(value) {
         this._result.selectedAet = value;
         this._preselectedAet = value;
+    }
+    set preselectedExternalAET(value){
+        this._result.externalAET = value;
     }
     get result(){
         return this._result;

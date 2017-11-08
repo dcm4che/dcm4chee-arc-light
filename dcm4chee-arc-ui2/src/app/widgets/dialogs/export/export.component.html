@@ -48,10 +48,17 @@
             </div>
         </div>
         <div class="content" *ngIf="externalInternalAetMode === 'external' || mode ==='multiple'">
-            <div class="dicomBlock" >
-                <p *ngIf="mode ==='single'">Select the destination AETitle:</p>
+            <div class="dicomBlock">
+                <p *ngIf="mode ==='single'">Select the destination AETitle (STORE-SCP):</p>
                 <p *ngIf="mode ==='multiple'">Select the calling AETitle:</p>
                 <md-select class="aes" [(ngModel)]="result.selectedAet">
+                    <md-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</md-option>
+                </md-select>
+            </div>
+            <div class="dicomBlock">
+                <p *ngIf="mode ==='single'">Select the external AETitle (C-MOVE SCP):</p>
+                <p *ngIf="mode ==='multiple'">Select the external AETitle:</p>
+                <md-select class="aes" [(ngModel)]="result.externalAET">
                     <md-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</md-option>
                 </md-select>
             </div>
@@ -59,12 +66,6 @@
                 <input type="checkbox" name="queue" [(ngModel)]="result['queue']"> Queued DICOM export
             </label><br *ngIf="mode ==='single'">
             <ng-container *ngIf="mode === 'multiple'">
-                <div class="dicomBlock">
-                    <p>Select the external AETitle:</p>
-                    <md-select class="aes" [(ngModel)]="result.externalAET">
-                        <md-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</md-option>
-                    </md-select>
-                </div>
                 <div class="dicomBlock">
                     <p>Select the query AETitle:</p>
                     <md-select class="aes" [(ngModel)]="result.queryAET">
