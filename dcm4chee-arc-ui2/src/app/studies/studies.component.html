@@ -281,8 +281,11 @@
                         <md-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</md-option>
                     </md-select>
                 </div>
-                <div class="count_block_total" *ngIf="filterMode != 'diff'" >
-                   <span class="count_text" title="Total count found">Total count: <b>{{count}}</b></span>  <span (click)="getCount()" title="Get total count" class="glyphicon glyphicon-refresh"></span>
+                <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" >
+                   <span class="count_text" title="Total size of filtered studies found">Size: <b>{{size}}</b></span>  <span (click)="getSize()" title="Get total size of filtered studies" class="glyphicon glyphicon-refresh"></span>
+                </div>
+                <div class="count_block_total" *ngIf="filterMode != 'diff'" [ngClass]="{single:externalInternalAetMode === 'external' || filterMode!='study'}">
+                   <span class="count_text" title="Total count of filtered studies found">Total count: <b>{{count}}</b></span>  <span (click)="getCount()" title="Get total count of filtered studies" class="glyphicon glyphicon-refresh"></span>
                 </div>
                 <div class="orderbyblock" [ngClass]="{notrash:trashaktive==false,diff:filterMode==='diff'}">
                     <div class="btn-group" role="group" >

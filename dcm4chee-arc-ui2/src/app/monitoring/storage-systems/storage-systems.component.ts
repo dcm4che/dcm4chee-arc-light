@@ -10,6 +10,7 @@ import {StorageSystemsService} from './storage-systems.service';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {j4care} from "../../helpers/j4care.service";
 
 @Component({
   selector: 'app-storage-systems',
@@ -197,11 +198,7 @@ export class StorageSystemsComponent implements OnInit {
             });
     };
     convertBtoGBorMB(value){
-        if (value > 2000000000){
-            return (Math.round((value / 1000 / 1000 / 1000) * 1000) / 1000 ) + ' GB';
-        }else{
-            return (Math.round((value / 1000 / 1000) * 1000) / 1000 ) + ' MB';
-        }
+        return j4care.convertBtoHumanReadable(value);
     }
     getDifferenceTime(starttime, endtime){
         let start = new Date(starttime).getTime();

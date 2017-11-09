@@ -109,6 +109,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     aet1;
     aet2;
     count;
+    size;
     studyDateChanged(){
         console.log('on studydate changed', this.studyDate);
         if (this.studyDate.from === '' && this.studyDate.to === ''){
@@ -2423,21 +2424,37 @@ export class StudiesComponent implements OnDestroy,OnInit{
     };
     getCount(){
         let mode;
+        let filters;
         if(this.queryMode === "queryStudies"){
             mode = "studies"
+            filters = this.createStudyFilterParams();
         }
         if(this.queryMode === "queryPatients"){
             mode = "patients"
+            filters = this.createPatientFilterParams();
         }
         if(this.queryMode === "queryMWL"){
             mode = "mwlitems"
+            filters = this.createMwlFilterParams();
         }
         this.service.getCount(
             this.rsURL(),
             mode,
-            this.createPatientFilterParams()
+            filters
         ).subscribe((res)=>{
             this.count = res.count;
+        });
+    }
+    getSize(){
+        this.service.getSize(
+            this.rsURL(),
+            this.createStudyFilterParams()
+        ).subscribe((res)=>{
+            try {
+                this.size = j4care.convertBtoHumanReadable(res.size,1);
+            }catch (e){
+                console.log("convert byte error:",e);
+            }
         });
     }
     queryPatients = function(offset){

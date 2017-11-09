@@ -144,11 +144,14 @@ md-grid-list{
   margin-right: 0;
 }
 .count_block_total{
-  margin-top: 48px;
+  margin-top: 5px;
   //padding: 3px 7px;
   text-align: left;
   min-height:28px;
   border: 1px solid #ccc;
+  &.single{
+    margin-top:38px;
+  }
   .count_text{
     display: inline-block;
     margin: 3px 7px;
@@ -181,6 +184,7 @@ md-grid-list{
 .icon-20{
     font-size:20px;
 }
+
 .filter{
   .filter_block{
     float: left;

@@ -138,6 +138,30 @@ export class j4care {
                 });*/
         });
     }
+    static convertBtoHumanReadable(value,mantissa?){
+        let mantissaValue = 1000;
+        if(mantissa == 0){
+            mantissaValue = 1;
+        }
+        if(mantissa == 1){
+            mantissaValue = 10;
+        }
+        if(mantissa == 2){
+            mantissaValue = 100;
+        }
+        if(mantissa == 3){
+            mantissaValue = 1000;
+        }
+        if (value > 2000000000){
+            if(value > 1000000000000){
+                return (Math.round((value / 1000 / 1000 / 1000 / 1000) * mantissaValue) / mantissaValue ) + ' TB';
+            }else{
+                return (Math.round((value / 1000 / 1000 / 1000) * mantissaValue) / mantissaValue ) + ' GB';
+            }
+        }else{
+            return (Math.round((value / 1000 / 1000) * mantissaValue) / mantissaValue ) + ' MB';
+        }
+    }
     static clearEmptyObject(obj){
         _.forEach(obj,(m,i)=>{
             if(!m || m === "" || m === undefined){
