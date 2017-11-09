@@ -3,6 +3,7 @@ import {j4care} from "../../../helpers/j4care.service";
 import {AppService} from "../../../app.service";
 import {MdDialogRef} from "@angular/material";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 
 @Component({
   selector: 'app-viewer',
@@ -22,7 +23,8 @@ export class ViewerComponent implements OnInit {
         public dialogRef: MdDialogRef<ViewerComponent>,
         private j4care:j4care,
         private mainservice:AppService,
-        private $http:J4careHttpService
+        private $http:J4careHttpService,
+        public httpErrorHandler:HttpErrorHandler
     ) { }
 
     ngOnInit() {
@@ -68,7 +70,9 @@ export class ViewerComponent implements OnInit {
                         $this.renderedUrl = `data:${$this.contentType};base64,` + encode64($this.xhr.responseText);
                         $this.showLoader = false;
                     }else{
-                        console.error("Something misconfiguration : ",$this.xhr);
+                        $this.httpErrorHandler.handleError($this.xhr);
+                        $this.showLoader = false;
+                        $this.dialogRef.close(null);
                     }
                 }
             };
