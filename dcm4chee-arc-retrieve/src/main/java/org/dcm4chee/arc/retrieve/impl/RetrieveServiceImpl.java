@@ -136,6 +136,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             QStudy.study.modifiedTime,
             QStudy.study.expirationDate,
             QStudy.study.accessControlID,
+            QStudy.study.size,
             QSeries.series.seriesInstanceUID,
             QSeries.series.failedRetrieves,
             QSeries.series.completeness,
@@ -573,7 +574,8 @@ public class RetrieveServiceImpl implements RetrieveService {
                 tuple.get(QStudy.study.completeness),
                 tuple.get(QStudy.study.modifiedTime),
                 tuple.get(QStudy.study.expirationDate),
-                tuple.get(QStudy.study.accessControlID));
+                tuple.get(QStudy.study.accessControlID),
+                tuple.get(QStudy.study.size));
         SeriesInfo seriesInfo = new SeriesInfoImpl(
                 studyInfo.getStudyInstanceUID(),
                 tuple.get(QSeries.series.seriesInstanceUID),

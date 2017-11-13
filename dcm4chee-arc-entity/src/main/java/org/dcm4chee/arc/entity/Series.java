@@ -138,8 +138,11 @@ import java.util.Date;
                 "where se.study.studyInstanceUID = ?1"),
 @NamedQuery(
         name = Series.SCHEDULED_METADATA_UPDATE,
-        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
+        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(" +
+                "study.pk, study.size, se.pk, se.instancePurgeState, metadata.storageID, metadata.storagePath) " +
+                "from Series se " +
                 "left join se.metadata metadata " +
+                "left join se.study study " +
                 "where se.metadataScheduledUpdateTime < current_timestamp " +
                 "order by se.metadataScheduledUpdateTime"),
 @NamedQuery(
@@ -210,12 +213,17 @@ public class Series {
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
     public static class MetadataUpdate {
+        public final Long studyPk;
+        public final long studySize;
         public final Long seriesPk;
         public final InstancePurgeState instancePurgeState;
         public final String storageID;
         public final String storagePath;
 
-        public MetadataUpdate(Long seriesPk, InstancePurgeState instancePurgeState, String storageID, String storagePath) {
+        public MetadataUpdate(Long studyPk, long studySize, Long seriesPk, InstancePurgeState instancePurgeState,
+                              String storageID, String storagePath) {
+            this.studyPk = studyPk;
+            this.studySize = studySize;
             this.seriesPk = seriesPk;
             this.instancePurgeState = instancePurgeState;
             this.storageID = storageID;

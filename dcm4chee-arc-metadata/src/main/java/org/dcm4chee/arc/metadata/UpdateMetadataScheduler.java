@@ -51,6 +51,7 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Metadata;
 import org.dcm4chee.arc.entity.Series;
+import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -66,6 +67,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -87,6 +89,9 @@ public class UpdateMetadataScheduler extends Scheduler {
 
     @Inject
     private UpdateMetadataEJB ejb;
+
+    @Inject
+    private QueryService queryService;
 
     @Inject
     private RetrieveService retrieveService;
@@ -130,6 +135,7 @@ public class UpdateMetadataScheduler extends Scheduler {
         do {
             metadataUpdates = ejb.findSeriesForScheduledMetadataUpdate(fetchSize);
             if (!metadataUpdates.isEmpty())
+                calculateMissingStudySize(metadataUpdates);
                 try (Storage storage = storageFactory.getUsableStorage(descriptors)) {
                     for (Series.MetadataUpdate metadataUpdate : metadataUpdates) {
                         try (RetrieveContext ctx = retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate)) {
@@ -147,6 +153,13 @@ public class UpdateMetadataScheduler extends Scheduler {
             arcDev.setSeriesMetadataStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
             updateDeviceConfiguration();
         }
+    }
+
+    private void calculateMissingStudySize(List<Series.MetadataUpdate> metadataUpdates) {
+        HashSet<Long> studyPks = new HashSet<>();
+        for (Series.MetadataUpdate metadataUpdate : metadataUpdates)
+            if (metadataUpdate.studySize < 0 && studyPks.add(metadataUpdate.studyPk))
+                queryService.calculateStudySize(metadataUpdate.studyPk);
     }
 
     private void updateDeviceConfiguration() {
