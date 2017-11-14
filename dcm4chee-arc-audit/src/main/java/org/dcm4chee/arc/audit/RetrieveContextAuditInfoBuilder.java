@@ -43,9 +43,12 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -58,6 +61,7 @@ class RetrieveContextAuditInfoBuilder {
     private final RetrieveContext ctx;
     private final ArchiveDeviceExtension arcDev;
     private final HttpServletRequestInfo httpServletRequestInfo;
+    private HttpServletRequest httpServletRequest;
     private AuditInfoBuilder[][] auditInfoBuilder;
     private AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.RTRV___TRF;
 
@@ -65,6 +69,7 @@ class RetrieveContextAuditInfoBuilder {
         this.ctx = ctx;
         this.arcDev = arcDev;
         httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        httpServletRequest = ctx.getHttpRequest();
         eventType = et;
         processRetrieve();
     }
@@ -126,9 +131,11 @@ class RetrieveContextAuditInfoBuilder {
                 ? httpServletRequestInfo != null
                     ? restfulTriggeredExport(failedIUIDShow, outcome)
                     : schedulerTriggeredExport(failedIUIDShow, outcome)
-                : httpServletRequestInfo != null
-                    ? wadoRS(failedIUIDShow, outcome)
-                    : cMoveCGet(failedIUIDShow, outcome);
+                : httpServletRequest != null
+                    ? rad69(failedIUIDShow, outcome)
+                    : httpServletRequestInfo != null
+                        ? wadoRS(failedIUIDShow, outcome)
+                        : cMoveCGet(failedIUIDShow, outcome);
     }
 
     private AuditInfoBuilder cMoveCGet(boolean failedIUIDShow, String outcome) {
@@ -142,6 +149,18 @@ class RetrieveContextAuditInfoBuilder {
             .outcome(outcome)
             .failedIUIDShow(failedIUIDShow)
             .build();
+    }
+
+    private AuditInfoBuilder rad69(boolean failedIUIDShow, String outcome) {
+        return new AuditInfoBuilder.Builder()
+                .calledUserID(httpServletRequest.getRequestURI())
+                .destAET(KeycloakContext.valueOf(httpServletRequest).getUserName())
+                .destNapID(httpServletRequest.getRemoteAddr())
+                .warning(buildWarning())
+                .callingHost(ctx.getRequestorHostName())
+                .outcome(outcome)
+                .failedIUIDShow(failedIUIDShow)
+                .build();
     }
 
     private AuditInfoBuilder wadoRS(boolean failedIUIDShow, String outcome) {

@@ -105,8 +105,10 @@ public class AuditService {
 
     private void aggregateAuditMessage(AuditLogger auditLogger, Path path) throws Exception {
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.fromFile(path);
-        if (path.toFile().length() == 0)
-            throw new IOException("Attempt to read from an empty file. ");
+        if (path.toFile().length() == 0) {
+            LOG.warn("Attempt to read from an empty file.", eventType, path);
+            return;
+        }
         switch (eventType.eventClass) {
             case APPLN_ACTIVITY:
                 auditApplicationActivity(auditLogger, path, eventType);
@@ -1551,6 +1553,10 @@ public class AuditService {
     }
 
     private void writeSpoolFile(AuditServiceUtils.EventType eventType, AuditInfoBuilder auditInfoBuilder, String data) {
+        if (auditInfoBuilder == null) {
+            LOG.warn("Attempt to write empty file : ", eventType);
+            return;
+        }
         boolean auditAggregate = getArchiveDevice().isAuditAggregate();
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
@@ -1573,6 +1579,10 @@ public class AuditService {
     }
 
     private void writeSpoolFile(AuditServiceUtils.EventType eventType, AuditInfoBuilder auditInfoBuilder, byte[] data) {
+        if (auditInfoBuilder == null) {
+            LOG.warn("Attempt to write empty file : ", eventType);
+            return;
+        }
         boolean auditAggregate = getArchiveDevice().isAuditAggregate();
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
