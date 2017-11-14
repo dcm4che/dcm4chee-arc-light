@@ -381,8 +381,8 @@ public class IocmRS {
     }
 
     private void setPIDQualifier(Attributes attrs, Issuer pidIssuer) {
+        Sequence pidQualifiers = attrs.getSequence(Tag.IssuerOfPatientIDQualifiersSequence);
         if (hasUniversalEntityIDAndType(pidIssuer)) {
-            Sequence pidQualifiers = attrs.getSequence(Tag.IssuerOfPatientIDQualifiersSequence);
             if (pidQualifiers != null)
                 for (Attributes item : pidQualifiers)
                     setUniversalEntityIDAndType(pidIssuer, item);
@@ -394,6 +394,8 @@ public class IocmRS {
                 pidQualifiers.add(item);
             }
         }
+        if (pidQualifiers != null)
+            attrs.remove(Tag.IssuerOfPatientIDQualifiersSequence);
     }
 
     private boolean hasUniversalEntityIDAndType(Issuer pidIssuer) {
