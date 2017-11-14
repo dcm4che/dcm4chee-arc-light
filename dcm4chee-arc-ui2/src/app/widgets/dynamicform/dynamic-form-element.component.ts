@@ -62,7 +62,10 @@ export class DynamicFormElementComponent{
     }
     confirm(confirmparameters){
         this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(ConfirmComponent, this.config);
+        this.dialogRef = this.dialog.open(ConfirmComponent, {
+            height: 'auto',
+            width: '500px'
+        });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         /*        this.dialogRef.afterClosed().subscribe(result => {
          if(result){

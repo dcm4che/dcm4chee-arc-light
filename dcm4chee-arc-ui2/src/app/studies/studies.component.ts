@@ -502,7 +502,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
     confirm(confirmparameters){
         this.scrollToDialog();
         this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(ConfirmComponent, this.config);
+        this.dialogRef = this.dialog.open(ConfirmComponent, {
+            height: 'auto',
+            width: '500px'
+        });
         this.dialogRef.componentInstance.parameters = confirmparameters;
 /*        this.dialogRef.afterClosed().subscribe(result => {
             if(result){
@@ -1111,7 +1114,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let $this = this;
         this.scrollToDialog();
         this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(DeleteRejectedInstancesComponent, this.config);
+        this.dialogRef = this.dialog.open(DeleteRejectedInstancesComponent, {
+            height: 'auto',
+            width: '500px'
+        });
         this.dialogRef.componentInstance.rjnotes = this.rjnotes;
         this.dialogRef.componentInstance.results = result;
         this.dialogRef.afterClosed().subscribe(re => {
