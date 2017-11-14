@@ -150,8 +150,10 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     public String getRemoteHostName() {
         return httpRequest != null
                 ? httpRequest.getRemoteHost()
-                : socket != null
-                    ? socket.getInetAddress().getHostName() : null;
+                : httpServletRequestInfo != null
+                    ? httpServletRequestInfo.requesterHost
+                    : socket != null
+                        ? socket.getInetAddress().getHostName() : null;
     }
 
     @Override

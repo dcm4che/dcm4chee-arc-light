@@ -50,8 +50,10 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.hl7.HL7Sender;
+import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.util.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,8 +128,34 @@ public class HL7SenderImpl implements HL7Sender {
             msg.setStringProperty("ReceivingFacility", receivingFacility);
             msg.setStringProperty("MessageType", messageType);
             msg.setStringProperty("MessageControlID", messageControlID);
-//            if (httpServletRequestInfo != null)
-//                httpServletRequestInfo.copyTo(msg);
+            queueManager.scheduleMessage(QUEUE_NAME, msg);
+        } catch (JMSException e) {
+            throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
+        }
+    }
+
+    @Override
+    public void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
+                                String receivingFacility, String messageType, String messageControlID, byte[] hl7msg,
+                                PatientMgtContext ctx)
+            throws ConfigurationException, QueueSizeLimitExceededException {
+        getSendingHl7Application(sendingApplication, sendingFacility);
+        hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
+        try {
+            ObjectMessage msg = queueManager.createObjectMessage(hl7msg);
+            msg.setStringProperty("SendingApplication", sendingApplication);
+            msg.setStringProperty("SendingFacility", sendingFacility);
+            msg.setStringProperty("ReceivingApplication", receivingApplication);
+            msg.setStringProperty("ReceivingFacility", receivingFacility);
+            msg.setStringProperty("MessageType", messageType);
+            msg.setStringProperty("MessageControlID", messageControlID);
+            if (ctx.getHttpServletRequestInfo() != null) {
+                msg.setStringProperty("PatientID", ctx.getPatientID().toString());
+                msg.setStringProperty("PatientName", ctx.getPatientName());
+                if (ctx.getPreviousPatientID() != null)
+                    msg.setStringProperty("PreviousPatientID", ctx.getPreviousPatientID().toString());
+                ctx.getHttpServletRequestInfo().copyTo(msg);
+            }
             queueManager.scheduleMessage(QUEUE_NAME, msg);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());

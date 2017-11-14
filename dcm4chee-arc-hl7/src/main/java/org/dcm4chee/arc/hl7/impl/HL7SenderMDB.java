@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,10 +41,7 @@
 package org.dcm4chee.arc.hl7.impl;
 
 import org.dcm4che3.audit.AuditMessages;
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
@@ -116,20 +113,30 @@ public class HL7SenderMDB implements MessageListener {
                     msg.getStringProperty("MessageType"),
                     msg.getStringProperty("MessageControlID"),
                     hl7msg);
-            PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
-            UnparsedHL7Message unparsedHL7Message = new UnparsedHL7Message(hl7msg);
-            ctx.setUnparsedHL7Message(unparsedHL7Message);
-            ctx.setPatientID(new IDWithIssuer(msg.getStringProperty("PatientID")));
-            ctx.setPatientName(msg.getStringProperty("PatientName"));
-            ctx.setPreviousPatientID(new IDWithIssuer(msg.getStringProperty("PreviousPatientID")));
-            ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
-            ctx.setEventActionCode(eventActionCode(unparsedHL7Message.msh()));
-            patientEvent.fire(ctx);
+            externalHL7Audit(msg, hl7msg);
             queueManager.onProcessingSuccessful(msgID, toOutcome(ack));
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);
         }
+    }
+
+    private void externalHL7Audit(Message msg, byte[] hl7msg) throws JMSException {
+        HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(msg);
+        if (httpServletRequestInfo == null)
+            return;
+
+        PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
+        UnparsedHL7Message unparsedHL7Message = new UnparsedHL7Message(hl7msg);
+        ctx.setUnparsedHL7Message(unparsedHL7Message);
+        ctx.setPatientID(new IDWithIssuer(msg.getStringProperty("PatientID")));
+        ctx.setPatientName(msg.getStringProperty("PatientName"));
+        String previousPatientID = msg.getStringProperty("PreviousPatientID");
+        if (previousPatientID != null)
+            ctx.setPreviousPatientID(new IDWithIssuer(previousPatientID));
+        ctx.setHttpServletRequestInfo(httpServletRequestInfo);
+        ctx.setEventActionCode(eventActionCode(unparsedHL7Message.msh()));
+        patientEvent.fire(ctx);
     }
 
     private Outcome toOutcome(HL7Message ack) {
