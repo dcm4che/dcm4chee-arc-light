@@ -1727,10 +1727,14 @@ public class AuditService {
     }
 
     private AuditMessages.UserIDTypeCode callingUserIDTypeCode(AuditMessages.UserIDTypeCode archiveUserIDTypeCode, String callingUserID) {
-        return callingUserID.indexOf('|') != -1
+        if (callingUserID != null)
+            return callingUserID.indexOf('|') != -1
                 ? AuditMessages.UserIDTypeCode.ApplicationFacility
                 : archiveUserIDTypeCode == AuditMessages.UserIDTypeCode.URI
                     ? AuditMessages.userIDTypeCode(callingUserID)
                     : AuditMessages.UserIDTypeCode.StationAETitle;
+
+        LOG.warn("Calling user ID was not set during spooling.");
+        return null;
     }
 }
