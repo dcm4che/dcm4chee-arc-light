@@ -113,6 +113,16 @@ export class UploadFilesComponent implements OnInit {
                             console.log("i", i);
                             return (i.toString().indexOf("777") === -1);
                         })
+                        if (!$this.description || $this.description === "") {
+                            $this.description = "Imported " + descriptionPart;
+                        }
+                        studyObject["0008103E"] = {
+                            "vr": "LO",
+                            "Value": [
+                                $this.description
+                            ]
+                        };
+
                         if (file.type === "application/pdf") {
                             studyObject["00420011"] = {
                                 "vr": "OB",
@@ -136,7 +146,12 @@ export class UploadFilesComponent implements OnInit {
                                     "application/pdf"
                                 ]
                             };
-
+                            studyObject["00420010"] = {
+                                "vr": "ST",
+                                "Value": [
+                                    $this.description
+                                ]
+                            };
                         } else {
                             if (file.type === "video/mpeg") {
                                 studyObject["00080016"] = {
@@ -165,15 +180,7 @@ export class UploadFilesComponent implements OnInit {
                                 $this.modality
                             ]
                         };
-                        if (!$this.description || $this.description === "") {
-                            $this.description = "Imported " + descriptionPart;
-                        }
-                        studyObject["0008103E"] = {
-                            "vr": "LO",
-                            "Value": [
-                                $this.description
-                            ]
-                        }
+
                         // const dataView = new DataView(e.target['result']);
                         const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(studyObject) + crlf;
                         const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + transfareSyntax + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
