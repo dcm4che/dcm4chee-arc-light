@@ -42,6 +42,7 @@ package org.dcm4chee.arc.patient.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -53,6 +54,7 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.util.HttpServletRequestInfo;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
@@ -79,6 +81,9 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private String eventActionCode;
     private Exception exception;
     private Patient patient;
+    private String patientName;
+    private String previousPatientName;
+    private HttpServletRequestInfo httpServletRequestInfo;
 
     PatientMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -173,11 +178,17 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     public void setAttributes(Attributes attrs) {
         this.attributes = attrs;
         this.patientID = IDWithIssuer.pidOf(attrs);
+        this.patientName = attrs.getString(Tag.PatientName);
     }
 
     @Override
     public IDWithIssuer getPreviousPatientID() {
         return previousPatientID;
+    }
+
+    @Override
+    public void setPreviousPatientID(IDWithIssuer prevPatientID) {
+        this.previousPatientID = prevPatientID;
     }
 
     @Override
@@ -189,6 +200,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     public void setPreviousAttributes(Attributes attrs) {
         this.previousAttributes = attrs;
         this.previousPatientID = attrs != null ? IDWithIssuer.pidOf(attrs) : null;
+        this.previousPatientName = attrs != null ? attrs.getString(Tag.PatientName) : null;
     }
 
     @Override
@@ -234,5 +246,35 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setPatient(Patient patient) {
         this.patient = patient;
+    }
+
+    @Override
+    public String getPatientName() {
+        return patientName;
+    }
+
+    @Override
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
+    @Override
+    public String getPreviousPatientName() {
+        return previousPatientName;
+    }
+
+    @Override
+    public void setPreviousPatientName(String previousPatientName) {
+        this.previousPatientName = previousPatientName;
+    }
+
+    @Override
+    public HttpServletRequestInfo getHttpServletRequestInfo() {
+        return httpServletRequestInfo;
+    }
+
+    @Override
+    public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
+        this.httpServletRequestInfo = httpServletRequestInfo;
     }
 }

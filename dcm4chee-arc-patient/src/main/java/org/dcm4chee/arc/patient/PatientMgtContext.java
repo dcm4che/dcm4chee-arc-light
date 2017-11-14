@@ -47,6 +47,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.util.HttpServletRequestInfo;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -80,6 +81,8 @@ public interface PatientMgtContext {
 
     IDWithIssuer getPreviousPatientID();
 
+    void setPreviousPatientID(IDWithIssuer prevPatientID);
+
     Attributes getPreviousAttributes();
 
     void setPreviousAttributes(Attributes attrs);
@@ -101,4 +104,16 @@ public interface PatientMgtContext {
     Patient getPatient();
 
     void setPatient(Patient patient);
+
+    String getPatientName();
+
+    void setPatientName(String patientName);
+
+    String getPreviousPatientName();
+
+    void setPreviousPatientName(String previousPatientName);
+
+    HttpServletRequestInfo getHttpServletRequestInfo();
+
+    void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo);
 }
