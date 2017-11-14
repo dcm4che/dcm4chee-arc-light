@@ -13,7 +13,7 @@ export class IodFormGeneratorComponent implements OnInit {
     @Input() prefix;
     @Input() mode;
     @Input() iod;
-
+    @Input() externalInternalAetMode;
     objectIsArray;
     hasValue;
 

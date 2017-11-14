@@ -13,22 +13,23 @@ export class PlaceholderchangerDirective implements OnInit{
     constructor(private el: ElementRef, private renderer: Renderer) {}
 
     ngOnInit() {
-        console.log('start', this.inputAttribut);
-        console.log('mode', this.inputAttribut.mode);
-        console.log('iod', this.inputAttribut.iod);
-        if ((this.inputAttribut.code in Globalvar.IODPLACEHOLDERS) && _.hasIn(Globalvar.IODPLACEHOLDERS[this.inputAttribut.code], this.inputAttribut.mode)){
-            if (Globalvar.IODPLACEHOLDERS[this.inputAttribut.code][this.inputAttribut.mode].action === 'replace' && this.el.nativeElement.tagName === 'INPUT'){
-                this.renderer.setElementAttribute(this.el.nativeElement, 'placeholder', Globalvar.IODPLACEHOLDERS[this.inputAttribut.code][this.inputAttribut.mode].placeholder);
-                this.renderer.setElementAttribute(this.el.nativeElement, 'title', Globalvar.IODPLACEHOLDERS[this.inputAttribut.code][this.inputAttribut.mode].placeholder);
-            }
-            if (Globalvar.IODPLACEHOLDERS[this.inputAttribut.code][this.inputAttribut.mode].action === 'disable'){
-                this.disableElement();
-            }
-        }else{
-            if (this.inputAttribut.iod && !_.hasIn(this.inputAttribut.iod, this.inputAttribut.code)){
-                this.disableElement();
-            }
+        if(this.inputAttribut.code == '00100020' && this.inputAttribut.externalInternalAetMode == "external"){
             this.renderer.setElementAttribute(this.el.nativeElement, 'placeholder', this.inputAttribut.name);
+        }else{
+            if ((this.inputAttribut.code in Globalvar.IODPLACEHOLDERS) && _.hasIn(Globalvar.IODPLACEHOLDERS[this.inputAttribut.code], this.inputAttribut.mode)){
+                if (Globalvar.IODPLACEHOLDERS[this.inputAttribut.code][this.inputAttribut.mode].action === 'replace' && this.el.nativeElement.tagName === 'INPUT'){
+                    this.renderer.setElementAttribute(this.el.nativeElement, 'placeholder', Globalvar.IODPLACEHOLDERS[this.inputAttribut.code][this.inputAttribut.mode].placeholder);
+                    this.renderer.setElementAttribute(this.el.nativeElement, 'title', Globalvar.IODPLACEHOLDERS[this.inputAttribut.code][this.inputAttribut.mode].placeholder);
+                }
+                if (Globalvar.IODPLACEHOLDERS[this.inputAttribut.code][this.inputAttribut.mode].action === 'disable'){
+                    this.disableElement();
+                }
+            }else{
+                if (this.inputAttribut.iod && !_.hasIn(this.inputAttribut.iod, this.inputAttribut.code)){
+                    this.disableElement();
+                }
+                this.renderer.setElementAttribute(this.el.nativeElement, 'placeholder', this.inputAttribut.name);
+            }
         }
 
     }

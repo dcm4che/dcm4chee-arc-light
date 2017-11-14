@@ -1585,6 +1585,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             $this.dialogRef.componentInstance.iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
             $this.dialogRef.componentInstance.saveLabel = $this.saveLabel;
             $this.dialogRef.componentInstance.titleLabel = $this.titleLabel;
+            $this.dialogRef.componentInstance.externalInternalAetMode = $this.externalInternalAetMode;
             $this.dialogRef.afterClosed().subscribe(result => {
                 //If user clicked save
                 if (result){

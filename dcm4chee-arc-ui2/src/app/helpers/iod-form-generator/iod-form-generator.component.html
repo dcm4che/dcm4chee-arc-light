@@ -5,7 +5,7 @@
     <div class="form_input" *ngIf="object[o].vr != 'SQ'">
         <div  *ngFor="let v of object[o].Value; let i = index;trackBy:trackByFn">
             <div *ngIf="object[o].vr != 'PN'" class="ariod">
-                <input class="{{o}}" [placeholderchanger]="{code:o,name:DCM4CHE.elementName.forTag(o,privateCreator(o)),mode:mode,delete:false,iod:iod}" *ngIf="object[o].vr != 'DA' && o != '00100040' && o != '00080005' && o != '00102203'"  [(ngModel)]="object[o].Value[i]">
+                <input class="{{o}}" [placeholderchanger]="{code:o,name:DCM4CHE.elementName.forTag(o,privateCreator(o)),mode:mode,delete:false,iod:iod,externalInternalAetMode:externalInternalAetMode}" *ngIf="object[o].vr != 'DA' && o != '00100040' && o != '00080005' && o != '00102203'"  [(ngModel)]="object[o].Value[i]">
                 <p-calendar class="{{o}}" *ngIf="object[o].vr === 'DA' && o != '00100040' && o != '00080005' && o != '00102203'" dataType="string" [(ngModel)]="object[o].Value[i]" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100"></p-calendar>
                 <select class="selectelement {{o}}" *ngIf="o === '00100040' && o != '00102203'"
                         [ngModel]="object[o].Value[0]"
