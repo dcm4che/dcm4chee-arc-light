@@ -3804,7 +3804,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/patients/{patientID}/merge/{priorPatientID}": {
+    "/aets/{aet}/rs/patients/{priorPatientID}/merge/{patientID}": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -3820,16 +3820,16 @@
             "type": "string"
           },
           {
-            "name": "patientID",
+            "name": "priorPatientID",
             "in": "path",
-            "description": "Patient ID and Issuer of the dominant Patient encoded as HL7 CX",
+            "description": "Patient ID and Issuer of the merged Patient encoded as HL7 CX",
             "required": true,
             "type": "string"
           },
           {
-            "name": "priorPatientID",
+            "name": "patientID",
             "in": "path",
-            "description": "Patient ID and Issuer of the merged Patient encoded as HL7 CX",
+            "description": "Patient ID and Issuer of the dominant Patient encoded as HL7 CX",
             "required": true,
             "type": "string"
           }
@@ -3844,7 +3844,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/patients/{patientID}/changeid/{priorPatientID}": {
+    "/aets/{aet}/rs/patients/{priorPatientID}/changeid/{patientID}": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -3860,16 +3860,16 @@
             "type": "string"
           },
           {
-            "name": "patientID",
+            "name": "priorPatientID",
             "in": "path",
-            "description": "New Patient ID and Issuer encoded as HL7 CX",
+            "description": "Prior Patient ID and Issuer encoded as HL7 CX",
             "required": true,
             "type": "string"
           },
           {
-            "name": "priorPatientID",
+            "name": "patientID",
             "in": "path",
-            "description": "Prior Patient ID and Issuer encoded as HL7 CX",
+            "description": "New Patient ID and Issuer encoded as HL7 CX",
             "required": true,
             "type": "string"
           }
