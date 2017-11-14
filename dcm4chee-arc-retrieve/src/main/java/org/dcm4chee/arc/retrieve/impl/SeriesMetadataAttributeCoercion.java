@@ -77,12 +77,6 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
         if (!studyInfo.getAccessControlID().equals("*"))
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyAccessControlID, VR.LO,
                     studyInfo.getAccessControlID());
-        if (studyInfo.getStudySize() >= 0) {
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeInKB, VR.UL,
-                    (int) (studyInfo.getStudySize() / 1000));
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeBytes, VR.US,
-                    (int) (studyInfo.getStudySize() % 1000));
-        }
 
         SeriesInfo seriesInfo = ctx.getSeriesInfos().get(0);
         if (seriesInfo.getExpirationDate() != null)

@@ -44,6 +44,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.entity.Series;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,13 +86,13 @@ public class PurgeInstanceRecordsScheduler extends Scheduler {
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int fetchSize = arcDev.getPurgeInstanceRecordsFetchSize();
-        List<Long> seriesPks;
+        List<Series.PkAndSize> series;
         do {
-            seriesPks = ejb.findSeriesToPurgeInstances(fetchSize);
-            for (Long seriesPk : seriesPks) {
-                ejb.purgeInstanceRecordsOfSeries(seriesPk);
+            series = ejb.findSeriesToPurgeInstances(fetchSize);
+            for (Series.PkAndSize pkAndSize : series) {
+                ejb.purgeInstanceRecordsOfSeries(pkAndSize);
             }
         }
-        while (seriesPks.size() == fetchSize);
+        while (series.size() == fetchSize);
     }
 }

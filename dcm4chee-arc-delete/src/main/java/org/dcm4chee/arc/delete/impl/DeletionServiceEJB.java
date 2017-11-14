@@ -313,21 +313,23 @@ public class DeletionServiceEJB {
         return em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
     }
 
-    public List<Long> findSeriesToPurgeInstances(int fetchSize) {
-        return em.createNamedQuery(Series.SCHEDULED_PURGE_INSTANCES, Long.class)
+    public List<Series.PkAndSize> findSeriesToPurgeInstances(int fetchSize) {
+        return em.createNamedQuery(Series.SCHEDULED_PURGE_INSTANCES, Series.PkAndSize.class)
                 .setMaxResults(fetchSize)
                 .getResultList();
     }
 
-    public void purgeInstanceRecordsOfSeries(Long seriesPk) {
+    public void purgeInstanceRecordsOfSeries(Series.PkAndSize pkAndSize) {
         HashMap<Long, UIDMap> uidMaps = new HashMap<>();
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_SERIES_PK, Location.class)
-                .setParameter(1, seriesPk)
+                .setParameter(1, pkAndSize.pk)
                 .getResultList();
         if (locations.isEmpty())
             return;
 
-        calculateMissingSeriesQueryAttributes(seriesPk);
+        if (pkAndSize.size < 0)
+            queryService.calculateSeriesSize(pkAndSize.pk);
+        calculateMissingSeriesQueryAttributes(pkAndSize.pk);
         Series series = locations.get(0).getInstance().getSeries();
         for (Location location : locations) {
             switch (location.getObjectType()) {

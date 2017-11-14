@@ -63,14 +63,32 @@ public class QuerySizeEJB {
     EntityManager em;
 
     public long calculateStudySize(Long studyPk) {
+        for (Long seriesPk : em.createNamedQuery(Series.SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE, Long.class)
+                .setParameter(1, studyPk)
+                .getResultList()) {
+            calculateSeriesSize(seriesPk);
+        }
         Long size = StringUtils.maskNull(
-                em.createNamedQuery(Location.SIZE_OF_STUDY, Long.class)
+                em.createNamedQuery(Series.SIZE_OF_STUDY, Long.class)
                     .setParameter(1, studyPk)
-                    .setParameter(2, Location.ObjectType.DICOM_FILE)
                     .getSingleResult(),
                 ZERO);
         em.createNamedQuery(Study.SET_STUDY_SIZE)
                 .setParameter(1, studyPk)
+                .setParameter(2, size)
+                .executeUpdate();
+        return size;
+    }
+
+    public long calculateSeriesSize(Long seriesPk) {
+        Long size = StringUtils.maskNull(
+                em.createNamedQuery(Location.SIZE_OF_SERIES, Long.class)
+                    .setParameter(1, seriesPk)
+                    .setParameter(2, Location.ObjectType.DICOM_FILE)
+                    .getSingleResult(),
+                ZERO);
+        em.createNamedQuery(Series.SET_SERIES_SIZE)
+                .setParameter(1, seriesPk)
                 .setParameter(2, size)
                 .executeUpdate();
         return size;

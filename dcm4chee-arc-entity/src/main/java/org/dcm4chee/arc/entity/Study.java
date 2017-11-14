@@ -255,7 +255,7 @@ public class Study {
 
     @Basic(optional = false)
     @Column(name = "study_size")
-    private long size;
+    private long size = -1L;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")

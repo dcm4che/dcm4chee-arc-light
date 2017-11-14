@@ -89,6 +89,16 @@ import java.util.Date;
             "where st.studyInstanceUID = ?1 " +
             "and se.seriesInstanceUID = ?2"),
 @NamedQuery(
+    name = Series.SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE,
+    query = "select se.pk from Series se " +
+            "where se.study.pk = ?1 and se.size = -1"),
+@NamedQuery(name = Series.SIZE_OF_STUDY,
+    query = "select sum(se.size) from Series se " +
+            "where se.study.pk = ?1"),
+@NamedQuery(
+    name=Series.SET_SERIES_SIZE,
+    query="update Series se set se.size = ?2 where se.pk = ?1"),
+@NamedQuery(
     name=Series.SET_COMPLETENESS,
     query="update Series ser set ser.completeness = ?3 " +
             "where ser.pk in (" +
@@ -138,16 +148,13 @@ import java.util.Date;
                 "where se.study.studyInstanceUID = ?1"),
 @NamedQuery(
         name = Series.SCHEDULED_METADATA_UPDATE,
-        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(" +
-                "study.pk, study.size, se.pk, se.instancePurgeState, metadata.storageID, metadata.storagePath) " +
-                "from Series se " +
+        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
                 "left join se.metadata metadata " +
-                "left join se.study study " +
                 "where se.metadataScheduledUpdateTime < current_timestamp " +
                 "order by se.metadataScheduledUpdateTime"),
 @NamedQuery(
         name = Series.SCHEDULED_PURGE_INSTANCES,
-        query = "select se.pk from Series se " +
+        query = "select new org.dcm4chee.arc.entity.Series$PkAndSize(se.pk, se.size) from Series se " +
                 "where se.instancePurgeTime < current_timestamp " +
                 "and se.metadata is not null " +
                 "and se.metadataScheduledUpdateTime is null " +
@@ -196,6 +203,9 @@ public class Series {
     public static final String FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER = "Series.findSeriesOfStudyByStudyIUIDEager";
     public static final String FIND_BY_SERIES_IUID_EAGER = "Series.findBySeriesIUIDEager";
     public static final String COUNT_SERIES_OF_STUDY = "Series.countSeriesOfStudy";
+    public static final String SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE = "Series.seriesPKsOfStudyWithUnknownSize";
+    public static final String SIZE_OF_STUDY="Series.sizeOfStudy";
+    public static final String SET_SERIES_SIZE = "Series.UpdateStudySize";
     public static final String SET_COMPLETENESS = "Series.SetCompleteness";
     public static final String SET_COMPLETENESS_OF_STUDY = "Series.SetCompletenessOfStudy";
     public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";
@@ -213,17 +223,12 @@ public class Series {
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
     public static class MetadataUpdate {
-        public final Long studyPk;
-        public final long studySize;
         public final Long seriesPk;
         public final InstancePurgeState instancePurgeState;
         public final String storageID;
         public final String storagePath;
 
-        public MetadataUpdate(Long studyPk, long studySize, Long seriesPk, InstancePurgeState instancePurgeState,
-                              String storageID, String storagePath) {
-            this.studyPk = studyPk;
-            this.studySize = studySize;
+        public MetadataUpdate(Long seriesPk, InstancePurgeState instancePurgeState, String storageID, String storagePath) {
             this.seriesPk = seriesPk;
             this.instancePurgeState = instancePurgeState;
             this.storageID = storageID;
@@ -234,6 +239,22 @@ public class Series {
             return "MetadataUpdate[seriesPk=" + seriesPk +
                     ", storageID=" + storageID +
                     ", storagePath=" + storagePath +
+                    "]";
+        }
+    }
+
+    public static class PkAndSize {
+        public final Long pk;
+        public final long size;
+
+        public PkAndSize(Long pk, long size) {
+            this.pk = pk;
+            this.size = size;
+        }
+
+        public String toString() {
+            return "PurgeInstances[pk=" + pk +
+                    ", size=" + size +
                     "]";
         }
     }
@@ -333,6 +354,10 @@ public class Series {
 
     @Column(name = "ext_retrieve_aet")
     private String externalRetrieveAET;
+
+    @Basic(optional = false)
+    @Column(name = "series_size")
+    private long size = -1L;
 
     @Basic(optional = false)
     @Column(name = "rejection_state")
@@ -497,6 +522,10 @@ public class Series {
 
     public void setExternalRetrieveAET(String externalRetrieveAET) {
         this.externalRetrieveAET = externalRetrieveAET;
+    }
+
+    public void resetSize() {
+        this.size = -1L;
     }
 
     public RejectionState getRejectionState() {
