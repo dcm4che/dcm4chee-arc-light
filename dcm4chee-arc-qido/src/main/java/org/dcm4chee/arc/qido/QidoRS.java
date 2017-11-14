@@ -118,10 +118,6 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String fuzzymatching;
 
-    @QueryParam("count")
-    @Pattern(regexp = "true|false")
-    private String count;
-
     @QueryParam("offset")
     @Pattern(regexp = "0|([1-9]\\d{0,4})")
     private String offset;
@@ -299,18 +295,127 @@ public class QidoRS {
         return search("SearchForSPS", Model.MWL, null, null, QIDO.MWL, Output.JSON);
     }
 
+    @GET
+    @NoCache
+    @Path("/patients/count")
+    @Produces("application/json")
+    public Response countPatients() throws Exception {
+        return count("CountPatients", Model.PATIENT, null, null);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/count")
+    @Produces("application/json")
+    public Response countStudies() throws Exception {
+        return count("CountStudies", Model.STUDY, null, null);
+    }
+
+    @GET
+    @NoCache
+    @Path("/series/count")
+    @Produces("application/json")
+    public Response countSeries() throws Exception {
+        return count("CountSeries", Model.SERIES, null, null);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/series/count")
+    @Produces("application/json")
+    public Response countSeriesOfStudy(
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+        return count("CountStudySeries", Model.SERIES, studyInstanceUID, null);
+    }
+
+    @GET
+    @NoCache
+    @Path("/instances/count")
+    @Produces("application/json")
+    public Response countInstances() throws Exception {
+        return count("CountInstances", Model.INSTANCE, null, null);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/instances/count")
+    @Produces("application/json")
+    public Response countInstancesOfStudy(
+            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+        return count("CountStudyInstances", Model.INSTANCE, studyInstanceUID, null);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/count")
+    @Produces("application/json")
+    public Response countInstancesOfSeries(
+            @PathParam("StudyInstanceUID") String studyInstanceUID,
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
+        return count("CountStudySeriesInstances", Model.INSTANCE, studyInstanceUID, seriesInstanceUID);
+    }
+
+    @GET
+    @NoCache
+    @Path("/mwlitems/count")
+    @Produces("application/json")
+    public Response countSPS() throws Exception {
+        return count("CountSPS", Model.MWL, null, null);
+    }
+
+    @GET
+    @NoCache
+    @Path("/studies/size")
+    @Produces("application/json")
+    public Response sizeOfStudies() throws Exception {
+        logRequest();
+        QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
+        QueryContext ctx = newQueryContext(
+                "SizeOfStudies", queryAttrs, null, null, Model.STUDY);
+        try (Query query = service.createQuery(ctx)) {
+            query.initUnknownSizeQuery();
+            Transaction transaction = query.beginTransaction();
+            try {
+                query.setFetchSize(device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize());
+                query.executeQuery();
+                Long studyPk;
+                while ((studyPk = query.nextPk()) != null)
+                    ctx.getQueryService().calculateStudySize(studyPk);
+            } finally {
+                try {
+                    transaction.commit();
+                } catch (Exception e) {
+                    LOG.warn("Failed to commit transaction:\n{}", e);
+                }
+            }
+        }
+        try (Query query = service.createQuery(ctx)) {
+            query.initSizeQuery();
+            return Response.ok("{\"size\":" + query.size() + '}').build();
+        }
+    }
+
+    private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID)
+            throws Exception {
+        logRequest();
+        QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
+        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
+        try (Query query = model.createQuery(service, ctx)) {
+            query.initQuery();
+            return Response.ok("{\"count\":" + query.count() + '}').build();
+        }
+    }
+
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID,
                             QIDO qido, Output output)
             throws Exception {
-        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
-        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, qido.includetags, model);
+        QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
+        ctx.setReturnKeys(queryAttrs.getReturnKeys(qido.includetags));
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         try (Query query = model.createQuery(service, ctx)) {
             query.initQuery();
-            if (Boolean.parseBoolean(count) && output == Output.JSON)
-                return Response.ok("{\"count\":" + query.count() + '}').build();
-
             int maxResults = arcAE.qidoMaxNumberOfResults();
             int offsetInt = parseInt(offset);
             int limitInt = parseInt(limit);
@@ -364,13 +469,17 @@ public class QidoRS {
         }
     }
 
+    private void logRequest() {
+        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+    }
+
     private String warning(int remaining) {
         return "299 " + request.getServerName() + ':' + request.getServerPort()
                 + " \"There are " + remaining + " additional results that can be requested\"";
     }
 
     private QueryContext newQueryContext(String method, QueryAttributes queryAttrs, String studyInstanceUID,
-                                         String seriesInstanceUID, int[] includetags, Model model) {
+                                         String seriesInstanceUID, Model model) {
         ApplicationEntity ae = getApplicationEntity();
 
         org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(ae);
@@ -397,7 +506,6 @@ public class QidoRS {
         if (seriesInstanceUID != null)
             keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
         ctx.setQueryKeys(keys);
-        ctx.setReturnKeys(queryAttrs.getReturnKeys(includetags));
         ctx.setOrderByPatientName(queryAttrs.isOrderByPatientName());
         return ctx;
     }

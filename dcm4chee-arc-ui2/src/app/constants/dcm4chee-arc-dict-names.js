@@ -11,6 +11,8 @@ DCM4CHE.elementName.addDictionary({
 "7777xx26":"Failed Retrieves of Study",
 "7777xx27":"Study Access Control ID",
 "7777xx28":"Storage IDs of Study",
+"7777xx29":"Study Size in KB",
+"7777xx2A":"Study Size Bytes",
 "7777xx30":"Series Receive Date Time",
 "7777xx31":"Series Update Date Time",
 "7777xx33":"Series Expiration Date",

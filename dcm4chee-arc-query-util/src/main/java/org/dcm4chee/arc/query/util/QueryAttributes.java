@@ -75,6 +75,7 @@ public class QueryAttributes {
                 case "orderby":
                     addOrderByTag(entry.getValue());
                     break;
+                case "access_token":
                 case "comparefield":
                 case "count":
                 case "different":
@@ -116,7 +117,7 @@ public class QueryAttributes {
         }
     }
 
-    public void addReturnTags(int[] tags) {
+    public void addReturnTags(int... tags) {
         for (int tag : tags)
             builder.setNullIfAbsent(tag);
     }

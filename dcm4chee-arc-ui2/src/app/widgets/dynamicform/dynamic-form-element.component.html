@@ -7,7 +7,7 @@
         <!--<br> in ngswitch {{formelement |json}}<br>-->
         <div *ngIf="formelement.show || partSearch != ''" class="content" [ngClass]="{format: formelement.format}">
             <div class="download_content" *ngIf="formelement.show || partSearch != ''">
-                <a class="vendordata_button" *ngSwitchCase="'filedownload'" href="{{formelement.downloadUrl}}">Download</a>
+                <a class="vendordata_button" *ngSwitchCase="'filedownload'" (click)="$event.preventDefault();downloadFile(formelement.downloadUrl)">Download</a>
                 <a class="vendordata_delete" *ngSwitchCase="'filedownload'"  (click)="$event.preventDefault();deleteFile(formelement.deviceName,formelement)" title="Delete File"><i class="material-icons">clear</i></a>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">

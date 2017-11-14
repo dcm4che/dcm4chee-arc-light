@@ -109,6 +109,9 @@ export class StudiesService {
             if(_.hasIn(msg,"errorMessage")){
                 endMsg = endMsg + `${msg.errorMessage}<br>`;
             }
+            if(endMsg === ""){
+                endMsg = defaultMsg;
+            }
         }catch (e){
             if(defaultMsg){
                 endMsg = defaultMsg;
@@ -229,8 +232,50 @@ export class StudiesService {
             return resjson;
         });
     };
+
+    getCount(url,mode,params) {
+        return this.$http.get(
+            `${url}/${mode}/count${this._config(params)}`,
+            {
+                headers:  new Headers({'Accept': 'application/json'})
+            }
+        )
+            .map(res => {
+            let resjson;
+            try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json();
+            }catch (e){
+                resjson = {};
+            }
+            return resjson;
+        });
+    };
+    getSize(url,params) {
+        return this.$http.get(
+            `${url}/studies/size${this._config(params)}`,
+            {
+                headers:  new Headers({'Accept': 'application/json'})
+            }
+        ).map(res => {
+            let resjson;
+            try{
+                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json();
+            }catch (e){
+                resjson = {};
+            }
+            return resjson;
+        });
+    };
+
     queryStudies = function(url, params) {
-        console.log('in querystudies');
         return this.$http.get(
             url + '/studies' + this._config(params),
             {
@@ -250,6 +295,35 @@ export class StudiesService {
             return resjson;
         });
     };
+    otherAttributesButIDWasChanged(originalAttr,changedAttr){
+        let firstObject = _.cloneDeep(originalAttr);
+        let secondObject = _.cloneDeep(changedAttr);
+        if (_.hasIn(firstObject, '["00100020"].Value[0]')){
+            delete firstObject["00100020"];
+        }
+        if (_.hasIn(firstObject, '["00100021"].Value[0]')){
+            delete firstObject["00100021"];
+        }
+        if (_.hasIn(firstObject, '["00100024"].Value[0]["00400032"].Value[0]')){
+            delete firstObject['00100024'].Value[0]['00400032'];
+        }
+        if (_.hasIn(firstObject, '["00100024"].Value[0]["00400033"].Value[0]')){
+            delete firstObject['00100024'].Value[0]['00400033'];
+        }
+        if (_.hasIn(secondObject, '["00100020"].Value[0]')){
+            delete secondObject["00100020"];
+        }
+        if (_.hasIn(secondObject, '["00100021"].Value[0]')){
+            delete secondObject["00100021"];
+        }
+        if (_.hasIn(secondObject, '["00100024"].Value[0]["00400032"].Value[0]')){
+            delete secondObject['00100024'].Value[0]['00400032'];
+        }
+        if (_.hasIn(secondObject, '["00100024"].Value[0]["00400033"].Value[0]')){
+            delete secondObject['00100024'].Value[0]['00400033'];
+        }
+        return !_.isEqual(firstObject, secondObject);
+    }
     appendPatientIdTo(patient, obj){
         if (_.hasIn(patient, '00100020')){
             obj['00100020'] = obj['00100020'] || {};
@@ -680,4 +754,16 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         });
         return contains;
     }
+
+    rsURL(externalInternalAetMode,aet, aetTitle, externalInternalAetModelAETitle) {
+        let url;
+        if(externalInternalAetMode === "external"){
+            url = `../aets/${aetTitle}/dimse/${externalInternalAetModelAETitle}`;
+        }
+        if(externalInternalAetMode === "internal"){
+            url = `../aets/${aet}/rs`;
+        }
+        return url;
+    }
+
 }

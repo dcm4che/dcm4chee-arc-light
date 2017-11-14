@@ -92,6 +92,9 @@ import java.util.*;
                 name=Study.UPDATE_ACCESS_TIME,
                 query="update Study st set st.accessTime = CURRENT_TIMESTAMP where st.pk = ?1"),
         @NamedQuery(
+                name=Study.SET_STUDY_SIZE,
+                query="update Study st set st.size = ?2 where st.pk = ?1"),
+        @NamedQuery(
                 name=Study.SET_COMPLETENESS,
                 query="update Study st set st.completeness = ?2 " +
                         "where st.studyInstanceUID = ?1"),
@@ -138,7 +141,8 @@ import java.util.*;
                 @Index(columnList = "expiration_date"),
                 @Index(columnList = "failed_retrieves"),
                 @Index(columnList = "completeness"),
-                @Index(columnList = "ext_retrieve_aet")
+                @Index(columnList = "ext_retrieve_aet"),
+                @Index(columnList = "study_size")
         })
 public class Study {
 
@@ -148,6 +152,7 @@ public class Study {
     public static final String FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME = "Study.findPkByStorageIDOrderByAccessTime";
     public static final String FIND_PK_BY_STORAGE_ID_AND_EXT_RETR_AET = "Study.findPkByStorageIDAndExtRetrAET";
     public static final String UPDATE_ACCESS_TIME = "Study.UpdateAccessTime";
+    public static final String SET_STUDY_SIZE = "Study.UpdateStudySize";
     public static final String SET_COMPLETENESS = "Study.SetCompleteness";
     public static final String INCREMENT_FAILED_RETRIEVES = "Study.IncrementFailedRetrieves";
     public static final String COUNT_STUDIES_OF_PATIENT = "Study.CountStudiesOfPatient";
@@ -247,6 +252,10 @@ public class Study {
     @Basic(optional = false)
     @Column(name = "ext_retrieve_aet")
     private String externalRetrieveAET;
+
+    @Basic(optional = false)
+    @Column(name = "study_size")
+    private long size;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
@@ -458,6 +467,10 @@ public class Study {
 
     public void setExternalRetrieveAET(String externalRetrieveAET) {
         this.externalRetrieveAET = externalRetrieveAET;
+    }
+
+    public void resetSize() {
+        this.size = -1L;
     }
 
     public Collection<CodeEntity> getProcedureCodes() {

@@ -36,14 +36,14 @@
 							<xs:complexType>
 								<xs:complexContent>
 									<xs:extension base="ihe:RetrieveDocumentSetRequestType">
-										<xs:attribute name="seriesIUID" type="rim:LongName"
+										<xs:attribute name="seriesInstanceUID" type="rim:LongName"
 											use="required" />
 									</xs:extension>
 								</xs:complexContent>
 							</xs:complexType>
 						</xs:element>
 					</xs:sequence>
-					<xs:attribute name="studyIUID" type="rim:LongName"
+					<xs:attribute name="studyInstanceUID" type="rim:LongName"
 						use="required" />
 				</xs:complexType>
 			</xs:element>

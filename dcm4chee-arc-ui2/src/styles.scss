@@ -9,6 +9,107 @@ $lightBlueNoTransparence:#2c404f;
 $blue:#061d2f;
 $hoverBlue:#5293C1;
 
+@media screen and (min-width: 600px) {
+  .filter{
+    .filter_block{
+      width:415px;
+    }
+  }
+}
+@media screen and (max-width: 1400px) {
+  .hideOn1400px{
+    display: none;
+  }
+}
+@media screen and (max-width: 1200px) {
+  .hideOn1200px{
+    display: none;
+  }
+}
+@media screen and (max-width: 1100px) {
+  .hideOn1100px{
+    display: none;
+  }
+}
+@media screen and (max-width: 1000px) {
+  .hideOn1000px{
+    display: none;
+  }
+  monitoring-tabs{
+    .nav-tabs{
+      border: 1px solid #ddd;
+      &>li{
+        clear: left;
+        border-bottom: 1px solid #ccc;
+        margin-bottom:0px;
+        width:100%;
+        &.active{
+          a{
+            margin-right:0px;
+            background: $lightBlueNoTransparence;
+            color: white;
+            -webkit-border-radius: 0px;
+            -moz-border-radius: 0px;
+            border-radius: 0px;
+            border:none;
+          }
+        }
+      }
+    }
+  }
+}
+@media screen and (max-width: 800px) {
+  .hideOn800px{
+    display: none;
+  }
+}
+@media screen and (max-width: 599px) {
+  .filter{
+    .filter_block{
+      width:100%;
+    }
+  }
+  .hideOn600px{
+    display: none;
+  }
+}
+
+@media screen and (min-width: 450px) {
+  .filter{
+    .filter_block{
+      .line{
+        float: left;
+        width: 100%;
+        & > *{
+          width:48%;
+        }
+        & > label:first-child{
+          text-align: right;
+        }
+      }
+    }
+  }
+}
+@media screen and (max-width: 449px) {
+  .filter{
+    .filter_block{
+      width:100%;
+      .line{
+        float: left;
+        width: 100%;
+        & > *{
+          width:100%;
+        }
+        & > label:first-child{
+          text-align: left;
+        }
+      }
+    }
+  }
+  .hideMobile{
+    display: none;
+  }
+}
 
 body{
     margin: 0;
@@ -37,6 +138,33 @@ md-grid-list{
 /*[draggable=true] {
   -khtml-user-drag: element;
 }*/
+.group_input{
+  border: 1px solid #ccc;
+  margin-left: 0;
+  margin-right: 0;
+}
+.count_block_total{
+  margin-top: 5px;
+  //padding: 3px 7px;
+  text-align: left;
+  min-height:28px;
+  border: 1px solid #ccc;
+  &.single{
+    margin-top:38px;
+  }
+  .count_text{
+    display: inline-block;
+    margin: 3px 7px;
+  }
+  .glyphicon-refresh{
+    width: 36px;
+    border-left: 1px solid #ccc;
+    text-align: center;
+    float: right;
+    padding: 6px;
+    height: 100%;
+  }
+}
 .mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{
   color: $blue;
 }
@@ -57,6 +185,88 @@ md-grid-list{
     font-size:20px;
 }
 
+.filter{
+  .filter_block{
+    float: left;
+    border:1px solid #cccccc;
+    margin-right:10px;
+    box-sizing: border-box;
+    padding: 15px 20px;
+    margin-bottom:10px;
+    .line{
+      float: left;
+      width: 100%;
+      padding-top: 4px;
+      min-height: 37px;
+      & > *{
+
+        height:28px;
+        &:first-child{
+          float: left;
+        }
+        &:last-child{
+          float: right;
+        }
+      }
+      & > input,p-calendar input{
+        border:none;
+        border-bottom:1px solid #cccccc;
+      }
+      button{
+        border:none;
+      }
+
+    }
+  }
+}
+.arrow{
+  float: left;
+  position: absolute;
+  top: 50%;
+  margin-top: -20px;
+  font-size: 30px;
+  height: 40px;
+  vertical-align: middle;
+  line-height: 40px;
+  color: $lightBlue;
+  &.left{
+    left:25px;
+  }
+  &.right{
+    right:25px;
+  }
+  &:hover{
+    cursor: pointer;
+  }
+}
+.mat-progress-spinner path, .mat-spinner path{
+  stroke: $lightBlue;
+}
+
+.loader{
+  position: absolute;
+  top: 50%;
+  left:50%;
+}
+.viewer{
+  .content{
+    min-height:40%;
+    min-width:30%;
+  }
+  .arrow{
+    display: none;
+  }
+  &:hover .arrow{
+    display: block;
+  }
+  .spinner-icon{
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    margin-top: -50px;
+    margin-right: -60px;
+  }
+}
 //#mainmenu
 #mainmenu{
   li{
@@ -739,6 +949,12 @@ md-dialog-container{
     padding: 30px 10px 0px 10px;
     border: 1px solid #ccc;
     border-top: none;
+    float: left;
+    width: 100%;
+  }
+  &.main_content{
+    float: left;
+    width: 100%;
   }
   md-select{
     padding:0;

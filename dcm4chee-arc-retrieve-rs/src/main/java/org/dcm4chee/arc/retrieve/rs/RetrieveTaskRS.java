@@ -81,19 +81,19 @@ public class RetrieveTaskRS {
     @Context
     private HttpServletRequest request;
 
-    @QueryParam("deviceName")
+    @QueryParam("dicomDeviceName")
     private String deviceName;
 
-    @QueryParam("localAET")
+    @QueryParam("LocalAET")
     private String localAET;
 
-    @QueryParam("remoteAET")
+    @QueryParam("RemoteAET")
     private String remoteAET;
 
-    @QueryParam("destinationAET")
+    @QueryParam("DestinationAET")
     private String destinationAET;
 
-    @QueryParam("studyIUID")
+    @QueryParam("StudyInstanceUID")
     private String studyIUID;
 
     @QueryParam("status")

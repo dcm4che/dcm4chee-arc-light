@@ -111,6 +111,13 @@
         "OVERWRITE"
       ]
     },
+    "dcmNullifyTag": {
+      "title": "Nullify Attribute Tag",
+      "description": "DICOM Tag of Attribute to be nullified as hex string",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmTag"
+    },
     "dcmSupplementFromDeviceName": {
       "title": "Supplement from Device",
       "description": "Name of Device from which Assigning Authorities and other information is taken to supplement received Composite Objects and MPPS.",

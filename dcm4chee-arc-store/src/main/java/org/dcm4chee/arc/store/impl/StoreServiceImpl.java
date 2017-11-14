@@ -455,6 +455,7 @@ class StoreServiceImpl implements StoreService {
         coercion = coerceAttributesByXSL(ctx, rule, coercion);
         coercion = mergeAttributesFromMWL(ctx, rule, coercion);
         coercion = SupplementAssigningAuthorities.forInstance(rule.getSupplementFromDevice(), coercion);
+        coercion = NullifyAttributesCoercion.valueOf(rule.getNullifyTags(), coercion);
         if (coercion != null)
             coercion.coerce(ctx.getAttributes(), ctx.getCoercedAttributes());
     }

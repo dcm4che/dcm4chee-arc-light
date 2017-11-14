@@ -80,7 +80,13 @@ import java.util.Date;
         @NamedQuery(name = Location.COUNT_BY_MULTI_REF,
                 query = "select count(l) from Location l where l.multiReference=?1"),
         @NamedQuery(name = Location.COUNT_BY_UIDMAP,
-                query = "select count(l) from Location l where l.uidMap=?1")
+                query = "select count(l) from Location l where l.uidMap=?1"),
+        @NamedQuery(name = Location.SIZE_OF_STUDY,
+                query = "select sum(l.size) from Location l " +
+                        "where l.instance.series.study.pk=?1 and l.objectType=?2"),
+        @NamedQuery(name = Location.SIZE_OF_SERIES,
+                query = "select sum(l.size) from Location l " +
+                        "where l.instance.series.pk=?1 and l.objectType=?2")
 })
 public class Location {
 
@@ -94,6 +100,8 @@ public class Location {
     public static final String FIND_BY_CONCEPT_NAME_CODE_BEFORE = "Location.FindByConceptNameCodeBefore";
     public static final String COUNT_BY_MULTI_REF = "Location.CountByMultiRef";
     public static final String COUNT_BY_UIDMAP = "Location.CountByUIDMap";
+    public static final String SIZE_OF_STUDY = "Location.SizeOfStudy";
+    public static final String SIZE_OF_SERIES = "Location.SizeOfSeries";
 
     public enum Status { OK, TO_DELETE, FAILED_TO_DELETE }
 

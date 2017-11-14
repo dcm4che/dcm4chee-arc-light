@@ -26,7 +26,6 @@ Build
 
         > $git clone https://github.com/dcm4che/dcm4che.git
         > $cd dcm4che
-        > $git checkout dcm4chee-arc-light
         > $mvn install
 
 * Build the Archive for a specific database:

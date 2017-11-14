@@ -79,6 +79,7 @@ class SeriesQuery extends AbstractQuery {
             QStudy.study.failedRetrieves,
             QStudy.study.accessControlID,
             QStudy.study.storageIDs,
+            QStudy.study.size,
             QSeries.series.createdTime,
             QSeries.series.updatedTime,
             QSeries.series.expirationDate,
@@ -223,6 +224,9 @@ class SeriesQuery extends AbstractQuery {
     }
 
     private Attributes toStudyAttributes(Long studyPk, Tuple results) {
+        long studySize = results.get(QStudy.study.size);
+        if (studySize < 0)
+            studySize = context.getQueryService().calculateStudySize(studyPk);
         Integer numberOfInstancesI = results.get(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances);
         int numberOfStudyRelatedInstances;
         int numberOfStudyRelatedSeries;
@@ -280,6 +284,8 @@ class SeriesQuery extends AbstractQuery {
                     results.get(QStudy.study.accessControlID));
         attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageIDsOfStudy, VR.LO,
                 results.get(QStudy.study.storageIDs));
+        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeInKB, VR.UL, (int) (studySize / 1000));
+        attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StudySizeBytes, VR.US, (int) (studySize % 1000));
         return attrs;
     }
 

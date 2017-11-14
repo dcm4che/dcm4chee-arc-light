@@ -2438,6 +2438,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAttributeUpdatePolicy",
                 coercion.getAttributeUpdatePolicy(), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", coercion.getPriority(), 0);
+        storeNotEmptyTags(ldapObj, attrs, "dcmNullifyTag", coercion.getNullifyTags());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSupplementFromDeviceReference",
                supplementDeviceRef(coercion), null);
         return attrs;
@@ -2469,6 +2470,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setAttributeUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
                         attrs.get("dcmAttributeUpdatePolicy"), org.dcm4che3.data.Attributes.UpdatePolicy.MERGE));
                 coercion.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
+                coercion.setNullifyTags(tags(attrs.get("dcmNullifyTag")));
                 String supplementDeviceDN = LdapUtils.stringValue(attrs.get("dcmSupplementFromDeviceReference"), null);
                 coercion.setSupplementFromDevice(parentDN.equals(supplementDeviceDN)
                         ? device
@@ -2513,6 +2515,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.getAttributeUpdatePolicy(),
                 org.dcm4che3.data.Attributes.UpdatePolicy.MERGE);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), coercion.getPriority(), 0);
+        storeDiffTags(mods, "dcmNullifyTag", prev.getNullifyTags(), coercion.getNullifyTags());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmSupplementFromDeviceReference",
                 supplementDeviceRef(prev),
                 supplementDeviceRef(coercion), null);

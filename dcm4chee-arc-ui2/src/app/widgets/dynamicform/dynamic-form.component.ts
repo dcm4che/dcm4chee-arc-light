@@ -9,6 +9,7 @@ import {Output} from '@angular/core';
 import {OrderByPipe} from '../../pipes/order-by.pipe';
 import * as _ from 'lodash';
 import {SearchPipe} from '../../pipes/search.pipe';
+import {AppService} from "../../app.service";
 
 @Component({
     selector: 'dynamic-form',
@@ -26,13 +27,29 @@ export class DynamicFormComponent implements OnInit{
     pressedKey = [];
     listStateBeforeSearch: FormElement<any>[];
     filteredFormElements: FormElement<any>[];
-    constructor(private formservice: FormService){}
+    constructor(private formservice: FormService, private mainservice:AppService){}
     // submi(){
     //     console.log("in submitfunctiondynamicform");
     //     this.submitFunction.emmit("test");
     // }
-
-    ngOnInit(): void {
+    ngOnInit(){
+        this.initCheck(10);
+    }
+    initCheck(retries){
+        let $this = this;
+        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+            this.init();
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
+    }
+    init(): void {
         console.log('formelements', this.formelements);
         let orderedGroup: any = new OrderByPipe().transform(this.formelements, 'order');
         let orderValue = 0;

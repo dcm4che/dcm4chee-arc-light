@@ -59,9 +59,11 @@ public class StudyInfoImpl implements StudyInfo {
     private final Date modifiedTime;
     private final String expirationDate;
     private final String accessControlID;
+    private final long studySize;
 
     public StudyInfoImpl(Long studyPk, String studyInstanceUID, Date accessTime, int failedRetrieves,
-                         Completeness completeness, Date modifiedTime, String expirationDate, String accessControlID) {
+                         Completeness completeness, Date modifiedTime, String expirationDate, String accessControlID,
+                         long studySize) {
         this.studyPk = studyPk;
         this.studyInstanceUID = studyInstanceUID;
         this.accessTime = accessTime;
@@ -70,6 +72,7 @@ public class StudyInfoImpl implements StudyInfo {
         this.modifiedTime = modifiedTime;
         this.expirationDate = expirationDate;
         this.accessControlID = accessControlID;
+        this.studySize = studySize;
     }
 
     @Override
@@ -110,5 +113,10 @@ public class StudyInfoImpl implements StudyInfo {
     @Override
     public String getAccessControlID() {
         return accessControlID;
+    }
+
+    @Override
+    public long getStudySize() {
+        return studySize;
     }
 }

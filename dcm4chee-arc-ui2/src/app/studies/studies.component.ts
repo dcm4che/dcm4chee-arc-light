@@ -27,7 +27,10 @@ import {FormatDAPipe} from "../pipes/format-da.pipe";
 import {FormatTMPipe} from "../pipes/format-tm.pipe";
 import {HttpErrorHandler} from "../helpers/http-error-handler";
 import {J4careHttpService} from "../helpers/j4care-http.service";
+import {j4care} from "../helpers/j4care.service";
+import {ViewerComponent} from "../widgets/dialogs/viewer/viewer.component";
 declare var Keycloak: any;
+declare var $: any;
 
 @Component({
     selector: 'app-studies',
@@ -105,6 +108,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
     jsonHeader = new Headers({ 'Content-Type': 'application/json' });
     aet1;
     aet2;
+    count;
+    size;
     studyDateChanged(){
         console.log('on studydate changed', this.studyDate);
         if (this.studyDate.from === '' && this.studyDate.to === ''){
@@ -238,6 +243,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.showModalitySelector = false;
     };
 
+
     dialogRef: MdDialogRef<any>;
     subscription: Subscription;
 
@@ -250,13 +256,14 @@ export class StudiesComponent implements OnDestroy,OnInit{
         public dialog: MdDialog,
         public config: MdDialogConfig,
         public httpErrorHandler:HttpErrorHandler,
+        public j4care:j4care
     ) {}
     ngOnInit(){
         this.initCheck(10);
     }
     initCheck(retries){
         let $this = this;
-        if(_.hasIn(this.mainservice,"global.authentication")){
+        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){
@@ -658,6 +665,17 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let $this = this;
         if (offset < 0 || offset === undefined) offset = 0;
         this.cfpLoadingBar.start();
+        if(this.externalInternalAetMode === 'internal'){
+            this.service.getCount(
+                this.rsURL(),
+                'studies',
+                queryParameters
+            ).subscribe((res)=>{
+                this.count = res.count;
+            });
+        }else{
+            this.count = "";
+        }
         this.service.queryStudies(
             this.rsURL(),
             queryParameters
@@ -1564,8 +1582,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
             $this.dialogRef.afterClosed().subscribe(result => {
                 //If user clicked save
                 if (result){
-                    console.log("oldPatientID",oldPatientID);
-                    console.log("$this.service.getPatientId(patient.attrs)",$this.service.getPatientId(patient.attrs));
                     if(oldPatientID === $this.service.getPatientId(patient.attrs) || $this.externalInternalAetMode === "internal" || mode === "create"){
                         let modifyPatientService = $this.service.modifyPatient(patient, res, oldPatientID, $this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode);
                         if(modifyPatientService){
@@ -1591,19 +1607,21 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                     'text': changeExternalPatientIdService.successMsg,
                                     'status': 'info'
                                 });
-                                let modifyPatientService = $this.service.modifyPatient(patient, res, oldPatientID,$this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode);
-                                if(modifyPatientService){
-                                    modifyPatientService.save.subscribe((response)=>{
-                                        this.fireRightQuery();
-                                        this.mainservice.setMessage({
-                                            'title': 'Info',
-                                            'text': modifyPatientService.successMsg,
-                                            'status': 'info'
+                                if(this.service.otherAttributesButIDWasChanged(originalPatientObject.attrs,patient.attrs)){
+                                    let modifyPatientService = $this.service.modifyPatient(patient, res, oldPatientID,$this.aet, $this.service.getHl7ApplicationNameFormAETtitle($this.aet, $this.allAes), $this.externalInternalAetModel.hl7ApplicationName,  mode, $this.externalInternalAetMode);
+                                    if(modifyPatientService){
+                                        modifyPatientService.save.subscribe((response)=>{
+                                            this.fireRightQuery();
+                                            this.mainservice.setMessage({
+                                                'title': 'Info',
+                                                'text': modifyPatientService.successMsg,
+                                                'status': 'info'
+                                            });
+                                        },(err)=>{
+                                            _.assign(patient, $this.service.preparePatientObjectForExternalPatiendIdChange(originalPatientObject.attrs, patient.attrs));
+                                            $this.httpErrorHandler.handleError(err);
                                         });
-                                    },(err)=>{
-                                        _.assign(patient, $this.service.preparePatientObjectForExternalPatiendIdChange(originalPatientObject.attrs, patient.attrs));
-                                        $this.httpErrorHandler.handleError(err);
-                                    });
+                                    }
                                 }
                             },(err)=>{
                                 _.assign(patient, originalPatientObject);
@@ -1995,29 +2013,55 @@ export class StudiesComponent implements OnDestroy,OnInit{
             this.fireRightQuery();
         }
     }
-
+    retrieveMultipleStudies(){
+        this.service.getCount(
+            this.rsURL(),
+            'studies',
+            this.createPatientFilterParams()
+        ).subscribe((res)=>{
+            this.count = res.count;
+            this.exporter(
+                // `/aets/${this.aet}/dimse/${this.externalAET}/studies/query:${this.queryAET}/export/dicom:${destinationAET}`,
+                '',
+                'Retrieve matching studies depending on selected filters, from external C-MOVE SCP',
+                '',
+                'multiple',
+                {},
+                ""
+            );
+        });
+    }
     exportStudy(study) {
         this.exporter(
             this.studyURL(study.attrs),
             'Export study',
-            'Study will not be sent!'
+            'Study will not be sent!',
+            'single',
+            study.attrs,
+            "study"
         );
     };
     exportSeries(series) {
         this.exporter(
             this.seriesURL(series.attrs),
             'Export series',
-            'Series will not be sent!'
+            'Series will not be sent!',
+            'single',
+            series.attrs,
+            "series"
         );
     };
     exportInstance(instance) {
         this.exporter(
             this.instanceURL(instance.attrs),
             'Export instance',
-            'Instance will not be sent!'
+            'Instance will not be sent!',
+            'single',
+            instance.attrs,
+            "instance"
         );
     };
-    exporter(url, title, warning){
+    exporter(url, title, warning, mode, objectAttr, dicomMode){
         let $this = this;
         let id;
         let urlRest;
@@ -2031,27 +2075,57 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
         });
         this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(ExportDialogComponent, this.config);
+        let config = {
+            height: 'auto',
+            width: '500px'
+        };
+        if(mode === "multiple"){
+            config = {
+                height: 'auto',
+                width: '600px'
+            };
+        }
+        this.dialogRef = this.dialog.open(ExportDialogComponent, config);
         this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
         this.dialogRef.componentInstance.externalInternalAetMode = this.externalInternalAetMode;
         this.dialogRef.componentInstance.title = title;
+        this.dialogRef.componentInstance.mode = mode;
         this.dialogRef.componentInstance.warning = warning;
+        this.dialogRef.componentInstance.count = this.count;
+        if($this.externalInternalAetMode === 'external') {
+            this.dialogRef.componentInstance.preselectedExternalAET = this.externalInternalAetModel.dicomAETitle;
+        }
         this.dialogRef.afterClosed().subscribe(result => {
             if (result){
-
                 $this.cfpLoadingBar.start();
-                if($this.externalInternalAetMode === 'external'){
-                    id = 'dicom:' + result.selectedAet;
-                    urlRest = url  + '/export/' + id + '?' + this.mainservice.param({queue:result.queue});
+                if(mode === "multiple"){
+                    urlRest = `../aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}`;
                 }else{
-                    if (result.exportType === 'dicom'){
-                        //id = result.dicomPrefix + result.selectedAet;
+                    if($this.externalInternalAetMode === 'external'){
+                        urlRest = `../aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}`;
+/*                        switch (dicomMode){
+                            case 'study':
+                                console.log("newUrl",this.studyURL(objectAttr));
+                                break;
+                            case 'series':
+                                console.log("newUrl",this.seriesURL(objectAttr));
+                                break;
+                            case 'instance':
+                                console.log("newUrl",this.instanceURL(objectAttr));
+                                break;
+                        }
                         id = 'dicom:' + result.selectedAet;
+                        urlRest = url  + '/export/' + id + '?' + this.mainservice.param({queue:result.queue});*/
                     }else{
-                        id = result.selectedExporter;
+                        if (result.exportType === 'dicom'){
+                            //id = result.dicomPrefix + result.selectedAet;
+                            id = 'dicom:' + result.selectedAet;
+                        }else{
+                            id = result.selectedExporter;
+                        }
+                        urlRest = url  + '/export/' + id + '?' + this.mainservice.param(result.checkboxes);
                     }
-                    urlRest = url  + '/export/' + id + '?' + this.mainservice.param(result.checkboxes);
                 }
                 $this.$http.post(
                     urlRest,
@@ -2086,6 +2160,17 @@ export class StudiesComponent implements OnDestroy,OnInit{
         if (offset < 0 || offset === undefined) offset = 0;
         this.cfpLoadingBar.start();
         let $this = this;
+        if(this.externalInternalAetMode === 'internal'){
+            this.service.getCount(
+                this.rsURL(),
+                'mwlitems',
+                this.createPatientFilterParams()
+            ).subscribe((res)=>{
+                this.count = res.count;
+            });
+        }else{
+            this.count = "";
+        }
         this.service.queryMwl(
             this.rsURL(),
             this.createQueryParams(offset, this.limit + 1, this.createMwlFilterParams())
@@ -2337,6 +2422,41 @@ export class StudiesComponent implements OnDestroy,OnInit{
             this.cfpLoadingBar.complete();
         });
     };
+    getCount(){
+        let mode;
+        let filters;
+        if(this.queryMode === "queryStudies"){
+            mode = "studies"
+            filters = this.createStudyFilterParams();
+        }
+        if(this.queryMode === "queryPatients"){
+            mode = "patients"
+            filters = this.createPatientFilterParams();
+        }
+        if(this.queryMode === "queryMWL"){
+            mode = "mwlitems"
+            filters = this.createMwlFilterParams();
+        }
+        this.service.getCount(
+            this.rsURL(),
+            mode,
+            filters
+        ).subscribe((res)=>{
+            this.count = res.count;
+        });
+    }
+    getSize(){
+        this.service.getSize(
+            this.rsURL(),
+            this.createStudyFilterParams()
+        ).subscribe((res)=>{
+            try {
+                this.size = j4care.convertBtoHumanReadable(res.size,1);
+            }catch (e){
+                console.log("convert byte error:",e);
+            }
+        });
+    }
     queryPatients = function(offset){
         this.queryMode = 'queryPatients';
         this.moreStudies = undefined;
@@ -2344,6 +2464,17 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.cfpLoadingBar.start();
         let $this = this;
         if (offset < 0) offset = 0;
+        if(this.externalInternalAetMode === 'internal'){
+            this.service.getCount(
+                this.rsURL(),
+                'patients',
+                this.createPatientFilterParams()
+            ).subscribe((res)=>{
+                this.count = res.count;
+            });
+        }else{
+            this.count = "";
+        }
         this.service.queryPatients(
             this.rsURL(),
             this.createQueryParams(offset, this.limit + 1, this.createPatientFilterParams())
@@ -2409,37 +2540,92 @@ export class StudiesComponent implements OnDestroy,OnInit{
     //     }
     // };
     downloadURL(inst, transferSyntax) {
-        let exQueryParams = { contentType: 'application/dicom'};
-        if (transferSyntax){
-            exQueryParams["transferSyntax"] = {};
-            exQueryParams["transferSyntax"] = transferSyntax;
-        }
-        return this.wadoURL(inst.wadoQueryParams, exQueryParams);
+        let token;
+        this.$http.refreshToken().subscribe((response)=>{
+            if(!this.mainservice.global.notSecure){
+                if(response && response.length != 0){
+                    this.$http.resetAuthenticationInfo(response);
+                    token = response['token'];
+                }else{
+                    token = this.mainservice.global.authentication.token;
+                }
+            }
+            let exQueryParams = { contentType: 'application/dicom'};
+            if (transferSyntax){
+                exQueryParams["transferSyntax"] = {};
+                exQueryParams["transferSyntax"] = transferSyntax;
+            }
+            if(!this.mainservice.global.notSecure){
+                WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`);
+            }else{
+                WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams));
+            }
+        });
     };
     viewInstance(inst) {
-        this.select_show = false;
-        if(this.isVideo(inst.attrs)){
-            console.log("isvideo");
-        }else{
-
-        }
-        this.$http.head(this.renderURL(inst)).subscribe((res)=>{
-/*            console.log("res",res);
-            console.log("res",res.headers.get("content-type"));*/
-            let contentType = res["headers"].get("content-type");
-            // if(contentType === )
+        let $this = this;
+        let token;
+        let url;
+        let contentType;
+        this.$http.refreshToken().subscribe((response)=>{
+            if(!this.mainservice.global.notSecure){
+                if(response && response.length != 0){
+                    $this.$http.resetAuthenticationInfo(response);
+                    token = response['token'];
+                }else{
+                    token = this.mainservice.global.authentication.token;
+                }
+            }
+            this.select_show = false;
+            if(inst.video || inst.numberOfFrames || inst.gspsQueryParams.length){
+                if (inst.gspsQueryParams.length){
+                    url =  this.wadoURL(inst.gspsQueryParams[inst.view - 1]);
+                }
+                if (inst.numberOfFrames){
+                    contentType = 'image/jpeg';
+                    url =  this.wadoURL(inst.wadoQueryParams, { contentType: 'image/jpeg'});
+                }
+                if (inst.video){
+                    contentType = 'video/mpeg';
+                    url =  this.wadoURL(inst.wadoQueryParams, { contentType: 'video/mpeg' });
+                }
+            }else{
+                url = this.wadoURL(inst.wadoQueryParams);
+            }
+            if(!contentType){
+                if(_.hasIn(inst,"attrs.00420012.Value.0") && inst.attrs['00420012'].Value[0] != ''){
+                    contentType = inst.attrs['00420012'].Value[0];
+                }
+            }
+            if(contentType === 'application/pdf' || contentType === 'video/mpeg'){
+                // this.j4care.download(url);
+                if(!this.mainservice.global.notSecure){
+                    WindowRefService.nativeWindow.open(this.renderURL(inst) + `&access_token=${token}`);
+                }else{
+                    WindowRefService.nativeWindow.open(this.renderURL(inst));
+                }
+            }else{
+                this.config.viewContainerRef = this.viewContainerRef;
+                this.dialogRef = this.dialog.open(ViewerComponent, {
+                    height: 'auto',
+                    width: 'auto'
+                });
+                this.dialogRef.componentInstance.views = inst.views;
+                this.dialogRef.componentInstance.view = inst.view;
+                this.dialogRef.componentInstance.contentType = contentType;
+                this.dialogRef.componentInstance.url = url;
+                this.dialogRef.afterClosed().subscribe((result) => {
+                    console.log('result', result);
+                    if (result){
+                    }
+                });
+                console.log("this.renderURL(inst)",this.renderURL(inst));
+            }
+        // window.open(this.renderURL(inst));
         });
-        window.open(this.renderURL(inst));
     };
     select(object, modus, keys, fromcheckbox){
-        console.log('in select = fromcheckbox', fromcheckbox);
         // let test = true;
-        console.log('object', object);
-        console.log('object.selected', object.selected);
-        // console.log("patient object selected",this.patients[keys.patientkey].studies[keys.studykey].selected);
-        console.log('object', object);
-        console.log('modus', modus);
-        console.log('keys', keys);
         let clickFromCheckbox = (fromcheckbox && fromcheckbox === 'fromcheckbox');
         if (this.isRole('admin')){
             this.anySelected = true;
@@ -2791,14 +2977,14 @@ export class StudiesComponent implements OnDestroy,OnInit{
         console.log('this.selected[\'otherObjects\']', this.selected['otherObjects']);
     }
     rsURL() {
-        let url;
+/*        let url;
         if(this.externalInternalAetMode === "external"){
             url = `../aets/${this.aetmodel.dicomAETitle}/dimse/${this.externalInternalAetModel.dicomAETitle}`;
         }
         if(this.externalInternalAetMode === "internal"){
             url = `../aets/${this.aet}/rs`;
-        }
-        return url;
+        }*/
+        return this.service.rsURL(this.externalInternalAetMode,this.aet,this.aetmodel.dicomAETitle,this.externalInternalAetModel.dicomAETitle);
     }
     diffUrl(){
         if(!this.aet1){
@@ -4003,13 +4189,16 @@ export class StudiesComponent implements OnDestroy,OnInit{
             studyDate: this.studyDate,
             studyTime: this.studyTime,
             orderbytext: this.orderbytext,
-            rjcode: this.rjcode
+            rjcode: this.rjcode,
+            count: this.count
         };
+        let global = this.mainservice.global;
+        global.state = state || {};
         // if(_.hasIn(this.mainservice.global,"state")){
         //     this.mainservice.setGlobal({state:{}});
         //     this.mainservice.setGlobal({state:state});
         // }else{
-            this.mainservice.setGlobal({state: state});
+            this.mainservice.setGlobal(global);
         // }
     }
 }

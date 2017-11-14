@@ -265,7 +265,24 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         });
         // }
     };
-    ngOnInit() {
+    ngOnInit(){
+        this.initCheck(10);
+    }
+    initCheck(retries){
+        let $this = this;
+        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+            this.init();
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
+    }
+    init() {
         let $this = this;
         let form;
         this.params = $this.service.pagination;
@@ -487,7 +504,14 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
 
 
         ngOnDestroy(){
-
-
+/*            this.service.pagination = [
+                {
+                    url: '/device/devicelist',
+                    title: 'devicelist',
+                    devicereff: undefined
+                }
+            ];*/
+            console.log("param",this.recentParams);
+            console.log("ondestroy",this.service.pagination);
         }
 }

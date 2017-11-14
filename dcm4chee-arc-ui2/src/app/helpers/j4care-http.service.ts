@@ -4,10 +4,15 @@ import {Observable} from 'rxjs';
 import {AppService} from "../app.service";
 import * as _ from 'lodash';
 import {WindowRefService} from "./window-ref.service";
+import {HttpErrorHandler} from "./http-error-handler";
 
 @Injectable()
 export class J4careHttpService{
-    constructor (public $http:Http, public mainservice:AppService) {}
+    constructor (
+        public $http:Http,
+        public mainservice:AppService,
+        public httpErrorHandler:HttpErrorHandler,
+    ) {}
     header;
     token;
     get(url,header?){
@@ -30,16 +35,29 @@ export class J4careHttpService{
         let headerIndex = (param.length === 3) ? 2:1;
         $this.setHeader(param[headerIndex]);
         return $this.refreshToken().flatMap((response)=>{
+                $this.mainservice.global.getRealmStateActive = false;
                 if(response && response.length != 0){
-                    $this.resetAuthenticationInfo(response);
-                    $this.token = response['token'];
-                    // $this.setHeader(param[headerIndex]);
-                    $this.mainservice.global.getRealmState = 'notActive';
+                    if(response['token'] === null){
+                        $this.mainservice.global.notSecure = true;
+                    }else{
+                        $this.mainservice.global.notSecure = false;
+                        $this.resetAuthenticationInfo(response);
+                        $this.token = response['token'];
+                        // $this.setHeader(param[headerIndex]);
+                        $this.mainservice.global.getRealmStateActive = true;
+                    }
                 }
-                $this.setHeader(param[headerIndex]);
-                param[headerIndex] = {"headers":$this.header};
+                if(!$this.mainservice.global.notSecure){
+                    $this.setHeader(param[headerIndex]);
+                    param[headerIndex] = {"headers":$this.header};
+                }
                 return $this.$http[requestFunctionName].apply($this.$http , param);
-            });
+            }).catch(res=>{
+                if(res.ok === false && res.status === 0 && res.type === 3){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                return Observable.throw(res);
+        });
     }
     resetAuthenticationInfo(response){
         let $this = this;
@@ -61,10 +79,22 @@ export class J4careHttpService{
         }
     }
     refreshToken():Observable<any>{
-        if(!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()){
-            return this.$http.get('rs/realm').map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
+        if((!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()) && !this.mainservice.global.notSecure && !this.mainservice.global.getRealmStateActive){
+            this.mainservice.global.getRealmStateActive = true;
+            return this.$http.get('rs/realm').map(res => {
+                let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                if(pattern.exec(res.url)){
+                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                resjson = res.json();
+                }catch (e){
+                    resjson = [];
+                } return resjson;
+            });
         }else{
-            this.token = this.mainservice.global.authentication.token;
+            if(!this.mainservice.global.notSecure){
+                this.token = this.mainservice.global.authentication.token;
+            }
             return Observable.of([]);
         }
     }

@@ -111,11 +111,6 @@
         "type": "string",
         "format": "date-time"
       },
-      "failures": {
-        "title": "Failures",
-        "description": "number of failed attempts to process this message",
-        "type": "integer"
-      },
       "scheduledTime": {
         "title": "Scheduled Time",
         "description": "time when next attempt to process this task is scheduled",

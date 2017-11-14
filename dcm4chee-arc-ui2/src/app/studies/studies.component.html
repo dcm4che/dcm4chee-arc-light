@@ -110,8 +110,7 @@
         <div class="row filter">
             <div class="main_filter_block">
                 <div class="col-md-3 block-1-1">
-                    <div class="row">
-                        <!--<label class="col-md-6 text-right control-label">AET:</label>-->
+                    <div class="row group_input">
                         <div class=" col-md-6">
                             <md-select [(ngModel)]="externalInternalAetMode" (ngModelChange)="aetModeChange($event)">
                                 <md-option value="internal" title="Internal AET mode">Internal AET:</md-option>
@@ -163,7 +162,7 @@
                             <input id="ReferringPhysicianName" type="text" [(ngModel)]="filter.ReferringPhysicianName" placeholder="Referring physician name" title="Referring physician name" class="col-md-12" />
                         </div>
                         <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
-                            <input id="Modality" type="text" size="5"  [(ngModel)]="filter.ModalitiesInStudy" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
+                            <input type="text" size="5"  [(ngModel)]="filter.ModalitiesInStudy" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
                             <div class="modality_selector [hidden]" *ngIf="showModalitySelector">
                                 <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
                                 <div class="common">
@@ -184,14 +183,13 @@
                             </div>
                         </div>
                         <div class="col-md-6" *ngIf="filterMode === 'mwl'">
-                            <input id="Modality" type="text" size="5"  [(ngModel)]="filter['ScheduledProcedureStepSequence.Modality']" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
+                            <input type="text" size="5"  [(ngModel)]="filter['ScheduledProcedureStepSequence.Modality']" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
                             <div class="modality_selector [hidden]" *ngIf="showModalitySelector">
                                 <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
                                 <div class="common">
                                     <a href="" *ngFor="let value of modalities.common; let key = index;" (click)="selectModality(key)" title="{{value}}">{{key}}</a>
                                 </div>
                                 <button (click)="filter.ScheduledProcedureStepSequence.Modality='';showModalitySelector=false;" class="clear custom_button">Clear</button>
-                                <!-- <div class="col-md-12"></div> -->
                                 <a href="" (click)="showMore=true" *ngIf="!showMore" class="more">more<i class="glyphicon glyphicon-triangle-bottom"></i></a>
                                 <a href="" (click)="showMore=false" *ngIf="showMore" class="more">less<i class="glyphicon glyphicon-triangle-top"></i></a>
                                 <div class="more_block" *ngIf="showMore">
@@ -217,33 +215,14 @@
                 </div>
                 <div class="col-md-3 block-1-2" *ngIf="filterMode === 'mwl'">
                     <div class="row">
-                        <label for="StudyDateFrom" class="col-md-12">Scheduled Procedure Step Start Date / Time:</label>
+                        <label class="col-md-12">Scheduled Procedure Step Start Date / Time:</label>
                     </div>
                     <div class="row datetime">
                         <div class="block_seid">
                             <div class="col-md-12">
-                                <!--<input-->
-                                <!--class="col-md-12"-->
-                                <!--placeholder="Start date from"-->
-                                <!--(click)="studyDateFromOpen()"-->
-                                <!--id="StudyDateFrom"-->
-                                <!--type="text"-->
-                                <!--uib-datepicker-popup="{{format}}"-->
-                                <!--[(ngModel)]="studyDate.fromObject"-->
-                                <!--is-open="studyDateFrom.opened"-->
-                                <!--datepicker-options="dateOptions"-->
-                                <!--close-text="Close"/>-->
                                 <p-calendar dataType="string" [(ngModel)]="studyDate.from" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Start date from"></p-calendar>
                             </div>
                             <div class="col-md-12">
-                                <!--<input-->
-                                <!--class="col-md-12"-->
-                                <!--placeholder="Start time from"-->
-                                <!--id="StudyTimeFrom"-->
-                                <!--type="text"-->
-                                <!--size="10"-->
-                                <!--[(ngModel)]="studyTime.fromObject"-->
-                                <!--data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />-->
                                 <p-calendar (onSelect)="selectTime('from')" (onBlur)="selectTime('from')" (click)="timeClose()" [(ngModel)]="studyTime.fromObject" timeOnly="true" hourFormat="24" placeholder="Start time from"></p-calendar>
                             </div>
                         </div>
@@ -252,29 +231,9 @@
                         </div>
                         <div class="block_seid">
                             <div class="col-md-12">
-                                <!--<input-->
-                                <!--class="col-md-12"-->
-                                <!--placeholder=" Start date to"-->
-                                <!--class="col-md-12"-->
-                                <!--id="StudyDateTo"-->
-                                <!--(click)="studyDateToOpen()"-->
-                                <!--is-open="studyDateTo.opened"-->
-                                <!--close-text="Close"-->
-                                <!--type="text"-->
-                                <!--size="10"-->
-                                <!--[(ngModel)]="studyDate.toObject"-->
-                                <!--uib-datepicker-popup="{{format}}"/>-->
                                 <p-calendar dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Start date to"></p-calendar>
                             </div>
                             <div class="col-md-12">
-                                <!--<input-->
-                                <!--class="col-md-12"-->
-                                <!--placeholder="Start time to"-->
-                                <!--id="StudyTimeTo"-->
-                                <!--type="text"-->
-                                <!--size="10"-->
-                                <!--[(ngModel)]="studyTime.toObject"-->
-                                <!--data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />-->
                                 <p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder="Start time to"></p-calendar>
                             </div>
                         </div>
@@ -282,42 +241,15 @@
                 </div>
                 <div class="col-md-3 block-1-2" *ngIf="filterMode === 'study' || filterMode === 'diff' || filterMode === 'diff'">
                     <div class="row">
-                        <label for="StudyDateFrom" class="col-md-12">Study Date / Time:</label>
-
+                        <label class="col-md-12">Study Date / Time:</label>
                     </div>
                     <div class="row datetime">
                         <div class="block_seid">
                             <div class="col-md-12">
-                                <!--<input-->
-                                <!--class="col-md-12"-->
-                                <!--placeholder="Studydate from"-->
-                                <!--(click)="studyDateFromOpen()"-->
-                                <!--id="StudyDateFrom"-->
-                                <!--type="text"-->
-                                <!--uib-datepicker-popup="{{format}}"-->
-                                <!--[(ngModel)]="studyDate.fromObject"-->
-                                <!--is-open="studyDateFrom.opened"-->
-                                <!--datepicker-options="dateOptions"-->
-                                <!--close-text="Close"/>-->
-                                <!--<input type="date" placeholder="Study date from" name="StudyDateFrom" value="12/13/2013"/>-->
                                 <p-calendar (change)="studyDateChanged($event)" (click)="studyDateChanged($event)" dataType="string" [(ngModel)]="studyDate.from" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Study date from"></p-calendar>
                             </div>
                             <div class="col-md-12">
-                                <!--<input-->
-                                <!--class="col-md-12"-->
-                                <!--placeholder="Studytime from"-->
-                                <!--id="StudyTimeFrom"-->
-                                <!--type="text"-->
-                                <!--size="10"-->
-                                <!--[(ngModel)]="studyTime.fromObject"-->
-                                <!--data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />-->
-                                <!--<input type="time" placeholder="Study time from" name="StudyDateFrom" value="20:12" />-->
                                 <p-calendar (onSelect)="selectTime('from')" (onBlur)="selectTime('from')" (click)="timeClose()" [(ngModel)]="studyTime.fromObject" timeOnly="true" hourFormat="24" placeholder="Study time from"></p-calendar>
-                                <!--<div class="input-group clockpicker" data-placement="right" data-align="top" data-autoclose="true">-->
-                                    <!--<input type="text" class="form-control" value="22:33">-->
-                                    <!--<span class="input-group-addon">-->
-                                    <!--<span class="glyphicon glyphicon-time"></span>-->
-                                <!--</span>-->
                             </div>
                         </div>
                         <div class="minus text-center">
@@ -325,39 +257,10 @@
                         </div>
                         <div class="block_seid">
                             <div class="col-md-12">
-                                <!--<input-->
-                                <!--class="col-md-12"-->
-                                <!--placeholder=" study._VALUE date to"-->
-                                <!--class="col-md-12"-->
-                                <!--id="StudyDateTo"-->
-                                <!--(click)="studyDateToOpen()"-->
-                                <!--is-open="studyDateTo.opened"-->
-                                <!--close-text="Close"-->
-                                <!--type="text"-->
-                                <!--size="10"-->
-                                <!--[(ngModel)]="studyDate.toObject"-->
-                                <!--uib-datepicker-popup="{{format}}"/>-->
-                                <!--<input type="date" placeholder="Study date to" name="StudyDateFrom" [(ngModel)]="studyDate.toObject" />-->
                                 <p-calendar (change)="studyDateChanged($event)" (click)="studyDateChanged($event)" dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Study date to"></p-calendar>
-
                             </div>
                             <div class="col-md-12">
-                                <!--<input-->
-                                <!--class="col-md-12"-->
-                                <!--placeholder="Studytime to"-->
-                                <!--id="StudyTimeTo"-->
-                                <!--type="text"-->
-                                <!--size="10"-->
-                                <!--[(ngModel)]="studyTime.toObject"-->
-                                <!--data-lng-clockpicker data-lng-clockpicker-options='clockpicker' />-->
-                                <!--<input type="time" placeholder="Study time from" name="StudyDateFrom" [(ngModel)]="studyTime.toObject" />-->
                                 <p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder="Study time to"></p-calendar>
-                                <!--<div class="input-group clockpicker" data-placement="right" data-align="top" data-autoclose="true">-->
-                                    <!--<input type="text" class="form-control" [(ngModel)]="studyTime.toObject">-->
-                                    <!--<span class="input-group-addon">-->
-                                    <!--<span class="glyphicon glyphicon-time"></span>-->
-                                <!--</span>-->
-                                <!--</div>-->
                             </div>
                         </div>
                     </div>
@@ -367,17 +270,6 @@
                 </a>
             </div>
             <div class="buttons_block col-md-2">
-                <!--         <select [(ngModel)]="filter.orderby">
-                            <option value="">Order by ...</option>
-                            <option value="PatientName">Order by patient._VALUE name &darr;</option>
-                            <option value="-PatientName">Order by patient._VALUE name &uarr;</option>
-                            <option value="StudyDate,StudyTime">Order by study._VALUE date &darr;</option>
-                            <option value="-StudyDate,-StudyTime">Order by study._VALUE date &uarr;</option>
-                            <option value="PatientName,StudyDate,StudyTime">Order by patient._VALUE name &darr; and study._VALUE date &darr;</option>
-                            <option value="PatientName,-StudyDate,-StudyTime">Order by patient._VALUE name &darr; and study._VALUE date &uarr;</option>
-                            <option value="-PatientName,StudyDate,StudyTime">Order by patient._VALUE name &uarr; and study._VALUE date &darr;</option>
-                            <option value="-PatientName,-StudyDate,-StudyTime">Order by patient._VALUE name &uarr; and study._VALUE date &uarr;</option>
-                        </select> -->
                 <div class="row col-md-12" title="AE Title of first C-FIND SCP" *ngIf="filterMode === 'diff'">
                     <md-select [(ngModel)]="aet1" placeholder="Primary AET" floatPlaceholder="never">
                         <md-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</md-option>
@@ -389,7 +281,13 @@
                         <md-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</md-option>
                     </md-select>
                 </div>
-                <div class="orderbyblock" [ngClass]="{notrash:trashaktive==false}">
+                <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" >
+                   <span class="count_text" title="Total size of filtered studies found">Size: <b>{{size}}</b></span>  <span (click)="getSize()" title="Get total size of filtered studies" class="glyphicon glyphicon-refresh"></span>
+                </div>
+                <div class="count_block_total" *ngIf="filterMode != 'diff'" [ngClass]="{single:externalInternalAetMode === 'external' || filterMode!='study'}">
+                   <span class="count_text" title="Total count of filtered studies found">Total count: <b>{{count}}</b></span>  <span (click)="getCount()" title="Get total count of filtered studies" class="glyphicon glyphicon-refresh"></span>
+                </div>
+                <div class="orderbyblock" [ngClass]="{notrash:trashaktive==false,diff:filterMode==='diff'}">
                     <div class="btn-group" role="group" >
                         <button id="showoptionlistbutton" type="button" class="btn btn-default selectedorderbutton" (click)="showoptionlist = !showoptionlist" >
                             <span id="selectedorder" class="selectedorder"  [innerHtml]="orderbytext"></span>
@@ -405,8 +303,6 @@
                                 <li *ngFor="let order of orderbyExternal; let i = index;" [ngClass]="{active:(filter.orderby === order.value && filterMode === order.mode)}" (click)="showoptionlist = false; filter.orderby = order.value; orderbytext = order.label; filterMode = order.mode;extendedFilter(false);fireQueryOnChange(order)" title="{{order.title}}" [innerHtml]="order.label"></li>
                             </ul>
                         </div>
-                        <!--                 <button class="btn btn-default" type="button">Go!</button>
-                        -->
                         <button type="button" class="btn btn-info btn-default executebutton" *ngIf="filterMode==='patient'" id="querypatients" (click)="queryPatients(0);patientmode=true" title="Query Patients">
                             <span class="glyphicon glyphicon-refresh"></span>
                         </button>
@@ -610,8 +506,9 @@
                 </div>
                 <ul *ngIf="moreFunctionsButtons">
                     <li (click)="moreFunctionsButtons = false;createPatient()" title="Create new patient">Create patient</li>
-                    <li (click)="moreFunctionsButtons = false;uploadDicom()" title="Upload a DICOM Object">Upload DICOM Object</li>
-                    <li (click)="moreFunctionsButtons = false;deleteRejectedInstances()"title="Delete Rejected Instances permanently">Permanent delete</li>
+                    <li (click)="moreFunctionsButtons = false;uploadDicom()" *ngIf="externalInternalAetMode === 'internal'" title="Upload a DICOM Object">Upload DICOM Object</li>
+                    <li (click)="moreFunctionsButtons = false;deleteRejectedInstances()" *ngIf="externalInternalAetMode === 'internal'" title="Delete Rejected Instances permanently">Permanent delete</li>
+                    <li (click)="moreFunctionsButtons = false;retrieveMultipleStudies()" title="Retrieve multiple studies">Retrieve multiple studies</li>
                 </ul>
             </div>
         </div>
@@ -1003,21 +900,21 @@
                                                         <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('instance', instance._VALUE)" *ngIf="isRole('admin') && externalInternalAetMode === 'internal'" href="" title="Verify storage commitment">
                                                             <span class="glyphicon glyphicon-ok"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" *ngIf="!instance._VALUE.video && externalInternalAetMode === 'internal'" href="{{downloadURL(instance._VALUE)}}" title="Download Uncompressed DICOM Object">
+                                                        <a class="hiddenbuttons" *ngIf="!instance._VALUE.video && externalInternalAetMode === 'internal'" (click)="$event.preventDefault();downloadURL(instance._VALUE)" title="Download Uncompressed DICOM Object">
                                                             <span class="glyphicon glyphicon-save"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" href="{{downloadURL(instance._VALUE, '*')}}" *ngIf="externalInternalAetMode === 'internal'" title="Download DICOM Object">
+                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();downloadURL(instance._VALUE, '*')" *ngIf="externalInternalAetMode === 'internal'" title="Download DICOM Object">
                                                             <span class="glyphicon glyphicon-download-alt"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" *ngIf="instance._VALUE.views.length === 1 && externalInternalAetMode === 'internal'" (click)="$event.preventDefault();viewInstance(instance._VALUE)" href="#" title="View DICOM Object">
+                                                        <a class="hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" (click)="$event.preventDefault();viewInstance(instance._VALUE)" href="#" title="View DICOM Object">
                                                             <span class="glyphicon glyphicon-picture"></span>
                                                         </a>
-                                                        <span class="selecta hiddenbuttons" *ngIf="instance._VALUE.views.length > 1 && externalInternalAetMode === 'internal'" title="View DICOM Object">
+<!--                                                        <span class="selecta hiddenbuttons" *ngIf="instance._VALUE.views.length > 1 && externalInternalAetMode === 'internal'" title="View DICOM Object">
                                                             <span class="glyphicon glyphicon-picture" (click)="select_show = !select_show"></span>
                                                             <div *ngIf="select_show" class="select_block">
                                                                 <a *ngFor="let value of instance._VALUE.views" (click)="$event.preventDefault();instance._VALUE.view=value;viewInstance(instance._VALUE)">{{value}}</a>
                                                             </div>
-                                                        </span>
+                                                        </span>-->
                                                     </div>
                                                 </div>
                                             </div>

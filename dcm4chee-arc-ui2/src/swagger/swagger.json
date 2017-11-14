@@ -23,6 +23,10 @@
       "description": "Configuration Access"
     },
     {
+      "name": "COUNT-RS",
+      "description": "Count number of matching Entities"
+    },
+    {
       "name": "DIMSE-RS",
       "description": "Invoke DIMSE Service on remote AE"
     },
@@ -508,7 +512,10 @@
             "name": "body",
             "in": "body",
             "description": "updated device vendor data",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1963,16 +1970,6 @@
             "collectionFormat": "multi"
           },
           {
-            "name": "includefield",
-            "in": "query",
-            "description": "includefield={attributeID} | all",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -2002,6 +1999,284 @@
           },
           "204": {
             "description": "no matching instances found"
+          },
+          "404": {
+            "description": "External AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/patients/count": {
+      "get": {
+        "tags": [
+          "DIMSE-RS",
+          "COUNT-RS"
+        ],
+        "summary": "Count Patients external",
+        "operationId": "CountPatientsExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for querying for Patients",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Patients",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "External AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/count": {
+      "get": {
+        "tags": [
+          "DIMSE-RS",
+          "COUNT-RS"
+        ],
+        "summary": "Count Studies external",
+        "operationId": "CountStudiesExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for querying for Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "External AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/count": {
+      "get": {
+        "tags": [
+          "DIMSE-RS",
+          "COUNT-RS"
+        ],
+        "summary": "Count Series of Study external",
+        "operationId": "CountStudySeriesExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for querying for Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "External AE Title not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/count": {
+      "get": {
+        "tags": [
+          "DIMSE-RS",
+          "COUNT-RS"
+        ],
+        "summary": "Count Instances of Series of Study external",
+        "operationId": "CountStudySeriesInstancesExternal",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for querying for Instances",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Instances",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
           },
           "404": {
             "description": "External AE Title not found"
@@ -2567,6 +2842,282 @@
         }
       }
     },
+    "/aets/{aet}/dimse/{externalAET}/studies/query:{queryAET}/export/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "DIMSE-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Retrieve matching Studies from external C-MOVE SCP",
+        "operationId": "RetrieveMatchingStudies",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for connecting external C-FIND and C-MOVE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-MOVE SCP from which matching Studies are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "queryAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for matching Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "destinationAET",
+            "in": "path",
+            "description": "AE Title of STORE-SCP to which matching Studies are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled retrieve of matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "502": {
+            "description": "C-FIND-SCP Failure"
+          },
+          "404": {
+            "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/query:{queryAET}/export/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "DIMSE-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Retrieve matching Series from external C-MOVE SCP",
+        "operationId": "RetrieveMatchingSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for connecting external C-FIND and C-MOVE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-MOVE SCP from which matching Series are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "queryAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "destinationAET",
+            "in": "path",
+            "description": "AE Title of STORE-SCP to which matching Series are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully scheduled retrieve of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "502": {
+            "description": "C-FIND-SCP Failure"
+          },
+          "404": {
+            "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/query:{queryAET}/export/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "DIMSE-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Retrieve matching Instances from external C-MOVE SCP",
+        "operationId": "RetrieveMatchingInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for connecting external C-FIND and C-MOVE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-MOVE SCP from which matching Instances are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "queryAET",
+            "in": "path",
+            "description": "AE Title of C-FIND SCP to query for matching Instances",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "destinationAET",
+            "in": "path",
+            "description": "AE Title of STORE-SCP to which matching Instances are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled retrieve of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "502": {
+            "description": "C-FIND-SCP Failure"
+          },
+          "404": {
+            "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/dimse/{externalAET}/diff/{originalAET}/studies": {
       "get": {
         "tags": [
@@ -2825,7 +3376,10 @@
             "name": "patientAttributes",
             "in": "body",
             "description": "Patient Attributes encoded as JSON Dataset",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "queue",
@@ -2894,7 +3448,10 @@
             "name": "patientAttributes",
             "in": "body",
             "description": "Updated Patient Attributes encoded as JSON Dataset",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "queue",
@@ -2972,7 +3529,10 @@
             "name": "patientAttributes",
             "in": "body",
             "description": "Target Patient Attributes encoded as JSON Dataset",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "queue",
@@ -3050,7 +3610,10 @@
             "name": "patientAttributes",
             "in": "body",
             "description": "Patient Attributes with changed Patient ID and Issuer encoded as JSON Dataset",
-            "required": true
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           },
           {
             "name": "queue",
@@ -3241,7 +3804,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/patients/{patientID}/merge/{priorPatientID}": {
+    "/aets/{aet}/rs/patients/{priorPatientID}/merge/{patientID}": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -3257,16 +3820,16 @@
             "type": "string"
           },
           {
-            "name": "patientID",
+            "name": "priorPatientID",
             "in": "path",
-            "description": "Patient ID and Issuer of the dominant Patient encoded as HL7 CX",
+            "description": "Patient ID and Issuer of the merged Patient encoded as HL7 CX",
             "required": true,
             "type": "string"
           },
           {
-            "name": "priorPatientID",
+            "name": "patientID",
             "in": "path",
-            "description": "Patient ID and Issuer of the merged Patient encoded as HL7 CX",
+            "description": "Patient ID and Issuer of the dominant Patient encoded as HL7 CX",
             "required": true,
             "type": "string"
           }
@@ -3281,7 +3844,7 @@
         }
       }
     },
-    "/aets/{aet}/rs/patients/{patientID}/changeid/{priorPatientID}": {
+    "/aets/{aet}/rs/patients/{priorPatientID}/changeid/{patientID}": {
       "post": {
         "tags": [
           "IOCM-RS"
@@ -3297,16 +3860,16 @@
             "type": "string"
           },
           {
-            "name": "patientID",
+            "name": "priorPatientID",
             "in": "path",
-            "description": "New Patient ID and Issuer encoded as HL7 CX",
+            "description": "Prior Patient ID and Issuer encoded as HL7 CX",
             "required": true,
             "type": "string"
           },
           {
-            "name": "priorPatientID",
+            "name": "patientID",
             "in": "path",
-            "description": "Prior Patient ID and Issuer encoded as HL7 CX",
+            "description": "New Patient ID and Issuer encoded as HL7 CX",
             "required": true,
             "type": "string"
           }
@@ -4371,6 +4934,676 @@
         }
       }
     },
+    "/aets/{aet}/rs/patients/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Patients",
+        "operationId": "CountPatients",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "withoutstudies",
+            "in": "query",
+            "description": "count Patient w/o Studies",
+            "type": "boolean",
+            "default": true
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Patients",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/mwlitems/count": {
+      "get": {
+        "tags": [
+          "MWL-RS",
+          "COUNT-RS"
+        ],
+        "summary": "Count Scheduled Procedure Steps",
+        "operationId": "CountSPS",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Scheduled Procedure Steps",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Studies",
+        "operationId": "CountStudies",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "returnempty",
+            "in": "query",
+            "description": "count also empty Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "count only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "count only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "count only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "count Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "count Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "count Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "count Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Series of Study",
+        "operationId": "CountStudySeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "returnempty",
+            "in": "query",
+            "description": "count also empty Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "count only expired Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "count only Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "count only Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "count Series received from this <AE Title>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/series/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Series",
+        "operationId": "CountSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "returnempty",
+            "in": "query",
+            "description": "count also empty Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "count only expired Series",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "count only Series which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "count only Series which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "count Series received from this <AE Title>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Instances of Series of Study",
+        "operationId": "CountStudySeriesInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/{StudyInstanceUID}/instances/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Instances of Study",
+        "operationId": "CountStudyInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/instances/count": {
+      "get": {
+        "tags": [
+          "COUNT-RS"
+        ],
+        "summary": "Count Instances",
+        "operationId": "CountInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "description": "Series Instance UID for a single Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/rs/studies/size": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Size of Studies",
+        "operationId": "SizeOfStudies",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "returnempty",
+            "in": "query",
+            "description": "match also rejected Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "match only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "match only of Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "match only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "match only Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "match only Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "match only Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "match only Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Size of matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Size"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/export": {
       "get": {
         "tags": [
@@ -4701,7 +5934,7 @@
         "expiration": {
           "title": "expiration",
           "description": "Access token lifetime in seconds",
-          "type": ""
+          "type": "integer"
         },
         "systemCurrentTime": {
           "title": "systemCurrentTime",
@@ -4766,6 +5999,32 @@
         "deleted": {
           "title": "deleted",
           "description": "number of deleted tasks",
+          "type": "integer"
+        }
+      }
+    },
+    "Count": {
+      "type": "object",
+      "required": [
+        "count"
+      ],
+      "properties": {
+        "count": {
+          "title": "count",
+          "description": "number of matches",
+          "type": "integer"
+        }
+      }
+    },
+    "Size": {
+      "type": "object",
+      "required": [
+        "size"
+      ],
+      "properties": {
+        "size": {
+          "title": "size",
+          "description": "size of matches",
           "type": "integer"
         }
       }
