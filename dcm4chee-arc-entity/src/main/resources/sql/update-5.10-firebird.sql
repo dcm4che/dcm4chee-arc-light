@@ -6,7 +6,7 @@ alter TABLE STUDY DROP ext_retrieve_aetNew;
 alter TABLE STUDY alter COLUMN EXT_RETRIEVE_AET1 to EXT_RETRIEVE_AET;
 create index UK_cl9dmi0kb97ov1cjh7rn3dhve on study (ext_retrieve_aet);
 
-alter table study add completeness int not null;
+alter table study add completeness integer not null;
 update study set completeness = 2;
 update study set completeness = 1 where failed_retrieves > 0 and failed_iuids is not null;
 update study set completeness = 0 where failed_retrieves = 0 and failed_iuids = '*';
@@ -14,7 +14,7 @@ drop index UK_BTFU9P1KWHRR444MUYTVXGUCI;
 alter table study drop failed_iuids;
 create index UK_gl5rq54a0tr8nreu27c2t04rb on study (completeness);
 
-alter table series add completeness int not null;
+alter table series add completeness integer not null;
 update series set completeness = 2;
 update series set completeness = 1 where failed_retrieves > 0 and failed_iuids is not null;
 update series set completeness = 0 where failed_retrieves = 0 and failed_iuids = '*';
