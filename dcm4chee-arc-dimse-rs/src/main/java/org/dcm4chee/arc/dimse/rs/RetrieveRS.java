@@ -148,7 +148,7 @@ public class RetrieveRS {
     }
 
     private Response export(String destAET, String... uids) throws Exception {
-        LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         Attributes keys = toKeys(uids);
         return queue ? queueExport(destAET, keys) : export(destAET, keys);
     }

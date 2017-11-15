@@ -85,7 +85,7 @@ public class QueryAttributeFilter {
     @Path("/{Entity}")
     @Produces("application/json")
     public StreamingOutput getAttributeFilter(@PathParam("Entity") String entityName) throws Exception {
-        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         final Entity entity;
         try {
             entity = Entity.valueOf(entityName);

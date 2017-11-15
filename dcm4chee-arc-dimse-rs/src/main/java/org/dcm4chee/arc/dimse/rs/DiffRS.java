@@ -161,7 +161,7 @@ public class DiffRS {
     }
 
     private void search(AsyncResponse ar, boolean count) throws Exception {
-        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
         int[] compareKeys = compareKeys();
         addReturnTags(queryAttributes, compareKeys);

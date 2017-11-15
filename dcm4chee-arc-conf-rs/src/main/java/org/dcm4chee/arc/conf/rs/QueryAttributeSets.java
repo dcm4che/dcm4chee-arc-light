@@ -82,7 +82,7 @@ public class QueryAttributeSets {
     @Path("/{type}")
     @Produces("application/json")
     public StreamingOutput listAttributeSets(@PathParam("type") String type) {
-        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         final AttributeSet.Type attrSetType = attrSetTypeOf(type);
         return new StreamingOutput() {
             @Override

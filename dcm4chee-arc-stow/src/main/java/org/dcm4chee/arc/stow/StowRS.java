@@ -267,7 +267,7 @@ public class StowRS {
     }
 
     private void store(AsyncResponse ar, InputStream in, final Input input, Output output)  throws Exception {
-        LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ar.register(new CompletionCallback() {
             @Override
             public void onComplete(Throwable throwable) {

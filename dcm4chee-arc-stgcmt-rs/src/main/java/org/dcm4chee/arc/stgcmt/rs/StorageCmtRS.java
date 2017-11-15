@@ -72,7 +72,6 @@ import java.io.OutputStream;
 @Path("aets/{aet}/rs")
 public class StorageCmtRS {
     private static final Logger LOG = LoggerFactory.getLogger(StorageCmtRS.class);
-    private static final String ORG_KEYCLOAK_KEYCLOAK_SECURITY_CONTEXT = "org.keycloak.KeycloakSecurityContext";
 
     @Inject
     private Device device;
@@ -117,7 +116,7 @@ public class StorageCmtRS {
     }
 
     private StreamingOutput storageCommit(String studyUID, String seriesUID, String sopUID) {
-        LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         validateArchiveAE();
         Attributes eventInfo = stgCmtMgr.calculateResult(studyUID, seriesUID, sopUID);
         stgCmtEvent.fire(new StgCmtEventInfoImpl(request, eventInfo));

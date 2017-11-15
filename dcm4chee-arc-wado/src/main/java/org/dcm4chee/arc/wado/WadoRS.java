@@ -332,7 +332,7 @@ public class WadoRS {
 
     private void retrieve(String method, String studyUID, String seriesUID, String objectUID, int[] frameList,
                           int[] attributePath, String includefields, AsyncResponse ar, Output output) {
-        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         try {
             checkAET();
             // @Inject does not work:

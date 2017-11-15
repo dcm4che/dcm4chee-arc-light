@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -111,7 +111,7 @@ public class DeleteRejected {
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator)
             throws Exception {
-        LOG.info("Process DELETE {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process DELETE {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         Code code = new Code(codeValue, designator, null, "?");
         RejectionNote rjNote = arcDev.getRejectionNote(code);
@@ -119,7 +119,6 @@ public class DeleteRejected {
             throw new WebApplicationException(
                     getResponse("Unknown Rejection Note Code: " + code, Response.Status.NOT_FOUND));
 
-        boolean keep = Boolean.parseBoolean(keepRejectionNote);
         Date before = parseDate(rejectedBefore);
         int fetchSize = arcDev.getDeleteRejectedFetchSize();
         int deleted = service.deleteRejectedInstancesBefore(rjNote.getRejectionNoteCode(), before, fetchSize);
