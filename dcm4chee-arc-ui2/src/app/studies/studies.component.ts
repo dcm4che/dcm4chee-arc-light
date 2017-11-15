@@ -1750,21 +1750,11 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 result: {select: this.rjnotes[0].codeValue + '^' + this.rjnotes[0].codingSchemeDesignator},
                 saveButton: 'REJECT'
             };
-            console.log('rejectstudy', parameters);
-/*            let parameters: any = {
-                content: 'Select rejected type',
-                selectoptions: this.rjnotes,
-                result: this.rjnotes[0].codeValue+'^'+this.rjnotes[0].codingSchemeDesignator,
-                saveButton: "REJECT"
-            };*/
-            console.log('parameters', parameters);
             this.confirm(parameters).subscribe(result => {
                 if (result) {
-                    console.log('result', result);
-                    console.log('parameters', parameters);
                     $this.cfpLoadingBar.start();
                     $this.$http.post(
-                        $this.studyURL(study.attrs) + '/reject/' + parameters.result.select,
+                        encodeURI($this.studyURL(study.attrs) + '/reject/' + parameters.result.select),
                         {},
                         $this.jsonHeader
                     ).subscribe(
