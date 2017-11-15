@@ -143,7 +143,7 @@ export class AppService implements OnInit, OnDestroy{
     param(filter){
         let filterMaped = Object.keys(filter).map((key) => {
             if (filter[key]){
-                return encodeURIComponent(key) + '=' + encodeURIComponent(filter[key]);
+                return key + '=' + filter[key];
             }
         });
         let filterCleared = _.compact(filterMaped);

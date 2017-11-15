@@ -16,19 +16,19 @@ export class J4careHttpService{
     header;
     token;
     get(url,header?){
-       return this.request.apply(this,['get', [url, header]]);
+       return this.request.apply(this,['get', [encodeURI(url), header]]);
     }
     head(url,header?){
-        return this.request.apply(this,['head', [url, header]]);
+        return this.request.apply(this,['head', [encodeURI(url), header]]);
     }
     post(url,data,header?){
-        return this.request.apply(this,['post', [url, data, header]]);
+        return this.request.apply(this,['post', [encodeURI(url), data, header]]);
     }
     put(url,data,header?){
-        return this.request.apply(this,['put', [url, data, header]]);
+        return this.request.apply(this,['put', [encodeURI(url), data, header]]);
     }
     delete(url,header?){
-        return this.request.apply(this,['delete', [url, header]]);
+        return this.request.apply(this,['delete', [encodeURI(url), header]]);
     }
     private request(requestFunctionName, param){
         let $this = this;

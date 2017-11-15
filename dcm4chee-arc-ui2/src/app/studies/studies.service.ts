@@ -19,7 +19,7 @@ export class StudiesService {
     constructor(
         public $http: J4careHttpService,
         public datePipe: DatePipe,
-        public mainservice:AppService
+        public mainservice:AppService,
     ) { }
 
     get studyIod() {
@@ -122,7 +122,8 @@ export class StudiesService {
         return endMsg;
     }
     _config = function(params) {
-        return '?' + jQuery.param(params);
+        // return '?' + decodeURIComponent(jQuery.param(params,true));
+        return '?' + this.mainservice.param(params);
     };
 
     replaceKeyInJson(object, key, key2){
