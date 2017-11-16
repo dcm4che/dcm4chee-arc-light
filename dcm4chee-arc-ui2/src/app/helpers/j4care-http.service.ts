@@ -79,7 +79,7 @@ export class J4careHttpService{
         }
     }
     refreshToken():Observable<any>{
-        if((!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()) && (!this.mainservice.global || !this.mainservice.global.notSecure) && !this.mainservice.global.getRealmStateActive){
+        if((!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()) && (!this.mainservice.global || !this.mainservice.global.notSecure) && (!this.mainservice.global || !this.mainservice.global.getRealmStateActive)){
             this.mainservice.global.getRealmStateActive = true;
             return this.$http.get('rs/realm').map(res => {
                 let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
