@@ -603,7 +603,18 @@ class ArchiveDeviceFactory {
             UID.PrivatePMODMultiframeImageStorage,
             UID.PrivateToshibaUSImageStorage
     };
-    static final String[] IMAGE_TSUIDS = {
+    static final String[] IMAGE_TSUIDS_WITHOUT_JPEG200 = {
+            UID.ImplicitVRLittleEndian,
+            UID.ExplicitVRLittleEndian,
+            UID.JPEGBaseline1,
+            UID.JPEGExtended24,
+            UID.JPEGLossless,
+            UID.JPEGLosslessNonHierarchical14,
+            UID.JPEGLSLossless,
+            UID.JPEGLSLossyNearLossless,
+            UID.RLELossless
+    };
+    static final String[] IMAGE_TSUIDS_WITH_JPEG200 = {
             UID.ImplicitVRLittleEndian,
             UID.ExplicitVRLittleEndian,
             UID.JPEGBaseline1,
@@ -777,13 +788,6 @@ class ArchiveDeviceFactory {
     static final String[] OTHER_TSUIDS = {
             UID.ImplicitVRLittleEndian,
             UID.ExplicitVRLittleEndian
-    };
-
-    static final String[][] CUIDS_TSUIDS = {
-            IMAGE_CUIDS, IMAGE_TSUIDS,
-            VIDEO_CUIDS, VIDEO_TSUIDS,
-            SR_CUIDS, SR_TSUIDS,
-            OTHER_CUIDS, OTHER_TSUIDS
     };
 
     static final String[] QUERY_CUIDS = {
@@ -1674,6 +1678,12 @@ class ArchiveDeviceFactory {
         if (mwlSCP) {
             addTCs(ae, EnumSet.allOf(QueryOption.class), SCP, MWL_CUID, UID.ImplicitVRLittleEndian);
         }
+        String[][] CUIDS_TSUIDS = {
+                IMAGE_CUIDS, configType == ConfigType.SAMPLE ? IMAGE_TSUIDS_WITH_JPEG200 : IMAGE_TSUIDS_WITHOUT_JPEG200,
+                VIDEO_CUIDS, VIDEO_TSUIDS,
+                SR_CUIDS, SR_TSUIDS,
+                OTHER_CUIDS, OTHER_TSUIDS
+        };
         if (storeSCU) {
             addTCs(ae, EnumSet.of(QueryOption.RELATIONAL), SCP, RETRIEVE_CUIDS, UID.ImplicitVRLittleEndian);
             for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
