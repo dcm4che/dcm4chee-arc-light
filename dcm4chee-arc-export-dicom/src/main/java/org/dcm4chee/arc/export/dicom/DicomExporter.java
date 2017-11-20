@@ -137,9 +137,9 @@ public class DicomExporter extends AbstractExporter {
         String studyInstanceUID = exportContext.getStudyInstanceUID();
         String seriesInstanceUID = exportContext.getSeriesInstanceUID();
         String sopInstanceUID = exportContext.getSopInstanceUID();
-        if (!sopInstanceUID.equals("*"))
+        if (sopInstanceUID != null)
             sb.append("Instance[uid=").append(sopInstanceUID).append("] of ");
-        if (!seriesInstanceUID.equals("*"))
+        if (seriesInstanceUID != null)
             sb.append("Series[uid=").append(seriesInstanceUID).append("] of ");
         return sb.append("Study[uid=").append(studyInstanceUID).append("]");
     }

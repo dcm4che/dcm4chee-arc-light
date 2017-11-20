@@ -45,6 +45,7 @@ import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QExportTask;
@@ -52,7 +53,6 @@ import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.JMSUtils;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
@@ -235,7 +235,12 @@ public class ExportManagerEJB implements ExportManager {
     public void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
                                    HttpServletRequestInfo httpServletRequestInfo)
             throws QueueSizeLimitExceededException {
-        ExportTask task = createExportTask(exporter.getExporterID(), studyUID, seriesUID, objectUID, new Date());
+        ExportTask task = createExportTask(
+                exporter.getExporterID(),
+                studyUID,
+                StringUtils.maskNull(seriesUID, "*"),
+                StringUtils.maskNull(objectUID, "*"),
+                new Date());
         scheduleExportTask(task, exporter, httpServletRequestInfo);
     }
 
@@ -267,11 +272,15 @@ public class ExportManagerEJB implements ExportManager {
     private ObjectMessage createMessage(ExportTask exportTask, String aeTitle, HttpServletRequestInfo httpServletRequestInfo) {
         ObjectMessage msg = queueManager.createObjectMessage(exportTask.getPk());
         try {
-            JMSUtils.setStringNotNull(msg,"StudyInstanceUID", exportTask.getStudyInstanceUID());
-            JMSUtils.setStringNotNull(msg,"SeriesInstanceUID", exportTask.getSeriesInstanceUID());
-            JMSUtils.setStringNotNull(msg,"SopInstanceUID", exportTask.getSopInstanceUID());
-            JMSUtils.setStringNotNull(msg,"ExporterID", exportTask.getExporterID());
-            JMSUtils.setStringNotNull(msg,"AETitle", aeTitle);
+            msg.setStringProperty("StudyInstanceUID", exportTask.getStudyInstanceUID());
+            if (!exportTask.getSeriesInstanceUID().equals("*")) {
+                msg.setStringProperty("SeriesInstanceUID", exportTask.getSeriesInstanceUID());
+                if (!exportTask.getSopInstanceUID().equals("*")) {
+                    msg.setStringProperty("SopInstanceUID", exportTask.getSopInstanceUID());
+                }
+            }
+            msg.setStringProperty("ExporterID", exportTask.getExporterID());
+            msg.setStringProperty("AETitle", aeTitle);
             if (httpServletRequestInfo != null)
                 httpServletRequestInfo.copyTo(msg);
         } catch (JMSException e) {
