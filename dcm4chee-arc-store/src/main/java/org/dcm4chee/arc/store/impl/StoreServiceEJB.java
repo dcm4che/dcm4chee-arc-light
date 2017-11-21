@@ -212,7 +212,8 @@ public class StoreServiceEJB {
             }
         }
         Instance instance = createInstance(ctx, conceptNameCode, result);
-        if (ctx.getLocations().isEmpty())
+        boolean createLocations = ctx.getLocations().isEmpty();
+        if (createLocations)
             createLocations(ctx, instance, result);
         else
             copyLocations(ctx, instance, result);
@@ -224,7 +225,7 @@ public class StoreServiceEJB {
         series.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
         if(rjNote == null) {
             updateSeriesRejectionState(ctx, series);
-            if (series.getRejectionState() == RejectionState.NONE) {
+            if (createLocations && series.getRejectionState() == RejectionState.NONE) {
                 series.scheduleInstancePurge(arcAE.purgeInstanceRecordsDelay());
             }
             Study study = series.getStudy();
