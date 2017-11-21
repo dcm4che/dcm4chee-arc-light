@@ -116,6 +116,10 @@ public interface StoreSession extends Closeable {
 
     void setAcceptConflictingPatientID(AcceptConflictingPatientID acceptConflictingPatientID);
 
+    Attributes.UpdatePolicy getPatientUpdatePolicy();
+
+    void setPatientUpdatePolicy(Attributes.UpdatePolicy patientUpdatePolicy);
+
     Attributes.UpdatePolicy getStudyUpdatePolicy();
 
     void setStudyUpdatePolicy(Attributes.UpdatePolicy studyUpdatePolicy);

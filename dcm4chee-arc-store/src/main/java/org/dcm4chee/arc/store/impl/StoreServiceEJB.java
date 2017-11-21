@@ -658,13 +658,13 @@ public class StoreServiceEJB {
 
     private Patient updatePatient(StoreContext ctx, Patient pat) {
         StoreSession session = ctx.getStoreSession();
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        AttributeFilter filter = arcDev.getAttributeFilter(Entity.Patient);
-        Attributes.UpdatePolicy updatePolicy = filter.getAttributeUpdatePolicy();
+        Attributes.UpdatePolicy updatePolicy = session.getPatientUpdatePolicy();
         if (updatePolicy == null)
             return pat;
 
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        AttributeFilter filter = arcDev.getAttributeFilter(Entity.Patient);
         Attributes attrs = pat.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
         if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), null, filter.getSelection()))
