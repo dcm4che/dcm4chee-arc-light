@@ -446,7 +446,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                             && !qrView.hideRejectionNote(metadata)) {
                         Attributes.unifyCharacterSets(seriesAttrs, metadata);
                         metadata.addAll(seriesAttrs);
-                        ctx.getMatches().add(instanceLocationsFromMetadata(metadata));
+                        ctx.getMatches().add(instanceLocationsFromMetadata(ctx, metadata));
                     }
                 }
                 zip.closeEntry();
@@ -465,7 +465,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         return false;
     }
 
-    private InstanceLocations instanceLocationsFromMetadata(Attributes attrs) {
+    private InstanceLocations instanceLocationsFromMetadata(RetrieveContext ctx, Attributes attrs) {
         InstanceLocationsImpl inst = new InstanceLocationsImpl(attrs);
         inst.setRetrieveAETs(StringUtils.concat(attrs.getStrings(Tag.RetrieveAETitle), '\\'));
         inst.setAvailability(Availability.valueOf(attrs.getString(Tag.InstanceAvailability)));
@@ -482,7 +482,8 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .digest(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest))
                 .size(attrs.getInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, -1))
                 .build());
-        attrs.removePrivateAttributes(ArchiveTag.PrivateCreator, 0x7777);
+        if (ctx.getSeriesMetadataUpdate() == null)
+            attrs.removePrivateAttributes(ArchiveTag.PrivateCreator, 0x7777);
         return inst;
     }
 
