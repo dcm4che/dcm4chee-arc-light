@@ -254,6 +254,7 @@ public class StoreServiceEJB {
         if (series == null || series.getInstancePurgeState() == Series.InstancePurgeState.NO)
             return;
 
+        LOG.info("Restore Instance records of Series[pk={}]", series.getPk());
         Metadata metadata = series.getMetadata();
         try ( ZipInputStream zip = session.getStoreService()
                 .openZipInputStream(session, metadata.getStorageID(), metadata.getStoragePath(), studyUID)) {
@@ -264,6 +265,7 @@ public class StoreServiceEJB {
                 restoreInstance(session, series, jsonReader.readDataset(null));
             }
         } catch (IOException e) {
+            LOG.warn("Failed to restore Instance records of Series[pk={}]", series.getPk(), e);
             throw new DicomServiceException(Status.ProcessingFailure, e);
         }
         series.setInstancePurgeState(Series.InstancePurgeState.NO);

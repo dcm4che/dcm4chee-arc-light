@@ -90,7 +90,12 @@ public class PurgeInstanceRecordsScheduler extends Scheduler {
         do {
             series = ejb.findSeriesToPurgeInstances(fetchSize);
             for (Series.PkAndSize pkAndSize : series) {
-                ejb.purgeInstanceRecordsOfSeries(pkAndSize);
+                LOG.info("Purge Instance records of Series[pk={}]", pkAndSize.pk);
+                try {
+                    ejb.purgeInstanceRecordsOfSeries(pkAndSize);
+                } catch (Exception e) {
+                    LOG.warn("Failed to purge Instance records of Series[pk={}]", pkAndSize.pk, e);
+                }
             }
         }
         while (series.size() == fetchSize);

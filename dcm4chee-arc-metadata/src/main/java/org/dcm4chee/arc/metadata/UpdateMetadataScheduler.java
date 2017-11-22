@@ -164,24 +164,32 @@ public class UpdateMetadataScheduler extends Scheduler {
         if (!retrieveService.calculateMatches(ctx))
             return;
 
+        LOG.info("Update Metadata for Series[uid={}] on Storage[uri={}]",
+                ctx.getSeriesInstanceUID(),
+                storage.getStorageDescriptor().getStorageURI());
         WriteContext writeCtx = createWriteContext(storage, ctx.getMatches().iterator().next());
-        try (ZipOutputStream out = new ZipOutputStream(storage.openOutputStream(writeCtx))) {
-            for (InstanceLocations match : ctx.getMatches()) {
-                out.putNextEntry(new ZipEntry(match.getSopInstanceUID()));
-                JsonGenerator gen = Json.createGenerator(out);
-                new JSONWriter(gen).write(loadMetadata(ctx, match));
-                gen.flush();
-                out.closeEntry();
-            }
-            out.finish();
-        } catch (Exception e) {
-            storage.revokeStorage(writeCtx);
-            throw e;
-        }
         try {
+            try (ZipOutputStream out = new ZipOutputStream(storage.openOutputStream(writeCtx))) {
+                for (InstanceLocations match : ctx.getMatches()) {
+                    out.putNextEntry(new ZipEntry(match.getSopInstanceUID()));
+                    JsonGenerator gen = Json.createGenerator(out);
+                    new JSONWriter(gen).write(loadMetadata(ctx, match));
+                    gen.flush();
+                    out.closeEntry();
+                }
+                out.finish();
+            }
             storage.commitStorage(writeCtx);
-        } catch (RuntimeException e) {
-            storage.revokeStorage(writeCtx);
+        } catch (Exception e) {
+            LOG.warn("Failed to update Metadata for Series[uid={}] on Storage[uri={}]",
+                    ctx.getSeriesInstanceUID(),
+                    storage.getStorageDescriptor().getStorageURI(),
+                    e);
+            try {
+                storage.revokeStorage(writeCtx);
+            } catch (Exception e1) {
+                LOG.warn("Failed to revoke storage", e1);
+            }
             throw e;
         }
         ejb.updateDB(ctx.getSeriesMetadataUpdate().seriesPk, createMetadata(writeCtx));
