@@ -164,8 +164,8 @@ public class UpdateMetadataScheduler extends Scheduler {
         if (!retrieveService.calculateMatches(ctx))
             return;
 
-        LOG.info("Update Metadata for Series[uid={}] on Storage[uri={}]",
-                ctx.getSeriesInstanceUID(),
+        LOG.info("Create/Update Metadata for Series[pk={}] on Storage[uri={}]",
+                ctx.getSeriesMetadataUpdate().seriesPk,
                 storage.getStorageDescriptor().getStorageURI());
         WriteContext writeCtx = createWriteContext(storage, ctx.getMatches().iterator().next());
         try {
@@ -181,7 +181,7 @@ public class UpdateMetadataScheduler extends Scheduler {
             }
             storage.commitStorage(writeCtx);
         } catch (Exception e) {
-            LOG.warn("Failed to update Metadata for Series[uid={}] on Storage[uri={}]",
+            LOG.warn("Failed to create/update Metadata for Series[uid={}] on Storage[uri={}]",
                     ctx.getSeriesInstanceUID(),
                     storage.getStorageDescriptor().getStorageURI(),
                     e);
