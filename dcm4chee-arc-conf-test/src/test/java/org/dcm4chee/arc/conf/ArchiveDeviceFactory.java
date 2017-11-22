@@ -981,7 +981,7 @@ class ArchiveDeviceFactory {
     static final String METADATA_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.json";
     static final String SERIES_METADATA_STORAGE_ID = "series-metadata";
     static final String SERIES_METADATA_STORAGE_URI = "${jboss.server.data.url}/series-metadata/";
-    static final String SERIES_METADATA_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D}/{0020000E}/metadata.zip";
+    static final String SERIES_METADATA_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{now,date,HHmmss}.zip";
     static final Duration SERIES_METADATA_DELAY = Duration.parse("PT1M");
     static final Duration SERIES_METADATA_POLLING_INTERVAL = Duration.parse("PT1M");
     static final String WADO_JPEG_STORAGE_ID = "wado-jpeg";
@@ -1697,10 +1697,10 @@ class ArchiveDeviceFactory {
             addTC(ae, null, SCP, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCU, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCU, UID.InstanceAvailabilityNotificationSOPClass, UID.ImplicitVRLittleEndian);
-            aeExt.setObjectStorageIDs(STORAGE_ID);
             if (configType == configType.SAMPLE)
                 aeExt.setMetadataStorageIDs(METADATA_STORAGE_ID);
         }
+        aeExt.setObjectStorageIDs(STORAGE_ID);
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         aeExt.setAcceptedUserRoles(acceptedUserRoles);
         return ae;

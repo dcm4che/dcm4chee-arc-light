@@ -11,3 +11,15 @@ changetype: modify
 replace: dicomDescription
 dicomDescription: Dicom Retrieve Tasks
 -
+
+dn: dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmObjectStorageID
+dcmObjectStorageID: fs1
+-
+
+dn: dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmObjectStorageID
+dcmObjectStorageID: fs1
+-
