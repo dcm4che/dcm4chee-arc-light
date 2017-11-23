@@ -164,7 +164,7 @@ public class QueryRetrieveRS {
 
     private Response retrieveMatching(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,
                                       String queryAET, String destAET) throws Exception {
-        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
         checkAE(externalAET, aeCache.get(externalAET));
         checkAE(queryAET, aeCache.get(queryAET));

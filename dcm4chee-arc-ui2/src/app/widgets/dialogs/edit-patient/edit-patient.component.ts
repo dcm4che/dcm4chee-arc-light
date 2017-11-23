@@ -27,26 +27,10 @@ export class EditPatientComponent {
     private _dropdown;
     private _patient: any;
     private _patientkey: any;
+    private _externalInternalAetMode;
     iod: any;
 
     constructor(public dialogRef: MdDialogRef<EditPatientComponent>, public mainservice: AppService) {
-        setTimeout(() => {
-            console.log('in settimeout');
-            if (this._mode === 'create'){
-                // $(".edit-patient .00100020").attr("title","To generate it automatically leave it blank");
-                // $(".edit-patient .00100020").attr("placeholder","To generate it automatically leave it blank");
-            }
-            // $(".editform .schema-form-fieldset > legend").append('<span class="glyphicon glyphicon-triangle-right"></span>');
-            // $(".editform .schema-form-fieldset > legend").bind("click",function(){
-            //     $(this).siblings("sf-decorator").toggle();
-            //     var icon = $(this).find(".glyphicon");
-            //     if(icon.hasClass('glyphicon-triangle-right')){
-            //         icon.removeClass('glyphicon-triangle-right').addClass('glyphicon-triangle-bottom');
-            //     }else{
-            //         icon.removeClass('glyphicon-triangle-bottom').addClass('glyphicon-triangle-right');
-            //     }
-            // });
-        }, 1000);
     }
     onChange(newValue, model) {
         _.set(this, model, newValue);
@@ -97,6 +81,14 @@ export class EditPatientComponent {
 
     set titleLabel(value: string) {
         this._titleLabel = value;
+    }
+
+    get externalInternalAetMode() {
+        return this._externalInternalAetMode;
+    }
+
+    set externalInternalAetMode(value) {
+        this._externalInternalAetMode = value;
     }
 
     dialogKeyHandler(e, dialogRef){

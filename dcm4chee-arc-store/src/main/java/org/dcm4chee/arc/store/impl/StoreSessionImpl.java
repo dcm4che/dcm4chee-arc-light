@@ -46,10 +46,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.SafeClose;
-import org.dcm4chee.arc.conf.AcceptConflictingPatientID;
-import org.dcm4chee.arc.conf.AcceptMissingPatientID;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.UIDMap;
@@ -90,6 +87,7 @@ class StoreSessionImpl implements StoreSession {
     private String metadataStorageID;
     private AcceptMissingPatientID acceptMissingPatientID;
     private AcceptConflictingPatientID acceptConflictingPatientID;
+    private Attributes.UpdatePolicy patientUpdatePolicy;
     private Attributes.UpdatePolicy studyUpdatePolicy;
 
     StoreSessionImpl(StoreService storeService) {
@@ -112,8 +110,9 @@ class StoreSessionImpl implements StoreSession {
         ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
         this.acceptMissingPatientID = arcAE.acceptMissingPatientID();
         this.acceptConflictingPatientID = arcAE.acceptConflictingPatientID();
-        this.studyUpdatePolicy = arcAE.getArchiveDeviceExtension()
-                .getAttributeFilter(Entity.Study).getAttributeUpdatePolicy();
+        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
+        this.patientUpdatePolicy = arcDev.getAttributeFilter(Entity.Patient).getAttributeUpdatePolicy();
+        this.studyUpdatePolicy = arcDev.getAttributeFilter(Entity.Study).getAttributeUpdatePolicy();
     }
 
     void setHttpRequest(HttpServletRequest httpRequest) {
@@ -291,6 +290,16 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public void setAcceptConflictingPatientID(AcceptConflictingPatientID acceptConflictingPatientID) {
         this.acceptConflictingPatientID = acceptConflictingPatientID;
+    }
+
+    @Override
+    public Attributes.UpdatePolicy getPatientUpdatePolicy() {
+        return patientUpdatePolicy;
+    }
+
+    @Override
+    public void setPatientUpdatePolicy(Attributes.UpdatePolicy patientUpdatePolicy) {
+        this.patientUpdatePolicy = patientUpdatePolicy;
     }
 
     @Override

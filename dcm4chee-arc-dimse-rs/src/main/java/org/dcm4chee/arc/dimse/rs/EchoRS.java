@@ -114,7 +114,7 @@ public class EchoRS {
     @POST
     @Produces("application/json")
     public StreamingOutput echo() throws Exception {
-        LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity ae = getApplicationEntity();
         ApplicationEntity remote = getRemoteApplicationEntity();
         Association as = null;

@@ -381,8 +381,8 @@ public class IocmRS {
     }
 
     private void setPIDQualifier(Attributes attrs, Issuer pidIssuer) {
+        Sequence pidQualifiers = attrs.getSequence(Tag.IssuerOfPatientIDQualifiersSequence);
         if (hasUniversalEntityIDAndType(pidIssuer)) {
-            Sequence pidQualifiers = attrs.getSequence(Tag.IssuerOfPatientIDQualifiersSequence);
             if (pidQualifiers != null)
                 for (Attributes item : pidQualifiers)
                     setUniversalEntityIDAndType(pidIssuer, item);
@@ -394,6 +394,8 @@ public class IocmRS {
                 pidQualifiers.add(item);
             }
         }
+        if (pidQualifiers != null)
+            attrs.remove(Tag.IssuerOfPatientIDQualifiersSequence);
     }
 
     private boolean hasUniversalEntityIDAndType(Issuer pidIssuer) {
@@ -524,6 +526,7 @@ public class IocmRS {
 
 
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
+        restoreInstances(session, instanceRefs);
         Collection<InstanceLocations> instanceLocations = storeService.queryInstances(session, instanceRefs, studyUID);
         if (instanceLocations.isEmpty())
             return getResponse("No Instances found. ", Response.Status.NOT_FOUND);
@@ -538,6 +541,7 @@ public class IocmRS {
             Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instanceLocations, arcAE.getApplicationEntity());
             moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
             session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
+            session.setPatientUpdatePolicy(null);
             session.setStudyUpdatePolicy(arcAE.linkMWLEntryUpdatePolicy());
             result = storeService.copyInstances(session, instanceLocations);
             rejectInstances(instanceRefs, rjNote, session, result);
@@ -643,6 +647,7 @@ public class IocmRS {
         Attributes instanceRefs = parseSOPInstanceReferences(in);
         Attributes forwardOriginal = new Attributes(instanceRefs);
         StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
+        restoreInstances(session, instanceRefs);
         Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID);
         if (instances.isEmpty())
             return getResponse("No Instances found. ", Response.Status.NOT_FOUND);
@@ -650,6 +655,7 @@ public class IocmRS {
         Attributes sopInstanceRefs = getSOPInstanceRefs(instanceRefs, instances, arcAE.getApplicationEntity());
         moveSequence(sopInstanceRefs, Tag.ReferencedSeriesSequence, instanceRefs);
         session.setAcceptConflictingPatientID(AcceptConflictingPatientID.YES);
+        session.setPatientUpdatePolicy(null);
         session.setStudyUpdatePolicy(arcAE.copyMoveUpdatePolicy());
         Attributes result = storeService.copyInstances(session, instances);
         if (rjNote != null)
@@ -657,6 +663,15 @@ public class IocmRS {
 
         rsForward.forward(op, arcAE, forwardOriginal, request);
         return toResponse(result);
+    }
+
+    private void restoreInstances(StoreSession session, Attributes sopInstanceRefs) throws IOException {
+        String studyUID = sopInstanceRefs.getString(Tag.StudyInstanceUID);
+        Sequence seq = sopInstanceRefs.getSequence(Tag.ReferencedSeriesSequence);
+        if (seq == null || seq.isEmpty())
+            storeService.restoreInstances(session, studyUID, null);
+        else for (Attributes item : seq)
+            storeService.restoreInstances(session, studyUID, item.getString(Tag.SeriesInstanceUID));
     }
 
     private RejectionNote toRejectionNote(ArchiveAEExtension arcAE, String codeValue, String designator) {

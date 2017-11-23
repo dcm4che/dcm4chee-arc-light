@@ -16,31 +16,32 @@ export class J4careHttpService{
     header;
     token;
     get(url,header?){
-       return this.request.apply(this,['get', [url, header]]);
+       return this.request.apply(this,['get', [encodeURI(url), header]]);
     }
     head(url,header?){
-        return this.request.apply(this,['head', [url, header]]);
+        return this.request.apply(this,['head', [encodeURI(url), header]]);
     }
     post(url,data,header?){
-        return this.request.apply(this,['post', [url, data, header]]);
+        return this.request.apply(this,['post', [encodeURI(url), data, header]]);
     }
     put(url,data,header?){
-        return this.request.apply(this,['put', [url, data, header]]);
+        return this.request.apply(this,['put', [encodeURI(url), data, header]]);
     }
     delete(url,header?){
-        return this.request.apply(this,['delete', [url, header]]);
+        return this.request.apply(this,['delete', [encodeURI(url), header]]);
     }
     private request(requestFunctionName, param){
         let $this = this;
         let headerIndex = (param.length === 3) ? 2:1;
         $this.setHeader(param[headerIndex]);
         return $this.refreshToken().flatMap((response)=>{
-                $this.mainservice.global.getRealmStateActive = false;
+                this.setValueInGlobal('getRealmStateActive',false);
                 if(response && response.length != 0){
                     if(response['token'] === null){
-                        $this.mainservice.global.notSecure = true;
+                        $this.setValueInGlobal('notSecure',true);
+
                     }else{
-                        $this.mainservice.global.notSecure = false;
+                        $this.setValueInGlobal('notSecure',false);
                         $this.resetAuthenticationInfo(response);
                         $this.token = response['token'];
                         // $this.setHeader(param[headerIndex]);
@@ -60,27 +61,16 @@ export class J4careHttpService{
         });
     }
     resetAuthenticationInfo(response){
-        let $this = this;
         let browserTime = Math.floor(Date.now() / 1000);
         if(response.systemCurrentTime != browserTime){
             let diffTime = browserTime - response.systemCurrentTime;
             response.expiration = response.expiration + diffTime;
         }
-        if ($this.mainservice.global && !$this.mainservice.global.authentication){
-            let global = _.cloneDeep($this.mainservice.global);
-            global.authentication = response;
-            $this.mainservice.setGlobal(global);
-        }else{
-            if ($this.mainservice.global && $this.mainservice.global.authentication){
-                $this.mainservice.global.authentication = response;
-            }else{
-                $this.mainservice.setGlobal({authentication: response});
-            }
-        }
+        this.setValueInGlobal('authentication',response);
     }
     refreshToken():Observable<any>{
-        if((!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()) && !this.mainservice.global.notSecure && !this.mainservice.global.getRealmStateActive){
-            this.mainservice.global.getRealmStateActive = true;
+        if((!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()) && (!this.mainservice.global || !this.mainservice.global.notSecure) && (!this.mainservice.global || !this.mainservice.global.getRealmStateActive)){
+            this.setValueInGlobal('getRealmStateActive',true);
             return this.$http.get('rs/realm').map(res => {
                 let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                 if(pattern.exec(res.url)){
@@ -106,6 +96,21 @@ export class J4careHttpService{
         }
     }
 
+    setValueInGlobal(key, value){
+        if (this.mainservice.global && !this.mainservice.global[key]){
+            let global = _.cloneDeep(this.mainservice.global);
+            global[key] = value;
+            this.mainservice.setGlobal(global);
+        }else{
+            if (this.mainservice.global && this.mainservice.global[key]){
+                this.mainservice.global[key] = value;
+            }else{
+                let global = {};
+                global[key] = value;
+                this.mainservice.setGlobal(global);
+            }
+        }
+    }
     setHeader(header){
         if(header){
             if(this.token){

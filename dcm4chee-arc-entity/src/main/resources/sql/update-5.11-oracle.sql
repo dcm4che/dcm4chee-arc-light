@@ -10,10 +10,13 @@ alter table retrieve_task add constraint FK_mxokt1gw5g1e7rc3ssotvuqix foreign ke
 create sequence retrieve_task_pk_seq;
 
 alter table study add study_size number(19,0);
+alter table series add series_size number(19,0);
 
 -- shall be applied on stopped archive before starting 5.11
 update study set study_size = -1;
+update series set series_size = -1;
 
 alter table study modify study_size not null;
+alter table series modify series_size not null;
 
 create index UK_q7vxiaj1q6ojfxdq1g9jjxgqv on study (study_size);

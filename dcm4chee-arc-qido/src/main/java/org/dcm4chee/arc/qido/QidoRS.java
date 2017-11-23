@@ -470,7 +470,7 @@ public class QidoRS {
     }
 
     private void logRequest() {
-        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
     }
 
     private String warning(int remaining) {

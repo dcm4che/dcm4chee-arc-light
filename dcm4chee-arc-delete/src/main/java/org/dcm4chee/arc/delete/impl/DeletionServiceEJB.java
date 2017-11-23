@@ -313,40 +313,39 @@ public class DeletionServiceEJB {
         return em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
     }
 
-    public List<Long> findSeriesToPurgeInstances(int fetchSize) {
-        return em.createNamedQuery(Series.SCHEDULED_PURGE_INSTANCES, Long.class)
+    public List<Series.PkAndSize> findSeriesToPurgeInstances(int fetchSize) {
+        return em.createNamedQuery(Series.SCHEDULED_PURGE_INSTANCES, Series.PkAndSize.class)
                 .setMaxResults(fetchSize)
                 .getResultList();
     }
 
-    public void purgeInstanceRecordsOfSeries(Long seriesPk) {
-        HashMap<Long, UIDMap> uidMaps = new HashMap<>();
+    public void purgeInstanceRecordsOfSeries(Series.PkAndSize pkAndSize) {
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_SERIES_PK, Location.class)
-                .setParameter(1, seriesPk)
+                .setParameter(1, pkAndSize.pk)
                 .getResultList();
         if (locations.isEmpty())
             return;
 
-        calculateMissingSeriesQueryAttributes(seriesPk);
-        Series series = locations.get(0).getInstance().getSeries();
+        if (pkAndSize.size < 0)
+            queryService.calculateSeriesSize(pkAndSize.pk);
+        calculateMissingSeriesQueryAttributes(pkAndSize.pk);
         for (Location location : locations) {
-            switch (location.getObjectType()) {
-                case DICOM_FILE:
-                    UIDMap uidMap = location.getUidMap();
-                    if (uidMap != null)
-                        uidMaps.put(uidMap.getPk(), uidMap);
-                    em.remove(location);
-                    em.remove(location.getInstance());
-                    break;
-                case METADATA:
-                    storeEjb.removeOrMarkToDelete(location);
-                    break;
+            if (location.getObjectType() == Location.ObjectType.METADATA) {
+                location.setInstance(null);
+                location.setStatus(Location.Status.TO_DELETE);
             }
         }
-        for (UIDMap uidMap : uidMaps.values())
-            storeEjb.removeOrphaned(uidMap);
-        series.setInstancePurgeState(Series.InstancePurgeState.PURGED);
-        series.setInstancePurgeTime(null);
+        for (Location location : locations) {
+            if (location.getObjectType() == Location.ObjectType.DICOM_FILE) {
+                em.remove(location);
+                em.remove(location.getInstance());
+            }
+        }
+        em.createNamedQuery(Series.SET_INSTANCE_PURGE_STATE_AND_TIME)
+                .setParameter(1, pkAndSize.pk)
+                .setParameter(2, Series.InstancePurgeState.PURGED)
+                .setParameter(3, null)
+                .executeUpdate();
     }
 
     private void calculateMissingSeriesQueryAttributes(Long seriesPk) {

@@ -160,7 +160,7 @@ public class RejectRS {
 
     private Response reject(String studyUID, String seriesUID, String objectUID,String codeValue, String designator)
             throws Exception {
-        LOG.info("Process POST {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity localAE = getApplicationEntity();
         ArchiveDeviceExtension arcDev = localAE.getDevice().getDeviceExtension(ArchiveDeviceExtension.class);
         Code code = new Code(codeValue, designator, null, "?");

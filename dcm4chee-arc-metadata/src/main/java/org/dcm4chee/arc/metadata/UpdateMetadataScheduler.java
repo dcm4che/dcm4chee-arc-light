@@ -51,7 +51,6 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Metadata;
 import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
@@ -67,7 +66,6 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import java.io.IOException;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -89,9 +87,6 @@ public class UpdateMetadataScheduler extends Scheduler {
 
     @Inject
     private UpdateMetadataEJB ejb;
-
-    @Inject
-    private QueryService queryService;
 
     @Inject
     private RetrieveService retrieveService;
@@ -135,7 +130,6 @@ public class UpdateMetadataScheduler extends Scheduler {
         do {
             metadataUpdates = ejb.findSeriesForScheduledMetadataUpdate(fetchSize);
             if (!metadataUpdates.isEmpty())
-                calculateMissingStudySize(metadataUpdates);
                 try (Storage storage = storageFactory.getUsableStorage(descriptors)) {
                     for (Series.MetadataUpdate metadataUpdate : metadataUpdates) {
                         try (RetrieveContext ctx = retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate)) {
@@ -155,13 +149,6 @@ public class UpdateMetadataScheduler extends Scheduler {
         }
     }
 
-    private void calculateMissingStudySize(List<Series.MetadataUpdate> metadataUpdates) {
-        HashSet<Long> studyPks = new HashSet<>();
-        for (Series.MetadataUpdate metadataUpdate : metadataUpdates)
-            if (metadataUpdate.studySize < 0 && studyPks.add(metadataUpdate.studyPk))
-                queryService.calculateStudySize(metadataUpdate.studyPk);
-    }
-
     private void updateDeviceConfiguration() {
         try {
             LOG.info("Update Storage configuration of Device: {}:\n", device.getDeviceName());
@@ -177,24 +164,32 @@ public class UpdateMetadataScheduler extends Scheduler {
         if (!retrieveService.calculateMatches(ctx))
             return;
 
+        LOG.info("Create/Update Metadata for Series[pk={}] on Storage[uri={}]",
+                ctx.getSeriesMetadataUpdate().seriesPk,
+                storage.getStorageDescriptor().getStorageURI());
         WriteContext writeCtx = createWriteContext(storage, ctx.getMatches().iterator().next());
-        try (ZipOutputStream out = new ZipOutputStream(storage.openOutputStream(writeCtx))) {
-            for (InstanceLocations match : ctx.getMatches()) {
-                out.putNextEntry(new ZipEntry(match.getSopInstanceUID()));
-                JsonGenerator gen = Json.createGenerator(out);
-                new JSONWriter(gen).write(loadMetadata(ctx, match));
-                gen.flush();
-                out.closeEntry();
-            }
-            out.finish();
-        } catch (Exception e) {
-            storage.revokeStorage(writeCtx);
-            throw e;
-        }
         try {
+            try (ZipOutputStream out = new ZipOutputStream(storage.openOutputStream(writeCtx))) {
+                for (InstanceLocations match : ctx.getMatches()) {
+                    out.putNextEntry(new ZipEntry(match.getSopInstanceUID()));
+                    JsonGenerator gen = Json.createGenerator(out);
+                    new JSONWriter(gen).write(loadMetadata(ctx, match));
+                    gen.flush();
+                    out.closeEntry();
+                }
+                out.finish();
+            }
             storage.commitStorage(writeCtx);
-        } catch (RuntimeException e) {
-            storage.revokeStorage(writeCtx);
+        } catch (Exception e) {
+            LOG.warn("Failed to create/update Metadata for Series[uid={}] on Storage[uri={}]",
+                    ctx.getSeriesInstanceUID(),
+                    storage.getStorageDescriptor().getStorageURI(),
+                    e);
+            try {
+                storage.revokeStorage(writeCtx);
+            } catch (Exception e1) {
+                LOG.warn("Failed to revoke storage", e1);
+            }
             throw e;
         }
         ejb.updateDB(ctx.getSeriesMetadataUpdate().seriesPk, createMetadata(writeCtx));

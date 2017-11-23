@@ -626,28 +626,30 @@ hl7OrderControlStatus: DC_CA
 objectClass: hl7OrderSPSStatus
 
 dn: dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomAssociationInitiator: TRUE
-dicomDescription: Show instances rejected for Quality Reasons
-dcmAcceptedUserRole: admin
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmQueryRetrieveViewID: regularUse
+dicomDescription: Show instances rejected for Quality Reasons
+dicomAssociationInitiator: TRUE
+dcmObjectStorageID: fs1
+dicomAssociationAcceptor: TRUE
+dicomAETitle: DCM4CHEE_ADMIN
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
-dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomAETitle: DCM4CHEE_ADMIN
-dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomAssociationInitiator: TRUE
-dicomDescription: Show rejected instances only
-dcmAcceptedUserRole: admin
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmQueryRetrieveViewID: trashView
+dicomDescription: Show rejected instances only
+dicomAssociationInitiator: TRUE
+dcmObjectStorageID: fs1
+dicomAssociationAcceptor: TRUE
+dicomAETitle: DCM4CHEE_TRASH
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
-dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomAETitle: DCM4CHEE_TRASH
-dicomAssociationAcceptor: TRUE
+dcmAcceptedUserRole: admin
 
 dn: cn=Default Scheduled Station,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 hl7OrderScheduledStationDeviceReference: dicomDeviceName=scheduledstation,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -1019,8 +1021,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1037,8 +1037,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1055,8 +1053,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1073,8 +1069,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1109,8 +1103,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1127,8 +1119,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1427,8 +1417,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1445,8 +1433,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1463,8 +1449,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1481,8 +1465,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1499,8 +1481,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1517,8 +1497,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1535,8 +1513,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1553,8 +1529,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1607,8 +1581,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1625,8 +1597,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1643,8 +1613,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1661,8 +1629,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1679,8 +1645,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1697,8 +1661,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1827,8 +1789,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -1845,8 +1805,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2027,8 +1985,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2045,8 +2001,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2063,8 +2017,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2081,8 +2033,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2099,8 +2049,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2117,8 +2065,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2155,8 +2101,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2173,8 +2117,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2209,8 +2151,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2227,8 +2167,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2329,8 +2267,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2347,8 +2283,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2419,8 +2353,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2437,8 +2369,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2541,8 +2471,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2559,8 +2487,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2595,8 +2521,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2613,8 +2537,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2667,8 +2589,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2685,8 +2605,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2789,8 +2707,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -2807,8 +2723,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3007,8 +2921,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3025,8 +2937,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3043,8 +2953,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3061,8 +2969,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3169,8 +3075,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3187,8 +3091,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3223,8 +3125,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3241,8 +3141,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3295,8 +3193,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3313,8 +3209,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3385,8 +3279,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3403,8 +3295,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3421,8 +3311,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3439,8 +3327,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3511,8 +3397,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3529,8 +3413,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3603,8 +3485,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3621,8 +3501,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3639,8 +3517,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3657,8 +3533,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3803,8 +3677,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3821,8 +3693,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3839,8 +3709,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3857,8 +3725,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3929,8 +3795,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -3947,8 +3811,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4019,8 +3881,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4037,8 +3897,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4071,8 +3929,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4089,8 +3945,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4107,8 +3961,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4125,8 +3977,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4323,8 +4173,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4341,8 +4189,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4359,8 +4205,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4377,8 +4221,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4407,8 +4249,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4425,8 +4265,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4443,8 +4281,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4461,8 +4297,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4479,8 +4313,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4497,8 +4329,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4515,8 +4345,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4533,8 +4361,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4551,8 +4377,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4569,8 +4393,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4605,8 +4427,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4623,8 +4443,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4659,8 +4477,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4677,8 +4493,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4711,8 +4525,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4729,8 +4541,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4819,8 +4629,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4837,8 +4645,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4917,8 +4723,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4935,8 +4739,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4973,8 +4775,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -4991,8 +4791,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5009,8 +4807,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5027,8 +4823,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5045,8 +4839,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5063,8 +4855,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5081,8 +4871,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5099,8 +4887,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5266,8 +5052,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5284,8 +5068,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5377,8 +5159,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5395,8 +5175,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5431,8 +5209,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5449,8 +5225,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5503,8 +5277,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5521,8 +5293,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5539,8 +5309,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5557,8 +5325,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5575,8 +5341,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5593,8 +5357,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5629,8 +5391,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5647,8 +5407,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5665,8 +5423,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5683,8 +5439,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5719,8 +5473,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5737,8 +5489,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5755,8 +5505,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5773,8 +5521,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5791,8 +5537,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5809,8 +5553,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5827,8 +5569,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5845,8 +5585,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5881,8 +5619,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5899,8 +5635,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5917,8 +5651,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5935,8 +5667,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5971,8 +5701,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -5989,8 +5717,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6073,8 +5799,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6091,8 +5815,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6109,8 +5831,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6127,8 +5847,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6145,8 +5863,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6163,8 +5879,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6181,8 +5895,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6199,8 +5911,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6336,8 +6046,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6354,8 +6062,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6381,8 +6087,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6548,8 +6252,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6566,8 +6268,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6584,8 +6284,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6602,8 +6300,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6638,8 +6334,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6656,8 +6350,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6674,8 +6366,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6748,8 +6438,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6848,8 +6536,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6866,8 +6552,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6884,8 +6568,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6912,8 +6594,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6939,8 +6619,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -6999,8 +6677,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7044,8 +6720,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7105,8 +6779,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7132,8 +6804,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7168,8 +6838,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7229,8 +6897,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7338,8 +7004,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7356,8 +7020,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7419,8 +7081,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7446,8 +7106,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7482,8 +7140,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7527,8 +7183,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7545,8 +7199,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7590,8 +7242,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7636,8 +7286,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7654,8 +7302,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7736,8 +7382,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7754,8 +7398,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7799,8 +7441,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7844,8 +7484,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7870,8 +7508,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7888,8 +7524,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -7996,8 +7630,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8014,8 +7646,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8032,8 +7662,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8050,8 +7678,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8068,8 +7694,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8086,8 +7710,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8104,8 +7726,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8131,8 +7751,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8158,8 +7776,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8176,8 +7792,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8230,8 +7844,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8275,8 +7887,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8303,8 +7913,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8321,8 +7929,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8339,8 +7945,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8357,8 +7961,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8469,8 +8071,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8535,8 +8135,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8562,8 +8160,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8598,8 +8194,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8616,8 +8210,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8634,8 +8226,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8661,8 +8251,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8679,8 +8267,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8706,8 +8292,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8724,8 +8308,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8742,8 +8324,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8760,8 +8340,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8787,8 +8365,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8805,8 +8381,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8832,8 +8406,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8898,8 +8470,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8916,8 +8486,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8934,8 +8502,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
@@ -8952,8 +8518,6 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
-dicomTransferSyntax: 1.2.840.10008.1.2.4.90
-dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability

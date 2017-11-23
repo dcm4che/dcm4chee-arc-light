@@ -129,7 +129,10 @@ export class AppService implements OnInit, OnDestroy{
 
 /*    confirm(confirmparameters){
         this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(ConfirmComponent, this.config);
+        this.dialogRef = this.dialog.open(ConfirmComponent, {
+            height: 'auto',
+            width: '500px'
+        });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef;
     }*/
@@ -140,7 +143,7 @@ export class AppService implements OnInit, OnDestroy{
     param(filter){
         let filterMaped = Object.keys(filter).map((key) => {
             if (filter[key]){
-                return encodeURIComponent(key) + '=' + encodeURIComponent(filter[key]);
+                return key + '=' + filter[key];
             }
         });
         let filterCleared = _.compact(filterMaped);

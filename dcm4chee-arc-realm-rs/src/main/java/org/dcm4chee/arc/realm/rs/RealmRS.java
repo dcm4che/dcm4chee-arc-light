@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -79,7 +79,7 @@ public class RealmRS {
     @NoCache
     @Produces("application/json")
     public StreamingOutput query() throws Exception {
-        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {

@@ -120,7 +120,10 @@ export class ExportComponent implements OnInit {
     };
     confirm(confirmparameters){
         this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(ConfirmComponent, this.config);
+        this.dialogRef = this.dialog.open(ConfirmComponent,{
+            height: 'auto',
+            width: '500px'
+        });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
@@ -289,7 +292,10 @@ export class ExportComponent implements OnInit {
             }
         }
         this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(ExportDialogComponent, this.config);
+        this.dialogRef = this.dialog.open(ExportDialogComponent, {
+            height: 'auto',
+            width: '500px'
+        });
         this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
         this.dialogRef.componentInstance.title = 'Task reschedule';

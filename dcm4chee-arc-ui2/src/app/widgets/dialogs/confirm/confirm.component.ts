@@ -4,13 +4,7 @@ import * as _ from 'lodash';
 
 @Component({
     selector: 'app-confirm',
-    templateUrl: './confirm.component.html',
-    styles: [`
-        .vex-theme-os.confirm{
-            width:500px;
-            
-        }
-    `]
+    templateUrl: './confirm.component.html'
 })
 export class ConfirmComponent{
     _ = _;

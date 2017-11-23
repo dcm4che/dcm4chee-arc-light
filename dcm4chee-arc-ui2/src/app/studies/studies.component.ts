@@ -502,7 +502,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
     confirm(confirmparameters){
         this.scrollToDialog();
         this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(ConfirmComponent, this.config);
+        this.dialogRef = this.dialog.open(ConfirmComponent, {
+            height: 'auto',
+            width: '500px'
+        });
         this.dialogRef.componentInstance.parameters = confirmparameters;
 /*        this.dialogRef.afterClosed().subscribe(result => {
             if(result){
@@ -1111,7 +1114,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let $this = this;
         this.scrollToDialog();
         this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(DeleteRejectedInstancesComponent, this.config);
+        this.dialogRef = this.dialog.open(DeleteRejectedInstancesComponent, {
+            height: 'auto',
+            width: '500px'
+        });
         this.dialogRef.componentInstance.rjnotes = this.rjnotes;
         this.dialogRef.componentInstance.results = result;
         this.dialogRef.afterClosed().subscribe(re => {
@@ -1579,6 +1585,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             $this.dialogRef.componentInstance.iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
             $this.dialogRef.componentInstance.saveLabel = $this.saveLabel;
             $this.dialogRef.componentInstance.titleLabel = $this.titleLabel;
+            $this.dialogRef.componentInstance.externalInternalAetMode = $this.externalInternalAetMode;
             $this.dialogRef.afterClosed().subscribe(result => {
                 //If user clicked save
                 if (result){
@@ -1743,18 +1750,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 result: {select: this.rjnotes[0].codeValue + '^' + this.rjnotes[0].codingSchemeDesignator},
                 saveButton: 'REJECT'
             };
-            console.log('rejectstudy', parameters);
-/*            let parameters: any = {
-                content: 'Select rejected type',
-                selectoptions: this.rjnotes,
-                result: this.rjnotes[0].codeValue+'^'+this.rjnotes[0].codingSchemeDesignator,
-                saveButton: "REJECT"
-            };*/
-            console.log('parameters', parameters);
             this.confirm(parameters).subscribe(result => {
                 if (result) {
-                    console.log('result', result);
-                    console.log('parameters', parameters);
                     $this.cfpLoadingBar.start();
                     $this.$http.post(
                         $this.studyURL(study.attrs) + '/reject/' + parameters.result.select,

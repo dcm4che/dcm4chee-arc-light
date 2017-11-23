@@ -187,7 +187,10 @@ export class AppComponent implements OnInit {
     productLabelling(){
         // this.scrollToDialog();
         this.config.viewContainerRef = this.viewContainerRef;
-        this.dialogRef = this.dialog.open(ProductLabellingComponent, this.config);
+        this.dialogRef = this.dialog.open(ProductLabellingComponent, {
+            height: 'auto',
+            width: 'auto'
+        });
 
         this.dialogRef.componentInstance.archive = this.archive;
         /*        this.dialogRef.afterClosed().subscribe(result => {

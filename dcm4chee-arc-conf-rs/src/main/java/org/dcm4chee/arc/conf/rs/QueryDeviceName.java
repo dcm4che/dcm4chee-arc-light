@@ -70,7 +70,7 @@ public class QueryDeviceName {
     @NoCache
     @Produces("application/json")
     public String devicename() {
-        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         return "{\"dicomDeviceName\":\"" + device.getDeviceName() + "\"}";
     }
 }

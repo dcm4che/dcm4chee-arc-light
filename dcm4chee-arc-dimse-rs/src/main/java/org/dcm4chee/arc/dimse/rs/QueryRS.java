@@ -231,7 +231,7 @@ public class QueryRS {
     private void search(AsyncResponse ar, Level level, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
                         boolean count)
             throws Exception {
-        LOG.info("Process GET {} from {}@{}", this, request.getRemoteUser(), request.getRemoteHost());
+        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
         if (!count) {
             queryAttributes.addReturnTags(qido.includetags);
