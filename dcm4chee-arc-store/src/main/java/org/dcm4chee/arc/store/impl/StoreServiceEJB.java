@@ -188,9 +188,7 @@ public class StoreServiceEJB {
                     prevInstance.setRejectionNoteCode(null);
                     result.setStoredInstance(prevInstance);
                     deleteQueryAttributes(prevInstance);
-                    prevSeries.resetSize();
                     prevSeries.scheduleMetadataUpdate(arcAE.seriesMetadataDelay());
-                    prevStudy.resetSize();
                     prevStudy.setExternalRetrieveAET("*");
                     prevStudy.updateAccessTime(arcDev.getMaxAccessTimeStaleness());
                     logInfo(REVOKE_REJECTION, ctx, rjNote.getRejectionNoteCode());
@@ -450,10 +448,12 @@ public class StoreServiceEJB {
     }
 
     public void removeOrMarkToDelete(Location location) {
-        Instance instance = location.getInstance();
-        Series series = instance.getSeries();
-        series.resetSize();
-        series.getStudy().resetSize();
+        if (location.getObjectType() == Location.ObjectType.DICOM_FILE) {
+            Instance instance = location.getInstance();
+            Series series = instance.getSeries();
+            series.resetSize();
+            series.getStudy().resetSize();
+        }
         if (countLocationsByMultiRef(location.getMultiReference()) > 1)
             em.remove(location);
         else

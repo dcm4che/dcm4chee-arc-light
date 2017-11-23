@@ -99,6 +99,9 @@ import java.util.Date;
     name=Series.SET_SERIES_SIZE,
     query="update Series se set se.size = ?2 where se.pk = ?1"),
 @NamedQuery(
+    name=Series.SET_INSTANCE_PURGE_STATE_AND_TIME,
+    query="update Series se set se.instancePurgeState = ?2, se.instancePurgeTime = ?3 where se.pk = ?1"),
+@NamedQuery(
     name=Series.SET_COMPLETENESS,
     query="update Series ser set ser.completeness = ?3 " +
             "where ser.pk in (" +
@@ -206,6 +209,7 @@ public class Series {
     public static final String SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE = "Series.seriesPKsOfStudyWithUnknownSize";
     public static final String SIZE_OF_STUDY="Series.sizeOfStudy";
     public static final String SET_SERIES_SIZE = "Series.UpdateStudySize";
+    public static final String SET_INSTANCE_PURGE_STATE_AND_TIME = "Series.SetInstancePurgeStateAndTime";
     public static final String SET_COMPLETENESS = "Series.SetCompleteness";
     public static final String SET_COMPLETENESS_OF_STUDY = "Series.SetCompletenessOfStudy";
     public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";
