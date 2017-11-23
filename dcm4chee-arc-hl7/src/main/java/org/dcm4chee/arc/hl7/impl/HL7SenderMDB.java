@@ -129,11 +129,6 @@ public class HL7SenderMDB implements MessageListener {
         PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
         UnparsedHL7Message unparsedHL7Message = new UnparsedHL7Message(hl7msg);
         ctx.setUnparsedHL7Message(unparsedHL7Message);
-        ctx.setPatientID(new IDWithIssuer(msg.getStringProperty("PatientID")));
-        ctx.setPatientName(msg.getStringProperty("PatientName"));
-        String previousPatientID = msg.getStringProperty("PreviousPatientID");
-        if (previousPatientID != null)
-            ctx.setPreviousPatientID(new IDWithIssuer(previousPatientID));
         ctx.setHttpServletRequestInfo(httpServletRequestInfo);
         ctx.setEventActionCode(eventActionCode(unparsedHL7Message.msh()));
         patientEvent.fire(ctx);

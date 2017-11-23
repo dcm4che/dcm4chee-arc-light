@@ -218,6 +218,7 @@ public class HL7PSUEJB {
                 msh.getField(5, ""),
                 msh.getField(8, ""),
                 msh.getField(9, ""),
-                hl7Message.getBytes(hl7cs));
+                hl7Message.getBytes(hl7cs),
+                null);
     }
 }

@@ -44,6 +44,7 @@ import org.dcm4che3.audit.*;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.data.*;
+import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.net.*;
@@ -987,12 +988,15 @@ public class AuditService {
     }
 
     private AuditInfoBuilder externalHL7PatientRecord(PatientMgtContext ctx, String[] callingCalledUserIDs) {
-        HL7Segment msh = ctx.getUnparsedHL7Message().msh();
+        UnparsedHL7Message unparsedHL7Message = ctx.getUnparsedHL7Message();
+        HL7Segment msh = unparsedHL7Message.msh();
+        Attributes attrs = ctx.getAttributes() != null
+                            ? ctx.getAttributes() : populateAttributes(unparsedHL7Message, "PID", 3);
         return new AuditInfoBuilder.Builder()
                 .callingHost(ctx.getRemoteHostName())
                 .callingUserID(callingCalledUserIDs[0])
                 .calledUserID(callingCalledUserIDs[1])
-                .pIDAndName(ctx.getAttributes(), getArchiveDevice())
+                .pIDAndName(attrs, getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
                 .isExternalHL7()
                 .hl7SenderExternal(msh.getSendingApplicationWithFacility())
@@ -1001,17 +1005,31 @@ public class AuditService {
     }
 
     private AuditInfoBuilder externalHL7PreviousPatientRecord(PatientMgtContext ctx, String[] callingCalledUserIDs) {
-        HL7Segment msh = ctx.getUnparsedHL7Message().msh();
+        UnparsedHL7Message unparsedHL7Message = ctx.getUnparsedHL7Message();
+        HL7Segment msh = unparsedHL7Message.msh();
+        Attributes attrs = ctx.getPreviousAttributes() != null
+                            ? ctx.getPreviousAttributes() : populateAttributes(unparsedHL7Message, "MRG", 1);
         return new AuditInfoBuilder.Builder()
                 .callingHost(ctx.getRemoteHostName())
                 .callingUserID(callingCalledUserIDs[0])
                 .calledUserID(callingCalledUserIDs[1])
-                .pIDAndName(ctx.getPreviousAttributes(), getArchiveDevice())
+                .pIDAndName(attrs, getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
                 .isExternalHL7()
                 .hl7SenderExternal(msh.getSendingApplicationWithFacility())
                 .hl7ReceiverExternal(msh.getReceivingApplicationWithFacility())
                 .build();
+    }
+
+    private Attributes populateAttributes(UnparsedHL7Message unparsedHL7Message, String segName, int pos) {
+        Attributes attrs = new Attributes(4);
+        String charset = unparsedHL7Message.msh().getField(17, "ASCII");
+        HL7Message hl7msg = HL7Message.parse(unparsedHL7Message.data(), unparsedHL7Message.data().length, charset);
+        HL7Segment hl7Segment = hl7msg.getSegment(segName);
+        new IDWithIssuer(hl7Segment.getField(pos, "")).exportPatientIDWithIssuer(attrs);
+        if (segName.equals("PID"))
+            attrs.setString(Tag.PatientName, VR.PN, hl7Segment.getField(5, ""));
+        return attrs;
     }
 
     private String[] callingCalledUserIDsForPatientRecord(PatientMgtContext ctx) {

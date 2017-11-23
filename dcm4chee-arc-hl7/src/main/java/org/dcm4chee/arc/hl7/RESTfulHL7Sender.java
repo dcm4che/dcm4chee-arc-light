@@ -89,7 +89,7 @@ public class RESTfulHL7Sender {
                 msgType,
                 msg.msgControlID,
                 hl7MsgData,
-                ctx);
+                ctx.getHttpServletRequestInfo());
     }
 
     public HL7Message sendHL7Message(String msgType, PatientMgtContext ctx, String sender, String receiver) throws Exception {

@@ -81,8 +81,6 @@ public interface PatientMgtContext {
 
     IDWithIssuer getPreviousPatientID();
 
-    void setPreviousPatientID(IDWithIssuer prevPatientID);
-
     Attributes getPreviousAttributes();
 
     void setPreviousAttributes(Attributes attrs);
@@ -104,14 +102,6 @@ public interface PatientMgtContext {
     Patient getPatient();
 
     void setPatient(Patient patient);
-
-    String getPatientName();
-
-    void setPatientName(String patientName);
-
-    String getPreviousPatientName();
-
-    void setPreviousPatientName(String previousPatientName);
 
     HttpServletRequestInfo getHttpServletRequestInfo();
 
