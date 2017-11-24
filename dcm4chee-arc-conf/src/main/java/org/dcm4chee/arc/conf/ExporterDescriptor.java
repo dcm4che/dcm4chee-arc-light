@@ -119,6 +119,9 @@ public class ExporterDescriptor {
     }
 
     public void setPriority(int priority) {
+        if (priority < 0 || priority > 9)
+            throw new IllegalArgumentException("JMS Priority Level for processing the Export Task should be between 0 (lowest) to 9 (highest).");
+
         this.priority = priority;
     }
 

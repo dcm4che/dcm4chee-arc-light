@@ -98,7 +98,8 @@
       "description": "JMS Priority Level for processing the Export Task from 0 (lowest) to 9 (highest).",
       "type": "integer",
       "default" : 4,
-      "minimum": 0
+      "minimum": 0,
+      "maximum": 9
     }
   }
 }
