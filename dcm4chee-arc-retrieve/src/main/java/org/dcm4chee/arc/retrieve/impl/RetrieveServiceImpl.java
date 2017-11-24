@@ -70,6 +70,7 @@ import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;

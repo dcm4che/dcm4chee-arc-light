@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -49,6 +49,7 @@ import org.dcm4chee.arc.delete.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +59,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
@@ -110,14 +110,14 @@ public class DeletionServiceImpl implements DeletionService {
     }
 
     @Override
-    public StudyDeleteContext createStudyDeleteContext(Long pk, HttpServletRequest request) {
+    public StudyDeleteContext createStudyDeleteContext(Long pk, HttpServletRequestInfo httpServletRequestInfo) {
         StudyDeleteContext ctx = new StudyDeleteContextImpl(pk);
-        ctx.setHttpRequest(request);
+        ctx.setHttpServletRequestInfo(httpServletRequestInfo);
         return ctx;
     }
 
     @Override
-    public void deleteStudy(String studyUID, HttpServletRequest request, ApplicationEntity ae)
+    public void deleteStudy(String studyUID, HttpServletRequestInfo httpServletRequestInfo, ApplicationEntity ae)
             throws StudyNotFoundException, StudyNotEmptyException {
         StudyDeleteContext ctx = null;
         try {
@@ -126,15 +126,13 @@ public class DeletionServiceImpl implements DeletionService {
             ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
             AllowDeleteStudyPermanently allowDeleteStudy = arcAE.allowDeleteStudy();
             if (study != null) {
-                ctx = createStudyDeleteContext(study.getPk(), request);
+                ctx = createStudyDeleteContext(study.getPk(), httpServletRequestInfo);
                 boolean studyDeleted = studyDeleted(ctx, study, allowDeleteStudy);
                 if (!studyDeleted)
                     throw new StudyNotEmptyException("Study is not empty. - ");
-                if (allowDeleteStudy == AllowDeleteStudyPermanently.ALWAYS && studyDeleted
-                        && (study.getRejectionState() == RejectionState.NONE || study.getRejectionState() == RejectionState.PARTIAL))
-                    studyDeletedEvent.fire(ctx);
+                studyDeletedEvent.fire(ctx);
+                LOG.info("Successfully delete {} from database", ctx.getStudy());
             }
-            LOG.info("Successfully delete {} from database", ctx.getStudy());
         } catch (NoResultException e) {
             throw new StudyNotFoundException(e.getMessage());
         } catch (StudyNotEmptyException e) {
@@ -157,7 +155,7 @@ public class DeletionServiceImpl implements DeletionService {
         if (!sList.isEmpty()) {
             for (Study study : sList) {
                 try {
-                    sCtx = createStudyDeleteContext(study.getPk(), ctx.getHttpRequest());
+                    sCtx = createStudyDeleteContext(study.getPk(), ctx.getHttpServletRequestInfo());
                     studyDeleted(sCtx, study, AllowDeleteStudyPermanently.REJECTED);
                     LOG.info("Successfully delete {} from database", study);
                 } catch (Exception e) {

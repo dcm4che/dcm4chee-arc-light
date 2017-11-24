@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -44,8 +44,8 @@ import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +61,7 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     private Patient patient;
     private Study study;
     private Exception exception;
-    private HttpServletRequest request;
+    private HttpServletRequestInfo httpServletRequestInfo;
     private boolean deletePatientOnDeleteLastStudy;
 
     public StudyDeleteContextImpl(Long studyPk) {
@@ -114,13 +114,13 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     }
 
     @Override
-    public HttpServletRequest getHttpRequest() {
-        return request;
+    public HttpServletRequestInfo getHttpServletRequestInfo() {
+        return httpServletRequestInfo;
     }
 
     @Override
-    public void setHttpRequest(HttpServletRequest request) {
-        this.request = request;
+    public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
+        this.httpServletRequestInfo = httpServletRequestInfo;
     }
 
     @Override

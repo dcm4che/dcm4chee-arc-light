@@ -52,6 +52,7 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4chee.arc.hl7.RESTfulHL7Sender;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,6 +167,7 @@ public class HL7RS {
     }
 
     private Response scheduleOrSendHL7(String msgType, PatientMgtContext ctx) {
+        ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request));
         try {
             if (queue) {
                 rsHL7Sender.scheduleHL7Message(msgType, ctx, appName, externalAppName);

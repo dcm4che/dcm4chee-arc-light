@@ -51,7 +51,7 @@ import org.dcm4chee.arc.entity.CodeEntity;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.storage.Storage;
-
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Closeable;
 import java.util.Collection;

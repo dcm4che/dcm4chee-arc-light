@@ -47,8 +47,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.Patient;
-
-import javax.servlet.http.HttpServletRequest;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -61,8 +60,6 @@ public interface PatientMgtContext {
     FuzzyStr getFuzzyStr();
 
     Association getAssociation();
-
-    HttpServletRequest getHttpRequest();
 
     UnparsedHL7Message getUnparsedHL7Message();
 
@@ -101,4 +98,8 @@ public interface PatientMgtContext {
     Patient getPatient();
 
     void setPatient(Patient patient);
+
+    HttpServletRequestInfo getHttpServletRequestInfo();
+
+    void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo);
 }

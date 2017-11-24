@@ -50,6 +50,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Series;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;

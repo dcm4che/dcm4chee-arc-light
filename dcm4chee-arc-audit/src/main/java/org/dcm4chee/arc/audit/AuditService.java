@@ -44,6 +44,7 @@ import org.dcm4che3.audit.*;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.data.*;
+import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.net.*;
@@ -66,13 +67,13 @@ import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.query.QueryContext;
-import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -230,10 +231,10 @@ public class AuditService {
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         for (org.dcm4chee.arc.entity.Instance i : ctx.getInstances())
             buildSOPClassMap(sopClassMap, i.getSopClassUID(), i.getSopInstanceUID());
-        HttpServletRequest request = ctx.getHttpRequest();
-        AuditInfoBuilder i = request != null ? buildPermDeletionAuditInfoForWeb(request, ctx)
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        AuditInfoBuilder i = httpServletRequestInfo != null ? buildPermDeletionAuditInfoForWeb(httpServletRequestInfo, ctx)
                 : buildPermDeletionAuditInfoForScheduler(ctx);
-        AuditServiceUtils.EventType eventType = request != null
+        AuditServiceUtils.EventType eventType = httpServletRequestInfo != null
                                                 ? AuditServiceUtils.EventType.RJ_COMPLET
                                                 : AuditServiceUtils.EventType.PRMDLT_SCH;
         LinkedHashSet<Object> deleteObjs = getDeletionObjsForSpooling(sopClassMap, new AuditInfo(i));
@@ -322,11 +323,12 @@ public class AuditService {
         emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poiLDAPDiff);
     }
 
-    private AuditInfoBuilder buildPermDeletionAuditInfoForWeb(HttpServletRequest req, StudyDeleteContext ctx) {
+    private AuditInfoBuilder buildPermDeletionAuditInfoForWeb(
+            HttpServletRequestInfo httpServletRequestInfo, StudyDeleteContext ctx) {
         return new AuditInfoBuilder.Builder()
-                .callingUserID(KeycloakContext.valueOf(req).getUserName())
-                .callingHost(req.getRemoteHost())
-                .calledUserID(req.getRequestURI())
+                .callingUserID(httpServletRequestInfo.requesterUserID)
+                .callingHost(httpServletRequestInfo.requesterHost)
+                .calledUserID(httpServletRequestInfo.requestURI)
                 .studyUIDAccNumDate(ctx.getStudy().getAttributes())
                 .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
@@ -944,10 +946,10 @@ public class AuditService {
 
     void spoolPatientRecord(PatientMgtContext ctx) {
         UnparsedHL7Message hl7msg = ctx.getUnparsedHL7Message();
-        String[] sourceDest = sourceDestForPatientRecord(ctx);
-        boolean isExternalHL7 = ctx.getHttpRequest() != null && ctx.getUnparsedHL7Message() != null;
+        String[] callingCalledUserIDs = callingCalledUserIDsForPatientRecord(ctx);
+        boolean isExternalHL7 = ctx.getHttpServletRequestInfo() != null && ctx.getUnparsedHL7Message() != null;
         AuditInfoBuilder auditInfoBuilder = isExternalHL7
-                                            ? externalHL7PatientRecord(ctx, sourceDest) : internalPatientRecord(ctx, sourceDest);
+                                            ? externalHL7PatientRecord(ctx, callingCalledUserIDs) : internalPatientRecord(ctx, callingCalledUserIDs);
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forHL7(ctx);
         byte[] data = hl7msg != null ? hl7msg.data() : null;
         if (data != null)
@@ -956,8 +958,8 @@ public class AuditService {
             writeSpoolFile(eventType, auditInfoBuilder);
         if (ctx.getPreviousAttributes() != null) {
             AuditInfoBuilder prevAuditInfoBuilder = isExternalHL7
-                                                    ? externalHL7PreviousPatientRecord(ctx, sourceDest)
-                                                    : internalPreviousPatientRecord(ctx, sourceDest);
+                                                    ? externalHL7PreviousPatientRecord(ctx, callingCalledUserIDs)
+                                                    : internalPreviousPatientRecord(ctx, callingCalledUserIDs);
             AuditServiceUtils.EventType prevEventType = AuditServiceUtils.EventType.PAT_DELETE;
             if (data != null)
                 writeSpoolFile(prevEventType, prevAuditInfoBuilder, data);
@@ -966,33 +968,36 @@ public class AuditService {
         }
     }
 
-    private AuditInfoBuilder internalPreviousPatientRecord(PatientMgtContext ctx, String[] sourceDest) {
+    private AuditInfoBuilder internalPreviousPatientRecord(PatientMgtContext ctx, String[] callingCalledUserIDs) {
         return new AuditInfoBuilder.Builder()
                                 .callingHost(ctx.getRemoteHostName())
-                                .callingUserID(sourceDest[0])
-                                .calledUserID(sourceDest[1])
+                                .callingUserID(callingCalledUserIDs[0])
+                                .calledUserID(callingCalledUserIDs[1])
                                 .pIDAndName(ctx.getPreviousAttributes(), getArchiveDevice())
                                 .outcome(getOD(ctx.getException()))
                                 .build();
     }
 
-    private AuditInfoBuilder internalPatientRecord(PatientMgtContext ctx, String[] sourceDest) {
+    private AuditInfoBuilder internalPatientRecord(PatientMgtContext ctx, String[] callingCalledUserIDs) {
         return new AuditInfoBuilder.Builder()
                             .callingHost(ctx.getRemoteHostName())
-                            .callingUserID(sourceDest[0])
-                            .calledUserID(sourceDest[1])
+                            .callingUserID(callingCalledUserIDs[0])
+                            .calledUserID(callingCalledUserIDs[1])
                             .pIDAndName(ctx.getAttributes(), getArchiveDevice())
                             .outcome(getOD(ctx.getException()))
                             .build();
     }
 
-    private AuditInfoBuilder externalHL7PatientRecord(PatientMgtContext ctx, String[] sourceDest) {
-        HL7Segment msh = ctx.getUnparsedHL7Message().msh();
+    private AuditInfoBuilder externalHL7PatientRecord(PatientMgtContext ctx, String[] callingCalledUserIDs) {
+        UnparsedHL7Message unparsedHL7Message = ctx.getUnparsedHL7Message();
+        HL7Segment msh = unparsedHL7Message.msh();
+        Attributes attrs = ctx.getAttributes() != null
+                            ? ctx.getAttributes() : populateAttributes(unparsedHL7Message, "PID", 3);
         return new AuditInfoBuilder.Builder()
                 .callingHost(ctx.getRemoteHostName())
-                .callingUserID(sourceDest[0])
-                .calledUserID(sourceDest[1])
-                .pIDAndName(ctx.getAttributes(), getArchiveDevice())
+                .callingUserID(callingCalledUserIDs[0])
+                .calledUserID(callingCalledUserIDs[1])
+                .pIDAndName(attrs, getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
                 .isExternalHL7()
                 .hl7SenderExternal(msh.getSendingApplicationWithFacility())
@@ -1000,13 +1005,16 @@ public class AuditService {
                 .build();
     }
 
-    private AuditInfoBuilder externalHL7PreviousPatientRecord(PatientMgtContext ctx, String[] sourceDest) {
-        HL7Segment msh = ctx.getUnparsedHL7Message().msh();
+    private AuditInfoBuilder externalHL7PreviousPatientRecord(PatientMgtContext ctx, String[] callingCalledUserIDs) {
+        UnparsedHL7Message unparsedHL7Message = ctx.getUnparsedHL7Message();
+        HL7Segment msh = unparsedHL7Message.msh();
+        Attributes attrs = ctx.getPreviousAttributes() != null
+                            ? ctx.getPreviousAttributes() : populateAttributes(unparsedHL7Message, "MRG", 1);
         return new AuditInfoBuilder.Builder()
                 .callingHost(ctx.getRemoteHostName())
-                .callingUserID(sourceDest[0])
-                .calledUserID(sourceDest[1])
-                .pIDAndName(ctx.getPreviousAttributes(), getArchiveDevice())
+                .callingUserID(callingCalledUserIDs[0])
+                .calledUserID(callingCalledUserIDs[1])
+                .pIDAndName(attrs, getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
                 .isExternalHL7()
                 .hl7SenderExternal(msh.getSendingApplicationWithFacility())
@@ -1014,24 +1022,39 @@ public class AuditService {
                 .build();
     }
 
-    private String[] sourceDestForPatientRecord(PatientMgtContext ctx) {
-        String[] sourceDest = new String[2];
-        HttpServletRequest httpRequest = ctx.getHttpRequest();
+    private Attributes populateAttributes(UnparsedHL7Message unparsedHL7Message, String segName, int pos) {
+        Attributes attrs = new Attributes(4);
+        String charset = unparsedHL7Message.msh().getField(17, "ASCII");
+        HL7Message hl7msg = HL7Message.parse(unparsedHL7Message.data(), unparsedHL7Message.data().length, charset);
+        HL7Segment hl7Segment = hl7msg.getSegment(segName);
+        new IDWithIssuer(hl7Segment.getField(pos, "")).exportPatientIDWithIssuer(attrs);
+        if (segName.equals("PID"))
+            attrs.setString(Tag.PatientName, VR.PN, hl7Segment.getField(5, ""));
+        return attrs;
+    }
+
+    private String[] callingCalledUserIDsForPatientRecord(PatientMgtContext ctx) {
+        String[] callingCalledUserIDs = new String[2];
+        HttpServletRequestInfo httpRequest = ctx.getHttpServletRequestInfo();
         Association association = ctx.getAssociation();
         UnparsedHL7Message hl7msg = ctx.getUnparsedHL7Message();
-        sourceDest[0] = httpRequest != null
-                        ? KeycloakContext.valueOf(httpRequest).getUserName()
-                        : hl7msg != null
-                            ? hl7msg.msh().getSendingApplicationWithFacility()
-                            : association != null
-                                ? association.getCallingAET() : null;
-        sourceDest[1] = httpRequest != null
-                        ? httpRequest.getRequestURI()
-                        : hl7msg != null
-                            ? hl7msg.msh().getReceivingApplicationWithFacility()
-                            : association != null
-                                ? association.getCalledAET() : null;
-        return sourceDest;
+        callingCalledUserIDs[0] = httpRequest != null
+                        ? httpRequest.requesterUserID
+                        : ctx.getHttpServletRequestInfo() != null
+                            ? ctx.getHttpServletRequestInfo().requesterUserID
+                            : hl7msg != null
+                                ? hl7msg.msh().getSendingApplicationWithFacility()
+                                : association != null
+                                    ? association.getCallingAET() : null;
+        callingCalledUserIDs[1] = httpRequest != null
+                        ? httpRequest.requestURI
+                        : ctx.getHttpServletRequestInfo() != null
+                            ? ctx.getHttpServletRequestInfo().requestURI
+                            : hl7msg != null
+                                ? hl7msg.msh().getReceivingApplicationWithFacility()
+                                : association != null
+                                    ? association.getCalledAET() : null;
+        return callingCalledUserIDs;
     }
 
     private void auditPatientRecord(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) throws Exception {
