@@ -46,7 +46,7 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.util.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import javax.enterprise.event.Observes;
 import java.util.Date;

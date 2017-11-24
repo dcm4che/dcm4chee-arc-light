@@ -44,7 +44,7 @@ package org.dcm4chee.arc.exporter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.xdsi.RegistryResponseType;
-import org.dcm4chee.arc.util.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

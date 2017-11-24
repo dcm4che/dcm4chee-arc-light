@@ -58,7 +58,7 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
-import org.dcm4chee.arc.util.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

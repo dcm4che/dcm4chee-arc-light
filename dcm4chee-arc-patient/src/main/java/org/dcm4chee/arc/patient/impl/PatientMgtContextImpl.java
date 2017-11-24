@@ -53,7 +53,7 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientMgtContext;
-import org.dcm4chee.arc.util.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import java.net.Socket;
 

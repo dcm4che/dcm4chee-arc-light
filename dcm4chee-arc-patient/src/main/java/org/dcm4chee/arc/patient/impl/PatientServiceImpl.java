@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.patient.impl;
 
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -49,7 +48,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.*;
-import org.dcm4chee.arc.util.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;

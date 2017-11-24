@@ -52,7 +52,7 @@ import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.util.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

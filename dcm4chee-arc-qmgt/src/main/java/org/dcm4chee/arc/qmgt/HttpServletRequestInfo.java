@@ -1,5 +1,4 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -35,10 +34,9 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.util;
+package org.dcm4chee.arc.qmgt;
 
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.keycloak.KeycloakContext;

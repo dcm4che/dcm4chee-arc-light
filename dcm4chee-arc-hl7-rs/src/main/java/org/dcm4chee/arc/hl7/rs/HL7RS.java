@@ -52,7 +52,7 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4chee.arc.hl7.RESTfulHL7Sender;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.util.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

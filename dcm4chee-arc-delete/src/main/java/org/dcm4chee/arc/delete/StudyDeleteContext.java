@@ -43,9 +43,8 @@ package org.dcm4chee.arc.delete;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
-import org.dcm4chee.arc.util.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**

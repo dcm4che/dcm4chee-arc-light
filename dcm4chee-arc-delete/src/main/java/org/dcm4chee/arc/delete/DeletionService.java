@@ -43,7 +43,7 @@ package org.dcm4chee.arc.delete;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.patient.PatientMgtContext;
-import org.dcm4chee.arc.util.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import java.util.Date;
 
