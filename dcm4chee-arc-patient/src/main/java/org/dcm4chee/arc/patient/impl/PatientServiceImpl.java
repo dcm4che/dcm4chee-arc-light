@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.patient.impl;
 
 import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
@@ -141,7 +140,10 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient mergePatient(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException {
+            throws NonUniquePatientException, PatientMergedException, CircularPatientMergeException {
+        if (ctx.getPatientID().matches(ctx.getPreviousPatientID()))
+            throw new CircularPatientMergeException();
+
         try {
             return ejb.mergePatient(ctx);
         } catch (RuntimeException e) {

@@ -40,49 +40,9 @@
 
 package org.dcm4chee.arc.patient;
 
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.hl7.HL7Application;
-import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4chee.arc.entity.Patient;
-
-import javax.servlet.http.HttpServletRequest;
-import java.net.Socket;
-import java.util.List;
-
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jul 2015
+ * @since Nov 2017
  */
-public interface PatientService {
-
-    PatientMgtContext createPatientMgtContextDIMSE(Association as);
-
-    PatientMgtContext createPatientMgtContextWEB(HttpServletRequest httpRequest);
-
-    PatientMgtContext createPatientMgtContextHL7(HL7Application hl7App, Socket socket, UnparsedHL7Message msg);
-
-    PatientMgtContext createPatientMgtContextScheduler();
-
-    List<Patient> findPatients(IDWithIssuer pid);
-
-    Patient findPatient(IDWithIssuer pid);
-
-    Patient createPatient(PatientMgtContext ctx);
-
-    Patient updatePatient(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException;
-
-    Patient mergePatient(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException, CircularPatientMergeException;
-
-    Patient changePatientID(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientMergedException, PatientTrackingNotAllowedException;
-
-    Patient findPatient(PatientMgtContext ctx);
-
-    void deletePatientFromUI(PatientMgtContext ctx);
-
-    void deletePatientIfHasNoMergedWith(PatientMgtContext ctx);
+public class CircularPatientMergeException extends RuntimeException {
+    public CircularPatientMergeException() {super();}
 }

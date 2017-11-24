@@ -45,10 +45,7 @@ import org.dcm4che3.data.*;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.issuer.IssuerService;
-import org.dcm4chee.arc.patient.NonUniquePatientException;
-import org.dcm4chee.arc.patient.PatientAlreadyExistsException;
-import org.dcm4chee.arc.patient.PatientMergedException;
-import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.patient.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
