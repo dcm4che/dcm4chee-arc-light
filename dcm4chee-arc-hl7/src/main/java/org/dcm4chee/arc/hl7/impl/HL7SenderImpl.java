@@ -60,6 +60,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
+import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import java.io.IOException;
 
@@ -131,7 +132,7 @@ public class HL7SenderImpl implements HL7Sender {
             msg.setStringProperty("MessageControlID", messageControlID);
             if (httpServletRequestInfo != null)
                 httpServletRequestInfo.copyTo(msg);
-            queueManager.scheduleMessage(QUEUE_NAME, msg);
+            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

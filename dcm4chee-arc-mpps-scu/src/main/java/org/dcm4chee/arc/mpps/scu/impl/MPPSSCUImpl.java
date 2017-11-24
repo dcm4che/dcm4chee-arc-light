@@ -59,6 +59,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import java.io.IOException;
 
@@ -97,7 +98,7 @@ class MPPSSCUImpl implements MPPSSCU {
             msg.setStringProperty("RemoteAET", remoteAET);
             msg.setStringProperty("DIMSE", dimse.name());
             msg.setStringProperty("SOPInstanceUID", iuid);
-            queueManager.scheduleMessage(QUEUE_NAME, msg);
+            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY);
         } catch (Exception e) {
             LOG.warn("Failed to Schedule Forward of {} MPPS[uid={}] to AE: {}", dimse, iuid, remoteAET, e);
         }

@@ -1570,6 +1570,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.getInstanceAvailability(), Availability.ONLINE);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSchedule", descriptor.getSchedules());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(descriptor.getProperties()));
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportPriority", descriptor.getPriority(), 4);
         return attrs;
     }
 
@@ -1592,6 +1593,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), Availability.ONLINE));
                 desc.setSchedules(toScheduleExpressions(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
+                desc.setPriority(LdapUtils.intValue(attrs.get("dcmExportPriority"), 4));
                 arcdev.addExporterDescriptor(desc);
             }
         } finally {
@@ -1651,6 +1653,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getInstanceAvailability(), desc.getInstanceAvailability(), Availability.ONLINE);
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), desc.getSchedules());
         storeDiffProperties(ldapObj, mods, prev.getProperties(), desc.getProperties());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmExportPriority", prev.getPriority(), desc.getPriority(), 4);
         return mods;
     }
 

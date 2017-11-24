@@ -133,6 +133,10 @@ public class QueueMessage {
     private String queueName;
 
     @Basic(optional = false)
+    @Column(name = "priority")
+    private int priority;
+
+    @Basic(optional = false)
     @Column(name = "msg_id")
     private String messageID;
 
@@ -184,6 +188,7 @@ public class QueueMessage {
         try {
             this.queueName = queueName;
             this.messageID = msg.getJMSMessageID();
+            this.priority = msg.getJMSPriority();
             this.messageProperties = propertiesOf(msg);
             this.messageBody = serialize(msg.getObject());
             this.status = Status.SCHEDULED;
@@ -194,6 +199,10 @@ public class QueueMessage {
 
     public long getPk() {
         return pk;
+    }
+
+    public int getPriority() {
+        return priority;
     }
 
     public Status getStatus() {

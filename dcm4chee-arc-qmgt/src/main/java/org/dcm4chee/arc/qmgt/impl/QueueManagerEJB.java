@@ -56,6 +56,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
+import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.naming.InitialContext;
@@ -96,13 +97,14 @@ public class QueueManagerEJB implements QueueManager {
     }
 
     @Override
-    public QueueMessage scheduleMessage(String queueName, ObjectMessage msg) throws QueueSizeLimitExceededException {
+    public QueueMessage scheduleMessage(String queueName, ObjectMessage msg, int priority)
+            throws QueueSizeLimitExceededException {
         QueueDescriptor queueDescriptor = descriptorOf(queueName);
         int maxQueueSize = queueDescriptor.getMaxQueueSize();
         if (maxQueueSize > 0 && maxQueueSize < countByQueueNameAndStatus(queueName))
             throw new QueueSizeLimitExceededException(queueDescriptor);
 
-        sendMessage(queueDescriptor, msg, 0L);
+        sendMessage(queueDescriptor, msg, 0L, priority);
         QueueMessage entity = new QueueMessage(queueName, msg);
         em.persist(entity);
         LOG.info("Schedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
@@ -236,7 +238,7 @@ public class QueueManagerEJB implements QueueManager {
 
     private void rescheduleMessage(QueueMessage entity, QueueDescriptor descriptor, long delay) {
         ObjectMessage msg = entity.initProperties(createObjectMessage(entity.getMessageBody()));
-        sendMessage(descriptor, msg, delay);
+        sendMessage(descriptor, msg, delay, entity.getPriority());
         entity.reschedule(msg, new Date(System.currentTimeMillis() + delay));
         if (entity.getExportTask() != null)
             entity.getExportTask().setUpdatedTime();
@@ -334,8 +336,8 @@ public class QueueManagerEJB implements QueueManager {
         return query.getResultList();
     }
 
-    private void sendMessage(QueueDescriptor desc, ObjectMessage msg, long delay) {
-        jmsCtx.createProducer().setDeliveryDelay(delay).send(lookup(desc.getJndiName()), msg);
+    private void sendMessage(QueueDescriptor desc, ObjectMessage msg, long delay, int priority) {
+        jmsCtx.createProducer().setDeliveryDelay(delay).setPriority(priority).send(lookup(desc.getJndiName()), msg);
     }
 
     private Queue lookup(String jndiName) {

@@ -950,6 +950,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.191 NAME 'dcmNullifyTag'
   DESC 'DICOM Tag of Attribute to be nullified as hex string'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.192 NAME 'dcmExportPriority'
+  DESC 'JMS Priority Level for processing the Export Task from 0 (lowest) to 9 (highest). 4 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1216,6 +1221,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
     dcmURI $
     dcmQueueName )
   MAY (
+    dcmExportPriority $
     dicomDescription $
     dicomAETitle $
     dcmStgCmtSCP $
