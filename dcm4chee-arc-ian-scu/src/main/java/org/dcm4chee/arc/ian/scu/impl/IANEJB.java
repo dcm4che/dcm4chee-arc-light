@@ -55,6 +55,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
+import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -149,7 +150,7 @@ public class IANEJB {
             msg.setStringProperty("LocalAET", callingAET);
             msg.setStringProperty("RemoteAET", remoteAET);
             msg.setStringProperty("SOPInstanceUID", UIDUtils.createUID());
-            queueManager.scheduleMessage(IANSCU.QUEUE_NAME, msg);
+            queueManager.scheduleMessage(IANSCU.QUEUE_NAME, msg, Message.DEFAULT_PRIORITY);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

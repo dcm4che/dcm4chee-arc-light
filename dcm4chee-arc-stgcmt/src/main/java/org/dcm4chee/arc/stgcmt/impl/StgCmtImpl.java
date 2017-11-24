@@ -73,6 +73,7 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import java.io.IOException;
 
@@ -196,7 +197,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             msg.setStringProperty("SeriesInstanceUID", ctx.getSeriesInstanceUID());
             msg.setStringProperty("SopInstanceUID", ctx.getSopInstanceUID());
             msg.setStringProperty("ExporterID", exporterID);
-            queueManager.scheduleMessage(StgCmtSCU.QUEUE_NAME, msg);
+            queueManager.scheduleMessage(StgCmtSCU.QUEUE_NAME, msg, Message.DEFAULT_PRIORITY);
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
         }
@@ -208,7 +209,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
             ObjectMessage msg = queueManager.createObjectMessage(eventInfo);
             msg.setStringProperty("LocalAET", localAET);
             msg.setStringProperty("RemoteAET", remoteAET);
-            queueManager.scheduleMessage(StgCmtSCP.QUEUE_NAME, msg);
+            queueManager.scheduleMessage(StgCmtSCP.QUEUE_NAME, msg, Message.DEFAULT_PRIORITY);
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
         }

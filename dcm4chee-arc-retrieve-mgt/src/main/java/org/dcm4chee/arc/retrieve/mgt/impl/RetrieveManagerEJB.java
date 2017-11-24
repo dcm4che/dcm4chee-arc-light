@@ -59,6 +59,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -91,7 +92,8 @@ public class RetrieveManagerEJB {
             msg.setStringProperty("RequesterUserID", ctx.getRequesterUserID());
             msg.setStringProperty("RequesterHostName", ctx.getRequesterHostName());
             msg.setStringProperty("RequestURI", ctx.getRequestURI());
-            QueueMessage queueMessage = queueManager.scheduleMessage(RetrieveManager.QUEUE_NAME, msg);
+            QueueMessage queueMessage = queueManager.scheduleMessage(RetrieveManager.QUEUE_NAME, msg,
+                    Message.DEFAULT_PRIORITY);
             createRetrieveTask(device, ctx, queueMessage);
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);

@@ -50,6 +50,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
+import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -74,7 +75,7 @@ public class RSClientImpl implements RSClient {
             ObjectMessage msg = queueManager.createObjectMessage(content);
             msg.setStringProperty("Method", method);
             msg.setStringProperty("URI", uri);
-            queueManager.scheduleMessage(QUEUE_NAME, msg);
+            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }
