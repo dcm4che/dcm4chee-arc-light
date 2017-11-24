@@ -231,10 +231,10 @@ public class AuditService {
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         for (org.dcm4chee.arc.entity.Instance i : ctx.getInstances())
             buildSOPClassMap(sopClassMap, i.getSopClassUID(), i.getSopInstanceUID());
-        HttpServletRequest request = ctx.getHttpRequest();
-        AuditInfoBuilder i = request != null ? buildPermDeletionAuditInfoForWeb(request, ctx)
+        HttpServletRequestInfo httpServletRequestInfo = ctx.getHttpServletRequestInfo();
+        AuditInfoBuilder i = httpServletRequestInfo != null ? buildPermDeletionAuditInfoForWeb(httpServletRequestInfo, ctx)
                 : buildPermDeletionAuditInfoForScheduler(ctx);
-        AuditServiceUtils.EventType eventType = request != null
+        AuditServiceUtils.EventType eventType = httpServletRequestInfo != null
                                                 ? AuditServiceUtils.EventType.RJ_COMPLET
                                                 : AuditServiceUtils.EventType.PRMDLT_SCH;
         LinkedHashSet<Object> deleteObjs = getDeletionObjsForSpooling(sopClassMap, new AuditInfo(i));
@@ -323,11 +323,12 @@ public class AuditService {
         emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poiLDAPDiff);
     }
 
-    private AuditInfoBuilder buildPermDeletionAuditInfoForWeb(HttpServletRequest req, StudyDeleteContext ctx) {
+    private AuditInfoBuilder buildPermDeletionAuditInfoForWeb(
+            HttpServletRequestInfo httpServletRequestInfo, StudyDeleteContext ctx) {
         return new AuditInfoBuilder.Builder()
-                .callingUserID(KeycloakContext.valueOf(req).getUserName())
-                .callingHost(req.getRemoteHost())
-                .calledUserID(req.getRequestURI())
+                .callingUserID(httpServletRequestInfo.requesterUserID)
+                .callingHost(httpServletRequestInfo.requesterHost)
+                .calledUserID(httpServletRequestInfo.requestURI)
                 .studyUIDAccNumDate(ctx.getStudy().getAttributes())
                 .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
                 .outcome(getOD(ctx.getException()))
@@ -1034,11 +1035,11 @@ public class AuditService {
 
     private String[] callingCalledUserIDsForPatientRecord(PatientMgtContext ctx) {
         String[] callingCalledUserIDs = new String[2];
-        HttpServletRequest httpRequest = ctx.getHttpRequest();
+        HttpServletRequestInfo httpRequest = ctx.getHttpServletRequestInfo();
         Association association = ctx.getAssociation();
         UnparsedHL7Message hl7msg = ctx.getUnparsedHL7Message();
         callingCalledUserIDs[0] = httpRequest != null
-                        ? KeycloakContext.valueOf(httpRequest).getUserName()
+                        ? httpRequest.requesterUserID
                         : ctx.getHttpServletRequestInfo() != null
                             ? ctx.getHttpServletRequestInfo().requesterUserID
                             : hl7msg != null
@@ -1046,7 +1047,7 @@ public class AuditService {
                                 : association != null
                                     ? association.getCallingAET() : null;
         callingCalledUserIDs[1] = httpRequest != null
-                        ? httpRequest.getRequestURI()
+                        ? httpRequest.requestURI
                         : ctx.getHttpServletRequestInfo() != null
                             ? ctx.getHttpServletRequestInfo().requestURI
                             : hl7msg != null

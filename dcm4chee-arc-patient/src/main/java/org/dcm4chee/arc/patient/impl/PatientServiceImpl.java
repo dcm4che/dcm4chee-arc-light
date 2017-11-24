@@ -49,6 +49,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.*;
+import org.dcm4chee.arc.util.HttpServletRequestInfo;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -84,7 +85,7 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public PatientMgtContext createPatientMgtContextWEB(HttpServletRequest httpRequest) {
         PatientMgtContextImpl ctx = new PatientMgtContextImpl(device);
-        ctx.setHttpRequest(httpRequest);
+        ctx.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(httpRequest));
         return ctx;
     }
 

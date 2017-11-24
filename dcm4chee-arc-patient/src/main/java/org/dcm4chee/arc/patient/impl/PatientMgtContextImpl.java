@@ -55,7 +55,6 @@ import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.util.HttpServletRequestInfo;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
 
 /**
@@ -67,7 +66,6 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
     private final AttributeFilter attributeFilter;
     private final FuzzyStr fuzzyStr;
-    private HttpServletRequest httpRequest;
     private HL7Application hl7app;
     private Association as;
     private Socket socket;
@@ -88,10 +86,6 @@ public class PatientMgtContextImpl implements PatientMgtContext {
         this.fuzzyStr = arcDev.getFuzzyStr();
     }
 
-    void setHttpRequest(HttpServletRequest httpRequest) {
-        this.httpRequest = httpRequest;
-    }
-
     void setHL7Application(HL7Application hl7app) {
         this.hl7app = hl7app;
     }
@@ -107,10 +101,13 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
     @Override
     public String toString() {
-        return as != null ? as.toString()
-                : httpRequest != null ? httpRequest.getRemoteAddr()
-                : socket != null ? socket.toString()
-                : "PatientMgtContext";
+        return as != null
+                ? as.toString()
+                : httpServletRequestInfo != null
+                    ? httpServletRequestInfo.requesterHost
+                    : socket != null
+                        ? socket.toString()
+                        : "PatientMgtContext";
     }
 
     @Override
@@ -129,11 +126,6 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
-    public HttpServletRequest getHttpRequest() {
-        return httpRequest;
-    }
-
-    @Override
     public UnparsedHL7Message getUnparsedHL7Message() {
         return msg;
     }
@@ -145,12 +137,10 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
     @Override
     public String getRemoteHostName() {
-        return httpRequest != null
-                ? httpRequest.getRemoteHost()
-                : httpServletRequestInfo != null
-                    ? httpServletRequestInfo.requesterHost
-                    : socket != null
-                        ? socket.getInetAddress().getHostName() : null;
+        return httpServletRequestInfo != null
+                ? httpServletRequestInfo.requesterHost
+                : socket != null
+                    ? socket.getInetAddress().getHostName() : null;
     }
 
     @Override

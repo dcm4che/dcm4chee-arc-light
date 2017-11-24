@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -49,8 +49,6 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.util.HttpServletRequestInfo;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -62,8 +60,6 @@ public interface PatientMgtContext {
     FuzzyStr getFuzzyStr();
 
     Association getAssociation();
-
-    HttpServletRequest getHttpRequest();
 
     UnparsedHL7Message getUnparsedHL7Message();
 

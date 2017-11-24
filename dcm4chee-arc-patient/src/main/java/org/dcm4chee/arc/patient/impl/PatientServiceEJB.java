@@ -195,7 +195,7 @@ public class PatientServiceEJB {
             moveStudies(prev, pat);
             moveMPPS(prev, pat);
         }
-        if (ctx.getHttpRequest() != null) {
+        if (ctx.getHttpServletRequestInfo() != null) {
             if (pat.getPatientName() != null)
                 ctx.getAttributes().setString(Tag.PatientName, VR.PN, pat.getPatientName().toString());
             if (prev.getPatientName() != null)
