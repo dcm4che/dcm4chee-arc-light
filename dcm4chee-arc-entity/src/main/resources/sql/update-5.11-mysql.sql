@@ -10,12 +10,15 @@ alter table retrieve_task add constraint FK_mxokt1gw5g1e7rc3ssotvuqix foreign ke
 
 alter table study add study_size bigint;
 alter table series add series_size bigint;
+alter table queue_msg add priority integer;
 
 -- shall be applied on stopped archive before starting 5.11
 update study set study_size = -1;
 update series set series_size = -1;
+update queue_msg set priority = 4;
 
 alter table study modify study_size bigint not null;
 alter table series modify series_size bigint not null;
+alter table queue_msg modify priority integer not null;
 
 create index UK_q7vxiaj1q6ojfxdq1g9jjxgqv on study (study_size);
