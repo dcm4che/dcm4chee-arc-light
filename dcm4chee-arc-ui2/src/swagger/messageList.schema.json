@@ -23,9 +23,9 @@
         "description": "name of queue",
         "type": "string"
       },
-      "queue": {
+      "priority": {
         "title": "Priority",
-        "description": "priority of messaage from 0 (lowest) to 9 (highest)",
+        "description": "priority of message from 0 (lowest) to 9 (highest)",
         "type": "integer"
       },
       "status": {
