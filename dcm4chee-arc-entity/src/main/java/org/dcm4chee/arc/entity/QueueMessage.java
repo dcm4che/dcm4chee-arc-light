@@ -309,7 +309,7 @@ public class QueueMessage {
         gen.writeStartObject();
         gen.write("id", messageID);
         gen.write("queue", queueName);
-        gen.write("proprity", priority);
+        gen.write("priority", priority);
         gen.write("createdTime", df.format(createdTime));
         gen.write("updatedTime", df.format(updatedTime));
         writeStatusAsJSONTo(gen, df);
