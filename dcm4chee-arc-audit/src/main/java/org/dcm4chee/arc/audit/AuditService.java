@@ -376,7 +376,7 @@ public class AuditService {
         
         ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
                 .sopC(sopClasses(reader.getInstanceLines()))
-                .acc(auditInfo.getField(AuditInfo.ACC_NUM)).build();
+                .acc(accessions(auditInfo.getField(AuditInfo.ACC_NUM))).build();
         
         ParticipantObjectIdentificationBuilder poiStudy = new ParticipantObjectIdentificationBuilder.Builder(
                 auditInfo.getField(AuditInfo.STUDY_UID), 
@@ -761,7 +761,7 @@ public class AuditService {
 
         ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
                                                 .sopC(sopC)
-                                                .acc(auditInfo.getField(AuditInfo.ACC_NUM))
+                                                .acc(accessions(auditInfo.getField(AuditInfo.ACC_NUM)))
                                                 .mpps(mppsUIDs.toArray(new String[mppsUIDs.size()]))
                                                 .build();
 
@@ -827,7 +827,7 @@ public class AuditService {
 
             ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
                                                         .sopC(sopC.toArray(new SOPClass[sopC.size()]))
-                                                        .acc(entry.getValue().getAccNum())
+                                                        .acc(accessions(entry.getValue().getAccNum()))
                                                         .build();
             ParticipantObjectIdentificationBuilder poi = new ParticipantObjectIdentificationBuilder.Builder(
                                                         entry.getKey(),
@@ -1247,7 +1247,7 @@ public class AuditService {
         ActiveParticipantBuilder[] activeParticipantBuilder = buildProcedureRecordActiveParticipants(auditLogger, prI);
         
         ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
-                .acc(prI.getField(AuditInfo.ACC_NUM)).build();
+                .acc(accessions(prI.getField(AuditInfo.ACC_NUM))).build();
 
         ParticipantObjectIdentificationBuilder poiStudy = new ParticipantObjectIdentificationBuilder.Builder(
                                                         prI.getField(AuditInfo.STUDY_UID),
@@ -1510,6 +1510,15 @@ public class AuditService {
                     null, ii.getField(AuditInfo.SOP_CUID), Integer.parseInt(ii.getField(AuditInfo.SOP_IUID)));
         }
         return sopClasses;
+    }
+
+    private String[] accessions(String accession) {
+        String[] accessions = {};
+        if (accession != null) {
+            accessions = new String[1];
+            accessions[0] = accession;
+        }
+        return accessions;
     }
 
     private SOPClass getSOPC(HashSet<String> instances, String uid, Integer numI) {
