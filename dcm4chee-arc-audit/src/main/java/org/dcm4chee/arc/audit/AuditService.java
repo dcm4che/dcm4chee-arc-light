@@ -720,7 +720,7 @@ public class AuditService {
     private void auditStoreOrWADORetrieve(AuditLogger auditLogger, Path path,
                                           AuditServiceUtils.EventType eventType) throws IOException {
         SpoolFileReader reader = new SpoolFileReader(path);
-        List<String> mppsUIDs = new ArrayList<>();
+        Set<String> mppsUIDs = new HashSet<>();
         HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         for (String line : reader.getInstanceLines()) {
