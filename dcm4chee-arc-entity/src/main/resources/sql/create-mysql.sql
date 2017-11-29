@@ -153,7 +153,7 @@ create index UK_mlk5pdi8une92kru8g2ppappx on study (expiration_date(64));
 create index UK_9qvng5j8xnli8yif7p0rjngb2 on study (failed_retrieves);
 create index UK_gl5rq54a0tr8nreu27c2t04rb on study (completeness);
 create index UK_cl9dmi0kb97ov1cjh7rn3dhve on study (ext_retrieve_aet(64));
-create index UK_q7vxiaj1q6ojfxdq1g9jjxgqv on study (study_size(64));
+create index UK_q7vxiaj1q6ojfxdq1g9jjxgqv on study (study_size);
 alter table study_query_attrs add constraint UK_prn4qt6d42stw0gfi1yce1fap  unique (view_id, study_fk);
 create index UK_5btv5autls384ulwues8lym4p on verify_observer (verify_datetime(64));
 alter table content_item add constraint FK_gudw6viy7lrf5t5hetw7mbgh5 foreign key (code_fk) references code (pk);
