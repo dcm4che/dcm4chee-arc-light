@@ -14,8 +14,12 @@ export class FilterGeneratorComponent implements OnInit {
 
   ngOnInit() {
   }
-  submitEmit(){
+  submitEmit(id){
       this.model = j4care.clearEmptyObject(this.model);
+    if(id){
+      this.submit.emit({model:this.model,id:id});
+    }else{
       this.submit.emit(this.model);
+    }
   }
 }
