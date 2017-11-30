@@ -3,8 +3,7 @@ import * as _ from 'lodash';
 
 @Component({
   selector: 'dicom-list',
-  templateUrl: './dicom-flat-list.component.html',
-  styleUrls: ['./dicom-flat-list.component.scss']
+  templateUrl: './dicom-flat-list.component.html'
 })
 export class DicomFlatListComponent implements OnInit {
 
