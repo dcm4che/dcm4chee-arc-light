@@ -6,7 +6,9 @@
     "dcmExporterID",
     "dcmURI",
     "dcmQueueName",
-    "dcmInstanceAvailability"
+    "dcmExportPriority",
+    "dcmInstanceAvailability",
+    "dcmExportPriority"
   ],
   "properties": {
     "dcmExporterID": {
@@ -24,6 +26,14 @@
       "description": "JMS Queue Name",
       "type": "string",
       "format" : "dcmQueueName"
+    },
+    "dcmExportPriority": {
+      "title": "Export Priority",
+      "description": "JMS Priority Level for processing the Export Task from 0 (lowest) to 9 (highest).",
+      "type": "integer",
+      "default" : 4,
+      "minimum": 0,
+      "maximum": 9
     },
     "dicomDescription": {
       "title": "Exporter Description",

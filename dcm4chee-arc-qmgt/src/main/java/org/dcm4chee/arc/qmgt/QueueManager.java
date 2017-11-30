@@ -54,7 +54,7 @@ import java.util.List;
 public interface QueueManager {
     ObjectMessage createObjectMessage(Serializable object);
 
-    QueueMessage scheduleMessage(String queueName, ObjectMessage message) throws QueueSizeLimitExceededException;
+    QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority) throws QueueSizeLimitExceededException;
 
     QueueMessage onProcessingStart(String msgId);
 

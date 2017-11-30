@@ -43,7 +43,7 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.exporter.ExportContext;
-import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import java.net.URI;
 

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -44,6 +44,7 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -56,7 +57,9 @@ public interface HL7Sender {
     void forwardMessage(HL7Segment msh, byte[] hl7msg, String... destinations);
 
     void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
-                         String receivingFacility, String messageType, String messageControlID, byte[] hl7msg) throws ConfigurationException, QueueSizeLimitExceededException;
+                         String receivingFacility, String messageType, String messageControlID, byte[] hl7msg,
+                         HttpServletRequestInfo httpServletRequestInfo)
+            throws ConfigurationException, QueueSizeLimitExceededException;
 
     HL7Message sendMessage(String sendingApplication, String sendingFacility, String receivingApplication,
                         String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)

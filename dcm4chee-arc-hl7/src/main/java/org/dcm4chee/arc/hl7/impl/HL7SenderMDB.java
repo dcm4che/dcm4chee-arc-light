@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -40,13 +40,18 @@
 
 package org.dcm4chee.arc.hl7.impl;
 
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
+import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.hl7.HL7Sender;
+import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +59,7 @@ import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -80,6 +86,12 @@ public class HL7SenderMDB implements MessageListener {
     @Inject
     private QueueManager queueManager;
 
+    @Inject
+    private PatientService patientService;
+
+    @Inject
+    private Event<PatientMgtContext> patientEvent;
+
     @Override
     public void onMessage(Message msg) {
         String msgID = null;
@@ -100,11 +112,25 @@ public class HL7SenderMDB implements MessageListener {
                     msg.getStringProperty("MessageType"),
                     msg.getStringProperty("MessageControlID"),
                     hl7msg);
+            externalHL7Audit(msg, hl7msg);
             queueManager.onProcessingSuccessful(msgID, toOutcome(ack));
         } catch (Throwable e) {
             LOG.warn("Failed to process {}", msg, e);
             queueManager.onProcessingFailed(msgID, e);
         }
+    }
+
+    private void externalHL7Audit(Message msg, byte[] hl7msg) throws JMSException {
+        HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(msg);
+        if (httpServletRequestInfo == null)
+            return;
+
+        PatientMgtContext ctx = patientService.createPatientMgtContextScheduler();
+        UnparsedHL7Message unparsedHL7Message = new UnparsedHL7Message(hl7msg);
+        ctx.setUnparsedHL7Message(unparsedHL7Message);
+        ctx.setHttpServletRequestInfo(httpServletRequestInfo);
+        ctx.setEventActionCode(eventActionCode(unparsedHL7Message.msh()));
+        patientEvent.fire(ctx);
     }
 
     private Outcome toOutcome(HL7Message ack) {
@@ -117,5 +143,10 @@ public class HL7SenderMDB implements MessageListener {
                             ? QueueMessage.Status.COMPLETED
                             : QueueMessage.Status.WARNING,
                     msa.toString());
+    }
+
+    private String eventActionCode(HL7Segment msh) {
+        return msh.getMessageType().equals("ADT^A28")
+                ? AuditMessages.EventActionCode.Create : AuditMessages.EventActionCode.Update;
     }
 }

@@ -56,9 +56,9 @@ import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
-import org.dcm4chee.arc.retrieve.HttpServletRequestInfo;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -247,8 +247,10 @@ public class ExportManagerEJB implements ExportManager {
     private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter,
                                     HttpServletRequestInfo httpServletRequestInfo)
             throws QueueSizeLimitExceededException {
-        QueueMessage queueMessage = queueManager.scheduleMessage(exporter.getQueueName(),
-                createMessage(exportTask, exporter.getAETitle(), httpServletRequestInfo));
+        QueueMessage queueMessage = queueManager.scheduleMessage(
+                exporter.getQueueName(),
+                createMessage(exportTask, exporter.getAETitle(), httpServletRequestInfo),
+                exporter.getPriority());
         exportTask.setQueueMessage(queueMessage);
         try {
             Attributes attrs = queryService.queryExportTaskInfo(

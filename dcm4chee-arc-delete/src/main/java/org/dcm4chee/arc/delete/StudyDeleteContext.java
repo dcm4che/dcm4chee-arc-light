@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -43,8 +43,8 @@ package org.dcm4chee.arc.delete;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -71,9 +71,9 @@ public interface StudyDeleteContext {
 
     void setPatient(Patient patient);
 
-    HttpServletRequest getHttpRequest();
+    HttpServletRequestInfo getHttpServletRequestInfo();
 
-    void setHttpRequest(HttpServletRequest request);
+    void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo);
 
     boolean isDeletePatientOnDeleteLastStudy();
 

@@ -11,12 +11,15 @@ create generator retrieve_task_pk_seq;
 
 alter table study add study_size numeric(18,0);
 alter table series add series_size numeric(18,0);
+alter table queue_msg add priority integer;
 
 -- shall be applied on stopped archive before starting 5.11
 update study set study_size = -1;
 update series set series_size = -1;
+update queue_msg set priority = 4;
 
 alter table study alter study_size set not null;
 alter table series alter series_size set not null;
+alter table queue_msg alter priority set not null;
 
 create index UK_q7vxiaj1q6ojfxdq1g9jjxgqv on study (study_size);

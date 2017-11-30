@@ -1,5 +1,5 @@
 /*
- * ** BEGIN LICENSE BLOCK *****
+ * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -35,71 +35,14 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * ** END LICENSE BLOCK *****
+ * *** END LICENSE BLOCK *****
  */
 
 package org.dcm4chee.arc.patient;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
-import org.dcm4che3.net.Association;
-import org.dcm4che3.net.hl7.UnparsedHL7Message;
-import org.dcm4che3.soundex.FuzzyStr;
-import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.entity.Patient;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
-
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Mar 2016
+ * @since Nov 2017
  */
-public interface PatientMgtContext {
-    AttributeFilter getAttributeFilter();
-
-    FuzzyStr getFuzzyStr();
-
-    Association getAssociation();
-
-    UnparsedHL7Message getUnparsedHL7Message();
-
-    void setUnparsedHL7Message(UnparsedHL7Message msg);
-
-    String getRemoteHostName();
-
-    boolean isNoPatientCreate();
-
-    IDWithIssuer getPatientID();
-
-    Attributes getAttributes();
-
-    void setAttributes(Attributes attributes);
-
-    IDWithIssuer getPreviousPatientID();
-
-    Attributes getPreviousAttributes();
-
-    void setPreviousAttributes(Attributes attrs);
-
-    Attributes.UpdatePolicy getAttributeUpdatePolicy();
-
-    void setAttributeUpdatePolicy(Attributes.UpdatePolicy updatePolicy);
-
-    String getEventActionCode();
-
-    void setEventActionCode(String eventActionCode);
-
-    Exception getException();
-
-    void setException(Exception ex);
-
-    void setPatientID(IDWithIssuer patientID);
-
-    Patient getPatient();
-
-    void setPatient(Patient patient);
-
-    HttpServletRequestInfo getHttpServletRequestInfo();
-
-    void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo);
+public class CircularPatientMergeException extends RuntimeException {
+    public CircularPatientMergeException() {super();}
 }

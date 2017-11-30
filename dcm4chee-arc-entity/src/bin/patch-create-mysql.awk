@@ -20,6 +20,7 @@ BEGIN { FS = "[ )]" }
             && $6 != "(msg_status" \
             && $6 != "(completeness" \
             && $6 != "(rejection_state" \
+            && $6 != "(study_size" \
             && $6 != "(series_no" \
             && $6 != "(failed_retrieves" \
             && $6 != "(sx_pn_comp" \

@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -218,6 +218,7 @@ public class HL7PSUEJB {
                 msh.getField(5, ""),
                 msh.getField(8, ""),
                 msh.getField(9, ""),
-                hl7Message.getBytes(hl7cs));
+                hl7Message.getBytes(hl7cs),
+                null);
     }
 }

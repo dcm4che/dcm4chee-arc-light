@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -53,8 +53,8 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.patient.PatientMgtContext;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.Socket;
 
 /**
@@ -66,7 +66,6 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
     private final AttributeFilter attributeFilter;
     private final FuzzyStr fuzzyStr;
-    private HttpServletRequest httpRequest;
     private HL7Application hl7app;
     private Association as;
     private Socket socket;
@@ -79,15 +78,12 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private String eventActionCode;
     private Exception exception;
     private Patient patient;
+    private HttpServletRequestInfo httpServletRequestInfo;
 
     PatientMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         this.attributeFilter = arcDev.getAttributeFilter(Entity.Patient);
         this.fuzzyStr = arcDev.getFuzzyStr();
-    }
-
-    void setHttpRequest(HttpServletRequest httpRequest) {
-        this.httpRequest = httpRequest;
     }
 
     void setHL7Application(HL7Application hl7app) {
@@ -105,10 +101,13 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
     @Override
     public String toString() {
-        return as != null ? as.toString()
-                : httpRequest != null ? httpRequest.getRemoteAddr()
-                : socket != null ? socket.toString()
-                : "PatientMgtContext";
+        return as != null
+                ? as.toString()
+                : httpServletRequestInfo != null
+                    ? httpServletRequestInfo.requesterHost
+                    : socket != null
+                        ? socket.toString()
+                        : "PatientMgtContext";
     }
 
     @Override
@@ -127,11 +126,6 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
-    public HttpServletRequest getHttpRequest() {
-        return httpRequest;
-    }
-
-    @Override
     public UnparsedHL7Message getUnparsedHL7Message() {
         return msg;
     }
@@ -143,8 +137,8 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
     @Override
     public String getRemoteHostName() {
-        return httpRequest != null
-                ? httpRequest.getRemoteHost()
+        return httpServletRequestInfo != null
+                ? httpServletRequestInfo.requesterHost
                 : socket != null
                     ? socket.getInetAddress().getHostName() : null;
     }
@@ -234,5 +228,15 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setPatient(Patient patient) {
         this.patient = patient;
+    }
+
+    @Override
+    public HttpServletRequestInfo getHttpServletRequestInfo() {
+        return httpServletRequestInfo;
+    }
+
+    @Override
+    public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
+        this.httpServletRequestInfo = httpServletRequestInfo;
     }
 }

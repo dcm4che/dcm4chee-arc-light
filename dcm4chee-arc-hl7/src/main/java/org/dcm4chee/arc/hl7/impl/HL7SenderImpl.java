@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -52,6 +52,7 @@ import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +60,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
+import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import java.io.IOException;
 
@@ -93,7 +95,8 @@ public class HL7SenderImpl implements HL7Sender {
                         ss.length > 1 ? ss[1] : "",
                         msh.getField(8, ""),
                         msh.getField(9, ""),
-                        replaceField2345(orighl7msg, dest.replace('|', msh.getFieldSeparator()), field23Len, field45Len));
+                        replaceField2345(orighl7msg, dest.replace('|', msh.getFieldSeparator()), field23Len, field45Len),
+                        null);
             } catch (Exception e) {
                 LOG.warn("Failed to schedule forward of HL7 message to {}:\n", dest, e);
             }
@@ -114,7 +117,8 @@ public class HL7SenderImpl implements HL7Sender {
 
     @Override
     public void scheduleMessage(String sendingApplication, String sendingFacility, String receivingApplication,
-                                String receivingFacility, String messageType, String messageControlID, byte[] hl7msg)
+                                String receivingFacility, String messageType, String messageControlID, byte[] hl7msg,
+                                HttpServletRequestInfo httpServletRequestInfo)
             throws ConfigurationException, QueueSizeLimitExceededException {
         getSendingHl7Application(sendingApplication, sendingFacility);
         hl7AppCache.findHL7Application(receivingApplication + '|' + receivingFacility);
@@ -126,7 +130,9 @@ public class HL7SenderImpl implements HL7Sender {
             msg.setStringProperty("ReceivingFacility", receivingFacility);
             msg.setStringProperty("MessageType", messageType);
             msg.setStringProperty("MessageControlID", messageControlID);
-            queueManager.scheduleMessage(QUEUE_NAME, msg);
+            if (httpServletRequestInfo != null)
+                httpServletRequestInfo.copyTo(msg);
+            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

@@ -55,9 +55,7 @@ import org.dcm4chee.arc.delete.DeletionService;
 import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.delete.StudyNotFoundException;
 import org.dcm4chee.arc.id.IDService;
-import org.dcm4chee.arc.patient.PatientMgtContext;
-import org.dcm4chee.arc.patient.PatientService;
-import org.dcm4chee.arc.patient.PatientTrackingNotAllowedException;
+import org.dcm4chee.arc.patient.*;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.query.QueryService;
@@ -68,6 +66,7 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -213,7 +212,7 @@ public class IocmRS {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            deletionService.deleteStudy(studyUID, request, arcAE.getApplicationEntity());
+            deletionService.deleteStudy(studyUID, HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
             rsForward.forward(RSOperation.DeleteStudy, arcAE, null, request);
         } catch (StudyNotFoundException e) {
             throw new WebApplicationException(getResponse("Study having study instance UID " + studyUID + " not found.",
@@ -283,6 +282,9 @@ public class IocmRS {
                     getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         } catch (PatientTrackingNotAllowedException e) {
             throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.CONFLICT));
+        } catch (CircularPatientMergeException e) {
+            throw new WebApplicationException(
+                    getResponse("PriorPatientID same as target PatientID", Response.Status.CONFLICT));
         } catch(Exception e) {
             throw new WebApplicationException(getResponseAsTextPlain(e));
         }
@@ -316,16 +318,11 @@ public class IocmRS {
     public void mergePatient(@PathParam("priorPatientID") IDWithIssuer priorPatientID,
                              @PathParam("patientID") IDWithIssuer patientID) throws Exception {
         logRequest();
-        try {
-            Attributes priorPatAttr = new Attributes(3);
-            priorPatAttr.setString(Tag.PatientID, VR.LO, priorPatientID.getID());
-            setIssuer(priorPatientID, priorPatAttr);
-            mergePatient(patientID, priorPatAttr);
-            rsForward.forward(RSOperation.MergePatient, getArchiveAE(), null, request);
-        } catch (Exception e) {
-            throw new WebApplicationException(
-                    getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
-        }
+        Attributes priorPatAttr = new Attributes(3);
+        priorPatAttr.setString(Tag.PatientID, VR.LO, priorPatientID.getID());
+        setIssuer(priorPatientID, priorPatAttr);
+        mergePatient(patientID, priorPatAttr);
+        rsForward.forward(RSOperation.MergePatient, getArchiveAE(), null, request);
     }
 
     private void mergePatient(IDWithIssuer patientID, Attributes priorPatAttr) throws Exception {
@@ -337,10 +334,14 @@ public class IocmRS {
             setIssuer(patientID, patAttr);
             patMgtCtx.setAttributes(patAttr);
             patMgtCtx.setPreviousAttributes(priorPatAttr);
+            LOG.info("Prior patient ID {} and target patient ID {}", patMgtCtx.getPreviousPatientID(), patMgtCtx.getPatientID());
             patientService.mergePatient(patMgtCtx);
             rsHL7Sender.sendHL7Message("ADT^A40^ADT_A39", patMgtCtx);
-        } catch (Exception e) {
-            throw e;
+        } catch (NonUniquePatientException | PatientMergedException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.CONFLICT));
+        } catch (CircularPatientMergeException e) {
+            throw new WebApplicationException(
+                    getResponse("PriorPatientID same as target PatientID", Response.Status.CONFLICT));
         }
     }
 
@@ -352,22 +353,17 @@ public class IocmRS {
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
             PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
-            Patient priorPatient = patientService.findPatient(priorPatientID);
-            if (priorPatient == null)
-                throw new WebApplicationException(getResponse(
-                        "Patient having patient ID : " + priorPatientID + " not found.", Response.Status.NOT_FOUND));
-            Attributes attrs = priorPatient.getAttributes();
-            attrs.setString(Tag.PatientID, VR.LO, patientID.getID());
-            setIssuer(patientID, attrs);
-            ctx.setAttributes(attrs);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             ctx.setPreviousAttributes(priorPatientID.exportPatientIDWithIssuer(null));
+            ctx.setAttributes(patientID.exportPatientIDWithIssuer(null));
             patientService.changePatientID(ctx);
             rsHL7Sender.sendHL7Message("ADT^A47^ADT_A30", ctx);
             rsForward.forward(RSOperation.ChangePatientID, arcAE, null, request);
-        } catch (Exception e) {
+        } catch (PatientTrackingNotAllowedException e) {
+            throw new WebApplicationException(getResponse(e.getMessage(), Response.Status.CONFLICT));
+        } catch (CircularPatientMergeException e) {
             throw new WebApplicationException(
-                    getResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
+                    getResponse("PriorPatientID same as target PatientID", Response.Status.CONFLICT));
         }
     }
 

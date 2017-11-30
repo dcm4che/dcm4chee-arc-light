@@ -5,6 +5,7 @@
     "required": [
       "id",
       "queue",
+      "priority",
       "status",
       "failures",
       "createdTime",
@@ -21,6 +22,11 @@
         "title": "Queue Name",
         "description": "name of queue",
         "type": "string"
+      },
+      "priority": {
+        "title": "Priority",
+        "description": "priority of message from 0 (lowest) to 9 (highest)",
+        "type": "integer"
       },
       "status": {
         "title": "Message Status",
