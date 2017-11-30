@@ -1,0 +1,19 @@
+<input type="text" size="5"  [(ngModel)]="model" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
+<div class="modality_selector [hidden]" *ngIf="showModalitySelector">
+  <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
+  <div class="common">
+    <a href="" *ngFor="let value of modalities.common | getKey;" (click)="$event.preventDefault();selectModality(value._KEY)" title="{{value._VALUE}}">{{value._KEY}}</a>
+  </div>
+  <button (click)="model='';showModalitySelector=false;" class="clear custom_button">Clear</button>
+  <!-- <div class="col-md-12"></div> -->
+  <a href="" (click)="$event.preventDefault();showMore=true" *ngIf="!showMore" class="more">more<i class="glyphicon glyphicon-triangle-bottom"></i></a>
+  <a href="" (click)="$event.preventDefault();showMore=false" *ngIf="showMore" class="more">less<i class="glyphicon glyphicon-triangle-top"></i></a>
+  <div class="more_block" *ngIf="showMore">
+    <a href="" *ngFor="let value of modalities.more | getKey;" (click)="$event.preventDefault();selectModality(value._KEY)" title="{{value._VALUE}}">{{value._KEY}}</a>
+    <div class="form-group">
+      <label>Custom modality code:</label>
+      <input [(ngModel)]="model" />
+      <button (click)="showModalitySelector=false" class="custom_button">Add</button>
+    </div>
+  </div>
+</div>

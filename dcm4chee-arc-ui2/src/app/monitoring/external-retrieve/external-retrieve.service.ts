@@ -32,81 +32,74 @@ export class ExternalRetrieveService {
     }
     getFilterSchema(localAET,destinationAET,remoteAET){
     return [
-        {
-            filter_block:[
-                {
-                    firstChild:{
+        [
+                [
+                    {
                         tag:"label",
                         text:"Device name"
-                    },
-                    secondChild:{
+                    },{
                         tag:"input",
                         type:"text",
                         filterKey:"dicomDeviceName",
                         description:"Device Name to filter by"
                     }
-                },
-                {
-                    firstChild:{
+                ],[
+                    {
                         tag:"label",
                         text:"LocalAET"
-                    },
-                    secondChild:{
+                    },{
                         tag:"select",
                         options:localAET,
                         showStar:true,
                         filterKey:"LocalAET",
                         description:"Archive AE Title to filter by"
                     }
-                },
-                {
-                    firstChild:{
+                ],
+                [
+                    {
                         tag:"label",
                         text:"RemoteAET"
                     },
-                    secondChild:{
+                    {
                         tag:"select",
                         options:remoteAET,
                         showStar:true,
                         filterKey:"RemoteAET",
                         description:"C-MOVE SCP AE Title to filter by"
                     }
-                }
-            ]
-        },
-        {
-            filter_block:[
-                {
-                    firstChild:{
+                ]
+            ],[
+                [
+                    {
                         tag:"label",
                         text:"DestinationAET"
                     },
-                    secondChild:{
+                    {
                         tag:"select",
                         options:destinationAET,
                         showStar:true,
                         filterKey:"DestinationAET",
                         description:"Destination AE Title to filter by"
                     }
-                },
-                {
-                    firstChild:{
+                ],
+                [
+                    {
                         tag:"label",
                         text:"StudyInstanceUID"
                     },
-                    secondChild:{
+                    {
                         tag:"input",
                         type:"text",
                         filterKey:"StudyInstanceUID",
                         description:"Unique Identifier of the Study to filter by"
                     }
-                },
-                {
-                    firstChild:{
+                ],
+                [
+                    {
                         tag:"label",
                         text:"Status"
                     },
-                    secondChild:{
+                    {
                         tag:"select",
                         options:[
                             {
@@ -142,47 +135,43 @@ export class ExternalRetrieveService {
                         showStar:true,
                         description:"Status of tasks to filter by"
                     }
-                }
-            ]
-        },
-        {
-            filter_block:[
-                {
-                    firstChild:{
+                ]
+            ],[
+                [
+                    {
                         tag:"label",
                         text:"Update before"
                     },
-                    secondChild:{
+                    {
                         tag:"p-calendar",
                         filterKey:"updatedBefore",
                         dateFormat:"yy-mm-dd",
                         description:"maximum update date of tasks to filter by. Format: YYYY-MM-DD"
                     }
-                },
-                {
-                    firstChild:{
+                ],
+                [
+                    {
                         tag:"label",
                         text:"Limit"
                     },
-                    secondChild:{
+                    {
                         tag:"input",
                         type:"number",
                         filterKey:"limit",
                         description:"Maximal number of tasks in returned list"
                     }
-                },
-                {
-                    firstChild:{
+                ],
+                [
+                    {
                         tag:"dummy"
                     },
-                    secondChild:{
+                    {
                         tag:"button",
                         text:"SUBMIT",
                         description:"Maximal number of tasks in returned list"
                     }
-                }
+                ]
             ]
-        }
     ];
     }
 }

@@ -7,19 +7,19 @@ import {j4care} from "../j4care.service";
 })
 export class FilterGeneratorComponent implements OnInit {
 
-  @Input() schema;
-  @Input() model;
-  @Output() submit  = new EventEmitter();
-  constructor() { }
+    @Input() schema;
+    @Input() model;
+    @Output() submit  = new EventEmitter();
+    constructor() { }
 
-  ngOnInit() {
-  }
-  submitEmit(id){
-      this.model = j4care.clearEmptyObject(this.model);
-    if(id){
-      this.submit.emit({model:this.model,id:id});
-    }else{
-      this.submit.emit(this.model);
+    ngOnInit() {
     }
-  }
+    submitEmit(id){
+        this.model = j4care.clearEmptyObject(this.model);
+      if(id){
+        this.submit.emit({model:this.model,id:id});
+      }else{
+        this.submit.emit(this.model);
+      }
+    }
 }

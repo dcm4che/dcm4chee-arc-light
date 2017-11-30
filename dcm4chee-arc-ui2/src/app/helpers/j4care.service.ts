@@ -28,6 +28,49 @@ export class j4care {
         return object;
     }
 
+    static prepareFlatFilterObject(array){
+        if(_.isArray(array) && array.length > 0){
+            if(_.hasIn(array,"[0][0].firstChild")){
+                return array
+            }else{
+                let endArray = [];
+                let block = [];
+                let line = [];
+                array.forEach( formObject =>{
+                    if(line.length < 2){
+                        line.push(formObject);
+                    }else{
+                        if(block.length < 3){
+                            block.push(line);
+                            line = [];
+                            line.push(formObject);
+                        }else{
+                            endArray.push(block)
+                            block = [];
+                            block.push(line);
+                            line = [];
+                            line.push(formObject);
+                        }
+                    }
+                });
+                if(line.length > 0){
+                    if(block.length < 3){
+                        block.push(line);
+                    }else{
+                        endArray.push(block);
+                        block = [];
+                        block.push(line);
+                    }
+                }
+                if(block.length > 0){
+                    endArray.push(block);
+                }
+                return endArray;
+            }
+        }else{
+            return array;
+        }
+    }
     download(url){
         this.httpJ4car.refreshToken().subscribe((res)=>{
             let token;

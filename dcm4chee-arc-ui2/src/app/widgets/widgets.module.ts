@@ -29,6 +29,8 @@ import { DurationPickerComponent } from './duration-picker/duration-picker.compo
 import { SchedulePickerComponent } from './schedule-picker/schedule-picker.component';
 import { AttributeInfoComponent } from './attribute-info/attribute-info.component';
 import { ViewerComponent } from './dialogs/viewer/viewer.component';
+import {DicomFlatListComponent} from "./dicom-list/dicom-flat-list.component";
+import { ModalityComponent } from './modality/modality.component';
 
 
 @NgModule({
@@ -38,7 +40,7 @@ import { ViewerComponent } from './dialogs/viewer/viewer.component';
         FormsModule,
         CalendarModule
     ],
-    declarations: [WidgetsComponent ],
+    declarations: [WidgetsComponent],
     exports: [WidgetsComponent],
     providers: [MdDialogConfig]
 })
@@ -67,5 +69,7 @@ export const WidgetsComponents = [
     DurationPickerComponent,
     SchedulePickerComponent,
     AttributeInfoComponent,
-    ViewerComponent
+    ViewerComponent,
+    DicomFlatListComponent,
+    ModalityComponent
 ];
