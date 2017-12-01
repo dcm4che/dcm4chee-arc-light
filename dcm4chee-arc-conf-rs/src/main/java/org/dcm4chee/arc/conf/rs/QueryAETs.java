@@ -102,6 +102,7 @@ public class QueryAETs {
         gen.writeStartObject();
         gen.write("dicomAETitle", ae.getAETitle());
         writer.writeNotNullOrDef("dicomDescription", ae.getDescription(), null);
+        writer.writeNotEmpty("dcmOtherAETitle", ae.getOtherAETitles());
         if (arcAE != null) {
             QueryRetrieveView queryRetrieveView = arcAE.getQueryRetrieveView();
             writer.writeNotDef("dcmHideNotRejectedInstances",
