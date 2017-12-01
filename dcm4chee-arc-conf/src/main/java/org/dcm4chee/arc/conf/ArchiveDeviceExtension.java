@@ -185,7 +185,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private String auditUnknownStudyInstanceUID = AUDIT_UNKNOWN_STUDY_INSTANCE_UID;
     private String auditUnknownPatientID = AUDIT_UNKNOWN_PATIENT_ID;
-    private int maxPendingStgCmtRequests = 0;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1633,14 +1632,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7UseNullValue = hl7UseNullValue;
     }
 
-    public int getMaxPendingStgCmtRequests() {
-        return maxPendingStgCmtRequests;
-    }
-
-    public void setMaxPendingStgCmtRequests(int maxPendingStgCmtRequests) {
-        this.maxPendingStgCmtRequests = maxPendingStgCmtRequests;
-    }
-
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -1765,7 +1756,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         auditUnknownPatientID = arcdev.auditUnknownPatientID;
         auditSoftwareConfigurationVerbose = arcdev.auditSoftwareConfigurationVerbose;
         hl7UseNullValue = arcdev.hl7UseNullValue;
-        maxPendingStgCmtRequests = arcdev.maxPendingStgCmtRequests;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();
