@@ -2011,11 +2011,13 @@ export class StudiesComponent implements OnDestroy,OnInit{
         }
     }
     retrieveMultipleStudies(){
+        this.cfpLoadingBar.start();
         this.service.getCount(
             this.rsURL(),
             'studies',
-            this.createPatientFilterParams()
+            this.createStudyFilterParams()
         ).subscribe((res)=>{
+            this.cfpLoadingBar.complete();
             this.count = res.count;
             this.exporter(
                 // `/aets/${this.aet}/dimse/${this.externalAET}/studies/query:${this.queryAET}/export/dicom:${destinationAET}`,
