@@ -11,6 +11,14 @@
         "description": "Unique AE title for this Network AE",
         "type": "string"
       },
+      "dcmOtherAETitle": {
+        "title": "Other AE Title",
+        "description": "Additional AE Title of Network AE - will also accept Association RQs with such Called AE Title",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
       "dicomDescription": {
         "title": "AE Description",
         "description": "Unconstrained text description of the application entity",
