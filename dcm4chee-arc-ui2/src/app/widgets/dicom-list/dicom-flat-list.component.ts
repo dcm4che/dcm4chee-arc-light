@@ -85,27 +85,13 @@ export class DicomFlatListComponent implements OnInit {
         }
       ];
     constructor() { }
-
+    moreStudies = {
+        limit: 30,
+        start: 0,
+        loaderActive: false
+    };
     @HostListener('window:resize', ['$event'])
     onResize(event) {
-       console.log("res",event.target.innerWidth);
-       const values = [
-            12.5,
-            12.5,
-            12.5,
-            12.5,
-            12.5,
-            12.5,
-            12.5,
-            7.5,
-            2.5,
-            2.5
-        ];
-       let sum = 0;
-       values.forEach(k=>{
-           sum += k;
-       });
-       console.log("sum",sum);
        if(!this.width){
         this.width = event.target.innerWidth;
        }else{
@@ -114,7 +100,44 @@ export class DicomFlatListComponent implements OnInit {
         }
        }
     }
-
+    @HostListener('window:scroll', ['$event'])
+    loadMoreStudiesOnScroll(event) {
+        this.loadMoreCheck();
+        this.resetMoreCheck();
+    }
+    loadMoreCheck(){
+        let hT = ($('.load_more').offset()) ? $('.load_more').offset().top : 0,
+        hH = $('.load_more').outerHeight(),
+        wH = $(window).height(),
+        wS = window.pageYOffset;
+        //ws
+        if (wS > (hT + hH - wH)){
+            this.loadMoreStudies();
+        }
+    }
+    resetMoreCheck(){
+        let hT = ($('.load_more_start').offset()) ? $('.load_more_start').offset().top : 0,
+            hH = $('.load_more_start').outerHeight(),
+            // wH = $(window).height(),
+            wS = window.pageYOffset;
+        console.log("reset (hT + hH - wH)",(hT + hH));
+        console.log("reset wS",wS);
+        if ((hT + hH) > wS ){
+            this.resetMore();
+        }
+    }
+    resetMore(){
+        this.moreStudies =  {
+            limit: 30,
+            start: 0,
+            loaderActive: false
+        };
+    }
+    loadMoreStudies(){
+        this.moreStudies.loaderActive = true;
+        this.moreStudies.limit += 20;
+        this.moreStudies.loaderActive = false;
+    }
     ngOnInit() {
         this.calculateWidthOfTable();
     }

@@ -5,11 +5,12 @@
     </div>
   </div>
   <div class="table_body">
-    <div class="tr" *ngFor="let study of dicomObject;let index = index">
+    <div class="tr load_more_start" *ngFor="let study of dicomObject | slice:moreStudies.start:moreStudies.limit;let index = index">
       <div class="td {{table_element.cssClass}}" *ngFor="let table_element of table" [ngStyle]="{width: table_element.calculatedWidth}">
         <span *ngIf="_.hasIn(study[table_element.code],'Value[0].Alphabetic')">{{study[table_element.code]?.Value[0].Alphabetic || ''}}</span>
         <span *ngIf="!_.hasIn(study[table_element.code],'Value[0].Alphabetic') && _.hasIn(study[table_element.code],'Value[0]')">{{study[table_element.code]?.Value[0] || ''}}</span>
       </div>
     </div>
+    <button class="load_more" *ngIf="dicomObject && moreStudies.limit <= dicomObject.length" (click)="loadMoreAudit()"><i *ngIf="moreStudies.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>More</button>
   </div>
 </div>
