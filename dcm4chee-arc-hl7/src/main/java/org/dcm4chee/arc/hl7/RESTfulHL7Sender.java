@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.hl7;
 
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.hl7.HL7Message;
 import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.net.Device;
@@ -120,8 +121,13 @@ public class RESTfulHL7Sender {
                         tr.setParameter("msgType", msgType);
                         tr.setParameter("msgControlID", msg.msgControlID);
                         tr.setParameter("charset", msg.hl7cs);
-                        if (ctx.getPreviousPatientID() != null)
+                        if (ctx.getPreviousPatientID() != null) {
                             tr.setParameter("priorPatientID", ctx.getPreviousPatientID().toString());
+                            tr.setParameter("priorPatientName",
+                                msgType.equals("ADT^A40^ADT_A39")
+                                    ? ctx.getPreviousAttributes().getString(Tag.PatientName)
+                                    : ctx.getAttributes().getString(Tag.PatientName));
+                        }
                         if (msg.hl7UseNullValue && msgType.equals("ADT^A31^ADT_A05"))
                             tr.setParameter("includeNullValues", "\"\"");
                     }
