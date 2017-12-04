@@ -2099,7 +2099,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             if (result){
                 $this.cfpLoadingBar.start();
                 if(mode === "multiple"){
-                    urlRest = `../aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}`;
+                    urlRest = `../aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}?${ this.mainservice.param(this.createStudyFilterParams())}` ;
                 }else{
                     if($this.externalInternalAetMode === 'external'){
                         urlRest = `../aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}`;

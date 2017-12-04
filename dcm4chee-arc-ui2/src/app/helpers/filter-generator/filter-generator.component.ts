@@ -10,6 +10,8 @@ export class FilterGeneratorComponent implements OnInit {
     @Input() schema;
     @Input() model;
     @Output() submit  = new EventEmitter();
+    @Output() onChange  = new EventEmitter();
+    filterForm;
     constructor() { }
 
     ngOnInit() {
@@ -21,5 +23,10 @@ export class FilterGeneratorComponent implements OnInit {
       }else{
         this.submit.emit(this.model);
       }
+    }
+    filterChange(test){
+        console.log("change teest",test);
+        console.log("change",this.model);
+        this.onChange.emit(this.model);
     }
 }

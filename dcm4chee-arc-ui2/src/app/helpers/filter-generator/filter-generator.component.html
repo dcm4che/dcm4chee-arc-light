@@ -3,36 +3,36 @@
     <div *ngFor="let line of filter" class="line" [ngSwitch]="filter.type">
       <ng-container [ngSwitch]="line[0].tag">
         <label *ngSwitchCase="'label'">{{line[0].text}}:</label>
-        <modality *ngSwitchCase="'modality'" [model]="model[line[0].filterKey]" (modelChange)="model[line[0].filterKey] = $event"></modality>
+        <modality *ngSwitchCase="'modality'" [model]="model[line[0].filterKey]" (modelChange)="model[line[0].filterKey] = $event;filterChange($event)"></modality>
         <ng-container *ngIf="line[0].filterKey">
-          <input [(ngModel)]="model[line[0].filterKey]" type="{{line[0].type}}" placeholder="{{line[0]?.placeholder}}" *ngSwitchCase="'input'">
+          <input (ngModelChange)="filterChange($event)" [(ngModel)]="model[line[0].filterKey]" type="{{line[0].type}}" placeholder="{{line[0]?.placeholder}}" *ngSwitchCase="'input'">
           <div class="filter_checkbox" *ngSwitchCase="'checkbox'">
-            <input type="checkbox" [(ngModel)]="model[line[0].filterKey]"> <span>{{line[0].text}}</span>
+            <input type="checkbox" (ngModelChange)="filterChange($event)" [(ngModel)]="model[line[0].filterKey]"> <span>{{line[0].text}}</span>
           </div>
           <span *ngIf="line[0].type === 'checkbox'">{{line[0].text}}</span>
-          <md-select [(ngModel)]="model[line[0].filterKey]" *ngSwitchCase="'select'" [(ngModel)]="status">
+          <md-select (ngModelChange)="filterChange($event)" [(ngModel)]="model[line[0].filterKey]" *ngSwitchCase="'select'">
             <md-option *ngIf="line[0].showStar" value="">*</md-option>
             <md-option *ngFor="let option of line[0].options" value="{{option.value}}">{{option.text}}</md-option>
           </md-select>
-          <p-calendar [(ngModel)]="model[line[0].filterKey]" *ngSwitchCase="'p-calendar'"  dataType="string" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line[0].description || line[0].placeholder}}"></p-calendar>
+          <p-calendar (ngModelChange)="model[line[0].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[0].filterKey]" *ngSwitchCase="'p-calendar'"  dataType="date" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line[0].description || line[0].placeholder}}"></p-calendar>
         </ng-container>
         <div *ngSwitchCase="'dummy'"></div>
         <button (click)="submitEmit(line[0].id)" class="btn-default submit" *ngSwitchCase="'button'" title="{{line[0].description}}"><span class="glyphicon glyphicon-refresh"></span>  {{line[0].text}}</button>
       </ng-container>
       <ng-container [ngSwitch]="line[1]?.tag">
         <label *ngSwitchCase="'label'">{{line[1]?.text}}:</label>
-        <modality *ngSwitchCase="'modality'" [(model)]="model[line[1]?.filterKey]" (modelChange)="model[line[1].filterKey] = $event"></modality>
+        <modality *ngSwitchCase="'modality'" [(model)]="model[line[1]?.filterKey]" (modelChange)="model[line[1].filterKey] = $event;filterChange($event)"></modality>
         <ng-container *ngIf="line[1]?.filterKey">
-          <input [(ngModel)]="model[line[1]?.filterKey]" type="{{line[1]?.type}}" placeholder="{{line[1]?.placeholder}}" *ngSwitchCase="'input'">
+          <input (ngModelChange)="filterChange($event)" [(ngModel)]="model[line[1]?.filterKey]" type="{{line[1]?.type}}" placeholder="{{line[1]?.placeholder}}" *ngSwitchCase="'input'">
           <div class="filter_checkbox" *ngSwitchCase="'checkbox'">
-            <input type="checkbox" [(ngModel)]="model[line[1]?.filterKey]"> <span>{{line[1]?.text}}</span>
+            <input type="checkbox" (ngModelChange)="filterChange($event)" [(ngModel)]="model[line[1]?.filterKey]"> <span>{{line[1]?.text}}</span>
           </div>
           <span *ngIf="line[1]?.type === 'checkbox'">{{line[1]?.text}}</span>
-          <md-select [(ngModel)]="model[line[1]?.filterKey]" *ngSwitchCase="'select'" [(ngModel)]="status">
+          <md-select (ngModelChange)="filterChange($event)" [(ngModel)]="model[line[1]?.filterKey]" *ngSwitchCase="'select'">
             <md-option *ngIf="line[1]?.showStar" value="">*</md-option>
             <md-option *ngFor="let option of line[1]?.options" value="{{option.value}}">{{option.text}}</md-option>
           </md-select>
-          <p-calendar [(ngModel)]="model[line[1]?.filterKey]" *ngSwitchCase="'p-calendar'"  dataType="string" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line[1]?.description || line[1]?.placeholder}}"></p-calendar>
+          <p-calendar (ngModelChange)="model[line[1]?.filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[1]?.filterKey]" *ngSwitchCase="'p-calendar'"  dataType="date" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line[1]?.description || line[1]?.placeholder}}"></p-calendar>
         </ng-container>
         <div *ngSwitchCase="'dummy'"></div>
         <button (click)="submitEmit(line[1]?.id)" class="btn-default submit" *ngSwitchCase="'button'" title="{{line[1]?.description}}"><span class="glyphicon glyphicon-refresh"></span>  {{line[1]?.text}}</button>
