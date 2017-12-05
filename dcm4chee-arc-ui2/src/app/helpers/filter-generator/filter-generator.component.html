@@ -10,7 +10,7 @@
             <input type="checkbox" (ngModelChange)="filterChange($event)" [(ngModel)]="model[line[0].filterKey]"> <span>{{line[0].text}}</span>
           </div>
           <span *ngIf="line[0].type === 'checkbox'">{{line[0].text}}</span>
-          <md-select (ngModelChange)="filterChange($event)" [(ngModel)]="model[line[0].filterKey]" *ngSwitchCase="'select'">
+          <md-select (ngModelChange)="model[line[0].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[0].filterKey]" *ngSwitchCase="'select'">
             <md-option *ngIf="line[0].showStar" value="">*</md-option>
             <md-option *ngFor="let option of line[0].options" value="{{option.value}}">{{option.text}}</md-option>
           </md-select>
@@ -28,7 +28,7 @@
             <input type="checkbox" (ngModelChange)="filterChange($event)" [(ngModel)]="model[line[1]?.filterKey]"> <span>{{line[1]?.text}}</span>
           </div>
           <span *ngIf="line[1]?.type === 'checkbox'">{{line[1]?.text}}</span>
-          <md-select (ngModelChange)="filterChange($event)" [(ngModel)]="model[line[1]?.filterKey]" *ngSwitchCase="'select'">
+          <md-select (ngModelChange)="model[line[1]?.filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[1]?.filterKey]" *ngSwitchCase="'select'">
             <md-option *ngIf="line[1]?.showStar" value="">*</md-option>
             <md-option *ngFor="let option of line[1]?.options" value="{{option.value}}">{{option.text}}</md-option>
           </md-select>
