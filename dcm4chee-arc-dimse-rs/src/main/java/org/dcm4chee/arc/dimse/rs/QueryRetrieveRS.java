@@ -184,7 +184,7 @@ public class QueryRetrieveRS {
         int count = 0;
         Response.Status errorStatus = Response.Status.BAD_GATEWAY;
         try {
-            as = findSCU.openAssociation(localAE, externalAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
+            as = findSCU.openAssociation(localAE, queryAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
             DimseRSP dimseRSP = findSCU.query(as, priority(), keys, 0);
             dimseRSP.next();
             int status;
