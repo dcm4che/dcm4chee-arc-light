@@ -182,7 +182,7 @@ export class ExternalRetrieveComponent implements OnInit {
                         (res) => {
                             // match.properties.status = 'CANCELED';
                             $this.cfpLoadingBar.complete();
-                            $this.onSubmit(this.filterObject);
+                            $this.onSubmit(match.offset||0);
                             $this.mainservice.setMessage({
                                 'title': 'Info',
                                 'text': 'Task deleted successfully!',
@@ -234,7 +234,7 @@ export class ExternalRetrieveComponent implements OnInit {
                 this.service.reschedule(match.properties.pk)
                     .subscribe(
                         (res) => {
-                            $this.onSubmit(this.filterObject);
+                            $this.onSubmit(match.offset||0);
                             $this.cfpLoadingBar.complete();
                             $this.mainservice.setMessage({
                                 'title': 'Info',
@@ -264,6 +264,7 @@ export class ExternalRetrieveComponent implements OnInit {
                     if(match.checked){
                         this.service[mode](match.properties.pk)
                             .subscribe((res) => {
+                            console.log("execute result=",res);
                             },(err)=>{
                                 this.httpErrorHandler.handleError(err);
                             });
