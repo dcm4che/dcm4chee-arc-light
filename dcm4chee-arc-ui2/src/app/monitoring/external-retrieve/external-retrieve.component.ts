@@ -141,9 +141,9 @@ export class ExternalRetrieveComponent implements OnInit {
         this.initExporters(2);
     }
     hasOlder(objs) {
-        console.log("objs.length",objs.length);
-        console.log("this.filterObject.limit",this.filterObject.limit);
-        console.log("hasOlder",(objs && (objs.length == this.filterObject.limit)));
+        // console.log("objs.length",objs.length);
+        // console.log("this.filterObject.limit",this.filterObject.limit);
+        // console.log("hasOlder",(objs && (objs.length == this.filterObject.limit)));
         return objs && (objs.length == this.filterObject.limit);
     };
     hasNewer(objs) {
@@ -264,12 +264,12 @@ export class ExternalRetrieveComponent implements OnInit {
                     if(match.checked){
                         this.service[mode](match.properties.pk)
                             .subscribe((res) => {
-                                this.onSubmit(this.filterObject);
                             },(err)=>{
                                 this.httpErrorHandler.handleError(err);
                             });
                     }
                 });
+                this.onSubmit(this.externalRetrieveEntries[0].offset || 0);
                 this.cfpLoadingBar.complete();
             }
         });
