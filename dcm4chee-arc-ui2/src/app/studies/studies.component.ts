@@ -2011,7 +2011,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         }
     }
     retrieveMultipleStudies(){
-        this.cfpLoadingBar.start();
+/*        this.cfpLoadingBar.start();
         this.service.getCount(
             this.rsURL(),
             'studies',
@@ -2019,6 +2019,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         ).subscribe((res)=>{
             this.cfpLoadingBar.complete();
             this.count = res.count;
+        });*/
             this.exporter(
                 // `/aets/${this.aet}/dimse/${this.externalAET}/studies/query:${this.queryAET}/export/dicom:${destinationAET}`,
                 '',
@@ -2028,7 +2029,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 {},
                 ""
             );
-        });
     }
     exportStudy(study) {
         this.exporter(
