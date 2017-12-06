@@ -270,8 +270,11 @@ export class ExternalRetrieveComponent implements OnInit {
                             });
                     }
                 });
-                this.onSubmit(this.externalRetrieveEntries[0].offset || 0);
-                this.cfpLoadingBar.complete();
+                setTimeout(()=>{
+                    this.onSubmit(this.externalRetrieveEntries[0].offset || 0);
+                    this.cfpLoadingBar.complete();
+                },300);
+
             }
         });
     }

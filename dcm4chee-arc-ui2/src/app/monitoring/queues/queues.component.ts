@@ -227,17 +227,19 @@ export class QueuesComponent implements OnInit{
                     if(match.checked){
                         this.service[mode](this.queueName, match.properties.id)
                             .subscribe((res) => {
-                                if(mode === "delete"){
-                                    this.search(this.matches[0].offset);
-                                }else{
-                                    this.search(0);
-                                }
                             },(err)=>{
                                 this.httpErrorHandler.handleError(err);
                             });
                     }
                 });
-                this.cfpLoadingBar.complete();
+                setTimeout(()=>{
+                    if(mode === "delete"){
+                        this.search(this.matches[0].offset||0);
+                    }else{
+                        this.search(0);
+                    }
+                    this.cfpLoadingBar.complete();
+                },300);
             }
         });
     }
@@ -286,11 +288,9 @@ export class QueuesComponent implements OnInit{
         });
     };
     hasOlder(objs) {
-        console.log("hasOlder",(objs && (objs.length == this.limit)));
         return objs && (objs.length === this.limit);
     };
     hasNewer(objs) {
-        console.log("hasNewer",(objs && objs.length && objs[0].offset));
         return objs && objs.length && objs[0].offset;
     };
     newerOffset(objs) {

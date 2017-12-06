@@ -244,14 +244,17 @@ export class ExportComponent implements OnInit {
                                                 //     'text': 'Task rescheduled successfully!',
                                                 //     'status': 'info'
                                                 // });
+                                                console.log("Execute result",res);
                                             },
                                             (err) => {
                                                 $this.httpErrorHandler.handleError(err);
                                             });
                                 }
                             });
-                            $this.cfpLoadingBar.complete();
-                            $this.search(0);
+                            setTimeout(()=>{
+                                this.search(this.matches[0].offset || 0);
+                                this.cfpLoadingBar.complete();
+                            },300);
                         }
                     });
                 }else{
@@ -260,13 +263,16 @@ export class ExportComponent implements OnInit {
                         if(match.checked){
                             this.service[mode](match.properties.pk)
                                 .subscribe((res) => {
-                                    this.search(0);
+                                    console.log("Execute result",res);
                                 },(err)=>{
                                     this.httpErrorHandler.handleError(err);
                                 });
                         }
                     });
-                    this.cfpLoadingBar.complete();
+                    setTimeout(()=>{
+                        this.search(this.matches[0].offset || 0);
+                        this.cfpLoadingBar.complete();
+                    },300);
                 }
             }
         });
