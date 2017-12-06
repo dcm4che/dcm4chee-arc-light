@@ -83,7 +83,21 @@ export class J4careHttpService{
             });
         }else{
             if(!this.mainservice.global.notSecure){
-                this.token = this.mainservice.global.authentication.token;
+                if(_.hasIn(this.mainservice, "global.authentication.token")){
+                    this.token = this.mainservice.global.authentication.token;
+                }else{
+                    this.setValueInGlobal('getRealmStateActive',true);
+                    return this.$http.get('rs/realm').map(res => {
+                        let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                            if(pattern.exec(res.url)){
+                                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                            }
+                            resjson = res.json();
+                        }catch (e){
+                            resjson = [];
+                        } return resjson;
+                    });
+                }
             }
             return Observable.of([]);
         }
