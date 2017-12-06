@@ -5,19 +5,35 @@
     <table class="table table-bordered table-condensed" *ngIf="_.size(externalRetrieveEntries) > 0">
       <thead>
       <tr>
-        <th colspan="2">
-          <button class="btn btn-link btn-xs"
-                  [disabled]="!hasNewer(externalRetrieveEntries)"
-                  (click)="onSubmit(newerOffset(externalRetrieveEntries))"
-                  title="Newer">
-            <span class="glyphicon glyphicon-menu-left"></span>
-          </button>
-          <button class="btn btn-link btn-xs"
-                  [disabled]="!hasOlder(externalRetrieveEntries)"
-                  (click)="onSubmit(olderOffset(externalRetrieveEntries))"
-                  title="Older">
-            <span class="glyphicon glyphicon-menu-right"></span>
-          </button>
+        <th>
+          <div class="arrow_block">
+            <button class="btn btn-link btn-xs"
+                    [disabled]="!hasNewer(externalRetrieveEntries)"
+                    (click)="onSubmit(newerOffset(externalRetrieveEntries))"
+                    title="Newer">
+              <span class="glyphicon glyphicon-menu-left"></span>
+            </button>
+            <button class="btn btn-link btn-xs"
+                    [disabled]="!hasOlder(externalRetrieveEntries)"
+                    (click)="onSubmit(olderOffset(externalRetrieveEntries))"
+                    title="Older">
+              <span class="glyphicon glyphicon-menu-right"></span>
+            </button>
+          </div>
+        </th>
+          <th>
+          <div class="action_block">
+            <input type="checkbox" (change)="checkAll($event)">
+            <a *ngIf="isRole('admin')" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" title="Cancel selected">
+              <span class="glyphicon glyphicon-ban-circle"></span>
+            </a>
+            <a *ngIf="isRole('admin')" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href="" title="Reschedule selected">
+              <span class="glyphicon glyphicon-repeat"></span>
+            </a>
+            <a *ngIf="isRole('admin')" class="text-white" (click)="$event.preventDefault();executeAll('delete')" href="" title="Delete selected">
+              <span class="glyphicon glyphicon-remove-circle"></span>
+            </a>
+          </div>
         </th>
         <th>Status</th>
         <th class="hideOn1000px">Study Instance UID</th>
@@ -35,7 +51,8 @@
         <tr>
           <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
           <td>
-            <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
+              <input type="checkbox" [(ngModel)]="match.checked">
+              <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
               <span class="glyphicon glyphicon-list"></span>
             </a>
             <a *ngIf="isRole('admin')" (click)="$event.preventDefault();cancel(match)" href="" title="Cancel">

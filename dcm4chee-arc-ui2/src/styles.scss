@@ -1694,6 +1694,20 @@ md-dialog-container{
 .form-row.submit_button_block{
 
 }
+.queues{
+  .arrow_block{
+    float: left;
+    //width: 29%;
+  }
+  .action_block{
+    //border: 1px solid white;
+    float: left;
+    //padding: 0 7px;
+    a{
+      color: white;
+    }
+  }
+}
 .more_menu_content.activemenu{
   overflow: visible;
 }

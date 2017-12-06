@@ -171,6 +171,106 @@ export class ExportComponent implements OnInit {
             return this.msToTime(new Date(endtime).getTime() - new Date(starttime).getTime());
         }
     };
+    checkAll(event){
+        console.log("in checkall",event.target.checked);
+        this.matches.forEach((match)=>{
+            match.checked = event.target.checked;
+        });
+    }
+    executeAll(mode){
+        this.confirm({
+            content: `Are you sure you want to ${mode} selected entries?`
+        }).subscribe(result => {
+            if (result){
+                if(mode === "reschedule"){
+                    let $this = this;
+                    let id;
+                    let noDicomExporters = [];
+                    let dicomPrefixes = [];
+                    _.forEach(this.exporters, (m, i) => {
+                        if (m.id.indexOf(':') > -1){
+                            dicomPrefixes.push(m);
+                        }else{
+                            noDicomExporters.push(m);
+                        }
+                    });
+                    // if (match.properties.ExporterID){
+/*                        if (match.properties.ExporterID.indexOf(':') > -1){
+                            let parameters = _.split(match.properties.ExporterID, ':');
+                            result = {
+                                exportType: 'dicom',
+                                selectedAet: parameters[1],
+                                selectedExporter: undefined,
+                                dicomPrefix: parameters[0] + ':'
+                            };
+                        }else{
+                            result = {
+                                exportType: 'nonedicom',
+                                selectedAet: undefined,
+                                selectedExporter: match.properties.ExporterID,
+                                dicomPrefix: undefined
+                            };
+                        }*/
+                    // }
+                    this.dialogRef = this.dialog.open(ExportDialogComponent, {
+                        height: 'auto',
+                        width: '500px'
+                    });
+                    this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
+                    this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
+                    this.dialogRef.componentInstance.title = 'Task reschedule';
+                    this.dialogRef.componentInstance.warning = null;
+                    // this.dialogRef.componentInstance.result = result;
+                    this.dialogRef.componentInstance.okButtonLabel = 'RESCHEDULE';
+                    this.dialogRef.componentInstance.externalInternalAetMode = "internal";
+                    this.dialogRef.componentInstance.mode = "single";
+                    this.dialogRef.afterClosed().subscribe(result => {
+                        if (result){
+                            $this.cfpLoadingBar.start();
+                            if (result.exportType === 'dicom'){
+                                // id = result.dicomPrefix + result.selectedAet;
+                                id = 'dicom:' + result.selectedAet;
+                            }else{
+                                id = result.selectedExporter;
+                            }
+                            this.matches.forEach((match)=>{
+                                if(match.checked){
+                                    // $this.cfpLoadingBar.start();
+                                    $this.service.reschedule(match.properties.pk, id)
+                                        .subscribe(
+                                            (res) => {
+                                                // $this.mainservice.setMessage({
+                                                //     'title': 'Info',
+                                                //     'text': 'Task rescheduled successfully!',
+                                                //     'status': 'info'
+                                                // });
+                                            },
+                                            (err) => {
+                                                $this.httpErrorHandler.handleError(err);
+                                            });
+                                }
+                            });
+                            $this.cfpLoadingBar.complete();
+                            $this.search(0);
+                        }
+                    });
+                }else{
+                    this.cfpLoadingBar.start();
+                    this.matches.forEach((match)=>{
+                        if(match.checked){
+                            this.service[mode](match.properties.pk)
+                                .subscribe((res) => {
+                                    this.search(0);
+                                },(err)=>{
+                                    this.httpErrorHandler.handleError(err);
+                                });
+                        }
+                    });
+                    this.cfpLoadingBar.complete();
+                }
+            }
+        });
+    }
     msToTime(duration) {
 
         if (duration > 999){

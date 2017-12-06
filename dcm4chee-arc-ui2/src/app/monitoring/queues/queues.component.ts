@@ -11,6 +11,7 @@ import * as _ from 'lodash';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {errorHandler} from "@angular/platform-browser/src/browser";
 
 @Component({
   selector: 'app-queues',
@@ -188,6 +189,12 @@ export class QueuesComponent implements OnInit{
                 $this.httpErrorHandler.handleError(err);
             });
     };
+    checkAll(event){
+        console.log("in checkall",event.target.checked);
+        this.matches.forEach((match)=>{
+            match.checked = event.target.checked;
+        });
+    }
     delete(match) {
         let $this = this;
         this.confirm({
@@ -200,6 +207,9 @@ export class QueuesComponent implements OnInit{
                 .subscribe((res) => {
                     $this.search($this.matches[0].offset);
                     $this.cfpLoadingBar.complete();
+                },(err)=>{
+                    $this.cfpLoadingBar.complete();
+                    $this.httpErrorHandler.handleError(err);
                 });
             }
         }, (err) => {
@@ -207,6 +217,30 @@ export class QueuesComponent implements OnInit{
             $this.httpErrorHandler.handleError(err);
         });
     };
+    executeAll(mode){
+        this.confirm({
+            content: `Are you sure you want to ${mode} selected entries?`
+        }).subscribe(result => {
+            if (result){
+                this.cfpLoadingBar.start();
+                this.matches.forEach((match)=>{
+                    if(match.checked){
+                        this.service[mode](this.queueName, match.properties.id)
+                            .subscribe((res) => {
+                                if(mode === "delete"){
+                                    this.search(this.matches[0].offset);
+                                }else{
+                                    this.search(0);
+                                }
+                            },(err)=>{
+                                this.httpErrorHandler.handleError(err);
+                            });
+                    }
+                });
+                this.cfpLoadingBar.complete();
+            }
+        });
+    }
     getQueueDescriptionFromName(queuename){
         let description;
         _.forEach(this.queues, (m, i) => {

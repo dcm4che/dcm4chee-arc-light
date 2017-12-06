@@ -249,6 +249,31 @@ export class ExternalRetrieveComponent implements OnInit {
             }
         });
     };
+    checkAll(event){
+        this.externalRetrieveEntries.forEach((match)=>{
+            match.checked = event.target.checked;
+        });
+    }
+    executeAll(mode){
+        this.confirm({
+            content: `Are you sure you want to ${mode} selected entries?`
+        }).subscribe(result => {
+            if (result){
+                this.cfpLoadingBar.start();
+                this.externalRetrieveEntries.forEach((match)=>{
+                    if(match.checked){
+                        this.service[mode](match.properties.pk)
+                            .subscribe((res) => {
+                                this.onSubmit(this.filterObject);
+                            },(err)=>{
+                                this.httpErrorHandler.handleError(err);
+                            });
+                    }
+                });
+                this.cfpLoadingBar.complete();
+            }
+        });
+    }
     onSubmit(offset){
         let $this = this;
         $this.cfpLoadingBar.start();
