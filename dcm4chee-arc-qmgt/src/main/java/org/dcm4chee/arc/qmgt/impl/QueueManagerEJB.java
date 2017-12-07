@@ -46,17 +46,17 @@ import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
-import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
-import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.naming.InitialContext;
@@ -74,7 +74,7 @@ import java.util.List;
  * @since Sep 2015
  */
 @Stateless
-public class QueueManagerEJB implements QueueManager {
+public class QueueManagerEJB {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueueManagerEJB.class);
 
@@ -87,16 +87,11 @@ public class QueueManagerEJB implements QueueManager {
     @Inject
     private Device device;
 
-    @Inject
-    private Event<MessageCanceled> messageCanceledEvent;
-
-    @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public ObjectMessage createObjectMessage(Serializable object) {
         return jmsCtx.createObjectMessage(object);
     }
 
-    @Override
     public QueueMessage scheduleMessage(String queueName, ObjectMessage msg, int priority)
             throws QueueSizeLimitExceededException {
         QueueDescriptor queueDescriptor = descriptorOf(queueName);
@@ -117,7 +112,7 @@ public class QueueManagerEJB implements QueueManager {
                 .setParameter(2, QueueMessage.Status.SCHEDULED).getSingleResult();
     }
 
-    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public QueueMessage onProcessingStart(String msgId) {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null || !entity.getStatus().equals(QueueMessage.Status.SCHEDULED)) {
@@ -134,7 +129,7 @@ public class QueueManagerEJB implements QueueManager {
         return entity;
     }
 
-    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public QueueMessage onProcessingSuccessful(String msgId, Outcome outcome) {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null) {
@@ -168,7 +163,7 @@ public class QueueManagerEJB implements QueueManager {
         return entity;
     }
 
-    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public QueueMessage onProcessingFailed(String msgId, Throwable e) {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null) {
@@ -190,7 +185,6 @@ public class QueueManagerEJB implements QueueManager {
         return entity;
     }
 
-    @Override
     public boolean cancelProcessing(String msgId) throws IllegalTaskStateException {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
@@ -211,11 +205,9 @@ public class QueueManagerEJB implements QueueManager {
         if (entity.getRetrieveTask() != null)
             entity.getRetrieveTask().setUpdatedTime();
         LOG.info("Cancel processing of Task[id={}] at Queue {}", msgId, entity.getQueueName());
-        messageCanceledEvent.fire(new MessageCanceled(msgId));
         return true;
     }
 
-    @Override
     public boolean rescheduleMessage(String msgId, String queueName) throws IllegalTaskStateException {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
@@ -247,7 +239,6 @@ public class QueueManagerEJB implements QueueManager {
         LOG.info("Reschedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
     }
 
-    @Override
     public boolean deleteMessage(String msgId) {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
@@ -263,7 +254,6 @@ public class QueueManagerEJB implements QueueManager {
         return true;
     }
 
-    @Override
     public int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore) {
         if (status != null) {
             if (updatedBefore != null) {
@@ -321,7 +311,6 @@ public class QueueManagerEJB implements QueueManager {
                 .executeUpdate();
     }
 
-    @Override
     public List<QueueMessage> search(String queueName, QueueMessage.Status status, int offset, int limit) {
         TypedQuery<QueueMessage> query = status != null
                 ? em.createNamedQuery(QueueMessage.FIND_BY_QUEUE_NAME_AND_STATUS, QueueMessage.class)
