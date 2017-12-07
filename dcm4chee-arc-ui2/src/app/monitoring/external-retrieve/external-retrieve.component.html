@@ -55,10 +55,10 @@
               <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
               <span class="glyphicon glyphicon-list"></span>
             </a>
-            <a *ngIf="isRole('admin')" (click)="$event.preventDefault();cancel(match)" href="" title="Cancel">
+            <a *ngIf="isRole('admin') && ((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))" href="" title="Cancel">
               <span class="glyphicon glyphicon-ban-circle"></span>
             </a>
-            <a *ngIf="isRole('admin')" (click)="$event.preventDefault();reschedule(match)" href="" title="Reschedule">
+            <a *ngIf="isRole('admin') && ((match.properties.status && match.properties.status != 'SCHEDULED') && (match.properties.status && match.properties.status != 'IN PROCESS'))"  (click)="$event.preventDefault();reschedule(match)" href="" title="Reschedule">
               <span class="glyphicon glyphicon-repeat"></span>
             </a>
             <a *ngIf="isRole('admin')" (click)="$event.preventDefault();delete(match)" href="" title="Delete">
