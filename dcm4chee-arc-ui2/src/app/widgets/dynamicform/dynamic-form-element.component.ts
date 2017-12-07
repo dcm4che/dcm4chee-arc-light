@@ -79,15 +79,19 @@ export class DynamicFormElementComponent{
     downloadFile(url){
         let $this = this;
         let token;
-        this.$http.refreshToken().subscribe((response)=>{
-            if(response && response.length != 0){
-                $this.$http.resetAuthenticationInfo(response);
-                token = response['token'];
-            }else{
-                token = this.mainservice.global.authentication.token;
-            }
-            WindowRefService.nativeWindow.open(url + `?access_token=${token}`);
-        });
+        if(this.mainservice.global.notSecure){
+                WindowRefService.nativeWindow.open(url);
+        }else{
+            this.$http.refreshToken().subscribe((response)=>{
+                if(response && response.length != 0){
+                    $this.$http.resetAuthenticationInfo(response);
+                    token = response['token'];
+                }else{
+                    token = this.mainservice.global.authentication.token;
+                }
+                WindowRefService.nativeWindow.open(url + `?access_token=${token}`);
+            });
+        }
     }
     deleteFile(deviceName, formelement){
         let $this = this;
