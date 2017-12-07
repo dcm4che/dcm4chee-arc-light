@@ -60,7 +60,7 @@ public interface CFindSCU {
             throws Exception;
 
     Association openAssociation(
-            ApplicationEntity localAE, String cuid, String calledAET, EnumSet<QueryOption> queryOptions)
+            ApplicationEntity localAE, String calledAET, String cuid, EnumSet<QueryOption> queryOptions)
             throws Exception;
 
     List<Attributes> find(Association as, int priority, QueryRetrieveLevel2 level,

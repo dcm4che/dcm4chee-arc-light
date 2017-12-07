@@ -175,8 +175,8 @@ public class ArchiveQueryTask extends BasicQueryTask {
         CFindSCU cfindscu = ctx.getQueryService().cfindSCU();
         spanningAssoc = cfindscu.openAssociation(
                 as.getApplicationEntity(),
-                ctx.getSOPClassUID(),
                 spanningCFindSCP,
+                ctx.getSOPClassUID(),
                 as.getQueryOptionsFor(ctx.getSOPClassUID()));
         spanningCFindRSP = cfindscu.query(spanningAssoc, Priority.NORMAL, spanningQueryKeys(), 0);
         spanningCFindRSP.next();
