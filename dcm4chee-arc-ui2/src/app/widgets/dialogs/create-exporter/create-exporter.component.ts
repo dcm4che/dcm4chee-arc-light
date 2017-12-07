@@ -24,7 +24,9 @@ export class CreateExporterComponent {
         dcmQueueName : undefined,
         dicomAETitle : undefined,
         dicomDescription : '',
-        dcmStgCmtSCP : undefined
+        dcmStgCmtSCP : undefined,
+        dcmInstanceAvailability : "ONLINE",
+        dcmExportPriority : 4
     };
     externalAeConnections;
     externalAe;

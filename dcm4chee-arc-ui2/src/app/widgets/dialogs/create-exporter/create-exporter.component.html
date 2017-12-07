@@ -39,46 +39,57 @@
 
                             <h4 (click)="showexporter = !showexporter">Exporter</h4>
                             <div class="block" *ngIf="showexporter === true" >
-                            <div class="inputblock">
-                                <label class="title">Exporter ID</label>
-                                <input type="text" [(ngModel)]="dcmExporter.dcmExporterID">
-                                <span class="description">Exporter ID</span>
-                            </div>
-                            <div class="inputblock">
-                                <label class="title">URI</label>
-<!--                                <select [ngModel]="dcmExporter.dcmURI" (ngModelChange)="setDcmUri($event)" name="dcmURI">
-                                    <option [value]="uri" *ngFor="let uri of externalAeConnections">{{uri}}</option>
-                                </select>-->
-                                <input type="text" [(ngModel)]="dcmExporter.dcmURI" >
-                                <span class="description">RFC2079: Uniform Resource Identifier</span>
-                            </div>
-                            <div class="inputblock">
-                                <label class="title">Application Entity (AE) title</label>
-                                <select [ngModel]="dcmExporter.dicomAETitle" (ngModelChange)="setAe($event)" name="dcmURI">
-                                    <option [value]="ae.dicomAETitle" *ngFor="let ae of selectedDeviceObject?.dicomNetworkAE">{{ae.dicomAETitle}}</option>
-                                </select>
-                                <span class="description">Application Entity (AE) title</span>
-                            </div>
-                            <div class="inputblock">
-                                <label class="title">Queue Name</label>
-                                <select [ngModel]="dcmExporter.dcmQueueName" (ngModelChange)="setQueue($event)" name="dcmQueueName">
-                                    <option [value]="q.name" *ngFor="let q of queue">{{q.description}}</option>
-                                </select>
-                                <span class="description">JMS Queue Name</span>
-                            </div>
-                            <div class="inputblock">
-                                <label class="title">Exporter Description</label>
-                                <textarea type="text" [(ngModel)]="dcmExporter.dicomDescription"></textarea>
-                                <span class="description">Unconstrained text description of the exporter</span>
-                            </div>
-                            <div class="inputblock">
-                                <label class="title">Storage Commitment SCP AE Title</label>
-                                <select [ngModel]="externalAeObject" (ngModelChange)="setDcmStgCmtSCP($event)" name="dcmStgCmtSCP">
-                                    <option [ngValue]="{}">-</option>
-                                    <option [ngValue]="obj" *ngFor="let obj of aes">{{obj.dicomAETitle}}</option>
-                                </select>
-                                <span class="description">AE Title of external Storage Commitment SCP used to verify export to another archive.</span>
-                            </div>
+                                <div class="inputblock">
+                                    <label class="title">Exporter ID</label>
+                                    <input type="text" [(ngModel)]="dcmExporter.dcmExporterID">
+                                    <span class="description">Exporter ID</span>
+                                </div>
+                                <div class="inputblock">
+                                    <label class="title">URI</label>
+                                    <input type="text" [(ngModel)]="dcmExporter.dcmURI" >
+                                    <span class="description">RFC2079: Uniform Resource Identifier</span>
+                                </div>
+                                <div class="inputblock">
+                                    <label class="title">Queue Name</label>
+                                    <select [ngModel]="dcmExporter.dcmQueueName" (ngModelChange)="setQueue($event)" name="dcmQueueName">
+                                        <option [value]="q.name" *ngFor="let q of queue">{{q.description}}</option>
+                                    </select>
+                                    <span class="description">JMS Queue Name</span>
+                                </div>
+                                <div class="inputblock">
+                                    <label class="title">Export Priority</label>
+                                    <input type="number" [(ngModel)]="dcmExporter.dcmExportPriority" min="0" max="9">
+                                    <span class="description">JMS Priority Level for processing the Export Task from 0 (lowest) to 9 (highest).</span>
+                                </div>
+                                <div class="inputblock">
+                                    <label class="title">Application Entity (AE) title</label>
+                                    <select [ngModel]="dcmExporter.dicomAETitle" (ngModelChange)="setAe($event)" name="dcmURI">
+                                        <option [value]="ae.dicomAETitle" *ngFor="let ae of selectedDeviceObject?.dicomNetworkAE">{{ae.dicomAETitle}}</option>
+                                    </select>
+                                    <span class="description">Application Entity (AE) title</span>
+                                </div>
+                                <div class="inputblock">
+                                    <label class="title">Instance Availability</label>
+                                    <select [ngModel]="dcmExporter.dcmInstanceAvailability" (ngModelChange)="dcmExporter.dcmInstanceAvailability = $event" name="dcmQueueName">
+                                        <option value="ONLINE">ONLINE</option>
+                                        <option value="NEARLINE">NEARLINE</option>
+                                        <option value="OFFLINE">OFFLINE</option>
+                                    </select>
+                                    <span class="description">Instance Availability</span>
+                                </div>
+                                <div class="inputblock">
+                                    <label class="title">Storage Commitment SCP AE Title</label>
+                                    <select [ngModel]="externalAeObject" (ngModelChange)="setDcmStgCmtSCP($event)" name="dcmStgCmtSCP">
+                                        <option [ngValue]="{}">-</option>
+                                        <option [ngValue]="obj" *ngFor="let obj of aes">{{obj.dicomAETitle}}</option>
+                                    </select>
+                                    <span class="description">AE Title of external Storage Commitment SCP used to verify export to another archive.</span>
+                                </div>
+                                <div class="inputblock">
+                                    <label class="title">Exporter Description</label>
+                                    <textarea type="text" [(ngModel)]="dcmExporter.dicomDescription"></textarea>
+                                    <span class="description">Unconstrained text description of the exporter</span>
+                                </div>
                             </div>
                         </div>
                     </div>
