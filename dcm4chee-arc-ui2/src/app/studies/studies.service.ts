@@ -688,7 +688,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 oldPatientID = this.getPatientId(patient.attrs);
             }
             if(externalInternalAetMode === 'internal'){
-                url = url + oldPatientID;
+                url = url + (oldPatientID || patient.attrs['00100020'].Value[0]);
             }
             if((externalInternalAetMode === 'external' && modifyMode === 'edit') || externalInternalAetMode === 'internal'){
                     return {
