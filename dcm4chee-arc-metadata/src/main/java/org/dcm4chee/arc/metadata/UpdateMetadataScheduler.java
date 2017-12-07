@@ -161,11 +161,12 @@ public class UpdateMetadataScheduler extends Scheduler {
     }
 
     private void updateMetadata(RetrieveContext ctx, Storage storage) throws IOException {
-        if (!retrieveService.calculateMatches(ctx))
+        if (!claim(ctx, storage) || !retrieveService.calculateMatches(ctx))
             return;
 
-        LOG.info("Create/Update Metadata for Series[pk={}] on Storage[uri={}]",
+        LOG.info("Creating/Updating Metadata for Series[pk={}, uid={}] on Storage[uri={}]",
                 ctx.getSeriesMetadataUpdate().seriesPk,
+                ctx.getSeriesInstanceUID(),
                 storage.getStorageDescriptor().getStorageURI());
         WriteContext writeCtx = createWriteContext(storage, ctx.getMatches().iterator().next());
         try {
@@ -180,8 +181,10 @@ public class UpdateMetadataScheduler extends Scheduler {
                 out.finish();
             }
             storage.commitStorage(writeCtx);
+            ejb.commit(ctx.getSeriesMetadataUpdate().seriesPk, createMetadata(writeCtx));
         } catch (Exception e) {
-            LOG.warn("Failed to create/update Metadata for Series[uid={}] on Storage[uri={}]",
+            LOG.warn("Failed to create/update Metadata for Series[pk={}, uid={}] on Storage[uri={}]:\n",
+                    ctx.getSeriesMetadataUpdate().seriesPk,
                     ctx.getSeriesInstanceUID(),
                     storage.getStorageDescriptor().getStorageURI(),
                     e);
@@ -192,7 +195,23 @@ public class UpdateMetadataScheduler extends Scheduler {
             }
             throw e;
         }
-        ejb.updateDB(ctx.getSeriesMetadataUpdate().seriesPk, createMetadata(writeCtx));
+        LOG.info("Created/Updated Metadata for Series[pk={}, uid={}] on Storage[uri={}]",
+                ctx.getSeriesMetadataUpdate().seriesPk,
+                ctx.getSeriesInstanceUID(),
+                storage.getStorageDescriptor().getStorageURI());
+    }
+
+    private boolean claim(RetrieveContext ctx, Storage storage) {
+        try {
+            return ejb.claim(ctx.getSeriesMetadataUpdate().seriesPk);
+        } catch (Exception e) {
+            LOG.info("Failed to claim create/update Metadata for Series[pk={}, uid={}] on Storage[uri={}]:\n",
+                    ctx.getSeriesMetadataUpdate().seriesPk,
+                    ctx.getSeriesInstanceUID(),
+                    storage.getStorageDescriptor().getStorageURI(),
+                    e);
+            return false;
+        }
     }
 
     private Attributes loadMetadata(RetrieveContext ctx, InstanceLocations match) throws IOException {
