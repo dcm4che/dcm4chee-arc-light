@@ -89,9 +89,9 @@ public class EchoRS {
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
+            throw new WebApplicationException(buildErrorResponse(
                     "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND);
+                    Response.Status.NOT_FOUND));
         return ae;
     }
 
@@ -99,10 +99,15 @@ public class EchoRS {
         try {
             return conf.findApplicationEntity(remoteAET);
         } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException(
+            throw new WebApplicationException(buildErrorResponse(
                     "No such Application Entity configured: " + remoteAET,
-                    Response.Status.NOT_FOUND);
+                    Response.Status.NOT_FOUND));
         }
+    }
+
+    private Response buildErrorResponse(String errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
     }
 
     private AAssociateRQ createAARQ() {

@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.dimse.rs;
 
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -81,6 +82,9 @@ public class RetrieveRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
 
     @Inject
     private Event<ExternalRetrieveContext> instancesRetrievedEvent;
@@ -150,6 +154,8 @@ public class RetrieveRS {
     private Response export(String destAET, String... uids) throws Exception {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         Attributes keys = toKeys(uids);
+        checkAE(destAET, aeCache.get(destAET));
+        checkAE(externalAET, aeCache.get(externalAET));
         return queue ? queueExport(destAET, keys) : export(destAET, keys);
     }
 
@@ -163,7 +169,7 @@ public class RetrieveRS {
     }
 
     private Response export(String destAET, Attributes keys) throws Exception {
-        ApplicationEntity localAE = getApplicationEntity();
+        ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
         Association as = moveSCU.openAssociation(localAE, externalAET);
         try {
             final DimseRSP rsp = moveSCU.cmove(as, priority(), destAET, keys);
@@ -181,6 +187,19 @@ public class RetrieveRS {
                 LOG.info("{}: Failed to release association:\\n", as, e);
             }
         }
+    }
+
+    private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
+        if (ae == null || !ae.isInstalled())
+            throw new WebApplicationException(buildErrorResponse(
+                    "No such Application Entity: " + aet,
+                    Response.Status.NOT_FOUND));
+        return ae;
+    }
+
+    private Response buildErrorResponse(String errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
     }
 
     private ExternalRetrieveContext toInstancesRetrieved(String destAET, Attributes keys) {
@@ -252,15 +271,6 @@ public class RetrieveRS {
                 gen.flush();
             }
         };
-    }
-
-    private ApplicationEntity getApplicationEntity() {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND);
-        return ae;
     }
 
 }

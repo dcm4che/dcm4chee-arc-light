@@ -148,10 +148,15 @@ public class QueryRetrieveRS {
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
+            throw new WebApplicationException(buildErrorResponse(
                     "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND);
+                    Response.Status.NOT_FOUND));
         return ae;
+    }
+
+    private Response buildErrorResponse(String errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
     }
 
     private int priority() {
