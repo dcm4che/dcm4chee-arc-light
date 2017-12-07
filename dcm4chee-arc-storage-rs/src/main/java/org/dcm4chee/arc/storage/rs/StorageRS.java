@@ -214,7 +214,7 @@ public class StorageRS {
                 if (storage.getTotalSpace() != -1)
                     totalSpace = storage.getTotalSpace();
             } catch (IOException e) {
-                LOG.warn("Failed to access {}", desc.getStorageURI(), e);
+                LOG.warn("Failed to access {}", desc, e);
             }
         }
 

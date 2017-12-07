@@ -137,7 +137,7 @@ public abstract class AbstractStorage implements Storage {
 
     private void checkAccessable() throws IOException {
         if (!isAccessable())
-            throw new IOException(descriptor.getStorageURI() + " not accessable");
+            throw new IOException(descriptor + " not accessable");
     }
 
     @Override

@@ -176,8 +176,7 @@ public class EMCECSStorage extends AbstractStorage {
     private IOException objectNotFound(String storagePath) {
         return new IOException("No Object[" + storagePath
                 + "] in Container[" + container
-                + "] on Storage[" + getStorageDescriptor().getStorageURI()
-                + "]");
+                + "] on " + getStorageDescriptor());
     }
 
     @Override

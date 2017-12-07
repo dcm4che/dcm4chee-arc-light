@@ -117,7 +117,7 @@ public class PurgeStorageScheduler extends Scheduler {
             long minUsableSpace = desc.hasDeleterThresholds() ? desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance()) : -1L;
             long deleteSize = deleteSize(desc, minUsableSpace);
             if (deleteSize > 0L) {
-                LOG.info("Usable Space on {} below {} - start deleting {}", desc.getStorageURI(),
+                LOG.info("Usable Space on {} below {} - start deleting {}", desc,
                         BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
             }
             for (int i = 0; i == 0 || deleteSize > 0L; i++) {
@@ -143,7 +143,7 @@ public class PurgeStorageScheduler extends Scheduler {
         try (Storage storage = storageFactory.getStorage(desc)) {
             return Math.max(0L, minUsableSpace - storage.getUsableSpace());
         } catch (IOException e) {
-            LOG.warn("Failed to determine usable space on {}", desc.getStorageURI(), e);
+            LOG.warn("Failed to determine usable space on {}", desc, e);
             return 0;
         }
     }
@@ -153,11 +153,11 @@ public class PurgeStorageScheduler extends Scheduler {
         try {
            studyPks = ejb.findStudiesForDeletionOnStorage(desc.getStorageID(), fetchSize);
         } catch (Exception e) {
-            LOG.warn("Query for studies for deletion on {} failed", desc.getStorageURI(), e);
+            LOG.warn("Query for studies for deletion on {} failed", desc, e);
             return 0;
         }
         if (studyPks.isEmpty()) {
-            LOG.warn("No studies for deletion found on {}", desc.getStorageURI());
+            LOG.warn("No studies for deletion found on {}", desc);
             return 0;
         }
         int removed = 0;
@@ -167,9 +167,9 @@ public class PurgeStorageScheduler extends Scheduler {
             try {
                 Study study = ejb.deleteStudy(ctx);
                 removed++;
-                LOG.info("Successfully delete {} on {}", study, desc.getStorageURI());
+                LOG.info("Successfully delete {} on {}", study, desc);
             } catch (Exception e) {
-                LOG.warn("Failed to delete Study[pk={}] on {}", studyPk, desc.getStorageURI(), e);
+                LOG.warn("Failed to delete Study[pk={}] on {}", studyPk, desc, e);
                 ctx.setException(e);
             } finally {
                 try {
@@ -189,12 +189,12 @@ public class PurgeStorageScheduler extends Scheduler {
                     desc.getStorageID(), desc.getExternalRetrieveAETitle(), fetchSize);
         } catch (Exception e) {
             LOG.warn("Query for studies available at {} for deletion on {} failed",
-                    desc.getExternalRetrieveAETitle(), desc.getStorageURI(), e);
+                    desc.getExternalRetrieveAETitle(), desc, e);
             return 0;
         }
         if (studyPks.isEmpty()) {
             LOG.warn("No studies available at {} for deletion found on {}",
-                    desc.getExternalRetrieveAETitle(), desc.getStorageURI());
+                    desc.getExternalRetrieveAETitle(), desc);
             return 0;
         }
         int removed = 0;
@@ -202,9 +202,9 @@ public class PurgeStorageScheduler extends Scheduler {
             try {
                 Study study = ejb.deleteObjectsOfStudy(studyPk, desc.getStorageID());
                 removed++;
-                LOG.info("Successfully delete objects of {} on {}", study, desc.getStorageURI());
+                LOG.info("Successfully delete objects of {} on {}", study, desc);
             } catch (Exception e) {
-                LOG.warn("Failed to delete objects of Study[pk={}] on {}", studyPk, desc.getStorageURI(), e);
+                LOG.warn("Failed to delete objects of Study[pk={}] on {}", studyPk, desc, e);
             }
         }
         return removed;
@@ -220,14 +220,14 @@ public class PurgeStorageScheduler extends Scheduler {
                 try {
                     storage.deleteObject(m.getStoragePath());
                     ejb.removeMetadata(m);
-                    LOG.debug("Successfully delete {} from {}", m, desc.getStorageURI());
+                    LOG.debug("Successfully delete {} from {}", m, desc);
                 } catch (Exception e) {
                     ejb.failedToDelete(m);
-                    LOG.warn("Failed to delete {} from {}", m, desc.getStorageURI(), e);
+                    LOG.warn("Failed to delete {} from {}", m, desc, e);
                 }
             }
         } catch (Exception e) {
-            LOG.warn("Failed to access {}", desc.getStorageURI(), e);
+            LOG.warn("Failed to access {}", desc, e);
         }
         return metadata.size() == fetchSize;
     }
@@ -242,14 +242,14 @@ public class PurgeStorageScheduler extends Scheduler {
                 try {
                     storage.deleteObject(location.getStoragePath());
                     ejb.removeLocation(location);
-                    LOG.debug("Successfully delete {} from {}", location, desc.getStorageURI());
+                    LOG.debug("Successfully delete {} from {}", location, desc);
                 } catch (Exception e) {
                     ejb.failedToDelete(location);
-                    LOG.warn("Failed to delete {} from {}", location, desc.getStorageURI(), e);
+                    LOG.warn("Failed to delete {} from {}", location, desc, e);
                 }
             }
         } catch (Exception e) {
-            LOG.warn("Failed to access {}", desc.getStorageURI(), e);
+            LOG.warn("Failed to access {}", desc, e);
         }
         return locations.size() == fetchSize;
     }

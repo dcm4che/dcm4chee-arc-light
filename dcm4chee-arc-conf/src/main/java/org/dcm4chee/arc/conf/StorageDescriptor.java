@@ -163,17 +163,7 @@ public final class StorageDescriptor {
 
     @Override
     public String toString() {
-        return "StorageDescriptor{" +
-                "storageID=" + storageID +
-                ", storageURI=" + storageURI +
-                ", digestAlg=" + digestAlgorithm +
-                ", availability=" + instanceAvailability +
-                ", storageThreshold=" + storageThreshold +
-                ", deleterThresholds=" + deleterThresholds +
-                ", externalRetrieveAETitle=" + externalRetrieveAETitle +
-                ", readOnly=" + readOnly +
-                ", properties=" + properties +
-                '}';
+        return "Storage[id=" + storageID + ", uri=" + storageURI + ']';
     }
 
     public static String[] storageIDsOf(List<StorageDescriptor> descriptors) {
