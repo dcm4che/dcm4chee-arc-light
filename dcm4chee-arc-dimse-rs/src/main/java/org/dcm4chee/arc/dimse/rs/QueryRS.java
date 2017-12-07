@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.dimse.rs;
 
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
@@ -92,6 +93,9 @@ public class QueryRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
 
     @PathParam("AETitle")
     private String aet;
@@ -203,15 +207,6 @@ public class QueryRS {
         search(ar, Level.IMAGE, studyInstanceUID, seriesInstanceUID, QIDO.STUDY_SERIES_INSTANCE, true);
     }
 
-    private ApplicationEntity getApplicationEntity() {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND);
-        return ae;
-    }
-
     private int offset() {
         return parseInt(offset, 0);
     }
@@ -232,6 +227,8 @@ public class QueryRS {
                         boolean count)
             throws Exception {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
+        checkAE(externalAET, aeCache.get(externalAET));
         QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
         if (!count) {
             queryAttributes.addReturnTags(qido.includetags);
@@ -255,7 +252,6 @@ public class QueryRS {
             keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
         if (seriesInstanceUID != null)
             keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
-        ApplicationEntity localAE = getApplicationEntity();
         EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
         if (Boolean.parseBoolean(fuzzymatching))
             queryOptions.add(QueryOption.FUZZY);
@@ -274,6 +270,14 @@ public class QueryRS {
         DimseRSP dimseRSP = findSCU.query(as, priority(), keys, !count && limit != null ? offset() + limit() : 0);
         dimseRSP.next();
         ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP)).build());
+    }
+
+    private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
+        if (ae == null || !ae.isInstalled())
+            throw new WebApplicationException(
+                    "No such Application Entity: " + aet,
+                    Response.Status.NOT_FOUND);
+        return ae;
     }
 
     private Response.ResponseBuilder responseBuilder(DimseRSP dimseRSP) {

@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.dimse.rs;
 
+import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
@@ -94,6 +95,9 @@ public class DiffRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
 
     @PathParam("AETitle")
     private String aet;
@@ -162,6 +166,9 @@ public class DiffRS {
 
     private void search(AsyncResponse ar, boolean count) throws Exception {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
+        checkAE(externalAET, aeCache.get(externalAET));
+        checkAE(originalAET, aeCache.get(originalAET));
         QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
         int[] compareKeys = compareKeys();
         addReturnTags(queryAttributes, compareKeys);
@@ -175,7 +182,6 @@ public class DiffRS {
                 safeRelease(as2);
             }
         });
-        ApplicationEntity localAE = getApplicationEntity();
         EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
         if (Boolean.parseBoolean(fuzzymatching))
             queryOptions.add(QueryOption.FUZZY);
@@ -200,6 +206,14 @@ public class DiffRS {
             }
         }
         ar.resume(Response.noContent().build());
+    }
+
+    private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
+        if (ae == null || !ae.isInstalled())
+            throw new WebApplicationException(
+                    "No such Application Entity: " + aet,
+                    Response.Status.NOT_FOUND);
+        return ae;
     }
 
     private void addReturnTags(QueryAttributes queryAttributes, int[] compareKeys) {
@@ -262,15 +276,6 @@ public class DiffRS {
 
     private static int parseInt(String s, int defval) {
         return s != null ? Integer.parseInt(s) : defval;
-    }
-
-    private ApplicationEntity getApplicationEntity() {
-        ApplicationEntity ae = device.getApplicationEntity(aet, true);
-        if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
-                    "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND);
-        return ae;
     }
 
     private Object entity(final DimseRSP dimseRSP, final int[] compareKeys, final int[] returnKeys) {

@@ -98,7 +98,7 @@ public class CFindSCUImpl implements CFindSCU {
     public Association openAssociation(ApplicationEntity localAE, String calledAET,
                                        String cuid, EnumSet<QueryOption> queryOptions)
             throws Exception {
-        return localAE.connect(aeCache.get(calledAET), createAARQ(cuid, queryOptions));
+        return localAE.connect(aeCache.findApplicationEntity(calledAET), createAARQ(cuid, queryOptions));
     }
 
     @Override
