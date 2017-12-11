@@ -1355,6 +1355,12 @@
             "type": "string"
           },
           {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
             "name": "status",
             "in": "query",
             "description": "status of tasks to filter by",
