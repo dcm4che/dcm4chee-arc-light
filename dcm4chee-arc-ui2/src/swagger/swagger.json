@@ -955,7 +955,8 @@
         "summary": "List Export Tasks",
         "operationId": "listExportTasks",
         "produces": [
-          "application/json"
+          "application/json",
+          "text/csv"
         ],
         "parameters": [
           {
@@ -1202,7 +1203,8 @@
         "summary": "List Retrieve Tasks",
         "operationId": "listRetrieveTasks",
         "produces": [
-          "application/json"
+          "application/json",
+          "text/csv"
         ],
         "parameters": [
           {
@@ -1488,7 +1490,8 @@
         "summary": "List Tasks in Queue",
         "operationId": "listTasks",
         "produces": [
-          "application/json"
+          "application/json",
+          "text/csv"
         ],
         "parameters": [
           {
