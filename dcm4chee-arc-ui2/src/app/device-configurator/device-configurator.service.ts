@@ -332,32 +332,41 @@ export class DeviceConfiguratorService{
         let titleKeys;
         let newSchema;
         let arraysPath;
-        if(_.hasIn(params,"schema")){
-            newSchema = this.getSchemaFromPath(this.schema, params['schema']);
-            if(newSchema.titleKey){
-                titleKeys =  this.getKeysFromTitleKey(newSchema.titleKey);
+        try{
+
+            if(_.hasIn(params,"schema")){
+                newSchema = this.getSchemaFromPath(this.schema, params['schema']);
+                if(newSchema.titleKey){
+                    titleKeys =  this.getKeysFromTitleKey(newSchema.titleKey);
+                }
+                if(_.hasIn(params,"devicereff")){
+                    arraysPath = this.extractArraysPathFromSpecific(params['devicereff']);
+                    return this.checkIfChildeExist(_.get(this.device,arraysPath),titleKeys,newValue);
+                }
             }
-            if(_.hasIn(params,"devicereff")){
-                arraysPath = this.extractArraysPathFromSpecific(params['devicereff']);
-                return this.checkIfChildeExist(_.get(this.device,arraysPath),titleKeys,newValue);
-            }
+            return false;
+        }catch (e){
+            return false;
         }
-        return false;
     }
     checkIfChildeExist(allArrays,kayArray,newValue){
         let found:boolean = false;
-        allArrays.forEach(m=>{
-            let equal:boolean = true;
-            kayArray.forEach(k=>{
-                if(m[k] === newValue[k]){
-                    equal = equal && true;
-                }else{
-                    equal = false;
-                }
+        if(allArrays && allArrays.length > 0){
+            allArrays.forEach(m=>{
+                let equal:boolean = true;
+                kayArray.forEach(k=>{
+                    if(m[k] === newValue[k]){
+                        equal = equal && true;
+                    }else{
+                        equal = false;
+                    }
+                });
+                found = found || equal;
             });
-            found = found || equal;
-        });
-        return found;
+            return found;
+        }else{
+            return false;
+        }
     }
     extractArraysPathFromSpecific(path){
         const regex = /(^.*)\[\d*\]/g;
