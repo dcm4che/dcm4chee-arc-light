@@ -2,17 +2,19 @@ import { Injectable } from '@angular/core';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {j4care} from "../../helpers/j4care.service";
+import {AppService} from "../../app.service";
 
 @Injectable()
 export class ExternalRetrieveService {
 
     constructor(
-      public $http:J4careHttpService
+      public $http:J4careHttpService,
+      public mainservice: AppService
     ) { }
 
     getExternalRetrieveEntries(filter, offset){
         filter.offset = (offset && offset != '') ? offset : 0;
-        return this.$http.get('../monitor/retrieve' + j4care.getUrlParams(filter))
+        return this.$http.get('../monitor/retrieve' + '?' + this.mainservice.param(filter))
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
     };
 
