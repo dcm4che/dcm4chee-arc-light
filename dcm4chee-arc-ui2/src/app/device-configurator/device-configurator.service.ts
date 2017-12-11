@@ -328,7 +328,63 @@ export class DeviceConfiguratorService{
         }
         return form;
     }
-
+    checkIfDuplicatedChild(newValue,params){
+        let titleKeys;
+        let newSchema;
+        let arraysPath;
+        if(_.hasIn(params,"schema")){
+            newSchema = this.getSchemaFromPath(this.schema, params['schema']);
+            if(newSchema.titleKey){
+                titleKeys =  this.getKeysFromTitleKey(newSchema.titleKey);
+            }
+            if(_.hasIn(params,"devicereff")){
+                arraysPath = this.extractArraysPathFromSpecific(params['devicereff']);
+                return this.checkIfChildeExist(_.get(this.device,arraysPath),titleKeys,newValue);
+            }
+        }
+        return false;
+    }
+    checkIfChildeExist(allArrays,kayArray,newValue){
+        let found:boolean = false;
+        allArrays.forEach(m=>{
+            let equal:boolean = true;
+            kayArray.forEach(k=>{
+                if(m[k] === newValue[k]){
+                    equal = equal && true;
+                }else{
+                    equal = false;
+                }
+            });
+            found = found || equal;
+        });
+        return found;
+    }
+    extractArraysPathFromSpecific(path){
+        const regex = /(^.*)\[\d*\]/g;
+        let m;
+        let endPath;
+        while ((m = regex.exec(path)) !== null) {
+            if (m.index === regex.lastIndex) {
+                regex.lastIndex++;
+            }
+            if(m[1])
+                endPath = m[1];
+        }
+        return endPath;
+    }
+    getKeysFromTitleKey(titleKey){
+        const regex = /\{(\w*)}/g;
+        let m;
+        let endArray = [];
+        while ((m = regex.exec(titleKey)) !== null) {
+            if (m.index === regex.lastIndex) {
+                regex.lastIndex++;
+            }
+            if(m[1])
+                endArray.push(m[1]);
+        }
+        return endArray;
+    }
     private processSchemaEntries(m,i, requiredArray, propertiesPath, params, device, form) {
         let $this = this;
         let value;

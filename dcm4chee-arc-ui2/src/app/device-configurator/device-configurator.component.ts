@@ -55,149 +55,158 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         this.cfpLoadingBar.start();
         let deviceClone = _.cloneDeep(this.service.device);
 
-        if(this.inClone){
-            let clonePart =  _.cloneDeep(_.get(this.service.device, this.recentParams.clone));
-            this.service.replaceOldAETitleWithTheNew(clonePart,value.dicomAETitle);
-            _.set(this.service.device,  this.recentParams.devicereff,  clonePart);
-        }
-        this.service.addChangesToDevice(value, this.recentParams.devicereff);
-        if (_.hasIn(this.recentParams, 'schema')){
-            let newSchema = this.service.getSchemaFromPath(this.service.schema, this.recentParams['schema']);
-            let title = this.service.getPaginationTitleFromModel(value, newSchema);
-            this.service.pagination[this.service.pagination.length - 1].title = title;
-
-            //Adding archive extension to the network ae if the device has archive extension
-            if(
-                _.hasIn(this.service.device,"dcmArchiveDevice") &&
-                this.recentParams.schema === "properties.dicomNetworkAE" &&
-                _.hasIn(this.service.device,"dicomNetworkAE") &&
-                this.service.device.dicomNetworkAE.length > 0
-            ){
-                _.forEach(this.service.device.dicomNetworkAE, (m,i)=>{
-                    if(!_.hasIn(m,"dcmArchiveNetworkAE")){
-                        this.service.device.dicomNetworkAE[i]["dcmArchiveNetworkAE"] = {};
-                        extensionAdded = true;
-                    }
-                });
-            }
-        }
-        if (_.hasIn(this.service.pagination, '[1].title') && this.service.pagination[1].title === '[new_device]'){
-            let creatDevice = this.service.createDevice();
-            if (creatDevice){
-                creatDevice
-                    .subscribe(
-                        (success) => {
-                            console.log('succes', success);
-                            $this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': 'Device created successfully!',
-                                'status': 'info'
-                            });
-                            try {
-                                $this.recentParams = {};
-                                $this.service.pagination = $this.params = [
-                                    {
-                                        url: '/device/devicelist',
-                                        title: 'devicelist',
-                                        devicereff: undefined
-                                    }
-                                ];
-                            }catch (e){
-                                console.warn('error on chagning pagination', e);
-                            }
-                            $this.controlService.reloadArchive().subscribe((res) => {
-                                console.log('res', res);
-                                // $this.message = 'Reload successful';
-                                $this.mainservice.setMessage({
-                                    'title': 'Info',
-                                    'text': 'Reload successful',
-                                    'status': 'info'
-                                });
-                                    $this.cfpLoadingBar.complete();
-                            }, (err) => {
-                                $this.cfpLoadingBar.complete();
-                                }
-                            );
-                            setTimeout(() => {
-                                $this.router.navigateByUrl(`/device/edit/${value.dicomDeviceName}`);
-                            }, 200);
-                        },
-                        (err) => {
-                            _.assign($this.service.device, deviceClone);
-                            console.log('error', err);
-                            $this.httpErrorHandler.handleError(err);
-                            $this.cfpLoadingBar.complete();
-                        }
-
-                    );
-            }else{
-                _.assign($this.service.device, deviceClone);
-                console.warn('devicename is missing', this.service.device);
-                $this.mainservice.setMessage({
-                    'title': 'Error',
-                    'text': 'Device name is missing!',
-                    'status': 'error'
-                });
-            }
+        if(this.service.checkIfDuplicatedChild(value,this.recentParams)){
+            $this.mainservice.setMessage({
+                'title': 'Error',
+                'text': 'Child already exist, change some value and try saving again!',
+                'status': 'error'
+            });
+            $this.cfpLoadingBar.complete();
         }else{
-            let updateDevice = this.service.updateDevice();
-            if (updateDevice){
-                updateDevice
-                    .subscribe(
-                        (success) => {
-                            console.log('succes', success);
-                            $this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': 'Device saved successfully!',
-                                'status': 'info'
-                            });
-                            if(extensionAdded){
-                                // $this.setFormFromParameters($this.recentParams, form);
-                                $this.deleteForm();
-                                $this.showform = false;
-                                let url = window.location.hash.substr(1);
-                                if(url){
-                                    setTimeout(() => {
-                                        $this.router.navigateByUrl('blank').then(() => {
-                                            $this.router.navigateByUrl(url);
-                                            $this.showform = true;
-                                        });
-                                    });
-                                }
-                            }
-                            $this.controlService.reloadArchive().subscribe((res) => {
-                                console.log('res', res);
-                                // $this.message = 'Reload successful';
+            if(this.inClone){
+                let clonePart =  _.cloneDeep(_.get(this.service.device, this.recentParams.clone));
+                this.service.replaceOldAETitleWithTheNew(clonePart,value.dicomAETitle);
+                _.set(this.service.device,  this.recentParams.devicereff,  clonePart);
+            }
+            this.service.addChangesToDevice(value, this.recentParams.devicereff);
+            if (_.hasIn(this.recentParams, 'schema')){
+                let newSchema = this.service.getSchemaFromPath(this.service.schema, this.recentParams['schema']);
+                let title = this.service.getPaginationTitleFromModel(value, newSchema);
+                this.service.pagination[this.service.pagination.length - 1].title = title;
+
+                //Adding archive extension to the network ae if the device has archive extension
+                if(
+                    _.hasIn(this.service.device,"dcmArchiveDevice") &&
+                    this.recentParams.schema === "properties.dicomNetworkAE" &&
+                    _.hasIn(this.service.device,"dicomNetworkAE") &&
+                    this.service.device.dicomNetworkAE.length > 0
+                ){
+                    _.forEach(this.service.device.dicomNetworkAE, (m,i)=>{
+                        if(!_.hasIn(m,"dcmArchiveNetworkAE")){
+                            this.service.device.dicomNetworkAE[i]["dcmArchiveNetworkAE"] = {};
+                            extensionAdded = true;
+                        }
+                    });
+                }
+            }
+            if (_.hasIn(this.service.pagination, '[1].title') && this.service.pagination[1].title === '[new_device]'){
+                let creatDevice = this.service.createDevice();
+                if (creatDevice){
+                    creatDevice
+                        .subscribe(
+                            (success) => {
+                                console.log('succes', success);
                                 $this.mainservice.setMessage({
                                     'title': 'Info',
-                                    'text': 'Reload successful',
+                                    'text': 'Device created successfully!',
                                     'status': 'info'
                                 });
-                                    $this.cfpLoadingBar.complete();
-                            }, (err) => {
-
-                                    $this.cfpLoadingBar.complete();
+                                try {
+                                    $this.recentParams = {};
+                                    $this.service.pagination = $this.params = [
+                                        {
+                                            url: '/device/devicelist',
+                                            title: 'devicelist',
+                                            devicereff: undefined
+                                        }
+                                    ];
+                                }catch (e){
+                                    console.warn('error on chagning pagination', e);
                                 }
-                            );
-                            $this.refreshExternalRefferences();
-                        },
-                        (err) => {
-                            _.assign($this.service.device, deviceClone);
-                            console.log('error', err);
-                            $this.httpErrorHandler.handleError(err);
-                            $this.cfpLoadingBar.complete();
-                        }
+                                $this.controlService.reloadArchive().subscribe((res) => {
+                                    console.log('res', res);
+                                    // $this.message = 'Reload successful';
+                                    $this.mainservice.setMessage({
+                                        'title': 'Info',
+                                        'text': 'Reload successful',
+                                        'status': 'info'
+                                    });
+                                        $this.cfpLoadingBar.complete();
+                                }, (err) => {
+                                    $this.cfpLoadingBar.complete();
+                                    }
+                                );
+                                setTimeout(() => {
+                                    $this.router.navigateByUrl(`/device/edit/${value.dicomDeviceName}`);
+                                }, 200);
+                            },
+                            (err) => {
+                                _.assign($this.service.device, deviceClone);
+                                console.log('error', err);
+                                $this.httpErrorHandler.handleError(err);
+                                $this.cfpLoadingBar.complete();
+                            }
 
-                    );
+                        );
+                }else{
+                    _.assign($this.service.device, deviceClone);
+                    console.warn('devicename is missing', this.service.device);
+                    $this.mainservice.setMessage({
+                        'title': 'Error',
+                        'text': 'Device name is missing!',
+                        'status': 'error'
+                    });
+                }
             }else{
-                _.assign($this.service.device, deviceClone);
-                $this.mainservice.setMessage({
-                    'title': 'Error',
-                    'text': 'Device name is missing!',
-                    'status': 'error'
-                });
-                console.warn('devicename is missing', this.service.device);
-                $this.cfpLoadingBar.complete();
+                let updateDevice = this.service.updateDevice();
+                if (updateDevice){
+                    updateDevice
+                        .subscribe(
+                            (success) => {
+                                console.log('succes', success);
+                                $this.mainservice.setMessage({
+                                    'title': 'Info',
+                                    'text': 'Device saved successfully!',
+                                    'status': 'info'
+                                });
+                                if(extensionAdded){
+                                    // $this.setFormFromParameters($this.recentParams, form);
+                                    $this.deleteForm();
+                                    $this.showform = false;
+                                    let url = window.location.hash.substr(1);
+                                    if(url){
+                                        setTimeout(() => {
+                                            $this.router.navigateByUrl('blank').then(() => {
+                                                $this.router.navigateByUrl(url);
+                                                $this.showform = true;
+                                            });
+                                        });
+                                    }
+                                }
+                                $this.controlService.reloadArchive().subscribe((res) => {
+                                    console.log('res', res);
+                                    // $this.message = 'Reload successful';
+                                    $this.mainservice.setMessage({
+                                        'title': 'Info',
+                                        'text': 'Reload successful',
+                                        'status': 'info'
+                                    });
+                                        $this.cfpLoadingBar.complete();
+                                }, (err) => {
+
+                                        $this.cfpLoadingBar.complete();
+                                    }
+                                );
+                                $this.refreshExternalRefferences();
+                            },
+                            (err) => {
+                                _.assign($this.service.device, deviceClone);
+                                console.log('error', err);
+                                $this.httpErrorHandler.handleError(err);
+                                $this.cfpLoadingBar.complete();
+                            }
+
+                        );
+                }else{
+                    _.assign($this.service.device, deviceClone);
+                    $this.mainservice.setMessage({
+                        'title': 'Error',
+                        'text': 'Device name is missing!',
+                        'status': 'error'
+                    });
+                    console.warn('devicename is missing', this.service.device);
+                    $this.cfpLoadingBar.complete();
+                }
             }
         }
     }
