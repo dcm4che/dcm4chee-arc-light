@@ -154,7 +154,6 @@ public class RetrieveRS {
     private Response export(String destAET, String... uids) throws Exception {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         Attributes keys = toKeys(uids);
-        checkAE(destAET, aeCache.get(destAET));
         checkAE(externalAET, aeCache.get(externalAET));
         return queue ? queueExport(destAET, keys) : export(destAET, keys);
     }
