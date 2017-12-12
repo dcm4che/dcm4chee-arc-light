@@ -22,6 +22,7 @@ export class QueuesComponent implements OnInit{
     limit = 20;
     queues = [];
     queueName = null;
+    dicomDeviceName = null;
     status = '*';
     before;
     isRole: any = (user)=>{return false;};
@@ -113,7 +114,7 @@ export class QueuesComponent implements OnInit{
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.search(this.queueName, this.status, offset, this.limit)
+        this.service.search(this.queueName, this.status, offset, this.limit, this.dicomDeviceName)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
                 if (res && res.length > 0){

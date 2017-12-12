@@ -10,8 +10,8 @@ export class QueuesService {
     header = new Headers({ 'Content-Type': 'application/json' });
     constructor(public $http:J4careHttpService, public mainservice: AppService) { }
 
-    search(queueName, status, offset, limit) {
-        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit)));
+    search(queueName, status, offset, limit, dicomDeviceName) {
+        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName)));
     };
 
     cancel(queueName, msgId) {
@@ -54,10 +54,11 @@ export class QueuesService {
         // }
     }
 
-    queryParams(status, offset, limit) {
+    queryParams(status, offset, limit, dicomDeviceName) {
         let params = {
             offset: offset,
             limit: limit,
+            dicomDeviceName: dicomDeviceName,
             status: undefined
         };
         if (status != '*')
