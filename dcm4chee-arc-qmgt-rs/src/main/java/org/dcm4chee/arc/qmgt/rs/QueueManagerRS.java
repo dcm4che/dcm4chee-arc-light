@@ -83,6 +83,9 @@ public class QueueManagerRS {
     @PathParam("queueName")
     private String queueName;
 
+    @QueryParam("dicomDeviceName")
+    private String dicomDeviceName;
+
     @QueryParam("status")
     @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
@@ -104,7 +107,7 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response search() throws Exception {
         logRequest();
-        return Response.ok(toEntity(mgr.search(queueName, parseStatus(status), parseInt(offset), parseInt(limit))))
+        return Response.ok(toEntity(mgr.search(queueName, dicomDeviceName, parseStatus(status), parseInt(offset), parseInt(limit))))
                 .build();
     }
 

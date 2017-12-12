@@ -136,7 +136,7 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public List<QueueMessage> search(String queueName, QueueMessage.Status status, int offset, int limit) {
-        return ejb.search(queueName, status, offset, limit);
+    public List<QueueMessage> search(String queueName, String deviceName, QueueMessage.Status status, int offset, int limit) {
+        return ejb.search(queueName, deviceName, status, offset, limit);
     }
 }

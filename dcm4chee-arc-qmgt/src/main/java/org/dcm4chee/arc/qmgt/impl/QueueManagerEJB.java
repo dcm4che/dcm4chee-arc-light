@@ -40,15 +40,19 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
+import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +68,6 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -311,18 +314,23 @@ public class QueueManagerEJB {
                 .executeUpdate();
     }
 
-    public List<QueueMessage> search(String queueName, QueueMessage.Status status, int offset, int limit) {
-        TypedQuery<QueueMessage> query = status != null
-                ? em.createNamedQuery(QueueMessage.FIND_BY_QUEUE_NAME_AND_STATUS, QueueMessage.class)
-                    .setParameter(1, queueName)
-                    .setParameter(2, status)
-                : em.createNamedQuery(QueueMessage.FIND_BY_QUEUE_NAME, QueueMessage.class)
-                    .setParameter(1, queueName);
-        if (offset > 0)
-            query.setFirstResult(offset);
+    public List<QueueMessage> search(String queueName,
+            String deviceName, QueueMessage.Status status, int offset, int limit) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(QQueueMessage.queueMessage.queueName.eq(queueName));
+        if (deviceName != null)
+            builder.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
+        if (status != null)
+            builder.and(QQueueMessage.queueMessage.status.eq(status));
+
+        HibernateQuery<QueueMessage> query = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(builder);
         if (limit > 0)
-            query.setMaxResults(limit);
-        return query.getResultList();
+            query.limit(limit);
+        if (offset > 0)
+            query.offset(offset);
+        return query.fetch();
     }
 
     private void sendMessage(QueueDescriptor desc, ObjectMessage msg, long delay, int priority) {
