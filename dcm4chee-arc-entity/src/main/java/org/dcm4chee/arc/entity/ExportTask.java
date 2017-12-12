@@ -267,7 +267,6 @@ public class ExportTask {
         gen.write("pk", pk);
         gen.write("createdTime", df.format(createdTime));
         gen.write("updatedTime", df.format(updatedTime));
-        gen.write("dicomDeviceName", deviceName);
         gen.write("ExporterID", exporterID);
         gen.write("StudyInstanceUID", studyInstanceUID);
         if (!seriesInstanceUID.equals("*")) {
@@ -286,6 +285,7 @@ public class ExportTask {
             gen.writeEnd();
         }
         if (queueMessage == null) {
+            gen.write("dicomDeviceName", deviceName);
             gen.write("status", QueueMessage.Status.TO_SCHEDULE.toString());
             gen.write("scheduledTime", df.format(scheduledTime));
         } else {

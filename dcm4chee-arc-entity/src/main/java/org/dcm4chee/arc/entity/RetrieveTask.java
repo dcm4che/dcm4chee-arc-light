@@ -54,7 +54,6 @@ import java.util.Date;
 @Entity
 @Table(name = "retrieve_task",
         indexes = {
-                @Index(columnList = "device_name"),
                 @Index(columnList = "local_aet"),
                 @Index(columnList = "remote_aet"),
                 @Index(columnList = "destination_aet"),
@@ -108,10 +107,6 @@ public class RetrieveTask {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_time")
     private Date updatedTime;
-
-    @Basic(optional = false)
-    @Column(name = "device_name", updatable = false)
-    private String deviceName;
 
     @Basic(optional = false)
     @Column(name = "local_aet", updatable = false)
@@ -188,14 +183,6 @@ public class RetrieveTask {
 
     public Date getUpdatedTime() {
         return updatedTime;
-    }
-
-    public String getDeviceName() {
-        return deviceName;
-    }
-
-    public void setDeviceName(String deviceName) {
-        this.deviceName = deviceName;
     }
 
     public String getLocalAET() {
@@ -308,7 +295,6 @@ public class RetrieveTask {
         gen.write("pk", pk);
         gen.write("createdTime", df.format(createdTime));
         gen.write("updatedTime", df.format(updatedTime));
-        gen.write("dicomDeviceName", deviceName);
         gen.write("LocalAET", localAET);
         gen.write("RemoteAET", remoteAET);
         gen.write("DestinationAET", destinationAET);

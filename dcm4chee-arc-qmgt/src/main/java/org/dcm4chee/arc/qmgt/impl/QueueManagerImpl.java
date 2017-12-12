@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.*;
 import org.slf4j.Logger;
@@ -57,6 +58,9 @@ public class QueueManagerImpl implements QueueManager {
     private static final Logger LOG = LoggerFactory.getLogger(QueueManagerEJB.class);
 
     @Inject
+    private Device device;
+
+    @Inject
     private QueueManagerEJB ejb;
 
     @Inject
@@ -70,7 +74,7 @@ public class QueueManagerImpl implements QueueManager {
     @Override
     public QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority)
             throws QueueSizeLimitExceededException {
-        return ejb.scheduleMessage(queueName, message, priority);
+        return ejb.scheduleMessage(device.getDeviceName(), queueName, message, priority);
     }
 
     @Override
