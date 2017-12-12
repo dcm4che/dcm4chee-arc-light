@@ -208,17 +208,17 @@ public class QueueManagerEJB {
         return true;
     }
 
-    public boolean rescheduleMessage(String msgId, String queueName) throws IllegalTaskStateException {
+    public boolean rescheduleMessage(String msgId, String deviceName, String queueName) throws IllegalTaskStateException {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
             return false;
 
-        switch (entity.getStatus()) {
-            case SCHEDULED:
-            case IN_PROCESS:
-                throw new IllegalTaskStateException(
-                        "Cannot reschedule Task[id=" + msgId + "] with Status: " + entity.getStatus());
-        }
+        QueueMessage.Status status = entity.getStatus();
+        if (status == QueueMessage.Status.SCHEDULED
+                || status == QueueMessage.Status.IN_PROCESS || !deviceName.equals(entity.getDeviceName()))
+            throw new IllegalTaskStateException(
+                    "Cannot reschedule Task[id=" + msgId + "] with Status: " + status + " and deviceName: " + entity.getDeviceName());
+
         if (queueName != null)
             entity.setQueueName(queueName);
         entity.setNumberOfFailures(0);
