@@ -43,6 +43,7 @@ import org.dcm4che3.util.TagUtils;
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -321,6 +322,30 @@ public class RetrieveTask {
         queueMessage.writeStatusAsJSONTo(gen, df);
         gen.writeEnd();
         gen.flush();
+    }
+
+    public void writeAsCSVTo(OutputStream out) throws IOException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        out.write(getAsBytes(pk));
+        out.write(getAsBytes(df.format(createdTime)));
+        out.write(getAsBytes(df.format(updatedTime)));
+        out.write(getAsBytes(localAET));
+        out.write(getAsBytes(remoteAET));
+        out.write(getAsBytes(destinationAET));
+        out.write(getAsBytes(studyInstanceUID));
+        out.write(getAsBytes(seriesInstanceUID != null ? seriesInstanceUID : ""));
+        out.write(getAsBytes(sopInstanceUID != null ? sopInstanceUID : ""));
+        out.write(getAsBytes(remaining > 0 ? remaining : ""));
+        out.write(getAsBytes(completed > 0 ? completed : ""));
+        out.write(getAsBytes(failed > 0 ? failed : ""));
+        out.write(getAsBytes(warning > 0 ? warning : ""));
+        out.write(getAsBytes(statusCode != -1 ? TagUtils.shortToHexString(statusCode) : ""));
+        out.write(getAsBytes(errorComment != null ? errorComment : ""));
+        queueMessage.writeStatusAsCSVTo(out, df);
+    }
+
+    private byte[] getAsBytes(Object val) {
+        return ("\"" + val + "\",").getBytes();
     }
 
     @Override
