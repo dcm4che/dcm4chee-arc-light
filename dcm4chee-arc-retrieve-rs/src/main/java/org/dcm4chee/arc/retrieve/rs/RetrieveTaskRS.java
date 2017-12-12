@@ -123,6 +123,17 @@ public class RetrieveTaskRS {
                 .build();
     }
 
+    @GET
+    @NoCache
+    @Produces("text/csv")
+    public Response listRetrieveTasksAsCSV() {
+        logRequest();
+        return Response.ok(toEntityAsCSV(
+                mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, parseDate(updatedBefore),
+                        parseStatus(status), parseInt(offset), parseInt(limit))))
+                .build();
+    }
+
     @POST
     @Path("{taskPK}/cancel")
     public Response cancelProcessing(@PathParam("taskPK") long pk) {
@@ -173,6 +184,33 @@ public class RetrieveTaskRS {
                 gen.flush();
             }
         };
+    }
+
+    private Object toEntityAsCSV(final List<RetrieveTask> tasks) {
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                out.write(getHeader().getBytes());
+                writeNewLine(out);
+                for (RetrieveTask task : tasks) {
+                    task.writeAsCSVTo(out);
+                    writeNewLine(out);
+                }
+                out.flush();
+                out.close();
+            }
+        };
+    }
+
+    private String getHeader() {
+        return "\"pk\",\"createdTime\",\"updatedTime\",\"LocalAET\",\"RemoteAET\"," +
+                "\"DestinationAET\",\"StudyInstanceUID\",\"SeriesInstanceUID\",\"SOPInstanceUID\",\"remaining\"," +
+                "\"completed\",\"failed\",\"warning\",\"statusCode\",\"errorComment\",\"dicomDeviceName\",\"status\"," +
+                "\"scheduledTime\",\"failures\",\"processingStartTime\",\"processingEndTime\",\"errorMessage\",\"outcomeMessage\"";
+    }
+
+    private void writeNewLine(OutputStream out) throws IOException {
+        out.write("\n".getBytes());
     }
 
     private void logRequest() {

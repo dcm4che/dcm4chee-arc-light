@@ -1490,8 +1490,7 @@
         "summary": "List Tasks in Queue",
         "operationId": "listTasks",
         "produces": [
-          "application/json",
-          "text/csv"
+          "application/json"
         ],
         "parameters": [
           {

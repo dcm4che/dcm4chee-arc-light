@@ -61,6 +61,7 @@ import java.util.*;
 @Entity
 @Table(name = "queue_msg", uniqueConstraints = @UniqueConstraint(columnNames = "msg_id"),
     indexes = {
+        @Index(columnList = "device_name"),
         @Index(columnList = "queue_name"),
         @Index(columnList = "msg_status"),
         @Index(columnList = "updated_time")
@@ -129,6 +130,10 @@ public class QueueMessage {
     private Date updatedTime;
 
     @Basic(optional = false)
+    @Column(name = "device_name", updatable = false)
+    private String deviceName;
+
+    @Basic(optional = false)
     @Column(name = "queue_name")
     private String queueName;
 
@@ -184,8 +189,9 @@ public class QueueMessage {
     public QueueMessage() {
     }
 
-    public QueueMessage(String queueName, ObjectMessage msg) {
+    public QueueMessage(String deviceName, String queueName, ObjectMessage msg) {
         try {
+            this.deviceName = deviceName;
             this.queueName = queueName;
             this.messageID = msg.getJMSMessageID();
             this.priority = msg.getJMSPriority();
@@ -199,6 +205,14 @@ public class QueueMessage {
 
     public long getPk() {
         return pk;
+    }
+
+    public String getDeviceName() {
+        return deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
     }
 
     public int getPriority() {
@@ -321,6 +335,7 @@ public class QueueMessage {
     }
 
     public void writeStatusAsJSONTo(JsonGenerator gen, DateFormat df) {
+        gen.write("dicomDeviceName", deviceName);
         gen.write("status", status.toString());
         if (numberOfFailures > 0)
             gen.write("failures", numberOfFailures);
@@ -333,6 +348,25 @@ public class QueueMessage {
             gen.write("errorMessage", errorMessage);
         if (outcomeMessage != null)
             gen.write("outcomeMessage", outcomeMessage);
+    }
+
+    public void writeStatusAsCSVTo(OutputStream out, DateFormat df) throws IOException {
+        out.write(getAsBytes(deviceName));
+        out.write(getAsBytes(status.toString()));
+        out.write(getAsBytes(df.format(scheduledTime)));
+        out.write(getAsBytes(numberOfFailures > 0 ? numberOfFailures : ""));
+        out.write(getAsBytes(processingStartTime != null ? df.format(processingStartTime) : ""));
+        out.write(getAsBytes(processingEndTime != null ? df.format(processingEndTime) : ""));
+        out.write(getAsBytes(errorMessage != null ? errorMessage : ""));
+        out.write(getLastValAsBytes(outcomeMessage != null ? outcomeMessage : ""));
+    }
+
+    private byte[] getAsBytes(Object val) {
+        return ("\"" + val + "\",").getBytes();
+    }
+
+    private byte[] getLastValAsBytes(Object val) {
+        return ("\"" + val + "\"").getBytes();
     }
 
 

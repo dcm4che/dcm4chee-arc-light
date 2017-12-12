@@ -122,6 +122,17 @@ public class ExportTaskRS {
                 .build();
     }
 
+    @GET
+    @NoCache
+    @Produces("text/csv")
+    public Response listAsCSV() throws Exception {
+        logRequest();
+        return Response.ok(toEntityAsCSV(
+                mgr.search(deviceName, exporterID, studyUID, parseDate(updatedBefore), parseStatus(status),
+                        parseInt(offset), parseInt(limit))))
+                .build();
+    }
+
     @POST
     @Path("{taskPK}/cancel")
     public Response cancelProcessing(@PathParam("taskPK") long pk) {
@@ -177,6 +188,32 @@ public class ExportTaskRS {
                 gen.flush();
             }
         };
+    }
+
+    private Object toEntityAsCSV(final List<ExportTask> tasks) {
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                out.write(getHeader().getBytes());
+                writeNewLine(out);
+                for (ExportTask task : tasks) {
+                    task.writeAsCSVTo(out);
+                    writeNewLine(out);
+                }
+                out.flush();
+                out.close();
+            }
+        };
+    }
+
+    private String getHeader() {
+        return "\"pk\",\"createdTime\",\"updatedTime\",\"ExporterID\",\"StudyInstanceUID\"," +
+                "\"SeriesInstanceUID\",\"SOPInstanceUID\",\"NumberOfInstances\",\"Modality\",\"dicomDeviceName\"," +
+                "\"status\",\"scheduledTime\",\"failures\",\"processingStartTime\",\"processingEndTime\",\"errorMessage\",\"outcomeMessage\"";
+    }
+
+    private void writeNewLine(OutputStream out) throws IOException {
+        out.write("\n".getBytes());
     }
 
     private static QueueMessage.Status parseStatus(String s) {

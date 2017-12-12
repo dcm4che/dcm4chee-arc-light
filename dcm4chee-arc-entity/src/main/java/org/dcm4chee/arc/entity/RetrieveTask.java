@@ -43,6 +43,7 @@ import org.dcm4che3.util.TagUtils;
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -54,7 +55,6 @@ import java.util.Date;
 @Entity
 @Table(name = "retrieve_task",
         indexes = {
-                @Index(columnList = "device_name"),
                 @Index(columnList = "local_aet"),
                 @Index(columnList = "remote_aet"),
                 @Index(columnList = "destination_aet"),
@@ -108,10 +108,6 @@ public class RetrieveTask {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_time")
     private Date updatedTime;
-
-    @Basic(optional = false)
-    @Column(name = "device_name", updatable = false)
-    private String deviceName;
 
     @Basic(optional = false)
     @Column(name = "local_aet", updatable = false)
@@ -188,14 +184,6 @@ public class RetrieveTask {
 
     public Date getUpdatedTime() {
         return updatedTime;
-    }
-
-    public String getDeviceName() {
-        return deviceName;
-    }
-
-    public void setDeviceName(String deviceName) {
-        this.deviceName = deviceName;
     }
 
     public String getLocalAET() {
@@ -308,7 +296,6 @@ public class RetrieveTask {
         gen.write("pk", pk);
         gen.write("createdTime", df.format(createdTime));
         gen.write("updatedTime", df.format(updatedTime));
-        gen.write("dicomDeviceName", deviceName);
         gen.write("LocalAET", localAET);
         gen.write("RemoteAET", remoteAET);
         gen.write("DestinationAET", destinationAET);
@@ -335,6 +322,30 @@ public class RetrieveTask {
         queueMessage.writeStatusAsJSONTo(gen, df);
         gen.writeEnd();
         gen.flush();
+    }
+
+    public void writeAsCSVTo(OutputStream out) throws IOException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        out.write(getAsBytes(pk));
+        out.write(getAsBytes(df.format(createdTime)));
+        out.write(getAsBytes(df.format(updatedTime)));
+        out.write(getAsBytes(localAET));
+        out.write(getAsBytes(remoteAET));
+        out.write(getAsBytes(destinationAET));
+        out.write(getAsBytes(studyInstanceUID));
+        out.write(getAsBytes(seriesInstanceUID != null ? seriesInstanceUID : ""));
+        out.write(getAsBytes(sopInstanceUID != null ? sopInstanceUID : ""));
+        out.write(getAsBytes(remaining > 0 ? remaining : ""));
+        out.write(getAsBytes(completed > 0 ? completed : ""));
+        out.write(getAsBytes(failed > 0 ? failed : ""));
+        out.write(getAsBytes(warning > 0 ? warning : ""));
+        out.write(getAsBytes(statusCode != -1 ? TagUtils.shortToHexString(statusCode) : ""));
+        out.write(getAsBytes(errorComment != null ? errorComment : ""));
+        queueMessage.writeStatusAsCSVTo(out, df);
+    }
+
+    private byte[] getAsBytes(Object val) {
+        return ("\"" + val + "\",").getBytes();
     }
 
     @Override

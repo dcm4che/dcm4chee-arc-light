@@ -92,7 +92,7 @@ public class QueueManagerEJB {
         return jmsCtx.createObjectMessage(object);
     }
 
-    public QueueMessage scheduleMessage(String queueName, ObjectMessage msg, int priority)
+    public QueueMessage scheduleMessage(String deviceName, String queueName, ObjectMessage msg, int priority)
             throws QueueSizeLimitExceededException {
         QueueDescriptor queueDescriptor = descriptorOf(queueName);
         int maxQueueSize = queueDescriptor.getMaxQueueSize();
@@ -100,7 +100,7 @@ public class QueueManagerEJB {
             throw new QueueSizeLimitExceededException(queueDescriptor);
 
         sendMessage(queueDescriptor, msg, 0L, priority);
-        QueueMessage entity = new QueueMessage(queueName, msg);
+        QueueMessage entity = new QueueMessage(deviceName, queueName, msg);
         em.persist(entity);
         LOG.info("Schedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
         return entity;

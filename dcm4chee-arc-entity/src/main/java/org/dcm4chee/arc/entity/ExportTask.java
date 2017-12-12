@@ -43,6 +43,7 @@ import org.dcm4che3.util.StringUtils;
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -267,7 +268,6 @@ public class ExportTask {
         gen.write("pk", pk);
         gen.write("createdTime", df.format(createdTime));
         gen.write("updatedTime", df.format(updatedTime));
-        gen.write("dicomDeviceName", deviceName);
         gen.write("ExporterID", exporterID);
         gen.write("StudyInstanceUID", studyInstanceUID);
         if (!seriesInstanceUID.equals("*")) {
@@ -286,6 +286,7 @@ public class ExportTask {
             gen.writeEnd();
         }
         if (queueMessage == null) {
+            gen.write("dicomDeviceName", deviceName);
             gen.write("status", QueueMessage.Status.TO_SCHEDULE.toString());
             gen.write("scheduledTime", df.format(scheduledTime));
         } else {
@@ -294,6 +295,35 @@ public class ExportTask {
         gen.writeEnd();
         gen.flush();
     }
+
+    public void writeAsCSVTo(OutputStream out) throws IOException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        out.write(getAsBytes(pk));
+        out.write(getAsBytes(df.format(createdTime)));
+        out.write(getAsBytes(df.format(updatedTime)));
+        out.write(getAsBytes(exporterID));
+        out.write(getAsBytes(studyInstanceUID));
+        out.write(getAsBytes(!seriesInstanceUID.equals("*") ? seriesInstanceUID : ""));
+        out.write(getAsBytes(!sopInstanceUID.equals("*") ? sopInstanceUID : ""));
+        out.write(getAsBytes(numberOfInstances != null ? numberOfInstances : ""));
+        out.write(getAsBytes(modalities != null ? modalities : ""));
+        if (queueMessage == null) {
+            out.write(getAsBytes(deviceName));
+            out.write(getAsBytes(QueueMessage.Status.TO_SCHEDULE.toString()));
+            out.write(getAsBytes(df.format(scheduledTime)));
+            out.write(("\"\",").getBytes());
+            out.write(("\"\",").getBytes());
+            out.write(("\"\",").getBytes());
+            out.write(("\"\"").getBytes());
+        } else {
+            queueMessage.writeStatusAsCSVTo(out, df);
+        }
+    }
+
+    private byte[] getAsBytes(Object val) {
+        return ("\"" + val + "\",").getBytes();
+    }
+
 
     @Override
     public String toString() {

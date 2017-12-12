@@ -102,7 +102,6 @@ public class RetrieveManagerEJB {
 
     private void createRetrieveTask(Device device, ExternalRetrieveContext ctx, QueueMessage queueMessage) {
         RetrieveTask task = new RetrieveTask();
-        task.setDeviceName(device.getDeviceName());
         task.setLocalAET(ctx.getLocalAET());
         task.setRemoteAET(ctx.getRemoteAET());
         task.setDestinationAET(ctx.getDestinationAET());
@@ -149,7 +148,7 @@ public class RetrieveManagerEJB {
             int limit) {
         BooleanBuilder builder = new BooleanBuilder();
         if (deviceName != null)
-            builder.and(QRetrieveTask.retrieveTask.deviceName.eq(deviceName));
+            builder.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
         if (localAET != null)
             builder.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
         if (remoteAET != null)
