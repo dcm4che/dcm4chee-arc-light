@@ -42,8 +42,8 @@ import org.dcm4che3.util.StringUtils;
 
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -296,34 +296,40 @@ public class ExportTask {
         gen.flush();
     }
 
-    public void writeAsCSVTo(OutputStream out) throws IOException {
+    public void writeAsCSVTo(BufferedWriter writer) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        out.write(getAsBytes(pk));
-        out.write(getAsBytes(df.format(createdTime)));
-        out.write(getAsBytes(df.format(updatedTime)));
-        out.write(getAsBytes(exporterID));
-        out.write(getAsBytes(studyInstanceUID));
-        out.write(getAsBytes(!seriesInstanceUID.equals("*") ? seriesInstanceUID : ""));
-        out.write(getAsBytes(!sopInstanceUID.equals("*") ? sopInstanceUID : ""));
-        out.write(getAsBytes(numberOfInstances != null ? numberOfInstances : ""));
-        out.write(getAsBytes(modalities != null ? modalities : ""));
+        writer.append('"').write(String.valueOf(pk));
+        writer.append('"');
+        writeString(writer, df.format(createdTime));
+        writeString(writer, df.format(updatedTime));
+        writeString(writer, exporterID);
+        writeString(writer, studyInstanceUID);
+        writeString(writer, !seriesInstanceUID.equals("*") ? seriesInstanceUID : null);
+        writeString(writer, !sopInstanceUID.equals("*") ? sopInstanceUID : null);
+        if (numberOfInstances != null) {
+            writer.append(',').append('"').write(numberOfInstances);
+            writer.append('"');
+        }
+        else
+            writer.append(',');
+        writeString(writer, modalities);
         if (queueMessage == null) {
-            out.write(getAsBytes(deviceName));
-            out.write(getAsBytes(QueueMessage.Status.TO_SCHEDULE.toString()));
-            out.write(getAsBytes(df.format(scheduledTime)));
-            out.write(("\"\",").getBytes());
-            out.write(("\"\",").getBytes());
-            out.write(("\"\",").getBytes());
-            out.write(("\"\"").getBytes());
+            writeString(writer, deviceName);
+            writeString(writer, QueueMessage.Status.TO_SCHEDULE.toString());
+            writeString(writer, df.format(scheduledTime));
+            writer.append(',').append(',').append(',');
         } else {
-            queueMessage.writeStatusAsCSVTo(out, df);
+            queueMessage.writeStatusAsCSVTo(writer, df);
         }
     }
 
-    private byte[] getAsBytes(Object val) {
-        return ("\"" + val + "\",").getBytes();
+    private void writeString(BufferedWriter writer, String val) throws IOException {
+        if (val != null) {
+            writer.append(',').append('"').write(val);
+            writer.append('"');
+        } else
+            writer.append(',');
     }
-
 
     @Override
     public String toString() {

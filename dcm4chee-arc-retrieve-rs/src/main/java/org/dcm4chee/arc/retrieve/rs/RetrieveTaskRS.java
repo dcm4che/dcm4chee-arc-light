@@ -58,8 +58,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -199,30 +201,24 @@ public class RetrieveTaskRS {
     }
 
     private Object toEntityAsCSV(final List<RetrieveTask> tasks) {
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
-                out.write(getHeader().getBytes());
-                writeNewLine(out);
-                for (RetrieveTask task : tasks) {
-                    task.writeAsCSVTo(out);
-                    writeNewLine(out);
-                }
-                out.flush();
-                out.close();
-            }
-        };
-    }
-
-    private String getHeader() {
-        return "\"pk\",\"createdTime\",\"updatedTime\",\"LocalAET\",\"RemoteAET\"," +
+        String header = "\"pk\",\"createdTime\",\"updatedTime\",\"LocalAET\",\"RemoteAET\"," +
                 "\"DestinationAET\",\"StudyInstanceUID\",\"SeriesInstanceUID\",\"SOPInstanceUID\",\"remaining\"," +
                 "\"completed\",\"failed\",\"warning\",\"statusCode\",\"errorComment\",\"dicomDeviceName\",\"status\"," +
                 "\"scheduledTime\",\"failures\",\"processingStartTime\",\"processingEndTime\",\"errorMessage\",\"outcomeMessage\"";
-    }
-
-    private void writeNewLine(OutputStream out) throws IOException {
-        out.write("\n".getBytes());
+        return new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException {
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
+                writer.write(header);
+                writer.newLine();
+                for (RetrieveTask task : tasks) {
+                    task.writeAsCSVTo(writer);
+                    writer.newLine();
+                }
+                writer.flush();
+                writer.close();
+            }
+        };
     }
 
     private void logRequest() {

@@ -60,8 +60,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -203,29 +205,23 @@ public class ExportTaskRS {
     }
 
     private Object toEntityAsCSV(final List<ExportTask> tasks) {
+        String header = "\"pk\",\"createdTime\",\"updatedTime\",\"ExporterID\",\"StudyInstanceUID\"," +
+                "\"SeriesInstanceUID\",\"SOPInstanceUID\",\"NumberOfInstances\",\"Modality\",\"dicomDeviceName\"," +
+                "\"status\",\"scheduledTime\",\"failures\",\"processingStartTime\",\"processingEndTime\",\"errorMessage\",\"outcomeMessage\"";
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                out.write(getHeader().getBytes());
-                writeNewLine(out);
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
+                writer.write(header);
+                writer.newLine();
                 for (ExportTask task : tasks) {
-                    task.writeAsCSVTo(out);
-                    writeNewLine(out);
+                    task.writeAsCSVTo(writer);
+                    writer.newLine();
                 }
-                out.flush();
-                out.close();
+                writer.flush();
+                writer.close();
             }
         };
-    }
-
-    private String getHeader() {
-        return "\"pk\",\"createdTime\",\"updatedTime\",\"ExporterID\",\"StudyInstanceUID\"," +
-                "\"SeriesInstanceUID\",\"SOPInstanceUID\",\"NumberOfInstances\",\"Modality\",\"dicomDeviceName\"," +
-                "\"status\",\"scheduledTime\",\"failures\",\"processingStartTime\",\"processingEndTime\",\"errorMessage\",\"outcomeMessage\"";
-    }
-
-    private void writeNewLine(OutputStream out) throws IOException {
-        out.write("\n".getBytes());
     }
 
     private static QueueMessage.Status parseStatus(String s) {

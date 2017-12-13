@@ -344,26 +344,36 @@ public class QueueMessage {
             gen.write("outcomeMessage", outcomeMessage);
     }
 
-    public void writeStatusAsCSVTo(OutputStream out, DateFormat df) throws IOException {
-        out.write(getAsBytes(deviceName));
-        out.write(getAsBytes(status.toString()));
-        out.write(getAsBytes(df.format(scheduledTime)));
-        out.write(getAsBytes(numberOfFailures > 0 ? numberOfFailures : ""));
-        out.write(getAsBytes(processingStartTime != null ? df.format(processingStartTime) : ""));
-        out.write(getAsBytes(processingEndTime != null ? df.format(processingEndTime) : ""));
-        out.write(getAsBytes(errorMessage != null ? errorMessage : ""));
-        out.write(getLastValAsBytes(outcomeMessage != null ? outcomeMessage : ""));
+    public void writeStatusAsCSVTo(BufferedWriter writer, DateFormat df) throws IOException {
+        writeString(writer, deviceName);
+        writeString(writer, status.toString());
+        writeString(writer, df.format(scheduledTime));
+        if (numberOfFailures > 0)
+            writeString(writer, String.valueOf(numberOfFailures));
+        else
+            writer.append(',');
+        writeString(writer, processingStartTime != null ? df.format(processingStartTime) : null);
+        writeString(writer, processingEndTime != null ? df.format(processingEndTime) : null);
+        replaceAndWriteString(writer, errorMessage);
+        replaceAndWriteString(writer, outcomeMessage);
     }
 
-    private byte[] getAsBytes(Object val) {
-        return ("\"" + val + "\",").getBytes();
+    private void writeString(BufferedWriter writer, String val) throws IOException {
+        if (val != null) {
+            writer.append(',').append('"').write(val);
+            writer.append('"');
+        } else
+            writer.append(',');
     }
 
-    private byte[] getLastValAsBytes(Object val) {
-        return ("\"" + val + "\"").getBytes();
+    private void replaceAndWriteString(BufferedWriter writer, String val) throws IOException {
+        if (val != null) {
+            writer.append(',').append('"').write(val.replaceAll("\"", "\"\""));
+            writer.append('"');
+        } else
+            writer.append(',');
     }
-
-
+    
     private String propertiesOf(ObjectMessage msg) throws JMSException {
         StringBuilder sb = new StringBuilder(512);
         Enumeration<String> names = msg.getPropertyNames();
