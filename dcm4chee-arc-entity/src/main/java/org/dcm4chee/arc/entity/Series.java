@@ -99,9 +99,6 @@ import java.util.Date;
     name=Series.SET_SERIES_SIZE,
     query="update Series se set se.size = ?2 where se.pk = ?1"),
 @NamedQuery(
-    name=Series.SET_INSTANCE_PURGE_STATE_AND_TIME,
-    query="update Series se set se.instancePurgeState = ?2, se.instancePurgeTime = ?3 where se.pk = ?1"),
-@NamedQuery(
     name=Series.SET_COMPLETENESS,
     query="update Series ser set ser.completeness = ?3 " +
             "where ser.pk in (" +
@@ -157,9 +154,9 @@ import java.util.Date;
                 "order by se.metadataScheduledUpdateTime"),
 @NamedQuery(
         name = Series.SCHEDULED_PURGE_INSTANCES,
-        query = "select new org.dcm4chee.arc.entity.Series$PkAndSize(se.pk, se.size) from Series se " +
+        query = "select new org.dcm4chee.arc.entity.Series$MetadataUpdate(se.pk, se.instancePurgeState, metadata.storageID, metadata.storagePath) from Series se " +
+                "join se.metadata metadata " +
                 "where se.instancePurgeTime < current_timestamp " +
-                "and se.metadata is not null " +
                 "and se.metadataScheduledUpdateTime is null " +
                 "order by se.instancePurgeTime"),
 @NamedQuery(
@@ -174,6 +171,10 @@ import java.util.Date;
                 "where se.study = ?1 " +
                 "and se.metadata is not null " +
                 "and se.metadataScheduledUpdateTime is null"),
+@NamedQuery(
+        name=Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES,
+        query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
+                "where se.pk = ?1 ")
 })
 @Entity
 @Table(name = "series",
@@ -209,7 +210,6 @@ public class Series {
     public static final String SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE = "Series.seriesPKsOfStudyWithUnknownSize";
     public static final String SIZE_OF_STUDY="Series.sizeOfStudy";
     public static final String SET_SERIES_SIZE = "Series.UpdateStudySize";
-    public static final String SET_INSTANCE_PURGE_STATE_AND_TIME = "Series.SetInstancePurgeStateAndTime";
     public static final String SET_COMPLETENESS = "Series.SetCompleteness";
     public static final String SET_COMPLETENESS_OF_STUDY = "Series.SetCompletenessOfStudy";
     public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";
@@ -223,6 +223,7 @@ public class Series {
     public static final String SCHEDULED_PURGE_INSTANCES = "Series.scheduledPurgeInstances";
     public static final String SCHEDULE_METADATA_UPDATE_FOR_PATIENT = "Series.scheduleMetadataUpdateForPatient";
     public static final String SCHEDULE_METADATA_UPDATE_FOR_STUDY = "Series.scheduleMetadataUpdateForStudy";
+    public static final String SCHEDULE_METADATA_UPDATE_FOR_SERIES = "Series.scheduleMetadataUpdateForSeries";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
@@ -243,22 +244,6 @@ public class Series {
             return "MetadataUpdate[seriesPk=" + seriesPk +
                     ", storageID=" + storageID +
                     ", storagePath=" + storagePath +
-                    "]";
-        }
-    }
-
-    public static class PkAndSize {
-        public final Long pk;
-        public final long size;
-
-        public PkAndSize(Long pk, long size) {
-            this.pk = pk;
-            this.size = size;
-        }
-
-        public String toString() {
-            return "PurgeInstances[pk=" + pk +
-                    ", size=" + size +
                     "]";
         }
     }
@@ -530,6 +515,14 @@ public class Series {
 
     public void resetSize() {
         this.size = -1L;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
     }
 
     public RejectionState getRejectionState() {
