@@ -299,6 +299,17 @@ public class ExportManagerEJB implements ExportManager {
     @Override
     public List<ExportTask> search(
             String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status, int offset, int limit) {
+        return createQuery(deviceName, exporterID, studyUID, updatedBefore, status, offset, limit).fetch();
+    }
+
+    @Override
+    public long countExportTasks(
+            String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status, int offset, int limit) {
+        return createQuery(deviceName, exporterID, studyUID, updatedBefore, status, offset, limit).fetchCount();
+    }
+
+    private HibernateQuery<ExportTask> createQuery(
+            String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status, int offset, int limit) {
         BooleanBuilder builder = new BooleanBuilder();
         if (deviceName != null)
             builder.and(QExportTask.exportTask.deviceName.eq(deviceName));
@@ -321,7 +332,7 @@ public class ExportManagerEJB implements ExportManager {
             query.limit(limit);
         if (offset > 0)
             query.offset(offset);
-        return query.fetch();
+        return query;
     }
 
     @Override

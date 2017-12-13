@@ -111,6 +111,16 @@ public class QueueManagerRS {
                 .build();
     }
 
+    @GET
+    @NoCache
+    @Path("/count")
+    @Produces("application/json")
+    public Response countTasks() throws Exception {
+        logRequest();
+        return Response.ok("{\"count\":" + mgr.countTasks(queueName, dicomDeviceName, parseStatus(status), parseInt(offset), parseInt(limit)) + '}')
+                .build();
+    }
+
     @POST
     @Path("{msgId}/cancel")
     public Response cancelProcessing(@PathParam("msgId") String msgId) {

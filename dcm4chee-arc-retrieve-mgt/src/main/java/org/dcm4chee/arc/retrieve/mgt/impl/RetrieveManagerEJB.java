@@ -146,6 +146,27 @@ public class RetrieveManagerEJB {
             QueueMessage.Status status,
             int offset,
             int limit) {
+        return createQuery(deviceName, localAET, remoteAET, destinationAET, studyUID, updatedBefore, status, offset, limit)
+                .fetch();
+    }
+
+    public long countRetrieveTasks(
+            String deviceName,
+            String localAET,
+            String remoteAET,
+            String destinationAET,
+            String studyUID,
+            Date updatedBefore,
+            QueueMessage.Status status,
+            int offset,
+            int limit) {
+        return createQuery(deviceName, localAET, remoteAET, destinationAET, studyUID, updatedBefore, status, offset, limit)
+                .fetchCount();
+    }
+
+    private HibernateQuery<RetrieveTask> createQuery(
+            String deviceName, String localAET, String remoteAET, String destinationAET, String studyUID,
+            Date updatedBefore, QueueMessage.Status status, int offset, int limit) {
         BooleanBuilder builder = new BooleanBuilder();
         if (deviceName != null)
             builder.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
@@ -172,7 +193,7 @@ public class RetrieveManagerEJB {
             query.limit(limit);
         if (offset > 0)
             query.offset(offset);
-        return query.fetch();
+        return query;
     }
 
     public boolean deleteRetrieveTask(Long pk) {

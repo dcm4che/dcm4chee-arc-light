@@ -71,6 +71,10 @@ public interface ExportManager {
             String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status,
             int offset, int limit);
 
+    long countExportTasks(
+            String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status,
+            int offset, int limit);
+
     boolean deleteExportTask(Long pk);
 
     boolean cancelProcessing(Long pk) throws IllegalTaskStateException;

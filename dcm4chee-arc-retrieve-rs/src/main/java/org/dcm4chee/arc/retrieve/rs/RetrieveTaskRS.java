@@ -134,6 +134,18 @@ public class RetrieveTaskRS {
                 .build();
     }
 
+    @GET
+    @NoCache
+    @Path("/count")
+    @Produces("application/json")
+    public Response countRetrieveTasks() {
+        logRequest();
+        return Response.ok("{\"count\":" +
+                mgr.countRetrieveTasks(deviceName, localAET, remoteAET, destinationAET, studyIUID, parseDate(updatedBefore),
+                        parseStatus(status), parseInt(offset), parseInt(limit)) + '}')
+                .build();
+    }
+
     @POST
     @Path("{taskPK}/cancel")
     public Response cancelProcessing(@PathParam("taskPK") long pk) {

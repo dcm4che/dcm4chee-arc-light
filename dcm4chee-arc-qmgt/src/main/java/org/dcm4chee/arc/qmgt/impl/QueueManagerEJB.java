@@ -316,6 +316,16 @@ public class QueueManagerEJB {
 
     public List<QueueMessage> search(String queueName,
             String deviceName, QueueMessage.Status status, int offset, int limit) {
+        return createQuery(queueName, deviceName, status, offset, limit).fetch();
+    }
+
+    public long countTasks(String queueName,
+                           String deviceName, QueueMessage.Status status, int offset, int limit) {
+        return createQuery(queueName, deviceName, status, offset, limit).fetchCount();
+    }
+
+    private HibernateQuery<QueueMessage> createQuery(
+            String queueName, String deviceName, QueueMessage.Status status, int offset, int limit) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(QQueueMessage.queueMessage.queueName.eq(queueName));
         if (deviceName != null)
@@ -330,7 +340,7 @@ public class QueueManagerEJB {
             query.limit(limit);
         if (offset > 0)
             query.offset(offset);
-        return query.fetch();
+        return query;
     }
 
     private void sendMessage(QueueDescriptor desc, ObjectMessage msg, long delay, int priority) {
