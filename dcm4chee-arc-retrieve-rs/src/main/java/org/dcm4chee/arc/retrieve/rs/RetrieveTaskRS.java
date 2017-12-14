@@ -127,7 +127,7 @@ public class RetrieveTaskRS {
 
     @GET
     @NoCache
-    @Produces("text/csv")
+    @Produces("text/csv; charset=UTF-8")
     public Response listRetrieveTasksAsCSV() {
         logRequest();
         return Response.ok(toEntityAsCSV(
