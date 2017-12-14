@@ -41,9 +41,9 @@
 package org.dcm4chee.arc.export.mgt.impl;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.jpa.hibernate.HibernateQuery;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.*;
@@ -56,6 +56,7 @@ import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.util.MatchDateTimeRange;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
@@ -298,18 +299,18 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public List<ExportTask> search(
-            String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status, int offset, int limit) {
-        return createQuery(deviceName, exporterID, studyUID, updatedBefore, status, offset, limit).fetch();
+            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime,  QueueMessage.Status status, int offset, int limit) {
+        return createQuery(deviceName, exporterID, studyUID, createdTime, updatedTime, status, offset, limit).fetch();
     }
 
     @Override
     public long countExportTasks(
-            String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status, int offset, int limit) {
-        return createQuery(deviceName, exporterID, studyUID, updatedBefore, status, offset, limit).fetchCount();
+            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime,  QueueMessage.Status status, int offset, int limit) {
+        return createQuery(deviceName, exporterID, studyUID, createdTime, updatedTime, status, offset, limit).fetchCount();
     }
 
     private HibernateQuery<ExportTask> createQuery(
-            String deviceName, String exporterID, String studyUID, Date updatedBefore, QueueMessage.Status status, int offset, int limit) {
+            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status, int offset, int limit) {
         BooleanBuilder builder = new BooleanBuilder();
         if (deviceName != null)
             builder.and(QExportTask.exportTask.deviceName.eq(deviceName));
@@ -321,8 +322,14 @@ public class ExportManagerEJB implements ExportManager {
             builder.and(status == QueueMessage.Status.TO_SCHEDULE
                     ? QExportTask.exportTask.queueMessage.isNull()
                     : QQueueMessage.queueMessage.status.eq(status));
-        if (updatedBefore != null)
-            builder.and(QExportTask.exportTask.updatedTime.lt(updatedBefore));
+        if (createdTime != null)
+            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QExportTask.exportTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
+                    QExportTask.exportTask.createdTime.isNotNull()));
+        if (updatedTime != null)
+            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QExportTask.exportTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
+                    QExportTask.exportTask.updatedTime.isNotNull()));
 
         HibernateQuery<ExportTask> query = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
                 .from(QExportTask.exportTask)
@@ -374,6 +381,30 @@ public class ExportManagerEJB implements ExportManager {
         task.setExporterID(exporter.getExporterID());
         LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
         return true;
+    }
+
+    private static DateRange getDateRange(String s) {
+        String[] range = splitRange(s);
+        DatePrecision precision = new DatePrecision();
+        Date start = range[0] == null ? null
+                : VR.DT.toDate(range[0], null, 0, false, null, precision);
+        Date end = range[1] == null ? null
+                : VR.DT.toDate(range[1], null, 0, true, null, precision);
+        return new DateRange(start, end);
+    }
+
+    private static String[] splitRange(String s) {
+        String[] range = new String[2];
+        int delim = s.indexOf('-');
+        if (delim == -1)
+            range[0] = range[1] = s;
+        else {
+            if (delim > 0)
+                range[0] =  s.substring(0, delim);
+            if (delim < s.length() - 1)
+                range[1] =  s.substring(delim+1);
+        }
+        return range;
     }
 
 }

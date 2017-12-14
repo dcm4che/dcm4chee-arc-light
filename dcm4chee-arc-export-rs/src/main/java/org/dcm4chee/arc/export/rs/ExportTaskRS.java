@@ -62,9 +62,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -96,9 +93,11 @@ public class ExportTaskRS {
     @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
-    @QueryParam("updatedBefore")
-    @Pattern(regexp = "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}")
-    private String updatedBefore;
+    @QueryParam("createdDate")
+    private String createdTime;
+
+    @QueryParam("updatedTime")
+    private String updatedTime;
 
     @QueryParam("offset")
     @Pattern(regexp = "0|([1-9]\\d{0,4})")
@@ -117,7 +116,7 @@ public class ExportTaskRS {
     public Response search() throws Exception {
         logRequest();
         return Response.ok(toEntity(
-                mgr.search(deviceName, exporterID, studyUID, parseDate(updatedBefore), parseStatus(status),
+                mgr.search(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status),
                     parseInt(offset), parseInt(limit))))
                 .build();
     }
@@ -129,7 +128,7 @@ public class ExportTaskRS {
     public Response countExportTasks() throws Exception {
         logRequest();
         return Response.ok("{\"count\":" +
-                mgr.countExportTasks(deviceName, exporterID, studyUID, parseDate(updatedBefore), parseStatus(status),
+                mgr.countExportTasks(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status),
                         parseInt(offset), parseInt(limit)) + '}')
                 .build();
     }
@@ -140,7 +139,7 @@ public class ExportTaskRS {
     public Response listAsCSV() throws Exception {
         logRequest();
         return Response.ok(toEntityAsCSV(
-                mgr.search(deviceName, exporterID, studyUID, parseDate(updatedBefore), parseStatus(status),
+                mgr.search(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status),
                         parseInt(offset), parseInt(limit))))
                 .build();
     }
@@ -239,15 +238,5 @@ public class ExportTaskRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
-    }
-
-    private static Date parseDate(String s) {
-        try {
-            return s != null
-                    ? new SimpleDateFormat("yyyy-MM-dd").parse(s)
-                    : null;
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

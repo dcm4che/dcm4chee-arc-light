@@ -102,12 +102,19 @@ public class QueueManagerRS {
     @Pattern(regexp = "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}")
     private String updatedBefore;
 
+    @QueryParam("createdDate")
+    private String createdTime;
+
+    @QueryParam("updatedTime")
+    private String updatedTime;
+
+
     @GET
     @NoCache
     @Produces("application/json")
     public Response search() throws Exception {
         logRequest();
-        return Response.ok(toEntity(mgr.search(queueName, dicomDeviceName, parseStatus(status), parseInt(offset), parseInt(limit))))
+        return Response.ok(toEntity(mgr.search(queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime, parseInt(offset), parseInt(limit))))
                 .build();
     }
 
@@ -117,7 +124,8 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response countTasks() throws Exception {
         logRequest();
-        return Response.ok("{\"count\":" + mgr.countTasks(queueName, dicomDeviceName, parseStatus(status), parseInt(offset), parseInt(limit)) + '}')
+        return Response.ok("{\"count\":"
+                + mgr.countTasks(queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime, parseInt(offset), parseInt(limit)) + '}')
                 .build();
     }
 

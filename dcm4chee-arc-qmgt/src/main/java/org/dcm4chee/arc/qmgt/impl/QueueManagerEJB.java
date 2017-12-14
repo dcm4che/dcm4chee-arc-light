@@ -41,7 +41,11 @@
 package org.dcm4chee.arc.qmgt.impl;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.jpa.hibernate.HibernateQuery;
+import org.dcm4che3.data.DatePrecision;
+import org.dcm4che3.data.DateRange;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
@@ -52,6 +56,7 @@ import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.MatchDateTimeRange;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -315,23 +320,32 @@ public class QueueManagerEJB {
     }
 
     public List<QueueMessage> search(String queueName,
-            String deviceName, QueueMessage.Status status, int offset, int limit) {
-        return createQuery(queueName, deviceName, status, offset, limit).fetch();
+            String deviceName, QueueMessage.Status status, String createdTime, String updatedTime, int offset, int limit) {
+        return createQuery(queueName, deviceName, status, createdTime, updatedTime, offset, limit).fetch();
     }
 
     public long countTasks(String queueName,
-                           String deviceName, QueueMessage.Status status, int offset, int limit) {
-        return createQuery(queueName, deviceName, status, offset, limit).fetchCount();
+                           String deviceName, QueueMessage.Status status, String createdTime, String updatedTime, int offset, int limit) {
+        return createQuery(queueName, deviceName, status, createdTime, updatedTime, offset, limit).fetchCount();
     }
 
     private HibernateQuery<QueueMessage> createQuery(
-            String queueName, String deviceName, QueueMessage.Status status, int offset, int limit) {
+            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime,
+            int offset, int limit) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(QQueueMessage.queueMessage.queueName.eq(queueName));
         if (deviceName != null)
             builder.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
         if (status != null)
             builder.and(QQueueMessage.queueMessage.status.eq(status));
+        if (createdTime != null)
+            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
+                    QQueueMessage.queueMessage.createdTime.isNotNull()));
+        if (updatedTime != null)
+            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
+                    QQueueMessage.queueMessage.updatedTime.isNotNull()));
 
         HibernateQuery<QueueMessage> query = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
@@ -367,6 +381,30 @@ public class QueueManagerEJB {
         } catch (NoResultException e) {
             return null;
         }
+    }
+
+    private static DateRange getDateRange(String s) {
+        String[] range = splitRange(s);
+        DatePrecision precision = new DatePrecision();
+        Date start = range[0] == null ? null
+                : VR.DT.toDate(range[0], null, 0, false, null, precision);
+        Date end = range[1] == null ? null
+                : VR.DT.toDate(range[1], null, 0, true, null, precision);
+        return new DateRange(start, end);
+    }
+
+    private static String[] splitRange(String s) {
+        String[] range = new String[2];
+        int delim = s.indexOf('-');
+        if (delim == -1)
+            range[0] = range[1] = s;
+        else {
+            if (delim > 0)
+                range[0] =  s.substring(0, delim);
+            if (delim < s.length() - 1)
+                range[1] =  s.substring(delim+1);
+        }
+        return range;
     }
 
 }

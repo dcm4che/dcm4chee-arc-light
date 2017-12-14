@@ -39,9 +39,9 @@
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.jpa.hibernate.HibernateQuery;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QRetrieveTask;
@@ -50,6 +50,7 @@ import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.query.util.MatchDateTimeRange;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.hibernate.Session;
@@ -142,11 +143,12 @@ public class RetrieveManagerEJB {
             String remoteAET,
             String destinationAET,
             String studyUID,
-            Date updatedBefore,
+            String createdTime,
+            String updatedTime,
             QueueMessage.Status status,
             int offset,
             int limit) {
-        return createQuery(deviceName, localAET, remoteAET, destinationAET, studyUID, updatedBefore, status, offset, limit)
+        return createQuery(deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status, offset, limit)
                 .fetch();
     }
 
@@ -156,17 +158,18 @@ public class RetrieveManagerEJB {
             String remoteAET,
             String destinationAET,
             String studyUID,
-            Date updatedBefore,
+            String createdTime,
+            String updatedTime,
             QueueMessage.Status status,
             int offset,
             int limit) {
-        return createQuery(deviceName, localAET, remoteAET, destinationAET, studyUID, updatedBefore, status, offset, limit)
+        return createQuery(deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status, offset, limit)
                 .fetchCount();
     }
 
     private HibernateQuery<RetrieveTask> createQuery(
             String deviceName, String localAET, String remoteAET, String destinationAET, String studyUID,
-            Date updatedBefore, QueueMessage.Status status, int offset, int limit) {
+            String createdTime, String updatedTime, QueueMessage.Status status, int offset, int limit) {
         BooleanBuilder builder = new BooleanBuilder();
         if (deviceName != null)
             builder.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
@@ -182,8 +185,14 @@ public class RetrieveManagerEJB {
             builder.and(status == QueueMessage.Status.TO_SCHEDULE
                     ? QRetrieveTask.retrieveTask.queueMessage.isNull()
                     : QQueueMessage.queueMessage.status.eq(status));
-        if (updatedBefore != null)
-            builder.and(QRetrieveTask.retrieveTask.updatedTime.lt(updatedBefore));
+        if (createdTime != null)
+            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QRetrieveTask.retrieveTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
+                    QRetrieveTask.retrieveTask.createdTime.isNotNull()));
+        if (updatedTime != null)
+            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QRetrieveTask.retrieveTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
+                    QRetrieveTask.retrieveTask.updatedTime.isNotNull()));
 
         HibernateQuery<RetrieveTask> query = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
                 .from(QRetrieveTask.retrieveTask)
@@ -231,5 +240,29 @@ public class RetrieveManagerEJB {
 
         LOG.info("Reschedule {}", task);
         return true;
+    }
+
+    private static DateRange getDateRange(String s) {
+        String[] range = splitRange(s);
+        DatePrecision precision = new DatePrecision();
+        Date start = range[0] == null ? null
+                : VR.DT.toDate(range[0], null, 0, false, null, precision);
+        Date end = range[1] == null ? null
+                : VR.DT.toDate(range[1], null, 0, true, null, precision);
+        return new DateRange(start, end);
+    }
+
+    private static String[] splitRange(String s) {
+        String[] range = new String[2];
+        int delim = s.indexOf('-');
+        if (delim == -1)
+            range[0] = range[1] = s;
+        else {
+            if (delim > 0)
+                range[0] =  s.substring(0, delim);
+            if (delim < s.length() - 1)
+                range[1] =  s.substring(delim+1);
+        }
+        return range;
     }
 }

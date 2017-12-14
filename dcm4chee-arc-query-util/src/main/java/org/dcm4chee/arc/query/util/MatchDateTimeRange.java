@@ -57,9 +57,9 @@ import java.util.Date;
  * @author Hesham Elbadawi <bsdreko@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  */
-class MatchDateTimeRange {
+public class MatchDateTimeRange {
     
-    static enum FormatDate {
+    public enum FormatDate {
         DA {
             @Override
             String format(Date date) {
@@ -123,7 +123,7 @@ class MatchDateTimeRange {
         return rangeInterval(field, startDate, endDate, dt, range);
     }
 
-    static Predicate range(DateTimePath field, DateRange range, FormatDate dt) {
+    public static Predicate range(DateTimePath field, DateRange range, FormatDate dt) {
         Date startDate = range.getStartDate();
         Date endDate = range.getEndDate();
         if (startDate == null)

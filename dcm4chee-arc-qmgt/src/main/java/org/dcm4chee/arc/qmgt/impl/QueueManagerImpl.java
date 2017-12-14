@@ -136,12 +136,14 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public List<QueueMessage> search(String queueName, String deviceName, QueueMessage.Status status, int offset, int limit) {
-        return ejb.search(queueName, deviceName, status, offset, limit);
+    public List<QueueMessage> search(
+            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime, int offset, int limit) {
+        return ejb.search(queueName, deviceName, status, createdTime, updatedTime, offset, limit);
     }
 
     @Override
-    public long countTasks(String queueName, String deviceName, QueueMessage.Status status, int offset, int limit) {
-        return ejb.countTasks(queueName, deviceName, status, offset, limit);
+    public long countTasks(
+            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime, int offset, int limit) {
+        return ejb.countTasks(queueName, deviceName, status, createdTime, updatedTime, offset, limit);
     }
 }

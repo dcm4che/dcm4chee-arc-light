@@ -57,7 +57,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -148,11 +147,12 @@ public class RetrieveManagerImpl implements RetrieveManager {
             String remoteAET,
             String destinationAET,
             String studyUID,
-            Date updatedBefore,
+            String createdTime,
+            String updatedTime,
             QueueMessage.Status status,
             int offset,
             int limit) {
-        return ejb.search(deviceName, localAET, remoteAET, destinationAET, studyUID, updatedBefore, status,
+        return ejb.search(deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status,
                 offset, limit);
     }
 
@@ -163,11 +163,12 @@ public class RetrieveManagerImpl implements RetrieveManager {
             String remoteAET,
             String destinationAET,
             String studyUID,
-            Date updatedBefore,
+            String createdTime,
+            String updatedTime,
             QueueMessage.Status status,
             int offset,
             int limit) {
-        return ejb.countRetrieveTasks(deviceName, localAET, remoteAET, destinationAET, studyUID, updatedBefore, status,
+        return ejb.countRetrieveTasks(deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status,
                 offset, limit);
     }
 

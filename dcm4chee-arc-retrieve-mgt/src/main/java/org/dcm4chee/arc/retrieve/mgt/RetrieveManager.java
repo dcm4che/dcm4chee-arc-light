@@ -45,7 +45,6 @@ import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -66,7 +65,8 @@ public interface RetrieveManager {
             String remoteAET,
             String destinationAET,
             String studyUID,
-            Date updatedBefore,
+            String createdTime,
+            String updatedTime,
             QueueMessage.Status status,
             int offset,
             int limit);
@@ -77,7 +77,8 @@ public interface RetrieveManager {
             String remoteAET,
             String destinationAET,
             String studyUID,
-            Date updatedBefore,
+            String createdTime,
+            String updatedTime,
             QueueMessage.Status status,
             int offset,
             int limit);

@@ -993,11 +993,16 @@
             ]
           },
           {
-            "name": "updatedBefore",
+            "name": "createdTime",
             "in": "query",
-            "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",
-            "type": "string",
-            "format": "date"
+            "description": "list export tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "list export tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "offset",
@@ -1071,11 +1076,16 @@
             ]
           },
           {
-            "name": "updatedBefore",
+            "name": "createdTime",
             "in": "query",
-            "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",
-            "type": "string",
-            "format": "date"
+            "description": "count export tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "count export tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
           }
         ],
         "responses": {
@@ -1253,11 +1263,16 @@
             ]
           },
           {
-            "name": "updatedBefore",
+            "name": "createdTime",
             "in": "query",
-            "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",
-            "type": "string",
-            "format": "date"
+            "description": "list retrieve tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "list retrieve tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "offset",
@@ -1343,11 +1358,16 @@
             ]
           },
           {
-            "name": "updatedBefore",
+            "name": "createdTime",
             "in": "query",
-            "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",
-            "type": "string",
-            "format": "date"
+            "description": "count retrieve tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "count retrieve tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
           }
         ],
         "responses": {
@@ -1521,6 +1541,18 @@
             ]
           },
           {
+            "name": "createdTime",
+            "in": "query",
+            "description": "list tasks in queue which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "list tasks in queue which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
             "name": "updatedBefore",
             "in": "query",
             "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",
@@ -1647,6 +1679,18 @@
               "FAILED",
               "CANCELED"
             ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "count tasks in queue which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "count tasks in queue which were updated between <datetime1>-<datetime2>",
+            "type": "string"
           },
           {
             "name": "updatedBefore",
