@@ -113,29 +113,39 @@ public class PurgeInstanceRecordsScheduler extends Scheduler {
             do {
                 series = ejb.findSeriesToPurgeInstances(fetchSize);
                 for (Series.MetadataUpdate metadataUpdate : series) {
-                    LOG.info("Purging Instance records of Series[pk={}]", metadataUpdate.seriesPk);
+                    Long seriesPk = metadataUpdate.seriesPk;
+                    if (!claim(seriesPk))
+                        continue;
+
+                    LOG.info("Purging Instance records of Series[pk={}]", seriesPk);
                     Map<String, Location> locationsFromMetadata = null;
                     try {
                         locationsFromMetadata = locationsFromMetadata(
                                 getStorage(metadataUpdate.storageID, storageMap),
                                 metadataUpdate.storagePath);
                     } catch (IOException e) {
-                        LOG.warn("Reading of Metadata of Series[pk={}] failed - schedule recreation", metadataUpdate.seriesPk, e);
+                        LOG.warn("Reading of Metadata of Series[pk={}] failed - schedule recreation", seriesPk, e);
                         try {
-                            ejb.scheduleMetadataUpdate(metadataUpdate.seriesPk);
+                            ejb.scheduleMetadataUpdate(seriesPk);
                         } catch (Exception e1) {
-                            LOG.warn("Failed to schedule recreation of Metadata of Series[pk={}]", metadataUpdate.seriesPk, e1);
+                            LOG.warn("Failed to schedule recreation of Metadata of Series[pk={}]", seriesPk, e1);
                         }
                         continue;
                     }
                     try {
-                        if (ejb.purgeInstanceRecordsOfSeries(metadataUpdate.seriesPk, locationsFromMetadata)) {
-                            LOG.info("Purged Instance records of Series[pk={}]", metadataUpdate.seriesPk);
+                        if (ejb.purgeInstanceRecordsOfSeries(seriesPk, locationsFromMetadata)) {
+                            LOG.info("Purged Instance records of Series[pk={}]", seriesPk);
                         } else {
-                            LOG.warn("Verification of Metadata of Series[pk={}] failed - recreation scheduled", metadataUpdate.seriesPk);
+                            LOG.warn("Verification of Metadata of Series[pk={}] failed - recreation scheduled", seriesPk);
                         }
                     } catch (Exception e) {
-                        LOG.warn("Failed to purge Instance records of Series[pk={}]", metadataUpdate.seriesPk, e);
+                        LOG.warn("Failed to purge Instance records of Series[pk={}]\n", seriesPk, e);
+                        try {
+                            ejb.updateInstancePurgeState(seriesPk,
+                                    Series.InstancePurgeState.NO, Series.InstancePurgeState.FAILED_TO_PURGE);
+                        } catch (Exception e1) {
+                            LOG.warn("Failed to set Instance Purge State of Series[pk={}] to FAILED", seriesPk, e1);
+                        }
                     }
                 }
             }
@@ -143,6 +153,15 @@ public class PurgeInstanceRecordsScheduler extends Scheduler {
         } finally {
             for (Storage storage : storageMap.values())
                 SafeClose.close(storage);
+        }
+    }
+
+    private boolean claim(Long seriesPk) {
+        try {
+            return ejb.claimPurgeInstanceRecordsOfSeries(seriesPk);
+        } catch (Exception e) {
+            LOG.info("Failed to claim purge of Instance records of Series[pk={}]:\n", seriesPk, e);
+            return false;
         }
     }
 

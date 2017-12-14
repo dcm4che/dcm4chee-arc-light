@@ -174,7 +174,11 @@ import java.util.Date;
 @NamedQuery(
         name=Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES,
         query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
-                "where se.pk = ?1 ")
+                "where se.pk = ?1 "),
+@NamedQuery(
+        name=Series.UPDATE_INSTANCE_PURGE_STATE,
+        query = "update Series se set se.instancePurgeState = ?3 " +
+                "where se.pk = ?1 and se.instancePurgeState = ?2")
 })
 @Entity
 @Table(name = "series",
@@ -224,6 +228,7 @@ public class Series {
     public static final String SCHEDULE_METADATA_UPDATE_FOR_PATIENT = "Series.scheduleMetadataUpdateForPatient";
     public static final String SCHEDULE_METADATA_UPDATE_FOR_STUDY = "Series.scheduleMetadataUpdateForStudy";
     public static final String SCHEDULE_METADATA_UPDATE_FOR_SERIES = "Series.scheduleMetadataUpdateForSeries";
+    public static final String UPDATE_INSTANCE_PURGE_STATE = "Series.updateInstancePurgeState";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
