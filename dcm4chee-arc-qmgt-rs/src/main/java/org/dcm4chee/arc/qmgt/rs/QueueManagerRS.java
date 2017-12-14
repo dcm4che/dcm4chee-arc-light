@@ -117,7 +117,7 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response countTasks() throws Exception {
         logRequest();
-        return Response.ok("{\"count\":" + mgr.countTasks(queueName, dicomDeviceName, parseStatus(status), parseInt(offset), parseInt(limit)) + '}')
+        return Response.ok("{\"count\":" + mgr.countTasks(queueName, dicomDeviceName, parseStatus(status)) + '}')
                 .build();
     }
 

@@ -78,9 +78,7 @@ public interface RetrieveManager {
             String destinationAET,
             String studyUID,
             Date updatedBefore,
-            QueueMessage.Status status,
-            int offset,
-            int limit);
+            QueueMessage.Status status);
 
     boolean deleteRetrieveTask(Long pk);
 

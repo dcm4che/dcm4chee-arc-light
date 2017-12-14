@@ -71,6 +71,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -169,43 +170,47 @@ public class DiffRS {
         ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
         checkAE(externalAET, aeCache.get(externalAET));
         checkAE(originalAET, aeCache.get(originalAET));
-        QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
-        int[] compareKeys = compareKeys();
-        addReturnTags(queryAttributes, compareKeys);
-        Attributes keys = queryAttributes.getQueryKeys();
-        int[] returnKeys = keys.tags();
-        keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
-        ar.register(new CompletionCallback() {
-            @Override
-            public void onComplete(Throwable throwable) {
-                safeRelease(as1);
-                safeRelease(as2);
-            }
-        });
-        EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
-        if (Boolean.parseBoolean(fuzzymatching))
-            queryOptions.add(QueryOption.FUZZY);
-        as1 = findSCU.openAssociation(localAE, externalAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
-        as2 = findSCU.openAssociation(localAE, originalAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
-        DimseRSP dimseRSP = findSCU.query(as1, priority(), keys, 0);
-        if (count) {
-            int[] counts = new int[2];
-            while (dimseRSP.next()) {
-                diff(dimseRSP, compareKeys, returnKeys, counts);
-            }
-            ar.resume(Response.ok("{\"missing\":" + counts[0] + ",\"different\":" + counts[1] + "}").build());
-            return;
-        }
-        includeMissing = missing != null && Boolean.parseBoolean(missing);
-        includeDifferent = different == null || Boolean.parseBoolean(different);
-        int skip = offset();
-        while (dimseRSP.next()) {
-            if (diff(dimseRSP, compareKeys, returnKeys, null) && skip-- == 0) {
-                ar.resume(Response.ok(entity(dimseRSP, compareKeys, returnKeys)).build());
+        try {
+            QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
+            int[] compareKeys = compareKeys();
+            addReturnTags(queryAttributes, compareKeys);
+            Attributes keys = queryAttributes.getQueryKeys();
+            int[] returnKeys = keys.tags();
+            keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
+            ar.register(new CompletionCallback() {
+                @Override
+                public void onComplete(Throwable throwable) {
+                    safeRelease(as1);
+                    safeRelease(as2);
+                }
+            });
+            EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
+            if (Boolean.parseBoolean(fuzzymatching))
+                queryOptions.add(QueryOption.FUZZY);
+            as1 = findSCU.openAssociation(localAE, externalAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
+            as2 = findSCU.openAssociation(localAE, originalAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
+            DimseRSP dimseRSP = findSCU.query(as1, priority(), keys, 0);
+            if (count) {
+                int[] counts = new int[2];
+                while (dimseRSP.next()) {
+                    diff(dimseRSP, compareKeys, returnKeys, counts);
+                }
+                ar.resume(Response.ok("{\"missing\":" + counts[0] + ",\"different\":" + counts[1] + "}").build());
                 return;
             }
+            includeMissing = missing != null && Boolean.parseBoolean(missing);
+            includeDifferent = different == null || Boolean.parseBoolean(different);
+            int skip = offset();
+            while (dimseRSP.next()) {
+                if (diff(dimseRSP, compareKeys, returnKeys, null) && skip-- == 0) {
+                    ar.resume(Response.ok(entity(dimseRSP, compareKeys, returnKeys)).build());
+                    return;
+                }
+            }
+            ar.resume(Response.noContent().build());
+        } catch (ConnectException e) {
+            throw new WebApplicationException(buildErrorResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
         }
-        ar.resume(Response.noContent().build());
     }
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {

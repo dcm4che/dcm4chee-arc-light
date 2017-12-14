@@ -144,7 +144,7 @@ public class RetrieveTaskRS {
         logRequest();
         return Response.ok("{\"count\":" +
                 mgr.countRetrieveTasks(deviceName, localAET, remoteAET, destinationAET, studyIUID, parseDate(updatedBefore),
-                        parseStatus(status), parseInt(offset), parseInt(limit)) + '}')
+                        parseStatus(status)) + '}')
                 .build();
     }
 

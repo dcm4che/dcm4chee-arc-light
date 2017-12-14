@@ -313,38 +313,63 @@ public class DeletionServiceEJB {
         return em.createNamedQuery(SeriesQueryAttributes.DELETE_FOR_SERIES).setParameter(1, series).executeUpdate();
     }
 
-    public List<Series.PkAndSize> findSeriesToPurgeInstances(int fetchSize) {
-        return em.createNamedQuery(Series.SCHEDULED_PURGE_INSTANCES, Series.PkAndSize.class)
+    public List<Series.MetadataUpdate> findSeriesToPurgeInstances(int fetchSize) {
+        return em.createNamedQuery(Series.SCHEDULED_PURGE_INSTANCES, Series.MetadataUpdate.class)
                 .setMaxResults(fetchSize)
                 .getResultList();
     }
 
-    public void purgeInstanceRecordsOfSeries(Series.PkAndSize pkAndSize) {
+    public boolean purgeInstanceRecordsOfSeries(Long seriesPk, Map<String, Location> locationsFromMetadata) {
+        Series series = em.find(Series.class, seriesPk);
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_SERIES_PK, Location.class)
-                .setParameter(1, pkAndSize.pk)
+                .setParameter(1, seriesPk)
                 .getResultList();
-        if (locations.isEmpty())
-            return;
-
-        if (pkAndSize.size < 0)
-            queryService.calculateSeriesSize(pkAndSize.pk);
-        calculateMissingSeriesQueryAttributes(pkAndSize.pk);
+        if (!verifyMetadata(locationsFromMetadata, locations)) {
+            series.setMetadataScheduledUpdateTime(new Date());
+            return false;
+        }
+        calculateMissingSeriesQueryAttributes(seriesPk);
+        long size = 0L;
         for (Location location : locations) {
-            if (location.getObjectType() == Location.ObjectType.METADATA) {
-                location.setInstance(null);
-                location.setStatus(Location.Status.TO_DELETE);
+            switch (location.getObjectType()) {
+                case DICOM_FILE:
+                    size += location.getSize();
+                    em.remove(location);
+                    em.remove(location.getInstance());
+                    break;
+                case METADATA:
+                    location.setInstance(null);
+                    location.setStatus(Location.Status.TO_DELETE);
+                    break;
             }
         }
+        series.setSize(size);
+        series.setInstancePurgeTime(null);
+        series.setInstancePurgeState(Series.InstancePurgeState.PURGED);
+        return true;
+    }
+
+    private boolean verifyMetadata(Map<String, Location> locationsFromMetadata, List<Location> locations) {
         for (Location location : locations) {
             if (location.getObjectType() == Location.ObjectType.DICOM_FILE) {
-                em.remove(location);
-                em.remove(location.getInstance());
+                if (!equals(location, locationsFromMetadata.remove(location.getInstance().getSopInstanceUID())))
+                    return false;
             }
         }
-        em.createNamedQuery(Series.SET_INSTANCE_PURGE_STATE_AND_TIME)
-                .setParameter(1, pkAndSize.pk)
-                .setParameter(2, Series.InstancePurgeState.PURGED)
-                .setParameter(3, null)
+        return locationsFromMetadata.isEmpty();
+    }
+
+    private boolean equals(Location location, Location locationFromMetadata) {
+        return locationFromMetadata != null
+                && Objects.equals(location.getStorageID(), locationFromMetadata.getStorageID())
+                && Objects.equals(location.getStoragePath(), locationFromMetadata.getStoragePath())
+                && Objects.equals(location.getDigestAsHexString(), locationFromMetadata.getDigestAsHexString())
+                && Objects.equals(location.getSize(), locationFromMetadata.getSize());
+    }
+
+    public void scheduleMetadataUpdate(Long seriesPk) {
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
+                .setParameter(1, seriesPk)
                 .executeUpdate();
     }
 

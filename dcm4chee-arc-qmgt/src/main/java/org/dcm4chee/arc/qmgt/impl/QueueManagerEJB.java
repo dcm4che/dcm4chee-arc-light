@@ -118,18 +118,21 @@ public class QueueManagerEJB {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public QueueMessage onProcessingStart(String msgId) {
         QueueMessage entity = findQueueMessage(msgId);
-        if (entity == null || !entity.getStatus().equals(QueueMessage.Status.SCHEDULED)) {
-            if (entity == null)
-                LOG.info("Suppress processing of Task[id={}]", msgId);
-            else
-                LOG.info("Suppress processing of Task[id={}] at Queue {} with Status: {}",
+        if (entity == null) {
+            LOG.info("Suppress processing of already deleted Task[id={}]", msgId);
+        } else switch (entity.getStatus()) {
+            case IN_PROCESS:
+            case SCHEDULED:
+                LOG.info("Start processing Task[id={}] from Queue {} with Status: {}",
+                        entity.getMessageID(), entity.getQueueName());
+                entity.setProcessingStartTime(new Date());
+                entity.setStatus(QueueMessage.Status.IN_PROCESS);
+                return entity;
+            default:
+                LOG.info("Suppress processing of Task[id={}] from Queue {} with Status: {}",
                         msgId, entity.getQueueName(), entity.getStatus());
-            return null;
         }
-        entity.setProcessingStartTime(new Date());
-        entity.setStatus(QueueMessage.Status.IN_PROCESS);
-        LOG.info("Start processing Task[id={}] from Queue {}", entity.getMessageID(), entity.getQueueName());
-        return entity;
+        return null;
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -320,8 +323,8 @@ public class QueueManagerEJB {
     }
 
     public long countTasks(String queueName,
-                           String deviceName, QueueMessage.Status status, int offset, int limit) {
-        return createQuery(queueName, deviceName, status, offset, limit).fetchCount();
+                           String deviceName, QueueMessage.Status status) {
+        return createQuery(queueName, deviceName, status, 0, 0).fetchCount();
     }
 
     private HibernateQuery<QueueMessage> createQuery(

@@ -72,5 +72,5 @@ public interface QueueManager {
 
     List<QueueMessage> search(String queueName, String deviceName, QueueMessage.Status status, int offset, int limit);
 
-    long countTasks(String queueName, String deviceName, QueueMessage.Status status, int offset, int limit);
+    long countTasks(String queueName, String deviceName, QueueMessage.Status status);
 }
