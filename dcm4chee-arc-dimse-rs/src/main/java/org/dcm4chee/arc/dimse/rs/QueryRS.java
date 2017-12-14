@@ -72,6 +72,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.util.EnumSet;
 
 /**
@@ -229,47 +230,51 @@ public class QueryRS {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
         checkAE(externalAET, aeCache.get(externalAET));
-        QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
-        if (!count) {
-            queryAttributes.addReturnTags(qido.includetags);
-            if (queryAttributes.isIncludeAll()) {
-                ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
-                switch (level) {
-                    case IMAGE:
-                        queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Instance).getSelection());
-                    case SERIES:
-                        queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Series).getSelection());
-                    case STUDY:
-                        queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Study).getSelection());
-                    case PATIENT:
-                        queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection());
+        try {
+            QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
+            if (!count) {
+                queryAttributes.addReturnTags(qido.includetags);
+                if (queryAttributes.isIncludeAll()) {
+                    ArchiveDeviceExtension arcdev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+                    switch (level) {
+                        case IMAGE:
+                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Instance).getSelection());
+                        case SERIES:
+                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Series).getSelection());
+                        case STUDY:
+                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Study).getSelection());
+                        case PATIENT:
+                            queryAttributes.addReturnTags(arcdev.getAttributeFilter(Entity.Patient).getSelection());
+                    }
                 }
             }
+            Attributes keys = queryAttributes.getQueryKeys();
+            keys.setString(Tag.QueryRetrieveLevel, VR.CS, level.name());
+            if (studyInstanceUID != null)
+                keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
+            if (seriesInstanceUID != null)
+                keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
+            EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
+            if (Boolean.parseBoolean(fuzzymatching))
+                queryOptions.add(QueryOption.FUZZY);
+            ar.register(new CompletionCallback() {
+                @Override
+                public void onComplete(Throwable throwable) {
+                    if (as != null)
+                        try {
+                            as.release();
+                        } catch (IOException e) {
+                            LOG.info("{}: Failed to release association:\\n", as, e);
+                        }
+                }
+            });
+            as = findSCU.openAssociation(localAE, externalAET, level.cuid, queryOptions);
+            DimseRSP dimseRSP = findSCU.query(as, priority(), keys, !count && limit != null ? offset() + limit() : 0);
+            dimseRSP.next();
+            ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP)).build());
+        } catch (ConnectException e) {
+            throw new WebApplicationException(buildErrorResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
         }
-        Attributes keys = queryAttributes.getQueryKeys();
-        keys.setString(Tag.QueryRetrieveLevel, VR.CS, level.name());
-        if (studyInstanceUID != null)
-            keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
-        if (seriesInstanceUID != null)
-            keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
-        EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
-        if (Boolean.parseBoolean(fuzzymatching))
-            queryOptions.add(QueryOption.FUZZY);
-        ar.register(new CompletionCallback() {
-            @Override
-            public void onComplete(Throwable throwable) {
-                if (as != null)
-                    try {
-                        as.release();
-                    } catch (IOException e) {
-                        LOG.info("{}: Failed to release association:\\n", as, e);
-                    }
-            }
-        });
-        as = findSCU.openAssociation(localAE, externalAET, level.cuid, queryOptions);
-        DimseRSP dimseRSP = findSCU.query(as, priority(), keys, !count && limit != null ? offset() + limit() : 0);
-        dimseRSP.next();
-        ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP)).build());
     }
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
