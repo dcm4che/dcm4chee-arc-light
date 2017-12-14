@@ -305,8 +305,8 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public long countExportTasks(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime,  QueueMessage.Status status, int offset, int limit) {
-        return createQuery(deviceName, exporterID, studyUID, createdTime, updatedTime, status, offset, limit).fetchCount();
+            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime,  QueueMessage.Status status) {
+        return createQuery(deviceName, exporterID, studyUID, createdTime, updatedTime, status, 0, 0).fetchCount();
     }
 
     private HibernateQuery<ExportTask> createQuery(

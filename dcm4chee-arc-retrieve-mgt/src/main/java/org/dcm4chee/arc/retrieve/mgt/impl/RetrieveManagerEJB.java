@@ -160,10 +160,9 @@ public class RetrieveManagerEJB {
             String studyUID,
             String createdTime,
             String updatedTime,
-            QueueMessage.Status status,
-            int offset,
-            int limit) {
-        return createQuery(deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status, offset, limit)
+            QueueMessage.Status status) {
+        return createQuery(
+                deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status, 0, 0)
                 .fetchCount();
     }
 

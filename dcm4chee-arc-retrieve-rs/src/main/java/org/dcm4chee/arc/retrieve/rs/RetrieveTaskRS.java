@@ -97,7 +97,7 @@ public class RetrieveTaskRS {
     @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
-    @QueryParam("createdDate")
+    @QueryParam("createdTime")
     private String createdTime;
 
     @QueryParam("updatedTime")
@@ -141,7 +141,7 @@ public class RetrieveTaskRS {
         logRequest();
         return Response.ok("{\"count\":" +
                 mgr.countRetrieveTasks(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
-                        parseStatus(status), parseInt(offset), parseInt(limit)) + '}')
+                        parseStatus(status)) + '}')
                 .build();
     }
 

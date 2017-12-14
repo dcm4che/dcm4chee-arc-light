@@ -143,7 +143,7 @@ public class QueueManagerImpl implements QueueManager {
 
     @Override
     public long countTasks(
-            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime, int offset, int limit) {
-        return ejb.countTasks(queueName, deviceName, status, createdTime, updatedTime, offset, limit);
+            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime) {
+        return ejb.countTasks(queueName, deviceName, status, createdTime, updatedTime);
     }
 }

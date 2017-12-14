@@ -93,7 +93,7 @@ public class ExportTaskRS {
     @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
-    @QueryParam("createdDate")
+    @QueryParam("createdTime")
     private String createdTime;
 
     @QueryParam("updatedTime")
@@ -128,8 +128,7 @@ public class ExportTaskRS {
     public Response countExportTasks() throws Exception {
         logRequest();
         return Response.ok("{\"count\":" +
-                mgr.countExportTasks(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status),
-                        parseInt(offset), parseInt(limit)) + '}')
+                mgr.countExportTasks(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status)) + '}')
                 .build();
     }
 

@@ -71,8 +71,7 @@ public interface ExportManager {
             int offset, int limit);
 
     long countExportTasks(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status,
-            int offset, int limit);
+            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status);
 
     boolean deleteExportTask(Long pk);
 

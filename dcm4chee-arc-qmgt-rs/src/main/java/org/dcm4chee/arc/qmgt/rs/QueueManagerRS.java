@@ -102,7 +102,7 @@ public class QueueManagerRS {
     @Pattern(regexp = "(19|20)\\d{2}\\-\\d{2}\\-\\d{2}")
     private String updatedBefore;
 
-    @QueryParam("createdDate")
+    @QueryParam("createdTime")
     private String createdTime;
 
     @QueryParam("updatedTime")
@@ -125,7 +125,7 @@ public class QueueManagerRS {
     public Response countTasks() throws Exception {
         logRequest();
         return Response.ok("{\"count\":"
-                + mgr.countTasks(queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime, parseInt(offset), parseInt(limit)) + '}')
+                + mgr.countTasks(queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime) + '}')
                 .build();
     }
 
