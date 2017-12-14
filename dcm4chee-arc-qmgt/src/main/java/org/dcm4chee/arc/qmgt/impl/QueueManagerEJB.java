@@ -323,8 +323,8 @@ public class QueueManagerEJB {
     }
 
     public long countTasks(String queueName,
-                           String deviceName, QueueMessage.Status status, int offset, int limit) {
-        return createQuery(queueName, deviceName, status, offset, limit).fetchCount();
+                           String deviceName, QueueMessage.Status status) {
+        return createQuery(queueName, deviceName, status, 0, 0).fetchCount();
     }
 
     private HibernateQuery<QueueMessage> createQuery(

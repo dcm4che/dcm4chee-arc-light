@@ -129,8 +129,7 @@ public class ExportTaskRS {
     public Response countExportTasks() throws Exception {
         logRequest();
         return Response.ok("{\"count\":" +
-                mgr.countExportTasks(deviceName, exporterID, studyUID, parseDate(updatedBefore), parseStatus(status),
-                        parseInt(offset), parseInt(limit)) + '}')
+                mgr.countExportTasks(deviceName, exporterID, studyUID, parseDate(updatedBefore), parseStatus(status)) + '}')
                 .build();
     }
 

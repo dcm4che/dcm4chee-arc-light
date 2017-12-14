@@ -164,11 +164,8 @@ public class RetrieveManagerImpl implements RetrieveManager {
             String destinationAET,
             String studyUID,
             Date updatedBefore,
-            QueueMessage.Status status,
-            int offset,
-            int limit) {
-        return ejb.countRetrieveTasks(deviceName, localAET, remoteAET, destinationAET, studyUID, updatedBefore, status,
-                offset, limit);
+            QueueMessage.Status status) {
+        return ejb.countRetrieveTasks(deviceName, localAET, remoteAET, destinationAET, studyUID, updatedBefore, status);
     }
 
     @Override
