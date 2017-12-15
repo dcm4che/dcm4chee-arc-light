@@ -1,0 +1,118 @@
+# DICOM Application Configuration Data Model Hierarchy LDAP Schema
+dn: cn=dcm4chee-archive-ui,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: dcm4chee-archive-ui
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.1 NAME 'dcmuiConfigName'
+  DESC 'UI Configuration Name'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.2 NAME 'dcmuiPermissionName'
+  DESC 'Name of Permission for UI Action'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.3 NAME 'dcmuiAction'
+  DESC 'UI Action'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.4 NAME 'dcmuiActionParam'
+  DESC 'UI Action Parameter'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.5 NAME 'dcmuiDiffConfigName'
+  DESC 'Name of UI Configuration for comparing studies in two archives'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.6 NAME 'dcmuiDiffCallingAET'
+  DESC 'Calling AE Title used for comparing studies in two archives'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.7 NAME 'dcmuiDiffPrimaryCFindSCP'
+  DESC 'AE Title of primary C-FIND SCP for comparing studies in two archives'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.8 NAME 'dcmuiDiffPrimaryCMoveSCP'
+  DESC 'AE Title of primary C-MOVE SCP for comparing studies in two archives'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.9 NAME 'dcmuiDiffSecondaryCFindSCP'
+  DESC 'AE Title of secondary C-FIND SCP for comparing studies in two archives'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.10 NAME 'dcmuiDiffSecondaryCMoveSCP'
+  DESC 'AE Title of secondary C-MOVE SCP for comparing studies in two archives'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.11 NAME 'dcmuiDiffCriteriaTitle'
+  DESC 'Attribute Set Title'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.12 NAME 'dcmuiDiffCriteriaNumber'
+  DESC 'Attribute Set Number used to order Attribute Sets.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.13 NAME 'dcmuiDiffIncludeMissing'
+  DESC 'Indicate if missing Studies shall be included'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.14 NAME 'dcmuiDiffAction'
+  DESC 'UI Diff Action'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.15 NAME 'dcmuiDiffGroupButton'
+  DESC 'UI Diff Group Button'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
+  DESC 'Archive UI Configuration'
+  SUP top STRUCTURAL
+  MUST (
+    dcmuiConfigName ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.2 NAME 'dcmuiPermission'
+  DESC 'Permission for UI Action'
+  SUP top STRUCTURAL
+  MUST (
+    dcmuiPermissionName $
+    dcmuiAction )
+  MAY (
+    dcmuiActionParam $
+    dcmAcceptedUserRole ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.3 NAME 'dcmuiDiffConfig'
+  DESC 'UI Configuration for comparing studies in two archives'
+  SUP top STRUCTURAL
+  MUST (
+    dcmuiDiffConfigName )
+  MAY (
+    dcmuiDiffCallingAET $
+    dcmuiDiffPrimaryCFindSCP $
+    dcmuiDiffPrimaryCMoveSCP $
+    dcmuiDiffSecondaryCFindSCP $
+    dcmuiDiffSecondaryCMoveSCP ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.4 NAME 'dcmuiDiffCriteria'
+  DESC 'Criteria for comparing studies in two archives'
+  SUP top STRUCTURAL
+  MUST (
+    dcmuiDiffCriteriaTitle )
+  MAY (
+    dicomDescription $
+    dcmuiDiffCriteriaNumber $
+    dcmuiDiffIncludeMissing $
+    dcmAttributeSetID $
+    dcmuiDiffAction $
+    dcmuiDiffGroupButton ) )
