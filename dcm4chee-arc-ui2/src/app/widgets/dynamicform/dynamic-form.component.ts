@@ -19,6 +19,8 @@ import {AppService} from "../../app.service";
 export class DynamicFormComponent implements OnInit{
     @Input() formelements: FormElement<any>[] = [];
     @Input() model;
+    @Input() dontShowSearch;
+    @Input() dontGroup;
     @Output() submitFunction = new EventEmitter<any>();
     form: FormGroup;
     payLoad = '';
