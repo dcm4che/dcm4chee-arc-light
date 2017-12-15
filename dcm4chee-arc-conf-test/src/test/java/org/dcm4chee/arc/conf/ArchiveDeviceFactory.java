@@ -1686,7 +1686,6 @@ class ArchiveDeviceFactory {
     private static UIDiffCriteria createDiffCriteria(int number, String title, String desc, boolean includeMissing, String attributeSetID, String[] actions, String[] groupButtons) {
         UIDiffCriteria criteria = new UIDiffCriteria(title);
         criteria.setNumber(number);
-        criteria.setTitle(title);
         criteria.setDescription(desc);
         criteria.setIncludeMissing(includeMissing);
         criteria.setAttributeSetID(attributeSetID);
