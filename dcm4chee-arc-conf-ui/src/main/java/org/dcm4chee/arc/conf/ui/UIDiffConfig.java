@@ -136,7 +136,7 @@ public class UIDiffConfig {
         return criterias.remove(name);
     }
 
-    public UIDiffCriteria getCriterias(String name) {
+    public UIDiffCriteria getCriteria(String name) {
         return criterias.get(name);
     }
 

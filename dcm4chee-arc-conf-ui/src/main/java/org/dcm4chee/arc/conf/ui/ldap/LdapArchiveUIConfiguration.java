@@ -48,10 +48,9 @@ import org.dcm4chee.arc.conf.ui.*;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.SearchResult;
+import javax.naming.directory.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -70,13 +69,13 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             store(diffs, deviceDN, ui);
     }
 
-    private String dnOf(UIConfig uiConfig, String deviceDN) {
+    private String uiConfigDN(UIConfig uiConfig, String deviceDN) {
         return LdapUtils.dnOf("dcmuiConfigName" , uiConfig.getName(), deviceDN);
     }
 
     private void store(ConfigurationChanges diffs, String deviceDN, UIConfig uiConfig)
             throws NamingException {
-        String uiConfigDN = dnOf(uiConfig, deviceDN);
+        String uiConfigDN = uiConfigDN(uiConfig, deviceDN);
         ConfigurationChanges.ModifiedObject ldapObj =
                 ConfigurationChanges.addModifiedObject(diffs, uiConfigDN, ConfigurationChanges.ChangeType.C);
         config.createSubcontext(uiConfigDN,
@@ -176,7 +175,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     private UIConfig loadUIConfig(SearchResult sr, String deviceDN) throws NamingException {
         Attributes attrs = sr.getAttributes();
         UIConfig uiConfig = new UIConfig(LdapUtils.stringValue(attrs.get("dcmuiDiffConfigName"), null));
-        String uiConfigDN = dnOf(uiConfig, deviceDN);
+        String uiConfigDN = uiConfigDN(uiConfig, deviceDN);
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);
         return uiConfig;
@@ -254,7 +253,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         if (prevUIConfigExt != null)
             for (UIConfig prevUIConfig : prevUIConfigExt.getUIConfigs()) {
                 if (uiConfigExt == null || uiConfigExt.getUIConfig(prevUIConfig.getName()) == null) {
-                    String dn = dnOf(prevUIConfig, deviceDN);
+                    String dn = uiConfigDN(prevUIConfig, deviceDN);
                     config.destroySubcontextWithChilds(dn);
                     ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
                 }
@@ -271,21 +270,159 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         }
     }
 
-    private void merge(ConfigurationChanges diffs, UIConfig prevConf, UIConfig conf, String dn) throws NamingException {
-        ConfigurationChanges.ModifiedObject diffs1 =
-                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
-        mergePermissions(diffs, prevConf, conf, dn);
-        mergeDiffConfigs(diffs, prevConf, conf, dn);
+    private void merge(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String deviceDN) throws NamingException {
+        String uiConfigDN = uiConfigDN(uiConfig, deviceDN);
+        ConfigurationChanges.ModifiedObject ldapObj =
+                ConfigurationChanges.addModifiedObject(diffs, uiConfigDN, ConfigurationChanges.ChangeType.U);
+        mergePermissions(diffs, prevUIConfig, uiConfig, uiConfigDN);
+        mergeDiffConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
     }
 
-    private void mergePermissions(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String configDN)
+    private void mergePermissions(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
             throws NamingException {
-        //TODO
+        for (UIPermission prevUIPermission : prevUIConfig.getPermissions()) {
+            String prevUIPermissionName = prevUIPermission.getName();
+            if (uiConfig.getPermission(prevUIPermissionName) == null) {
+                String dn = LdapUtils.dnOf("dcmuiPermissionName", prevUIPermissionName, uiConfigDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UIPermission uiPermission : uiConfig.getPermissions()) {
+            String uiPermissionName = uiPermission.getName();
+            String dn = LdapUtils.dnOf("dcmuiPermissionName", uiPermissionName, uiConfigDN);
+            UIPermission prevUIPermission = prevUIConfig.getPermission(uiPermissionName);
+            if (prevUIPermission == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                uiPermission, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevUIPermission, uiPermission,
+                        new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
     }
 
-    private void mergeDiffConfigs(ConfigurationChanges diffs, UIConfig prevConf, UIConfig conf, String configDN)
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIPermission a,
+                                              UIPermission b, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiAction",
+                a.getAction(),
+                b.getAction(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiActionParam",
+                a.getActionParams(),
+                b.getActionParams());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedUserRole",
+                a.getAcceptedUserRoles(),
+                b.getAcceptedUserRoles());
+        return mods;
+    }
+
+    private void mergeDiffConfigs(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
             throws NamingException {
-        //TODO
+        for (UIDiffConfig prevUIDiffConfig : prevUIConfig.getDiffConfigs()) {
+            String prevUIDiffConfigName = prevUIDiffConfig.getName();
+            if (uiConfig.getDiffConfig(prevUIDiffConfigName) == null) {
+                String dn = LdapUtils.dnOf("dcmuiDiffConfigName", prevUIDiffConfigName, uiConfigDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UIDiffConfig uiDiffConfig : uiConfig.getDiffConfigs()) {
+            String uiDiffConfigName = uiDiffConfig.getName();
+            String uiDiffConfigDN = LdapUtils.dnOf("dcmuiDiffConfigName", uiDiffConfigName, uiConfigDN);
+            UIDiffConfig prevUIDiffConfig = prevUIConfig.getDiffConfig(uiDiffConfigName);
+            if (prevUIDiffConfig == null)
+                storeDiffConfig(diffs, uiDiffConfig, uiDiffConfigDN);
+            else
+                config.modifyAttributes(uiDiffConfigDN, storeDiffs(diffs, uiDiffConfigDN, prevUIDiffConfig, uiDiffConfig,
+                        new ArrayList<ModificationItem>()));
+        }
+    }
+
+    private List<ModificationItem> storeDiffs(ConfigurationChanges diffs, String uiDiffConfigDN, UIDiffConfig a,
+                                              UIDiffConfig b, ArrayList<ModificationItem> mods)
+        throws NamingException {
+        ConfigurationChanges.ModifiedObject ldapObj =
+                ConfigurationChanges.addModifiedObject(diffs, uiDiffConfigDN, ConfigurationChanges.ChangeType.U);
+
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDiffCallingAET",
+                a.getCallingAET(),
+                b.getCallingAET(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDiffPrimaryCFindSCP",
+                a.getPrimaryCFindSCP(),
+                b.getPrimaryCFindSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDiffPrimaryCMoveSCP",
+                a.getPrimaryCMoveSCP(),
+                b.getPrimaryCMoveSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDiffPrimaryCStoreSCP",
+                a.getPrimaryCStoreSCP(),
+                b.getPrimaryCStoreSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDiffSecondaryCFindSCP",
+                a.getSecondaryCFindSCP(),
+                b.getSecondaryCFindSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDiffSecondaryCMoveSCP",
+                a.getSecondaryCMoveSCP(),
+                b.getSecondaryCMoveSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDiffSecondaryCStoreSCP",
+                a.getSecondaryCStoreSCP(),
+                b.getSecondaryCStoreSCP(), null);
+        mergeUIDiffCriteria(diffs, a, b, uiDiffConfigDN);
+        ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+        return mods;
+    }
+
+    private void mergeUIDiffCriteria(
+            ConfigurationChanges diffs, UIDiffConfig prevUIDiffConfig, UIDiffConfig uiDiffConfig, String uiDiffConfigDN)
+        throws NamingException {
+        for (UIDiffCriteria prevUIDiffCriteria : prevUIDiffConfig.getCriterias()) {
+            String prevUIDiffCriteriaTitle = prevUIDiffCriteria.getTitle();
+            if (uiDiffConfig.getCriteria(prevUIDiffCriteriaTitle) == null) {
+                String dn = LdapUtils.dnOf("dcmuiDiffCriteriaTitle", prevUIDiffCriteriaTitle, uiDiffConfigDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UIDiffCriteria uiDiffCriteria : uiDiffConfig.getCriterias()) {
+            String uiDiffCriteriaTitle = uiDiffCriteria.getTitle();
+            UIDiffCriteria prevUIDiffCriteria = prevUIDiffConfig.getCriteria(uiDiffCriteriaTitle);
+            if (prevUIDiffCriteria == null)
+                storeDiffCriteria(diffs, uiDiffConfigDN, uiDiffCriteria);
+            else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, uiDiffConfigDN, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(uiDiffConfigDN, storeDiffs(ldapObj, prevUIDiffCriteria, uiDiffCriteria,
+                        new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIDiffCriteria a,
+                                              UIDiffCriteria b, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomDescription",
+                a.getDescription(),
+                b.getDescription(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiDiffCriteriaNumber",
+                a.getNumber(),
+                b.getNumber(), 0);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiDiffIncludeMissing",
+                a.isIncludeMissing(),
+                b.isIncludeMissing(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAttributeSetID",
+                a.getAttributeSetID(),
+                b.getAttributeSetID(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiDiffAction",
+                a.getActions(),
+                b.getActions());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiDiffGroupButton",
+                a.getGroupButtons(),
+                b.getGroupButtons());
+        return mods;
     }
 
 }
