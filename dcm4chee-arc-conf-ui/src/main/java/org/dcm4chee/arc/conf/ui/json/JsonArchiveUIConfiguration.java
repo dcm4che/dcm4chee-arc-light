@@ -45,9 +45,10 @@ import org.dcm4che3.conf.json.JsonConfigurationExtension;
 import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ui.UIConfigDeviceExtension;
+import org.dcm4chee.arc.conf.ui.*;
 
 import javax.json.stream.JsonParser;
+import java.util.Collection;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -60,8 +61,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         if (ext == null)
             return;
 
-        writer.writeStartObject("dcmuiConfig");
-        //TODO
+        writer.writeStartArray("dcmuiConfig");
+        for (UIConfig uiConfig : ext.getUIConfigs())
+            writeTo(uiConfig, writer);
         writer.writeEnd();
     }
 
@@ -70,12 +72,215 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         if (!reader.getString().equals("dcmuiConfig"))
             return false;
 
-        reader.next();
-        reader.expect(JsonParser.Event.START_OBJECT);
         UIConfigDeviceExtension ext = new UIConfigDeviceExtension();
-        //TODO
+        loadFrom(ext, reader);
         device.addDeviceExtension(ext);
-        reader.expect(JsonParser.Event.END_OBJECT);
         return true;
+    }
+
+    private void writeTo(UIConfig uiConfig, JsonWriter writer) {
+        writer.writeStartObject();
+        writer.writeNotNullOrDef("dcmuiConfigName", uiConfig.getName(), null);
+        writeUIPermissions(writer, uiConfig.getPermissions());
+        writeUIDiffConfigs(writer, uiConfig.getDiffConfigs());
+        writer.writeEnd();
+    }
+
+    private void writeUIPermissions(JsonWriter writer, Collection<UIPermission> uiPermissions) {
+        if (uiPermissions.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiPermission");
+        for (UIPermission uiPermission : uiPermissions) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiPermissionName", uiPermission.getName(), null);
+            writer.writeNotNullOrDef("dcmuiAction", uiPermission.getAction(), null);
+            writer.writeNotEmpty("dcmuiActionParam", uiPermission.getActionParams());
+            writer.writeNotEmpty("dcmAcceptedUserRole", uiPermission.getAcceptedUserRoles());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    private void writeUIDiffConfigs(JsonWriter writer, Collection<UIDiffConfig> uiDiffConfigs) {
+        if (uiDiffConfigs.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiDiffConfig");
+        for (UIDiffConfig uiDiffConfig : uiDiffConfigs) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiDiffConfigName", uiDiffConfig.getName(), null);
+            writer.writeNotNullOrDef("dcmuiDiffCallingAET", uiDiffConfig.getCallingAET(), null);
+            writer.writeNotNullOrDef("dcmuiDiffPrimaryCFindSCP", uiDiffConfig.getPrimaryCFindSCP(), null);
+            writer.writeNotNullOrDef("dcmuiDiffPrimaryCMoveSCP", uiDiffConfig.getPrimaryCMoveSCP(), null);
+            writer.writeNotNullOrDef("dcmuiDiffPrimaryCStoreSCP", uiDiffConfig.getPrimaryCStoreSCP(), null);
+            writer.writeNotNullOrDef("dcmuiDiffSecondaryCFindSCP", uiDiffConfig.getSecondaryCFindSCP(), null);
+            writer.writeNotNullOrDef("dcmuiDiffSecondaryCMoveSCP", uiDiffConfig.getSecondaryCMoveSCP(), null);
+            writer.writeNotNullOrDef("dcmuiDiffSecondaryCStoreSCP", uiDiffConfig.getSecondaryCStoreSCP(), null);
+            writeUIDiffCriteria(writer, uiDiffConfig.getCriterias());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    private void writeUIDiffCriteria(JsonWriter writer, Collection<UIDiffCriteria> uiDiffCriterias) {
+        if (uiDiffCriterias.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiDiffCriteria");
+        for (UIDiffCriteria uiDiffCriteria : uiDiffCriterias) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiDiffCriteriaTitle", uiDiffCriteria.getTitle(), null);
+            writer.writeNotNullOrDef("dicomDescription", uiDiffCriteria.getDescription(), null);
+            writer.writeNotDef("dcmuiDiffIncludeMissing", uiDiffCriteria.isIncludeMissing(), false);
+            writer.writeNotDef("dcmuiDiffIncludeMissing", uiDiffCriteria.isIncludeMissing(), false);
+            writer.writeNotNullOrDef("dcmAttributeSetID", uiDiffCriteria.getAttributeSetID(), null);
+            writer.writeNotEmpty("dcmuiDiffGroupButton", uiDiffCriteria.getGroupButtons());
+            writer.writeNotEmpty("dcmuiDiffAction", uiDiffCriteria.getActions());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    private void loadFrom(UIConfigDeviceExtension ext, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            UIConfig uiConfig = new UIConfig();
+            loadFrom(uiConfig, reader);
+            reader.expect(JsonParser.Event.END_OBJECT);
+            ext.addUIConfig(uiConfig);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadFrom(UIConfig uiConfig, JsonReader reader) {
+        while (reader.next() == JsonParser.Event.KEY_NAME) {
+            switch (reader.getString()) {
+                case "dcmuiConfigName":
+                    uiConfig.setName(reader.stringValue());
+                    break;
+                case "dcmuiPermission":
+                    loadUIPermissions(uiConfig.getPermissions(), reader);
+                    break;
+                case "dcmuiDiffConfig":
+                    loadUIDiffConfigs(uiConfig.getDiffConfigs(), reader);
+                    break;
+            }
+        }
+    }
+
+    private void loadUIPermissions(Collection<UIPermission> uiPermissions, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIPermission uiPermission = new UIPermission();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiPermissionName":
+                        uiPermission.setName(reader.stringValue());
+                        break;
+                    case "dcmuiAction":
+                        uiPermission.setAction(reader.stringValue());
+                        break;
+                    case "dcmuiActionParam":
+                        uiPermission.setActionParams(reader.stringArray());
+                        break;
+                    case "dcmAcceptedUserRole":
+                        uiPermission.setAcceptedUserRoles(reader.stringArray());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiPermissions.add(uiPermission);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadUIDiffConfigs(Collection<UIDiffConfig> uiDiffConfigs, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIDiffConfig uiDiffConfig = new UIDiffConfig();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiDiffConfigName":
+                        uiDiffConfig.setName(reader.stringValue());
+                        break;
+                    case "dcmuiDiffCallingAET":
+                        uiDiffConfig.setCallingAET(reader.stringValue());
+                        break;
+                    case "dcmuiDiffPrimaryCFindSCP":
+                        uiDiffConfig.setPrimaryCFindSCP(reader.stringValue());
+                        break;
+                    case "dcmuiDiffPrimaryCMoveSCP":
+                        uiDiffConfig.setPrimaryCMoveSCP(reader.stringValue());
+                        break;
+                    case "dcmuiDiffPrimaryCStoreSCP":
+                        uiDiffConfig.setPrimaryCStoreSCP(reader.stringValue());
+                        break;
+                    case "dcmuiDiffSecondaryCFindSCP":
+                        uiDiffConfig.setSecondaryCFindSCP(reader.stringValue());
+                        break;
+                    case "dcmuiDiffSecondaryCMoveSCP":
+                        uiDiffConfig.setSecondaryCMoveSCP(reader.stringValue());
+                        break;
+                    case "dcmuiDiffSecondaryCStoreSCP":
+                        uiDiffConfig.setSecondaryCStoreSCP(reader.stringValue());
+                        break;
+                    case "dcmuiDiffCriteria":
+                        loadUIDiffCriterias(uiDiffConfig.getCriterias(), reader);
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiDiffConfigs.add(uiDiffConfig);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadUIDiffCriterias(Collection<UIDiffCriteria> uiDiffCriterias, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIDiffCriteria uiDiffCriteria = new UIDiffCriteria();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiDiffCriteriaTitle":
+                        uiDiffCriteria.setTitle(reader.stringValue());
+                        break;
+                    case "dicomDescription":
+                        uiDiffCriteria.setDescription(reader.stringValue());
+                        break;
+                    case "dcmuiDiffCriteriaNumber":
+                        uiDiffCriteria.setNumber(reader.intValue());
+                        break;
+                    case "dcmuiDiffIncludeMissing":
+                        uiDiffCriteria.setIncludeMissing(reader.booleanValue());
+                        break;
+                    case "dcmAttributeSetID":
+                        uiDiffCriteria.setAttributeSetID(reader.stringValue());
+                        break;
+                    case "dcmuiDiffGroupButton":
+                        uiDiffCriteria.setGroupButtons(reader.stringArray());
+                        break;
+                    case "dcmuiDiffAction":
+                        uiDiffCriteria.setActions(reader.stringArray());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiDiffCriterias.add(uiDiffCriteria);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
     }
 }

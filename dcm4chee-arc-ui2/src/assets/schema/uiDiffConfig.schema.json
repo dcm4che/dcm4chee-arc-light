@@ -6,7 +6,7 @@
     "dcmuiDiffConfigName"
   ],
   "properties": {
-    "dcmuiConfigName": {
+    "dcmuiDiffConfigName": {
       "title": "UI Diff Configuration Name",
       "description": "UI Diff Configuration Name",
       "type": "string"
@@ -29,6 +29,12 @@
       "type": "string",
       "format": "dcmAETitle"
     },
+    "dcmuiDiffPrimaryCStoreSCP": {
+      "title": "UI Diff Primary C-STORE SCP",
+      "description": "UI Diff Primary C-STORE SCP",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
     "dcmuiDiffSecondaryCFindSCP": {
       "title": "UI Diff Secondary C-FIND SCP",
       "description": "UI Diff Secondary C-FIND SCP",
@@ -38,6 +44,12 @@
     "dcmuiDiffSecondaryCMoveSCP": {
       "title": "UI Diff Secondary C-MOVE SCP",
       "description": "UI Diff Secondary C-MOVE SCP",
+      "type": "string",
+      "format": "dcmAETitle"
+    },
+    "dcmuiDiffSecondaryCStoreSCP": {
+      "title": "UI Diff Secondary C-STORE SCP",
+      "description": "UI Diff Secondary C-STORE SCP",
       "type": "string",
       "format": "dcmAETitle"
     },
