@@ -1644,6 +1644,9 @@ class ArchiveDeviceFactory {
 
     private static void addDiffConfig(UIConfig uiConfig) {
         UIDiffConfig diffConfig = new UIDiffConfig("default");
+        diffConfig.setCallingAET("DCM4CHEE");
+        diffConfig.setPrimaryCFindSCP("DCMQRSCP");
+        diffConfig.setSecondaryCFindSCP("DCM4CHEE");
         uiConfig.addDiffConfig(diffConfig);
         diffConfig.addCriteria(createDiffCriteria(
                 1,
