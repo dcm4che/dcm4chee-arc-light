@@ -51,10 +51,16 @@ export class DynamicFormComponent implements OnInit{
     }
     init(): void {
         console.log('formelements', this.formelements);
-        let orderedGroup: any = new OrderByPipe().transform(this.formelements, 'order');
+        let orderedGroupClone:any;
+        let orderedGroup: any;
         let orderValue = 0;
         let order = 0;
+        let diffState = 0;
+        orderedGroup = new OrderByPipe().transform(this.formelements, 'order');
+        orderedGroupClone = _.cloneDeep(orderedGroup);
+        orderedGroupClone = new OrderByPipe().transform(orderedGroupClone, 'order');
         // this.filteredFormElements = _.cloneDeep(this.formelements);
+        // let orderedGroupClone =  new OrderByPipe().transform(this.formelements, 'order');
         _.forEach(orderedGroup, (m, i) => {
             if (orderValue != parseInt(m.order)){
                 let title = '';
@@ -70,17 +76,18 @@ export class DynamicFormComponent implements OnInit{
                         order = 4;
                     }
                 }
-                orderedGroup.splice(i, 0, {
+                orderedGroupClone.splice(i+diffState, 0, {
                     controlType: 'togglebutton',
                     title: title,
                     orderId: order,
                     order: order
                 });
+                diffState++;
             }
             orderValue = parseInt(m.order);
         });
-        this.formelements = orderedGroup;
-        let formGroup: any = this.formservice.toFormGroup(orderedGroup);
+        this.formelements = orderedGroupClone;
+        let formGroup: any = this.formservice.toFormGroup(orderedGroupClone);
         this.form = formGroup;
         console.log('after convert form', this.form);
         //Test setting some values
