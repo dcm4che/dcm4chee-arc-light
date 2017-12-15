@@ -1,0 +1,37 @@
+{
+  "title": "UI Permission",
+  "description": "UI Permission",
+  "type": "object",
+  "required": [
+    "dcmuiPermissionName",
+    "dcmuiAction"
+  ],
+  "properties": {
+    "dcmuiPermissionName": {
+      "title": "UI Permission Name",
+      "description": "Name of Permission for UI Action",
+      "type": "string"
+    },
+    "dcmuiAction": {
+      "title": "UI Action",
+      "description": "UI Action",
+      "type": "string"
+    },
+    "dcmuiActionParam": {
+      "title": "UI Action Parameter",
+      "description": "UI Action Parameter",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    },
+    "dcmAcceptedUserRole": {
+      "title": "Accepted User Role",
+      "description": "Accepted User Role",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      }
+    }
+  }
+}

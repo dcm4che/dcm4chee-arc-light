@@ -122,6 +122,16 @@
       "description": "DICOM Archive Device related information",
       "order":33,
       "$ref": "archiveDevice.schema.json"
+    },
+    "dcmuiConfig": {
+      "title": "UI Configuration",
+      "description": "UI Configuration",
+      "titleKey":"{dcmuiConfigName}",
+      "type": "array",
+      "order":34,
+      "items" : {
+        "$ref": "uiConfig.schema.json"
+      }
     }
   }
 }

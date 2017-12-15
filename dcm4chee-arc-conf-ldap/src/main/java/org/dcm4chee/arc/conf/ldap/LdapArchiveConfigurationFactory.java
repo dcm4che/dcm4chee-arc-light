@@ -54,6 +54,7 @@ import org.dcm4che3.conf.ldap.audit.LdapAuditRecordRepositoryConfiguration;
 import org.dcm4che3.conf.ldap.hl7.LdapHL7Configuration;
 import org.dcm4che3.conf.ldap.imageio.LdapImageReaderConfiguration;
 import org.dcm4che3.conf.ldap.imageio.LdapImageWriterConfiguration;
+import org.dcm4chee.arc.conf.ui.ldap.LdapArchiveUIConfiguration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -85,6 +86,7 @@ public class LdapArchiveConfigurationFactory {
                 new LdapImageReaderConfiguration(),
                 new LdapImageWriterConfiguration(),
                 new LdapArchiveConfiguration(),
+                new LdapArchiveUIConfiguration(),
                 newLdapHL7Configuration()
         };
     };
