@@ -42,6 +42,7 @@ import javax.ejb.ApplicationException;
 
 @ApplicationException(rollback = true)
 public class DifferentDeviceException extends Exception {
-    public DifferentDeviceException(String s) {
+    public DifferentDeviceException(String message) {
+        super(message);
     }
 }
