@@ -282,10 +282,14 @@
                     </md-select>
                 </div>
                 <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" >
-                   <span class="count_text" title="Total size of filtered studies found">Size: <b>{{size}}</b></span>  <span (click)="getSize()" title="Get total size of filtered studies" class="glyphicon glyphicon-refresh"></span>
+                   <span class="count_text" title="Total size of filtered studies found">Size: <b>{{size}}</b></span>
+                    <span *ngIf="!showGetSizeLoader" (click)="getSize()" title="Get total size of filtered studies" class="glyphicon glyphicon-refresh"></span>
+                    <span *ngIf="showGetSizeLoader" class="fa fa-circle-o-notch fa-spin dashboard_loader"></span>
                 </div>
                 <div class="count_block_total" *ngIf="filterMode != 'diff'" [ngClass]="{single:externalInternalAetMode === 'external' || filterMode!='study'}">
-                   <span class="count_text" title="Total count of filtered studies found">Total count: <b>{{count}}</b></span>  <span (click)="getCount()" title="Get total count of filtered studies" class="glyphicon glyphicon-refresh"></span>
+                   <span class="count_text" title="Total count of filtered studies found">Total count: <b>{{count}}</b></span>
+                        <span *ngIf="!showGetCountLoader" (click)="getCount()" title="Get total count of filtered studies" class="glyphicon glyphicon-refresh"></span>
+                        <span *ngIf="showGetCountLoader" class="fa fa-circle-o-notch fa-spin"></span>
                 </div>
                 <div class="orderbyblock" [ngClass]="{notrash:trashaktive==false,diff:filterMode==='diff'}">
                     <div class="btn-group" role="group" >

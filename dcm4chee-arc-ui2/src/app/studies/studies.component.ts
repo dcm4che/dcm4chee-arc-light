@@ -243,7 +243,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.showModalitySelector = false;
     };
 
-
+    showGetSizeLoader;
+    showGetCountLoader;
     dialogRef: MdDialogRef<any>;
     subscription: Subscription;
 
@@ -2463,12 +2464,20 @@ export class StudiesComponent implements OnDestroy,OnInit{
         }
     }
     getCountService(mode, filters){
+        this.showGetCountLoader = true;
         this.service.getCount(
             this.rsURL(),
             mode,
             filters
         ).subscribe((res)=>{
-            this.count = res.count;
+            this.showGetCountLoader = false;
+            try{
+                this.count = res.count;
+            }catch (e){
+                console.error("count error",e);
+            }
+        },(err)=>{
+            this.showGetCountLoader = false;
         });
     }
     getSize(){
@@ -2486,15 +2495,19 @@ export class StudiesComponent implements OnDestroy,OnInit{
         }
     }
     getSizeService(filters){
+        this.showGetSizeLoader = true;
         this.service.getSize(
             this.rsURL(),
             filters
         ).subscribe((res)=>{
+            this.showGetSizeLoader = false;
             try {
                 this.size = j4care.convertBtoHumanReadable(res.size,1);
             }catch (e){
                 console.log("convert byte error:",e);
             }
+        },(err)=>{
+            this.showGetSizeLoader = false;
         });
     }
     queryPatients = function(offset){

@@ -154,15 +154,17 @@ md-grid-list{
   }
   .count_text{
     display: inline-block;
-    margin: 3px 7px;
+    border-right: 1px solid #ccc;
+    margin: 3px 0 3px 7px;
+    width: 76%;
   }
-  .glyphicon-refresh{
+  .glyphicon-refresh,.fa-spin{
     width: 36px;
-    border-left: 1px solid #ccc;
     text-align: center;
     float: right;
     padding: 6px;
     height: 100%;
+    color: #000;
   }
 }
 .mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{
