@@ -1102,9 +1102,12 @@ export class StudiesComponent implements OnDestroy,OnInit{
     studyReceiveDateTimeChanged(e, mode){
         this.filter['StudyReceiveDateTime'] = this.filter['StudyReceiveDateTime'] || {};
         this['StudyReceiveDateTime'][mode] = e;
+        let datePipeEn = new DatePipe('us-US');
         if (this.StudyReceiveDateTime.from && this.StudyReceiveDateTime.to){
-            let datePipeEn = new DatePipe('us-US');
             this.filter['StudyReceiveDateTime'] = datePipeEn.transform(this.StudyReceiveDateTime.from, 'yyyyMMddHHmmss') + '-' + datePipeEn.transform(this.StudyReceiveDateTime.to, 'yyyyMMddHHmmss');
+        }
+        if ((this.StudyReceiveDateTime.from && !this.StudyReceiveDateTime.to) || (!this.StudyReceiveDateTime.from && this.StudyReceiveDateTime.to)){
+            this.filter['StudyReceiveDateTime'] = (this.StudyReceiveDateTime.from) ? datePipeEn.transform(this.StudyReceiveDateTime.from, 'yyyyMMddHHmmss') + '-' : '-' + datePipeEn.transform(this.StudyReceiveDateTime.to, 'yyyyMMddHHmmss');
         }
     }
     deleteRejectedInstances(){
@@ -2760,7 +2763,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 // this.selected['otherObjects'] = {};
             }
             if (modus === 'patient'){
-                console.log('this.selected', this.selected); //TODO when you have have a patient list, on ctrl and click the haspatient is still false
+                console.log('this.selected', this.selected);
                 //console.log("this.selectedkeys",Object.keys(this.selected.patients).length);
                 //console.log("patient.length",_.size(this.selected.patients));
                 if (_.size(this.selected.patients) > 0){

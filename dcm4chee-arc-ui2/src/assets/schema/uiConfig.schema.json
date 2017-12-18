@@ -1,0 +1,33 @@
+{
+  "title": "UI Configuration",
+  "description": "UI Configuration",
+  "type": "object",
+  "required": [
+    "dcmuiConfigName"
+  ],
+  "properties": {
+    "dcmuiConfigName": {
+      "title": "UI Configuration Name",
+      "description": "UI Configuration Name",
+      "type": "string"
+    },
+    "dcmuiPermission": {
+      "title": "Permission",
+      "description": "Permission",
+      "titleKey":"{dcmuiPermissionName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiPermission.schema.json"
+      }
+    },
+    "dcmuiDiffConfig": {
+      "title": "Study Diff Configuration",
+      "description": "Study Diff Configuration",
+      "titleKey":"{dcmuiDiffConfigName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiDiffConfig.schema.json"
+      }
+    }
+  }
+}

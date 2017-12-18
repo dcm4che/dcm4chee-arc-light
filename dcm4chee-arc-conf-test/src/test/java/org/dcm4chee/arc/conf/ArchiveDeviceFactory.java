@@ -54,6 +54,7 @@ import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.imageio.ImageReaderExtension;
 import org.dcm4che3.net.imageio.ImageWriterExtension;
 import org.dcm4che3.util.Property;
+import org.dcm4chee.arc.conf.ui.*;
 
 import java.net.URI;
 import java.time.LocalTime;
@@ -1189,6 +1190,7 @@ class ArchiveDeviceFactory {
         addAuditLoggerDeviceExtension(device, arrDevice, archiveHost, suppressAuditQueryFromArchive());
         device.addDeviceExtension(new ImageReaderExtension(ImageReaderFactory.getDefault()));
         device.addDeviceExtension(new ImageWriterExtension(ImageWriterFactory.getDefault()));
+        addUIConfigDeviceExtension(device, configType);
 
         device.setManufacturer("dcm4che.org");
         device.setManufacturerModelName("dcm4chee-arc");
@@ -1610,6 +1612,89 @@ class ArchiveDeviceFactory {
             storeAccessControlIDRule.setStoreAccessControlID("ACCESS_CONTROL_ID");
             ext.addStoreAccessControlIDRule(storeAccessControlIDRule);
         }
+    }
+
+    private static void addUIConfigDeviceExtension(Device device, ConfigType configType) {
+        UIConfigDeviceExtension ext = new UIConfigDeviceExtension();
+        UIConfig uiConfig = new UIConfig("default");
+        addPermissions(uiConfig, configType);
+        if (configType == ConfigType.SAMPLE)
+            addDiffConfig(uiConfig);
+
+        ext.addUIConfig(uiConfig);
+        device.addDeviceExtension(ext);
+    }
+
+    private static void addPermissions(UIConfig uiConfig, ConfigType configType) {
+        uiConfig.addPermission(createUIPermission(
+                "BrowseArchive", "BrowseArchive",
+                new String[] { "DCM4CHEE" }, new String[] { "user" }));
+        uiConfig.addPermission(createUIPermission(
+                "BrowseArchiveAdmin", "BrowseArchive",
+                new String[] { "DCM4CHEE_ADMIN",  "DCM4CHEE_TRASH" }, new String[] { "admin" }));
+    }
+
+    private static UIPermission createUIPermission(String name, String action, String[] actionParams, String[] userRoles) {
+        UIPermission permission = new UIPermission(name);
+        permission.setAction(action);
+        permission.setActionParams(actionParams);
+        permission.setAcceptedUserRoles(userRoles);
+        return permission;
+    }
+
+    private static void addDiffConfig(UIConfig uiConfig) {
+        UIDiffConfig diffConfig = new UIDiffConfig("default");
+        diffConfig.setCallingAET("DCM4CHEE");
+        diffConfig.setPrimaryCFindSCP("DCMQRSCP");
+        diffConfig.setSecondaryCFindSCP("DCM4CHEE");
+        uiConfig.addDiffConfig(diffConfig);
+        diffConfig.addCriteria(createDiffCriteria(
+                1,
+                "Study attributes",
+                "Compares only Study attributes",
+                false,
+                "study",
+                new String[] { "study-reject-export", "study-reject", "study-export" },
+                new String[] { "synchronize", "export", "reject" }
+                ));
+        diffConfig.addCriteria(createDiffCriteria(
+                2,
+                "Patient attributes",
+                "Compares only Patient attributes",
+                false,
+                "patient",
+                new String[] { "patient-update" },
+                new String[] { "synchronize" }
+        ));
+        diffConfig.addCriteria(createDiffCriteria(
+                3,
+                "Request attributes",
+                "Compares Request attributes",
+                false,
+                "accno",
+                new String[] { "study-reject-export", "study-reject", "study-export" },
+                new String[] { "synchronize", "export", "reject" }
+        ));
+        diffConfig.addCriteria(createDiffCriteria(
+                4,
+                "Missing Studies",
+                "List missing Studies",
+                true,
+                null,
+                new String[] { "study-reject", "study-export" },
+                new String[] { "export", "reject" }
+        ));
+    }
+
+    private static UIDiffCriteria createDiffCriteria(int number, String title, String desc, boolean includeMissing, String attributeSetID, String[] actions, String[] groupButtons) {
+        UIDiffCriteria criteria = new UIDiffCriteria(title);
+        criteria.setNumber(number);
+        criteria.setDescription(desc);
+        criteria.setIncludeMissing(includeMissing);
+        criteria.setAttributeSetID(attributeSetID);
+        criteria.setActions(actions);
+        criteria.setGroupButtons(groupButtons);
+        return criteria;
     }
 
     private static AttributeSet newAttributeSet(
