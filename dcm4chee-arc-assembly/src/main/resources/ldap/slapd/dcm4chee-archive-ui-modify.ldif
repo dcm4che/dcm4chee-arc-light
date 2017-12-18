@@ -1,4 +1,10 @@
-# DICOM Application Configuration Data Model Hierarchy LDAP Schema
+version: 1
+
+dn: cn={7}dcm4chee-archive-ui,cn=schema,cn=config
+changetype: modify
+delete: olcAttributeTypes
+-
+add: olcAttributeTypes
 dn: cn=dcm4chee-archive-ui,cn=schema,cn=config
 objectClass: olcSchemaConfig
 cn: dcm4chee-archive-ui
@@ -89,6 +95,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.17 NAME 'dcmuiDiffSecondaryCStoreSCP
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+-
+delete: olcObjectClasses
+-
+add: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
   DESC 'Archive UI Configuration'
   SUP top STRUCTURAL
