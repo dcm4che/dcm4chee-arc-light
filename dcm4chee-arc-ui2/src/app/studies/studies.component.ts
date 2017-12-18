@@ -659,6 +659,14 @@ export class StudiesComponent implements OnDestroy,OnInit{
             if (_.hasIn(param, 'orderby')){
                 delete param['orderby'];
             }
+            if(_.size(param) < 1){
+                return true
+            }else{
+                for(let p in param){
+                    if(param[p] == "")
+                        delete param[p];
+                }
+            }
             return (_.size(param) < 1) ? true : false;
         }else{
             return false;
@@ -668,7 +676,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let $this = this;
         if (offset < 0 || offset === undefined) offset = 0;
         this.cfpLoadingBar.start();
-        if(this.externalInternalAetMode === 'internal'){
+/*        if(this.externalInternalAetMode === 'internal'){
             this.service.getCount(
                 this.rsURL(),
                 'studies',
@@ -678,7 +686,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             });
         }else{
             this.count = "";
-        }
+        }*/
         this.service.queryStudies(
             this.rsURL(),
             queryParameters
@@ -688,7 +696,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 //           $this.studies = [];
                 $this.morePatients = undefined;
                 $this.moreStudies = undefined;
+                $this.count = "";
+                $this.size = "";
                 if (_.size(res) > 0) {
+
                     //Add number of patient related studies manuelly hex(00201200) => dec(2101760)
                     let index = 0;
                     while ($this.attributeFilters.Patient.dcmTag[index] && ($this.attributeFilters.Patient.dcmTag[index] < 2101760)) {
@@ -2439,6 +2450,19 @@ export class StudiesComponent implements OnDestroy,OnInit{
             mode = "mwlitems"
             filters = this.createMwlFilterParams();
         }
+        if (this.showNoFilterWarning(filters)) {
+            this.confirm({
+                content: 'No filter are set, are you sure you want to continue?'
+            }).subscribe(result => {
+                if (result){
+                    this.getCountService(mode,filters);
+                }
+            });
+        }else{
+            this.getCountService(mode,filters);
+        }
+    }
+    getCountService(mode, filters){
         this.service.getCount(
             this.rsURL(),
             mode,
@@ -2448,9 +2472,23 @@ export class StudiesComponent implements OnDestroy,OnInit{
         });
     }
     getSize(){
+        let filters = this.createStudyFilterParams();
+        if (this.showNoFilterWarning(filters)) {
+            this.confirm({
+                content: 'No filter are set, are you sure you want to continue?'
+            }).subscribe(result => {
+                if (result){
+                    this.getSizeService(filters);
+                }
+            });
+        }else{
+            this.getSizeService(filters);
+        }
+    }
+    getSizeService(filters){
         this.service.getSize(
             this.rsURL(),
-            this.createStudyFilterParams()
+            filters
         ).subscribe((res)=>{
             try {
                 this.size = j4care.convertBtoHumanReadable(res.size,1);
