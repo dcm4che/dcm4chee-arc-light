@@ -42,8 +42,8 @@ import org.dcm4che3.util.TagUtils;
 
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
-import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -324,44 +324,48 @@ public class RetrieveTask {
         gen.flush();
     }
 
-    public void writeAsCSVTo(BufferedWriter writer) throws IOException {
+    public void writeAsCSVTo(Writer writer) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        writer.append('"').write(String.valueOf(pk));
-        writer.append('"');
-        writeString(writer, df.format(createdTime));
-        writeString(writer, df.format(updatedTime));
-        writeString(writer, localAET);
-        writeString(writer, remoteAET);
-        writeString(writer, destinationAET);
-        writeString(writer, studyInstanceUID);
-        writeString(writer, seriesInstanceUID);
-        writeString(writer, sopInstanceUID);
-        writeInt(writer, remaining);
-        writeInt(writer, completed);
-        writeInt(writer, failed);
-        writeInt(writer, warning);
-        writeString(writer, statusCode != -1 ? TagUtils.shortToHexString(statusCode) : null);
+        writer.write(String.valueOf(pk));
+        writer.write(',');
+        writer.write(df.format(createdTime));
+        writer.write(',');
+        writer.write(df.format(updatedTime));
+        writer.write(',');
+        writer.write(localAET);
+        writer.write(',');
+        writer.write(remoteAET);
+        writer.write(',');
+        writer.write(destinationAET);
+        writer.write(',');
+        writer.write(studyInstanceUID);
+        writer.write(',');
+        if (seriesInstanceUID != null)
+            writer.write(seriesInstanceUID);
+        writer.write(',');
+        if (sopInstanceUID != null)
+            writer.write(sopInstanceUID);
+        writer.write(',');
+        writer.write(String.valueOf(remaining));
+        writer.write(',');
+        writer.write(String.valueOf(completed));
+        writer.write(',');
+        writer.write(String.valueOf(failed));
+        writer.write(',');
+        writer.write(String.valueOf(warning));
+        writer.write(',');
+        if (statusCode != -1)
+            writer.write(TagUtils.shortToHexString(statusCode));
+        writer.write(',');
         if (errorComment != null) {
-            writer.append(',').append('"').write(errorComment.replaceAll("\"", "\"\""));
-            writer.append('"');
-        } else
-            writer.append(',');
+            writer.write('"');
+            writer.write(errorComment.replace("\"", "\"\""));
+            writer.write('"');
+        }
+        writer.write(',');
         queueMessage.writeStatusAsCSVTo(writer, df);
-    }
-    
-    private void writeString(BufferedWriter writer, String val) throws IOException {
-        if (val != null) {
-            writer.append(',').append('"').write(val);
-            writer.append('"');
-        } else
-            writer.append(',');
-    }
-
-    private void writeInt(BufferedWriter writer, int val) throws IOException {
-        if (val > 0)
-            writeString(writer, String.valueOf(val));
-        else
-            writer.append(',');
+        writer.write('\r');
+        writer.write('\n');
     }
 
     @Override

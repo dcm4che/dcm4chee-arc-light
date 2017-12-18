@@ -42,8 +42,8 @@ import org.dcm4che3.util.StringUtils;
 
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
-import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -296,39 +296,39 @@ public class ExportTask {
         gen.flush();
     }
 
-    public void writeAsCSVTo(BufferedWriter writer) throws IOException {
+    public void writeAsCSVTo(Writer writer) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        writer.append('"').write(String.valueOf(pk));
-        writer.append('"');
-        writeString(writer, df.format(createdTime));
-        writeString(writer, df.format(updatedTime));
-        writeString(writer, exporterID);
-        writeString(writer, studyInstanceUID);
-        writeString(writer, !seriesInstanceUID.equals("*") ? seriesInstanceUID : null);
-        writeString(writer, !sopInstanceUID.equals("*") ? sopInstanceUID : null);
-        if (numberOfInstances != null) {
-            writer.append(',').append('"').write(numberOfInstances);
-            writer.append('"');
-        }
-        else
-            writer.append(',');
-        writeString(writer, modalities);
+        writer.write(String.valueOf(pk));
+        writer.write(',');
+        writer.write(df.format(createdTime));
+        writer.write(',');
+        writer.write(df.format(updatedTime));
+        writer.write(',');
+        writer.write(exporterID);
+        writer.write(',');
+        writer.write(studyInstanceUID);
+        writer.write(',');
+        if (!seriesInstanceUID.equals("*"))
+            writer.write(seriesInstanceUID);
+        writer.write(',');
+        if (!sopInstanceUID.equals("*"))
+            writer.write(sopInstanceUID);
+        writer.write(',');
+        if (numberOfInstances != null)
+            writer.write(numberOfInstances.toString());
+        writer.write(',');
+        writer.write(modalities);
+        writer.write(',');
         if (queueMessage == null) {
-            writeString(writer, deviceName);
-            writeString(writer, QueueMessage.Status.TO_SCHEDULE.toString());
-            writeString(writer, df.format(scheduledTime));
+            writer.write(deviceName);
+            writer.write(",TO SCHEDULE,");
+            writer.write(df.format(scheduledTime));
             writer.append(',').append(',').append(',');
         } else {
             queueMessage.writeStatusAsCSVTo(writer, df);
         }
-    }
-
-    private void writeString(BufferedWriter writer, String val) throws IOException {
-        if (val != null) {
-            writer.append(',').append('"').write(val);
-            writer.append('"');
-        } else
-            writer.append(',');
+        writer.write('\r');
+        writer.write('\n');
     }
 
     @Override

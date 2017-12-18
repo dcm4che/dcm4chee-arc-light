@@ -58,10 +58,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -76,6 +73,29 @@ import java.util.List;
 public class RetrieveTaskRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(RetrieveTaskRS.class);
+    private static final String CSV_HEADER =
+            "pk," +
+            "createdTime," +
+            "updatedTime," +
+            "LocalAET," +
+            "RemoteAET," +
+            "DestinationAET," +
+            "StudyInstanceUID," +
+            "SeriesInstanceUID," +
+            "SOPInstanceUID," +
+            "remaining," +
+            "completed," +
+            "failed," +
+            "warning," +
+            "statusCode," +
+            "errorComment," +
+            "dicomDeviceName," +
+            "status,scheduledTime," +
+            "failures," +
+            "processingStartTime," +
+            "processingEndTime," +
+            "errorMessage," +
+            "outcomeMessage\r\n";
 
     @Inject
     private RetrieveManager mgr;
@@ -201,22 +221,15 @@ public class RetrieveTaskRS {
     }
 
     private Object toEntityAsCSV(final List<RetrieveTask> tasks) {
-        String header = "\"pk\",\"createdTime\",\"updatedTime\",\"LocalAET\",\"RemoteAET\"," +
-                "\"DestinationAET\",\"StudyInstanceUID\",\"SeriesInstanceUID\",\"SOPInstanceUID\",\"remaining\"," +
-                "\"completed\",\"failed\",\"warning\",\"statusCode\",\"errorComment\",\"dicomDeviceName\",\"status\"," +
-                "\"scheduledTime\",\"failures\",\"processingStartTime\",\"processingEndTime\",\"errorMessage\",\"outcomeMessage\"";
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
-                writer.write(header);
-                writer.newLine();
+                Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(CSV_HEADER);
                 for (RetrieveTask task : tasks) {
                     task.writeAsCSVTo(writer);
-                    writer.newLine();
                 }
                 writer.flush();
-                writer.close();
             }
         };
     }

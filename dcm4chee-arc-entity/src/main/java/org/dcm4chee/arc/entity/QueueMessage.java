@@ -344,36 +344,35 @@ public class QueueMessage {
             gen.write("outcomeMessage", outcomeMessage);
     }
 
-    public void writeStatusAsCSVTo(BufferedWriter writer, DateFormat df) throws IOException {
-        writeString(writer, deviceName);
-        writeString(writer, status.toString());
-        writeString(writer, df.format(scheduledTime));
+    public void writeStatusAsCSVTo(Writer writer, DateFormat df) throws IOException {
+        writer.write(deviceName);
+        writer.write(',');
+        writer.write(status.toString());
+        writer.append(',');
+        writer.write(df.format(scheduledTime));
+        writer.append(',');
         if (numberOfFailures > 0)
-            writeString(writer, String.valueOf(numberOfFailures));
-        else
-            writer.append(',');
-        writeString(writer, processingStartTime != null ? df.format(processingStartTime) : null);
-        writeString(writer, processingEndTime != null ? df.format(processingEndTime) : null);
-        replaceAndWriteString(writer, errorMessage);
-        replaceAndWriteString(writer, outcomeMessage);
+            writer.write(String.valueOf(numberOfFailures));
+        writer.append(',');
+        if (processingStartTime != null)
+            writer.write(df.format(processingStartTime));
+        writer.append(',');
+        if (processingEndTime != null)
+            writer.write(df.format(processingEndTime));
+        writer.append(',');
+        if (errorMessage != null) {
+            writer.write('"');
+            writer.write(errorMessage.replace("\"", "\"\""));
+            writer.write('"');
+        }
+        writer.append(',');
+        if (outcomeMessage != null) {
+            writer.write('"');
+            writer.write(outcomeMessage.replace("\"", "\"\""));
+            writer.write('"');
+        }
     }
 
-    private void writeString(BufferedWriter writer, String val) throws IOException {
-        if (val != null) {
-            writer.append(',').append('"').write(val);
-            writer.append('"');
-        } else
-            writer.append(',');
-    }
-
-    private void replaceAndWriteString(BufferedWriter writer, String val) throws IOException {
-        if (val != null) {
-            writer.append(',').append('"').write(val.replaceAll("\"", "\"\""));
-            writer.append('"');
-        } else
-            writer.append(',');
-    }
-    
     private String propertiesOf(ObjectMessage msg) throws JMSException {
         StringBuilder sb = new StringBuilder(512);
         Enumeration<String> names = msg.getPropertyNames();

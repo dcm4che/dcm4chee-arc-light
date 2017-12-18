@@ -174,7 +174,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
 
     private UIConfig loadUIConfig(SearchResult sr, String deviceDN) throws NamingException {
         Attributes attrs = sr.getAttributes();
-        UIConfig uiConfig = new UIConfig(LdapUtils.stringValue(attrs.get("dcmuiDiffConfigName"), null));
+        UIConfig uiConfig = new UIConfig(LdapUtils.stringValue(attrs.get("dcmuiConfigName"), null));
         String uiConfigDN = uiConfigDN(uiConfig, deviceDN);
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);

@@ -60,10 +60,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -78,6 +75,24 @@ import java.util.List;
 @Path("monitor/export")
 public class ExportTaskRS {
     private static final Logger LOG = LoggerFactory.getLogger(ExportTaskRS.class);
+    private static final String CSV_HEADER =
+            "pk," +
+            "createdTime," +
+            "updatedTime," +
+            "ExporterID," +
+            "StudyInstanceUID," +
+            "SeriesInstanceUID," +
+            "SOPInstanceUID," +
+            "NumberOfInstances," +
+            "Modality," +
+            "dicomDeviceName," +
+            "status," +
+            "scheduledTime," +
+            "failures," +
+            "processingStartTime," +
+            "processingEndTime," +
+            "errorMessage," +
+            "outcomeMessage\r\n";
 
     @Inject
     private ExportManager mgr;
@@ -204,21 +219,15 @@ public class ExportTaskRS {
     }
 
     private Object toEntityAsCSV(final List<ExportTask> tasks) {
-        String header = "\"pk\",\"createdTime\",\"updatedTime\",\"ExporterID\",\"StudyInstanceUID\"," +
-                "\"SeriesInstanceUID\",\"SOPInstanceUID\",\"NumberOfInstances\",\"Modality\",\"dicomDeviceName\"," +
-                "\"status\",\"scheduledTime\",\"failures\",\"processingStartTime\",\"processingEndTime\",\"errorMessage\",\"outcomeMessage\"";
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
-                writer.write(header);
-                writer.newLine();
+                Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(CSV_HEADER);
                 for (ExportTask task : tasks) {
                     task.writeAsCSVTo(writer);
-                    writer.newLine();
                 }
                 writer.flush();
-                writer.close();
             }
         };
     }
