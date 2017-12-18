@@ -70,26 +70,12 @@ import java.util.*;
         @NamedQuery(name = QueueMessage.FIND_BY_MSG_ID,
                 query = "select o from QueueMessage o where o.messageID=?1"),
         @NamedQuery(name = QueueMessage.COUNT_BY_QUEUE_NAME_AND_STATUS,
-                query = "select count(o) from QueueMessage o where o.queueName=?1 and o.status=?2"),
-        @NamedQuery(name = QueueMessage.DELETE_BY_QUEUE_NAME,
-                query = "delete from QueueMessage o where o.queueName=?1"),
-        @NamedQuery(name = QueueMessage.DELETE_BY_QUEUE_NAME_AND_STATUS,
-                query = "delete from QueueMessage o where o.queueName=?1 and o.status=?2"),
-        @NamedQuery(name = QueueMessage.DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE,
-                query = "delete from QueueMessage o where o.queueName=?1 and o.updatedTime<?2"),
-        @NamedQuery(name = QueueMessage.DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE,
-                query = "delete from QueueMessage o where o.queueName=?1 and o.status=?2 and o.updatedTime<?3 ")
+                query = "select count(o) from QueueMessage o where o.queueName=?1 and o.status=?2")
 })
 public class QueueMessage {
 
     public static final String FIND_BY_MSG_ID = "QueueMessage.FindByMsgId";
     public static final String COUNT_BY_QUEUE_NAME_AND_STATUS = "QueueMessage.CountByQueueNameAndStatus";
-    public static final String DELETE_BY_QUEUE_NAME = "QueueMessage.DeleteByQueueName";
-    public static final String DELETE_BY_QUEUE_NAME_AND_STATUS = "QueueMessage.DeleteByQueueNameAndStatus";
-    public static final String DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE =
-            "QueueMessage.DeleteByQueueNameAndUpdatedBefore";
-    public static final String DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE =
-            "QueueMessage.DeleteByQueueNameAndStatusAndUpdatedBefore";
 
     public enum Status {
         SCHEDULED, IN_PROCESS, COMPLETED, WARNING, FAILED, CANCELED, TO_SCHEDULE;

@@ -76,19 +76,7 @@ import java.util.Date;
         @NamedQuery(name = ExportTask.FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID,
                 query = "select o from ExportTask o where o.exporterID=?1 and o.studyInstanceUID=?2 " +
                         "and o.seriesInstanceUID in ('*',?3) and o.sopInstanceUID in ('*',?4) " +
-                        "and o.queueMessage is null"),
-        @NamedQuery(name = ExportTask.DELETE_BY_QUEUE_NAME,
-                query = "delete from ExportTask t where t.queueMessage in " +
-                        "(select o from QueueMessage o where o.queueName=?1)"),
-        @NamedQuery(name = ExportTask.DELETE_BY_QUEUE_NAME_AND_STATUS,
-                query = "delete from ExportTask t where t.queueMessage in " +
-                        "(select o from QueueMessage o where o.queueName=?1 and o.status=?2)"),
-        @NamedQuery(name = ExportTask.DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE,
-                query = "delete from ExportTask t where t.queueMessage in " +
-                        "(select o from QueueMessage o where o.queueName=?1 and o.updatedTime<?2)"),
-        @NamedQuery(name = ExportTask.DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE,
-                query = "delete from ExportTask t where t.queueMessage in " +
-                        "(select o from QueueMessage o where o.queueName=?1 and o.status=?2 and o.updatedTime<?3)")
+                        "and o.queueMessage is null")
 })
 public class ExportTask {
 
@@ -100,12 +88,6 @@ public class ExportTask {
             "ExportTask.FindByExporterIDAndStudyIUIDAndSeriesIUID";
     public static final String FIND_BY_EXPORTER_ID_AND_STUDY_IUID_AND_SERIES_IUID_AND_SOP_IUID =
             "ExportTask.FindByExporterIDAndStudyIUIDAndSeriesIUIDAndSopInstanceUID";
-    public static final String DELETE_BY_QUEUE_NAME = "ExportTask.DeleteByQueueName";
-    public static final String DELETE_BY_QUEUE_NAME_AND_STATUS = "ExportTask.DeleteByQueueNameAndStatus";
-    public static final String DELETE_BY_QUEUE_NAME_AND_UPDATED_BEFORE =
-            "ExportTask.DeleteByQueueNameAndUpdatedBefore";
-    public static final String DELETE_BY_QUEUE_NAME_AND_STATUS_AND_UPDATED_BEFORE =
-            "ExportTask.DeleteByQueueNameAndStatusAndUpdatedBefore";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

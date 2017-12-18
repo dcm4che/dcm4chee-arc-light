@@ -1618,6 +1618,12 @@
             ]
           },
           {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
             "name": "updatedBefore",
             "in": "query",
             "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",

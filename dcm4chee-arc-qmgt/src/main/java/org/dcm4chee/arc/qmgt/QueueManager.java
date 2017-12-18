@@ -68,7 +68,7 @@ public interface QueueManager {
 
     boolean deleteMessage(String msgId);
 
-    int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore);
+    int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore, String deviceName);
 
     List<QueueMessage> search(
             String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime, int offset, int limit);

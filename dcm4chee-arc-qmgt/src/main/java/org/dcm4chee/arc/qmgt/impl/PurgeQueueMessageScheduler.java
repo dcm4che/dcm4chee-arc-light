@@ -96,6 +96,6 @@ public class PurgeQueueMessageScheduler extends Scheduler {
             return;
 
         Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
-        ejb.deleteMessages(queueName, status, before);
+        ejb.deleteMessages(queueName, status, before, null);
     }
 }

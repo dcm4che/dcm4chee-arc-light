@@ -132,8 +132,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore) {
-        return ejb.deleteMessages(queueName, status, updatedBefore);
+    public int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore, String deviceName) {
+        return ejb.deleteMessages(queueName, status, updatedBefore, deviceName);
     }
 
     @Override

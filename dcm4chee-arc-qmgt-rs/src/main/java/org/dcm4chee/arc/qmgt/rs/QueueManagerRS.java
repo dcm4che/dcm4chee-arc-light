@@ -173,7 +173,7 @@ public class QueueManagerRS {
     public String deleteMessages() {
         logRequest();
         return "{\"deleted\":"
-                + mgr.deleteMessages(queueName, parseStatus(status), parseDate(updatedBefore))
+                + mgr.deleteMessages(queueName, parseStatus(status), parseDate(updatedBefore), dicomDeviceName)
                 + '}';
     }
 
