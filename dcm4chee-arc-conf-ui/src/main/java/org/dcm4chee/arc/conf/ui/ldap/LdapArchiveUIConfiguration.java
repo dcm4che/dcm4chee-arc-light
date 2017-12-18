@@ -86,6 +86,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             storePermission(diffs, uiPermission, uiConfigDN);
         for (UIDiffConfig uiDiffConfig : uiConfig.getDiffConfigs())
             storeDiffConfig(diffs, uiDiffConfig, uiConfigDN);
+        for (UIDashboardConfig uiDashboardConfig : uiConfig.getDashboardConfigs())
+            storeDashboardConfig(diffs, uiDashboardConfig, uiConfigDN);
     }
 
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIConfig uiConfig, Attributes attrs) {
@@ -154,6 +156,22 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         return attrs;
     }
 
+    private void storeDashboardConfig(ConfigurationChanges diffs, UIDashboardConfig uiDashboardConfig, String uiConfigDN)
+            throws NamingException {
+        String uiDashboardConfigDN = LdapUtils.dnOf("dcmuiDashboardConfigName", uiDashboardConfig.getName(), uiConfigDN);
+        ConfigurationChanges.ModifiedObject ldapObj1 =
+                ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiDashboardConfigDN, ConfigurationChanges.ChangeType.C);
+        config.createSubcontext(uiDashboardConfigDN, storeTo(ldapObj1, uiDashboardConfig, new BasicAttributes(true)));
+    }
+
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIDashboardConfig uiDashboardConfig, Attributes attrs) {
+        attrs.put(new BasicAttribute("objectclass", "dcmuiDashboardConfig"));
+        attrs.put(new BasicAttribute("dcmuiDashboardConfigName", uiDashboardConfig.getName()));
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmQueueName", uiDashboardConfig.getQueueNames());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomDeviceName", uiDashboardConfig.getDeviceNames());
+        return attrs;
+    }
+
     @Override
     protected void loadChilds(Device device, String deviceDN) throws NamingException {
         NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=dcmuiConfig)");
@@ -177,6 +195,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         String uiConfigDN = uiConfigDN(uiConfig, deviceDN);
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);
+        loadDashboardConfigs(uiConfig, uiConfigDN);
         return uiConfig;
     }
 
@@ -190,7 +209,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 UIPermission uiPermission = new UIPermission((String) attrs.get("dcmuiPermissionName").get());
                 uiPermission.setAction(LdapUtils.stringValue(attrs.get("dcmuiAction"), null));
                 uiPermission.setActionParams(LdapUtils.stringArray(attrs.get("dcmuiActionParam")));
-                uiPermission.setActionParams(LdapUtils.stringArray(attrs.get("dcmAcceptedUserRole")));
+                uiPermission.setAcceptedUserRoles(LdapUtils.stringArray(attrs.get("dcmAcceptedUserRole")));
                 uiConfig.addPermission(uiPermission);
             }
         } finally {
@@ -244,6 +263,23 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         }
     }
 
+    private void loadDashboardConfigs(UIConfig uiConfig, String uiConfigDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne =
+                config.search(uiConfigDN, "(objectclass=dcmuiDashboardConfig)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UIDashboardConfig uiDashboardConfig = new UIDashboardConfig((String) attrs.get("dcmuiDashboardConfigName").get());
+                uiDashboardConfig.setQueueNames(LdapUtils.stringArray(attrs.get("dcmQueueName")));
+                uiDashboardConfig.setDeviceNames(LdapUtils.stringArray(attrs.get("dicomDeviceName")));
+                uiConfig.addDashboardConfig(uiDashboardConfig);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
     @Override
     protected void mergeChilds(ConfigurationChanges diffs, Device prev, Device device, String deviceDN)
             throws NamingException {
@@ -275,6 +311,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 ConfigurationChanges.addModifiedObject(diffs, uiConfigDN, ConfigurationChanges.ChangeType.U);
         mergePermissions(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDiffConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
+        mergeDashboardConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
     }
 
     private void mergePermissions(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
@@ -318,6 +355,47 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedUserRole",
                 a.getAcceptedUserRoles(),
                 b.getAcceptedUserRoles());
+        return mods;
+    }
+
+    private void mergeDashboardConfigs(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
+            throws NamingException {
+        for (UIDashboardConfig prevUIDashboardConfig : prevUIConfig.getDashboardConfigs()) {
+            String prevUIDashboardConfigName = prevUIDashboardConfig.getName();
+            if (uiConfig.getDashboardConfig(prevUIDashboardConfigName) == null) {
+                String dn = LdapUtils.dnOf("dcmuiDashboardConfigName", prevUIDashboardConfigName, uiConfigDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UIDashboardConfig uiDashboardConfig : uiConfig.getDashboardConfigs()) {
+            String uiDashboardConfigName = uiDashboardConfig.getName();
+            String dn = LdapUtils.dnOf("dcmuiDashboardConfigName", uiDashboardConfigName, uiConfigDN);
+            UIDashboardConfig prevUIDashboardConfig = prevUIConfig.getDashboardConfig(uiDashboardConfigName);
+            if (prevUIDashboardConfig == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                uiDashboardConfig, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevUIDashboardConfig, uiDashboardConfig,
+                        new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
+    private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIDashboardConfig a,
+                                              UIDashboardConfig b, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiff(ldapObj, mods, "dcmQueueName",
+                a.getQueueNames(),
+                b.getQueueNames());
+        LdapUtils.storeDiff(ldapObj, mods, "dicomDeviceName",
+                a.getDeviceNames(),
+                b.getDeviceNames());
         return mods;
     }
 

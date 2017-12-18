@@ -83,6 +83,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmuiConfigName", uiConfig.getName(), null);
         writeUIPermissions(writer, uiConfig.getPermissions());
         writeUIDiffConfigs(writer, uiConfig.getDiffConfigs());
+        writeUIDashboardConfigs(writer, uiConfig.getDashboardConfigs());
         writer.writeEnd();
     }
 
@@ -142,6 +143,21 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writer.writeEnd();
     }
 
+    private void writeUIDashboardConfigs(JsonWriter writer, Collection<UIDashboardConfig> dashboardConfigs) {
+        if (dashboardConfigs.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiDashboardConfig");
+        for (UIDashboardConfig uiDashboardConfig : dashboardConfigs) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiDashboardConfigName", uiDashboardConfig.getName(), null);
+            writer.writeNotEmpty("dcmQueueName", uiDashboardConfig.getQueueNames());
+            writer.writeNotEmpty("dicomDeviceName", uiDashboardConfig.getDeviceNames());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
     private void loadFrom(UIConfigDeviceExtension ext, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
@@ -165,6 +181,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmuiDiffConfig":
                     loadUIDiffConfigs(uiConfig.getDiffConfigs(), reader);
+                    break;
+                case "dcmuiDashboardConfig":
+                    loadUIDashboardConfigs(uiConfig.getDashboardConfigs(), reader);
                     break;
             }
         }
@@ -280,6 +299,33 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             uiDiffCriterias.add(uiDiffCriteria);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadUIDashboardConfigs(Collection<UIDashboardConfig> dashboardConfigs, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIDashboardConfig uiDashboardConfig = new UIDashboardConfig();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiDashboardConfigName":
+                        uiDashboardConfig.setName(reader.stringValue());
+                        break;
+                    case "dcmQueueName":
+                        uiDashboardConfig.setQueueNames(reader.stringArray());
+                        break;
+                    case "dicomDeviceName":
+                        uiDashboardConfig.setDeviceNames(reader.stringArray());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            dashboardConfigs.add(uiDashboardConfig);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

@@ -1,17 +1,25 @@
 {
-  "title": "Dashboard",
-  "description": "Dashboard config",
+  "title": "UI Dashboard Configuration",
+  "description": "UI Dashboard Configuration",
   "type": "object",
+  "required": [
+    "dcmuiDashboardConfigName"
+  ],
   "properties": {
-    "dcmUiQueueName": {
+    "dcmuiDashboardConfigName": {
+      "title": "UI Dashboard Configuration Name",
+      "description": "UI Dashboard Configuration Name",
+      "type": "string"
+    },
+    "dcmQueueName": {
       "title": "Queues",
       "description": "Used Queue names in the queue block",
       "type": "array",
       "items" : { "type": "string" },
       "format" : "dcmQueueName"
     },
-    "dcmUiDevice": {
-      "title": "Device",
+    "dicomDeviceName": {
+      "title": "Device Name",
       "description": "Devices used for generating the Retrieve and Export block",
       "type": "array",
       "items" : { "type": "string" },
