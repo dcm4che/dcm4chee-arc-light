@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.qmgt.rs;
 
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -144,7 +145,7 @@ public class QueueManagerRS {
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
-        } catch (IllegalTaskStateException e) {
+        } catch (IllegalTaskStateException|DifferentDeviceException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
     }

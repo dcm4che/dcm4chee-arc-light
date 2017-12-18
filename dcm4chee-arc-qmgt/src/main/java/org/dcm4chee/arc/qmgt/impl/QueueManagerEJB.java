@@ -49,6 +49,7 @@ import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -214,17 +215,23 @@ public class QueueManagerEJB {
         return true;
     }
 
-    public boolean rescheduleMessage(String msgId, String deviceName, String queueName) throws IllegalTaskStateException {
+    public boolean rescheduleMessage(String msgId, String queueName)
+            throws IllegalTaskStateException, DifferentDeviceException {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
             return false;
 
-        QueueMessage.Status status = entity.getStatus();
-        if (status == QueueMessage.Status.SCHEDULED
-                || status == QueueMessage.Status.IN_PROCESS || !deviceName.equals(entity.getDeviceName()))
-            throw new IllegalTaskStateException(
-                    "Cannot reschedule Task[id=" + msgId + "] with Status: " + status + " and deviceName: " + entity.getDeviceName());
+        if (!device.getDeviceName().equals(entity.getDeviceName()))
+            throw new DifferentDeviceException("Cannot reschedule Task[id=" + msgId
+                    + "] previous scheduled on Device " + entity.getDeviceName()
+                    + " on Device " + device.getDeviceName());
 
+        switch (entity.getStatus()) {
+            case SCHEDULED:
+            case IN_PROCESS:
+                throw new IllegalTaskStateException(
+                        "Cannot reschedule Task[id=" + msgId + "] with Status: " + entity.getStatus());
+        }
         if (queueName != null)
             entity.setQueueName(queueName);
         entity.setNumberOfFailures(0);
