@@ -47,6 +47,7 @@ import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QRetrieveTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -228,7 +229,8 @@ public class RetrieveManagerEJB {
         return true;
     }
 
-    public boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException {
+    public boolean rescheduleRetrieveTask(Long pk)
+            throws IllegalTaskStateException, DifferentDeviceException {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
             return false;

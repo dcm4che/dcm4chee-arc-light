@@ -52,14 +52,11 @@ import org.dcm4chee.arc.entity.QExportTask;
 import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.MatchDateTimeRange;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -369,7 +366,8 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException {
+    public boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter)
+            throws IllegalTaskStateException, DifferentDeviceException {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
             return false;

@@ -419,6 +419,7 @@
     <module>dcm4chee-arc-conf-ldap</module>
     <module>dcm4chee-arc-conf-rs</module>
     <module>dcm4chee-arc-conf-test</module>
+    <module>dcm4chee-arc-conf-ui</module>
     <module>dcm4chee-arc-ctrl</module>
     <module>dcm4chee-arc-delete</module>
     <module>dcm4chee-arc-dimse-rs</module>

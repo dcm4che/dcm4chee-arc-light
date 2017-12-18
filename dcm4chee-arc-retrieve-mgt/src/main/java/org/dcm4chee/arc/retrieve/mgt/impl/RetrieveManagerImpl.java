@@ -44,6 +44,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -181,7 +182,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException {
+    public boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException, DifferentDeviceException {
         return ejb.rescheduleRetrieveTask(pk);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016-2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,48 +35,57 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.export.mgt;
-
-import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.ExportTask;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
-
-import javax.enterprise.event.Observes;
-import java.util.List;
+package org.dcm4chee.arc.conf.ui;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Feb 2016
+ * @since Nov 2017
  */
-public interface ExportManager {
-    void onStore(@Observes StoreContext ctx);
+public class UIPermission {
+    private String name;
+    private String action;
+    private String[] actionParams = {};
+    private String[] acceptedUserRoles = {};
 
-    int scheduleExportTasks(int fetchSize);
+    public UIPermission() {
+    }
 
-    void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                            HttpServletRequestInfo httpServletRequestInfo) throws QueueSizeLimitExceededException;
+    public UIPermission(String name) {
+        setName(name);
+    }
 
-    void updateExportTask(Long pk);
+    public String getName() {
+        return name;
+    }
 
-    List<ExportTask> search(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status,
-            int offset, int limit);
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    long countExportTasks(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status);
+    public String getAction() {
+        return action;
+    }
 
-    boolean deleteExportTask(Long pk);
+    public void setAction(String action) {
+        this.action = action;
+    }
 
-    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
+    public String[] getActionParams() {
+        return actionParams;
+    }
 
-    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException, DifferentDeviceException;
+    public void setActionParams(String[] actionParams) {
+        this.actionParams = actionParams;
+    }
+
+    public String[] getAcceptedUserRoles() {
+        return acceptedUserRoles;
+    }
+
+    public void setAcceptedUserRoles(String[] acceptedUserRoles) {
+        this.acceptedUserRoles = acceptedUserRoles;
+    }
 }

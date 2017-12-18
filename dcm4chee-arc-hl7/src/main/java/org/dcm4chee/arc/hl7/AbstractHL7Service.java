@@ -85,9 +85,9 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
         ArchiveHL7ApplicationExtension arcHl7App =
                 hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
         log(msg, arcHl7App.hl7LogFilePattern());
-        forwardHL7(arcHl7App, s, msg);
         try {
             process(hl7App, s, msg);
+            forwardHL7(arcHl7App, s, msg);
         } catch (HL7Exception e) {
             log(msg, arcHl7App.hl7ErrorLogFilePattern());
             throw e;

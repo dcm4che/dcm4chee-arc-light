@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016-2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,48 +35,67 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.export.mgt;
+package org.dcm4chee.arc.conf.ui;
 
-import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.ExportTask;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
-
-import javax.enterprise.event.Observes;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Feb 2016
+ * @since Nov 2017
  */
-public interface ExportManager {
-    void onStore(@Observes StoreContext ctx);
+public class UIConfig {
 
-    int scheduleExportTasks(int fetchSize);
+    private String name;
+    private Map<String, UIPermission> permissions = new HashMap<>();
+    private Map<String, UIDiffConfig> diffConfigs = new HashMap<>();
 
-    void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                            HttpServletRequestInfo httpServletRequestInfo) throws QueueSizeLimitExceededException;
+    public UIConfig() {
+    }
 
-    void updateExportTask(Long pk);
+    public UIConfig(String name) {
+        this.name = name;
+    }
 
-    List<ExportTask> search(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status,
-            int offset, int limit);
+    public String getName() {
+        return name;
+    }
 
-    long countExportTasks(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status);
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    boolean deleteExportTask(Long pk);
+    public UIPermission getPermission(String name) {
+        return permissions.get(name);
+    }
 
-    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
+    public void addPermission(UIPermission permission) {
+        permissions.put(permission.getName(), permission);
+    }
 
-    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException, DifferentDeviceException;
+    public UIPermission removePermission(String name) {
+        return permissions.remove(name);
+    }
+
+    public Collection<UIPermission> getPermissions() {
+        return permissions.values();
+    }
+
+    public UIDiffConfig getDiffConfig(String name) {
+        return diffConfigs.get(name);
+    }
+
+    public void addDiffConfig(UIDiffConfig DiffConfig) {
+        diffConfigs.put(DiffConfig.getName(), DiffConfig);
+    }
+
+    public UIDiffConfig removeDiffConfig(String name) {
+        return diffConfigs.remove(name);
+    }
+
+    public Collection<UIDiffConfig> getDiffConfigs() {
+        return diffConfigs.values();
+    }
 }

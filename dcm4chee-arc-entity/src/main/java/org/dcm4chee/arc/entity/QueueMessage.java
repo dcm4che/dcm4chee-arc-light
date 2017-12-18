@@ -344,25 +344,34 @@ public class QueueMessage {
             gen.write("outcomeMessage", outcomeMessage);
     }
 
-    public void writeStatusAsCSVTo(OutputStream out, DateFormat df) throws IOException {
-        out.write(getAsBytes(deviceName));
-        out.write(getAsBytes(status.toString()));
-        out.write(getAsBytes(df.format(scheduledTime)));
-        out.write(getAsBytes(numberOfFailures > 0 ? numberOfFailures : ""));
-        out.write(getAsBytes(processingStartTime != null ? df.format(processingStartTime) : ""));
-        out.write(getAsBytes(processingEndTime != null ? df.format(processingEndTime) : ""));
-        out.write(getAsBytes(errorMessage != null ? errorMessage : ""));
-        out.write(getLastValAsBytes(outcomeMessage != null ? outcomeMessage : ""));
+    public void writeStatusAsCSVTo(Writer writer, DateFormat df) throws IOException {
+        writer.write(deviceName);
+        writer.write(',');
+        writer.write(status.toString());
+        writer.append(',');
+        writer.write(df.format(scheduledTime));
+        writer.append(',');
+        if (numberOfFailures > 0)
+            writer.write(String.valueOf(numberOfFailures));
+        writer.append(',');
+        if (processingStartTime != null)
+            writer.write(df.format(processingStartTime));
+        writer.append(',');
+        if (processingEndTime != null)
+            writer.write(df.format(processingEndTime));
+        writer.append(',');
+        if (errorMessage != null) {
+            writer.write('"');
+            writer.write(errorMessage.replace("\"", "\"\""));
+            writer.write('"');
+        }
+        writer.append(',');
+        if (outcomeMessage != null) {
+            writer.write('"');
+            writer.write(outcomeMessage.replace("\"", "\"\""));
+            writer.write('"');
+        }
     }
-
-    private byte[] getAsBytes(Object val) {
-        return ("\"" + val + "\",").getBytes();
-    }
-
-    private byte[] getLastValAsBytes(Object val) {
-        return ("\"" + val + "\"").getBytes();
-    }
-
 
     private String propertiesOf(ObjectMessage msg) throws JMSException {
         StringBuilder sb = new StringBuilder(512);

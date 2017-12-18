@@ -43,7 +43,7 @@ import org.dcm4che3.util.TagUtils;
 import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -324,28 +324,48 @@ public class RetrieveTask {
         gen.flush();
     }
 
-    public void writeAsCSVTo(OutputStream out) throws IOException {
+    public void writeAsCSVTo(Writer writer) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        out.write(getAsBytes(pk));
-        out.write(getAsBytes(df.format(createdTime)));
-        out.write(getAsBytes(df.format(updatedTime)));
-        out.write(getAsBytes(localAET));
-        out.write(getAsBytes(remoteAET));
-        out.write(getAsBytes(destinationAET));
-        out.write(getAsBytes(studyInstanceUID));
-        out.write(getAsBytes(seriesInstanceUID != null ? seriesInstanceUID : ""));
-        out.write(getAsBytes(sopInstanceUID != null ? sopInstanceUID : ""));
-        out.write(getAsBytes(remaining > 0 ? remaining : ""));
-        out.write(getAsBytes(completed > 0 ? completed : ""));
-        out.write(getAsBytes(failed > 0 ? failed : ""));
-        out.write(getAsBytes(warning > 0 ? warning : ""));
-        out.write(getAsBytes(statusCode != -1 ? TagUtils.shortToHexString(statusCode) : ""));
-        out.write(getAsBytes(errorComment != null ? errorComment : ""));
-        queueMessage.writeStatusAsCSVTo(out, df);
-    }
-
-    private byte[] getAsBytes(Object val) {
-        return ("\"" + val + "\",").getBytes();
+        writer.write(String.valueOf(pk));
+        writer.write(',');
+        writer.write(df.format(createdTime));
+        writer.write(',');
+        writer.write(df.format(updatedTime));
+        writer.write(',');
+        writer.write(localAET);
+        writer.write(',');
+        writer.write(remoteAET);
+        writer.write(',');
+        writer.write(destinationAET);
+        writer.write(',');
+        writer.write(studyInstanceUID);
+        writer.write(',');
+        if (seriesInstanceUID != null)
+            writer.write(seriesInstanceUID);
+        writer.write(',');
+        if (sopInstanceUID != null)
+            writer.write(sopInstanceUID);
+        writer.write(',');
+        writer.write(String.valueOf(remaining));
+        writer.write(',');
+        writer.write(String.valueOf(completed));
+        writer.write(',');
+        writer.write(String.valueOf(failed));
+        writer.write(',');
+        writer.write(String.valueOf(warning));
+        writer.write(',');
+        if (statusCode != -1)
+            writer.write(TagUtils.shortToHexString(statusCode));
+        writer.write(',');
+        if (errorComment != null) {
+            writer.write('"');
+            writer.write(errorComment.replace("\"", "\"\""));
+            writer.write('"');
+        }
+        writer.write(',');
+        queueMessage.writeStatusAsCSVTo(writer, df);
+        writer.write('\r');
+        writer.write('\n');
     }
 
     @Override

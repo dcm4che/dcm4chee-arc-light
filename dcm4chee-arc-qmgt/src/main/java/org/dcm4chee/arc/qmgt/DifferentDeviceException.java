@@ -1,5 +1,4 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -13,11 +12,11 @@
  * License.
  *
  * The Original Code is part of dcm4che, an implementation of DICOM(TM) in
- * Java(TM), hosted at https://github.com/dcm4che.
+ * Java(TM), hosted at https://github.com/gunterze/dcm4che.
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,44 +34,15 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
  */
 
 package org.dcm4chee.arc.qmgt;
 
-import org.dcm4chee.arc.entity.QueueMessage;
+import javax.ejb.ApplicationException;
 
-import javax.jms.ObjectMessage;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
-/**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Sep 2015
- */
-public interface QueueManager {
-    ObjectMessage createObjectMessage(Serializable object);
-
-    QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority) throws QueueSizeLimitExceededException;
-
-    QueueMessage onProcessingStart(String msgId);
-
-    QueueMessage onProcessingSuccessful(String msgId, Outcome outcome);
-
-    QueueMessage onProcessingFailed(String msgId, Throwable e);
-
-    boolean cancelProcessing(String msgId) throws IllegalTaskStateException;
-
-    boolean rescheduleMessage(String msgId, String queueName) throws IllegalTaskStateException, DifferentDeviceException;
-
-    boolean deleteMessage(String msgId);
-
-    int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore);
-
-    List<QueueMessage> search(
-            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime, int offset, int limit);
-
-    long countTasks(
-            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime);
+@ApplicationException(rollback = true)
+public class DifferentDeviceException extends Exception {
+    public DifferentDeviceException(String message) {
+        super(message);
+    }
 }

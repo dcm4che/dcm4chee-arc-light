@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016-2017
+ * Portions created by the Initial Developer are Copyright (C) 2015-2017
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,48 +35,44 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * ** BEGIN LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.export.mgt;
+package org.dcm4chee.arc.conf.ui;
 
-import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.ExportTask;
-import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
-import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4che3.net.DeviceExtension;
 
-import javax.enterprise.event.Observes;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Feb 2016
+ * @since Nov 2017
  */
-public interface ExportManager {
-    void onStore(@Observes StoreContext ctx);
+public class UIConfigDeviceExtension extends DeviceExtension {
+    private final Map<String, UIConfig> map = new HashMap<>();
 
-    int scheduleExportTasks(int fetchSize);
+    public void addUIConfig(UIConfig conf) {
+        map.put(conf.getName(), conf);
+    }
 
-    void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                            HttpServletRequestInfo httpServletRequestInfo) throws QueueSizeLimitExceededException;
+    public UIConfig removeUIConfig(String name) {
+        UIConfig conf = map.remove(name);
+        return conf;
+    }
 
-    void updateExportTask(Long pk);
+    public UIConfig getUIConfig(String name) {
+        return map.get(name);
+    }
 
-    List<ExportTask> search(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status,
-            int offset, int limit);
+    public Collection<UIConfig> getUIConfigs() {
+        return map.values();
+    }
 
-    long countExportTasks(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status);
-
-    boolean deleteExportTask(Long pk);
-
-    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
-
-    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException, DifferentDeviceException;
+    @Override
+    public void reconfigure(DeviceExtension from)  {
+        map.clear();
+        map.putAll(((UIConfigDeviceExtension) from).map);
+    }
 }

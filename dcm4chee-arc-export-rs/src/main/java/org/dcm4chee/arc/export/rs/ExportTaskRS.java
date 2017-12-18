@@ -45,6 +45,7 @@ import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -60,8 +61,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -73,6 +73,24 @@ import java.util.List;
 @Path("monitor/export")
 public class ExportTaskRS {
     private static final Logger LOG = LoggerFactory.getLogger(ExportTaskRS.class);
+    private static final String CSV_HEADER =
+            "pk," +
+            "createdTime," +
+            "updatedTime," +
+            "ExporterID," +
+            "StudyInstanceUID," +
+            "SeriesInstanceUID," +
+            "SOPInstanceUID," +
+            "NumberOfInstances," +
+            "Modality," +
+            "dicomDeviceName," +
+            "status," +
+            "scheduledTime," +
+            "failures," +
+            "processingStartTime," +
+            "processingEndTime," +
+            "errorMessage," +
+            "outcomeMessage\r\n";
 
     @Inject
     private ExportManager mgr;
@@ -134,7 +152,7 @@ public class ExportTaskRS {
 
     @GET
     @NoCache
-    @Produces("text/csv")
+    @Produces("text/csv; charset=UTF-8")
     public Response listAsCSV() throws Exception {
         logRequest();
         return Response.ok(toEntityAsCSV(
@@ -171,7 +189,7 @@ public class ExportTaskRS {
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
-        } catch (IllegalTaskStateException e) {
+        } catch (IllegalTaskStateException|DifferentDeviceException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
     }
@@ -204,26 +222,14 @@ public class ExportTaskRS {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException {
-                out.write(getHeader().getBytes());
-                writeNewLine(out);
+                Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                writer.write(CSV_HEADER);
                 for (ExportTask task : tasks) {
-                    task.writeAsCSVTo(out);
-                    writeNewLine(out);
+                    task.writeAsCSVTo(writer);
                 }
-                out.flush();
-                out.close();
+                writer.flush();
             }
         };
-    }
-
-    private String getHeader() {
-        return "\"pk\",\"createdTime\",\"updatedTime\",\"ExporterID\",\"StudyInstanceUID\"," +
-                "\"SeriesInstanceUID\",\"SOPInstanceUID\",\"NumberOfInstances\",\"Modality\",\"dicomDeviceName\"," +
-                "\"status\",\"scheduledTime\",\"failures\",\"processingStartTime\",\"processingEndTime\",\"errorMessage\",\"outcomeMessage\"";
-    }
-
-    private void writeNewLine(OutputStream out) throws IOException {
-        out.write("\n".getBytes());
     }
 
     private static QueueMessage.Status parseStatus(String s) {

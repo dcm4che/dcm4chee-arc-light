@@ -367,10 +367,28 @@ public class DeletionServiceEJB {
                 && Objects.equals(location.getSize(), locationFromMetadata.getSize());
     }
 
-    public void scheduleMetadataUpdate(Long seriesPk) {
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
+    public boolean claimPurgeInstanceRecordsOfSeries(Long seriesPk) {
+        Series series = em.find(Series.class, seriesPk);
+        if (series.getInstancePurgeTime() == null)
+            return false;
+
+        series.setInstancePurgeTime(null);
+        return true;
+    }
+
+    public boolean scheduleMetadataUpdate(Long seriesPk) {
+        return em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
                 .setParameter(1, seriesPk)
-                .executeUpdate();
+                .executeUpdate() > 0;
+    }
+
+    public boolean updateInstancePurgeState(
+            Long seriesPk, Series.InstancePurgeState from, Series.InstancePurgeState to) {
+        return em.createNamedQuery(Series.UPDATE_INSTANCE_PURGE_STATE)
+                .setParameter(1, seriesPk)
+                .setParameter(2, from)
+                .setParameter(3, to)
+                .executeUpdate() > 0;
     }
 
     private void calculateMissingSeriesQueryAttributes(Long seriesPk) {
