@@ -115,10 +115,11 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             throws NamingException {
         String uiDiffConfigDN = LdapUtils.dnOf("dcmuiDiffConfigName", uiDiffConfig.getName(), uiConfigDN);
         config.createSubcontext(uiDiffConfigDN, storeTo(diffs, uiDiffConfigDN, uiDiffConfig, new BasicAttributes(true)));
+        for (UIDiffCriteria uiDiffCriteria : uiDiffConfig.getCriterias())
+            storeDiffCriteria(diffs, uiDiffConfigDN, uiDiffCriteria);
     }
 
-    private Attributes storeTo(ConfigurationChanges diffs, String uiDiffConfigDN, UIDiffConfig uiDiffConfig, Attributes attrs)
-            throws NamingException {
+    private Attributes storeTo(ConfigurationChanges diffs, String uiDiffConfigDN, UIDiffConfig uiDiffConfig, Attributes attrs) {
         ConfigurationChanges.ModifiedObject ldapObj =
                 ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiDiffConfigDN, ConfigurationChanges.ChangeType.C);
         attrs.put(new BasicAttribute("objectclass", "dcmuiDiffConfig"));
@@ -130,8 +131,6 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDiffSecondaryCFindSCP", uiDiffConfig.getSecondaryCFindSCP(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDiffSecondaryCMoveSCP", uiDiffConfig.getSecondaryCMoveSCP(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDiffSecondaryCStoreSCP", uiDiffConfig.getSecondaryCStoreSCP(), null);
-        for (UIDiffCriteria uiDiffCriteria : uiDiffConfig.getCriterias())
-            storeDiffCriteria(diffs, uiDiffConfigDN, uiDiffCriteria);
         return attrs;
     }
 
