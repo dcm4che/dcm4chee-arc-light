@@ -40,23 +40,18 @@
 
 package org.dcm4chee.arc.conf.ui;
 
-import java.util.*;
-
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Nov 2017
+ * @since Dec 2017
  */
-public class UIConfig {
-
+public class UIDashboardConfig {
     private String name;
-    private Map<String, UIPermission> permissions = new HashMap<>();
-    private Map<String, UIDiffConfig> diffConfigs = new HashMap<>();
-    private Map<String, UIDashboardConfig> dashboardConfigs = new HashMap<>();
+    private String[] queueNames = {};
+    private String[] deviceNames = {};
 
-    public UIConfig() {
+    public UIDashboardConfig() {
     }
 
-    public UIConfig(String name) {
+    public UIDashboardConfig(String name) {
         this.name = name;
     }
 
@@ -68,51 +63,19 @@ public class UIConfig {
         this.name = name;
     }
 
-    public UIPermission getPermission(String name) {
-        return permissions.get(name);
+    public String[] getQueueNames() {
+        return queueNames;
     }
 
-    public void addPermission(UIPermission permission) {
-        permissions.put(permission.getName(), permission);
+    public void setQueueNames(String[] queueNames) {
+        this.queueNames = queueNames;
     }
 
-    public UIPermission removePermission(String name) {
-        return permissions.remove(name);
+    public String[] getDeviceNames() {
+        return deviceNames;
     }
 
-    public Collection<UIPermission> getPermissions() {
-        return permissions.values();
-    }
-
-    public UIDiffConfig getDiffConfig(String name) {
-        return diffConfigs.get(name);
-    }
-
-    public void addDiffConfig(UIDiffConfig diffConfig) {
-        diffConfigs.put(diffConfig.getName(), diffConfig);
-    }
-
-    public UIDiffConfig removeDiffConfig(String name) {
-        return diffConfigs.remove(name);
-    }
-
-    public Collection<UIDiffConfig> getDiffConfigs() {
-        return diffConfigs.values();
-    }
-
-    public UIDashboardConfig getDashboardConfig(String name) {
-        return dashboardConfigs.get(name);
-    }
-
-    public void addDashboardConfig(UIDashboardConfig dashboardConfig) {
-        dashboardConfigs.put(dashboardConfig.getName(), dashboardConfig);
-    }
-
-    public UIDashboardConfig removeDashboardConfig(String name) {
-        return dashboardConfigs.remove(name);
-    }
-
-    public Collection<UIDashboardConfig> getDashboardConfigs() {
-        return dashboardConfigs.values();
+    public void setDeviceNames(String[] deviceNames) {
+        this.deviceNames = deviceNames;
     }
 }
