@@ -30,6 +30,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     inClone;
     pressedKey = [];
     submitValue;
+    isNew = false;
     constructor(
         private route: ActivatedRoute,
         private router: Router,
@@ -55,7 +56,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         this.cfpLoadingBar.start();
         let deviceClone = _.cloneDeep(this.service.device);
 
-        if(this.service.checkIfDuplicatedChild(value,this.recentParams)){
+        if(this.isNew && this.service.checkIfDuplicatedChild(value,this.recentParams)){
             $this.mainservice.setMessage({
                 'title': 'Error',
                 'text': 'Child already exist, change some value and try saving again!',
@@ -415,7 +416,11 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             }
         }
         let title = $this.service.getPaginationTitleFromModel(newModel, newSchema);
-
+        if(title == '[NEW]'){
+            this.isNew = true;
+        }else{
+            this.isNew = false;
+        }
         let newPaginationObject = {
             url: '/device/edit/' + params['device'] + '/' + params['devicereff'] + '/' + params['schema'],
             // title:_.replace(newTitle,lastreff,''),
