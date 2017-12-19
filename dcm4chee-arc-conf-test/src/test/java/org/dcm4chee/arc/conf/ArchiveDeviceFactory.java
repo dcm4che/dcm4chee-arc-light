@@ -1617,9 +1617,10 @@ class ArchiveDeviceFactory {
     private static void addUIConfigDeviceExtension(Device device, ConfigType configType) {
         UIConfigDeviceExtension ext = new UIConfigDeviceExtension();
         UIConfig uiConfig = new UIConfig("default");
-        addPermissions(uiConfig, configType);
-        if (configType == ConfigType.SAMPLE)
+        if (configType == ConfigType.SAMPLE) {
+            addPermissions(uiConfig, configType);
             addDiffConfig(uiConfig);
+        }
 
         ext.addUIConfig(uiConfig);
         device.addDeviceExtension(ext);
