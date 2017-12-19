@@ -347,7 +347,7 @@ export class StorageSystemsComponent implements OnInit {
             '../aets'
         ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((response) => {
-                $this.aets = response;
+                $this.aets = j4care.extendAetObjectWithAlias(response);
 
             }, (err) => {
                 console.log('error getting aets', err);

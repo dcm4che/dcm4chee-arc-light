@@ -74,6 +74,23 @@ export class j4care {
             return array;
         }
     }
+    static extendAetObjectWithAlias(aet){
+        let aliases = [];
+        let usedAliasNames = [];
+        aet.forEach((a)=>{
+            if(_.hasIn(a,"dcmOtherAETitle")){
+                let clone = _.cloneDeep(a);
+                a.dcmOtherAETitle.forEach(alias=>{
+                    clone.dicomAETitle = alias;
+                    if(usedAliasNames.indexOf(alias) === -1){
+                        aliases.push(clone);
+                        usedAliasNames.push(alias);
+                    }
+                });
+            }
+        });
+        return [...aet,...aliases];
+    }
     download(url){
         this.httpJ4car.refreshToken().subscribe((res)=>{
             let token;

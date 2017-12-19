@@ -3805,7 +3805,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 .subscribe(
                     function (res) {
                         console.log('before call getAes', res, 'this user=', $this.user);
-                        $this.aes = $this.service.getAes($this.user, res);
+                        $this.aes = j4care.extendAetObjectWithAlias($this.service.getAes($this.user, res));
                         console.log('aes', $this.aes);
                         // $this.aesdropdown = $this.aes;
 /*                        $this.aes.map((ae, i) => {
@@ -3842,11 +3842,11 @@ export class StudiesComponent implements OnDestroy,OnInit{
             .subscribe(
                 function (res) {
                     console.log('before call getAes', res, 'this user=', $this.user);
-                    $this.allAes = res.map((res)=>{
+                    $this.allAes = j4care.extendAetObjectWithAlias(res.map((res)=>{
                         res['title'] = res['dicomAETitle'];
                         res['description'] = res['dicomDescription'];
                         return res;
-                    });
+                    }));
                     $this.externalInternalAetModel = $this.allAes[0];
                     // $this.aes = $this.service.getAes($this.user, res);
 /*                    console.log('aes', $this.aes);

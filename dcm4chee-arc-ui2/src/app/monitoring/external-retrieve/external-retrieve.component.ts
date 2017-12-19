@@ -10,6 +10,7 @@ import {ExportDialogComponent} from "../../widgets/dialogs/export/export.compone
 import {MdDialog, MdDialogConfig, MdDialogRef} from "@angular/material";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {DatePipe} from "@angular/common";
+import {j4care} from "../../helpers/j4care.service";
 
 @Component({
   selector: 'external-retrieve',
@@ -124,13 +125,13 @@ export class ExternalRetrieveComponent implements OnInit {
             this.aeListService.getAes(),
             this.aeListService.getAets()
         ).subscribe((response)=>{
-            this.remoteAET = this.destinationAET = (<any[]>response[0]).map(ae => {
+            this.remoteAET = this.destinationAET = (<any[]>j4care.extendAetObjectWithAlias(response[0])).map(ae => {
                 return {
                     value:ae.dicomAETitle,
                     text:ae.dicomAETitle
                 }
             });
-            this.localAET = (<any[]>response[1]).map(ae => {
+            this.localAET = (<any[]>j4care.extendAetObjectWithAlias(response[1])).map(ae => {
                 return {
                     value:ae.dicomAETitle,
                     text:ae.dicomAETitle
