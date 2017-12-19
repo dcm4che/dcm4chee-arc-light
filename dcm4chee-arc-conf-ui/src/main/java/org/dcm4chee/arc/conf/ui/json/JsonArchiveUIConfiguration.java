@@ -177,19 +177,21 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     uiConfig.setName(reader.stringValue());
                     break;
                 case "dcmuiPermission":
-                    loadUIPermissions(uiConfig.getPermissions(), reader);
+                    loadUIPermissions(uiConfig, reader);
                     break;
                 case "dcmuiDiffConfig":
-                    loadUIDiffConfigs(uiConfig.getDiffConfigs(), reader);
+                    loadUIDiffConfigs(uiConfig, reader);
                     break;
                 case "dcmuiDashboardConfig":
-                    loadUIDashboardConfigs(uiConfig.getDashboardConfigs(), reader);
+                    loadUIDashboardConfigs(uiConfig, reader);
                     break;
+                default:
+                    reader.skipUnknownProperty();
             }
         }
     }
 
-    private void loadUIPermissions(Collection<UIPermission> uiPermissions, JsonReader reader) {
+    private void loadUIPermissions(UIConfig uiConfig, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -214,12 +216,12 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            uiPermissions.add(uiPermission);
+            uiConfig.addPermission(uiPermission);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private void loadUIDiffConfigs(Collection<UIDiffConfig> uiDiffConfigs, JsonReader reader) {
+    private void loadUIDiffConfigs(UIConfig uiConfig, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -252,19 +254,19 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                         uiDiffConfig.setSecondaryCStoreSCP(reader.stringValue());
                         break;
                     case "dcmuiDiffCriteria":
-                        loadUIDiffCriterias(uiDiffConfig.getCriterias(), reader);
+                        loadUIDiffCriterias(uiDiffConfig, reader);
                         break;
                     default:
                         reader.skipUnknownProperty();
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            uiDiffConfigs.add(uiDiffConfig);
+            uiConfig.addDiffConfig(uiDiffConfig);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private void loadUIDiffCriterias(Collection<UIDiffCriteria> uiDiffCriterias, JsonReader reader) {
+    private void loadUIDiffCriterias(UIDiffConfig uiDiffConfig, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -298,12 +300,12 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            uiDiffCriterias.add(uiDiffCriteria);
+            uiDiffConfig.addCriteria(uiDiffCriteria);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private void loadUIDashboardConfigs(Collection<UIDashboardConfig> dashboardConfigs, JsonReader reader) {
+    private void loadUIDashboardConfigs(UIConfig uiConfig, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -325,7 +327,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            dashboardConfigs.add(uiDashboardConfig);
+            uiConfig.addDashboardConfig(uiDashboardConfig);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

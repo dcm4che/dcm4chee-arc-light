@@ -35,6 +35,15 @@
       "items" : {
         "$ref": "uiDiffConfig.schema.json"
       }
+    },
+    "dcmuiDashboardConfig": {
+      "title": "UI Dashboard Configuration",
+      "description": "UI Dashboard Configuration",
+      "titleKey":"{dcmuiDashboardConfigName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiDashboard.schema.json"
+      }
     }
   }
 }

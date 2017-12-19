@@ -219,7 +219,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
 
     private void loadDiffConfigs(UIConfig uiConfig, String uiConfigDN) throws NamingException {
         NamingEnumeration<SearchResult> ne =
-                config.search(uiConfigDN, "(objectclass=dcmuiDiffConfigName)");
+                config.search(uiConfigDN, "(objectclass=dcmuiDiffConfig)");
 
         try {
             while (ne.hasMore()) {
@@ -244,7 +244,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
 
     private void loadDiffCriterias(UIDiffConfig uiDiffConfig, String uiDiffConfigDN) throws NamingException {
         NamingEnumeration<SearchResult> ne =
-                config.search(uiDiffConfigDN, "(objectclass=dcmuiDiffCriteriaTitle)");
+                config.search(uiDiffConfigDN, "(objectclass=dcmuiDiffCriteria)");
         try {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
