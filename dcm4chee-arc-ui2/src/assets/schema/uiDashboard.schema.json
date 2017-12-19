@@ -11,16 +11,16 @@
       "description": "UI Dashboard Configuration Name",
       "type": "string"
     },
-    "dcmQueueName": {
+    "dcmuiQueueName": {
       "title": "Queues",
-      "description": "Used Queue names in the queue block",
+      "description": "Queue Names for UI Dashboard Configuration used in queue block",
       "type": "array",
       "items" : { "type": "string" },
       "format" : "dcmQueueName"
     },
-    "dicomDeviceName": {
-      "title": "Device Name",
-      "description": "Devices used for generating the Retrieve and Export block",
+    "dicomuiDeviceName": {
+      "title": "Device Names",
+      "description": "Device Names for UI Dashboard Configuration used for generating the Retrieve and Export block",
       "type": "array",
       "items" : { "type": "string" },
       "format": "dicomDeviceName"

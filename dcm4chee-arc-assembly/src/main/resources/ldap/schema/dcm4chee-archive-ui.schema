@@ -108,6 +108,16 @@ attributetype ( 1.2.40.0.13.1.15.111.3.18 NAME 'dcmuiDashboardConfigName'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.111.3.19 NAME 'dcmuiQueueName'
+  DESC 'Queue Names for UI Dashboard Configuration'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.20 NAME 'dicomuiDeviceName'
+  DESC 'Device Names for UI Dashboard Configuration'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
 objectclass ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
   DESC 'Archive UI Configuration'
   SUP top STRUCTURAL
@@ -157,5 +167,5 @@ objectclass ( 1.2.40.0.13.1.15.111.4.5 NAME 'dcmuiDashboardConfig'
   MUST (
     dcmuiDashboardConfigName )
   MAY (
-    dcmQueueName $
-    dicomDeviceName ) )
+    dcmuiQueueName $
+    dicomuiDeviceName ) )

@@ -167,8 +167,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIDashboardConfig uiDashboardConfig, Attributes attrs) {
         attrs.put(new BasicAttribute("objectclass", "dcmuiDashboardConfig"));
         attrs.put(new BasicAttribute("dcmuiDashboardConfigName", uiDashboardConfig.getName()));
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmQueueName", uiDashboardConfig.getQueueNames());
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomDeviceName", uiDashboardConfig.getDeviceNames());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiQueueName", uiDashboardConfig.getQueueNames());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomuiDeviceName", uiDashboardConfig.getDeviceNames());
         return attrs;
     }
 
@@ -271,8 +271,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 SearchResult sr = ne.next();
                 Attributes attrs = sr.getAttributes();
                 UIDashboardConfig uiDashboardConfig = new UIDashboardConfig((String) attrs.get("dcmuiDashboardConfigName").get());
-                uiDashboardConfig.setQueueNames(LdapUtils.stringArray(attrs.get("dcmQueueName")));
-                uiDashboardConfig.setDeviceNames(LdapUtils.stringArray(attrs.get("dicomDeviceName")));
+                uiDashboardConfig.setQueueNames(LdapUtils.stringArray(attrs.get("dcmuiQueueName")));
+                uiDashboardConfig.setDeviceNames(LdapUtils.stringArray(attrs.get("dicomuiDeviceName")));
                 uiConfig.addDashboardConfig(uiDashboardConfig);
             }
         } finally {
@@ -390,10 +390,10 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
 
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIDashboardConfig a,
                                               UIDashboardConfig b, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiff(ldapObj, mods, "dcmQueueName",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiQueueName",
                 a.getQueueNames(),
                 b.getQueueNames());
-        LdapUtils.storeDiff(ldapObj, mods, "dicomDeviceName",
+        LdapUtils.storeDiff(ldapObj, mods, "dicomuiDeviceName",
                 a.getDeviceNames(),
                 b.getDeviceNames());
         return mods;
