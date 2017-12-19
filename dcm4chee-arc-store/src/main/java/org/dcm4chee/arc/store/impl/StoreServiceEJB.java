@@ -1052,6 +1052,8 @@ public class StoreServiceEJB {
     private Series createSeries(StoreContext ctx, Study study, UpdateDBResult result) {
         Series series = new Series();
         setSeriesAttributes(ctx, series);
+        series.setSopClassUID(ctx.getSopClassUID());
+        series.setTransferSyntaxUID(ctx.getStoreTranferSyntax());
         series.setStudy(study);
         series.setInstancePurgeState(Series.InstancePurgeState.NO);
         if (result.getRejectionNote() == null) {

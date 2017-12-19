@@ -307,7 +307,6 @@ public class QueryBuilder {
             builder.and(idWithIssuer(QStudy.study.accessionNumber, QStudy.study.issuerOfAccessionNumber, accNo, issuer));
         }
         builder.and(seriesAttributesInStudy(keys, queryParam));
-        builder.and(sopClassInStudy(keys.getString(Tag.SOPClassesInStudy, "*")));
         builder.and(code(QStudy.study.procedureCodes, keys.getNestedDataset(Tag.ProcedureCodeSequence)));
         if (queryParam.isHideNotRejectedInstances())
             builder.and(QStudy.study.rejectionState.ne(RejectionState.NONE));
@@ -666,6 +665,7 @@ public class QueryBuilder {
             .and(wildCard(QSeries.series.stationName, keys.getString(Tag.StationName), true))
             .and(wildCard(QSeries.series.seriesDescription, keys.getString(Tag.SeriesDescription), true))
             .and(wildCard(QSeries.series.modality, keys.getString(Tag.ModalitiesInStudy, "*").toUpperCase(), false))
+            .and(wildCard(QSeries.series.sopClassUID, keys.getString(Tag.SOPClassesInStudy, "*"), false))
             .and(wildCard(QSeries.series.bodyPartExamined, keys.getString(Tag.BodyPartExamined, "*").toUpperCase(), false));
         if (queryParam.getSendingApplicationEntityTitleOfSeries() != null)
             result.and(wildCard(QSeries.series.sourceAET, queryParam.getSendingApplicationEntityTitleOfSeries().toUpperCase(), false));
@@ -673,17 +673,6 @@ public class QueryBuilder {
             return null;
         return JPAExpressions.selectFrom(QSeries.series)
                 .where(QSeries.series.study.eq(QStudy.study), result).exists();
-    }
-
-    static Predicate sopClassInStudy(String sopClass) {
-        if (sopClass.equals("*"))
-            return null;
-
-        return JPAExpressions.selectFrom(QInstance.instance)
-                .join(QInstance.instance.series, QSeries.series)
-                .where(QSeries.series.study.eq(QStudy.study),
-                        wildCard(QInstance.instance.sopClassUID, sopClass,
-                                false)).exists();
     }
 
     static Predicate code(Attributes item) {

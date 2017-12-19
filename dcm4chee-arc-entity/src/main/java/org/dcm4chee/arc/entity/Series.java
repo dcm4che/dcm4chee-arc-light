@@ -187,6 +187,8 @@ import java.util.Date;
         @Index(columnList = "rejection_state"),
         @Index(columnList = "series_no"),
         @Index(columnList = "modality"),
+        @Index(columnList = "sop_cuid"),
+        @Index(columnList = "tsuid"),
         @Index(columnList = "station_name"),
         @Index(columnList = "pps_start_date"),
         @Index(columnList = "pps_start_time"),
@@ -294,6 +296,14 @@ public class Series {
     @Basic(optional = false)
     @Column(name = "modality")
     private String modality;
+
+    @Basic(optional = false)
+    @Column(name = "sop_cuid")
+    private String sopClassUID;
+
+    @Basic(optional = false)
+    @Column(name = "tsuid")
+    private String transferSyntaxUID;
 
     @Basic(optional = false)
     @Column(name = "department")
@@ -448,6 +458,22 @@ public class Series {
 
     public String getModality() {
         return modality;
+    }
+
+    public String getSopClassUID() {
+        return sopClassUID;
+    }
+
+    public void setSopClassUID(String sopClassUID) {
+        this.sopClassUID = sopClassUID;
+    }
+
+    public String getTransferSyntaxUID() {
+        return transferSyntaxUID;
+    }
+
+    public void setTransferSyntaxUID(String transferSyntaxUID) {
+        this.transferSyntaxUID = transferSyntaxUID;
     }
 
     public String getInstitutionalDepartmentName() {

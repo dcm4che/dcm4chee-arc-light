@@ -325,7 +325,9 @@ public class DeletionServiceEJB {
                 .setParameter(1, seriesPk)
                 .getResultList();
         if (!verifyMetadata(locationsFromMetadata, locations)) {
-            series.setMetadataScheduledUpdateTime(new Date());
+            Date now = new Date();
+            series.setMetadataScheduledUpdateTime(now);
+            series.setInstancePurgeTime(now);
             return false;
         }
         calculateMissingSeriesQueryAttributes(seriesPk);
