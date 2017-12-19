@@ -1183,6 +1183,7 @@ class ArchiveDeviceFactory {
                     Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
                     Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
             device.addConnection(dicomTLS);
+            addUIConfigDeviceExtension(device, configType);
         }
 
         addArchiveDeviceExtension(device, configType, storescu, mppsscu, scheduledStation);
@@ -1190,7 +1191,6 @@ class ArchiveDeviceFactory {
         addAuditLoggerDeviceExtension(device, arrDevice, archiveHost, suppressAuditQueryFromArchive());
         device.addDeviceExtension(new ImageReaderExtension(ImageReaderFactory.getDefault()));
         device.addDeviceExtension(new ImageWriterExtension(ImageWriterFactory.getDefault()));
-        addUIConfigDeviceExtension(device, configType);
 
         device.setManufacturer("dcm4che.org");
         device.setManufacturerModelName("dcm4chee-arc");
@@ -1617,11 +1617,8 @@ class ArchiveDeviceFactory {
     private static void addUIConfigDeviceExtension(Device device, ConfigType configType) {
         UIConfigDeviceExtension ext = new UIConfigDeviceExtension();
         UIConfig uiConfig = new UIConfig("default");
-        if (configType == ConfigType.SAMPLE) {
-            addPermissions(uiConfig, configType);
-            addDiffConfig(uiConfig);
-        }
-
+        addPermissions(uiConfig, configType);
+        addDiffConfig(uiConfig);
         ext.addUIConfig(uiConfig);
         device.addDeviceExtension(ext);
     }
