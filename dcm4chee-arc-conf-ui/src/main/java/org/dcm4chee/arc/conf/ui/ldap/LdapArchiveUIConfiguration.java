@@ -414,7 +414,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             String uiDiffConfigDN = LdapUtils.dnOf("dcmuiDiffConfigName", uiDiffConfigName, uiConfigDN);
             UIDiffConfig prevUIDiffConfig = prevUIConfig.getDiffConfig(uiDiffConfigName);
             if (prevUIDiffConfig == null)
-                storeDiffConfig(diffs, uiDiffConfig, uiDiffConfigDN);
+                storeDiffConfig(diffs, uiDiffConfig, uiConfigDN);
             else
                 config.modifyAttributes(uiDiffConfigDN, storeDiffs(diffs, uiDiffConfigDN, prevUIDiffConfig, uiDiffConfig,
                         new ArrayList<ModificationItem>()));
