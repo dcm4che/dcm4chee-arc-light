@@ -5,9 +5,6 @@ changetype: modify
 delete: olcAttributeTypes
 -
 add: olcAttributeTypes
-dn: cn=dcm4chee-archive-ui,cn=schema,cn=config
-objectClass: olcSchemaConfig
-cn: dcm4chee-archive-ui
 olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.1 NAME 'dcmuiConfigName'
   DESC 'UI Configuration Name'
   EQUALITY caseExactMatch
