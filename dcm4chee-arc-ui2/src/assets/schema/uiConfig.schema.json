@@ -20,13 +20,6 @@
         "$ref": "uiPermission.schema.json"
       }
     },
-    "dcmuiDashboard": {
-      "title": "Dashboard",
-      "description": "Dashboard config (Only for Pro version)",
-      "type": "object",
-      "$ref": "uiDashboard.schema.json"
-
-    },
     "dcmuiDiffConfig": {
       "title": "Study Diff Configuration",
       "description": "Study Diff Configuration",
