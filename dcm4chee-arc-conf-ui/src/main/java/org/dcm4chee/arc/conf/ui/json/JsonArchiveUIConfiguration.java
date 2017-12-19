@@ -133,7 +133,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiDiffCriteriaTitle", uiDiffCriteria.getTitle(), null);
             writer.writeNotNullOrDef("dicomDescription", uiDiffCriteria.getDescription(), null);
-            writer.writeNotDef("dcmuiDiffIncludeMissing", uiDiffCriteria.isIncludeMissing(), false);
+            writer.writeNotDef("dcmuiDiffCriteriaNumber", uiDiffCriteria.getNumber(), 0);
             writer.writeNotDef("dcmuiDiffIncludeMissing", uiDiffCriteria.isIncludeMissing(), false);
             writer.writeNotNullOrDef("dcmAttributeSetID", uiDiffCriteria.getAttributeSetID(), null);
             writer.writeNotEmpty("dcmuiDiffGroupButton", uiDiffCriteria.getGroupButtons());
