@@ -3,6 +3,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {AppService} from "../../app.service";
 import {DevicesService} from "../../devices/devices.service";
+import * as _ from 'lodash';
 
 @Injectable()
 export class ExternalRetrieveService {
@@ -18,7 +19,13 @@ export class ExternalRetrieveService {
         return this.$http.get('../monitor/retrieve' + '?' + this.mainservice.param(filter))
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
     };
-
+    getCount(filter) {
+        let filterClone = _.cloneDeep(filter);
+            delete filterClone.offset;
+            delete filterClone.limit;
+        return this.$http.get('../monitor/retrieve/count' + '?' + this.mainservice.param(filterClone))
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+    };
     getExporters(){
       return this.$http.get('../export')
           .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
@@ -33,7 +40,7 @@ export class ExternalRetrieveService {
     cancel(pk){
         return this.$http.post('../monitor/retrieve/' + pk + '/cancel', {});
     }
-    getFilterSchema(localAET,destinationAET,remoteAET,devices){
+    getFilterSchema(localAET,destinationAET,remoteAET,devices, countText){
     return [
         [
                 [
@@ -144,14 +151,14 @@ export class ExternalRetrieveService {
             ],[
                 [
                     {
-                        tag:"label",
-                        text:"Update before"
+                        tag:"p-calendar",
+                        filterKey:"createdTime",
+                        description:"Created Date Time"
                     },
                     {
                         tag:"p-calendar",
-                        filterKey:"updatedBefore",
-                        dateFormat:"yy-mm-dd",
-                        description:"maximum update date of tasks to filter by. Format: YYYY-MM-DD"
+                        filterKey:"updatedTime",
+                        description:"Updated Date Time"
                     }
                 ],
                 [
@@ -168,10 +175,14 @@ export class ExternalRetrieveService {
                 ],
                 [
                     {
-                        tag:"dummy"
+                        tag:"button",
+                        id:"count",
+                        text:countText,
+                        description:"QUERIE ONLY THE COUNT"
                     },
                     {
                         tag:"button",
+                        id:"submit",
                         text:"SUBMIT",
                         description:"Maximal number of tasks in returned list"
                     }

@@ -32,6 +32,7 @@ export class ExternalRetrieveComponent implements OnInit {
     exporterID;
     datePipe = new DatePipe('us-US');
     devices;
+    count;
     constructor(
       public cfpLoadingBar: SlimLoadingBarService,
       public mainservice: AppService,
@@ -168,7 +169,7 @@ export class ExternalRetrieveComponent implements OnInit {
         return objs[0].offset + this.filterObject.limit*1;
     };
     initSchema(){
-        this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET, this.devices);
+        this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET, this.devices,`COUNT ${((this.count || this.count == 0)?this.count:'')}`);
 
     }
     confirm(confirmparameters){
@@ -193,7 +194,7 @@ export class ExternalRetrieveComponent implements OnInit {
                         (res) => {
                             // match.properties.status = 'CANCELED';
                             $this.cfpLoadingBar.complete();
-                            $this.onSubmit(match.offset||0);
+                            $this.getTasks(match.offset||0);
                             $this.mainservice.setMessage({
                                 'title': 'Info',
                                 'text': 'Task deleted successfully!',
@@ -245,7 +246,7 @@ export class ExternalRetrieveComponent implements OnInit {
                 this.service.reschedule(match.properties.pk)
                     .subscribe(
                         (res) => {
-                            $this.onSubmit(match.offset||0);
+                            $this.getTasks(match.offset||0);
                             $this.cfpLoadingBar.complete();
                             $this.mainservice.setMessage({
                                 'title': 'Info',
@@ -282,14 +283,27 @@ export class ExternalRetrieveComponent implements OnInit {
                     }
                 });
                 setTimeout(()=>{
-                    this.onSubmit(this.externalRetrieveEntries[0].offset || 0);
+                    this.getTasks(this.externalRetrieveEntries[0].offset || 0);
                     this.cfpLoadingBar.complete();
                 },300);
 
             }
         });
     }
-    onSubmit(offset){
+    onSubmit(object){
+        if(_.hasIn(object,"id") && _.hasIn(object,"model")){
+            if(_.hasIn(object,"model.updatedBefore")){
+                object.model.updatedBefore = this.datePipe.transform(object.model.updatedBefore,'yyyyMMdd');
+            }
+            if(object.id === "count"){
+                this.getCount();
+            }else{
+                this.getTasks(0);
+            }
+        }
+
+    }
+    getTasks(offset){
         let $this = this;
         $this.cfpLoadingBar.start();
         this.service.getExternalRetrieveEntries(this.filterObject,offset).subscribe(
@@ -300,7 +314,7 @@ export class ExternalRetrieveComponent implements OnInit {
                         if (_.hasIn(properties, 'Modality')){
                             properties.Modality = properties.Modality.join(',');
                         }
-                            properties.NumberOfInstances = ((properties.failed ? properties.failed*1:0) + (properties.completed ? properties.completed*1:0) + (properties.warning ? properties.warning*1:0));
+                        properties.NumberOfInstances = ((properties.failed ? properties.failed*1:0) + (properties.completed ? properties.completed*1:0) + (properties.warning ? properties.warning*1:0));
                         try{
                             properties.InstancePerSec = Math.round((((new Date(properties.processingEndTime).getTime()/1000) - (new Date(properties.processingStartTime).getTime()/1000)) / properties.NumberOfInstances)*1000)/1000;
                         }catch (e){
@@ -312,6 +326,7 @@ export class ExternalRetrieveComponent implements OnInit {
                             showProperties: false
                         };
                     });
+                    $this.count = undefined;
                 }else{
                     $this.cfpLoadingBar.complete();
                     $this.externalRetrieveEntries = [];
@@ -327,6 +342,23 @@ export class ExternalRetrieveComponent implements OnInit {
                 $this.cfpLoadingBar.complete();
                 $this.httpErrorHandler.handleError(err);
             });
+    }
+    getCount(){
+        this.cfpLoadingBar.start();
+        this.service.getCount(this.filterObject).subscribe((count)=>{
+
+            try{
+                this.count = count.count;
+            }catch (e){
+                this.count = "";
+            }
+            this.initSchema();
+            this.cfpLoadingBar.complete();
+        },(err)=>{
+            this.cfpLoadingBar.complete();
+            this.initSchema();
+            this.httpErrorHandler.handleError(err);
+        });
     }
     initExporters(retries) {
         let $this = this;

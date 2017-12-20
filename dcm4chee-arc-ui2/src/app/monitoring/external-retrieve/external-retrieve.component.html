@@ -1,7 +1,7 @@
 <div class="main_content queues monitoring">
   <monitoring-tabs></monitoring-tabs>
   <div class="tab-content">
-    <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit(0)"></filter-generator>
+    <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)"></filter-generator>
     <table class="table table-bordered table-condensed" *ngIf="_.size(externalRetrieveEntries) > 0">
       <thead>
       <tr>
