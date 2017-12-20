@@ -153,12 +153,12 @@ export class ExternalRetrieveService {
                     {
                         tag:"p-calendar",
                         filterKey:"createdTime",
-                        description:"Created Date Time"
+                        description:"Created Date"
                     },
                     {
                         tag:"p-calendar",
                         filterKey:"updatedTime",
-                        description:"Updated Date Time"
+                        description:"Updated Date"
                     }
                 ],
                 [
