@@ -36,6 +36,7 @@ export class ExportComponent implements OnInit {
     dialogRef: MdDialogRef<any>;
     _ = _;
     devices;
+    count;
     constructor(
         public $http:J4careHttpService,
         public cfpLoadingBar: SlimLoadingBarService,
@@ -162,6 +163,20 @@ export class ExportComponent implements OnInit {
                 console.log('err', err);
             });
     };
+    getCount(){
+        this.cfpLoadingBar.start();
+        this.service.getCount(this.filters).subscribe((count)=>{
+            try{
+                this.count = count.count;
+            }catch (e){
+                this.count = "";
+            }
+            this.cfpLoadingBar.complete();
+        },(err)=>{
+            this.cfpLoadingBar.complete();
+            this.httpErrorHandler.handleError(err);
+        });
+    }
     getDifferenceTime(starttime, endtime){
         let start = new Date(starttime).getTime();
         let end = new Date(endtime).getTime();
