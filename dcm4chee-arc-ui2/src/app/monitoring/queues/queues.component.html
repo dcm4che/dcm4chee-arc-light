@@ -37,7 +37,13 @@
                 <div class="col-md-3 block-2-1">
                     <div class="row">
                         <label class="col-md-6 text-right control-label">Device Name:</label>
-                        <div class="col-md-6">
+                        <div class="col-md-6" *ngIf="devices">
+                            <select [(ngModel)]="dicomDeviceName" class="col-md-12">
+                                <option value="">*</option>
+                                <option *ngFor="let device of devices" value="{{device.dicomDeviceName}}">{{device.dicomDeviceName}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6" *ngIf="!devices">
                             <input type="text" [(ngModel)]="dicomDeviceName" class="col-md-12"/>
                         </div>
                     </div>
