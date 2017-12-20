@@ -30,6 +30,7 @@ export class QueuesComponent implements OnInit{
     dialogRef: MdDialogRef<any>;
     _ = _;
     devices;
+    count;
     constructor(
         public $http:J4careHttpService,
         public service: QueuesService,
@@ -115,7 +116,6 @@ export class QueuesComponent implements OnInit{
         let $this = this;
         $this.cfpLoadingBar.start();
         this.service.search(this.queueName, this.status, offset, this.limit, this.dicomDeviceName)
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
                 if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
@@ -139,7 +139,21 @@ export class QueuesComponent implements OnInit{
                 console.log('err', err);
                 $this.matches = [];
             });
-    };
+    }
+    getCount(){
+        this.cfpLoadingBar.start();
+        this.service.getCount(this.queueName, this.status, undefined, undefined, this.dicomDeviceName).subscribe((count)=>{
+            try{
+                this.count = count.count;
+            }catch (e){
+                this.count = "";
+            }
+            this.cfpLoadingBar.complete();
+        },(err)=>{
+            this.cfpLoadingBar.complete();
+            this.httpErrorHandler.handleError(err);
+        });
+    }
     scrollToDialog(){
         let counter = 0;
         let i = setInterval(function(){
@@ -322,4 +336,5 @@ export class QueuesComponent implements OnInit{
             console.error("Could not get devices",err);
         });
     }
+
 }

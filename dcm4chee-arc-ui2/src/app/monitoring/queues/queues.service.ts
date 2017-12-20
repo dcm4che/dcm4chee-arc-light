@@ -4,6 +4,7 @@ import {DatePipe} from '@angular/common';
 import {AppService} from '../../app.service';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {DevicesService} from "../../devices/devices.service";
+import {WindowRefService} from "../../helpers/window-ref.service";
 
 @Injectable()
 export class QueuesService {
@@ -12,7 +13,12 @@ export class QueuesService {
     constructor(public $http:J4careHttpService, public mainservice: AppService, private deviceService:DevicesService) { }
 
     search(queueName, status, offset, limit, dicomDeviceName) {
-        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName)));
+        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName)))
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
+    };
+    getCount(queueName, status, offset, limit, dicomDeviceName) {
+        return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName)))
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     };
 
     cancel(queueName, msgId) {
