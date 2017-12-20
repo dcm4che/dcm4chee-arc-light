@@ -170,7 +170,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
             outstandingRSP.remove(inst);
             ctx.incrementFailed();
             ctx.addFailedSOPInstanceUID(iuid);
-            LOG.info("{}: failed to send {} to {}:", rqas, inst, ctx.getDestinationAETitle(), e);
+            LOG.warn("{}: failed to send {} to {}:", rqas != null ? rqas : storeas, inst, ctx.getDestinationAETitle(), e);
         }
     }
 
