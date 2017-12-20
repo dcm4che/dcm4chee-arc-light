@@ -11,6 +11,7 @@ import {ExportDialogComponent} from '../../widgets/dialogs/export/export.compone
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {j4care} from "../../helpers/j4care.service";
 
 @Component({
   selector: 'app-export',
@@ -28,9 +29,12 @@ export class ExportComponent implements OnInit {
         offset: undefined,
         limit: 20,
         status: '*',
-        updatedBefore: undefined,
-        dicomDeviceName: undefined,
-        StudyInstanceUID: undefined
+        dicomDeviceName: '',
+        StudyInstanceUID: undefined,
+        updatedTime: undefined,
+        updatedTimeObject: undefined,
+        createdTime: undefined,
+        createdTimeObject: undefined
     };
     isRole: any = (user)=>{return false;};
     dialogRef: MdDialogRef<any>;
@@ -131,6 +135,7 @@ export class ExportComponent implements OnInit {
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
+        this.convertDates();
         this.service.search(this.filters, offset)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
@@ -165,6 +170,7 @@ export class ExportComponent implements OnInit {
     };
     getCount(){
         this.cfpLoadingBar.start();
+        this.convertDates();
         this.service.getCount(this.filters).subscribe((count)=>{
             try{
                 this.count = count.count;
@@ -176,6 +182,10 @@ export class ExportComponent implements OnInit {
             this.cfpLoadingBar.complete();
             this.httpErrorHandler.handleError(err);
         });
+    }
+    convertDates(){
+        this.filters.updatedTime = j4care.convertDateRangeToString(this.filters.updatedTimeObject);
+        this.filters.createdTime = j4care.convertDateRangeToString(this.filters.createdTimeObject);
     }
     getDifferenceTime(starttime, endtime){
         let start = new Date(starttime).getTime();

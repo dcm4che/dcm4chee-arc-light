@@ -4,6 +4,7 @@ import {AppService} from '../../app.service';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {DevicesService} from "../../devices/devices.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
+import * as _ from 'lodash';
 
 @Injectable()
 export class ExportService {
@@ -26,14 +27,21 @@ export class ExportService {
             limit: limit,
             status:undefined
         }*/
-        filters.offset = (offset && offset != '') ? offset : 0;
-        if (filters.status && filters.status === '*'){
-            delete filters.status;
+        let clonedFilters = _.cloneDeep(filters);
+        clonedFilters.offset = (offset && offset != '') ? offset : 0;
+        if (clonedFilters.status && clonedFilters.status === '*'){
+            delete clonedFilters.status;
         }
-        if (filters.ExporterID && filters.ExporterID === '*'){
-            delete filters.ExporterID;
+        if (clonedFilters.ExporterID && clonedFilters.ExporterID === '*'){
+            delete clonedFilters.ExporterID;
         }
-        return filters;
+        if (clonedFilters.updatedTimeObject){
+            delete clonedFilters.updatedTimeObject;
+        }
+        if (clonedFilters.createdTimeObject){
+            delete clonedFilters.createdTimeObject;
+        }
+        return clonedFilters;
     }
     cancel(pk){
         return this.$http.post('../monitor/export/' + pk + '/cancel', {});

@@ -6,6 +6,7 @@ import {Subscriber} from "rxjs/Subscriber";
 import {Observable} from "rxjs/Observable";
 declare var fetch;
 import * as _ from 'lodash';
+import {DatePipe} from "@angular/common";
 
 @Injectable()
 export class j4care {
@@ -90,6 +91,19 @@ export class j4care {
             }
         });
         return [...aet,...aliases];
+    }
+    static convertDateRangeToString(rangeArray:Date[]){
+        if(rangeArray && rangeArray.length > 0){
+            let datePipe = new DatePipe('us-US');
+            let stringArray:string[] = [];
+            rangeArray.forEach(date =>{
+                if(date){
+                    stringArray.push(datePipe.transform(date,'yyyyMMdd'))
+                }
+            });
+            return (stringArray.length > 1)?stringArray.join('-'):stringArray.join('');
+        }else
+            return '';
     }
     download(url){
         this.httpJ4car.refreshToken().subscribe((res)=>{

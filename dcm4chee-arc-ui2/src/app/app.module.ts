@@ -25,7 +25,6 @@ import {StudiesService} from './studies/studies.service';
 import {AppService} from './app.service';
 import { AttributeListComponent } from './helpers/attribute-list/attribute-list.component';
 import { FileAttributeListComponent } from './helpers/file-attribute-list/file-attribute-list.component';
-import {CalendarModule} from 'primeng/components/calendar/calendar';
 import {DropdownModule} from 'primeng/components/dropdown/dropdown';
 import { TrimPipe } from './pipes/trim.pipe';
 import { SearchPipe } from './pipes/search.pipe';
@@ -69,6 +68,7 @@ import {J4careHttpService} from "./helpers/j4care-http.service";
 import { ExternalRetrieveComponent } from './monitoring/external-retrieve/external-retrieve.component';
 import {ExternalRetrieveService} from "./monitoring/external-retrieve/external-retrieve.service";
 import { FilterGeneratorComponent } from './helpers/filter-generator/filter-generator.component';
+import {CalendarModule} from "primeng/components/calendar/calendar";
 
 @NgModule({
     declarations: [

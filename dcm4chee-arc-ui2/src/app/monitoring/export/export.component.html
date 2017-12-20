@@ -40,9 +40,12 @@
                 </div>
                 <div class="col-md-3 block-2-1">
                     <div class="row">
-                        <label class="col-md-6 text-right control-label">Device name:</label>
+                        <div class="col-md-6">
+                            <input id="StudyInstanceUID" placeholder="Study Instance UID" type="text" min="1" [(ngModel)]="filters.StudyInstanceUID" class="col-md-12" />
+                        </div>
                         <div class="col-md-6" *ngIf="devices">
                             <select [(ngModel)]="filters.dicomDeviceName" class="col-md-12" placeholder="Device">
+                                <option value="" selected disabled>Device name</option>
                                 <option value="">*</option>
                                 <option *ngFor="let device of devices" value="{{device.dicomDeviceName}}">{{device.dicomDeviceName}}</option>
                             </select>
@@ -54,10 +57,10 @@
                     <div class="row">
                         <!--<label class="col-md-6 text-right control-label">Updated before:</label>-->
                         <div class="col-md-6">
-                            <input id="StudyInstanceUID" placeholder="Study Instance UID" type="text" min="1" [(ngModel)]="filters.StudyInstanceUID" class="col-md-12" />
+                            <p-calendar  [(ngModel)]="filters.createdTimeObject" selectionMode="range" showButtonBar="true" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Created"></p-calendar>
                         </div>
                         <div class="col-md-6">
-                            <p-calendar  dataType="string" [(ngModel)]="filters.updatedBefore" dateFormat="yy-mm-dd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Updated before"></p-calendar>
+                            <p-calendar  [(ngModel)]="filters.updatedTimeObject" selectionMode="range" showButtonBar="true" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Updated"></p-calendar>
                         </div>
                     </div>
                     <div class="row">
