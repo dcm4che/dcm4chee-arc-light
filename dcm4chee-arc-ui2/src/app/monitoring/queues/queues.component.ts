@@ -29,7 +29,7 @@ export class QueuesComponent implements OnInit{
     user: User;
     dialogRef: MdDialogRef<any>;
     _ = _;
-
+    devices;
     constructor(
         public $http:J4careHttpService,
         public service: QueuesService,
@@ -302,13 +302,24 @@ export class QueuesComponent implements OnInit{
     };
     initQuery() {
         let $this = this;
-        $this.cfpLoadingBar.start();
+        this.cfpLoadingBar.start();
         this.$http.get('../queue')
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
-            $this.queues = res;
-            $this.queueName = res[0].name;
-            $this.cfpLoadingBar.complete();
+                $this.getDevices();
+                $this.queues = res;
+                $this.queueName = res[0].name;
+                $this.cfpLoadingBar.complete();
+            });
+    }
+    getDevices(){
+        this.cfpLoadingBar.start();
+        this.service.getDevices().subscribe(devices=>{
+            this.cfpLoadingBar.complete();
+            this.devices = devices.filter(dev => dev.hasArcDevExt);
+        },(err)=>{
+            this.cfpLoadingBar.complete();
+            console.error("Could not get devices",err);
         });
     }
 }

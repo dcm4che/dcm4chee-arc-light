@@ -3,12 +3,13 @@ import {Http, Headers} from '@angular/http';
 import {DatePipe} from '@angular/common';
 import {AppService} from '../../app.service';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {DevicesService} from "../../devices/devices.service";
 
 @Injectable()
 export class QueuesService {
 
     header = new Headers({ 'Content-Type': 'application/json' });
-    constructor(public $http:J4careHttpService, public mainservice: AppService) { }
+    constructor(public $http:J4careHttpService, public mainservice: AppService, private deviceService:DevicesService) { }
 
     search(queueName, status, offset, limit, dicomDeviceName) {
         return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName)));
@@ -82,6 +83,9 @@ export class QueuesService {
         }
         console.log('params', params);
         return params;
+    }
+    getDevices(){
+        return this.deviceService.getDevices()
     }
 
 
