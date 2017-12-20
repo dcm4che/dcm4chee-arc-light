@@ -256,7 +256,7 @@ export class QueuesComponent implements OnInit{
     flushBefore() {
         let $this = this;
         let datePipeEn = new DatePipe('us-US');
-        let beforeDate = datePipeEn.transform(this.before, 'yyyy-mm-dd');
+        let beforeDate = datePipeEn.transform(this.before, 'yyyy-MM-dd');
         console.log('beforeDate', beforeDate);
         console.log('this.status', this.status);
         let parameters = {
