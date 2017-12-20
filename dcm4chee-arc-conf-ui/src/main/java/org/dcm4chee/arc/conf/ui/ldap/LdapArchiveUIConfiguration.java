@@ -405,6 +405,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             String prevUIDiffConfigName = prevUIDiffConfig.getName();
             if (uiConfig.getDiffConfig(prevUIDiffConfigName) == null) {
                 String dn = LdapUtils.dnOf("dcmuiDiffConfigName", prevUIDiffConfigName, uiConfigDN);
+                for (UIDiffCriteria prevUIDiffCriteria : prevUIDiffConfig.getCriterias())
+                    deleteCriteria(diffs, prevUIDiffCriteria.getTitle(), dn);
                 config.destroySubcontext(dn);
                 ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
             }
@@ -458,11 +460,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         throws NamingException {
         for (UIDiffCriteria prevUIDiffCriteria : prevUIDiffConfig.getCriterias()) {
             String prevUIDiffCriteriaTitle = prevUIDiffCriteria.getTitle();
-            if (uiDiffConfig.getCriteria(prevUIDiffCriteriaTitle) == null) {
-                String dn = LdapUtils.dnOf("dcmuiDiffCriteriaTitle", prevUIDiffCriteriaTitle, uiDiffConfigDN);
-                config.destroySubcontext(dn);
-                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
-            }
+            if (uiDiffConfig.getCriteria(prevUIDiffCriteriaTitle) == null)
+                deleteCriteria(diffs, prevUIDiffCriteriaTitle, uiDiffConfigDN);
         }
         for (UIDiffCriteria uiDiffCriteria : uiDiffConfig.getCriterias()) {
             String uiDiffCriteriaTitle = uiDiffCriteria.getTitle();
@@ -477,6 +476,13 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
         }
+    }
+
+    private void deleteCriteria(ConfigurationChanges diffs, String prevUIDiffCriteriaTitle, String uiDiffConfigDN)
+        throws NamingException {
+        String dn = LdapUtils.dnOf("dcmuiDiffCriteriaTitle", prevUIDiffCriteriaTitle, uiDiffConfigDN);
+        config.destroySubcontext(dn);
+        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
     }
 
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIDiffCriteria a,
