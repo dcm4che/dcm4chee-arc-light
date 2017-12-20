@@ -26,8 +26,8 @@ export class QueuesService {
         return this.$http.delete(this.url2(queueName, msgId));
     };
 
-    flush(queueName, status, before) {
-        let urlParam = this.mainservice.param(this.flushParams(status, before));
+    flush(queueName, status, before, device) {
+        let urlParam = this.mainservice.param(this.flushParams(status, before, device));
         return this.$http.delete(this.url(queueName) + '?' + urlParam);
     };
 
@@ -66,10 +66,11 @@ export class QueuesService {
         return params;
     }
 
-    flushParams(status, before) {
+    flushParams(status, before, device) {
         let params = {
             status: undefined,
-            updatedBefore: undefined
+            updatedBefore: undefined,
+            dicomDeviceName:device
         };
         if (status != '*')
             params.status = status;

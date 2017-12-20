@@ -260,7 +260,7 @@ export class QueuesComponent implements OnInit{
         console.log('beforeDate', beforeDate);
         console.log('this.status', this.status);
         let parameters = {
-            content: 'Flush with this configuration:<br>- Before: ' + beforeDate + '<br>- In queue:"' + this.getQueueDescriptionFromName(this.queueName) + '"<br>- With status:' + this.status,
+            content: 'Flush with this configuration:<br>- Before: ' + beforeDate + '<br>- In queue:"' + this.getQueueDescriptionFromName(this.queueName) + '"<br>- With status:' + this.status + (this.dicomDeviceName ? '<br>- Device:' + this.dicomDeviceName:''),
             result: 'ok',
             noForm: true,
             saveButton: 'Flush',
@@ -270,7 +270,7 @@ export class QueuesComponent implements OnInit{
             console.log('result', result);
             if (result){
                 $this.cfpLoadingBar.start();
-                this.service.flush(this.queueName, this.status, this.before)
+                this.service.flush(this.queueName, this.status, this.before, this.dicomDeviceName)
                     .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                     .subscribe((res) => {
                         console.log('resflush', res);
