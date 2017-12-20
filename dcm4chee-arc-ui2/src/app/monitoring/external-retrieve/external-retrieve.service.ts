@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
-import {j4care} from "../../helpers/j4care.service";
 import {AppService} from "../../app.service";
+import {DevicesService} from "../../devices/devices.service";
 
 @Injectable()
 export class ExternalRetrieveService {
 
     constructor(
       public $http:J4careHttpService,
-      public mainservice: AppService
+      public mainservice: AppService,
+      private deviceService:DevicesService
     ) { }
 
     getExternalRetrieveEntries(filter, offset){
@@ -32,16 +33,18 @@ export class ExternalRetrieveService {
     cancel(pk){
         return this.$http.post('../monitor/retrieve/' + pk + '/cancel', {});
     }
-    getFilterSchema(localAET,destinationAET,remoteAET){
+    getFilterSchema(localAET,destinationAET,remoteAET,devices){
     return [
         [
                 [
                     {
                         tag:"label",
                         text:"Device name"
-                    },{
-                        tag:"input",
-                        type:"text",
+                    },
+                    {
+                        tag:"select",
+                        options:devices,
+                        showStar:true,
                         filterKey:"dicomDeviceName",
                         description:"Device Name to filter by"
                     }
@@ -175,5 +178,8 @@ export class ExternalRetrieveService {
                 ]
             ]
     ];
+    }
+    getDevices(){
+        return this.deviceService.getDevices()
     }
 }

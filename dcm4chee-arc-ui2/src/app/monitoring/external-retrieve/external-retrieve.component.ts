@@ -31,6 +31,7 @@ export class ExternalRetrieveComponent implements OnInit {
     exporters;
     exporterID;
     datePipe = new DatePipe('us-US');
+    devices;
     constructor(
       public cfpLoadingBar: SlimLoadingBarService,
       public mainservice: AppService,
@@ -123,7 +124,8 @@ export class ExternalRetrieveComponent implements OnInit {
         };
         Observable.forkJoin(
             this.aeListService.getAes(),
-            this.aeListService.getAets()
+            this.aeListService.getAets(),
+            this.service.getDevices()
         ).subscribe((response)=>{
             this.remoteAET = this.destinationAET = (<any[]>j4care.extendAetObjectWithAlias(response[0])).map(ae => {
                 return {
@@ -135,6 +137,14 @@ export class ExternalRetrieveComponent implements OnInit {
                 return {
                     value:ae.dicomAETitle,
                     text:ae.dicomAETitle
+                }
+            });
+            this.devices = (<any[]>response[2])
+                .filter(dev => dev.hasArcDevExt)
+                .map(device => {
+                return {
+                    value:device.dicomDeviceName,
+                    text:device.dicomDeviceName
                 }
             });
             this.initSchema();
@@ -158,7 +168,7 @@ export class ExternalRetrieveComponent implements OnInit {
         return objs[0].offset + this.filterObject.limit*1;
     };
     initSchema(){
-        this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET);
+        this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET, this.devices);
 
     }
     confirm(confirmparameters){
@@ -332,5 +342,15 @@ export class ExternalRetrieveComponent implements OnInit {
                     if (retries)
                         $this.initExporters(retries - 1);
                 });
+    }
+    getDevices(){
+        this.cfpLoadingBar.start();
+        this.service.getDevices().subscribe(devices=>{
+            this.cfpLoadingBar.complete();
+            this.devices = devices.filter(dev => dev.hasArcDevExt);
+        },(err)=>{
+            this.cfpLoadingBar.complete();
+            console.error("Could not get devices",err);
+        });
     }
 }
