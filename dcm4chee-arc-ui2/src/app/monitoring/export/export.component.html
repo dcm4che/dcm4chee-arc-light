@@ -44,8 +44,14 @@
                         <div class="col-md-6">
                             <input id="StudyInstanceUID" placeholder="Study Instance UID" type="text" min="1" [(ngModel)]="filters.StudyInstanceUID" class="col-md-12" />
                         </div>
-                        <div class="col-md-6">
-                            <input id="dicomDeviceName" placeholder="Device name" type="text" min="1" [(ngModel)]="filters.dicomDeviceName" class="col-md-12" />
+                        <div class="col-md-6" *ngIf="devices">
+                            <select [(ngModel)]="filters.dicomDeviceName" class="col-md-12">
+                                <option value="">*</option>
+                                <option *ngFor="let device of devices" value="{{device.dicomDeviceName}}">{{device.dicomDeviceName}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6" *ngIf="!devices">
+                            <input type="text" [(ngModel)]="filters.dicomDeviceName" class="col-md-12"/>
                         </div>
                     </div>
                     <div class="row">

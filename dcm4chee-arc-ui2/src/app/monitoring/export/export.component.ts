@@ -35,7 +35,7 @@ export class ExportComponent implements OnInit {
     isRole: any = (user)=>{return false;};
     dialogRef: MdDialogRef<any>;
     _ = _;
-
+    devices;
     constructor(
         public $http:J4careHttpService,
         public cfpLoadingBar: SlimLoadingBarService,
@@ -473,11 +473,22 @@ export class ExportComponent implements OnInit {
                     if (res && res[0] && res[0].id){
                         $this.exporterID = res[0].id;
                     }
+                    $this.getDevices();
                     // $this.mainservice.setGlobal({exporterID:$this.exporterID});
                 },
                 (res) => {
                     if (retries)
                         $this.initExporters(retries - 1);
                 });
+    }
+    getDevices(){
+        this.cfpLoadingBar.start();
+        this.service.getDevices().subscribe(devices=>{
+            this.cfpLoadingBar.complete();
+            this.devices = devices.filter(dev => dev.hasArcDevExt);
+        },(err)=>{
+            this.cfpLoadingBar.complete();
+            console.error("Could not get devices",err);
+        });
     }
 }

@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import {Http} from '@angular/http';
 import {AppService} from '../../app.service';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {DevicesService} from "../../devices/devices.service";
 
 @Injectable()
 export class ExportService {
 
 
-    constructor(public $http:J4careHttpService, public mainservice: AppService) {
+    constructor(public $http:J4careHttpService, public mainservice: AppService, private deviceService:DevicesService) {
     }
 
     search(filters, offset) {
@@ -37,5 +38,7 @@ export class ExportService {
     reschedule(pk, exporterID){
         return this.$http.post('../monitor/export/' + pk + '/reschedule/' + exporterID, {});
     }
-
+    getDevices(){
+        return this.deviceService.getDevices()
+    }
 }
