@@ -42,6 +42,7 @@ package org.dcm4chee.arc.qmgt.impl;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.DatePrecision;
 import org.dcm4che3.data.DateRange;
@@ -272,8 +273,6 @@ public class QueueManagerEJB {
 
 
     public int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore, String deviceName) {
-        BooleanBuilder exportTaskPredicate = new BooleanBuilder();
-        BooleanBuilder retrieveTaskPredicate = new BooleanBuilder();
         BooleanBuilder queueMessagePredicate = new BooleanBuilder();
         queueMessagePredicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
         if (deviceName != null)
@@ -284,31 +283,16 @@ public class QueueManagerEJB {
             queueMessagePredicate.and(QQueueMessage.queueMessage.updatedTime.lt(updatedBefore));
 
         HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(queueMessagePredicate);
+                                .from(QQueueMessage.queueMessage)
+                                .where(queueMessagePredicate);
 
-        List<QueueMessage> queueMessages = queueMessageQuery.fetch();
+        new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
+                .where(QExportTask.exportTask.queueMessage.in(queueMessageQuery)).execute();
+        new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+                .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMessageQuery)).execute();
 
-        exportTaskPredicate.and(QExportTask.exportTask.queueMessage.in(queueMessages));
-        retrieveTaskPredicate.and(QRetrieveTask.retrieveTask.queueMessage.in(queueMessages));
-
-        HibernateQuery<ExportTask> exportTaskQuery = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                .from(QExportTask.exportTask)
-                .where(exportTaskPredicate);
-        HibernateQuery<RetrieveTask> retrieveTaskQuery = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
-                .from(QRetrieveTask.retrieveTask)
-                .where(retrieveTaskPredicate);
-
-        for (ExportTask task : exportTaskQuery.fetch())
-            em.remove(task);
-
-        for (RetrieveTask task : retrieveTaskQuery.fetch())
-            em.remove(task);
-
-        for (QueueMessage msg : queueMessages)
-            em.remove(msg);
-
-        return queueMessages.size();
+        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                .where(queueMessagePredicate).execute();
     }
 
     public List<QueueMessage> search(String queueName,
