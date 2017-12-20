@@ -1553,13 +1553,6 @@
             "type": "string"
           },
           {
-            "name": "updatedBefore",
-            "in": "query",
-            "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",
-            "type": "string",
-            "format": "date"
-          },
-          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped tasks before first task in returned list",
@@ -1697,13 +1690,6 @@
             "in": "query",
             "description": "count tasks in queue which were updated between <datetime1>-<datetime2>",
             "type": "string"
-          },
-          {
-            "name": "updatedBefore",
-            "in": "query",
-            "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",
-            "type": "string",
-            "format": "date"
           }
         ],
         "responses": {
