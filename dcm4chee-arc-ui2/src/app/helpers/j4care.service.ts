@@ -93,8 +93,8 @@ export class j4care {
         return [...aet,...aliases];
     }
     static convertDateRangeToString(rangeArray:Date[]){
+        let datePipe = new DatePipe('us-US');
         if(rangeArray && rangeArray.length > 0){
-            let datePipe = new DatePipe('us-US');
             let stringArray:string[] = [];
             rangeArray.forEach(date =>{
                 if(date){
@@ -102,8 +102,14 @@ export class j4care {
                 }
             });
             return (stringArray.length > 1)?stringArray.join('-'):stringArray.join('');
-        }else
+        }else{
+         console.log("typeofrange:",typeof rangeArray);
+         console.log("isdatee:",_.isDate(rangeArray));
+            if(_.isDate(rangeArray)){
+                return datePipe.transform(rangeArray,'yyyyMMdd')
+            }
             return '';
+        }
     }
     download(url){
         this.httpJ4car.refreshToken().subscribe((res)=>{
