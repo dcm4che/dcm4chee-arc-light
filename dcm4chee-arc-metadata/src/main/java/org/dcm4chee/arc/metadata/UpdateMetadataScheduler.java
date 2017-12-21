@@ -164,9 +164,8 @@ public class UpdateMetadataScheduler extends Scheduler {
         if (!claim(ctx, storage) || !retrieveService.calculateMatches(ctx))
             return;
 
-        LOG.info("Creating/Updating Metadata for Series[pk={}, uid={}] on {}",
+        LOG.info("Creating/Updating Metadata for Series[pk={}] on {}",
                 ctx.getSeriesMetadataUpdate().seriesPk,
-                ctx.getSeriesInstanceUID(),
                 storage.getStorageDescriptor());
         WriteContext writeCtx = createWriteContext(storage, ctx.getMatches().iterator().next());
         try {
@@ -183,9 +182,8 @@ public class UpdateMetadataScheduler extends Scheduler {
             storage.commitStorage(writeCtx);
             ejb.commit(ctx.getSeriesMetadataUpdate().seriesPk, createMetadata(writeCtx));
         } catch (Exception e) {
-            LOG.warn("Failed to create/update Metadata for Series[pk={}, uid={}] on {}:\n",
+            LOG.warn("Failed to create/update Metadata for Series[pk={}] on {}:\n",
                     ctx.getSeriesMetadataUpdate().seriesPk,
-                    ctx.getSeriesInstanceUID(),
                     storage.getStorageDescriptor(),
                     e);
             try {
@@ -195,9 +193,8 @@ public class UpdateMetadataScheduler extends Scheduler {
             }
             throw e;
         }
-        LOG.info("Created/Updated Metadata for Series[pk={}, uid={}] on {}",
+        LOG.info("Created/Updated Metadata for Series[pk={}] on {}",
                 ctx.getSeriesMetadataUpdate().seriesPk,
-                ctx.getSeriesInstanceUID(),
                 storage.getStorageDescriptor());
     }
 
@@ -205,9 +202,8 @@ public class UpdateMetadataScheduler extends Scheduler {
         try {
             return ejb.claim(ctx.getSeriesMetadataUpdate().seriesPk);
         } catch (Exception e) {
-            LOG.info("Failed to claim create/update Metadata for Series[pk={}, uid={}] on {}]:\n",
+            LOG.info("Failed to claim create/update Metadata for Series[pk={}] on {}]:\n",
                     ctx.getSeriesMetadataUpdate().seriesPk,
-                    ctx.getSeriesInstanceUID(),
                     storage.getStorageDescriptor(),
                     e);
             return false;
