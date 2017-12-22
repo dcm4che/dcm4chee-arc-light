@@ -200,23 +200,24 @@ public class QueryBuilder {
         return order == Order.ASC ? path.asc() : path.desc();
     }
 
-    public static HibernateQuery<Tuple> applyPatientLevelJoins(
-            HibernateQuery<Tuple> query, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
-            boolean orderByPatientName) {
+    public static <T> HibernateQuery<T> applyPatientLevelJoins(
+            HibernateQuery<T> query, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam,
+            boolean orderByPatientName, boolean forCount) {
         query = applyPatientIDJoins(query, pids);
         if (!isUniversalMatching(keys.getString(Tag.PatientName)))
             query = query.join(QPatient.patient.patientName, QueryBuilder.patientName);
-        else if (orderByPatientName)
+        else if (!forCount && orderByPatientName)
             query = query.leftJoin(QPatient.patient.patientName, QueryBuilder.patientName);
         if (!isUniversalMatching(keys.getString(Tag.ResponsiblePerson)))
             query = query.join(QPatient.patient.responsiblePerson, QueryBuilder.responsiblePerson);
-        query = query.join(QPatient.patient.attributesBlob, QueryBuilder.patientAttributesBlob);
+        if (!forCount)
+            query = query.join(QPatient.patient.attributesBlob, QueryBuilder.patientAttributesBlob);
         return query;
 
     }
 
-    public static HibernateQuery<Tuple> applyPatientIDJoins(
-            HibernateQuery<Tuple> query, IDWithIssuer[] pids) {
+    public static <T> HibernateQuery<T> applyPatientIDJoins(
+            HibernateQuery<T> query, IDWithIssuer[] pids) {
         if (pids.length > 0) {
             query = query.join(QPatient.patient.patientID, QPatientID.patientID);
             if (containsIssuer(pids))
@@ -260,11 +261,12 @@ public class QueryBuilder {
         builder.and(MatchPersonName.match(QueryBuilder.responsiblePerson, keys.getString(Tag.ResponsiblePerson, "*"), queryParam));
     }
 
-    public static HibernateQuery<Tuple> applyStudyLevelJoins(
-            HibernateQuery<Tuple> query, Attributes keys, QueryParam queryParam) {
+    public static <T> HibernateQuery<T> applyStudyLevelJoins(
+            HibernateQuery<T> query, Attributes keys, QueryParam queryParam, boolean forCount) {
         query = query.innerJoin(QStudy.study.patient, QPatient.patient);
-        query = query.leftJoin(QStudy.study.queryAttributes, QStudyQueryAttributes.studyQueryAttributes)
-                .on(QStudyQueryAttributes.studyQueryAttributes.viewID.eq(queryParam.getViewID()));
+        if (!forCount)
+            query = query.leftJoin(QStudy.study.queryAttributes, QStudyQueryAttributes.studyQueryAttributes)
+                    .on(QStudyQueryAttributes.studyQueryAttributes.viewID.eq(queryParam.getViewID()));
 
         if (!isUniversalMatching(keys.getString(Tag.AccessionNumber))
                 && !isUniversalMatching(keys.getNestedDataset(Tag.IssuerOfAccessionNumberSequence))) {
@@ -274,7 +276,8 @@ public class QueryBuilder {
         if (!isUniversalMatching(keys.getString(Tag.ReferringPhysicianName))) {
             query = query.join(QStudy.study.referringPhysicianName, QueryBuilder.referringPhysicianName);
         }
-        query = query.join(QStudy.study.attributesBlob, QueryBuilder.studyAttributesBlob);
+        if (!forCount)
+            query = query.join(QStudy.study.attributesBlob, QueryBuilder.studyAttributesBlob);
         return query;
     }
 
@@ -345,16 +348,18 @@ public class QueryBuilder {
         return QStudy.study.accessControlID.in(accessControlIDs);
     }
 
-    public static HibernateQuery<Tuple> applySeriesLevelJoins(
-            HibernateQuery<Tuple> query, Attributes keys, QueryParam queryParam) {
+    public static <T> HibernateQuery<T> applySeriesLevelJoins(
+            HibernateQuery<T> query, Attributes keys, QueryParam queryParam, boolean forCount) {
         query = query.innerJoin(QSeries.series.study, QStudy.study);
-        query = query.leftJoin(QSeries.series.queryAttributes, QSeriesQueryAttributes.seriesQueryAttributes)
-                .on(QSeriesQueryAttributes.seriesQueryAttributes.viewID.eq(
-                        queryParam.getViewID()));
+        if (!forCount)
+            query = query.leftJoin(QSeries.series.queryAttributes, QSeriesQueryAttributes.seriesQueryAttributes)
+                    .on(QSeriesQueryAttributes.seriesQueryAttributes.viewID.eq(
+                            queryParam.getViewID()));
         if (!isUniversalMatching(keys.getString(Tag.PerformingPhysicianName))) {
             query = query.join(QSeries.series.performingPhysicianName, QueryBuilder.performingPhysicianName);
         }
-        query = query.join(QSeries.series.attributesBlob, QueryBuilder.seriesAttributesBlob);
+        if (!forCount)
+            query = query.join(QSeries.series.attributesBlob, QueryBuilder.seriesAttributesBlob);
         return query;
     }
 
@@ -405,10 +410,11 @@ public class QueryBuilder {
         }
     }
 
-    public static HibernateQuery<Tuple> applyInstanceLevelJoins(
-            HibernateQuery<Tuple> query, Attributes keys, QueryParam queryParam) {
+    public static <T> HibernateQuery<T> applyInstanceLevelJoins(
+            HibernateQuery<T> query, Attributes keys, QueryParam queryParam, boolean forCount) {
         query = query.innerJoin(QInstance.instance.series, QSeries.series);
-        query = query.join(QInstance.instance.attributesBlob, QueryBuilder.instanceAttributesBlob);
+        if (!forCount)
+            query = query.join(QInstance.instance.attributesBlob, QueryBuilder.instanceAttributesBlob);
         query = query.leftJoin(QInstance.instance.rejectionNoteCode, QCodeEntity.codeEntity);
         return query;
     }
@@ -454,8 +460,8 @@ public class QueryBuilder {
         builder.and(hideRejectionNote(queryParam));
     }
 
-    public static HibernateQuery<Tuple> applyMWLJoins(
-            HibernateQuery<Tuple> query, Attributes keys, QueryParam queryParam) {
+    public static <T> HibernateQuery<T> applyMWLJoins(
+            HibernateQuery<T> query, Attributes keys, QueryParam queryParam, boolean forCount) {
         query = query.innerJoin(QMWLItem.mWLItem.patient, QPatient.patient);
 
         if (!isUniversalMatching(keys.getString(Tag.AccessionNumber))
@@ -467,7 +473,8 @@ public class QueryBuilder {
         if (sps != null && !isUniversalMatching(sps.getString(Tag.ScheduledPerformingPhysicianName))) {
             query = query.join(QMWLItem.mWLItem.scheduledPerformingPhysicianName, QueryBuilder.performingPhysicianName);
         }
-        query = query.join(QMWLItem.mWLItem.attributesBlob, QueryBuilder.mwlAttributesBlob);
+        if (!forCount)
+            query = query.join(QMWLItem.mWLItem.attributesBlob, QueryBuilder.mwlAttributesBlob);
         return query;
     }
 

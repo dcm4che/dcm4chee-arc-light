@@ -128,24 +128,38 @@ class InstanceQuery extends AbstractQuery {
     }
 
     @Override
-    protected HibernateQuery<Tuple> newHibernateQuery() {
+    protected HibernateQuery<Tuple> newHibernateQuery(boolean forCount) {
         HibernateQuery<Tuple> q = new HibernateQuery<Void>(session).select(SELECT).from(QInstance.instance);
+        return newHibernateQuery(q, forCount);
+    }
+
+    @Override
+    protected long fetchCount() {
+        HibernateQuery<Void> q = new HibernateQuery<Void>(session).from(QInstance.instance);
+        return newHibernateQuery(q, true).fetchCount();
+    }
+
+    private <T> HibernateQuery<T> newHibernateQuery(HibernateQuery<T> q, boolean forCount) {
         q = QueryBuilder.applyInstanceLevelJoins(q,
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(),
+                forCount);
         q = q.leftJoin(QInstance.instance.locations, QLocation.location)
                 .on(QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
         q = QueryBuilder.applySeriesLevelJoins(q,
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(),
+                forCount);
         q = QueryBuilder.applyStudyLevelJoins(q,
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(),
+                forCount);
         q = QueryBuilder.applyPatientLevelJoins(q,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.getQueryParam(),
-                context.isOrderByPatientName());
+                context.isOrderByPatientName(),
+                forCount);
         BooleanBuilder predicates = new BooleanBuilder();
         QueryBuilder.addPatientLevelPredicates(predicates,
                 context.getPatientIDs(),

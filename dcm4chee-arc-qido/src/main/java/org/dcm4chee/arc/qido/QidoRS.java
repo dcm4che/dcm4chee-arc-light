@@ -372,15 +372,12 @@ public class QidoRS {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(
                 "SizeOfStudies", queryAttrs, null, null, Model.STUDY);
-        try (Query query = service.createQuery(ctx)) {
-            query.initUnknownSizeQuery();
+        try (Query query = service.createStudyQuery(ctx)) {
             Transaction transaction = query.beginTransaction();
             try {
-                query.setFetchSize(device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize());
-                query.executeQuery();
-                Long studyPk;
-                while ((studyPk = query.nextPk()) != null)
-                    ctx.getQueryService().calculateStudySize(studyPk);
+                Iterator<Long> studyPks = query.withUnknownSize(device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize());
+                while (studyPks.hasNext())
+                    ctx.getQueryService().calculateStudySize(studyPks.next());
             } finally {
                 try {
                     transaction.commit();
@@ -389,8 +386,7 @@ public class QidoRS {
                 }
             }
         }
-        try (Query query = service.createQuery(ctx)) {
-            query.initSizeQuery();
+        try (Query query = service.createStudyQuery(ctx)) {
             return Response.ok("{\"size\":" + query.size() + '}').build();
         }
     }
@@ -401,7 +397,6 @@ public class QidoRS {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
         try (Query query = model.createQuery(service, ctx)) {
-            query.initQuery();
             return Response.ok("{\"count\":" + query.count() + '}').build();
         }
     }

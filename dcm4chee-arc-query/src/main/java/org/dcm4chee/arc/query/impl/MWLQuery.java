@@ -69,16 +69,28 @@ public class MWLQuery extends AbstractQuery {
     }
 
     @Override
-    protected HibernateQuery<Tuple> newHibernateQuery() {
+    protected HibernateQuery<Tuple> newHibernateQuery(boolean forCount) {
         HibernateQuery<Tuple> q = new HibernateQuery<Void>(session).select(SELECT).from(QMWLItem.mWLItem);
+        return newHibernateQuery(q, forCount);
+    }
+
+    @Override
+    protected long fetchCount() {
+        HibernateQuery<Void> q = new HibernateQuery<Void>(session).from(QMWLItem.mWLItem);
+        return newHibernateQuery(q, true).fetchCount();
+    }
+
+    private <T> HibernateQuery<T> newHibernateQuery(HibernateQuery<T> q, boolean forCount) {
         q = QueryBuilder.applyMWLJoins(q,
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(),
+                forCount);
         q = QueryBuilder.applyPatientLevelJoins(q,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.getQueryParam(),
-                context.isOrderByPatientName());
+                context.isOrderByPatientName(),
+                forCount);
         BooleanBuilder predicates = new BooleanBuilder();
         QueryBuilder.addPatientLevelPredicates(predicates,
                 context.getPatientIDs(),

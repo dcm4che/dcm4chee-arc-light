@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.query.impl;
 
+import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
@@ -57,6 +58,7 @@ import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.hibernate.StatelessSession;
 
+import java.util.Iterator;
 
 
 /**
@@ -97,20 +99,28 @@ class StudyQuery extends AbstractQuery {
     }
 
     @Override
-    protected HibernateQuery<Tuple> newHibernateQuery() {
-        return newHibernateQuery(new BooleanBuilder(), SELECT);
+    protected HibernateQuery<Tuple> newHibernateQuery(boolean forCount) {
+        HibernateQuery<Tuple> q = new HibernateQuery<Void>(session).select(SELECT).from(QStudy.study);
+        return newHibernateQuery(q, forCount, new BooleanBuilder());
     }
 
-    private HibernateQuery<Tuple> newHibernateQuery(BooleanBuilder predicates, Expression<?>... select) {
-        HibernateQuery<Tuple> q = new HibernateQuery<Void>(session).select(select).from(QStudy.study);
+    @Override
+    protected long fetchCount() {
+        HibernateQuery<Void> q = new HibernateQuery<Void>(session).from(QStudy.study);
+        return newHibernateQuery(q, true, new BooleanBuilder()).fetchCount();
+    }
+
+    private <T> HibernateQuery<T> newHibernateQuery(HibernateQuery<T> q, boolean forCount, BooleanBuilder predicates) {
         q = QueryBuilder.applyStudyLevelJoins(q,
                 context.getQueryKeys(),
-                context.getQueryParam());
+                context.getQueryParam(),
+                forCount);
         q = QueryBuilder.applyPatientLevelJoins(q,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
                 context.getQueryParam(),
-                context.isOrderByPatientName());
+                context.isOrderByPatientName(),
+                forCount);
         QueryBuilder.addPatientLevelPredicates(predicates,
                 context.getPatientIDs(),
                 context.getQueryKeys(),
@@ -122,13 +132,30 @@ class StudyQuery extends AbstractQuery {
     }
 
     @Override
-    public void initSizeQuery() {
-        query = newHibernateQuery(new BooleanBuilder(), QStudy.study.size.sum());
+    public long size() {
+        HibernateQuery<Tuple> q = new HibernateQuery<Void>(session)
+                .select(new Expression[]{QStudy.study.size.sum()}).from(QStudy.study);
+        Long size = newHibernateQuery(q, true, new BooleanBuilder()).fetchOne().get(0, Long.class);
+        return size != null ? size.longValue() : 0L;
     }
 
-    @Override
-    public void initUnknownSizeQuery() {
-        query = newHibernateQuery(new BooleanBuilder(QStudy.study.size.eq(-1L)), QStudy.study.pk);
+    public Iterator<Long> withUnknownSize(int fetchSize) {
+        HibernateQuery<Tuple> q = new HibernateQuery<Void>(session)
+                .select(new Expression[]{QStudy.study.pk}).from(QStudy.study);
+        q = newHibernateQuery(q, true, new BooleanBuilder(QStudy.study.size.eq(-1L)));
+        q.setFetchSize(fetchSize);
+        final CloseableIterator<Tuple> iterate = q.iterate();
+        return new Iterator<Long>() {
+            @Override
+            public boolean hasNext() {
+                return iterate.hasNext();
+            }
+
+            @Override
+            public Long next() {
+                return iterate.next().get(QStudy.study.pk);
+            }
+        };
     }
 
     @Override
