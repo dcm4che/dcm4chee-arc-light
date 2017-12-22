@@ -48,7 +48,7 @@ import org.dcm4che3.conf.json.JsonConfiguration;
 import org.dcm4che3.net.ApplicationEntityInfo;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DeviceInfo;
-import org.dcm4che3.net.HL7ApplicationInfo;
+import org.dcm4che3.net.hl7.HL7ApplicationInfo;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
