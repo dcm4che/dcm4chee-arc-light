@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.query.util;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
@@ -242,13 +241,14 @@ public class QueryBuilder {
 
     public static void addPatientLevelPredicates(
             BooleanBuilder builder, IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
-        builder.and(QPatient.patient.mergedWith.isNull());
         builder.and(patientIDPredicate(pids));
         builder.and(MatchPersonName.match(QueryBuilder.patientName, keys.getString(Tag.PatientName, "*"), queryParam));
         builder.and(wildCard(QPatient.patient.patientSex, keys.getString(Tag.PatientSex, "*").toUpperCase(),
                 false));
         builder.and(MatchDateTimeRange.rangeMatch(QPatient.patient.patientBirthDate, keys, Tag.PatientBirthDate,
                 MatchDateTimeRange.FormatDate.DA));
+        builder.and(MatchPersonName.match(
+                QueryBuilder.responsiblePerson, keys.getString(Tag.ResponsiblePerson, "*"), queryParam));
         AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Patient);
         builder.and(wildCard(QPatient.patient.patientCustomAttribute1,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), "*"), true));
@@ -256,14 +256,30 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true));
         builder.and(wildCard(QPatient.patient.patientCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
-        if (!queryParam.isWithoutStudies())
-            builder.and(QPatient.patient.numberOfStudies.gt(0));
-        builder.and(MatchPersonName.match(QueryBuilder.responsiblePerson, keys.getString(Tag.ResponsiblePerson, "*"), queryParam));
+    }
+
+    public static boolean hasPatientLevelPredicates(
+            IDWithIssuer[] pids, Attributes keys, QueryParam queryParam) {
+        for (IDWithIssuer pid : pids) {
+            if (!isUniversalMatching(pid.getID()))
+                return true;
+        }
+        AttributeFilter attrFilter = queryParam.getAttributeFilter(Entity.Patient);
+        return !isUniversalMatching(keys.getString(Tag.PatientName))
+                || !isUniversalMatching(keys.getString(Tag.PatientSex))
+                || !isUniversalMatching(keys.getString(Tag.PatientSex))
+                || !isUniversalMatching(keys.getString(Tag.PatientBirthDate))
+                || !isUniversalMatching(keys.getString(Tag.ResponsiblePerson))
+                || !isUniversalMatching(AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute1(), null))
+                || !isUniversalMatching(AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), null))
+                || !isUniversalMatching(AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), null));
     }
 
     public static <T> HibernateQuery<T> applyStudyLevelJoins(
-            HibernateQuery<T> query, Attributes keys, QueryParam queryParam, boolean forCount) {
-        query = query.innerJoin(QStudy.study.patient, QPatient.patient);
+            HibernateQuery<T> query, Attributes keys, QueryParam queryParam,
+            boolean forCount, boolean hasPatientLevelPredicates) {
+        if (!forCount || hasPatientLevelPredicates)
+            query = query.innerJoin(QStudy.study.patient, QPatient.patient);
         if (!forCount)
             query = query.leftJoin(QStudy.study.queryAttributes, QStudyQueryAttributes.studyQueryAttributes)
                     .on(QStudyQueryAttributes.studyQueryAttributes.viewID.eq(queryParam.getViewID()));

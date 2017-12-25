@@ -67,7 +67,6 @@ abstract class AbstractQuery implements Query {
     private long limit;
     private int rejected;
     private int matches;
-    private long count = -1L;
 
     public AbstractQuery(QueryContext context, StatelessSession session) {
         this.context = context;
@@ -77,8 +76,6 @@ abstract class AbstractQuery implements Query {
     public void initQuery() {
         query = newHibernateQuery(false);
     }
-
-    protected abstract long fetchCount();
 
     @Override
     public Iterator<Long> withUnknownSize(int fetchSize) {
@@ -119,14 +116,7 @@ abstract class AbstractQuery implements Query {
     }
 
     @Override
-    public long count() {
-        if (count < 0)
-            count = fetchCount();
-        return count;
-    }
-
-    @Override
-    public long size() {
+    public long fetchSize() {
         throw new UnsupportedOperationException();
     }
 

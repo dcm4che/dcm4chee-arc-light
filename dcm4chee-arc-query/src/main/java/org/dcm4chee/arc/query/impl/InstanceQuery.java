@@ -134,7 +134,7 @@ class InstanceQuery extends AbstractQuery {
     }
 
     @Override
-    protected long fetchCount() {
+    public long fetchCount() {
         HibernateQuery<Void> q = new HibernateQuery<Void>(session).from(QInstance.instance);
         return newHibernateQuery(q, true).fetchCount();
     }
@@ -153,7 +153,7 @@ class InstanceQuery extends AbstractQuery {
         q = QueryBuilder.applyStudyLevelJoins(q,
                 context.getQueryKeys(),
                 context.getQueryParam(),
-                forCount);
+                forCount, true);
         q = QueryBuilder.applyPatientLevelJoins(q,
                 context.getPatientIDs(),
                 context.getQueryKeys(),

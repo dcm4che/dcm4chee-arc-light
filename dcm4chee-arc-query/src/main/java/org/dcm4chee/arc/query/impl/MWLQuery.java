@@ -75,7 +75,7 @@ public class MWLQuery extends AbstractQuery {
     }
 
     @Override
-    protected long fetchCount() {
+    public long fetchCount() {
         HibernateQuery<Void> q = new HibernateQuery<Void>(session).from(QMWLItem.mWLItem);
         return newHibernateQuery(q, true).fetchCount();
     }

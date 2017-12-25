@@ -65,11 +65,11 @@ public interface Query extends Closeable {
 
     void executeQuery();
 
+    long fetchCount();
+
     Iterator<Long> withUnknownSize(int fetchSize);
 
-    long count();
-
-    long size();
+    long fetchSize();
 
     void limit(long limit);
 

@@ -387,7 +387,7 @@ public class QidoRS {
             }
         }
         try (Query query = service.createStudyQuery(ctx)) {
-            return Response.ok("{\"size\":" + query.size() + '}').build();
+            return Response.ok("{\"size\":" + query.fetchSize() + '}').build();
         }
     }
 
@@ -397,7 +397,7 @@ public class QidoRS {
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
         try (Query query = model.createQuery(service, ctx)) {
-            return Response.ok("{\"count\":" + query.count() + '}').build();
+            return Response.ok("{\"count\":" + query.fetchCount() + '}').build();
         }
     }
 
@@ -416,7 +416,7 @@ public class QidoRS {
             int limitInt = parseInt(limit);
             int remaining = 0;
             if (maxResults > 0 && (limitInt == 0 || limitInt > maxResults) && !ctx.isConsiderPurgedInstances()) {
-                int numResults = (int) (query.count() - offsetInt);
+                int numResults = (int) (query.fetchCount() - offsetInt);
                 if (numResults <= 0)
                     return Response.noContent().build();
 

@@ -121,7 +121,7 @@ class SeriesQuery extends AbstractQuery {
     }
 
     @Override
-    protected long fetchCount() {
+    public long fetchCount() {
         HibernateQuery<Void> q = new HibernateQuery<Void>(session).from(QSeries.series);
         return newHibernateQuery(q, true).fetchCount();
     }
@@ -134,7 +134,7 @@ class SeriesQuery extends AbstractQuery {
         q = QueryBuilder.applyStudyLevelJoins(q,
                 context.getQueryKeys(),
                 context.getQueryParam(),
-                forCount);
+                forCount, true);
         q = QueryBuilder.applyPatientLevelJoins(q,
                 context.getPatientIDs(),
                 context.getQueryKeys(),

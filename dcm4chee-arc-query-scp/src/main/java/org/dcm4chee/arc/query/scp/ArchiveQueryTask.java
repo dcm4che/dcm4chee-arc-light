@@ -163,7 +163,7 @@ public class ArchiveQueryTask extends BasicQueryTask {
         setOptionalKeysNotSupported(query.isOptionalKeysNotSupported());
         query.initQuery();
         if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
-                && query.count() > queryMaxNumberOfResults) {
+                && query.fetchCount() > queryMaxNumberOfResults) {
             throw new DicomServiceException(Status.UnableToProcess, "Request entity too large");
         }
         transaction = query.beginTransaction();

@@ -105,26 +105,33 @@ class StudyQuery extends AbstractQuery {
     }
 
     @Override
-    protected long fetchCount() {
+    public long fetchCount() {
         HibernateQuery<Void> q = new HibernateQuery<Void>(session).from(QStudy.study);
         return newHibernateQuery(q, true, new BooleanBuilder()).fetchCount();
     }
 
     private <T> HibernateQuery<T> newHibernateQuery(HibernateQuery<T> q, boolean forCount, BooleanBuilder predicates) {
+        boolean hasPatientLevelPredicates = !forCount
+                || QueryBuilder.hasPatientLevelPredicates(
+                        context.getPatientIDs(),
+                        context.getQueryKeys(),
+                        context.getQueryParam());
         q = QueryBuilder.applyStudyLevelJoins(q,
                 context.getQueryKeys(),
                 context.getQueryParam(),
-                forCount);
-        q = QueryBuilder.applyPatientLevelJoins(q,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam(),
-                context.isOrderByPatientName(),
-                forCount);
-        QueryBuilder.addPatientLevelPredicates(predicates,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam());
+                forCount, hasPatientLevelPredicates);
+        if (hasPatientLevelPredicates) {
+            q = QueryBuilder.applyPatientLevelJoins(q,
+                    context.getPatientIDs(),
+                    context.getQueryKeys(),
+                    context.getQueryParam(),
+                    context.isOrderByPatientName(),
+                    forCount);
+            QueryBuilder.addPatientLevelPredicates(predicates,
+                    context.getPatientIDs(),
+                    context.getQueryKeys(),
+                    context.getQueryParam());
+        }
         QueryBuilder.addStudyLevelPredicates(predicates,
                 context.getQueryKeys(),
                 context.getQueryParam(), QueryRetrieveLevel2.STUDY);
@@ -132,7 +139,7 @@ class StudyQuery extends AbstractQuery {
     }
 
     @Override
-    public long size() {
+    public long fetchSize() {
         HibernateQuery<Tuple> q = new HibernateQuery<Void>(session)
                 .select(new Expression[]{QStudy.study.size.sum()}).from(QStudy.study);
         Long size = newHibernateQuery(q, true, new BooleanBuilder()).fetchOne().get(0, Long.class);
