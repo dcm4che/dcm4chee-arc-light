@@ -4758,6 +4758,748 @@
         }
       }
     },
+    "/aets/{aet}/export/{exporterID}/studies": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Matching Studies",
+        "operationId": "exportMatchingStudy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exporterID",
+            "in": "path",
+            "description": "Exporter ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "only-stgcmt",
+            "in": "query",
+            "description": "Only enable storage commitment without export",
+            "type": "boolean"
+          },
+          {
+            "name": "only-ian",
+            "in": "query",
+            "description": "Only enable IAN without export",
+            "type": "boolean"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "export Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "export Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "export only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "export only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled export of matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/export/{exporterID}/series": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Matching Series",
+        "operationId": "exportMatchingSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exporterID",
+            "in": "path",
+            "description": "Exporter ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "only-stgcmt",
+            "in": "query",
+            "description": "Only enable storage commitment without export",
+            "type": "boolean"
+          },
+          {
+            "name": "only-ian",
+            "in": "query",
+            "description": "Only enable IAN without export",
+            "type": "boolean"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "export Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "export Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "export only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "export only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled export of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/export/{exporterID}/studies/{studyUID}/series": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Matching Series of Study",
+        "operationId": "exportMatchingSeriesOfStudy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exporterID",
+            "in": "path",
+            "description": "Exporter ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "only-stgcmt",
+            "in": "query",
+            "description": "Only enable storage commitment without export",
+            "type": "boolean"
+          },
+          {
+            "name": "only-ian",
+            "in": "query",
+            "description": "Only enable IAN without export",
+            "type": "boolean"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "export Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "export Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "export only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "export only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled export of matching Series",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/export/{exporterID}/instances": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Matching Instances",
+        "operationId": "exportMatchingInstances",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exporterID",
+            "in": "path",
+            "description": "Exporter ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "only-stgcmt",
+            "in": "query",
+            "description": "Only enable storage commitment without export",
+            "type": "boolean"
+          },
+          {
+            "name": "only-ian",
+            "in": "query",
+            "description": "Only enable IAN without export",
+            "type": "boolean"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "export Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "export Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "export only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "export only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled export of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/export/{exporterID}/studies/{studyUID}/instances": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Matching Instances of Study",
+        "operationId": "exportMatchingInstancesOfStudy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exporterID",
+            "in": "path",
+            "description": "Exporter ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "only-stgcmt",
+            "in": "query",
+            "description": "Only enable storage commitment without export",
+            "type": "boolean"
+          },
+          {
+            "name": "only-ian",
+            "in": "query",
+            "description": "Only enable IAN without export",
+            "type": "boolean"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "export Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "export Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "export only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "export only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled export of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/export/{exporterID}/studies/{studyUID}/series/{seriesUID}/instances": {
+      "post": {
+        "tags": [
+          "EXPORT-RS"
+        ],
+        "summary": "Export Matching Instances of Series",
+        "operationId": "exportMatchingInstancesOfSeries",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exporterID",
+            "in": "path",
+            "description": "Exporter ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "seriesUID",
+            "in": "path",
+            "description": "Unique Identifier of the Series",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "only-stgcmt",
+            "in": "query",
+            "description": "Only enable storage commitment without export",
+            "type": "boolean"
+          },
+          {
+            "name": "only-ian",
+            "in": "query",
+            "description": "Only enable IAN without export",
+            "type": "boolean"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "export Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "export Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET",
+            "in": "query",
+            "description": "export Studies which are retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "ExternalRetrieveAET!",
+            "in": "query",
+            "description": "export Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "expired",
+            "in": "query",
+            "description": "export only expired Studies",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "incomplete",
+            "in": "query",
+            "description": "export only Studies which are marked as incomplete",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully scheduled export of matching Instances",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "503": {
+            "description": "Maximal number of Tasks in Queue associated with specified Exporter reached"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies/{StudyInstanceUID}/stgcmt": {
       "post": {
         "tags": [
