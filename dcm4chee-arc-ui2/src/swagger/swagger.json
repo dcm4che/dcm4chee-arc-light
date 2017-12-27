@@ -4764,7 +4764,7 @@
           "EXPORT-RS"
         ],
         "summary": "Export Matching Studies",
-        "operationId": "exportMatchingStudy",
+        "operationId": "exportMatchingStudies",
         "produces": [
           "application/json"
         ],
