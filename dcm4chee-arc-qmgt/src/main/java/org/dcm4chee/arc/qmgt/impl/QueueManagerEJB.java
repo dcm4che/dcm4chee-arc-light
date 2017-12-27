@@ -128,7 +128,7 @@ public class QueueManagerEJB {
             case IN_PROCESS:
             case SCHEDULED:
                 LOG.info("Start processing Task[id={}] from Queue {} with Status: {}",
-                        entity.getMessageID(), entity.getQueueName());
+                        entity.getMessageID(), entity.getQueueName(), entity.getStatus());
                 entity.setProcessingStartTime(new Date());
                 entity.setStatus(QueueMessage.Status.IN_PROCESS);
                 return entity;
