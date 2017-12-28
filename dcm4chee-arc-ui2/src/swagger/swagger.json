@@ -1204,6 +1204,7 @@
             "name": "status",
             "in": "query",
             "description": "status of tasks to filter by",
+            "required": true,
             "type": "string",
             "enum": [
               "SCHEDULED",
@@ -1249,6 +1250,13 @@
         ],
         "parameters": [
           {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Archive Device Name",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
@@ -1264,6 +1272,7 @@
             "name": "status",
             "in": "query",
             "description": "status of tasks to filter by",
+            "required": true,
             "type": "string",
             "enum": [
               "COMPLETED",
@@ -1292,6 +1301,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "409": {
+            "description": "Archive Device Name does not match device name of archive instance"
+          },
           "default": {
             "description": "unexpected error"
           }
@@ -1318,6 +1330,13 @@
             "type": "string"
           },
           {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Archive Device Name",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
@@ -1334,6 +1353,7 @@
             "in": "query",
             "description": "status of tasks to filter by",
             "type": "string",
+            "required": true,
             "enum": [
               "COMPLETED",
               "WARNING",
@@ -1363,6 +1383,9 @@
           },
           "404": {
             "description": "exporter not found"
+          },
+          "409": {
+            "description": "Archive Device Name does not match device name of archive instance"
           },
           "default": {
             "description": "unexpected error"
@@ -1777,6 +1800,7 @@
             "name": "status",
             "in": "query",
             "description": "status of tasks to filter by",
+            "required": true,
             "type": "string",
             "enum": [
               "SCHEDULED",
@@ -1822,6 +1846,13 @@
         ],
         "parameters": [
           {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Archive Device Name",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "LocalAET",
             "in": "query",
             "description": "Archive AE Title to filter by",
@@ -1849,6 +1880,7 @@
             "name": "status",
             "in": "query",
             "description": "status of tasks to filter by",
+            "required": true,
             "type": "string",
             "enum": [
               "COMPLETED",
@@ -1876,6 +1908,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "409": {
+            "description": "Archive Device Name does not match device name of archive instance"
           },
           "default": {
             "description": "unexpected error"
@@ -2241,6 +2276,7 @@
             "name": "status",
             "in": "query",
             "description": "status of tasks to filter by",
+            "required": true,
             "type": "string",
             "enum": [
               "SCHEDULED",
@@ -2295,9 +2331,17 @@
             "type": "string"
           },
           {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Archive Device Name",
+            "required": true,
+            "type": "string"
+          },
+          {
             "name": "status",
             "in": "query",
             "description": "status of tasks to filter by",
+            "required": true,
             "type": "string",
             "enum": [
               "COMPLETED",
@@ -2328,6 +2372,9 @@
           },
           "404": {
             "description": "Queue not found"
+          },
+          "409": {
+            "description": "Archive Device Name does not match device name of archive instance"
           },
           "default": {
             "description": "unexpected error"
