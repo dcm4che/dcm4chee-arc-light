@@ -1713,6 +1713,128 @@
         }
       }
     },
+    "/queue/{queueName}/cancel": {
+      "get": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "Cancel Tasks in Queue",
+        "operationId": "cancelTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "queueName",
+            "in": "path",
+            "description": "name of queue",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "cancel tasks in queue which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "cancel tasks in queue which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of canceled Tasks",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "Queue not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/queue/{queueName}/reschedule": {
+      "get": {
+        "tags": [
+          "QUEUE-RS"
+        ],
+        "summary": "Reschedule Tasks in Queue",
+        "operationId": "rescheduleTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "queueName",
+            "in": "path",
+            "description": "name of queue",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "reschedule tasks in queue which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "reschedule tasks in queue which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of rescheduled Tasks",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "Queue not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/queue/{queueName}/{taskID}": {
       "delete": {
         "tags": [
