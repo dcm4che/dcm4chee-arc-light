@@ -1415,7 +1415,6 @@
             "description": "status of tasks to filter by",
             "type": "string",
             "enum": [
-              "TO SCHEDULE",
               "SCHEDULED",
               "IN PROCESS",
               "COMPLETED",
@@ -1498,7 +1497,6 @@
             "description": "status of tasks to filter by",
             "type": "string",
             "enum": [
-              "TO SCHEDULE",
               "SCHEDULED",
               "IN PROCESS",
               "COMPLETED",
@@ -1523,6 +1521,158 @@
         "responses": {
           "200": {
             "description": "Number of matching Tasks",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Cancel Retrieve Tasks",
+        "operationId": "cancelRetrieveTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "RemoteAET",
+            "in": "query",
+            "description": "C-MOVE SCP AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "DestinationAET",
+            "in": "query",
+            "description": "Destination AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "cancel retrieve tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "cancel retrieve tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of canceled Tasks",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Reschedule Retrieve Tasks",
+        "operationId": "rescheduleRetrieveTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "RemoteAET",
+            "in": "query",
+            "description": "C-MOVE SCP AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "DestinationAET",
+            "in": "query",
+            "description": "Destination AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "reschedule retrieve tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "reschedule retrieve tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of rescheduled Tasks",
             "schema": {
               "$ref": "#/definitions/Count"
             }
