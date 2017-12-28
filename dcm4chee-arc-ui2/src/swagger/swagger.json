@@ -1298,6 +1298,87 @@
             "description": "unexpected error"
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "MONITOR-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Delete Retrieve Tasks",
+        "operationId": "deleteRetrieveTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "RemoteAET",
+            "in": "query",
+            "description": "C-MOVE SCP AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "DestinationAET",
+            "in": "query",
+            "description": "Destination AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "StudyInstanceUID",
+            "in": "query",
+            "description": "Unique Identifier of the Study to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "TO SCHEDULE",
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "delete retrieve tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "delete retrieve tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Deleted"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
       }
     },
     "/monitor/retrieve/count": {
