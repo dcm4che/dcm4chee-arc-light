@@ -1618,17 +1618,16 @@
             ]
           },
           {
-            "name": "dicomDeviceName",
+            "name": "createdTime",
             "in": "query",
-            "description": "Device Name to filter by",
+            "description": "delete tasks in queue which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
-            "name": "updatedBefore",
+            "name": "updatedTime",
             "in": "query",
-            "description": "maximum update date of tasks to filter by. Format: YYYY-MM-DD",
-            "type": "string",
-            "format": "date"
+            "description": "delete tasks in queue which were updated between <datetime1>-<datetime2>",
+            "type": "string"
           }
         ],
         "responses": {
