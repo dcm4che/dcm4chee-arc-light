@@ -41,7 +41,8 @@ package org.dcm4chee.arc.retrieve.mgt.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.*;
-import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
@@ -91,19 +92,8 @@ public class RetrieveManagerImpl implements RetrieveManager {
             while (rsp.next()) {
                 ejb.updateRetrieveTask(queueMessage, rsp.getCommand());
             }
-            Attributes cmd = rsp.getCommand();
-            int status = cmd.getInt(Tag.Status, -1);
-            if (status == Status.Success || status == Status.OneOrMoreFailures) {
-                externalRetrieve.fire(ctx.setResponse(cmd));
-                return new Outcome(
-                        status == Status.Success ? QueueMessage.Status.COMPLETED : QueueMessage.Status.WARNING,
-                        toOutcomeMessage(
-                                ctx.getRemoteAET(),
-                                ctx.getDestinationAET(),
-                                ctx.getKeys(),
-                                cmd));
-            }
-            throw new DicomServiceException(status, cmd.getString(Tag.ErrorComment));
+            externalRetrieve.fire(ctx.setResponse(rsp.getCommand()));
+            return toOutcome(ctx);
         } finally {
             try {
                 as.release();
@@ -113,26 +103,39 @@ public class RetrieveManagerImpl implements RetrieveManager {
         }
     }
 
-    private String toOutcomeMessage(String remoteAET, String destAET, Attributes keys, Attributes rsp) {
-        int completed = rsp.getInt(Tag.NumberOfCompletedSuboperations, 0);
-        int warning = rsp.getInt(Tag.NumberOfWarningSuboperations, 0);
-        int failed = rsp.getInt(Tag.NumberOfFailedSuboperations, 0);
+    private Outcome toOutcome(ExternalRetrieveContext ctx) {
+        int status = ctx.getStatus();
+        Attributes keys = ctx.getKeys();
         StringBuilder sb = new StringBuilder(256)
                 .append("Export ")
                 .append(keys.getString(Tag.QueryRetrieveLevel))
                 .append("[suid:")
                 .append(keys.getString(Tag.StudyInstanceUID))
                 .append("] from ")
-                .append(remoteAET)
+                .append(ctx.getRemoteAET())
                 .append(" to ")
-                .append(destAET)
-                .append(" - completed:")
-                .append(completed);
-        if (warning > 0)
-            sb.append(", ").append("warning:").append(warning);
-        if (failed > 0)
-            sb.append(", ").append("failed:").append(failed);
-        return sb.toString();
+                .append(ctx.getDestinationAET());
+        if (status == Status.Success || status == Status.OneOrMoreFailures) {
+            sb.append(" - completed:").append(ctx.completed());
+            int warning = ctx.warning();
+            if (warning > 0)
+                sb.append(", warning:").append(warning);
+            int failed = ctx.failed();
+            if (failed > 0)
+                sb.append(", failed:").append(failed);
+        } else {
+            sb.append(" failed - status:").append(TagUtils.shortToHexString(status)).append('H');
+            String errorComment = ctx.getErrorComment();
+            if (errorComment != null)
+                sb.append(", error:").append(errorComment);
+        }
+        return new Outcome(
+                status == Status.Success
+                    ? QueueMessage.Status.COMPLETED
+                    : status == Status.OneOrMoreFailures && (ctx.completed() > 0 || ctx.warning() > 0)
+                        ? QueueMessage.Status.WARNING
+                        : QueueMessage.Status.FAILED,
+                sb.toString());
     }
 
     @Override
