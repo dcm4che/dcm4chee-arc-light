@@ -1714,7 +1714,7 @@
       }
     },
     "/queue/{queueName}/cancel": {
-      "get": {
+      "post": {
         "tags": [
           "QUEUE-RS"
         ],
@@ -1777,7 +1777,7 @@
       }
     },
     "/queue/{queueName}/reschedule": {
-      "get": {
+      "post": {
         "tags": [
           "QUEUE-RS"
         ],
