@@ -42,6 +42,7 @@ package org.dcm4chee.arc.export.mgt.impl;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
@@ -379,6 +380,45 @@ public class ExportManagerEJB implements ExportManager {
         task.setExporterID(exporter.getExporterID());
         LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
         return true;
+    }
+
+    @Override
+    public int deleteTasks(String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime,
+            QueueMessage.Status status) {
+        BooleanBuilder queueMessagePredicate = new BooleanBuilder();
+        if (deviceName != null)
+            queueMessagePredicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
+        if (status != null)
+            queueMessagePredicate.and(QQueueMessage.queueMessage.status.eq(status));
+        if (createdTime != null)
+            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
+                    QQueueMessage.queueMessage.createdTime.isNotNull()));
+        if (updatedTime != null)
+            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
+                    QQueueMessage.queueMessage.updatedTime.isNotNull()));
+
+        BooleanBuilder exportTaskPredicate = new BooleanBuilder();
+        if (exporterID != null)
+            exportTaskPredicate.and(QExportTask.exportTask.exporterID.eq(exporterID));
+        if (studyUID != null)
+            exportTaskPredicate.and(QExportTask.exportTask.studyInstanceUID.eq(studyUID));
+
+        HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(queueMessagePredicate);
+        List<Long> referencedQueueMsgs = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
+                .select(QExportTask.exportTask.queueMessage.pk)
+                .from(QExportTask.exportTask)
+                .where(exportTaskPredicate, QExportTask.exportTask.queueMessage.in(queueMessageQuery)).fetch();
+
+        new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
+                .where(exportTaskPredicate, QExportTask.exportTask.queueMessage.in(queueMessageQuery))
+                .execute();
+
+        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                .where(queueMessagePredicate, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
     }
 
     private static DateRange getDateRange(String s) {

@@ -204,6 +204,14 @@ public class ExportTaskRS {
                 .build();
     }
 
+    @DELETE
+    public String deleteTasks() {
+        logRequest();
+        return "{\"deleted\":"
+                + mgr.deleteTasks(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status))
+                + '}';
+    }
+
     private Object toEntity(final List<ExportTask> tasks) {
         return new StreamingOutput() {
             @Override

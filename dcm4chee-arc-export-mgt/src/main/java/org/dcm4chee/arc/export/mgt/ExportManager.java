@@ -79,4 +79,11 @@ public interface ExportManager {
     boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
 
     boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException, DifferentDeviceException;
+
+    int deleteTasks(String deviceName,
+                    String exporterID,
+                    String studyUID,
+                    String createdTime,
+                    String updatedTime,
+                    QueueMessage.Status status);
 }
