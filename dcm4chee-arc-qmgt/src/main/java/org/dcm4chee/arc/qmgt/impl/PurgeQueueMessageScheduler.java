@@ -98,6 +98,8 @@ public class PurgeQueueMessageScheduler extends Scheduler {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("-yyyyMMddhhmmss");
         Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
-        ejb.deleteMessages(queueName, status, null, null, dateFormat.format(before));
+        int count = ejb.deleteMessages(queueName, status, null, null, dateFormat.format(before));
+        if (count > 0)
+            LOG.info("Deleted " + count + " COMPLETED messages from queue: " + queueName);
     }
 }
