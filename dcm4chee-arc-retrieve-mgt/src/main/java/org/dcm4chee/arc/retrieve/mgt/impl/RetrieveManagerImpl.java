@@ -41,7 +41,6 @@ package org.dcm4chee.arc.retrieve.mgt.impl;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.*;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
@@ -187,5 +186,19 @@ public class RetrieveManagerImpl implements RetrieveManager {
     @Override
     public boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException, DifferentDeviceException {
         return ejb.rescheduleRetrieveTask(pk);
+    }
+
+    @Override
+    public int deleteTasks(
+            String deviceName,
+            String localAET,
+            String remoteAET,
+            String destinationAET,
+            String studyUID,
+            String createdTime,
+            String updatedTime,
+            QueueMessage.Status status) {
+        return ejb.deleteTasks(
+                deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status);
     }
 }

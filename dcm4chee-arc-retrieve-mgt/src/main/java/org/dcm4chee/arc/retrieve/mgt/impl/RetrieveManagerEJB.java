@@ -40,6 +40,7 @@ package org.dcm4chee.arc.retrieve.mgt.impl;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
@@ -241,6 +242,54 @@ public class RetrieveManagerEJB {
 
         LOG.info("Reschedule {}", task);
         return true;
+    }
+
+    public int deleteTasks(String deviceName,
+                           String localAET,
+                           String remoteAET,
+                           String destinationAET,
+                           String studyUID,
+                           String createdTime,
+                           String updatedTime,
+                           QueueMessage.Status status) {
+        BooleanBuilder queueMessagePredicate = new BooleanBuilder();
+        if (deviceName != null)
+            queueMessagePredicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
+        if (status != null)
+            queueMessagePredicate.and(QQueueMessage.queueMessage.status.eq(status));
+        if (createdTime != null)
+            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
+                    QQueueMessage.queueMessage.createdTime.isNotNull()));
+        if (updatedTime != null)
+            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
+                    QQueueMessage.queueMessage.updatedTime.isNotNull()));
+
+        BooleanBuilder retrieveTaskPredicate = new BooleanBuilder();
+        if (localAET != null)
+            retrieveTaskPredicate.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
+        if (remoteAET != null)
+            retrieveTaskPredicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(remoteAET));
+        if (destinationAET != null)
+            retrieveTaskPredicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
+        if (studyUID != null)
+            retrieveTaskPredicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
+
+        HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(queueMessagePredicate);
+        List<Long> referencedQueueMsgs = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
+                .select(QRetrieveTask.retrieveTask.queueMessage.pk)
+                .from(QRetrieveTask.retrieveTask)
+                .where(retrieveTaskPredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMessageQuery)).fetch();
+
+        new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+            .where(retrieveTaskPredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMessageQuery))
+            .execute();
+
+        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+            .where(queueMessagePredicate, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
     }
 
     private static DateRange getDateRange(String s) {

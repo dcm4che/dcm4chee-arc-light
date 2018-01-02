@@ -206,6 +206,15 @@ public class RetrieveTaskRS {
                 .build();
     }
 
+    @DELETE
+    public String deleteTasks() {
+        logRequest();
+        return "{\"deleted\":"
+                + mgr.deleteTasks(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
+                        parseStatus(status))
+                + '}';
+    }
+
     private Object toEntity(final List<RetrieveTask> tasks) {
         return new StreamingOutput() {
             @Override

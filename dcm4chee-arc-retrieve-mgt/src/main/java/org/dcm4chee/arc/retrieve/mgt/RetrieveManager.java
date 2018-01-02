@@ -87,4 +87,13 @@ public interface RetrieveManager {
     boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
 
     boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException, DifferentDeviceException;
+
+    int deleteTasks(String deviceName,
+                    String localAET,
+                    String remoteAET,
+                    String destinationAET,
+                    String studyUID,
+                    String createdTime,
+                    String updatedTime,
+                    QueueMessage.Status status);
 }
