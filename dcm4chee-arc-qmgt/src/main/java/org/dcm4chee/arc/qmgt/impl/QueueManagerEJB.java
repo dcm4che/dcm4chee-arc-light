@@ -272,15 +272,21 @@ public class QueueManagerEJB {
 
 
 
-    public int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore, String deviceName) {
+    public int deleteMessages(String queueName, QueueMessage.Status status, String deviceName, String createdTime, String updatedTime) {
         BooleanBuilder queueMessagePredicate = new BooleanBuilder();
         queueMessagePredicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
         if (deviceName != null)
             queueMessagePredicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
         if (status != null)
             queueMessagePredicate.and(QQueueMessage.queueMessage.status.eq(status));
-        if (updatedBefore != null)
-            queueMessagePredicate.and(QQueueMessage.queueMessage.updatedTime.lt(updatedBefore));
+        if (createdTime != null)
+            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
+                    QQueueMessage.queueMessage.createdTime.isNotNull()));
+        if (updatedTime != null)
+            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
+                    QQueueMessage.queueMessage.updatedTime.isNotNull()));
 
         HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                                 .from(QQueueMessage.queueMessage)

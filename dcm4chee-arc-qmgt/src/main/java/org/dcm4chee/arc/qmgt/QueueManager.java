@@ -44,7 +44,6 @@ import org.dcm4chee.arc.entity.QueueMessage;
 
 import javax.jms.ObjectMessage;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -68,7 +67,7 @@ public interface QueueManager {
 
     boolean deleteMessage(String msgId);
 
-    int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore, String deviceName);
+    int deleteMessages(String queueName, QueueMessage.Status status, String deviceName, String createdTime, String updatedTime);
 
     List<QueueMessage> search(
             String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime, int offset, int limit);

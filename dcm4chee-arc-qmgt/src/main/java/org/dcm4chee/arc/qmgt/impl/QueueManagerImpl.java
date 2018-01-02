@@ -49,7 +49,6 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.jms.ObjectMessage;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 @ApplicationScoped
@@ -132,8 +131,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public int deleteMessages(String queueName, QueueMessage.Status status, Date updatedBefore, String deviceName) {
-        return ejb.deleteMessages(queueName, status, updatedBefore, deviceName);
+    public int deleteMessages(String queueName, QueueMessage.Status status, String deviceName, String createdTime, String updatedTime) {
+        return ejb.deleteMessages(queueName, status, deviceName, createdTime, updatedTime);
     }
 
     @Override
