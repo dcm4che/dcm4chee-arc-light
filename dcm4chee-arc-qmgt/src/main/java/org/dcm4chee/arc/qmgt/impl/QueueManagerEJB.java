@@ -44,6 +44,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
+import com.querydsl.jpa.hibernate.HibernateUpdateClause;
 import org.dcm4che3.data.DatePrecision;
 import org.dcm4che3.data.DateRange;
 import org.dcm4che3.data.VR;
@@ -218,6 +219,45 @@ public class QueueManagerEJB {
         return true;
     }
 
+    public int cancelTasks(String queueName, String deviceName, QueueMessage.Status status, String createdTime,
+                            String updatedTime) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
+        predicate.and(QQueueMessage.queueMessage.status.eq(status));
+        addOptionalPredicates(deviceName, createdTime, updatedTime, predicate);
+
+        HibernateQuery<QueueMessage> queueMsgSubQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(predicate);
+
+        new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
+                .set(QExportTask.exportTask.updatedTime, new Date())
+                .where(QExportTask.exportTask.queueMessage.in(queueMsgSubQuery)).execute();
+
+        new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+                .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
+                .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMsgSubQuery)).execute();
+
+        LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status.toString(), queueName);
+        return (int) new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                .set(QQueueMessage.queueMessage.status, QueueMessage.Status.CANCELED)
+                .set(QQueueMessage.queueMessage.updatedTime, new Date())
+                .where(predicate).execute();
+    }
+
+    private void addOptionalPredicates(String deviceName, String createdTime, String updatedTime, BooleanBuilder predicate) {
+        if (deviceName != null)
+            predicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
+        if (createdTime != null)
+            predicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
+                QQueueMessage.queueMessage.createdTime.isNotNull()));
+        if (updatedTime != null)
+            predicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
+                QQueueMessage.queueMessage.updatedTime.isNotNull()));
+    }
+
     public boolean rescheduleMessage(String msgId, String queueName)
             throws IllegalTaskStateException, DifferentDeviceException {
         QueueMessage entity = findQueueMessage(msgId);
@@ -275,18 +315,9 @@ public class QueueManagerEJB {
     public int deleteMessages(String queueName, QueueMessage.Status status, String deviceName, String createdTime, String updatedTime) {
         BooleanBuilder queueMessagePredicate = new BooleanBuilder();
         queueMessagePredicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
-        if (deviceName != null)
-            queueMessagePredicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
         if (status != null)
             queueMessagePredicate.and(QQueueMessage.queueMessage.status.eq(status));
-        if (createdTime != null)
-            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
-                    QQueueMessage.queueMessage.createdTime.isNotNull()));
-        if (updatedTime != null)
-            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
-                    QQueueMessage.queueMessage.updatedTime.isNotNull()));
+        addOptionalPredicates(deviceName, createdTime, updatedTime, queueMessagePredicate);
 
         HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                                 .from(QQueueMessage.queueMessage)
@@ -315,18 +346,9 @@ public class QueueManagerEJB {
             int offset, int limit) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(QQueueMessage.queueMessage.queueName.eq(queueName));
-        if (deviceName != null)
-            builder.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
         if (status != null)
             builder.and(QQueueMessage.queueMessage.status.eq(status));
-        if (createdTime != null)
-            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
-                    QQueueMessage.queueMessage.createdTime.isNotNull()));
-        if (updatedTime != null)
-            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
-                    QQueueMessage.queueMessage.updatedTime.isNotNull()));
+        addOptionalPredicates(deviceName, createdTime, updatedTime, builder);
 
         HibernateQuery<QueueMessage> query = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)

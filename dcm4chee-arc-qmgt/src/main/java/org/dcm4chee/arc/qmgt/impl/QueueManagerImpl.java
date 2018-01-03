@@ -120,6 +120,14 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
+    public int cancelTasks(String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime,
+                               String updatedTime) {
+        return ejb.cancelTasks(queueName, dicomDeviceName, status, createdTime, updatedTime);
+
+        //TODO - messageCanceledEvent.fire(new MessageCanceled());
+    }
+
+    @Override
     public boolean rescheduleMessage(String msgId, String queueName)
             throws IllegalTaskStateException, DifferentDeviceException {
         return ejb.rescheduleMessage(msgId, queueName);

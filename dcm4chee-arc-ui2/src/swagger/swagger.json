@@ -2303,6 +2303,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Queue Message status is invalid"
+          },
           "404": {
             "description": "Queue not found"
           },
