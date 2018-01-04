@@ -183,6 +183,25 @@ public class RetrieveTaskRS {
     }
 
     @POST
+    @Path("/cancel")
+    public Response cancelRetrieveTasks() {
+        logRequest();
+        QueueMessage.Status cancelTasksStatus = parseStatus(status);
+        if (cancelTasksStatus != null
+                && (cancelTasksStatus == QueueMessage.Status.IN_PROCESS
+                || cancelTasksStatus == QueueMessage.Status.SCHEDULED)) {
+            int count = mgr.cancelRetrieveTasks(
+                    localAET, remoteAET, destinationAET, studyIUID, deviceName, cancelTasksStatus, createdTime, updatedTime);
+            return Response.status(count > 0 ? Response.Status.OK : Response.Status.NOT_FOUND)
+                    .entity("{\"count\":" + count + '}')
+                    .build();
+        }
+
+        throw new WebApplicationException(
+                buildErrResponse("Cannot cancel tasks with Status : " + status, Response.Status.BAD_REQUEST));
+    }
+
+    @POST
     @Path("{taskPK}/reschedule")
     public Response rescheduleTask(@PathParam("taskPK") long pk) {
         logRequest();
@@ -254,5 +273,10 @@ public class RetrieveTaskRS {
 
     private static QueueMessage.Status parseStatus(String s) {
         return s != null ? QueueMessage.Status.fromString(s) : null;
+    }
+
+    private Response buildErrResponse(String errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
     }
 }

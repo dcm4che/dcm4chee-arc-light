@@ -184,6 +184,19 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
+    public int cancelRetrieveTasks(
+            String localAET,
+            String remoteAET,
+            String destinationAET,
+            String studyUID,
+            String deviceName,
+            QueueMessage.Status status,
+            String createdTime,
+            String updatedTime) {
+        return ejb.cancelRetrieveTasks(localAET, remoteAET, destinationAET, studyUID, deviceName, status, createdTime, updatedTime);
+    }
+
+    @Override
     public boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException, DifferentDeviceException {
         return ejb.rescheduleRetrieveTask(pk);
     }

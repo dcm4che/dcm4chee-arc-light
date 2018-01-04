@@ -219,7 +219,7 @@ public class QueueManagerEJB {
         return true;
     }
 
-    public int cancelTasks(String queueName, String deviceName, QueueMessage.Status status, String createdTime,
+    public int cancelTasksInQueue(String queueName, String deviceName, QueueMessage.Status status, String createdTime,
                             String updatedTime) {
         BooleanBuilder predicate = new BooleanBuilder();
         predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
@@ -237,6 +237,28 @@ public class QueueManagerEJB {
         new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
                 .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
                 .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMsgSubQuery)).execute();
+
+        LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status.toString(), queueName);
+        return (int) new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                .set(QQueueMessage.queueMessage.status, QueueMessage.Status.CANCELED)
+                .set(QQueueMessage.queueMessage.updatedTime, new Date())
+                .where(predicate).execute();
+    }
+
+    public int cancelRetrieveTasks(String queueName, String deviceName, QueueMessage.Status status, String createdTime,
+                           String updatedTime, BooleanBuilder retrieveTaskPredicate) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
+        predicate.and(QQueueMessage.queueMessage.status.eq(status));
+        addOptionalPredicates(deviceName, createdTime, updatedTime, predicate);
+
+        HibernateQuery<QueueMessage> queueMsgSubQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(predicate);
+
+        new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+                .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
+                .where(retrieveTaskPredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgSubQuery)).execute();
 
         LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status.toString(), queueName);
         return (int) new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)

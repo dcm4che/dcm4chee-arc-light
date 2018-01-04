@@ -1827,6 +1827,12 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Invalid status for Cancel of Retrieve tasks"
+          },
+          "404": {
+            "description": "Tasks not found"
+          },
           "default": {
             "description": "unexpected error"
           }
@@ -2304,7 +2310,7 @@
             }
           },
           "400": {
-            "description": "Queue Message status is invalid"
+            "description": "Invalid Queue Message status"
           },
           "404": {
             "description": "Queue not found"

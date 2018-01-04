@@ -230,6 +230,30 @@ public class RetrieveManagerEJB {
         return true;
     }
 
+    public int cancelRetrieveTasks(
+            String localAET,
+            String remoteAET,
+            String destinationAET,
+            String studyUID,
+            String deviceName,
+            QueueMessage.Status status,
+            String createdTime,
+            String updatedTime) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (localAET != null)
+            predicate.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
+        if (remoteAET != null)
+            predicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(remoteAET));
+        if (destinationAET != null)
+            predicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
+        if (studyUID != null)
+            predicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
+
+        //TODO - cannot cancel task with status TO SCHEDULE
+
+        return queueManager.cancelRetrieveTasks(RetrieveManager.QUEUE_NAME, deviceName, status, createdTime, updatedTime, predicate);
+    }
+
     public boolean rescheduleRetrieveTask(Long pk)
             throws IllegalTaskStateException, DifferentDeviceException {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
