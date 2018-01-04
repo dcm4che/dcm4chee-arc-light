@@ -115,10 +115,6 @@ export class ExternalRetrieveService {
                         tag:"select",
                         options:[
                             {
-                                value:"TO SCHEDULE",
-                                text:"TO SCHEDULE"
-                            },
-                            {
                                 value:"SCHEDULED",
                                 text:"SCHEDULED"
                             },
