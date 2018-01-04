@@ -46,6 +46,7 @@ import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
+import org.dcm4chee.arc.qmgt.IllegalTaskRequestException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -179,23 +180,16 @@ public class ExportTaskRS {
     @Path("/cancel")
     public Response cancelExportTasks() {
         logRequest();
-        QueueMessage.Status cancelTasksStatus = parseStatus(status);
-        if (cancelTasksStatus != null && exporterID != null
-                && (cancelTasksStatus == QueueMessage.Status.IN_PROCESS
-                || cancelTasksStatus == QueueMessage.Status.SCHEDULED)) {
-            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
-            int count = mgr.cancelExportTasks(
-                    exporter.getQueueName(), exporterID, deviceName, studyUID, cancelTasksStatus, createdTime, updatedTime);
-            return Response.status(count > 0 ? Response.Status.OK : Response.Status.NOT_FOUND)
-                    .entity("{\"count\":" + count + '}')
+        try {
+            return Response.status(Response.Status.OK)
+                    .entity("{\"count\":"
+                            + mgr.cancelExportTasks(
+                                    exporterID, deviceName, studyUID, parseStatus(status), createdTime, updatedTime)
+                            + '}')
                     .build();
+        } catch (IllegalTaskRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
-
-        throw new WebApplicationException(
-                buildErrResponse(
-                        "Cannot cancel tasks with Status : " + status + " and ExporterID : " + exporterID,
-                        Response.Status.BAD_REQUEST));
     }
 
     @POST

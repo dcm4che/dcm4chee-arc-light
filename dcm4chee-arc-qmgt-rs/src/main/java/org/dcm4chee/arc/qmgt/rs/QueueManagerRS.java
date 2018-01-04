@@ -42,6 +42,7 @@ package org.dcm4chee.arc.qmgt.rs;
 
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
+import org.dcm4chee.arc.qmgt.IllegalTaskRequestException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -141,19 +142,16 @@ public class QueueManagerRS {
     @Path("/cancel")
     public Response cancelTasks() {
         logRequest();
-        QueueMessage.Status cancelTasksStatus = parseStatus(status);
-        if (cancelTasksStatus != null
-                && (cancelTasksStatus == QueueMessage.Status.IN_PROCESS
-                    || cancelTasksStatus == QueueMessage.Status.SCHEDULED)) {
-            int count = mgr.cancelTasksInQueue(
-                    queueName, dicomDeviceName, cancelTasksStatus, createdTime, updatedTime, null, null);
-            return Response.status(count > 0 ? Response.Status.OK : Response.Status.NOT_FOUND)
-                    .entity("{\"count\":" + count + '}')
+        try {
+            return Response.status(Response.Status.OK)
+                    .entity("{\"count\":"
+                            + mgr.cancelTasksInQueue(
+                                    queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime, null, null)
+                            + '}')
                     .build();
+        } catch (IllegalTaskRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
-
-        throw new WebApplicationException(
-                getResponse("Cannot cancel tasks with Status : " + status, Response.Status.BAD_REQUEST));
     }
 
     @POST
@@ -218,10 +216,5 @@ public class QueueManagerRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
-    }
-
-    private Response getResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
     }
 }

@@ -43,6 +43,7 @@ package org.dcm4chee.arc.retrieve.rs;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
+import org.dcm4chee.arc.qmgt.IllegalTaskRequestException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -186,19 +187,17 @@ public class RetrieveTaskRS {
     @Path("/cancel")
     public Response cancelRetrieveTasks() {
         logRequest();
-        QueueMessage.Status cancelTasksStatus = parseStatus(status);
-        if (cancelTasksStatus != null
-                && (cancelTasksStatus == QueueMessage.Status.IN_PROCESS
-                || cancelTasksStatus == QueueMessage.Status.SCHEDULED)) {
-            int count = mgr.cancelRetrieveTasks(
-                    localAET, remoteAET, destinationAET, studyIUID, deviceName, cancelTasksStatus, createdTime, updatedTime);
-            return Response.status(count > 0 ? Response.Status.OK : Response.Status.NOT_FOUND)
-                    .entity("{\"count\":" + count + '}')
+        try {
+            return Response.status(Response.Status.OK)
+                    .entity("{\"count\":"
+                            + mgr.cancelRetrieveTasks(
+                                    localAET, remoteAET, destinationAET, studyIUID, deviceName, parseStatus(status),
+                                    createdTime, updatedTime)
+                            + '}')
                     .build();
+        } catch (IllegalTaskRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
-
-        throw new WebApplicationException(
-                buildErrResponse("Cannot cancel tasks with Status : " + status, Response.Status.BAD_REQUEST));
     }
 
     @POST
@@ -273,10 +272,5 @@ public class RetrieveTaskRS {
 
     private static QueueMessage.Status parseStatus(String s) {
         return s != null ? QueueMessage.Status.fromString(s) : null;
-    }
-
-    private Response buildErrResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
     }
 }

@@ -1192,7 +1192,6 @@
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
-            "required": true,
             "type": "string"
           },
           {
@@ -1209,7 +1208,7 @@
             "type": "string",
             "enum": [
               "SCHEDULED",
-              "IN PROCESS",
+              "IN PROCESS"
             ]
           },
           {
@@ -1234,9 +1233,6 @@
           },
           "400": {
             "description": "Invalid status for Cancel of Export tasks"
-          },
-          "404": {
-            "description": "Tasks not found"
           },
           "default": {
             "description": "unexpected error"
@@ -1837,9 +1833,6 @@
           "400": {
             "description": "Invalid status for Cancel of Retrieve tasks"
           },
-          "404": {
-            "description": "Tasks not found"
-          },
           "default": {
             "description": "unexpected error"
           }
@@ -2318,9 +2311,6 @@
           },
           "400": {
             "description": "Invalid Queue Message status"
-          },
-          "404": {
-            "description": "Queue not found"
           },
           "default": {
             "description": "unexpected error"

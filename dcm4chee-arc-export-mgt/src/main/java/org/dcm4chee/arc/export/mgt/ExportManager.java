@@ -43,11 +43,8 @@ package org.dcm4chee.arc.export.mgt;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import javax.enterprise.event.Observes;
 import java.util.List;
@@ -78,14 +75,8 @@ public interface ExportManager {
 
     boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
 
-    int cancelExportTasks(
-            String queueName,
-            String exporterID,
-            String deviceName,
-            String studyUID,
-            QueueMessage.Status status,
-            String createdTime,
-            String updatedTime);
+    int cancelExportTasks(String exporterID, String deviceName, String studyUID, QueueMessage.Status status,
+            String createdTime, String updatedTime) throws IllegalTaskRequestException;
 
     boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException, DifferentDeviceException;
 
