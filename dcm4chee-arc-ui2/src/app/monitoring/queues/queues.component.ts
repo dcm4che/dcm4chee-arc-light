@@ -31,6 +31,20 @@ export class QueuesComponent implements OnInit{
     _ = _;
     devices;
     count;
+    allAction;
+    allActionsOptions = [
+        {
+            value:"cancel",
+            label:"Cancel all matching tasks"
+        },{
+            value:"reschedule",
+            label:"Reschedule all matching tasks"
+        },{
+            value:"delete",
+            label:"Delete all matching tasks"
+        }
+    ];
+    allActionsActive = [];
     constructor(
         public $http:J4careHttpService,
         public service: QueuesService,
@@ -56,6 +70,90 @@ export class QueuesComponent implements OnInit{
             }else{
                 this.init();
             }
+        }
+    }
+    statusChange(){
+        this.allActionsActive = this.allActionsOptions.filter((o)=>{
+            if(this.status == "SCHEDULED" || this.status == "IN PROCESS"){
+                return o.value != 'reschedule';
+            }else{
+                return o.value != 'cancel';
+            }
+        });
+    }
+    allActionChanged(e){
+        let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
+        let filter = {
+            dicomDeviceName:this.dicomDeviceName?this.dicomDeviceName:undefined,
+            status:this.status?this.status:undefined
+        };
+        switch (this.allAction){
+            case "cancel":
+                this.confirm({
+                    content: text
+                }).subscribe((ok)=>{
+                    if(ok){
+                        this.cfpLoadingBar.start();
+                        this.service.cancelAll(filter,this.queueName).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.deleted + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+            break;
+            case "reschedule":
+                this.confirm({
+                    content: text
+                }).subscribe((ok)=>{
+                    if(ok){
+                        this.cfpLoadingBar.start();
+                        this.service.rescheduleAll(filter,this.queueName).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.deleted + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+            break;
+            case "delete":
+                this.confirm({
+                    content: text
+                }).subscribe((ok)=>{
+                    if(ok){
+                        this.cfpLoadingBar.start();
+                        this.service.deleteAll(filter,this.queueName).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.deleted + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+            break;
         }
     }
     init(){

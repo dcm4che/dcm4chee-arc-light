@@ -16,6 +16,7 @@ export class QueuesService {
         return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName)))
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     };
+
     getCount(queueName, status, offset, limit, dicomDeviceName) {
         return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName)))
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
@@ -25,13 +26,31 @@ export class QueuesService {
         return this.$http.post(this.url3(queueName, msgId, 'cancel'), {}, this.header);
     };
 
+    cancelAll(filter,queueName){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`../queue/${queueName}/cancel${urlParam}`, {}, this.header);
+    }
+
     reschedule(queueName, msgId) {
         return this.$http.post(this.url3(queueName, msgId, 'reschedule'), {}, this.header);
     };
 
+    rescheduleAll(filter,queueName){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`../queue/${queueName}/reschedule${urlParam}`, {}, this.header);
+    }
+
     delete(queueName, msgId) {
         return this.$http.delete(this.url2(queueName, msgId));
     };
+
+    deleteAll(filter,queueName){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.delete(`../queue/${queueName}${urlParam}`, this.header);
+    }
 
     flush(queueName, status, before, device) {
         let urlParam = this.mainservice.param(this.flushParams(status, before, device));
