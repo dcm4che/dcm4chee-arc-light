@@ -269,9 +269,4 @@ public class ExportTaskRS {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
     }
-
-    private Response buildErrResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
-    }
 }
