@@ -55,7 +55,11 @@ export class ExportDialogComponent{
     }
 
     set result(value: any) {
-        this._result = value;
+        if(value){
+            Object.keys(value).forEach(i => {
+                this._result[i] = value[i];
+            });
+        }
     }
 
     get okButtonLabel() {

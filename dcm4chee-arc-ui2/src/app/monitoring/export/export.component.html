@@ -19,7 +19,7 @@
                     <div class="row">
                         <label for="status" class="col-md-6 text-right control-label">Status:</label>
                         <div class="col-md-6">
-                            <select id="status" [(ngModel)]="filters.status" class="col-md-12">
+                            <select id="status" [(ngModel)]="filters.status" (change)="statusChange()" class="col-md-12">
                                 <option>*</option>
                                 <option>TO SCHEDULE</option>
                                 <option>SCHEDULED</option>
@@ -79,6 +79,13 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="main_filter_block" *ngIf="filters.status && filters.status != '*' && allActionsActive.length > 0">
+            <div class="morefunctionblock">
+                <md-select [(ngModel)]="allAction" class="w45percent" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
+                    <md-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</md-option>
+                </md-select>
             </div>
         </div>
         <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">

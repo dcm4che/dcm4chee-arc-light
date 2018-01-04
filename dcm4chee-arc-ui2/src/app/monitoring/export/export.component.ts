@@ -41,6 +41,20 @@ export class ExportComponent implements OnInit {
     _ = _;
     devices;
     count;
+    allAction;
+    allActionsOptions = [
+        {
+            value:"cancel",
+            label:"Cancel all matching tasks"
+        },{
+            value:"reschedule",
+            label:"Reschedule all matching tasks"
+        },{
+            value:"delete",
+            label:"Delete all matching tasks"
+        }
+    ];
+    allActionsActive = [];
     constructor(
         public $http:J4careHttpService,
         public cfpLoadingBar: SlimLoadingBarService,
@@ -182,6 +196,90 @@ export class ExportComponent implements OnInit {
             this.cfpLoadingBar.complete();
             this.httpErrorHandler.handleError(err);
         });
+    }
+    statusChange(){
+        this.allActionsActive = this.allActionsOptions.filter((o)=>{
+            if(this.filters.status == "SCHEDULED" || this.filters.status == "IN PROCESS"){
+                return o.value != 'reschedule';
+            }else{
+                return o.value != 'cancel';
+            }
+        });
+    }
+    allActionChanged(e){
+        let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
+        let filter = {
+            dicomDeviceName:this.filters.dicomDeviceName?this.filters.dicomDeviceName:undefined,
+            status:this.filters.status?this.filters.status:undefined
+        };
+        switch (this.allAction){
+            case "cancel":
+                this.confirm({
+                    content: text
+                }).subscribe((ok)=>{
+                    if(ok){
+                        this.cfpLoadingBar.start();
+                        this.service.cancelAll(filter).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.cancel + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+                break;
+            case "reschedule":
+                this.confirm({
+                    content: text
+                }).subscribe((ok)=>{
+                    if(ok){
+                        this.cfpLoadingBar.start();
+                        this.service.rescheduleAll(filter).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.reschedule + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+                break;
+            case "delete":
+                this.confirm({
+                    content: text
+                }).subscribe((ok)=>{
+                    if(ok){
+                        this.cfpLoadingBar.start();
+                        this.service.deleteAll(filter).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.deleted + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+                break;
+        }
     }
     convertDates(){
         this.filters.updatedTime = j4care.convertDateRangeToString(this.filters.updatedTimeObject);
@@ -431,6 +529,7 @@ export class ExportComponent implements OnInit {
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
         this.dialogRef.componentInstance.title = 'Task reschedule';
         this.dialogRef.componentInstance.warning = null;
+        this.dialogRef.componentInstance.mode = "reschedule";
         this.dialogRef.componentInstance.result = result;
         this.dialogRef.componentInstance.okButtonLabel = 'RESCHEDULE';
         this.dialogRef.afterClosed().subscribe(result => {
@@ -441,22 +540,22 @@ export class ExportComponent implements OnInit {
                 }else{
                     id = result.selectedExporter;
                 }
-                    $this.cfpLoadingBar.start();
-                    this.service.reschedule(match.properties.pk, id)
-                        .subscribe(
-                            (res) => {
-                                $this.search(0);
-                                $this.cfpLoadingBar.complete();
-                                $this.mainservice.setMessage({
-                                    'title': 'Info',
-                                    'text': 'Task rescheduled successfully!',
-                                    'status': 'info'
-                                });
-                            },
-                            (err) => {
-                                $this.cfpLoadingBar.complete();
-                                $this.httpErrorHandler.handleError(err);
+                $this.cfpLoadingBar.start();
+                this.service.reschedule(match.properties.pk, id)
+                    .subscribe(
+                        (res) => {
+                            $this.search(0);
+                            $this.cfpLoadingBar.complete();
+                            $this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': 'Task rescheduled successfully!',
+                                'status': 'info'
                             });
+                        },
+                        (err) => {
+                            $this.cfpLoadingBar.complete();
+                            $this.httpErrorHandler.handleError(err);
+                        });
             }
         });
     };

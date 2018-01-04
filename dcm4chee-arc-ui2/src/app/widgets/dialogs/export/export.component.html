@@ -80,6 +80,14 @@
                 </div>
             </ng-container>
         </div>
+        <div class="content" *ngIf="mode === 'reschedule'">
+            <div class="dicomBlock">
+                <p>Exporter ID:</p>
+                <md-select class="aes" [(ngModel)]="result.selectedExporter">
+                    <md-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</md-option>
+                </md-select>
+            </div>
+        </div>
         <div class="dialogbuttons">
             <button *ngIf="!okButtonLabel" class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()">EXPORT</button>
             <button *ngIf="okButtonLabel" class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()">{{okButtonLabel}}</button>
