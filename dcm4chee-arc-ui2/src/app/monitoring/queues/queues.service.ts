@@ -29,17 +29,19 @@ export class QueuesService {
     cancelAll(filter,queueName){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`../queue/${queueName}/cancel${urlParam}`, {}, this.header);
+        return this.$http.post(`../queue/${queueName}/cancel${urlParam}`, {}, this.header)
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     }
 
     reschedule(queueName, msgId) {
-        return this.$http.post(this.url3(queueName, msgId, 'reschedule'), {}, this.header);
+        return this.$http.post(this.url3(queueName, msgId, 'reschedule'), {}, this.header)
     };
 
     rescheduleAll(filter,queueName){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`../queue/${queueName}/reschedule${urlParam}`, {}, this.header);
+        return this.$http.post(`../queue/${queueName}/reschedule${urlParam}`, {}, this.header)
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     }
 
     delete(queueName, msgId) {
@@ -49,7 +51,8 @@ export class QueuesService {
     deleteAll(filter,queueName){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.delete(`../queue/${queueName}${urlParam}`, this.header);
+        return this.$http.delete(`../queue/${queueName}${urlParam}`, this.header)
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     }
 
     flush(queueName, status, before, device) {
