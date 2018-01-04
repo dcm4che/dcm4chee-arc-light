@@ -1192,6 +1192,7 @@
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
+            "required": true,
             "type": "string"
           },
           {
@@ -1230,6 +1231,12 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Invalid status for Cancel of Export tasks"
+          },
+          "404": {
+            "description": "Tasks not found"
           },
           "default": {
             "description": "unexpected error"

@@ -367,6 +367,23 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
+    public int cancelExportTasks(String queueName, String exporterID, String deviceName, String studyUID, QueueMessage.Status status,
+                                 String createdTime, String updatedTime) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (exporterID != null)
+            predicate.and(QExportTask.exportTask.exporterID.eq(exporterID));
+        if (deviceName != null)
+            predicate.and(QExportTask.exportTask.deviceName.eq(deviceName));
+        if (studyUID != null)
+            predicate.and(QExportTask.exportTask.studyInstanceUID.eq(studyUID));
+
+        //TODO - cannot cancel task with status TO SCHEDULE
+
+        return queueManager.cancelTasksInQueue(
+                queueName, deviceName, status, createdTime, updatedTime, predicate, null);
+    }
+
+    @Override
     public boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter)
             throws IllegalTaskStateException, DifferentDeviceException {
         ExportTask task = em.find(ExportTask.class, pk);

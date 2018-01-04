@@ -122,16 +122,8 @@ public class QueueManagerImpl implements QueueManager {
 
     @Override
     public int cancelTasksInQueue(String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime,
-                               String updatedTime) {
-        return ejb.cancelTasksInQueue(queueName, dicomDeviceName, status, createdTime, updatedTime);
-
-        //TODO - messageCanceledEvent.fire(new MessageCanceled());
-    }
-
-    @Override
-    public int cancelRetrieveTasks(String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime,
-                                   String updatedTime, BooleanBuilder retrieveTaskPredicate) {
-        return ejb.cancelRetrieveTasks(queueName, dicomDeviceName, status, createdTime, updatedTime, retrieveTaskPredicate);
+                               String updatedTime, BooleanBuilder exportPredicate, BooleanBuilder extRetrievePredicate) {
+        return ejb.cancelTasksInQueue(queueName, dicomDeviceName, status, createdTime, updatedTime, exportPredicate, extRetrievePredicate);
 
         //TODO - messageCanceledEvent.fire(new MessageCanceled());
     }

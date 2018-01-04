@@ -220,7 +220,7 @@ public class QueueManagerEJB {
     }
 
     public int cancelTasksInQueue(String queueName, String deviceName, QueueMessage.Status status, String createdTime,
-                            String updatedTime) {
+                            String updatedTime, BooleanBuilder exportPredicate, BooleanBuilder extRetrievePredicate) {
         BooleanBuilder predicate = new BooleanBuilder();
         predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
         predicate.and(QQueueMessage.queueMessage.status.eq(status));
@@ -230,13 +230,8 @@ public class QueueManagerEJB {
                 .from(QQueueMessage.queueMessage)
                 .where(predicate);
 
-        new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
-                .set(QExportTask.exportTask.updatedTime, new Date())
-                .where(QExportTask.exportTask.queueMessage.in(queueMsgSubQuery)).execute();
-
-        new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
-                .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMsgSubQuery)).execute();
+        exportUpdateClause(exportPredicate, queueMsgSubQuery).execute();
+        extRetrieveUpdateClause(extRetrievePredicate, queueMsgSubQuery).execute();
 
         LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status.toString(), queueName);
         return (int) new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
@@ -245,26 +240,26 @@ public class QueueManagerEJB {
                 .where(predicate).execute();
     }
 
-    public int cancelRetrieveTasks(String queueName, String deviceName, QueueMessage.Status status, String createdTime,
-                           String updatedTime, BooleanBuilder retrieveTaskPredicate) {
-        BooleanBuilder predicate = new BooleanBuilder();
-        predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
-        predicate.and(QQueueMessage.queueMessage.status.eq(status));
-        addOptionalPredicates(deviceName, createdTime, updatedTime, predicate);
+    private HibernateUpdateClause extRetrieveUpdateClause(
+            BooleanBuilder extRetrievePredicate, HibernateQuery<QueueMessage> queueMsgSubQuery) {
+        return extRetrievePredicate != null
+                ? new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+                    .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
+                    .where(extRetrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgSubQuery))
+                : new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+                    .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
+                    .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMsgSubQuery));
+    }
 
-        HibernateQuery<QueueMessage> queueMsgSubQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(predicate);
-
-        new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
-                .where(retrieveTaskPredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgSubQuery)).execute();
-
-        LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status.toString(), queueName);
-        return (int) new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                .set(QQueueMessage.queueMessage.status, QueueMessage.Status.CANCELED)
-                .set(QQueueMessage.queueMessage.updatedTime, new Date())
-                .where(predicate).execute();
+    private HibernateUpdateClause exportUpdateClause(
+            BooleanBuilder exportPredicate, HibernateQuery<QueueMessage> queueMsgSubQuery) {
+        return exportPredicate != null
+                ? new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
+                    .set(QExportTask.exportTask.updatedTime, new Date())
+                    .where(exportPredicate, QExportTask.exportTask.queueMessage.in(queueMsgSubQuery))
+                : new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
+                    .set(QExportTask.exportTask.updatedTime, new Date())
+                    .where(QExportTask.exportTask.queueMessage.in(queueMsgSubQuery));
     }
 
     private void addOptionalPredicates(String deviceName, String createdTime, String updatedTime, BooleanBuilder predicate) {

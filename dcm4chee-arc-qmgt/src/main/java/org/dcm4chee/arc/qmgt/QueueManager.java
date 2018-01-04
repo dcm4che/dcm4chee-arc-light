@@ -65,10 +65,7 @@ public interface QueueManager {
     boolean cancelProcessing(String msgId) throws IllegalTaskStateException;
 
     int cancelTasksInQueue(String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime,
-                        String updatedTime);
-
-    int cancelRetrieveTasks(String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime,
-                    String updatedTime, BooleanBuilder retrieveTaskPredicate);
+                        String updatedTime, BooleanBuilder exportPredicate, BooleanBuilder extRetrievePredicate);
 
     boolean rescheduleMessage(String msgId, String queueName) throws IllegalTaskStateException, DifferentDeviceException;
 

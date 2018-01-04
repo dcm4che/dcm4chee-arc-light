@@ -176,6 +176,29 @@ public class ExportTaskRS {
     }
 
     @POST
+    @Path("/cancel")
+    public Response cancelExportTasks() {
+        logRequest();
+        QueueMessage.Status cancelTasksStatus = parseStatus(status);
+        if (cancelTasksStatus != null && exporterID != null
+                && (cancelTasksStatus == QueueMessage.Status.IN_PROCESS
+                || cancelTasksStatus == QueueMessage.Status.SCHEDULED)) {
+            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+            ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
+            int count = mgr.cancelExportTasks(
+                    exporter.getQueueName(), exporterID, deviceName, studyUID, cancelTasksStatus, createdTime, updatedTime);
+            return Response.status(count > 0 ? Response.Status.OK : Response.Status.NOT_FOUND)
+                    .entity("{\"count\":" + count + '}')
+                    .build();
+        }
+
+        throw new WebApplicationException(
+                buildErrResponse(
+                        "Cannot cancel tasks with Status : " + status + " and ExporterID : " + exporterID,
+                        Response.Status.BAD_REQUEST));
+    }
+
+    @POST
     @Path("{taskPK}/reschedule/{ExporterID}")
     public Response rescheduleTask(@PathParam("taskPK") long pk, @PathParam("ExporterID") String exporterID) {
         logRequest();
@@ -251,5 +274,10 @@ public class ExportTaskRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response buildErrResponse(String errorMessage, Response.Status status) {
+        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
+        return Response.status(status).entity(entity).build();
     }
 }

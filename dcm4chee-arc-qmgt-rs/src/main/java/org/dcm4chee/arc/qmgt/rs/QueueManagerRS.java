@@ -145,7 +145,8 @@ public class QueueManagerRS {
         if (cancelTasksStatus != null
                 && (cancelTasksStatus == QueueMessage.Status.IN_PROCESS
                     || cancelTasksStatus == QueueMessage.Status.SCHEDULED)) {
-            int count = mgr.cancelTasksInQueue(queueName, dicomDeviceName, cancelTasksStatus, createdTime, updatedTime);
+            int count = mgr.cancelTasksInQueue(
+                    queueName, dicomDeviceName, cancelTasksStatus, createdTime, updatedTime, null, null);
             return Response.status(count > 0 ? Response.Status.OK : Response.Status.NOT_FOUND)
                     .entity("{\"count\":" + count + '}')
                     .build();

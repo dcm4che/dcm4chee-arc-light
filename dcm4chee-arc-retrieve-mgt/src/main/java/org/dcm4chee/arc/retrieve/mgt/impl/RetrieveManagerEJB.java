@@ -251,7 +251,8 @@ public class RetrieveManagerEJB {
 
         //TODO - cannot cancel task with status TO SCHEDULE
 
-        return queueManager.cancelRetrieveTasks(RetrieveManager.QUEUE_NAME, deviceName, status, createdTime, updatedTime, predicate);
+        return queueManager.cancelTasksInQueue(
+                RetrieveManager.QUEUE_NAME, deviceName, status, createdTime, updatedTime, null, predicate);
     }
 
     public boolean rescheduleRetrieveTask(Long pk)
