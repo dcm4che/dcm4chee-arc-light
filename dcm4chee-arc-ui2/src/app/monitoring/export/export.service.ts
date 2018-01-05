@@ -65,10 +65,11 @@ export class ExportService {
         return this.$http.post('../monitor/export/' + pk + '/reschedule/' + exporterID, {});
     }
 
-    rescheduleAll(filter){
+    rescheduleAll(filter, exporterID){
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.post(`../monitor/export/reschedule${urlParam}`, {}, this.header)
+        let exporter = exporterID? `/${exporterID}`:'';
+        return this.$http.post(`../monitor/export/reschedule${exporter}${urlParam}`, {}, this.header)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     }
 

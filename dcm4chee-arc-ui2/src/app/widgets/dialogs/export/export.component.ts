@@ -55,11 +55,7 @@ export class ExportDialogComponent{
     }
 
     set result(value: any) {
-        if(value){
-            Object.keys(value).forEach(i => {
-                this._result[i] = value[i];
-            });
-        }
+        this._result = value;
     }
 
     get okButtonLabel() {
@@ -158,6 +154,9 @@ export class ExportDialogComponent{
         });
     }
     validForm(){
+        if(this._mode === "reschedule"){
+            return true;
+        }
         if (this._result && _.hasIn(this._result,"exportType") && this._result.exportType === 'dicom'){
            // if (this._result.dicomPrefix && this._result.selectedAet){
             if (this._result.selectedAet){
@@ -175,7 +174,6 @@ export class ExportDialogComponent{
     }
     dialogKeyHandler(e, dialogRef){
         let code = (e.keyCode ? e.keyCode : e.which);
-        console.log('in modality keyhandler', code);
         if (code === 13){
             dialogRef.close('ok');
         }

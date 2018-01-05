@@ -1,6 +1,7 @@
 <div class="vex vex-theme-os export" xmlns="http://www.w3.org/1999/html" (keydown)="dialogKeyHandler($event,dialogRef)">
     <div class="vex-dialog-form">
         <h5>{{title}}</h5>
+        <h6 *ngIf="subTitle">{{subTitle}}</h6>
         <p *ngIf="count && mode==='multiple'">{{count}} studies selected to be retrieved</p>
         <div class="content" *ngIf="externalInternalAetMode === 'internal' &&  mode ==='single'">
             <p>Select the type of the exporter:</p>
@@ -84,7 +85,7 @@
             <div class="dicomBlock">
                 <p>Exporter ID:</p>
                 <md-select class="aes" [(ngModel)]="result.selectedExporter">
-                    <md-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</md-option>
+                    <md-option value="{{export.id}}" *ngFor="let export of noDicomExporters" title="{{export.id}}">{{export.id}}</md-option>
                 </md-select>
             </div>
         </div>

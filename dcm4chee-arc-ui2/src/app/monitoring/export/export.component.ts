@@ -212,14 +212,14 @@ export class ExportComponent implements OnInit {
             dicomDeviceName:this.filters.dicomDeviceName?this.filters.dicomDeviceName:undefined,
             status:this.filters.status?this.filters.status:undefined
         };
-        switch (this.allAction){
+        switch (this.allAction) {
             case "cancel":
                 this.confirm({
                     content: text
-                }).subscribe((ok)=>{
-                    if(ok){
+                }).subscribe((ok) => {
+                    if (ok) {
                         this.cfpLoadingBar.start();
-                        this.service.cancelAll(filter).subscribe((res)=>{
+                        this.service.cancelAll(filter).subscribe((res) => {
                             this.mainservice.setMessage({
                                 'title': 'Info',
                                 'text': res.cancel + ' queues deleted successfully!',
@@ -236,15 +236,33 @@ export class ExportComponent implements OnInit {
                 });
                 break;
             case "reschedule":
-                this.confirm({
-                    content: text
-                }).subscribe((ok)=>{
-                    if(ok){
+                let dicomPrefixes = [];
+                let noDicomExporters = [];
+                _.forEach(this.exporters, (m, i) => {
+                    if (m.id.indexOf(':') > -1) {
+                        dicomPrefixes.push(m);
+                    } else {
+                        noDicomExporters.push(m);
+                    }
+                });
+                this.config.viewContainerRef = this.viewContainerRef;
+                this.dialogRef = this.dialog.open(ExportDialogComponent, {
+                    height: 'auto',
+                    width: '500px'
+                });
+                this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
+                this.dialogRef.componentInstance.title = `Are you sure, you want to reschedule all matching tasks?`;
+                this.dialogRef.componentInstance.warning = null;
+                this.dialogRef.componentInstance.mode = "reschedule";
+                this.dialogRef.componentInstance.subTitle = "Select an Exporter ID if you don't want to use the default one:";
+                this.dialogRef.componentInstance.okButtonLabel = 'RESCHEDULE';
+                this.dialogRef.afterClosed().subscribe((ok) => {
+                    if (ok) {
                         this.cfpLoadingBar.start();
-                        this.service.rescheduleAll(filter).subscribe((res)=>{
+                        this.service.rescheduleAll(filter,ok.selectedExporter).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.reschedule + ' queues deleted successfully!',
+                                'text': res.deleted + ' queues deleted successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();
