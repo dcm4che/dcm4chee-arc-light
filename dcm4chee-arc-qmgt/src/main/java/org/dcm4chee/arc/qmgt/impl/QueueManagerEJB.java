@@ -227,8 +227,10 @@ public class QueueManagerEJB {
                 .from(QQueueMessage.queueMessage)
                 .where(predicate);
 
-        exportUpdateClause(exportPredicate, queueMsgSubQuery).execute();
-        extRetrieveUpdateClause(extRetrievePredicate, queueMsgSubQuery).execute();
+        if (queueName.equals("Export1") || queueName.equals("Export2") || queueName.equals("Export3"))
+            exportUpdateClause(exportPredicate, queueMsgSubQuery).execute();
+        if (queueName.equals("CMoveSCU"))
+            extRetrieveUpdateClause(extRetrievePredicate, queueMsgSubQuery).execute();
 
         LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status.toString(), queueName);
         return (int) new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
