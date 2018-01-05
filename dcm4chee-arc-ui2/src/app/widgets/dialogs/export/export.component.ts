@@ -22,6 +22,7 @@ export class ExportDialogComponent{
     private _externalAetMode;
     private _mode;
     private _count;
+    private _subTitle;
     private _result = {
         exportType: 'dicom',
         selectedAet: undefined,
@@ -37,6 +38,14 @@ export class ExportDialogComponent{
     private _preselectedAet;
     constructor(public dialogRef: MdDialogRef<ExportDialogComponent>, private $http:J4careHttpService, private mainservice: AppService) {
         this.getAes();
+    }
+
+    get subTitle() {
+        return this._subTitle;
+    }
+
+    set subTitle(value) {
+        this._subTitle = value;
     }
 
     get preselectedAet() {
