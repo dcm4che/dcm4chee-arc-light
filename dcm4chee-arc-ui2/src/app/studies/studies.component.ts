@@ -2117,7 +2117,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     urlRest = `../aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}?${ this.mainservice.param(this.createStudyFilterParams())}` ;
                 }else{
                     if($this.externalInternalAetMode === 'external'){
-                        urlRest = `../aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}`;
+                        let param = result.queue ? `?queue=true` : ''
+                        urlRest = `../aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}${param}`;
 /*                        switch (dicomMode){
                             case 'study':
                                 console.log("newUrl",this.studyURL(objectAttr));

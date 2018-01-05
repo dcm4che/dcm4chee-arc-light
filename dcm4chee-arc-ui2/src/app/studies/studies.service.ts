@@ -53,7 +53,6 @@ export class StudiesService {
         return window;
     }
     getAes(user, aes){
-        console.log('in get aes service');
         if (!user || !user.user || user.roles.length === 0){
             return aes;
         }else{
@@ -108,6 +107,9 @@ export class StudiesService {
             }
             if(_.hasIn(msg,"errorMessage")){
                 endMsg = endMsg + `${msg.errorMessage}<br>`;
+            }
+            if(_.hasIn(msg,"error")){
+                endMsg = endMsg + `${msg.error}<br>`;
             }
             if(endMsg === ""){
                 endMsg = defaultMsg;
