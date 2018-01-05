@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Headers } from '@angular/http';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {AppService} from "../../app.service";
@@ -8,6 +9,7 @@ import * as _ from 'lodash';
 @Injectable()
 export class ExternalRetrieveService {
 
+    header = new Headers({ 'Content-Type': 'application/json' });
     constructor(
       public $http:J4careHttpService,
       public mainservice: AppService,
@@ -29,17 +31,36 @@ export class ExternalRetrieveService {
     getExporters(){
       return this.$http.get('../export')
           .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
-
     }
     delete(pk){
         return this.$http.delete('../monitor/retrieve/' + pk);
     }
+    deleteAll(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.delete(`../monitor/retrieve${urlParam}`, this.header)
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
+    }
     reschedule(pk){
         return this.$http.post(`../monitor/retrieve/${pk}/reschedule`, {});
+    }
+    rescheduleAll(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`../monitor/retrieve/reschedule${urlParam}`, {}, this.header)
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     }
     cancel(pk){
         return this.$http.post('../monitor/retrieve/' + pk + '/cancel', {});
     }
+
+    cancelAll(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`../monitor/retrieve/cancel${urlParam}`, {}, this.header)
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
+    }
+
     getFilterSchema(localAET,destinationAET,remoteAET,devices, countText){
     return [
         [

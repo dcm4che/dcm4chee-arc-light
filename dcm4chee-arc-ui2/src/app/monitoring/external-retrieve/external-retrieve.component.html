@@ -1,7 +1,17 @@
 <div class="main_content queues monitoring">
   <monitoring-tabs></monitoring-tabs>
   <div class="tab-content">
-    <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)"></filter-generator>
+    <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onFormChange($event)"></filter-generator>
+    <div class="filter single_block" *ngIf="filterObject?.status && allActionsActive">
+        <div class="filter_block">
+            <div class="line">
+                <md-select [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
+                    <md-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</md-option>
+                </md-select>
+                <div></div>
+            </div>
+        </div>
+    </div>
     <table class="table table-bordered table-condensed" *ngIf="_.size(externalRetrieveEntries) > 0">
       <thead>
       <tr>

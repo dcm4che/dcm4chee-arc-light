@@ -33,6 +33,20 @@ export class ExternalRetrieveComponent implements OnInit {
     datePipe = new DatePipe('us-US');
     devices;
     count;
+    allActionsActive = [];
+    allActionsOptions = [
+        {
+            value:"cancel",
+            label:"Cancel all matching tasks"
+        },{
+            value:"reschedule",
+            label:"Reschedule all matching tasks"
+        },{
+            value:"delete",
+            label:"Delete all matching tasks"
+        }
+    ];
+    allAction;
     constructor(
       public cfpLoadingBar: SlimLoadingBarService,
       public mainservice: AppService,
@@ -181,6 +195,79 @@ export class ExternalRetrieveComponent implements OnInit {
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
+    allActionChanged(e){
+        let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
+        let filter = Object.assign(this.filterObject);
+        delete filter.limit;
+        switch (this.allAction){
+            case "cancel":
+                this.confirm({
+                    content: text
+                }).subscribe((ok)=>{
+                    if(ok){
+                        this.cfpLoadingBar.start();
+                        this.service.cancelAll(this.filterObject).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.cancel + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+                break;
+            case "reschedule":
+                this.confirm({
+                    content: text
+                }).subscribe((ok)=>{
+                    if(ok){
+                        this.cfpLoadingBar.start();
+                        this.service.rescheduleAll(this.filterObject).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.reschedule + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+                break;
+            case "delete":
+                this.confirm({
+                    content: text
+                }).subscribe((ok)=>{
+                    if(ok){
+                        this.cfpLoadingBar.start();
+                        this.service.deleteAll(this.filterObject).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.deleted + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+                break;
+        }
+    }
     delete(match){
         let $this = this;
         let parameters: any = {
@@ -235,6 +322,15 @@ export class ExternalRetrieveComponent implements OnInit {
             }
         });
     };
+    onFormChange(filters){
+        this.allActionsActive = this.allActionsOptions.filter((o)=>{
+            if(filters.status == "SCHEDULED" || filters.status == "IN PROCESS"){
+                return o.value != 'reschedule';
+            }else{
+                return o.value != 'cancel';
+            }
+        });
+    }
     reschedule(match) {
         let $this = this;
         let parameters: any = {
