@@ -960,6 +960,16 @@
         ],
         "parameters": [
           {
+            "name": "accept",
+            "in": "query",
+            "description": "accepted content type",
+            "type": "string",
+            "enum": [
+              "application/json",
+              "text/csv"
+            ]
+          },
+          {
             "name": "dicomDeviceName",
             "in": "query",
             "description": "Device Name to filter by",
@@ -1512,6 +1522,16 @@
           "text/csv"
         ],
         "parameters": [
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "accepted content type",
+            "type": "string",
+            "enum": [
+              "application/json",
+              "text/csv"
+            ]
+          },
           {
             "name": "dicomDeviceName",
             "in": "query",
