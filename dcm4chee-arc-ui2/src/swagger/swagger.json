@@ -962,7 +962,7 @@
           {
             "name": "accept",
             "in": "query",
-            "description": "accepted content type",
+            "description": "Response Content Type",
             "type": "string",
             "enum": [
               "application/json",
@@ -1525,7 +1525,7 @@
           {
             "name": "accept",
             "in": "query",
-            "description": "accepted content type",
+            "description": "Response Content Type",
             "type": "string",
             "enum": [
               "application/json",
