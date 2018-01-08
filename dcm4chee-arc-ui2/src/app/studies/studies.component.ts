@@ -58,6 +58,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     showCheckboxes = false;
     disabled = {};
     patientmode = false;
+    withoutstudies = false;
     ExternalRetrieveAETchecked = false;
     StudyReceiveDateTime = {
         from: undefined,
@@ -3100,7 +3101,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             limit: limit
         };
         for (let key in filter){
-            if (filter[key] || filter === false){
+            if (filter[key] || filter[key] === false){
                 params[key] = filter[key];
             }
         }

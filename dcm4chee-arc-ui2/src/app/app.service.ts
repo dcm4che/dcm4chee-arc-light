@@ -142,7 +142,7 @@ export class AppService implements OnInit, OnDestroy{
     }
     param(filter){
         let filterMaped = Object.keys(filter).map((key) => {
-            if (filter[key]){
+            if (filter[key] || filter[key] === false){
                 return key + '=' + filter[key];
             }
         });

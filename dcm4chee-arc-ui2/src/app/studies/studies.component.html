@@ -342,7 +342,7 @@
                     </div>
                     <div class="col-md-6" *ngIf="filterMode === 'patient'">
                         <label title="Only patients with studies">
-                            <input type="checkbox" [(ngModel)]="filter.withoutstudies" ng-true-value="true" ng-false-value="false"> only with studies
+                            <input type="checkbox" [(ngModel)]="withoutstudies" (change)="filter.withoutstudies = !withoutstudies"> only with studies
                         </label>
                     </div>
                     <div class="col-md-6" *ngIf="filterMode === 'patient'">

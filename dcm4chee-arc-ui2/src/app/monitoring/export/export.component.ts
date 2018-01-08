@@ -36,6 +36,7 @@ export class ExportComponent implements OnInit {
         createdTime: undefined,
         createdTimeObject: undefined
     };
+
     isRole: any = (user)=>{return false;};
     dialogRef: MdDialogRef<any>;
     _ = _;
