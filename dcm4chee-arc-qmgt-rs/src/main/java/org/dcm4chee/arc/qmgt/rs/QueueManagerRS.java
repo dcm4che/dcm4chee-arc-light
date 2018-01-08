@@ -158,6 +158,8 @@ public class QueueManagerRS {
                     .build();
         } catch (IllegalTaskRequestException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        } catch (IllegalTaskStateException e) {
+            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
     }
 

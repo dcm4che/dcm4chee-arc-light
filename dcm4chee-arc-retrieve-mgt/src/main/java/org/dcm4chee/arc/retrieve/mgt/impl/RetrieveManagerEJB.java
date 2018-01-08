@@ -232,7 +232,7 @@ public class RetrieveManagerEJB {
 
     public int cancelRetrieveTasks(String localAET, String remoteAET, String destinationAET, String studyUID,
             String deviceName, QueueMessage.Status status, String createdTime, String updatedTime)
-            throws IllegalTaskRequestException {
+            throws IllegalTaskRequestException, IllegalTaskStateException {
         return queueManager.cancelTasksInQueue(
                 RetrieveManager.QUEUE_NAME,
                 deviceName,
@@ -283,16 +283,16 @@ public class RetrieveManagerEJB {
             queueMessagePredicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
         if (status != null)
             queueMessagePredicate.and(QQueueMessage.queueMessage.status.eq(status));
-        if (createdTime != null)
-            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
-                    QQueueMessage.queueMessage.createdTime.isNotNull()));
-        if (updatedTime != null)
-            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
-                    QQueueMessage.queueMessage.updatedTime.isNotNull()));
 
         BooleanBuilder retrieveTaskPredicate = buildRetrieveTaskPredicate(localAET, remoteAET, destinationAET, studyUID);
+        if (createdTime != null)
+            retrieveTaskPredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QRetrieveTask.retrieveTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
+                    QRetrieveTask.retrieveTask.createdTime.isNotNull()));
+        if (updatedTime != null)
+            retrieveTaskPredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QRetrieveTask.retrieveTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
+                    QRetrieveTask.retrieveTask.updatedTime.isNotNull()));
 
         HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)

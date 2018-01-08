@@ -71,7 +71,6 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.ws.rs.core.Response;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -370,7 +369,7 @@ public class ExportManagerEJB implements ExportManager {
     @Override
     public int cancelExportTasks(
             String exporterID, String deviceName, String studyUID, QueueMessage.Status status,
-            String createdTime, String updatedTime) throws IllegalTaskRequestException {
+            String createdTime, String updatedTime) throws IllegalTaskRequestException, IllegalTaskStateException {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
 
@@ -440,20 +439,20 @@ public class ExportManagerEJB implements ExportManager {
             queueMessagePredicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
         if (status != null)
             queueMessagePredicate.and(QQueueMessage.queueMessage.status.eq(status));
-        if (createdTime != null)
-            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
-                    QQueueMessage.queueMessage.createdTime.isNotNull()));
-        if (updatedTime != null)
-            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
-                    QQueueMessage.queueMessage.updatedTime.isNotNull()));
 
         BooleanBuilder exportTaskPredicate = new BooleanBuilder();
         if (exporterID != null)
             exportTaskPredicate.and(QExportTask.exportTask.exporterID.eq(exporterID));
         if (studyUID != null)
             exportTaskPredicate.and(QExportTask.exportTask.studyInstanceUID.eq(studyUID));
+        if (createdTime != null)
+            exportTaskPredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QExportTask.exportTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
+                    QExportTask.exportTask.createdTime.isNotNull()));
+        if (updatedTime != null)
+            exportTaskPredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
+                    QExportTask.exportTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
+                    QExportTask.exportTask.updatedTime.isNotNull()));
 
         HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
