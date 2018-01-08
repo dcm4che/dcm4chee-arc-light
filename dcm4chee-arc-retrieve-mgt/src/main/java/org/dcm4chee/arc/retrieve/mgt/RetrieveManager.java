@@ -88,6 +88,11 @@ public interface RetrieveManager {
 
     boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException, DifferentDeviceException;
 
+    List<RetrieveTask> rescheduleRetrieveTasks(
+            String localAET, String remoteAET, String destinationAET, String studyUID, String deviceName,
+            QueueMessage.Status status, String createdTime, String updatedTime, int rescheduleTasksFetchSize)
+            throws IllegalTaskRequestException, DifferentDeviceException;
+
     int deleteTasks(String deviceName,
                     String localAET,
                     String remoteAET,

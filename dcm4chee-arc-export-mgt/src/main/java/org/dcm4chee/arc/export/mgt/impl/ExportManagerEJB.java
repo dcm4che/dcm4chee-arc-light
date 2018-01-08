@@ -71,6 +71,7 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.ws.rs.core.Response;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -367,7 +368,8 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public int cancelExportTasks(String exporterID, String deviceName, String studyUID, QueueMessage.Status status,
+    public int cancelExportTasks(
+            String exporterID, String deviceName, String studyUID, QueueMessage.Status status,
             String createdTime, String updatedTime) throws IllegalTaskRequestException {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
@@ -379,8 +381,6 @@ public class ExportManagerEJB implements ExportManager {
             predicate.and(QExportTask.exportTask.deviceName.eq(deviceName));
         if (studyUID != null)
             predicate.and(QExportTask.exportTask.studyInstanceUID.eq(studyUID));
-
-        //TODO - cannot cancel task with status TO SCHEDULE
 
         if (exporter != null)
             return queueManager.cancelTasksInQueue(
@@ -411,6 +411,25 @@ public class ExportManagerEJB implements ExportManager {
         task.setExporterID(exporter.getExporterID());
         LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
         return true;
+    }
+
+    @Override
+    public List<ExportTask> rescheduleExportTasks(
+            String exporterID,
+            String deviceName,
+            String studyUID,
+            String createdTime,
+            String updatedTime,
+            QueueMessage.Status status,
+            int rescheduleTasksFetchSize) throws IllegalTaskRequestException, DifferentDeviceException {
+        if (status == null || deviceName == null
+                || status == QueueMessage.Status.IN_PROCESS || status == QueueMessage.Status.SCHEDULED)
+            throw new IllegalTaskRequestException("Cannot cancel tasks with Status : " + status + " and device name : " + deviceName);
+
+        if (!device.getDeviceName().equals(deviceName))
+            throw new DifferentDeviceException("Cannot reschedule Tasks of Device " + device.getDeviceName() + " on Device " + deviceName);
+
+        return search(deviceName, exporterID, studyUID, createdTime, updatedTime, status, 0, rescheduleTasksFetchSize);
     }
 
     @Override

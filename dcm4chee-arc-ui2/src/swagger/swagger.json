@@ -1314,6 +1314,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Export task status is null or invalid or device name is null"
+          },
           "409": {
             "description": "Archive Device Name does not match device name of archive instance"
           },
@@ -1935,6 +1938,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Retrieve tasks status is null or invalid or device name is null"
+          },
           "409": {
             "description": "Archive Device Name does not match device name of archive instance"
           },
@@ -2396,8 +2402,8 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "404": {
-            "description": "Queue not found"
+          "400": {
+            "description": "Queue Message status is null or invalid or device name is null"
           },
           "409": {
             "description": "Archive Device Name does not match device name of archive instance"

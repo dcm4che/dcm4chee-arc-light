@@ -131,14 +131,29 @@ public class QueueManagerImpl implements QueueManager {
 
         return ejb.cancelTasksInQueue(
                 queueName, dicomDeviceName, status, createdTime, updatedTime, exportPredicate, extRetrievePredicate);
-
-        //TODO - messageCanceledEvent.fire(new MessageCanceled());
     }
 
     @Override
     public boolean rescheduleMessage(String msgId, String queueName)
             throws IllegalTaskStateException, DifferentDeviceException {
         return ejb.rescheduleMessage(msgId, queueName);
+    }
+
+    @Override
+    public List<QueueMessage> rescheduleTasksInQueue(
+            String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime, String updatedTime,
+            int rescheduleTasksFetchSize) throws IllegalTaskRequestException, DifferentDeviceException {
+        if (status == null || dicomDeviceName == null
+                || status == QueueMessage.Status.IN_PROCESS || status == QueueMessage.Status.SCHEDULED)
+            throw new IllegalTaskRequestException(
+                    "Cannot cancel tasks with Status : " + status + " and device name : " + dicomDeviceName);
+
+        if (!device.getDeviceName().equals(dicomDeviceName))
+            throw new DifferentDeviceException(
+                    "Cannot reschedule Tasks of Device " + device.getDeviceName() + " on Device " + dicomDeviceName);
+
+        return ejb.search(
+                queueName, dicomDeviceName, status, createdTime, updatedTime, 0, rescheduleTasksFetchSize);
     }
 
     @Override

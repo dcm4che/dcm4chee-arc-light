@@ -71,8 +71,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -221,7 +220,9 @@ public class QueueManagerEJB {
         BooleanBuilder predicate = new BooleanBuilder();
         predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
         predicate.and(QQueueMessage.queueMessage.status.eq(status));
-        addOptionalPredicates(deviceName, createdTime, updatedTime, predicate);
+        if (deviceName != null)
+            predicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
+        addOptionalPredicates(createdTime, updatedTime, predicate);
 
         HibernateQuery<QueueMessage> queueMsgSubQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
@@ -261,9 +262,7 @@ public class QueueManagerEJB {
                     .where(QExportTask.exportTask.queueMessage.in(queueMsgSubQuery));
     }
 
-    private void addOptionalPredicates(String deviceName, String createdTime, String updatedTime, BooleanBuilder predicate) {
-        if (deviceName != null)
-            predicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
+    private void addOptionalPredicates(String createdTime, String updatedTime, BooleanBuilder predicate) {
         if (createdTime != null)
             predicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
                 QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
@@ -326,14 +325,14 @@ public class QueueManagerEJB {
         return true;
     }
 
-
-
     public int deleteMessages(String queueName, QueueMessage.Status status, String deviceName, String createdTime, String updatedTime) {
         BooleanBuilder queueMessagePredicate = new BooleanBuilder();
         queueMessagePredicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
         if (status != null)
             queueMessagePredicate.and(QQueueMessage.queueMessage.status.eq(status));
-        addOptionalPredicates(deviceName, createdTime, updatedTime, queueMessagePredicate);
+        if (deviceName != null)
+            queueMessagePredicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
+        addOptionalPredicates(createdTime, updatedTime, queueMessagePredicate);
 
         HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                                 .from(QQueueMessage.queueMessage)
@@ -364,7 +363,9 @@ public class QueueManagerEJB {
         builder.and(QQueueMessage.queueMessage.queueName.eq(queueName));
         if (status != null)
             builder.and(QQueueMessage.queueMessage.status.eq(status));
-        addOptionalPredicates(deviceName, createdTime, updatedTime, builder);
+        if (deviceName != null)
+            builder.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
+        addOptionalPredicates(createdTime, updatedTime, builder);
 
         HibernateQuery<QueueMessage> query = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)

@@ -68,6 +68,11 @@ public interface QueueManager {
             String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime, String updatedTime,
             BooleanBuilder exportPredicate, BooleanBuilder extRetrievePredicate) throws IllegalTaskRequestException;
 
+    List<QueueMessage> rescheduleTasksInQueue(
+            String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime, String updatedTime,
+            int rescheduleTasksFetchSize)
+            throws IllegalTaskRequestException, DifferentDeviceException;
+
     boolean rescheduleMessage(String msgId, String queueName) throws IllegalTaskStateException, DifferentDeviceException;
 
     boolean deleteMessage(String msgId);

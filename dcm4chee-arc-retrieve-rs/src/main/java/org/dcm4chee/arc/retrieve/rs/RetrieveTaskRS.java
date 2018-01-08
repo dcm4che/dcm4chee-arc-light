@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.retrieve.rs;
 
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
@@ -61,6 +63,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -98,6 +102,9 @@ public class RetrieveTaskRS {
 
     @Inject
     private RetrieveManager mgr;
+
+    @Inject
+    private Device device;
 
     @Context
     private HttpServletRequest request;
@@ -209,6 +216,34 @@ public class RetrieveTaskRS {
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
+        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+        }
+    }
+
+    @POST
+    @Path("/reschedule")
+    public Response rescheduleRetrieveTasks() {
+        logRequest();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int rescheduleTasksFetchSize = arcDev.getRescheduleTasksFetchSize();
+        try {
+            String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
+            List<RetrieveTask> retrieveTasks;
+            int count = 0;
+            do {
+                retrieveTasks = mgr.rescheduleRetrieveTasks(
+                        localAET, remoteAET, destinationAET, studyIUID, deviceName, parseStatus(status),
+                        createdTime, updtTime, rescheduleTasksFetchSize);
+                for (RetrieveTask task : retrieveTasks)
+                    mgr.rescheduleRetrieveTask(task.getPk());
+                count += retrieveTasks.size();
+            } while (retrieveTasks.size() >= rescheduleTasksFetchSize);
+            return Response.status(Response.Status.OK)
+                    .entity("{\"count\":" + count + '}')
+                    .build();
+        } catch (IllegalTaskRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }

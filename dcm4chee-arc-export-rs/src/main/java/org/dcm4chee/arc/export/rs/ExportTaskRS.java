@@ -63,6 +63,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -210,6 +212,38 @@ public class ExportTaskRS {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
     }
+
+    @POST
+    @Path("/reschedule")
+    public Response rescheduleExportTasks() {
+        logRequest();
+
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int rescheduleTasksFetchSize = arcDev.getRescheduleTasksFetchSize();
+        ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
+        try {
+            String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
+            List<ExportTask> exportTasks;
+            int count = 0;
+            do {
+                exportTasks = mgr.rescheduleExportTasks(
+                        exporterID, deviceName, studyUID, createdTime, updtTime, parseStatus(status), rescheduleTasksFetchSize);
+                for (ExportTask task : exportTasks)
+                    mgr.rescheduleExportTask(
+                            task.getPk(),
+                            exporter != null ? exporter : arcDev.getExporterDescriptor(task.getExporterID()));
+                count += exportTasks.size();
+            } while (exportTasks.size() >= rescheduleTasksFetchSize);
+            return Response.status(Response.Status.OK)
+                    .entity("{\"count\":" + count + '}')
+                    .build();
+        } catch (IllegalTaskRequestException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+        }
+    }
+
 
     @DELETE
     @Path("/{taskPK}")

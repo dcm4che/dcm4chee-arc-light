@@ -80,6 +80,9 @@ public class RetrieveManagerEJB {
     @Inject
     private QueueManager queueManager;
 
+    @Inject
+    private Device device;
+
     public void scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx)
             throws QueueSizeLimitExceededException {
         try {
@@ -230,20 +233,14 @@ public class RetrieveManagerEJB {
     public int cancelRetrieveTasks(String localAET, String remoteAET, String destinationAET, String studyUID,
             String deviceName, QueueMessage.Status status, String createdTime, String updatedTime)
             throws IllegalTaskRequestException {
-        BooleanBuilder predicate = new BooleanBuilder();
-        if (localAET != null)
-            predicate.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
-        if (remoteAET != null)
-            predicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(remoteAET));
-        if (destinationAET != null)
-            predicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
-        if (studyUID != null)
-            predicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
-
-        //TODO - cannot cancel task with status TO SCHEDULE
-
         return queueManager.cancelTasksInQueue(
-                RetrieveManager.QUEUE_NAME, deviceName, status, createdTime, updatedTime, null, predicate);
+                RetrieveManager.QUEUE_NAME,
+                deviceName,
+                status,
+                createdTime,
+                updatedTime,
+                null,
+                buildRetrieveTaskPredicate(localAET, remoteAET, destinationAET, studyUID));
     }
 
     public boolean rescheduleRetrieveTask(Long pk)
@@ -258,6 +255,19 @@ public class RetrieveManagerEJB {
 
         LOG.info("Reschedule {}", task);
         return true;
+    }
+
+    private BooleanBuilder buildRetrieveTaskPredicate(String localAET, String remoteAET, String destinationAET, String studyUID) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (localAET != null)
+            predicate.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
+        if (remoteAET != null)
+            predicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(remoteAET));
+        if (destinationAET != null)
+            predicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
+        if (studyUID != null)
+            predicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
+        return predicate;
     }
 
     public int deleteTasks(String deviceName,
@@ -282,15 +292,7 @@ public class RetrieveManagerEJB {
                     QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
                     QQueueMessage.queueMessage.updatedTime.isNotNull()));
 
-        BooleanBuilder retrieveTaskPredicate = new BooleanBuilder();
-        if (localAET != null)
-            retrieveTaskPredicate.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
-        if (remoteAET != null)
-            retrieveTaskPredicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(remoteAET));
-        if (destinationAET != null)
-            retrieveTaskPredicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
-        if (studyUID != null)
-            retrieveTaskPredicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
+        BooleanBuilder retrieveTaskPredicate = buildRetrieveTaskPredicate(localAET, remoteAET, destinationAET, studyUID);
 
         HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)

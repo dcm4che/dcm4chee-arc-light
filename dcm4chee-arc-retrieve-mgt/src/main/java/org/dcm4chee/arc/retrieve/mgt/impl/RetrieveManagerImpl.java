@@ -193,6 +193,24 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
+    public List<RetrieveTask> rescheduleRetrieveTasks(
+            String localAET, String remoteAET, String destinationAET, String studyUID, String deviceName,
+            QueueMessage.Status status, String createdTime, String updatedTime, int rescheduleTasksFetchSize)
+            throws IllegalTaskRequestException, DifferentDeviceException {
+        if (status == null || deviceName == null
+                || status == QueueMessage.Status.IN_PROCESS || status == QueueMessage.Status.SCHEDULED)
+            throw new IllegalTaskRequestException(
+                    "Cannot cancel tasks with Status : " + status + " and device name : " + deviceName);
+
+        if (!device.getDeviceName().equals(deviceName))
+            throw new DifferentDeviceException(
+                    "Cannot reschedule Tasks of Device " + device.getDeviceName() + " on Device " + deviceName);
+
+        return ejb.search(
+                deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status, 0, rescheduleTasksFetchSize);
+    }
+
+    @Override
     public int deleteTasks(
             String deviceName,
             String localAET,

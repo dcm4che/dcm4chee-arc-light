@@ -80,6 +80,15 @@ public interface ExportManager {
 
     boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException, DifferentDeviceException;
 
+    List<ExportTask> rescheduleExportTasks(
+                    String exporterID,
+                    String deviceName,
+                    String studyUID,
+                    String createdTime,
+                    String updatedTime,
+                    QueueMessage.Status status,
+                    int rescheduleTasksFetchSize) throws IllegalTaskRequestException, DifferentDeviceException;
+
     int deleteTasks(String deviceName,
                     String exporterID,
                     String studyUID,
