@@ -11,6 +11,7 @@ import {MdDialog, MdDialogConfig, MdDialogRef} from "@angular/material";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {DatePipe} from "@angular/common";
 import {j4care} from "../../helpers/j4care.service";
+import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'external-retrieve',
@@ -195,6 +196,14 @@ export class ExternalRetrieveComponent implements OnInit {
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
+    downloadCsv(){
+        this.service.downloadCsv(this.filterObject).subscribe((csv)=>{
+            let file = new File([csv._body], `export_${new Date().toDateString()}.csv`, {type: 'text/csv;charset=utf-8'});
+            FileSaver.saveAs(file);
+        },(err)=>{
+            this.httpErrorHandler.handleError(err);
+        });
+    }
     allActionChanged(e){
         let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
         let filter = Object.assign(this.filterObject);

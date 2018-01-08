@@ -111,6 +111,39 @@ $hoverBlue:#5293C1;
   }
 }
 
+.custom_icon{
+  content: '';
+  display: inline-block;
+  min-width:2px;
+  min-height:2px;
+  &.csv_icon{
+    background-image: url("assets/img/csv_icon.png");
+    background-repeat:no-repeat;
+    height:100%;
+    width:30px;
+    background-position: center center;
+    float: left;
+  }
+}
+.csv_button{
+  background:rgba(6, 29, 47, 0.84);
+  color: white;
+  padding-left: 1vw;
+  &:hover{
+    cursor: pointer;
+  }
+  span{
+    float: left;
+    &.text{
+      display: inline-block;
+      float: left;
+      height: 100%;
+      vertical-align: middle;
+      line-height: 27px;
+      text-align: center;
+    }
+  }
+}
 .single_block{
   float: left;
   width:100%;

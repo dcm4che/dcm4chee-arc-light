@@ -60,7 +60,13 @@ export class ExternalRetrieveService {
         return this.$http.post(`../monitor/retrieve/cancel${urlParam}`, {}, this.header)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     }
-
+    downloadCsv(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        // let header = new Headers({ 'Content-Type': 'text/csv' });
+        let header = new Headers({ 'Accept': 'text/csv' });
+        return this.$http.get(`/dcm4chee-arc/monitor/retrieve${urlParam}`, header)
+    }
     getFilterSchema(localAET,destinationAET,remoteAET,devices, countText){
     return [
         [

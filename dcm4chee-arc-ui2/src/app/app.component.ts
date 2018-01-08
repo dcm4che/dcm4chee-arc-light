@@ -45,6 +45,9 @@ export class AppComponent implements OnInit {
     ){}
 
     ngOnInit(){
+        Date.prototype.toDateString = function() {
+            return `${this.getFullYear()}${this.getMonth()+1}${this.getDate()}_${this.getHours()}${this.getMinutes()}${this.getSeconds()}`;
+        };
         let $this = this;
         if (!this.mainservice.user){
             this.mainservice.user = this.mainservice.getUserInfo().share();

@@ -81,11 +81,24 @@
                 </div>
             </div>
         </div>
-        <div class="main_filter_block" *ngIf="filters.status && filters.status != '*' && allActionsActive.length > 0">
-            <div class="morefunctionblock">
-                <md-select [(ngModel)]="allAction" class="w45percent" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
-                    <md-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</md-option>
-                </md-select>
+        <div class="main_filter_block">
+<!--            <div class="morefunctionblock">
+                <div class="w45percent">
+                    <md-select [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
+                        <md-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</md-option>
+                    </md-select>
+                </div>
+                <div class="w45percent csv_button"><span class="custom_icon csv_icon"></span>Download CSV</div>
+            </div>-->
+            <div class="filter single_block">
+                <div class="filter_block" *ngIf="filters.status && filters.status != '*' && allActionsActive.length > 0;">
+                    <div class="line">
+                        <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text">Download CSV</span></div>
+                        <md-select [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
+                            <md-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</md-option>
+                        </md-select>
+                    </div>
+                </div>
             </div>
         </div>
         <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">

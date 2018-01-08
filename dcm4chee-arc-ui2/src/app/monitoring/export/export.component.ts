@@ -12,6 +12,8 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
+import * as FileSaver from 'file-saver';
+
 
 @Component({
   selector: 'app-export',
@@ -66,7 +68,6 @@ export class ExportComponent implements OnInit {
         public config: MdDialogConfig,
         private httpErrorHandler:HttpErrorHandler
     ) {}
-
     ngOnInit(){
         this.initCheck(10);
     }
@@ -147,6 +148,14 @@ export class ExportComponent implements OnInit {
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
+    downloadCsv(){
+        this.service.downloadCsv(this.filters).subscribe((csv)=>{
+            let file = new File([csv._body], `export_${new Date().toDateString()}.csv`, {type: 'text/csv;charset=utf-8'});
+            FileSaver.saveAs(file);
+        },(err)=>{
+            this.httpErrorHandler.handleError(err);
+        });
+    }
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
