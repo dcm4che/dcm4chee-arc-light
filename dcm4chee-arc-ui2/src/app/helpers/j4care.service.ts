@@ -103,13 +103,69 @@ export class j4care {
             });
             return (stringArray.length > 1)?stringArray.join('-'):stringArray.join('');
         }else{
-         console.log("typeofrange:",typeof rangeArray);
-         console.log("isdatee:",_.isDate(rangeArray));
             if(_.isDate(rangeArray)){
                 return datePipe.transform(rangeArray,'yyyyMMdd')
             }
             return '';
         }
+    }
+    static extractDurationFromValue(value:string){
+        let match;
+        let ptrn = /(\d)(\w)/g;
+        let year;
+        let day;
+        let month;
+        let hour;
+        let minute;
+        let second;
+        let week;
+        try {
+            while ((match = ptrn.exec(value)) != null) {
+
+                switch(match[2]) {
+                    case 'Y':
+                        year = parseInt(match[1]);
+                        break;
+                    case 'W':
+                        week = parseInt(match[1]);
+                        break;
+                    case 'M':
+                        month = parseInt(match[1]);
+                        break;
+                    case 'D':
+                        day= parseInt(match[1]);
+                        break;
+                    case 'H':
+                        hour = parseInt(match[1]);
+                        break;
+                    case 'M':
+                        minute = parseInt(match[1]);
+                        break;
+                    case 'S':
+                        second = parseInt(match[1]);
+                        break;
+                }
+            }
+            return {
+                Week:week,
+                FullYear:year,
+                Date:day,
+                Hours:hour,
+                Minutes:minute,
+                Month:month,
+                Seconds:second
+            }
+        }catch (e){
+            console.error("error parsing data!",e);
+            return null;
+        }
+    }
+    static convertDateToString(date:Date){
+        let datePipe = new DatePipe('us-US');
+        if(_.isDate(date)){
+            return datePipe.transform(date,'yyyyMMdd')
+        }
+        return '';
     }
     download(url){
         this.httpJ4car.refreshToken().subscribe((res)=>{

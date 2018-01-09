@@ -31,6 +31,7 @@ import { AttributeInfoComponent } from './attribute-info/attribute-info.componen
 import { ViewerComponent } from './dialogs/viewer/viewer.component';
 import {DicomFlatListComponent} from "./dicom-list/dicom-flat-list.component";
 import { ModalityComponent } from './modality/modality.component';
+import { RangePickerComponent } from './range-picker/range-picker.component';
 
 
 @NgModule({
@@ -71,5 +72,6 @@ export const WidgetsComponents = [
     AttributeInfoComponent,
     ViewerComponent,
     DicomFlatListComponent,
-    ModalityComponent
+    ModalityComponent,
+    RangePickerComponent
 ];
