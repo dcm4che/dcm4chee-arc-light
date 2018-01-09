@@ -373,6 +373,7 @@ public class QueueManagerEJB {
             query.limit(limit);
         if (offset > 0)
             query.offset(offset);
+        query.orderBy(QQueueMessage.queueMessage.updatedTime.desc());
         return query;
     }
 

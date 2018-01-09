@@ -337,6 +337,7 @@ public class ExportManagerEJB implements ExportManager {
             query.limit(limit);
         if (offset > 0)
             query.offset(offset);
+        query.orderBy(QExportTask.exportTask.updatedTime.desc());
         return query;
     }
 

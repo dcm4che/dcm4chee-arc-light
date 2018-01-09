@@ -200,6 +200,7 @@ public class RetrieveManagerEJB {
             query.limit(limit);
         if (offset > 0)
             query.offset(offset);
+        query.orderBy(QRetrieveTask.retrieveTask.updatedTime.desc());
         return query;
     }
 
@@ -239,8 +240,6 @@ public class RetrieveManagerEJB {
             predicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
         if (studyUID != null)
             predicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
-
-        //TODO - cannot cancel task with status TO SCHEDULE
 
         return queueManager.cancelTasksInQueue(
                 RetrieveManager.QUEUE_NAME, deviceName, status, createdTime, updatedTime, null, predicate);
