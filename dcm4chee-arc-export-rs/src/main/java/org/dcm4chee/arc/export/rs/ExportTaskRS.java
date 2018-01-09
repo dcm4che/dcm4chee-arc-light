@@ -59,9 +59,7 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.*;
 import java.io.*;
 import java.util.List;
 
@@ -99,6 +97,9 @@ public class ExportTaskRS {
     @Inject
     private Device device;
 
+    @Context
+    private HttpHeaders httpHeaders;
+
     @QueryParam("StudyInstanceUID")
     private String studyUID;
 
@@ -131,13 +132,25 @@ public class ExportTaskRS {
 
     @GET
     @NoCache
-    @Produces("application/json")
-    public Response search() throws Exception {
+    @Produces({"application/json", "text/csv; charset=UTF-8"})
+    public Response listTasks(@QueryParam("accept") String accept) throws Exception {
         logRequest();
-        return Response.ok(toEntity(
-                mgr.search(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status),
+        if (accept != null)
+            return accept.equals("application/json") ? search(accept) : listAsCSV(accept);
+
+        return search(null);
+    }
+
+    @GET
+    @NoCache
+    @Produces("application/json")
+    public Response search(@QueryParam("accept") String accept) throws Exception {
+        logRequest();
+        return accept != null && !isCompatible(accept)
+                ? Response.status(Response.Status.NOT_ACCEPTABLE).build()
+                : Response.ok(toEntity(mgr.search(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status),
                     parseInt(offset), parseInt(limit))))
-                .build();
+                    .build();
     }
 
     @GET
@@ -154,12 +167,13 @@ public class ExportTaskRS {
     @GET
     @NoCache
     @Produces("text/csv; charset=UTF-8")
-    public Response listAsCSV() throws Exception {
+    public Response listAsCSV(@QueryParam("accept") String accept) throws Exception {
         logRequest();
-        return Response.ok(toEntityAsCSV(
-                mgr.search(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status),
-                        parseInt(offset), parseInt(limit))))
-                .build();
+        return accept != null && !isCompatible(accept)
+                ? Response.status(Response.Status.NOT_ACCEPTABLE).build()
+                : Response.ok(toEntityAsCSV(mgr.search(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status),
+                    parseInt(offset), parseInt(limit))))
+                    .build();
     }
 
     @POST
@@ -227,6 +241,19 @@ public class ExportTaskRS {
         return "{\"deleted\":"
                 + mgr.deleteTasks(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status))
                 + '}';
+    }
+
+    private boolean isCompatible(String accept) {
+        try {
+            List<MediaType> acceptableMediaTypes = httpHeaders.getAcceptableMediaTypes();
+            for (MediaType mediaType : acceptableMediaTypes)
+                if (mediaType.isCompatible(MediaType.valueOf(accept)))
+                    return true;
+        } catch (IllegalArgumentException e) {
+            LOG.warn(e.getMessage());
+            return false;
+        }
+        return false;
     }
 
     private Object toEntity(final List<ExportTask> tasks) {
