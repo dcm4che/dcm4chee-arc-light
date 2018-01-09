@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:wado="urn:dicom:wado:ws:2011" xmlns:ihe="urn:ihe:iti:xds-b:2007"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
+	xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0"
+	xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0"
+	elementFormDefault="qualified" attributeFormDefault="unqualified"
+	targetNamespace="urn:dicom:wado:ws:2011">
+	<xs:import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0"
+		schemaLocation="../ebRS/rs.xsd" />
+	<xs:import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
+		schemaLocation="../ebRS/rim.xsd" />
+	<xs:import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0"
+		schemaLocation="../ebRS/lcm.xsd" />
+	<xs:import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
+		schemaLocation="../ebRS/query.xsd" />
+	<xs:import namespace="urn:ihe:iti:xds-b:2007" schemaLocation="./XDS.b_DocumentRepository.xsd" />
+	<xs:complexType name="RetrieveRenderedImagingDocumentSetRequestType">
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" name="StudyRequest">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element maxOccurs="unbounded" name="SeriesRequest">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element maxOccurs="unbounded"
+												name="RenderedDocumentRequest">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="HomeCommunityId" type="rim:LongName"
+															minOccurs="0">
+													<xs:annotation>
+														<xs:documentation>This corresponds to the home
+															attribute of the Identifiable class in regrep RIM
+															(regrep-rim-3.0-os.pdf, page 20)
+														</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="RepositoryUniqueId" type="rim:LongName"
+															minOccurs="0">
+													<xs:annotation>
+														<xs:documentation>This is the
+															XDSDocumentEntry.repositoryUniqueId attribute in
+															the XDS metadata
+														</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element name="DocumentUniqueId" type="rim:LongName">
+													<xs:annotation>
+														<xs:documentation>This is the
+															XDSDocumentEntry.uniqueId attribute in the XDS
+															metadata
+														</xs:documentation>
+													</xs:annotation>
+												</xs:element>
+												<xs:element minOccurs="0" name="Annotation"
+															type="xs:string"/>
+												<xs:element minOccurs="0" name="Rows"
+															type="xs:string"/>
+												<xs:element minOccurs="0" name="Columns"
+															type="xs:string"/>
+												<xs:element minOccurs="0" name="Region"
+															type="xs:string"/>
+												<xs:element minOccurs="0" name="WindowWidth"
+															type="xs:string"/>
+												<xs:element minOccurs="0" name="WindowCenter"
+															type="xs:string"/>
+												<xs:element minOccurs="0" name="ImageQuality"
+															type="xs:string"/>
+												<xs:element minOccurs="0" name="PresentationSeriesUID"
+															type="xs:string"/>
+												<xs:element minOccurs="0" name="Anonymize"
+															type="xs:string"/>
+												<xs:element minOccurs="0" name="FrameNumber"
+															type="xs:string"/>
+												<xs:element minOccurs="1" name="ContentTypeList"
+															type="xs:string" maxOccurs="unbounded"/>
+												<xs:element minOccurs="1" name="CharsetList"
+															type="xs:string" maxOccurs="unbounded"/>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="RetrieveRenderedImagingDocumentSetRequest"
+				type="wado:RetrieveRenderedImagingDocumentSetRequestType"/>
+	<xs:complexType name="RetrieveRenderedImagingDocumentSetResponseType">
+		<xs:sequence>
+			<xs:element name="RegistryResponse" type="rs:RegistryResponseType"/>
+			<xs:element maxOccurs="unbounded" name="RenderedDocumentSetResponse"
+						minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="HomeCommunityId" type="rim:LongName" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>This corresponds to the home attribute of the
+									Identifiable class in regrep RIM (regrep-rim-3.0-os.pdf, page
+									20)
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="RepositoryUniqueId" type="rim:LongName"
+									minOccurs="1">
+							<xs:annotation>
+								<xs:documentation>This is the
+									XDSDocumentEntry.repositoryUniqueId attribute in the XDS
+									metadata
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="SourceDocumentUniqueId" type="rim:LongName">
+							<xs:annotation>
+								<xs:documentation>This is the XDSDocumentEntry.uniqueId
+									attribute in the XDS metadata
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element minOccurs="1" name="Annotation" type="xs:string"/>
+						<xs:element minOccurs="1" name="Rows" type="xs:string"/>
+						<xs:element minOccurs="1" name="Columns" type="xs:string"/>
+						<xs:element minOccurs="1" name="Region" type="xs:string"/>
+						<xs:element name="WindowWidth" type="xs:string"/>
+						<xs:element minOccurs="1" name="WindowCenter" type="xs:string"/>
+						<xs:element minOccurs="1" name="ImageQuality" type="xs:string"/>
+						<xs:element minOccurs="1" name="PresentationSeriesUID"
+									type="xs:string"/>
+						<xs:element minOccurs="0" name="Anonymize" type="xs:string"/>
+						<xs:element minOccurs="0" name="FrameNumber" type="xs:string"/>
+						<xs:element minOccurs="1" name="mimeType" type="xs:string"
+									maxOccurs="1"/>
+						<xs:element minOccurs="1" name="Document" type="xs:base64Binary"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="RetrieveRenderedImagingDocumentSetResponse"
+				type="wado:RetrieveRenderedImagingDocumentSetResponseType"/>
+</xs:schema>

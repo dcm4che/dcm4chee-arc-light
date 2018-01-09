@@ -5,7 +5,7 @@
 <definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
 	xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-	xmlns:ihe="urn:ihe:iti:xds-b:2007" xmlns:iherad="urn:ihe:rad:xdsi-b:2009"
+	xmlns:ihe="urn:ihe:iti:xds-b:2007" xmlns:iherad="urn:ihe:rad:xdsi-b:2009" xmlns:wado="urn:dicom:wado:ws:2011"
 	xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0" targetNamespace="urn:ihe:rad:xdsi-b:2009"
 	xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
 	name="ImagingDocumentSource">
@@ -20,6 +20,11 @@
 			xmlns:ihe="urn:ihe:iti:xds-b:2007" xmlns:iherad="urn:ihe:rad:xdsi-b:2009">
 			<!-- Include the message schema -->
 			<xsd:include schemaLocation="../schema/IHE/XDSI.b_ImagingDocumentSource.xsd" />
+		</xsd:schema>
+		<xsd:schema elementFormDefault="qualified" targetNamespace="urn:dicom:wado:ws:2011"
+			xmlns:ihe="urn:ihe:iti:xds-b:2007" xmlns:wado="urn:dicom:wado:ws:2011">
+			<!-- Include the message schema -->
+			<xsd:include schemaLocation="../schema/IHE/dicom.wado.ws.2011.xsd" />
 		</xsd:schema>
 		<xsd:schema elementFormDefault="qualified"
 			targetNamespace="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0"
@@ -51,12 +56,26 @@
 		<documentation>Retrieve Document Set Response</documentation>
 		<part name="body" element="ihe:RetrieveDocumentSetResponse" />
 	</message>
+	<message name="RetrieveRenderedImagingDocumentSetRequest_Message">
+		<documentation>Retrieve Rendered Imaging Document Set</documentation>
+		<part name="body" element="wado:RetrieveRenderedImagingDocumentSetRequest" />
+	</message>
+	<message name="RetrieveRenderedImagingDocumentSetResponse_Message">
+		<documentation>Retrieve Rendered Document Set Response</documentation>
+		<part name="body" element="wado:RetrieveRenderedImagingDocumentSetResponse" />
+	</message>
 	<portType name="ImagingDocumentSource_PortType">
 		<operation name="ImagingDocumentSource_RetrieveImagingDocumentSet">
 			<input message="iherad:RetrieveImagingDocumentSetRequest_Message"
 				wsaw:Action="urn:ihe:rad:2009:RetrieveImagingDocumentSet" />
 			<output message="iherad:RetrieveDocumentSetResponse_Message"
 				wsaw:Action="urn:ihe:iti:2007:RetrieveDocumentSetResponse" />
+		</operation>
+		<operation name="ImagingDocumentSource_RetrieveRenderedImagingDocumentSet">
+			<input message="iherad:RetrieveRenderedImagingDocumentSetRequest_Message"
+				wsaw:Action="urn:dicom:ws:wado:2011:RetrieveRenderedImagingDocumentSet" />
+			<output message="iherad:RetrieveRenderedImagingDocumentSetResponse_Message"
+				wsaw:Action="urn:dicom:ws:wado:2011:RetrieveRenderedImagingDocumentSetResponse" />
 		</operation>
 	</portType>
 	<binding name="ImagingDocumentSource_Binding" type="iherad:ImagingDocumentSource_PortType">
@@ -65,6 +84,15 @@
 			transport="http://schemas.xmlsoap.org/soap/http" />
 		<operation name="ImagingDocumentSource_RetrieveImagingDocumentSet">
 			<soap12:operation soapAction="urn:ihe:rad:2009:RetrieveImagingDocumentSet" />
+			<input>
+				<soap12:body use="literal" />
+			</input>
+			<output>
+				<soap12:body use="literal" />
+			</output>
+		</operation>
+		<operation name="ImagingDocumentSource_RetrieveRenderedImagingDocumentSet">
+			<soap12:operation soapAction="urn:dicom:ws:wado:2011:RetrieveRenderedImagingDocumentSet" />
 			<input>
 				<soap12:body use="literal" />
 			</input>
