@@ -60,9 +60,7 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.*;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -110,6 +108,9 @@ public class RetrieveTaskRS {
     @Context
     private HttpServletRequest request;
 
+    @Context
+    private HttpHeaders httpHeaders;
+
     @QueryParam("dicomDeviceName")
     private String deviceName;
 
@@ -145,24 +146,39 @@ public class RetrieveTaskRS {
 
     @GET
     @NoCache
-    @Produces("application/json")
-    public Response listRetrieveTasks() {
+    @Produces({"application/json", "text/csv; charset=UTF-8"})
+    public Response listTasks(@QueryParam("accept") String accept) throws Exception {
         logRequest();
-        return Response.ok(toEntity(
-                mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
+        if (accept != null)
+            return accept.equals("application/json") ? listRetrieveTasks(accept) : listRetrieveTasksAsCSV(accept);
+
+        return listRetrieveTasks(null);
+    }
+
+    @GET
+    @NoCache
+    @Produces("application/json")
+    public Response listRetrieveTasks(@QueryParam("accept") String accept) {
+        logRequest();
+        return accept != null && !isCompatible(accept)
+                ? Response.status(Response.Status.NOT_ACCEPTABLE).build()
+                : Response.ok(toEntity(
+                    mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
                         parseStatus(status), parseInt(offset), parseInt(limit))))
-                .build();
+                    .build();
     }
 
     @GET
     @NoCache
     @Produces("text/csv; charset=UTF-8")
-    public Response listRetrieveTasksAsCSV() {
+    public Response listRetrieveTasksAsCSV(@QueryParam("accept") String accept) {
         logRequest();
-        return Response.ok(toEntityAsCSV(
-                mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
+        return accept != null && !isCompatible(accept)
+                ? Response.status(Response.Status.NOT_ACCEPTABLE).build()
+                : Response.ok(toEntityAsCSV(
+                    mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
                         parseStatus(status), parseInt(offset), parseInt(limit))))
-                .build();
+                    .build();
     }
 
     @GET
@@ -287,6 +303,19 @@ public class RetrieveTaskRS {
         return "{\"deleted\":"
                 + mgr.deleteTasks(extRetrievePredicate, queueMsgPredicate)
                 + '}';
+    }
+
+    private boolean isCompatible(String accept) {
+        try {
+            List<MediaType> acceptableMediaTypes = httpHeaders.getAcceptableMediaTypes();
+            for (MediaType mediaType : acceptableMediaTypes)
+                if (mediaType.isCompatible(MediaType.valueOf(accept)))
+                    return true;
+        } catch (IllegalArgumentException e) {
+            LOG.warn(e.getMessage());
+            return false;
+        }
+        return false;
     }
 
     private Object toEntity(final List<RetrieveTask> tasks) {

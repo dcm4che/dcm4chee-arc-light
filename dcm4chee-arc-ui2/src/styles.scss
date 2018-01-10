@@ -110,7 +110,16 @@ $hoverBlue:#5293C1;
     display: none;
   }
 }
-
+p-calendar{
+  button.ui-button,.ui-button:focus{
+    background: rgba(6, 29, 47, 0.84);
+    border: 1px solid rgba(6, 29, 47, 0.84);
+  }
+  .ui-calendar button:enabled:hover{
+    background: rgba(6, 29, 47, 0.84);
+    border: 1px solid rgba(6, 29, 47, 0.84);
+  }
+}
 .custom_icon{
   content: '';
   display: inline-block;

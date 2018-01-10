@@ -1,0 +1,35 @@
+<div class="range_picker">
+    <input class="main_input" type="text" [(ngModel)]="model" placeholder="{{placeholder}}" (click)="togglePicker()">
+    <div class="picker" *ngIf="showPicker">
+        <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
+        <h4>{{title}}</h4>
+        <div class="left {{mode}}_mode">
+            <p-calendar (onFocus)="closeCalendar('fromCalendarObject')" #fromCalendar *ngIf="mode === 'range' || mode === 'rightOpen'" dataType="string" [(ngModel)]="fromModel" dateFormat="{{dateFormat}}" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="from ({{dateFormat}})" showIcon="true" showOnFocus="false" monthNavigator="true" showButtonBar="true"></p-calendar>
+            <div class="infinit" *ngIf="!(mode === 'range' || mode === 'rightOpen') && mode != 'single'" >&infin;</div>
+                <span *ngIf="mode != 'single'">-</span>
+            <p-calendar (onFocus)="closeCalendar('toCalendarObject')" #toCalendar  *ngIf="mode === 'range' || mode === 'leftOpen'" dataType="string" [(ngModel)]="toModel" dateFormat="{{dateFormat}}" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="to ({{dateFormat}})" showOnFocus="false" showIcon="true"></p-calendar>
+            <div class="infinit" *ngIf="!(mode === 'range' || mode === 'leftOpen') && mode != 'single'">&infin;</div>
+            <p-calendar (onFocus)="closeCalendar('singleCalendarObject')" #singleCalendar  *ngIf="mode === 'single'"  dataType="string" [(ngModel)]="singleDateModel" dateFormat="{{dateFormat}}" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Date ({{dateFormat}})" showIcon="true"></p-calendar>
+        </div>
+        <div class="right">
+            <ul class="fast_picker" [ngClass]="{'smart_active':smartPickerActive}">
+                <li *ngIf="!smartPickerActive" (click)="today()">Today</li>
+                <li *ngIf="!smartPickerActive" (click)="lastMonth()">Last Month</li>
+                <li *ngIf="!smartPickerActive" (click)="lastYear()">Last Year</li>
+                <li *ngIf="smartPickerActive" class="smart_input"><input type="text" title="Use duration format (PnYnMnD) to get the date from today" placeholder="PnYnMnD" [(ngModel)]="smartInput" (ngModelChange)="smartInputChange($event)"></li>
+                <li (click)="smartPicker()">
+                    <span *ngIf="!smartPickerActive">Smart picker</span>
+                    <span *ngIf="smartPickerActive">Fast picker</span>
+                </li>
+            </ul>
+            <ul class="interval">
+                <li class="range" [ngClass]="{'active':mode==='range'}" (click)="changeMode('range')">From-To</li>
+                <li class="single" [ngClass]="{'active':mode==='single'}" (click)="changeMode('single')">When</li>
+                <li class="leftOpen" [ngClass]="{'active':mode==='leftOpen'}" (click)="changeMode('leftOpen')">Until</li>
+                <li class="rightOpen" [ngClass]="{'active':mode==='rightOpen'}" (click)="changeMode('rightOpen')">From</li>
+            </ul>
+        </div>
+        <button (click)="setRange()">Set</button>
+        <button class="clear" (click)="clear()">Clear</button>
+    </div>
+</div>

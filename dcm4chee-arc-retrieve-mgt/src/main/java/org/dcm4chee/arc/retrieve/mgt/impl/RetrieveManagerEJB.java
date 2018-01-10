@@ -231,7 +231,7 @@ public class RetrieveManagerEJB {
         LOG.info("Cancel {}", task);
         return true;
     }
-
+    
     public int cancelRetrieveTasks(
             QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder extRetrievePredicate)
             throws IllegalTaskStateException {

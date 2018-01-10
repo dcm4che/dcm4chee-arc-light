@@ -57,10 +57,12 @@
                     <div class="row">
                         <!--<label class="col-md-6 text-right control-label">Updated before:</label>-->
                         <div class="col-md-6">
-                            <p-calendar  [(ngModel)]="filters.createdTimeObject" selectionMode="range" showButtonBar="true" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Created"></p-calendar>
+                            <!--<p-calendar  [(ngModel)]="filters.createdTimeObject" selectionMode="range" showButtonBar="true" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Created"></p-calendar>-->
+                            <range-picker [model]="filters.createdTime" (modelChange)="filters.createdTime = $event" mode="range" placeholder="Created" dateFormat="yymmdd"></range-picker>
                         </div>
                         <div class="col-md-6">
-                            <p-calendar  [(ngModel)]="filters.updatedTimeObject" selectionMode="range" showButtonBar="true" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Updated"></p-calendar>
+                            <range-picker [model]="filters.updatedTime" (modelChange)="filters.updatedTime = $event" mode="range" placeholder="Updated" dateFormat="yymmdd"></range-picker>
+                            <!--<p-calendar  [(ngModel)]="filters.updatedTimeObject" selectionMode="range" showButtonBar="true" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Updated"></p-calendar>-->
                         </div>
                     </div>
                     <div class="row">

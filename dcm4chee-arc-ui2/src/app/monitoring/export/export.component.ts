@@ -133,6 +133,10 @@ export class ExportComponent implements OnInit {
             this.isRole = this.mainservice.isRole;
         }
     }
+    // changeTest(e){
+    //     console.log("changetest",e);
+    //     this.filters.createdTime = e;
+    // }
     filterKeyUp(e){
         let code = (e.keyCode ? e.keyCode : e.which);
         if (code === 13){
@@ -194,7 +198,7 @@ export class ExportComponent implements OnInit {
     };
     getCount(){
         this.cfpLoadingBar.start();
-        this.convertDates();
+        // this.convertDates();
         this.service.getCount(this.filters).subscribe((count)=>{
             try{
                 this.count = count.count;

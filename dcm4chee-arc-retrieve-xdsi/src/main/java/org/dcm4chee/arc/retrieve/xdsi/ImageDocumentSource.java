@@ -123,6 +123,14 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         return rsp;
     }
 
+    @Override
+    public RetrieveRenderedImagingDocumentSetResponseType imagingDocumentSourceRetrieveRenderedImagingDocumentSet(
+            RetrieveRenderedImagingDocumentSetRequestType body) {
+        RetrieveRenderedImagingDocumentSetResponseType rsp = new RetrieveRenderedImagingDocumentSetResponseType();
+        //TODO
+        return rsp;
+    }
+
     private void addRegisterErrors(
             RegistryResponseType regRsp, DocumentRequests docReqs, String errorCode, String codeContext) {
         List<RegistryError> errors = errors(regRsp);
