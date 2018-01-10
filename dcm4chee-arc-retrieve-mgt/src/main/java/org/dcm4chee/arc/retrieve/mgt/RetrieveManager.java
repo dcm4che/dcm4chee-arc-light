@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.retrieve.mgt;
 
+import com.querydsl.core.BooleanBuilder;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.*;
@@ -83,29 +84,10 @@ public interface RetrieveManager {
 
     boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
 
-    int cancelRetrieveTasks(
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String deviceName,
-            QueueMessage.Status status,
-            String createdTime,
-            String updatedTime) throws IllegalTaskRequestException, IllegalTaskStateException;
+    int cancelRetrieveTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder extRetrievePredicate)
+            throws IllegalTaskStateException;
 
     boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException, DifferentDeviceException;
 
-    List<RetrieveTask> rescheduleRetrieveTasks(
-            String localAET, String remoteAET, String destinationAET, String studyUID, String deviceName,
-            QueueMessage.Status status, String createdTime, String updatedTime, int rescheduleTasksFetchSize)
-            throws IllegalTaskRequestException, DifferentDeviceException;
-
-    int deleteTasks(String deviceName,
-                    String localAET,
-                    String remoteAET,
-                    String destinationAET,
-                    String studyUID,
-                    String createdTime,
-                    String updatedTime,
-                    QueueMessage.Status status);
+    int deleteTasks(BooleanBuilder extRetrievePredicate, BooleanBuilder queueMsgPredicate);
 }

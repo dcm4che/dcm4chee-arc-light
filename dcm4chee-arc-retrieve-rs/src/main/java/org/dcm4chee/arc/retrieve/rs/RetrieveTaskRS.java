@@ -40,13 +40,14 @@
 
 package org.dcm4chee.arc.retrieve.rs;
 
+import com.querydsl.core.BooleanBuilder;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskRequestException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.query.util.PredicateUtils;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -194,16 +195,23 @@ public class RetrieveTaskRS {
     @Path("/cancel")
     public Response cancelRetrieveTasks() {
         logRequest();
+        QueueMessage.Status cancelStatus = parseStatus(status);
+        if (cancelStatus == null || !(cancelStatus == QueueMessage.Status.SCHEDULED || cancelStatus == QueueMessage.Status.IN_PROCESS))
+            return Response.status(Response.Status.BAD_REQUEST).build();
+
+        String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
+        BooleanBuilder predicate = PredicateUtils.extRetrievePredicate(
+                localAET, remoteAET, destinationAET, studyIUID, createdTime, updtTime);
+        BooleanBuilder queueMsgPredicate = PredicateUtils.queueMsgPredicate(
+                mgr.QUEUE_NAME, deviceName, cancelStatus, createdTime, updtTime);
+
         try {
+            LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status, mgr.QUEUE_NAME);
             return Response.status(Response.Status.OK)
                     .entity("{\"count\":"
-                            + mgr.cancelRetrieveTasks(
-                                    localAET, remoteAET, destinationAET, studyIUID, deviceName, parseStatus(status),
-                                    createdTime, updatedTime)
+                            + mgr.cancelRetrieveTasks(cancelStatus, queueMsgPredicate, predicate)
                             + '}')
                     .build();
-        } catch (IllegalTaskRequestException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         } catch (IllegalTaskStateException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
@@ -227,25 +235,35 @@ public class RetrieveTaskRS {
     @Path("/reschedule")
     public Response rescheduleRetrieveTasks() {
         logRequest();
+        QueueMessage.Status rescheduleTaskStatus = parseStatus(status);
+        if (rescheduleTaskStatus == null || deviceName == null
+                || rescheduleTaskStatus == QueueMessage.Status.IN_PROCESS || rescheduleTaskStatus == QueueMessage.Status.SCHEDULED)
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("Cannot cancel tasks with Status : " + status + " and device name : " + deviceName)
+                    .build();
+
+        if (!device.getDeviceName().equals(deviceName))
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("Cannot reschedule Tasks of Device " + device.getDeviceName() + " on Device " + deviceName)
+                    .build();
+
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int rescheduleTasksFetchSize = arcDev.getRescheduleTasksFetchSize();
+        int rescheduleTasksFetchSize = arcDev.getQueueTasksFetchSize();
+        String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
+
         try {
-            String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
             List<RetrieveTask> retrieveTasks;
             int count = 0;
             do {
-                retrieveTasks = mgr.rescheduleRetrieveTasks(
-                        localAET, remoteAET, destinationAET, studyIUID, deviceName, parseStatus(status),
-                        createdTime, updtTime, rescheduleTasksFetchSize);
+                retrieveTasks = mgr.search(deviceName,
+                        localAET, remoteAET, destinationAET, studyIUID, createdTime, updtTime, rescheduleTaskStatus, 0,
+                        rescheduleTasksFetchSize);
                 for (RetrieveTask task : retrieveTasks)
                     mgr.rescheduleRetrieveTask(task.getPk());
                 count += retrieveTasks.size();
             } while (retrieveTasks.size() >= rescheduleTasksFetchSize);
-            return Response.status(Response.Status.OK)
-                    .entity("{\"count\":" + count + '}')
-                    .build();
-        } catch (IllegalTaskRequestException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+
+            return Response.status(Response.Status.OK).entity("{\"count\":" + count + '}').build();
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
@@ -264,9 +282,10 @@ public class RetrieveTaskRS {
     @DELETE
     public String deleteTasks() {
         logRequest();
+        BooleanBuilder extRetrievePredicate = PredicateUtils.extRetrievePredicate(localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
+        BooleanBuilder queueMsgPredicate = PredicateUtils.queueMsgPredicate(mgr.QUEUE_NAME, deviceName, parseStatus(status), createdTime, updatedTime);
         return "{\"deleted\":"
-                + mgr.deleteTasks(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
-                        parseStatus(status))
+                + mgr.deleteTasks(extRetrievePredicate, queueMsgPredicate)
                 + '}';
     }
 

@@ -40,13 +40,14 @@
 
 package org.dcm4chee.arc.qmgt.rs;
 
+import com.querydsl.core.BooleanBuilder;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskRequestException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.query.util.PredicateUtils;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,7 +117,10 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response search() throws Exception {
         logRequest();
-        return Response.ok(toEntity(mgr.search(queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime, parseInt(offset), parseInt(limit))))
+        return Response.ok(toEntity(mgr.search(
+                PredicateUtils.queueMsgPredicate(queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime),
+                parseInt(offset),
+                parseInt(limit))))
                 .build();
     }
 
@@ -127,7 +131,8 @@ public class QueueManagerRS {
     public Response countTasks() throws Exception {
         logRequest();
         return Response.ok("{\"count\":"
-                + mgr.countTasks(queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime) + '}')
+                + mgr.countTasks(PredicateUtils.queueMsgPredicate(
+                        queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime)) + '}')
                 .build();
     }
 
@@ -149,15 +154,27 @@ public class QueueManagerRS {
     @Path("/cancel")
     public Response cancelTasks() {
         logRequest();
+        QueueMessage.Status cancelStatus = parseStatus(status);
+        if (cancelStatus == null || !(cancelStatus == QueueMessage.Status.SCHEDULED || cancelStatus == QueueMessage.Status.IN_PROCESS))
+            return Response.status(Response.Status.BAD_REQUEST).build();
+
+        String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
         try {
-            return Response.status(Response.Status.OK)
-                    .entity("{\"count\":"
-                            + mgr.cancelTasksInQueue(
-                                    queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime, null, null)
-                            + '}')
-                    .build();
-        } catch (IllegalTaskRequestException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            BooleanBuilder predicate = PredicateUtils.queueMsgPredicate(queueName, dicomDeviceName, cancelStatus, createdTime, updtTime);
+            int count = queueName.startsWith("Export")
+                        ? mgr.cancelExportTasks(
+                                cancelStatus,
+                                predicate,
+                                PredicateUtils.exportPredicate(null, dicomDeviceName, null, createdTime, updtTime))
+                        : queueName.equals("CMoveSCU")
+                            ? mgr.cancelRetrieveTasks(
+                                    cancelStatus,
+                                    predicate,
+                                    PredicateUtils.extRetrievePredicate(
+                                            null, null, null, null, createdTime, updtTime))
+                            : mgr.cancelTasksInQueue(cancelStatus, predicate);
+            LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status, queueName);
+            return Response.status(Response.Status.OK).entity("{\"count\":" + count + '}').build();
         } catch (IllegalTaskStateException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
@@ -181,15 +198,28 @@ public class QueueManagerRS {
     @Path("/reschedule")
     public Response rescheduleMessages() {
         logRequest();
+        QueueMessage.Status rescheduleTaskStatus = parseStatus(status);
+        if (rescheduleTaskStatus == null || dicomDeviceName == null
+                || rescheduleTaskStatus == QueueMessage.Status.IN_PROCESS || rescheduleTaskStatus == QueueMessage.Status.SCHEDULED)
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Cannot cancel tasks with Status : " + status + " and device name : " + dicomDeviceName)
+                    .build();
+
+        if (!device.getDeviceName().equals(dicomDeviceName))
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("Cannot reschedule Tasks of Device " + device.getDeviceName() + " on Device " + dicomDeviceName)
+                    .build();
+
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int rescheduleTasksFetchSize = arcDev.getRescheduleTasksFetchSize();
+        int rescheduleTasksFetchSize = arcDev.getQueueTasksFetchSize();
+        String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
+
         try {
-            String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
+            BooleanBuilder predicate = PredicateUtils.queueMsgPredicate(queueName, dicomDeviceName, parseStatus(status), createdTime, updtTime);
             List<QueueMessage> queueMessages;
             int count = 0;
             do {
-                queueMessages = mgr.rescheduleTasksInQueue(
-                        queueName, dicomDeviceName, parseStatus(status), createdTime, updtTime, rescheduleTasksFetchSize);
+                queueMessages = mgr.search(predicate, 0, rescheduleTasksFetchSize);
                 for (QueueMessage msg : queueMessages)
                     mgr.rescheduleMessage(msg.getMessageID(), queueName);
                 count += queueMessages.size();
@@ -197,8 +227,6 @@ public class QueueManagerRS {
             return Response.status(Response.Status.OK)
                     .entity("{\"count\":" + count + '}')
                     .build();
-        } catch (IllegalTaskRequestException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
@@ -218,8 +246,9 @@ public class QueueManagerRS {
     @Produces("application/json")
     public String deleteMessages() {
         logRequest();
+        BooleanBuilder predicate = PredicateUtils.queueMsgPredicate(queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime);
         return "{\"deleted\":"
-                + mgr.deleteMessages(queueName, parseStatus(status), dicomDeviceName, createdTime, updatedTime)
+                + mgr.deleteMessages(queueName, predicate)
                 + '}';
     }
 

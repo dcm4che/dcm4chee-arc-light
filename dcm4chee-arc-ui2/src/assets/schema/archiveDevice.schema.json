@@ -41,7 +41,7 @@
     "dcmStoreUpdateDBMaxRetryDelay",
     "dcmAllowRejectionForDataRetentionPolicyExpired",
     "dcmAllowDeleteStudyPermanently",
-    "dcmRescheduleTasksFetchSize",
+    "dcmQueueTasksFetchSize",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
     "hl7PSUTaskFetchSize",
@@ -720,9 +720,9 @@
       "type": "string",
       "format": "dcmArchiveAETitle"
     },
-    "dcmRescheduleTasksFetchSize": {
-      "title": "Reschedule Tasks Fetch Size",
-      "description": "Maximal number of Tasks rescheduled in one transaction.",
+    "dcmQueueTasksFetchSize": {
+      "title": "Queue Tasks Fetch Size",
+      "description": "Maximal number of Tasks rescheduled or deleted or canceled in one transaction.",
       "type": "integer",
       "default": 100,
       "minimum": 1

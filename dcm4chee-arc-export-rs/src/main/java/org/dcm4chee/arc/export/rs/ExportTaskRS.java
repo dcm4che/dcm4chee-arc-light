@@ -39,6 +39,7 @@
  */
 package org.dcm4chee.arc.export.rs;
 
+import com.querydsl.core.BooleanBuilder;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
@@ -46,8 +47,8 @@ import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskRequestException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.query.util.PredicateUtils;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,15 +183,33 @@ public class ExportTaskRS {
     @Path("/cancel")
     public Response cancelExportTasks() {
         logRequest();
+        QueueMessage.Status cancelStatus = parseStatus(status);
+        if (cancelStatus == null || !(cancelStatus == QueueMessage.Status.SCHEDULED || cancelStatus == QueueMessage.Status.IN_PROCESS))
+            return Response.status(Response.Status.BAD_REQUEST).build();
+
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
+        String[] exportQueues = {"Export1", "Export2", "Export3"};
+        String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
+        BooleanBuilder exportPredicate = PredicateUtils.exportPredicate(exporterID, deviceName, studyUID, createdTime, updtTime);
+
         try {
-            return Response.status(Response.Status.OK)
-                    .entity("{\"count\":"
-                            + mgr.cancelExportTasks(
-                                    exporterID, deviceName, studyUID, parseStatus(status), createdTime, updatedTime)
-                            + '}')
-                    .build();
-        } catch (IllegalTaskRequestException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            BooleanBuilder queueMsgPredicate;
+            int count = 0;
+            if (exporter != null) {
+                String queueName = exporter.getQueueName();
+                queueMsgPredicate = PredicateUtils.queueMsgPredicate(queueName, deviceName, cancelStatus, createdTime, updtTime);
+                count = mgr.cancelExportTasks(cancelStatus, queueMsgPredicate, exportPredicate);
+                LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status, queueName);
+            }
+            else {
+                for (String queueName : exportQueues) {
+                    queueMsgPredicate = PredicateUtils.queueMsgPredicate(queueName, deviceName, cancelStatus, createdTime, updtTime);
+                    count += mgr.cancelExportTasks(cancelStatus, queueMsgPredicate, exportPredicate);
+                    LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status, queueName);
+                }
+            }
+            return Response.status(Response.Status.OK).entity("{\"count\":" + count + '}').build();
         } catch (IllegalTaskStateException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
@@ -219,28 +238,37 @@ public class ExportTaskRS {
     @Path("/reschedule")
     public Response rescheduleExportTasks() {
         logRequest();
+        QueueMessage.Status rescheduleTaskStatus = parseStatus(status);
+        if (rescheduleTaskStatus == null || deviceName == null
+                || rescheduleTaskStatus == QueueMessage.Status.IN_PROCESS || rescheduleTaskStatus == QueueMessage.Status.SCHEDULED)
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("Cannot cancel tasks with Status : " + status + " and device name : " + deviceName)
+                    .build();
+
+        if (!device.getDeviceName().equals(deviceName))
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("Cannot reschedule Tasks of Device " + device.getDeviceName() + " on Device " + deviceName)
+                    .build();
 
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int rescheduleTasksFetchSize = arcDev.getRescheduleTasksFetchSize();
+        int rescheduleTasksFetchSize = arcDev.getQueueTasksFetchSize();
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
+        String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
+
         try {
-            String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
             List<ExportTask> exportTasks;
             int count = 0;
             do {
-                exportTasks = mgr.rescheduleExportTasks(
-                        exporterID, deviceName, studyUID, createdTime, updtTime, parseStatus(status), rescheduleTasksFetchSize);
+                exportTasks = mgr.search(
+                        deviceName, exporterID, studyUID, createdTime, updtTime, rescheduleTaskStatus, 0, rescheduleTasksFetchSize);
                 for (ExportTask task : exportTasks)
                     mgr.rescheduleExportTask(
                             task.getPk(),
                             exporter != null ? exporter : arcDev.getExporterDescriptor(task.getExporterID()));
                 count += exportTasks.size();
             } while (exportTasks.size() >= rescheduleTasksFetchSize);
-            return Response.status(Response.Status.OK)
-                    .entity("{\"count\":" + count + '}')
-                    .build();
-        } catch (IllegalTaskRequestException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+
+            return Response.status(Response.Status.OK).entity("{\"count\":" + count + '}').build();
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
@@ -260,9 +288,24 @@ public class ExportTaskRS {
     @DELETE
     public String deleteTasks() {
         logRequest();
-        return "{\"deleted\":"
-                + mgr.deleteTasks(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status))
-                + '}';
+        BooleanBuilder exportPredicate = PredicateUtils.exportPredicate(exporterID, deviceName, studyUID, createdTime, updatedTime);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
+        String[] exportQueues = {"Export1", "Export2", "Export3"};
+        QueueMessage.Status deleteStatus = parseStatus(status);
+        BooleanBuilder queueMsgPredicate;
+        int count = 0;
+        if (exporter != null) {
+            String queueName = exporter.getQueueName();
+            queueMsgPredicate = PredicateUtils.queueMsgPredicate(queueName, deviceName, deleteStatus, createdTime, updatedTime);
+            count = mgr.deleteTasks(exportPredicate, queueMsgPredicate);
+        } else {
+            for (String queueName : exportQueues) {
+                queueMsgPredicate = PredicateUtils.queueMsgPredicate(queueName, deviceName, deleteStatus, createdTime, updatedTime);
+                count += mgr.deleteTasks(exportPredicate, queueMsgPredicate);
+            }
+        }
+        return "{\"deleted\":" + count + '}';
     }
 
     private Object toEntity(final List<ExportTask> tasks) {

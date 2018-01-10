@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.export.mgt;
 
+import com.querydsl.core.BooleanBuilder;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -75,24 +76,10 @@ public interface ExportManager {
 
     boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
 
-    int cancelExportTasks(String exporterID, String deviceName, String studyUID, QueueMessage.Status status,
-            String createdTime, String updatedTime) throws IllegalTaskRequestException, IllegalTaskStateException;
+    int cancelExportTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder exportPredicate)
+            throws IllegalTaskStateException;
 
     boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException, DifferentDeviceException;
 
-    List<ExportTask> rescheduleExportTasks(
-                    String exporterID,
-                    String deviceName,
-                    String studyUID,
-                    String createdTime,
-                    String updatedTime,
-                    QueueMessage.Status status,
-                    int rescheduleTasksFetchSize) throws IllegalTaskRequestException, DifferentDeviceException;
-
-    int deleteTasks(String deviceName,
-                    String exporterID,
-                    String studyUID,
-                    String createdTime,
-                    String updatedTime,
-                    QueueMessage.Status status);
+    int deleteTasks(BooleanBuilder queueMsgPredicate, BooleanBuilder exportPredicate);
 }

@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
+import com.querydsl.core.BooleanBuilder;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.*;
@@ -181,10 +182,9 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public int cancelRetrieveTasks(String localAET, String remoteAET, String destinationAET, String studyUID,
-            String deviceName, QueueMessage.Status status, String createdTime, String updatedTime)
-            throws IllegalTaskRequestException, IllegalTaskStateException {
-        return ejb.cancelRetrieveTasks(localAET, remoteAET, destinationAET, studyUID, deviceName, status, createdTime, updatedTime);
+    public int cancelRetrieveTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder extRetrievePredicate)
+            throws IllegalTaskStateException {
+        return ejb.cancelRetrieveTasks(status, queueMsgPredicate, extRetrievePredicate);
     }
 
     @Override
@@ -193,34 +193,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<RetrieveTask> rescheduleRetrieveTasks(
-            String localAET, String remoteAET, String destinationAET, String studyUID, String deviceName,
-            QueueMessage.Status status, String createdTime, String updatedTime, int rescheduleTasksFetchSize)
-            throws IllegalTaskRequestException, DifferentDeviceException {
-        if (status == null || deviceName == null
-                || status == QueueMessage.Status.IN_PROCESS || status == QueueMessage.Status.SCHEDULED)
-            throw new IllegalTaskRequestException(
-                    "Cannot cancel tasks with Status : " + status + " and device name : " + deviceName);
-
-        if (!device.getDeviceName().equals(deviceName))
-            throw new DifferentDeviceException(
-                    "Cannot reschedule Tasks of Device " + device.getDeviceName() + " on Device " + deviceName);
-
-        return ejb.search(
-                deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status, 0, rescheduleTasksFetchSize);
-    }
-
-    @Override
-    public int deleteTasks(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status) {
-        return ejb.deleteTasks(
-                deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status);
+    public int deleteTasks(BooleanBuilder extRetrievePredicate, BooleanBuilder queueMsgPredicate) {
+        return ejb.deleteTasks(extRetrievePredicate, queueMsgPredicate);
     }
 }

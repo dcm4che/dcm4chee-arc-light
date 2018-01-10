@@ -224,7 +224,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmAuditSoftwareConfigurationVerbose", ext.isAuditSoftwareConfigurationVerbose(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7UseNullValue", ext.isHl7UseNullValue(), false);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRescheduleTasksFetchSize", ext.getRescheduleTasksFetchSize(), 100);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmQueueTasksFetchSize", ext.getQueueTasksFetchSize(), 100);
     }
 
     @Override
@@ -375,7 +375,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmAuditUnknownPatientID"), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID));
         ext.setAuditSoftwareConfigurationVerbose(LdapUtils.booleanValue(attrs.get("dcmAuditSoftwareConfigurationVerbose"), false));
         ext.setHl7UseNullValue(LdapUtils.booleanValue(attrs.get("hl7UseNullValue"), false));
-        ext.setRescheduleTasksFetchSize(LdapUtils.intValue(attrs.get("dcmRescheduleTasksFetchSize"), 100));
+        ext.setQueueTasksFetchSize(LdapUtils.intValue(attrs.get("dcmQueueTasksFetchSize"), 100));
     }
 
     @Override
@@ -633,9 +633,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isAuditSoftwareConfigurationVerbose(), bb.isAuditSoftwareConfigurationVerbose(), false);
         LdapUtils.storeDiff(ldapObj, mods, "hl7UseNullValue",
                 aa.isHl7UseNullValue(), bb.isHl7UseNullValue(), false);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmRescheduleTasksFetchSize",
-                aa.getRescheduleTasksFetchSize(),
-                bb.getRescheduleTasksFetchSize(),
+        LdapUtils.storeDiff(ldapObj, mods, "dcmQueueTasksFetchSize",
+                aa.getQueueTasksFetchSize(),
+                bb.getQueueTasksFetchSize(),
                 100);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,

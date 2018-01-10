@@ -64,25 +64,22 @@ public interface QueueManager {
 
     boolean cancelProcessing(String msgId) throws IllegalTaskStateException;
 
-    int cancelTasksInQueue(
-            String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime, String updatedTime,
-            BooleanBuilder exportPredicate, BooleanBuilder extRetrievePredicate)
-            throws IllegalTaskRequestException, IllegalTaskStateException;
+    int cancelTasksInQueue(QueueMessage.Status status, BooleanBuilder queueMsgPredicate)
+            throws IllegalTaskStateException;
 
-    List<QueueMessage> rescheduleTasksInQueue(
-            String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime, String updatedTime,
-            int rescheduleTasksFetchSize)
-            throws IllegalTaskRequestException, DifferentDeviceException;
+    int cancelExportTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder exportPredicate)
+            throws IllegalTaskStateException;
+
+    int cancelRetrieveTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder extRetrievePredicate)
+            throws IllegalTaskStateException;
 
     boolean rescheduleMessage(String msgId, String queueName) throws IllegalTaskStateException, DifferentDeviceException;
 
     boolean deleteMessage(String msgId);
 
-    int deleteMessages(String queueName, QueueMessage.Status status, String deviceName, String createdTime, String updatedTime);
+    int deleteMessages(String queueName, BooleanBuilder queueMsgPredicate);
 
-    List<QueueMessage> search(
-            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime, int offset, int limit);
+    List<QueueMessage> search(BooleanBuilder queueMsgPredicate, int offset, int limit);
 
-    long countTasks(
-            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime);
+    long countTasks(BooleanBuilder queueMsgPredicate);
 }

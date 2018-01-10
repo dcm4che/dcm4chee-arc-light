@@ -337,6 +337,7 @@ public class ExportManagerEJB implements ExportManager {
             query.limit(limit);
         if (offset > 0)
             query.offset(offset);
+        query.orderBy(QExportTask.exportTask.updatedTime.desc());
         return query;
     }
 
@@ -367,33 +368,9 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public int cancelExportTasks(
-            String exporterID, String deviceName, String studyUID, QueueMessage.Status status,
-            String createdTime, String updatedTime) throws IllegalTaskRequestException, IllegalTaskStateException {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
-
-        BooleanBuilder predicate = new BooleanBuilder();
-        if (exporterID != null)
-            predicate.and(QExportTask.exportTask.exporterID.eq(exporterID));
-        if (deviceName != null)
-            predicate.and(QExportTask.exportTask.deviceName.eq(deviceName));
-        if (studyUID != null)
-            predicate.and(QExportTask.exportTask.studyInstanceUID.eq(studyUID));
-
-        if (exporter != null)
-            return queueManager.cancelTasksInQueue(
-                exporter.getQueueName(), deviceName, status, createdTime, updatedTime, predicate, null);
-        else {
-            int count;
-            count = queueManager.cancelTasksInQueue(
-                    "Export1", deviceName, status, createdTime, updatedTime, predicate, null);
-            count += queueManager.cancelTasksInQueue(
-                    "Export2", deviceName, status, createdTime, updatedTime, predicate, null);
-            count += queueManager.cancelTasksInQueue(
-                    "Export3", deviceName, status, createdTime, updatedTime, predicate, null);
-            return count;
-        }
+    public int cancelExportTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder exportPredicate)
+            throws IllegalTaskStateException {
+        return queueManager.cancelExportTasks(status, queueMsgPredicate, exportPredicate);
     }
 
     @Override
@@ -413,61 +390,29 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public List<ExportTask> rescheduleExportTasks(
-            String exporterID,
-            String deviceName,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status,
-            int rescheduleTasksFetchSize) throws IllegalTaskRequestException, DifferentDeviceException {
-        if (status == null || deviceName == null
-                || status == QueueMessage.Status.IN_PROCESS || status == QueueMessage.Status.SCHEDULED)
-            throw new IllegalTaskRequestException("Cannot cancel tasks with Status : " + status + " and device name : " + deviceName);
-
-        if (!device.getDeviceName().equals(deviceName))
-            throw new DifferentDeviceException("Cannot reschedule Tasks of Device " + device.getDeviceName() + " on Device " + deviceName);
-
-        return search(deviceName, exporterID, studyUID, createdTime, updatedTime, status, 0, rescheduleTasksFetchSize);
-    }
-
-    @Override
-    public int deleteTasks(String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime,
-            QueueMessage.Status status) {
-        BooleanBuilder queueMessagePredicate = new BooleanBuilder();
-        if (deviceName != null)
-            queueMessagePredicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
-        if (status != null)
-            queueMessagePredicate.and(QQueueMessage.queueMessage.status.eq(status));
-
-        BooleanBuilder exportTaskPredicate = new BooleanBuilder();
-        if (exporterID != null)
-            exportTaskPredicate.and(QExportTask.exportTask.exporterID.eq(exporterID));
-        if (studyUID != null)
-            exportTaskPredicate.and(QExportTask.exportTask.studyInstanceUID.eq(studyUID));
-        if (createdTime != null)
-            exportTaskPredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QExportTask.exportTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
-                    QExportTask.exportTask.createdTime.isNotNull()));
-        if (updatedTime != null)
-            exportTaskPredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QExportTask.exportTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
-                    QExportTask.exportTask.updatedTime.isNotNull()));
-
-        HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+    public int deleteTasks(BooleanBuilder queueMsgPredicate, BooleanBuilder exportPredicate) {
+        int count = 0;
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int deleteTaskFetchSize = arcDev.getQueueTasksFetchSize();
+        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
-                .where(queueMessagePredicate);
-        List<Long> referencedQueueMsgs = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                .select(QExportTask.exportTask.queueMessage.pk)
-                .from(QExportTask.exportTask)
-                .where(exportTaskPredicate, QExportTask.exportTask.queueMessage.in(queueMessageQuery)).fetch();
+                .where(queueMsgPredicate);
+        List<Long> referencedQueueMsgs;
+        do {
+            referencedQueueMsgs = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
+                    .select(QExportTask.exportTask.queueMessage.pk)
+                    .from(QExportTask.exportTask)
+                    .where(exportPredicate, QExportTask.exportTask.queueMessage.in(queueMsgQuery))
+                    .limit(deleteTaskFetchSize).fetch();
 
-        new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
-                .where(exportTaskPredicate, QExportTask.exportTask.queueMessage.in(queueMessageQuery))
-                .execute();
+            new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
+                    .where(QExportTask.exportTask.queueMessage.pk.in(referencedQueueMsgs))
+                    .execute();
 
-        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                .where(queueMessagePredicate, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
+            count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                    .where(QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
+        } while (referencedQueueMsgs.size() >= deleteTaskFetchSize);
+        return count;
     }
 
     private static DateRange getDateRange(String s) {

@@ -225,7 +225,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
         writer.writeNotDef("dcmAuditSoftwareConfigurationVerbose", arcDev.isAuditSoftwareConfigurationVerbose(), false);
         writer.writeNotDef("hl7UseNullValue", arcDev.isHl7UseNullValue(), false);
-        writer.writeNotDef("dcmRescheduleTasksFetchSize", arcDev.getRescheduleTasksFetchSize(), 100);
+        writer.writeNotDef("dcmQueueTasksFetchSize", arcDev.getQueueTasksFetchSize(), 100);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1000,8 +1000,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "hl7UseNullValue":
                     arcDev.setHl7UseNullValue(reader.booleanValue());
                     break;
-                case "dcmRescheduleTasksFetchSize":
-                    arcDev.setRescheduleTasksFetchSize(reader.intValue());
+                case "dcmQueueTasksFetchSize":
+                    arcDev.setQueueTasksFetchSize(reader.intValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

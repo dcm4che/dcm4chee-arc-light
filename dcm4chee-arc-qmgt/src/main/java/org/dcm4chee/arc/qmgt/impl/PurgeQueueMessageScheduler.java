@@ -47,6 +47,7 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.query.util.PredicateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +99,10 @@ public class PurgeQueueMessageScheduler extends Scheduler {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("-yyyyMMddhhmmss");
         Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
-        int count = ejb.deleteMessages(queueName, status, null, null, dateFormat.format(before));
+        int count = ejb.deleteMessages(
+                        queueName,
+                        PredicateUtils.queueMsgPredicate(
+                                queueName, null, status, null, dateFormat.format(before)));
         if (count > 0)
             LOG.info("Deleted " + count + " COMPLETED messages from queue: " + queueName);
     }

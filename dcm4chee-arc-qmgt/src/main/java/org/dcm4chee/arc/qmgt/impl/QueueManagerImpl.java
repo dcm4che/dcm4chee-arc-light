@@ -121,33 +121,32 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public int cancelTasksInQueue(
-            String queueName,
-            String dicomDeviceName,
-            QueueMessage.Status status,
-            String createdTime,
-            String updatedTime,
-            BooleanBuilder exportPredicate,
-            BooleanBuilder extRetrievePredicate) throws IllegalTaskRequestException, IllegalTaskStateException {
-        if (status != null) {
-            switch (status) {
-                case SCHEDULED:
-                    return ejb.cancelTasksInQueue(
-                            queueName, dicomDeviceName, status, createdTime, updatedTime, exportPredicate, extRetrievePredicate);
-                case IN_PROCESS:
-                    return cancelInProcessTasks(queueName, dicomDeviceName, status, createdTime, updatedTime);
-                default:
-                    break;
-            }
-        }
-
-        throw new IllegalTaskRequestException("Cannot cancel tasks with Status : " + status);
+    public int cancelTasksInQueue(QueueMessage.Status status, BooleanBuilder queueMsgPredicate)
+            throws IllegalTaskStateException {
+        return status == QueueMessage.Status.SCHEDULED
+                ? ejb.cancelTasksInQueue(queueMsgPredicate)
+                : cancelInProcessTasks(queueMsgPredicate);
     }
 
-    private int cancelInProcessTasks(
-            String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime, String updatedTime)
+    @Override
+    public int cancelExportTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder exportPredicate)
             throws IllegalTaskStateException {
-        List<QueueMessage> msgs = search(queueName, dicomDeviceName, status, createdTime, updatedTime, 0, 0);
+        return status == QueueMessage.Status.SCHEDULED
+                ? ejb.cancelExportTasks(queueMsgPredicate, exportPredicate)
+                : cancelInProcessTasks(queueMsgPredicate);
+    }
+
+    @Override
+    public int cancelRetrieveTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder extRetrievePredicate)
+            throws IllegalTaskStateException {
+        return status == QueueMessage.Status.SCHEDULED
+                ? ejb.cancelRetrieveTasks(queueMsgPredicate, extRetrievePredicate)
+                : cancelInProcessTasks(queueMsgPredicate);
+    }
+
+    private int cancelInProcessTasks(BooleanBuilder queueMsgPredicate)
+            throws IllegalTaskStateException {
+        List<QueueMessage> msgs = search(queueMsgPredicate, 0, 0);
         for (QueueMessage msg : msgs)
             cancelProcessing(msg.getMessageID());
         return msgs.size();
@@ -160,41 +159,22 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public List<QueueMessage> rescheduleTasksInQueue(
-            String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime, String updatedTime,
-            int rescheduleTasksFetchSize) throws IllegalTaskRequestException, DifferentDeviceException {
-        if (status == null || dicomDeviceName == null
-                || status == QueueMessage.Status.IN_PROCESS || status == QueueMessage.Status.SCHEDULED)
-            throw new IllegalTaskRequestException(
-                    "Cannot cancel tasks with Status : " + status + " and device name : " + dicomDeviceName);
-
-        if (!device.getDeviceName().equals(dicomDeviceName))
-            throw new DifferentDeviceException(
-                    "Cannot reschedule Tasks of Device " + device.getDeviceName() + " on Device " + dicomDeviceName);
-
-        return ejb.search(
-                queueName, dicomDeviceName, status, createdTime, updatedTime, 0, rescheduleTasksFetchSize);
-    }
-
-    @Override
     public boolean deleteMessage(String msgId) {
         return ejb.deleteMessage(msgId);
     }
 
     @Override
-    public int deleteMessages(String queueName, QueueMessage.Status status, String deviceName, String createdTime, String updatedTime) {
-        return ejb.deleteMessages(queueName, status, deviceName, createdTime, updatedTime);
+    public int deleteMessages(String queueName, BooleanBuilder queueMsgPredicate) {
+        return ejb.deleteMessages(queueName, queueMsgPredicate);
     }
 
     @Override
-    public List<QueueMessage> search(
-            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime, int offset, int limit) {
-        return ejb.search(queueName, deviceName, status, createdTime, updatedTime, offset, limit);
+    public List<QueueMessage> search(BooleanBuilder queueMsgPredicate, int offset, int limit) {
+        return ejb.search(queueMsgPredicate, offset, limit);
     }
 
     @Override
-    public long countTasks(
-            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime) {
-        return ejb.countTasks(queueName, deviceName, status, createdTime, updatedTime);
+    public long countTasks(BooleanBuilder queueMsgPredicate) {
+        return ejb.countTasks(queueMsgPredicate);
     }
 }
