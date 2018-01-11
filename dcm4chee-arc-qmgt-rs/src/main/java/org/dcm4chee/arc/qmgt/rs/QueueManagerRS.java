@@ -156,22 +156,23 @@ public class QueueManagerRS {
         logRequest();
         QueueMessage.Status cancelStatus = parseStatus(status);
         if (cancelStatus == null || !(cancelStatus == QueueMessage.Status.SCHEDULED || cancelStatus == QueueMessage.Status.IN_PROCESS))
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Cannot cancel tasks with Status : " + status)
+                    .build();
 
-        String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
         try {
-            BooleanBuilder predicate = PredicateUtils.queueMsgPredicate(queueName, dicomDeviceName, cancelStatus, createdTime, updtTime);
+            BooleanBuilder predicate = PredicateUtils.queueMsgPredicate(queueName, dicomDeviceName, cancelStatus, createdTime, updatedTime);
             int count = queueName.startsWith("Export")
                         ? mgr.cancelExportTasks(
                                 cancelStatus,
                                 predicate,
-                                PredicateUtils.exportPredicate(null, dicomDeviceName, null, createdTime, updtTime))
+                                PredicateUtils.exportPredicate(null, dicomDeviceName, null, createdTime, null))
                         : queueName.equals("CMoveSCU")
                             ? mgr.cancelRetrieveTasks(
                                     cancelStatus,
                                     predicate,
                                     PredicateUtils.extRetrievePredicate(
-                                            null, null, null, null, createdTime, updtTime))
+                                            null, null, null, null, createdTime, null))
                             : mgr.cancelTasksInQueue(cancelStatus, predicate);
             LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status, queueName);
             return Response.status(Response.Status.OK).entity("{\"count\":" + count + '}').build();

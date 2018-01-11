@@ -199,26 +199,27 @@ public class ExportTaskRS {
         logRequest();
         QueueMessage.Status cancelStatus = parseStatus(status);
         if (cancelStatus == null || !(cancelStatus == QueueMessage.Status.SCHEDULED || cancelStatus == QueueMessage.Status.IN_PROCESS))
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Cannot cancel tasks with Status : " + status)
+                    .build();
 
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         String[] exportQueues = {"Export1", "Export2", "Export3"};
-        String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
-        BooleanBuilder exportPredicate = PredicateUtils.exportPredicate(exporterID, deviceName, studyUID, createdTime, updtTime);
+        BooleanBuilder exportPredicate = PredicateUtils.exportPredicate(exporterID, deviceName, studyUID, createdTime, null);
 
         try {
             BooleanBuilder queueMsgPredicate;
             int count = 0;
             if (exporter != null) {
                 String queueName = exporter.getQueueName();
-                queueMsgPredicate = PredicateUtils.queueMsgPredicate(queueName, deviceName, cancelStatus, createdTime, updtTime);
+                queueMsgPredicate = PredicateUtils.queueMsgPredicate(queueName, deviceName, cancelStatus, null, updatedTime);
                 count = mgr.cancelExportTasks(cancelStatus, queueMsgPredicate, exportPredicate);
                 LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status, queueName);
             }
             else {
                 for (String queueName : exportQueues) {
-                    queueMsgPredicate = PredicateUtils.queueMsgPredicate(queueName, deviceName, cancelStatus, createdTime, updtTime);
+                    queueMsgPredicate = PredicateUtils.queueMsgPredicate(queueName, deviceName, cancelStatus, null, updatedTime);
                     count += mgr.cancelExportTasks(cancelStatus, queueMsgPredicate, exportPredicate);
                     LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status, queueName);
                 }

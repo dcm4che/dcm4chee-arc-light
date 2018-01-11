@@ -213,13 +213,14 @@ public class RetrieveTaskRS {
         logRequest();
         QueueMessage.Status cancelStatus = parseStatus(status);
         if (cancelStatus == null || !(cancelStatus == QueueMessage.Status.SCHEDULED || cancelStatus == QueueMessage.Status.IN_PROCESS))
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Cannot cancel tasks with Status : " + status)
+                    .build();
 
-        String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
         BooleanBuilder predicate = PredicateUtils.extRetrievePredicate(
-                localAET, remoteAET, destinationAET, studyIUID, createdTime, updtTime);
+                localAET, remoteAET, destinationAET, studyIUID, createdTime, null);
         BooleanBuilder queueMsgPredicate = PredicateUtils.queueMsgPredicate(
-                mgr.QUEUE_NAME, deviceName, cancelStatus, createdTime, updtTime);
+                mgr.QUEUE_NAME, deviceName, cancelStatus, createdTime, updatedTime);
 
         try {
             LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status, mgr.QUEUE_NAME);
