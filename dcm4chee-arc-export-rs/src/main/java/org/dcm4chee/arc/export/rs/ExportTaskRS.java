@@ -39,7 +39,7 @@
  */
 package org.dcm4chee.arc.export.rs;
 
-import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
@@ -206,10 +206,10 @@ public class ExportTaskRS {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         String[] exportQueues = {"Export1", "Export2", "Export3"};
-        BooleanBuilder exportPredicate = PredicateUtils.exportPredicate(exporterID, deviceName, studyUID, createdTime, null);
+        Predicate exportPredicate = PredicateUtils.exportPredicate(exporterID, deviceName, studyUID, createdTime, null);
 
         try {
-            BooleanBuilder queueMsgPredicate;
+            Predicate queueMsgPredicate;
             int count = 0;
             if (exporter != null) {
                 String queueName = exporter.getQueueName();
@@ -303,12 +303,12 @@ public class ExportTaskRS {
     @DELETE
     public String deleteTasks() {
         logRequest();
-        BooleanBuilder exportPredicate = PredicateUtils.exportPredicate(exporterID, deviceName, studyUID, createdTime, updatedTime);
+        Predicate exportPredicate = PredicateUtils.exportPredicate(exporterID, deviceName, studyUID, createdTime, updatedTime);
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         String[] exportQueues = {"Export1", "Export2", "Export3"};
         QueueMessage.Status deleteStatus = parseStatus(status);
-        BooleanBuilder queueMsgPredicate;
+        Predicate queueMsgPredicate;
         int count = 0;
         if (exporter != null) {
             String queueName = exporter.getQueueName();

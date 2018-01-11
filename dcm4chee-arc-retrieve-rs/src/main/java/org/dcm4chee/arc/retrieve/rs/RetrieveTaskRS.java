@@ -40,7 +40,7 @@
 
 package org.dcm4chee.arc.retrieve.rs;
 
-import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -160,11 +160,14 @@ public class RetrieveTaskRS {
     @Produces("application/json")
     public Response listRetrieveTasks(@QueryParam("accept") String accept) {
         logRequest();
+        Predicate extRetrievePredicate = PredicateUtils.extRetrievePredicate(
+                localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
+        Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(
+                mgr.QUEUE_NAME, deviceName, parseStatus(status), null, null);
         return accept != null && !isCompatible(accept)
                 ? Response.status(Response.Status.NOT_ACCEPTABLE).build()
                 : Response.ok(toEntity(
-                    mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
-                        parseStatus(status), parseInt(offset), parseInt(limit))))
+                    mgr.search(extRetrievePredicate, queueMsgPredicate, parseInt(offset), parseInt(limit))))
                     .build();
     }
 
@@ -173,11 +176,14 @@ public class RetrieveTaskRS {
     @Produces("text/csv; charset=UTF-8")
     public Response listRetrieveTasksAsCSV(@QueryParam("accept") String accept) {
         logRequest();
+        Predicate extRetrievePredicate = PredicateUtils.extRetrievePredicate(
+                localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
+        Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(
+                mgr.QUEUE_NAME, deviceName, parseStatus(status), null, null);
         return accept != null && !isCompatible(accept)
                 ? Response.status(Response.Status.NOT_ACCEPTABLE).build()
                 : Response.ok(toEntityAsCSV(
-                    mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
-                        parseStatus(status), parseInt(offset), parseInt(limit))))
+                    mgr.search(extRetrievePredicate, queueMsgPredicate, parseInt(offset), parseInt(limit))))
                     .build();
     }
 
@@ -187,9 +193,11 @@ public class RetrieveTaskRS {
     @Produces("application/json")
     public Response countRetrieveTasks() {
         logRequest();
+        Predicate extRetrievePredicate = PredicateUtils.extRetrievePredicate(
+                localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
+        Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(mgr.QUEUE_NAME, deviceName, parseStatus(status), null, null);
         return Response.ok("{\"count\":" +
-                mgr.countRetrieveTasks(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
-                        parseStatus(status)) + '}')
+                mgr.countRetrieveTasks(queueMsgPredicate, extRetrievePredicate) + '}')
                 .build();
     }
 
@@ -217,9 +225,9 @@ public class RetrieveTaskRS {
                     .entity("Cannot cancel tasks with Status : " + status)
                     .build();
 
-        BooleanBuilder predicate = PredicateUtils.extRetrievePredicate(
+        Predicate predicate = PredicateUtils.extRetrievePredicate(
                 localAET, remoteAET, destinationAET, studyIUID, createdTime, null);
-        BooleanBuilder queueMsgPredicate = PredicateUtils.queueMsgPredicate(
+        Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(
                 mgr.QUEUE_NAME, deviceName, cancelStatus, createdTime, updatedTime);
 
         try {
@@ -267,14 +275,15 @@ public class RetrieveTaskRS {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int rescheduleTasksFetchSize = arcDev.getQueueTasksFetchSize();
         String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
+        Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(mgr.QUEUE_NAME, deviceName, rescheduleTaskStatus, null, null);
 
         try {
             List<RetrieveTask> retrieveTasks;
             int count = 0;
             do {
-                retrieveTasks = mgr.search(deviceName,
-                        localAET, remoteAET, destinationAET, studyIUID, createdTime, updtTime, rescheduleTaskStatus, 0,
-                        rescheduleTasksFetchSize);
+                Predicate extRetrievePredicate = PredicateUtils.extRetrievePredicate(
+                        localAET, remoteAET, destinationAET, studyIUID, createdTime, updtTime);
+                retrieveTasks = mgr.search(queueMsgPredicate, extRetrievePredicate, 0, rescheduleTasksFetchSize);
                 for (RetrieveTask task : retrieveTasks)
                     mgr.rescheduleRetrieveTask(task.getPk());
                 count += retrieveTasks.size();
@@ -299,8 +308,8 @@ public class RetrieveTaskRS {
     @DELETE
     public String deleteTasks() {
         logRequest();
-        BooleanBuilder extRetrievePredicate = PredicateUtils.extRetrievePredicate(localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
-        BooleanBuilder queueMsgPredicate = PredicateUtils.queueMsgPredicate(mgr.QUEUE_NAME, deviceName, parseStatus(status), createdTime, updatedTime);
+        Predicate extRetrievePredicate = PredicateUtils.extRetrievePredicate(localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
+        Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(mgr.QUEUE_NAME, deviceName, parseStatus(status), createdTime, updatedTime);
         return "{\"deleted\":"
                 + mgr.deleteTasks(extRetrievePredicate, queueMsgPredicate)
                 + '}';

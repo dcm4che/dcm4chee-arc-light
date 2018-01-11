@@ -38,8 +38,6 @@
 
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -51,7 +49,6 @@ import org.dcm4chee.arc.entity.QRetrieveTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.*;
-import org.dcm4chee.arc.query.util.MatchDateTimeRange;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.hibernate.Session;
@@ -65,7 +62,6 @@ import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -141,72 +137,30 @@ public class RetrieveManagerEJB {
                 .executeUpdate();
     }
 
-    public List<RetrieveTask> search(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status,
-            int offset,
-            int limit) {
-        return createQuery(deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status, offset, limit)
+    public List<RetrieveTask> search(Predicate queueMsgPredicate, Predicate extRetrievePredicate, int offset, int limit) {
+        return createQuery(queueMsgPredicate, extRetrievePredicate, offset, limit)
                 .fetch();
     }
 
-    public long countRetrieveTasks(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status) {
-        return createQuery(
-                deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status, 0, 0)
+    public long countRetrieveTasks(Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
+        return createQuery(queueMsgPredicate, extRetrievePredicate, 0, 0)
                 .fetchCount();
     }
 
     private HibernateQuery<RetrieveTask> createQuery(
-            String deviceName, String localAET, String remoteAET, String destinationAET, String studyUID,
-            String createdTime, String updatedTime, QueueMessage.Status status, int offset, int limit) {
-        BooleanBuilder builder = new BooleanBuilder();
-        if (deviceName != null)
-            builder.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
-        if (localAET != null)
-            builder.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
-        if (remoteAET != null)
-            builder.and(QRetrieveTask.retrieveTask.remoteAET.eq(remoteAET));
-        if (destinationAET != null)
-            builder.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
-        if (studyUID != null)
-            builder.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
-        if (status != null)
-            builder.and(status == QueueMessage.Status.TO_SCHEDULE
-                    ? QRetrieveTask.retrieveTask.queueMessage.isNull()
-                    : QQueueMessage.queueMessage.status.eq(status));
-        if (createdTime != null)
-            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QRetrieveTask.retrieveTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
-                    QRetrieveTask.retrieveTask.createdTime.isNotNull()));
-        if (updatedTime != null)
-            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QRetrieveTask.retrieveTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
-                    QRetrieveTask.retrieveTask.updatedTime.isNotNull()));
-
-        HibernateQuery<RetrieveTask> query = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
+            Predicate queueMsgPredicate, Predicate extRetrievePredicate, int offset, int limit) {
+        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(queueMsgPredicate);
+        HibernateQuery<RetrieveTask> extRetrieveQuery = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
                 .from(QRetrieveTask.retrieveTask)
-                .leftJoin(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
-                .where(builder);
+                .where(extRetrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery));
         if (limit > 0)
-            query.limit(limit);
+            extRetrieveQuery.limit(limit);
         if (offset > 0)
-            query.offset(offset);
-        query.orderBy(QRetrieveTask.retrieveTask.updatedTime.desc());
-        return query;
+            extRetrieveQuery.offset(offset);
+        extRetrieveQuery.orderBy(QRetrieveTask.retrieveTask.updatedTime.desc());
+        return extRetrieveQuery;
     }
 
     public boolean deleteRetrieveTask(Long pk) {
@@ -276,29 +230,5 @@ public class RetrieveManagerEJB {
                     .where(queueMsgPredicate, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
         } while (referencedQueueMsgs.size() >= deleteTaskFetchSize);
         return count;
-    }
-
-    private static DateRange getDateRange(String s) {
-        String[] range = splitRange(s);
-        DatePrecision precision = new DatePrecision();
-        Date start = range[0] == null ? null
-                : VR.DT.toDate(range[0], null, 0, false, null, precision);
-        Date end = range[1] == null ? null
-                : VR.DT.toDate(range[1], null, 0, true, null, precision);
-        return new DateRange(start, end);
-    }
-
-    private static String[] splitRange(String s) {
-        String[] range = new String[2];
-        int delim = s.indexOf('-');
-        if (delim == -1)
-            range[0] = range[1] = s;
-        else {
-            if (delim > 0)
-                range[0] =  s.substring(0, delim);
-            if (delim < s.length() - 1)
-                range[1] =  s.substring(delim+1);
-        }
-        return range;
     }
 }

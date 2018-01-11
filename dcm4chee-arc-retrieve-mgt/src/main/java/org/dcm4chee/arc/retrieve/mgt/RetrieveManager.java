@@ -58,27 +58,9 @@ public interface RetrieveManager {
 
     void scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx) throws QueueSizeLimitExceededException;
 
-    List<RetrieveTask> search(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status,
-            int offset,
-            int limit);
+    List<RetrieveTask> search(Predicate queueMsgPredicate, Predicate extRetrievePredicate, int offset, int limit);
 
-    long countRetrieveTasks(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status);
+    long countRetrieveTasks(Predicate queueMsgPredicate, Predicate extRetrievePredicate);
 
     boolean deleteRetrieveTask(Long pk);
 

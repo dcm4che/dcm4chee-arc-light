@@ -142,33 +142,13 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<RetrieveTask> search(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status,
-            int offset,
-            int limit) {
-        return ejb.search(deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status,
-                offset, limit);
+    public List<RetrieveTask> search(Predicate queueMsgPredicate, Predicate extRetrievePredicate, int offset, int limit) {
+        return ejb.search(queueMsgPredicate, extRetrievePredicate, offset, limit);
     }
 
     @Override
-    public long countRetrieveTasks(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status) {
-        return ejb.countRetrieveTasks(
-                deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status);
+    public long countRetrieveTasks(Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
+        return ejb.countRetrieveTasks(queueMsgPredicate, extRetrievePredicate);
     }
 
     @Override

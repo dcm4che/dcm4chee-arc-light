@@ -64,7 +64,9 @@ public class PredicateUtils {
         BooleanBuilder predicate = new BooleanBuilder();
         predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
         if (status != null)
-            predicate.and(QQueueMessage.queueMessage.status.eq(status));
+            predicate.and(status == QueueMessage.Status.TO_SCHEDULE
+                    ? QExportTask.exportTask.queueMessage.isNull()
+                    : QQueueMessage.queueMessage.status.eq(status));
         if (deviceName != null)
             predicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
         if (createdTime != null)
