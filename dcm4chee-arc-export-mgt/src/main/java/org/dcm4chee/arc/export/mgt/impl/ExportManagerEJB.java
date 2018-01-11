@@ -297,49 +297,30 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public List<ExportTask> search(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime,  QueueMessage.Status status, int offset, int limit) {
-        return createQuery(deviceName, exporterID, studyUID, createdTime, updatedTime, status, offset, limit).fetch();
+    public List<ExportTask> search(Predicate queueMsgPredicate, Predicate exportPredicate, int offset, int limit) {
+        HibernateQuery<ExportTask> exportQuery = createQuery(queueMsgPredicate, exportPredicate);
+        if (limit > 0)
+            exportQuery.limit(limit);
+        if (offset > 0)
+            exportQuery.offset(offset);
+        exportQuery.orderBy(QExportTask.exportTask.updatedTime.desc());
+        return exportQuery.fetch();
     }
 
     @Override
-    public long countExportTasks(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime,  QueueMessage.Status status) {
-        return createQuery(deviceName, exporterID, studyUID, createdTime, updatedTime, status, 0, 0).fetchCount();
+    public long countExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate) {
+        return createQuery(queueMsgPredicate, exportPredicate).fetchCount();
     }
 
-    private HibernateQuery<ExportTask> createQuery(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status, int offset, int limit) {
-        BooleanBuilder builder = new BooleanBuilder();
-        if (deviceName != null)
-            builder.and(QExportTask.exportTask.deviceName.eq(deviceName));
-        if (exporterID != null)
-            builder.and(QExportTask.exportTask.exporterID.eq(exporterID));
-        if (studyUID != null)
-            builder.and(QExportTask.exportTask.studyInstanceUID.eq(studyUID));
-        if (status != null)
-            builder.and(status == QueueMessage.Status.TO_SCHEDULE
-                    ? QExportTask.exportTask.queueMessage.isNull()
-                    : QQueueMessage.queueMessage.status.eq(status));
-        if (createdTime != null)
-            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QExportTask.exportTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
-                    QExportTask.exportTask.createdTime.isNotNull()));
-        if (updatedTime != null)
-            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QExportTask.exportTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
-                    QExportTask.exportTask.updatedTime.isNotNull()));
+    private HibernateQuery<ExportTask> createQuery(Predicate queueMsgPredicate, Predicate exportPredicate) {
+        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(queueMsgPredicate);
 
-        HibernateQuery<ExportTask> query = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
+        return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
                 .from(QExportTask.exportTask)
                 .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(builder);
-        if (limit > 0)
-            query.limit(limit);
-        if (offset > 0)
-            query.offset(offset);
-        query.orderBy(QExportTask.exportTask.updatedTime.desc());
-        return query;
+                .where(exportPredicate, QExportTask.exportTask.queueMessage.in(queueMsgQuery));
     }
 
     @Override

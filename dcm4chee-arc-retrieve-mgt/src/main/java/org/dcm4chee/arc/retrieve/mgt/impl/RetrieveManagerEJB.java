@@ -138,29 +138,28 @@ public class RetrieveManagerEJB {
     }
 
     public List<RetrieveTask> search(Predicate queueMsgPredicate, Predicate extRetrievePredicate, int offset, int limit) {
-        return createQuery(queueMsgPredicate, extRetrievePredicate, offset, limit)
-                .fetch();
-    }
-
-    public long countRetrieveTasks(Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
-        return createQuery(queueMsgPredicate, extRetrievePredicate, 0, 0)
-                .fetchCount();
-    }
-
-    private HibernateQuery<RetrieveTask> createQuery(
-            Predicate queueMsgPredicate, Predicate extRetrievePredicate, int offset, int limit) {
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(queueMsgPredicate);
-        HibernateQuery<RetrieveTask> extRetrieveQuery = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
-                .from(QRetrieveTask.retrieveTask)
-                .where(extRetrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery));
+        HibernateQuery<RetrieveTask> extRetrieveQuery = createQuery(queueMsgPredicate, extRetrievePredicate);
         if (limit > 0)
             extRetrieveQuery.limit(limit);
         if (offset > 0)
             extRetrieveQuery.offset(offset);
         extRetrieveQuery.orderBy(QRetrieveTask.retrieveTask.updatedTime.desc());
-        return extRetrieveQuery;
+        return extRetrieveQuery.fetch();
+    }
+
+    public long countRetrieveTasks(Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
+        return createQuery(queueMsgPredicate, extRetrievePredicate)
+                .fetchCount();
+    }
+
+    private HibernateQuery<RetrieveTask> createQuery(
+            Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
+        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(queueMsgPredicate);
+        return new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
+                .from(QRetrieveTask.retrieveTask)
+                .where(extRetrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery));
     }
 
     public boolean deleteRetrieveTask(Long pk) {

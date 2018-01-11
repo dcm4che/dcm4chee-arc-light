@@ -149,10 +149,12 @@ public class ExportTaskRS {
     @Produces("application/json")
     public Response search(@QueryParam("accept") String accept) throws Exception {
         logRequest();
+        Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(null, deviceName, parseStatus(status), null, null);
+        Predicate exportPredicate = PredicateUtils.exportPredicate(exporterID, deviceName, studyUID, createdTime, updatedTime);
         return accept != null && !isCompatible(accept)
                 ? Response.status(Response.Status.NOT_ACCEPTABLE).build()
-                : Response.ok(toEntity(mgr.search(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status),
-                    parseInt(offset), parseInt(limit))))
+                : Response.ok(toEntity(
+                        mgr.search(queueMsgPredicate, exportPredicate, parseInt(offset), parseInt(limit))))
                     .build();
     }
 
@@ -162,8 +164,10 @@ public class ExportTaskRS {
     @Produces("application/json")
     public Response countExportTasks() throws Exception {
         logRequest();
+        Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(null, deviceName, parseStatus(status), null, null);
+        Predicate exportPredicate = PredicateUtils.exportPredicate(exporterID, deviceName, studyUID, createdTime, updatedTime);
         return Response.ok("{\"count\":" +
-                mgr.countExportTasks(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status)) + '}')
+                mgr.countExportTasks(queueMsgPredicate, exportPredicate) + '}')
                 .build();
     }
 
@@ -172,10 +176,12 @@ public class ExportTaskRS {
     @Produces("text/csv; charset=UTF-8")
     public Response listAsCSV(@QueryParam("accept") String accept) throws Exception {
         logRequest();
+        Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(null, deviceName, parseStatus(status), null, null);
+        Predicate exportPredicate = PredicateUtils.exportPredicate(exporterID, deviceName, studyUID, createdTime, updatedTime);
         return accept != null && !isCompatible(accept)
                 ? Response.status(Response.Status.NOT_ACCEPTABLE).build()
-                : Response.ok(toEntityAsCSV(mgr.search(deviceName, exporterID, studyUID, createdTime, updatedTime, parseStatus(status),
-                    parseInt(offset), parseInt(limit))))
+                : Response.ok(toEntityAsCSV(
+                        mgr.search(queueMsgPredicate, exportPredicate, parseInt(offset), parseInt(limit))))
                     .build();
     }
 
@@ -269,13 +275,14 @@ public class ExportTaskRS {
         int rescheduleTasksFetchSize = arcDev.getQueueTasksFetchSize();
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         String updtTime = updatedTime != null ? updatedTime : new SimpleDateFormat("-yyyyMMddHHmmss.SSS").format(new Date());
+        Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(null, deviceName, rescheduleTaskStatus, null, null);
 
         try {
             List<ExportTask> exportTasks;
             int count = 0;
             do {
-                exportTasks = mgr.search(
-                        deviceName, exporterID, studyUID, createdTime, updtTime, rescheduleTaskStatus, 0, rescheduleTasksFetchSize);
+                Predicate exportPredicate = PredicateUtils.exportPredicate(exporterID, deviceName, studyUID, createdTime, updtTime);
+                exportTasks = mgr.search(queueMsgPredicate, exportPredicate, 0, rescheduleTasksFetchSize);
                 for (ExportTask task : exportTasks)
                     mgr.rescheduleExportTask(
                             task.getPk(),

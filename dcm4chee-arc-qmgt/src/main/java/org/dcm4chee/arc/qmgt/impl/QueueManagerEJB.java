@@ -353,23 +353,23 @@ public class QueueManagerEJB {
     }
 
     public List<QueueMessage> search(Predicate queueMsgPredicate, int offset, int limit) {
-        return createQuery(queueMsgPredicate, offset, limit).fetch();
+        HibernateQuery<QueueMessage> queueMsgQuery = createQuery(queueMsgPredicate);
+        if (limit > 0)
+            queueMsgQuery.limit(limit);
+        if (offset > 0)
+            queueMsgQuery.offset(offset);
+        queueMsgQuery.orderBy(QQueueMessage.queueMessage.updatedTime.desc());
+        return queueMsgQuery.fetch();
     }
 
     public long countTasks(Predicate queueMsgPredicate) {
-        return createQuery(queueMsgPredicate, 0, 0).fetchCount();
+        return createQuery(queueMsgPredicate).fetchCount();
     }
 
-    private HibernateQuery<QueueMessage> createQuery(Predicate queueMsgPredicate, int offset, int limit) {
-        HibernateQuery<QueueMessage> query = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+    private HibernateQuery<QueueMessage> createQuery(Predicate queueMsgPredicate) {
+        return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(queueMsgPredicate);
-        if (limit > 0)
-            query.limit(limit);
-        if (offset > 0)
-            query.offset(offset);
-        query.orderBy(QQueueMessage.queueMessage.updatedTime.desc());
-        return query;
     }
 
     private void sendMessage(QueueDescriptor desc, ObjectMessage msg, long delay, int priority) {

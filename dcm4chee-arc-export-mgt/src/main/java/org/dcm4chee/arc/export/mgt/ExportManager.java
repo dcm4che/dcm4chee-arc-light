@@ -65,12 +65,9 @@ public interface ExportManager {
 
     void updateExportTask(Long pk);
 
-    List<ExportTask> search(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status,
-            int offset, int limit);
+    List<ExportTask> search(Predicate queueMsgPredicate, Predicate exportPredicate, int offset, int limit);
 
-    long countExportTasks(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status);
+    long countExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate);
 
     boolean deleteExportTask(Long pk);
 

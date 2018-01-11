@@ -62,7 +62,8 @@ public class PredicateUtils {
     public static BooleanBuilder queueMsgPredicate(String queueName, String deviceName, QueueMessage.Status status, String createdTime,
                                     String updatedTime) {
         BooleanBuilder predicate = new BooleanBuilder();
-        predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
+        if (queueName != null)
+            predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
         if (status != null)
             predicate.and(status == QueueMessage.Status.TO_SCHEDULE
                     ? QExportTask.exportTask.queueMessage.isNull()
