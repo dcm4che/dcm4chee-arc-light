@@ -14,38 +14,51 @@ export class RangePickerComponent implements OnInit {
     @Input() mode:("leftOpen"|"rightOpen"|"range"|"single");
     @Output() modelChange = new EventEmitter();
     @ViewChild('fromCalendar') fromCalendarObject;
+    @ViewChild('fromTimeCalendar') fromTimeCalendarObject;
     @ViewChild('toCalendar') toCalendarObject;
     @ViewChild('singleCalendar') singleCalendarObject;
     fromModel;
+    fromTimeModel;
     toModel;
+    toTimeModel;
     singleDateModel;
+    singleTimeModel;
     showPicker;
     smartPickerActive = false;
     smartInput;
+    HH = [];
+    mm = [];
+    includeTime = false;
     constructor() {}
     ngOnInit(){
-        console.log("this.model",this.model);
-        console.log("this.placeholder",this.placeholder);
         this.mode = this.mode || "range";
         this.title = this.title || "Range picker";
+        for(let i=0;i<60;i++){
+            if(i<25){
+                this.HH.push({value:i,label:(i<10)?`0${i}`:i});
+            }
+            this.mm.push({value:i,label:(i<10)?`0${i}`:i});
+        }
     }
     closeCalendar(clanedarName){
         // console.log("inclose",e);
         this[clanedarName].overlayVisible = false;
     }
+    toggleTime(){
+    }
     setRange(){
         switch(this.mode){
             case 'single':
-                this.model = this.singleDateModel;
+                this.model = this.getDateFromValue(this.singleDateModel) + this.getTimeFromValue(this.singleTimeModel, false);
             break;
             case 'range':
-                this.model = (this.fromModel != '' || this.toModel != '') ? `${this.fromModel}-${this.toModel}`:'';
+                this.model = (this.fromModel != '' || this.toModel != '') ? `${this.getDateFromValue(this.fromModel) + this.getTimeFromValue(this.fromTimeModel, false)}-${this.getDateFromValue(this.toModel) + this.getTimeFromValue(this.toTimeModel, false)}`:'';
             break;
             case 'rightOpen':
-                this.model = (this.fromModel != '') ? `${this.fromModel}-`:'';
+                this.model = (this.fromModel != '') ? `${this.getDateFromValue(this.fromModel) + this.getTimeFromValue(this.fromTimeModel, false)}-`:'';
                 break;
             case 'leftOpen':
-                this.model = (this.toModel != '') ?`-${this.toModel}`:'';
+                this.model = (this.toModel != '') ?`-${this.getDateFromValue(this.toModel) + this.getTimeFromValue(this.toTimeModel, false)}`:'';
                 break;
         }
         this.modelChange.emit(this.model);
@@ -59,8 +72,11 @@ export class RangePickerComponent implements OnInit {
     }
     clear(){
         this.fromModel = '';
+        this.fromTimeModel = '';
         this.toModel = '';
+        this.toTimeModel = '';
         this.singleDateModel = '';
+        this.singleTimeModel = '';
     }
     today(){
         this.modelChange.emit(j4care.convertDateToString(new Date()));
@@ -106,6 +122,11 @@ export class RangePickerComponent implements OnInit {
         let date = new Date();
         date.getFullYear()
         let extractedDurationObject = j4care.extractDurationFromValue(e);
+        if(extractedDurationObject.Minutes || extractedDurationObject.Hours || extractedDurationObject.Seconds){
+            this.includeTime = true;
+            this.fromTimeModel = `${j4care.getSingleDateTimeValueFromInt(extractedDurationObject.Hours)}:${j4care.getSingleDateTimeValueFromInt(extractedDurationObject.Minutes)}:${j4care.getSingleDateTimeValueFromInt(extractedDurationObject.Seconds)}`;
+            this.toTimeModel = j4care.getTimeFromDate(new Date());
+        }
         this.fromModel = j4care.convertDateToString(this.createDateFromDuration(extractedDurationObject));
     }
     createDateFromDuration(durationObject){
@@ -139,5 +160,43 @@ export class RangePickerComponent implements OnInit {
             }
         });
         return newDate;
+    }
+    getDateFromValue(value){
+        return (value && value != '') ? value : j4care.dateToString(new Date());
+    }
+    getTimeFromValue(value, onEmptyNull?){
+        let emptyValue = (onEmptyNull) ? '000000' : '';
+        return (value && value != '') ? this.removeDoubleDotsFromTime(value) : emptyValue;
+    }
+    removeDoubleDotsFromTime(value){
+        const ptrn = /(\d{2})/g;
+        let match;
+        let result = '';
+        if(value && value != ''){
+            try {
+                while ((match = ptrn.exec(value)) != null) {
+                    result += match[1];
+                }
+                return result;
+            }catch (e){
+                console.error("Could not extract time values from time string",value,e);
+            }
+        }
+        return '';
+    }
+
+    filterChanged(){
+        console.log("changed",j4care.extractDateTimeFromString(this.model));
+        let modifyed = j4care.extractDateTimeFromString(this.model);
+        if(modifyed){
+            if((modifyed.mode === "range"|| modifyed.mode === "rightOpen") && modifyed.firstDateTime.FullYear && modifyed.firstDateTime.Month && modifyed.firstDateTime.Date)
+                this.fromModel =  `${modifyed.firstDateTime.FullYear}${modifyed.firstDateTime.Month}${modifyed.firstDateTime.Date}`;
+            if((modifyed.mode === "range"|| modifyed.mode === "rightOpen") && modifyed.secondDateTime.FullYear && modifyed.secondDateTime.Month && modifyed.secondDateTime.Date)
+                this.toModel =  `${modifyed.secondDateTime.FullYear}${modifyed.secondDateTime.Month}${modifyed.secondDateTime.Date}`;
+            if((modifyed.mode === "range"|| modifyed.mode === "leftOpen") && modifyed.firstDateTime.Hours && modifyed.firstDateTime.Minutes && modifyed.firstDateTime.Seconds)
+                this.fromTimeModel =  `${modifyed.firstDateTime.Hours}:${modifyed.firstDateTime.Minutes}:${modifyed.firstDateTime.Seconds}`;
+            if((modifyed.mode === "range"|| modifyed.mode === "leftOpen") && modifyed.secondDateTime.Hours && modifyed.secondDateTime.Minutes && modifyed.secondDateTime.Seconds)
+                this.toTimeModel =  `${modifyed.secondDateTime.Hours}:${modifyed.secondDateTime.Minutes}:${modifyed.secondDateTime.Seconds}`;
+        }
     }
 }
