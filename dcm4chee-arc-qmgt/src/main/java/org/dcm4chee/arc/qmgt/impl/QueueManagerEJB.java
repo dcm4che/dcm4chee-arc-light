@@ -218,24 +218,12 @@ public class QueueManagerEJB {
     }
 
     public int cancelExportTasks(BooleanBuilder queueMsgPredicate, BooleanBuilder exportPredicate) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int fetchSize = arcDev.getQueueTasksFetchSize();
-
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(queueMsgPredicate);
-        List<Long> referencedQueueMsgs;
-        do {
-            referencedQueueMsgs = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                    .select(QExportTask.exportTask.queueMessage.pk)
-                    .from(QExportTask.exportTask)
-                    .where(exportPredicate, QExportTask.exportTask.queueMessage.in(queueMsgQuery))
-                    .limit(fetchSize).fetch();
-            new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
-                    .set(QExportTask.exportTask.updatedTime, new Date())
-                    .where(QExportTask.exportTask.queueMessage.pk.in(referencedQueueMsgs))
-                    .execute();
-        } while (referencedQueueMsgs.size() >= fetchSize);
+        new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
+                .set(QExportTask.exportTask.updatedTime, new Date())
+                .where(exportPredicate, QExportTask.exportTask.queueMessage.in(queueMsgQuery)).execute();
 
         return (int) new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
                 .set(QQueueMessage.queueMessage.status, QueueMessage.Status.CANCELED)
@@ -244,23 +232,12 @@ public class QueueManagerEJB {
     }
 
     public int cancelRetrieveTasks(BooleanBuilder queueMsgPredicate, BooleanBuilder extRetrievePredicate) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int fetchSize = arcDev.getQueueTasksFetchSize();
-
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(queueMsgPredicate);
-        List<Long> referencedQueueMsgs;
-        do {
-            referencedQueueMsgs = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
-                    .select(QRetrieveTask.retrieveTask.queueMessage.pk)
-                    .from(QRetrieveTask.retrieveTask)
-                    .where(extRetrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery))
-                    .limit(fetchSize).fetch();
-            new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                    .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
-                    .where(QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgs)).execute();
-        } while (referencedQueueMsgs.size() >= fetchSize);
+        new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+                .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
+                .where(extRetrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery)).execute();
 
         return (int) new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
                 .set(QQueueMessage.queueMessage.status, QueueMessage.Status.CANCELED)
