@@ -62,7 +62,6 @@ public class QueryAttributes {
     private boolean includeAll;
 
     private final ArrayList<OrderByTag> orderByTags = new ArrayList<>();
-    private boolean orderByPatientName;
 
     public QueryAttributes(UriInfo info) {
         MultivaluedMap<String, String> map = info.getQueryParameters();
@@ -129,8 +128,6 @@ public class QueryAttributes {
                     boolean desc = field.charAt(0) == '-';
                     int tags[] = TagUtils.parseTagPath(desc ? field.substring(1) : field);
                     orderByTags.add(new OrderByTag(tags[tags.length - 1], desc ? Order.DESC : Order.ASC));
-                    if (tags[0] == Tag.PatientName)
-                        orderByPatientName = true;
                 }
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("orderby=" + s);
@@ -163,20 +160,6 @@ public class QueryAttributes {
 
     public ArrayList<OrderByTag> getOrderByTags() {
         return orderByTags;
-    }
-
-    public boolean isOrderByPatientName() {
-        return orderByPatientName;
-    }
-
-    public static class OrderByTag {
-        public final int tag;
-        public final Order order;
-
-        private OrderByTag(int tag, Order order) {
-            this.tag = tag;
-            this.order = order;
-        }
     }
 
     private void addQueryKey(String attrPath, List<String> values) {

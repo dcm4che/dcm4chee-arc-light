@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,51 +35,31 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.query;
+package org.dcm4chee.arc.query.util;
 
-import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Order;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.service.DicomServiceException;
-import org.hibernate.Transaction;
-
-import java.io.Closeable;
-import java.util.Iterator;
+import org.dcm4che3.data.Tag;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Aug 2015
+ * @since Jan 2018
  */
-public interface Query extends Closeable {
-    boolean isOptionalKeysNotSupported();
+public class OrderByTag {
+    public final int tag;
+    public final Order order;
 
-    void close();
+    public OrderByTag(int tag, Order order) {
+        this.tag = tag;
+        this.order = order;
+    }
 
-    void initQuery();
-
-    Transaction beginTransaction();
-
-    void setFetchSize(int fetchSize);
-
-    void executeQuery();
-
-    long fetchCount();
-
-    Iterator<Long> withUnknownSize(int fetchSize);
-
-    long fetchSize();
-
-    void limit(long limit);
-
-    void offset(long offset);
-
-    boolean hasMoreMatches() throws DicomServiceException;
-
-    Attributes nextMatch();
-
-    Attributes adjust(Attributes match);
-
-    QueryContext getQueryContext();
+    public OrderByTag(Attributes attrs) {
+        this(attrs.getInt(Tag.SelectorAttribute, -1),
+                "DECREASING".equals(attrs.getString(Tag.SortingDirection)) ? Order.DESC : Order.ASC);
+    }
 }

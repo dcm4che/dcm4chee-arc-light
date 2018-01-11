@@ -46,10 +46,12 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.storage.Storage;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -100,7 +102,9 @@ public interface QueryContext {
 
     boolean isOrderByPatientName();
 
-    void setOrderByPatientName(boolean orderByPatientName);
+    List<OrderByTag> getOrderByTags();
+
+    void setOrderByTags(List<OrderByTag> orderByTags);
 
     boolean isConsiderPurgedInstances();
 

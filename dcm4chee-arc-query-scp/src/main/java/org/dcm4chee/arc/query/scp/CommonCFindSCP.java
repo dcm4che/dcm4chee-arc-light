@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.query.scp;
 
+import com.querydsl.core.types.Order;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Priority;
@@ -52,11 +53,15 @@ import org.dcm4che3.net.service.QueryTask;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.dcm4chee.arc.query.util.OrderByTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -89,6 +94,9 @@ class CommonCFindSCP extends BasicCFindSCP {
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
         if (idWithIssuer != null && !idWithIssuer.getID().equals("*"))
             ctx.setPatientIDs(idWithIssuer);
+        Sequence sortingOperationSeq = (Sequence) keys.remove(Tag.SortingOperationsSequence);
+        if (sortingOperationSeq != null)
+            ctx.setOrderByTags(sortingOperationSeq.stream().map(OrderByTag::new).collect(Collectors.toList()));
         ctx.setQueryKeys(keys);
         ctx.setReturnKeys(createReturnKeys(keys));
         return new ArchiveQueryTask(as, pc, rq, keys, ctx);
