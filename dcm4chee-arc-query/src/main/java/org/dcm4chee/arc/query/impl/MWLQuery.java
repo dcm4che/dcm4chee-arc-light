@@ -43,6 +43,8 @@ package org.dcm4chee.arc.query.impl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -51,6 +53,8 @@ import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.hibernate.StatelessSession;
+
+import java.util.ArrayList;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -72,6 +76,11 @@ public class MWLQuery extends AbstractQuery {
     protected HibernateQuery<Tuple> newHibernateQuery(boolean forCount) {
         HibernateQuery<Tuple> q = new HibernateQuery<Void>(session).select(SELECT).from(QMWLItem.mWLItem);
         return newHibernateQuery(q, forCount);
+    }
+
+    @Override
+    protected boolean addOrderSpecifier(int tag, Order order, ArrayList<OrderSpecifier<?>> result) {
+        return QueryBuilder.addMWLOrderSpecifier(tag, order, result);
     }
 
     @Override

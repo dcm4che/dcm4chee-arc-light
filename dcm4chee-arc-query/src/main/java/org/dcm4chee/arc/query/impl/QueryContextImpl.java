@@ -51,11 +51,13 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.QueryContext;
+import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryParam;
 import org.dcm4chee.arc.storage.Storage;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -71,10 +73,10 @@ class QueryContextImpl implements QueryContext {
     private IDWithIssuer[] patientIDs = {};
     private Attributes queryKeys;
     private Attributes returnKeys;
-    private boolean orderByPatientName;
     private String sopClassUID;
     private String searchMethod;
     private final HashMap<String, Storage> storageMap = new HashMap<>();
+    private List<OrderByTag> orderByTags;
 
     public QueryContextImpl(HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae,
                             QueryParam queryParam, QueryService queryService) {
@@ -206,12 +208,17 @@ class QueryContextImpl implements QueryContext {
 
     @Override
     public boolean isOrderByPatientName() {
-        return orderByPatientName;
+        return orderByTags != null && orderByTags.stream().anyMatch(x -> x.tag == Tag.PatientName);
     }
 
     @Override
-    public void setOrderByPatientName(boolean orderByPatientName) {
-        this.orderByPatientName = orderByPatientName;
+    public List<OrderByTag> getOrderByTags() {
+        return orderByTags;
+    }
+
+    @Override
+    public void setOrderByTags(List<OrderByTag> orderByTags) {
+        this.orderByTags = orderByTags;
     }
 
     @Override

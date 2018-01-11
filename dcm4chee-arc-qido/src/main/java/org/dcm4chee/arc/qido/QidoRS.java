@@ -40,8 +40,6 @@
 
 package org.dcm4chee.arc.qido;
 
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.NumberPath;
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.SAXTransformer;
@@ -50,14 +48,15 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.query.util.*;
-import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.util.QIDO;
+import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
 import org.hibernate.Transaction;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -72,12 +71,15 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -430,16 +432,6 @@ public class QidoRS {
             else if (limitInt > 0)
                 query.limit(limitInt);
 
-            ArrayList<QueryAttributes.OrderByTag> orderByTags = queryAttrs.getOrderByTags();
-            if (!orderByTags.isEmpty()) {
-                ArrayList<OrderSpecifier<?>> list = new ArrayList<>(orderByTags.size() + 1);
-                for (QueryAttributes.OrderByTag orderByTag : orderByTags) {
-                    model.addOrderSpecifier(orderByTag.tag, orderByTag.order, list);
-                }
-                if (limitInt > 0)
-                    list.add(model.getPk().asc());
-                query.orderBy(list.toArray(new OrderSpecifier<?>[list.size()]));
-            }
             Transaction transaction = query.beginTransaction();
             try {
                 query.setFetchSize(arcAE.getArchiveDeviceExtension().getQueryFetchSize());
@@ -501,7 +493,7 @@ public class QidoRS {
         if (seriesInstanceUID != null)
             keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
         ctx.setQueryKeys(keys);
-        ctx.setOrderByPatientName(queryAttrs.isOrderByPatientName());
+        ctx.setOrderByTags(queryAttrs.getOrderByTags());
         return ctx;
     }
 
@@ -558,11 +550,6 @@ public class QidoRS {
             }
 
             @Override
-            boolean addOrderSpecifier(int tag, Order order, List<OrderSpecifier<?>> result) {
-                return QueryBuilder.addMWLOrderSpecifier(tag, order, result);
-            }
-
-            @Override
             public AttributesCoercion getAttributesCoercion(QueryService service, QueryContext ctx) {
                 return null;
             }
@@ -592,10 +579,6 @@ public class QidoRS {
 
         Query createQuery(QueryService service, QueryContext ctx) {
             return service.createQuery(ctx);
-        }
-
-        boolean addOrderSpecifier(int tag, Order order, List<OrderSpecifier<?>> result) {
-            return QueryBuilder.addOrderSpecifier(qrLevel, tag, order, result);
         }
 
         AttributesCoercion getAttributesCoercion(QueryService service, QueryContext ctx) {
