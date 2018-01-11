@@ -40,7 +40,7 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
-import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import com.querydsl.jpa.hibernate.HibernateUpdateClause;
@@ -210,14 +210,14 @@ public class QueueManagerEJB {
         return true;
     }
 
-    public int cancelTasksInQueue(BooleanBuilder queueMsgPredicate) {
+    public int cancelTasksInQueue(Predicate queueMsgPredicate) {
         return (int) new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
                 .set(QQueueMessage.queueMessage.status, QueueMessage.Status.CANCELED)
                 .set(QQueueMessage.queueMessage.updatedTime, new Date())
                 .where(queueMsgPredicate).execute();
     }
 
-    public int cancelExportTasks(BooleanBuilder queueMsgPredicate, BooleanBuilder exportPredicate) {
+    public int cancelExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate) {
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(queueMsgPredicate);
@@ -231,7 +231,7 @@ public class QueueManagerEJB {
                 .where(queueMsgPredicate).execute();
     }
 
-    public int cancelRetrieveTasks(BooleanBuilder queueMsgPredicate, BooleanBuilder extRetrievePredicate) {
+    public int cancelRetrieveTasks(Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(queueMsgPredicate);
@@ -297,7 +297,7 @@ public class QueueManagerEJB {
         return true;
     }
 
-    public int deleteMessages(String queueName, BooleanBuilder queueMsgPredicate) {
+    public int deleteMessages(String queueName, Predicate queueMsgPredicate) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         if (queueName.startsWith("Export"))
             deleteExportTasks(queueMsgPredicate, arcDev.getQueueTasksFetchSize());
@@ -308,7 +308,7 @@ public class QueueManagerEJB {
                 .where(queueMsgPredicate).execute();
     }
 
-    private void deleteExportTasks(BooleanBuilder queueMsgPredicate, int fetchSize) {
+    private void deleteExportTasks(Predicate queueMsgPredicate, int fetchSize) {
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(queueMsgPredicate);
@@ -325,7 +325,7 @@ public class QueueManagerEJB {
         } while (referencedQueueMsgs.size() >= fetchSize);
     }
 
-    private void deleteRetrieveTasks(BooleanBuilder queueMsgPredicate, int fetchSize) {
+    private void deleteRetrieveTasks(Predicate queueMsgPredicate, int fetchSize) {
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(queueMsgPredicate);
@@ -342,15 +342,15 @@ public class QueueManagerEJB {
         } while (referencedQueueMsgs.size() >= fetchSize);
     }
 
-    public List<QueueMessage> search(BooleanBuilder queueMsgPredicate, int offset, int limit) {
+    public List<QueueMessage> search(Predicate queueMsgPredicate, int offset, int limit) {
         return createQuery(queueMsgPredicate, offset, limit).fetch();
     }
 
-    public long countTasks(BooleanBuilder queueMsgPredicate) {
+    public long countTasks(Predicate queueMsgPredicate) {
         return createQuery(queueMsgPredicate, 0, 0).fetchCount();
     }
 
-    private HibernateQuery<QueueMessage> createQuery(BooleanBuilder queueMsgPredicate, int offset, int limit) {
+    private HibernateQuery<QueueMessage> createQuery(Predicate queueMsgPredicate, int offset, int limit) {
         HibernateQuery<QueueMessage> query = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(queueMsgPredicate);

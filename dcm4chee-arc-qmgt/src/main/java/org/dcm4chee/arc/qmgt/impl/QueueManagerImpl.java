@@ -38,7 +38,7 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
-import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.*;
@@ -121,7 +121,7 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public int cancelTasksInQueue(QueueMessage.Status status, BooleanBuilder queueMsgPredicate)
+    public int cancelTasksInQueue(QueueMessage.Status status, Predicate queueMsgPredicate)
             throws IllegalTaskStateException {
         return status == QueueMessage.Status.SCHEDULED
                 ? ejb.cancelTasksInQueue(queueMsgPredicate)
@@ -129,7 +129,7 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public int cancelExportTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder exportPredicate)
+    public int cancelExportTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate exportPredicate)
             throws IllegalTaskStateException {
         return status == QueueMessage.Status.SCHEDULED
                 ? ejb.cancelExportTasks(queueMsgPredicate, exportPredicate)
@@ -137,14 +137,14 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public int cancelRetrieveTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder extRetrievePredicate)
+    public int cancelRetrieveTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate extRetrievePredicate)
             throws IllegalTaskStateException {
         return status == QueueMessage.Status.SCHEDULED
                 ? ejb.cancelRetrieveTasks(queueMsgPredicate, extRetrievePredicate)
                 : cancelInProcessTasks(queueMsgPredicate);
     }
 
-    private int cancelInProcessTasks(BooleanBuilder queueMsgPredicate)
+    private int cancelInProcessTasks(Predicate queueMsgPredicate)
             throws IllegalTaskStateException {
         List<QueueMessage> msgs = search(queueMsgPredicate, 0, 0);
         for (QueueMessage msg : msgs)
@@ -164,17 +164,17 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public int deleteMessages(String queueName, BooleanBuilder queueMsgPredicate) {
+    public int deleteMessages(String queueName, Predicate queueMsgPredicate) {
         return ejb.deleteMessages(queueName, queueMsgPredicate);
     }
 
     @Override
-    public List<QueueMessage> search(BooleanBuilder queueMsgPredicate, int offset, int limit) {
+    public List<QueueMessage> search(Predicate queueMsgPredicate, int offset, int limit) {
         return ejb.search(queueMsgPredicate, offset, limit);
     }
 
     @Override
-    public long countTasks(BooleanBuilder queueMsgPredicate) {
+    public long countTasks(Predicate queueMsgPredicate) {
         return ejb.countTasks(queueMsgPredicate);
     }
 }

@@ -40,7 +40,7 @@
 
 package org.dcm4chee.arc.qmgt;
 
-import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
 
 import javax.jms.ObjectMessage;
@@ -64,22 +64,22 @@ public interface QueueManager {
 
     boolean cancelProcessing(String msgId) throws IllegalTaskStateException;
 
-    int cancelTasksInQueue(QueueMessage.Status status, BooleanBuilder queueMsgPredicate)
+    int cancelTasksInQueue(QueueMessage.Status status, Predicate queueMsgPredicate)
             throws IllegalTaskStateException;
 
-    int cancelExportTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder exportPredicate)
+    int cancelExportTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate exportPredicate)
             throws IllegalTaskStateException;
 
-    int cancelRetrieveTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder extRetrievePredicate)
+    int cancelRetrieveTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate extRetrievePredicate)
             throws IllegalTaskStateException;
 
     boolean rescheduleMessage(String msgId, String queueName) throws IllegalTaskStateException, DifferentDeviceException;
 
     boolean deleteMessage(String msgId);
 
-    int deleteMessages(String queueName, BooleanBuilder queueMsgPredicate);
+    int deleteMessages(String queueName, Predicate queueMsgPredicate);
 
-    List<QueueMessage> search(BooleanBuilder queueMsgPredicate, int offset, int limit);
+    List<QueueMessage> search(Predicate queueMsgPredicate, int offset, int limit);
 
-    long countTasks(BooleanBuilder queueMsgPredicate);
+    long countTasks(Predicate queueMsgPredicate);
 }

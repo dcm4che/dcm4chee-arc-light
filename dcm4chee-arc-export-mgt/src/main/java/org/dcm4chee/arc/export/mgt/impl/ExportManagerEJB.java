@@ -42,6 +42,7 @@ package org.dcm4chee.arc.export.mgt.impl;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.*;
@@ -368,7 +369,7 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public int cancelExportTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder exportPredicate)
+    public int cancelExportTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate exportPredicate)
             throws IllegalTaskStateException {
         return queueManager.cancelExportTasks(status, queueMsgPredicate, exportPredicate);
     }
@@ -390,7 +391,7 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public int deleteTasks(BooleanBuilder queueMsgPredicate, BooleanBuilder exportPredicate) {
+    public int deleteTasks(Predicate queueMsgPredicate, Predicate exportPredicate) {
         int count = 0;
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int deleteTaskFetchSize = arcDev.getQueueTasksFetchSize();

@@ -38,7 +38,7 @@
 
 package org.dcm4chee.arc.retrieve.mgt;
 
-import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.*;
@@ -84,10 +84,10 @@ public interface RetrieveManager {
 
     boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
 
-    int cancelRetrieveTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder extRetrievePredicate)
+    int cancelRetrieveTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate extRetrievePredicate)
             throws IllegalTaskStateException;
 
     boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException, DifferentDeviceException;
 
-    int deleteTasks(BooleanBuilder extRetrievePredicate, BooleanBuilder queueMsgPredicate);
+    int deleteTasks(Predicate extRetrievePredicate, Predicate queueMsgPredicate);
 }

@@ -38,7 +38,7 @@
 
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
-import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.*;
@@ -182,7 +182,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public int cancelRetrieveTasks(QueueMessage.Status status, BooleanBuilder queueMsgPredicate, BooleanBuilder extRetrievePredicate)
+    public int cancelRetrieveTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate extRetrievePredicate)
             throws IllegalTaskStateException {
         return ejb.cancelRetrieveTasks(status, queueMsgPredicate, extRetrievePredicate);
     }
@@ -193,7 +193,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public int deleteTasks(BooleanBuilder extRetrievePredicate, BooleanBuilder queueMsgPredicate) {
+    public int deleteTasks(Predicate extRetrievePredicate, Predicate queueMsgPredicate) {
         return ejb.deleteTasks(extRetrievePredicate, queueMsgPredicate);
     }
 }
