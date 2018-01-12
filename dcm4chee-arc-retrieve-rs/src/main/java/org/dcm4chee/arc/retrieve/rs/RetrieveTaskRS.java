@@ -284,10 +284,8 @@ public class RetrieveTaskRS {
                 Predicate extRetrievePredicate = PredicateUtils.extRetrievePredicate(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updtTime);
                 retrieveTaskPks = mgr.getRetrieveTaskPks(queueMsgPredicate, extRetrievePredicate, rescheduleTasksFetchSize);
-                for (long pk : retrieveTaskPks) {
-                    System.out.println("PK in retrieve task is : " + pk);
+                for (long pk : retrieveTaskPks)
                     mgr.rescheduleRetrieveTask(pk);
-                }
                 count += retrieveTaskPks.size();
             } while (retrieveTaskPks.size() >= rescheduleTasksFetchSize);
 

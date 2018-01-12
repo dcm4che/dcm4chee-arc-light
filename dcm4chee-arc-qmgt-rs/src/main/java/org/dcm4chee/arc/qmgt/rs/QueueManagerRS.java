@@ -211,10 +211,8 @@ public class QueueManagerRS {
             int count = 0;
             do {
                 queueMsgIDs = mgr.getQueueMsgIDs(predicate, rescheduleTasksFetchSize);
-                for (String msgID : queueMsgIDs) {
-                    System.out.println("Msg id in Queue manager RS is : " + msgID);
+                for (String msgID : queueMsgIDs)
                     mgr.rescheduleMessage(msgID, queueName);
-                }
                 count += queueMsgIDs.size();
             } while (queueMsgIDs.size() >= rescheduleTasksFetchSize);
             return Response.status(Response.Status.OK)
