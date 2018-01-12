@@ -240,9 +240,10 @@ public class QueueManagerEJB {
                 .innerJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage);
     }
 
-    public List<QueueMessage> searchExportTasksReferencedQueueMsgs(Predicate queueMsgPredicate, Predicate exportPredicate) {
+    public List<String> searchExportTasksReferencedQueueMsgs(Predicate queueMsgPredicate, Predicate exportPredicate) {
         HibernateQuery<Long> referencedQueueMsgs = exportTasksReferencedQueueMsgs(queueMsgPredicate, exportPredicate);
         return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .select(QQueueMessage.queueMessage.messageID)
                 .from(QQueueMessage.queueMessage)
                 .where(QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).fetch();
     }
@@ -270,9 +271,10 @@ public class QueueManagerEJB {
                 .innerJoin(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage);
     }
 
-    public List<QueueMessage> searchRetrieveTasksReferencedQueueMsgs(Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
+    public List<String> searchRetrieveTasksReferencedQueueMsgs(Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
         HibernateQuery<Long> referencedQueueMsgs = retrieveTasksReferencedQueueMsgs(queueMsgPredicate, extRetrievePredicate);
         return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .select(QQueueMessage.queueMessage.messageID)
                 .from(QQueueMessage.queueMessage)
                 .where(QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).fetch();
     }
