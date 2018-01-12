@@ -110,6 +110,9 @@ $hoverBlue:#5293C1;
     display: none;
   }
 }
+input.ng-invalid:focus{
+  outline-color: #a94442 !important;
+}
 p-calendar{
   button.ui-button,.ui-button:focus{
     background: rgba(6, 29, 47, 0.84);

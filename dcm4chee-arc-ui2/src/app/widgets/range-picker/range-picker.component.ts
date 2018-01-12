@@ -29,6 +29,7 @@ export class RangePickerComponent implements OnInit {
     HH = [];
     mm = [];
     includeTime = false;
+    maiInputValid = true;
     constructor() {}
     ngOnInit(){
         this.mode = this.mode || "range";
@@ -62,6 +63,7 @@ export class RangePickerComponent implements OnInit {
                 break;
         }
         this.modelChange.emit(this.model);
+        this.filterChanged();
         this.showPicker = false;
     }
     togglePicker(){
@@ -162,11 +164,17 @@ export class RangePickerComponent implements OnInit {
         return newDate;
     }
     getDateFromValue(value){
-        return (value && value != '') ? value : j4care.dateToString(new Date());
+        return value || j4care.dateToString(new Date());
+    }
+    getDateFromObject(value){
+        return value || j4care.dateToString(new Date());
     }
     getTimeFromValue(value, onEmptyNull?){
-        let emptyValue = (onEmptyNull) ? '000000' : '';
-        return (value && value != '') ? this.removeDoubleDotsFromTime(value) : emptyValue;
+        if(this.includeTime){
+            let emptyValue = (onEmptyNull) ? '000000' : '';
+            return (value && value != '') ? this.removeDoubleDotsFromTime(value) : emptyValue;
+        }
+        return '';
     }
     removeDoubleDotsFromTime(value){
         const ptrn = /(\d{2})/g;
@@ -186,17 +194,46 @@ export class RangePickerComponent implements OnInit {
     }
 
     filterChanged(){
-        console.log("changed",j4care.extractDateTimeFromString(this.model));
         let modifyed = j4care.extractDateTimeFromString(this.model);
+        this.maiInputValid = true;
         if(modifyed){
-            if((modifyed.mode === "range"|| modifyed.mode === "rightOpen") && modifyed.firstDateTime.FullYear && modifyed.firstDateTime.Month && modifyed.firstDateTime.Date)
-                this.fromModel =  `${modifyed.firstDateTime.FullYear}${modifyed.firstDateTime.Month}${modifyed.firstDateTime.Date}`;
-            if((modifyed.mode === "range"|| modifyed.mode === "rightOpen") && modifyed.secondDateTime.FullYear && modifyed.secondDateTime.Month && modifyed.secondDateTime.Date)
-                this.toModel =  `${modifyed.secondDateTime.FullYear}${modifyed.secondDateTime.Month}${modifyed.secondDateTime.Date}`;
-            if((modifyed.mode === "range"|| modifyed.mode === "leftOpen") && modifyed.firstDateTime.Hours && modifyed.firstDateTime.Minutes && modifyed.firstDateTime.Seconds)
-                this.fromTimeModel =  `${modifyed.firstDateTime.Hours}:${modifyed.firstDateTime.Minutes}:${modifyed.firstDateTime.Seconds}`;
-            if((modifyed.mode === "range"|| modifyed.mode === "leftOpen") && modifyed.secondDateTime.Hours && modifyed.secondDateTime.Minutes && modifyed.secondDateTime.Seconds)
-                this.toTimeModel =  `${modifyed.secondDateTime.Hours}:${modifyed.secondDateTime.Minutes}:${modifyed.secondDateTime.Seconds}`;
+            this.mode = modifyed.mode;
+            if((this.mode === "range" || this.mode === "rightOpen" || this.mode === "single") && j4care.isSetDateObject(modifyed.firstDateTime)){
+                if(j4care.validDateObject(modifyed.firstDateTime)){
+                    if(this.mode === "single")
+                        this.singleDateModel = j4care.getDateFromObject(modifyed.firstDateTime);
+                    else
+                        this.fromModel = j4care.getDateFromObject(modifyed.firstDateTime);
+                    if(j4care.isSetTimeObject(modifyed.firstDateTime)){
+                        if(j4care.validTimeObject(modifyed.firstDateTime)){
+                            if(this.mode === "single")
+                                this.singleTimeModel = j4care.getTimeFromObject(modifyed.firstDateTime);
+                            else
+                                this.fromTimeModel = j4care.getTimeFromObject(modifyed.firstDateTime);
+                            this.includeTime = true;
+                        }else
+                            this.maiInputValid = false;
+                    }
+                }else
+                    this.maiInputValid = false;
+            }
+            if((this.mode === "range" || this.mode === "leftOpen") && j4care.isSetDateObject(modifyed.secondDateTime)){
+                if(j4care.validDateObject(modifyed.secondDateTime)){
+                    this.toModel =  j4care.getDateFromObject(modifyed.secondDateTime);
+                    if(j4care.isSetTimeObject(modifyed.secondDateTime)){
+                        if(j4care.validTimeObject(modifyed.secondDateTime)){
+                            this.toTimeModel =  j4care.getTimeFromObject(modifyed.secondDateTime);
+                            this.includeTime = true;
+                        }else
+                            this.maiInputValid = false;
+                    }
+                }else
+                    this.maiInputValid = false;
+            }
+        }else{
+            if(this.model != '')
+                this.maiInputValid = false;
         }
+
     }
 }

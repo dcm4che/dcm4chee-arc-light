@@ -174,7 +174,7 @@ export class j4care {
             return '00';
     }
     static extractDateTimeFromString(str){
-        const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}?|^\d{8}$|^\d{6}$/m;
+        const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}$|^\d{14}$|^\d{8}-$|^-\d{8}$|^\d{8}$|^\d{6}$/m;
         const regex = /(-?)(\d{4})(\d{2})(\d{2})(\d{0,2})(\d{0,2})(\d{0,2})(-?)|(-?)(\d{0,4})(\d{0,2})(\d{0,2})(\d{2})(\d{2})(\d{2})(-?)/g;
         let matchString = checkRegex.exec(str);
         let match;
@@ -210,20 +210,31 @@ export class j4care {
                 };
             }
             if(resultArray.length === 1){
-                if(resultArray[0][8] ==='-')
-                    mode = "rightOpen";
-                if(resultArray[0][8] ==='-')
+                if(resultArray[0][1] ==='-'){
                     mode = "leftOpen";
-                firstDateTime = {
-                    FullYear:resultArray[0][2],
-                    Month:resultArray[0][3],
-                    Date:resultArray[0][4],
-                    Hours:resultArray[0][5],
-                    Minutes:resultArray[0][6],
-                    Seconds:resultArray[0][7]
-                };
+                    secondDateTime = {
+                        FullYear:resultArray[0][2],
+                        Month:resultArray[0][3],
+                        Date:resultArray[0][4],
+                        Hours:resultArray[0][5],
+                        Minutes:resultArray[0][6],
+                        Seconds:resultArray[0][7]
+                    };
+                }else{
+                    if(resultArray[0][8] ==='-')
+                        mode = "rightOpen";
+                    else
+                        mode = "single";
+                    firstDateTime = {
+                        FullYear:resultArray[0][2],
+                        Month:resultArray[0][3],
+                        Date:resultArray[0][4],
+                        Hours:resultArray[0][5],
+                        Minutes:resultArray[0][6],
+                        Seconds:resultArray[0][7]
+                    };
+                }
             }
-            console.log("resultArray",resultArray);
             return {
                 mode:mode,
                 firstDateTime:firstDateTime,
@@ -232,11 +243,46 @@ export class j4care {
         }
         return null;
     }
+    static stringValidDate(string:string){
+        if(Date.parse(string))
+            return true;
+        return false;
+    }
+    static validTimeObject(time:{Hours,Minutes,Seconds}){
+        if(
+            time.Hours && time.Hours < 25 &&
+            time.Minutes && time.Minutes < 60 &&
+            ((time.Seconds && time.Seconds < 60) || !time.Seconds || time.Seconds === "" || time.Seconds === "00")
+        )
+            return true;
+        return false;
+    }
+    static isSetDateObject(date:{FullYear,Month,Date}){
+        if(date && date.FullYear && date.Month && date.Date)
+            return true;
+        return false;
+    }
+    static isSetTimeObject(time:{Hours,Minutes,Seconds}){
+        if(time && time.Hours && time.Minutes && time.Seconds)
+            return true;
+        return false;
+    }
+    static validDateObject(date:{FullYear,Month,Date}){
+        if(this.stringValidDate(`${date.FullYear}-${date.Month}-${date.Date}`))
+            return true;
+        return false;
+    }
     static dateToString(date:Date){
         return `${date.getFullYear()}${this.getSingleDateTimeValueFromInt(date.getMonth()+1)}${this.getSingleDateTimeValueFromInt(date.getDate())}`;
     }
     static getTimeFromDate(date:Date){
         return `${j4care.getSingleDateTimeValueFromInt(date.getHours())}:${j4care.getSingleDateTimeValueFromInt(date.getMinutes())}:${j4care.getSingleDateTimeValueFromInt(date.getSeconds())}`;
+    }
+    static getDateFromObject(object:{FullYear,Month,Date}){
+        return `${object.FullYear}${object.Month}${object.Date}`
+    }
+    static getTimeFromObject(object:{Hours,Minutes,Seconds}){
+        return `${object.Hours}:${object.Minutes}:${object.Seconds}`
     }
     static isEqual(a,b){
         if(a && b && a === b)

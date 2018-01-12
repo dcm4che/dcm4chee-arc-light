@@ -1,5 +1,8 @@
 <div class="range_picker">
-    <input class="main_input" type="text" [(ngModel)]="model" placeholder="{{placeholder}}" (click)="togglePicker()" (ngModelChange)="filterChanged()">
+    <div class="main_input_block">
+        <input class="main_input" [ngClass]="{'ng-invalid':(!maiInputValid)}" type="text" [(ngModel)]="model" placeholder="{{placeholder}}" (ngModelChange)="filterChanged()">
+        <span class="glyphicon glyphicon-calendar" (click)="togglePicker()"></span>
+    </div>
     <div class="picker" *ngIf="showPicker">
         <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
         <h4>{{title}}</h4>
@@ -14,7 +17,15 @@
         <ul class="fast_picker" [ngClass]="{'smart_active':smartPickerActive}">
             <li *ngIf="!smartPickerActive" (click)="today()">Today</li>
             <li *ngIf="!smartPickerActive" (click)="lastMonth()">Last Month</li>
-            <li *ngIf="!smartPickerActive" (click)="lastYear()">Last Year</li>
+            <!--<li *ngIf="!smartPickerActive" (click)="lastYear()">Last Year</li>-->
+            <li *ngIf="!smartPickerActive" class="select_parent">
+                <select>
+                    <option value="" disabled selected>Fast Picker</option>
+                    <option value="">test</option>
+                    <option value="">test2</option>
+                    <option value="">test3</option>
+                </select>
+            </li>
             <li *ngIf="smartPickerActive" class="smart_input"><input type="text" title="Use duration format (PnYnMnD) to get the date from today" placeholder="PnYnMnD" [(ngModel)]="smartInput" (ngModelChange)="smartInputChange($event)"></li>
             <li (click)="smartPicker()">
                 <span *ngIf="!smartPickerActive">Smart picker</span>
