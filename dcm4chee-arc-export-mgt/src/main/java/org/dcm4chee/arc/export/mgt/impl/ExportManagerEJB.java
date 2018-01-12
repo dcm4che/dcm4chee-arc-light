@@ -45,6 +45,7 @@ import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
+import com.querydsl.jpa.hibernate.HibernateUpdateClause;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;

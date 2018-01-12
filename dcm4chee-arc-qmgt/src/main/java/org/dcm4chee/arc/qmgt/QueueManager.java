@@ -64,7 +64,7 @@ public interface QueueManager {
 
     boolean cancelProcessing(String msgId) throws IllegalTaskStateException;
 
-    int cancelTasksInQueue(QueueMessage.Status status, Predicate queueMsgPredicate)
+    int cancelTasksInQueue(String queueName, QueueMessage.Status status, Predicate queueMsgPredicate)
             throws IllegalTaskStateException;
 
     int cancelExportTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate exportPredicate)

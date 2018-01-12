@@ -121,10 +121,10 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public int cancelTasksInQueue(QueueMessage.Status status, Predicate queueMsgPredicate)
+    public int cancelTasksInQueue(String queueName, QueueMessage.Status status, Predicate queueMsgPredicate)
             throws IllegalTaskStateException {
         return status == QueueMessage.Status.SCHEDULED
-                ? ejb.cancelTasksInQueue(queueMsgPredicate)
+                ? ejb.cancelTasksInQueue(queueName, queueMsgPredicate)
                 : cancelInProcessTasks(queueMsgPredicate);
     }
 

@@ -162,20 +162,10 @@ public class QueueManagerRS {
 
         try {
             BooleanBuilder predicate = PredicateUtils.queueMsgPredicate(queueName, dicomDeviceName, cancelStatus, createdTime, updatedTime);
-            int count = queueName.startsWith("Export")
-                        ? mgr.cancelExportTasks(
-                                cancelStatus,
-                                predicate,
-                                PredicateUtils.exportPredicate(null, dicomDeviceName, null, createdTime, null))
-                        : queueName.equals("CMoveSCU")
-                            ? mgr.cancelRetrieveTasks(
-                                    cancelStatus,
-                                    predicate,
-                                    PredicateUtils.extRetrievePredicate(
-                                            null, null, null, null, createdTime, null))
-                            : mgr.cancelTasksInQueue(cancelStatus, predicate);
             LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status, queueName);
-            return Response.status(Response.Status.OK).entity("{\"count\":" + count + '}').build();
+            return Response.status(Response.Status.OK).entity("{\"count\":"
+                    + mgr.cancelTasksInQueue(queueName, cancelStatus, predicate)
+                    + '}').build();
         } catch (IllegalTaskStateException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
