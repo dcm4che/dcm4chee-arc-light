@@ -42,6 +42,7 @@ package org.dcm4chee.arc.stgcmt.impl;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
@@ -59,6 +60,8 @@ import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -237,9 +240,40 @@ public class StgCmtEJB implements StgCmtManager {
         String[] sopIUIDs = new String[size];
         for (int i = 0; i < size; i++)
             sopIUIDs[i] = refSopSeq.get(i).getString(Tag.ReferencedSOPInstanceUID);
-        builder.and(QInstance.instance.sopInstanceUID.in(sopIUIDs));
+        addSOPIUIDsPredicate(builder, sopIUIDs);
         builder.and(QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
         return builder;
+    }
+
+    private void addSOPIUIDsPredicate(BooleanBuilder builder, String[] sopIUIDs) {
+        Session session =  em.unwrap(Session.class);
+        SessionFactoryImplementor sessionFactory = (SessionFactoryImplementor) session.getSessionFactory();
+        Dialect dialect = sessionFactory.getDialect();
+        int dialectLimit = dialect.getInExpressionCountLimit();
+        if (dialectLimit > 0 && sopIUIDs.length > dialectLimit)
+            builder.and(sopIUIDsPredicate(split(sopIUIDs, dialectLimit)));
+        else
+            builder.and(QInstance.instance.sopInstanceUID.in(sopIUIDs));
+    }
+
+    private Predicate sopIUIDsPredicate(String[][] splittedSOPIUIDs) {
+        BooleanBuilder sopIUIDsPredicate = new BooleanBuilder();
+        for (int i = 0; i < splittedSOPIUIDs.length; i++)
+            sopIUIDsPredicate.or(QInstance.instance.sopInstanceUID.in(splittedSOPIUIDs[i]));
+        return sopIUIDsPredicate;
+    }
+
+    private String[][] split(String[] input, int splitSize) {
+        int numOfSplits = (int)Math.ceil((double)input.length / splitSize);
+        String[][] output = new String[numOfSplits][];
+        for(int i = 0; i < numOfSplits; ++i) {
+            int start = i * splitSize;
+            int length = Math.min(input.length - start, splitSize);
+            String[] part = new String[length];
+            System.arraycopy(input, start, part, 0, length);
+            output[i] = part;
+        }
+        return output;
     }
 
     private Predicate createPredicate(String studyIUID, String seriesIUID, String sopIUID) {
