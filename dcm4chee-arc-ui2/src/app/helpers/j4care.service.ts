@@ -111,7 +111,7 @@ export class j4care {
     }
     static extractDurationFromValue(value:string){
         let match;
-        let ptrn = /(\d)(\w)/g;
+        const ptrn = /([P|p|T|t])|((\d*)(\w))/g;
         let year;
         let day;
         let month;
@@ -119,30 +119,34 @@ export class j4care {
         let minute;
         let second;
         let week;
+        let mode;
         try {
             while ((match = ptrn.exec(value)) != null) {
-
-                switch(match[2]) {
-                    case 'Y':
-                        year = parseInt(match[1]);
+                if(match[1]){
+                    mode = match[1];
+                }
+                switch(true) {
+                    case (this.isEqual(match[4],'Y') || this.isEqual(match[4],'y')):
+                        year = parseInt(match[3]);
                         break;
-                    case 'W':
-                        week = parseInt(match[1]);
+                    case (this.isEqual(match[4],'W') || this.isEqual(match[4],'w')):
+                        week = parseInt(match[3]);
                         break;
-                    case 'M':
-                        month = parseInt(match[1]);
+                    case (this.isEqual(match[4],'M') || this.isEqual(match[4],'m')):
+                        if(mode === "T" || mode === "t"){
+                            minute = parseInt(match[3]);
+                        }else{
+                            month = parseInt(match[3]);
+                        }
                         break;
-                    case 'D':
-                        day= parseInt(match[1]);
+                    case (this.isEqual(match[4],'D') || this.isEqual(match[4],'d')):
+                        day= parseInt(match[3]);
                         break;
-                    case 'H':
-                        hour = parseInt(match[1]);
+                    case (this.isEqual(match[4],'H') || this.isEqual(match[4],'h')):
+                        hour = parseInt(match[3]);
                         break;
-                    case 'M':
-                        minute = parseInt(match[1]);
-                        break;
-                    case 'S':
-                        second = parseInt(match[1]);
+                    case (this.isEqual(match[4],'S') || this.isEqual(match[4],'s')):
+                        second = parseInt(match[3]);
                         break;
                 }
             }
@@ -159,6 +163,85 @@ export class j4care {
             console.error("error parsing data!",e);
             return null;
         }
+    }
+    static getSingleDateTimeValueFromInt(value){
+        if(value)
+            if(value < 10)
+                return `0${value}`;
+            else
+                return value.toString();
+        else
+            return '00';
+    }
+    static extractDateTimeFromString(str){
+        const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}?|^\d{8}$|^\d{6}$/m;
+        const regex = /(-?)(\d{4})(\d{2})(\d{2})(\d{0,2})(\d{0,2})(\d{0,2})(-?)|(-?)(\d{0,4})(\d{0,2})(\d{0,2})(\d{2})(\d{2})(\d{2})(-?)/g;
+        let matchString = checkRegex.exec(str);
+        let match;
+        let resultArray = [];
+        let mode;
+        let firstDateTime;
+        let secondDateTime;
+        if (matchString !== null && matchString[0]) {
+            while ((match = regex.exec(matchString[0])) !== null) {
+                if (match.index === regex.lastIndex) {
+                    regex.lastIndex++;
+                }
+                resultArray.push(match);
+            }
+            if(resultArray.length === 2){
+                if(resultArray[0][8] ==='-')
+                    mode = "range"
+                firstDateTime = {
+                    FullYear:resultArray[0][2],
+                    Month:resultArray[0][3],
+                    Date:resultArray[0][4],
+                    Hours:resultArray[0][5],
+                    Minutes:resultArray[0][6],
+                    Seconds:resultArray[0][7]
+                };
+                secondDateTime = {
+                    FullYear:resultArray[1][2],
+                    Month:resultArray[1][3],
+                    Date:resultArray[1][4],
+                    Hours:resultArray[1][5],
+                    Minutes:resultArray[1][6],
+                    Seconds:resultArray[1][7]
+                };
+            }
+            if(resultArray.length === 1){
+                if(resultArray[0][8] ==='-')
+                    mode = "rightOpen";
+                if(resultArray[0][8] ==='-')
+                    mode = "leftOpen";
+                firstDateTime = {
+                    FullYear:resultArray[0][2],
+                    Month:resultArray[0][3],
+                    Date:resultArray[0][4],
+                    Hours:resultArray[0][5],
+                    Minutes:resultArray[0][6],
+                    Seconds:resultArray[0][7]
+                };
+            }
+            console.log("resultArray",resultArray);
+            return {
+                mode:mode,
+                firstDateTime:firstDateTime,
+                secondDateTime:secondDateTime
+            }
+        }
+        return null;
+    }
+    static dateToString(date:Date){
+        return `${date.getFullYear()}${this.getSingleDateTimeValueFromInt(date.getMonth()+1)}${this.getSingleDateTimeValueFromInt(date.getDate())}`;
+    }
+    static getTimeFromDate(date:Date){
+        return `${j4care.getSingleDateTimeValueFromInt(date.getHours())}:${j4care.getSingleDateTimeValueFromInt(date.getMinutes())}:${j4care.getSingleDateTimeValueFromInt(date.getSeconds())}`;
+    }
+    static isEqual(a,b){
+        if(a && b && a === b)
+            return true;
+        return false;
     }
     static convertDateToString(date:Date){
         let datePipe = new DatePipe('us-US');

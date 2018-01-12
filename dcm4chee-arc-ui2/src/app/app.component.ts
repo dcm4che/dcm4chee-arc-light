@@ -10,6 +10,7 @@ import {HostListener} from '@angular/core';
 import {WindowRefService} from "./helpers/window-ref.service";
 import * as _ from 'lodash';
 import {J4careHttpService} from "./helpers/j4care-http.service";
+import {j4care} from "./helpers/j4care.service";
 // import {DCM4CHE} from "./constants/dcm4-che";
 // declare var $:JQueryStatic;
 // import * as vex from "vex-js";
@@ -46,7 +47,7 @@ export class AppComponent implements OnInit {
 
     ngOnInit(){
         Date.prototype.toDateString = function() {
-            return `${this.getFullYear()}${this.getMonth()+1}${this.getDate()}_${this.getHours()}${this.getMinutes()}${this.getSeconds()}`;
+            return `${this.getFullYear()}${j4care.getSingleDateTimeValueFromInt(this.getMonth()+1)}${j4care.getSingleDateTimeValueFromInt(this.getDate())}${j4care.getSingleDateTimeValueFromInt(this.getHours())}${j4care.getSingleDateTimeValueFromInt(this.getMinutes())}${j4care.getSingleDateTimeValueFromInt(this.getSeconds())}`;
         };
         let $this = this;
         if (!this.mainservice.user){
