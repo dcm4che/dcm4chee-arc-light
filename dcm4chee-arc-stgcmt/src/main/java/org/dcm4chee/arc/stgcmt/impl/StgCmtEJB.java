@@ -250,10 +250,9 @@ public class StgCmtEJB implements StgCmtManager {
         SessionFactoryImplementor sessionFactory = (SessionFactoryImplementor) session.getSessionFactory();
         Dialect dialect = sessionFactory.getDialect();
         int dialectLimit = dialect.getInExpressionCountLimit();
-        if (dialectLimit > 0 && sopIUIDs.length > dialectLimit)
-            builder.and(sopIUIDsPredicate(split(sopIUIDs, dialectLimit)));
-        else
-            builder.and(QInstance.instance.sopInstanceUID.in(sopIUIDs));
+        builder.and(dialectLimit > 0 && sopIUIDs.length > dialectLimit
+                        ? sopIUIDsPredicate(split(sopIUIDs, dialectLimit))
+                        : QInstance.instance.sopInstanceUID.in(sopIUIDs));
     }
 
     private Predicate sopIUIDsPredicate(String[][] splittedSOPIUIDs) {
