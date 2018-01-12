@@ -133,7 +133,7 @@ public class QueueManagerImpl implements QueueManager {
             throws IllegalTaskStateException {
         return status == QueueMessage.Status.SCHEDULED
                 ? ejb.cancelExportTasks(queueMsgPredicate, exportPredicate)
-                : cancelInProcessTasks(queueMsgPredicate);
+                : cancelInProcessExportTasks(queueMsgPredicate, exportPredicate);
     }
 
     @Override
@@ -141,12 +141,28 @@ public class QueueManagerImpl implements QueueManager {
             throws IllegalTaskStateException {
         return status == QueueMessage.Status.SCHEDULED
                 ? ejb.cancelRetrieveTasks(queueMsgPredicate, extRetrievePredicate)
-                : cancelInProcessTasks(queueMsgPredicate);
+                : cancelInProcessRetrieveTasks(queueMsgPredicate, extRetrievePredicate);
     }
 
     private int cancelInProcessTasks(Predicate queueMsgPredicate)
             throws IllegalTaskStateException {
         List<QueueMessage> msgs = search(queueMsgPredicate, 0, 0);
+        for (QueueMessage msg : msgs)
+            cancelProcessing(msg.getMessageID());
+        return msgs.size();
+    }
+
+    private int cancelInProcessExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate)
+            throws IllegalTaskStateException {
+        List<QueueMessage> msgs = ejb.searchExportTasksReferencedQueueMsgs(queueMsgPredicate, exportPredicate);
+        for (QueueMessage msg : msgs)
+            cancelProcessing(msg.getMessageID());
+        return msgs.size();
+    }
+
+    private int cancelInProcessRetrieveTasks(Predicate queueMsgPredicate, Predicate extRetrievePredicate)
+            throws IllegalTaskStateException {
+        List<QueueMessage> msgs = ejb.searchRetrieveTasksReferencedQueueMsgs(queueMsgPredicate, extRetrievePredicate);
         for (QueueMessage msg : msgs)
             cancelProcessing(msg.getMessageID());
         return msgs.size();
