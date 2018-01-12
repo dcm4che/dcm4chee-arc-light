@@ -82,4 +82,6 @@ public interface QueueManager {
     List<QueueMessage> search(Predicate queueMsgPredicate, int offset, int limit);
 
     long countTasks(Predicate queueMsgPredicate);
+
+    List<String> getQueueMsgIDs(Predicate queueMsgPredicate, int limit);
 }

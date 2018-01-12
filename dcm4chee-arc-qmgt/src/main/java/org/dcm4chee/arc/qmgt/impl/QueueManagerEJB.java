@@ -240,7 +240,7 @@ public class QueueManagerEJB {
                 .innerJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage);
     }
 
-    public List<String> searchExportTasksReferencedQueueMsgs(Predicate queueMsgPredicate, Predicate exportPredicate) {
+    public List<String> getExportTasksReferencedQueueMsgIDs(Predicate queueMsgPredicate, Predicate exportPredicate) {
         HibernateQuery<Long> referencedQueueMsgs = exportTasksReferencedQueueMsgs(queueMsgPredicate, exportPredicate);
         return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .select(QQueueMessage.queueMessage.messageID)
@@ -271,7 +271,7 @@ public class QueueManagerEJB {
                 .innerJoin(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage);
     }
 
-    public List<String> searchRetrieveTasksReferencedQueueMsgs(Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
+    public List<String> getRetrieveTasksReferencedQueueMsgIDs(Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
         HibernateQuery<Long> referencedQueueMsgs = retrieveTasksReferencedQueueMsgs(queueMsgPredicate, extRetrievePredicate);
         return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .select(QQueueMessage.queueMessage.messageID)
@@ -394,6 +394,14 @@ public class QueueManagerEJB {
         return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(queueMsgPredicate);
+    }
+
+    public List<String> getQueueMsgIDs(Predicate queueMsgPredicate, int limit) {
+        HibernateQuery<String> queueMsgIDsQuery =  createQuery(queueMsgPredicate)
+                .select(QQueueMessage.queueMessage.messageID);
+        if (limit > 0)
+            queueMsgIDsQuery.limit(limit);
+        return queueMsgIDsQuery.fetch();
     }
 
     private void sendMessage(QueueDescriptor desc, ObjectMessage msg, long delay, int priority) {

@@ -217,14 +217,16 @@ public class QueueManagerRS {
 
         try {
             BooleanBuilder predicate = PredicateUtils.queueMsgPredicate(queueName, dicomDeviceName, parseStatus(status), createdTime, updtTime);
-            List<QueueMessage> queueMessages;
+            List<String> queueMsgIDs;
             int count = 0;
             do {
-                queueMessages = mgr.search(predicate, 0, rescheduleTasksFetchSize);
-                for (QueueMessage msg : queueMessages)
-                    mgr.rescheduleMessage(msg.getMessageID(), queueName);
-                count += queueMessages.size();
-            } while (queueMessages.size() >= rescheduleTasksFetchSize);
+                queueMsgIDs = mgr.getQueueMsgIDs(predicate, rescheduleTasksFetchSize);
+                for (String msgID : queueMsgIDs) {
+                    System.out.println("Msg id in Queue manager RS is : " + msgID);
+                    mgr.rescheduleMessage(msgID, queueName);
+                }
+                count += queueMsgIDs.size();
+            } while (queueMsgIDs.size() >= rescheduleTasksFetchSize);
             return Response.status(Response.Status.OK)
                     .entity("{\"count\":" + count + '}')
                     .build();

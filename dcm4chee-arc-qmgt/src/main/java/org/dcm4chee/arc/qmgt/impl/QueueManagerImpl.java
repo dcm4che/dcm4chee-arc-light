@@ -146,15 +146,15 @@ public class QueueManagerImpl implements QueueManager {
 
     private int cancelInProcessTasks(Predicate queueMsgPredicate)
             throws IllegalTaskStateException {
-        List<QueueMessage> msgs = search(queueMsgPredicate, 0, 0);
-        for (QueueMessage msg : msgs)
-            cancelProcessing(msg.getMessageID());
-        return msgs.size();
+        List<String> msgIDs = ejb.getQueueMsgIDs(queueMsgPredicate, 0);
+        for (String msgID : msgIDs)
+            cancelProcessing(msgID);
+        return msgIDs.size();
     }
 
     private int cancelInProcessExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate)
             throws IllegalTaskStateException {
-        List<String> msgIDs = ejb.searchExportTasksReferencedQueueMsgs(queueMsgPredicate, exportPredicate);
+        List<String> msgIDs = ejb.getExportTasksReferencedQueueMsgIDs(queueMsgPredicate, exportPredicate);
         for (String msgID : msgIDs)
             cancelProcessing(msgID);
         return msgIDs.size();
@@ -162,7 +162,7 @@ public class QueueManagerImpl implements QueueManager {
 
     private int cancelInProcessRetrieveTasks(Predicate queueMsgPredicate, Predicate extRetrievePredicate)
             throws IllegalTaskStateException {
-        List<String> msgIDs = ejb.searchRetrieveTasksReferencedQueueMsgs(queueMsgPredicate, extRetrievePredicate);
+        List<String> msgIDs = ejb.getRetrieveTasksReferencedQueueMsgIDs(queueMsgPredicate, extRetrievePredicate);
         for (String msgID : msgIDs)
             cancelProcessing(msgID);
         return msgIDs.size();
@@ -192,5 +192,10 @@ public class QueueManagerImpl implements QueueManager {
     @Override
     public long countTasks(Predicate queueMsgPredicate) {
         return ejb.countTasks(queueMsgPredicate);
+    }
+
+    @Override
+    public List<String> getQueueMsgIDs(Predicate queueMsgPredicate, int limit) {
+        return ejb.getQueueMsgIDs(queueMsgPredicate, limit);
     }
 }

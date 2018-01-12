@@ -72,4 +72,6 @@ public interface RetrieveManager {
     boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException, DifferentDeviceException;
 
     int deleteTasks(Predicate extRetrievePredicate, Predicate queueMsgPredicate);
+
+    List<Long> getRetrieveTaskPks(Predicate queueMsgPredicate, Predicate extRetrievePredicate, int limit);
 }

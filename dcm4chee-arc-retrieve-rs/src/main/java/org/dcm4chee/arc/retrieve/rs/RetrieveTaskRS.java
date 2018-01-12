@@ -278,16 +278,18 @@ public class RetrieveTaskRS {
         Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(mgr.QUEUE_NAME, deviceName, rescheduleTaskStatus, null, null);
 
         try {
-            List<RetrieveTask> retrieveTasks;
+            List<Long> retrieveTaskPks;
             int count = 0;
             do {
                 Predicate extRetrievePredicate = PredicateUtils.extRetrievePredicate(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updtTime);
-                retrieveTasks = mgr.search(queueMsgPredicate, extRetrievePredicate, 0, rescheduleTasksFetchSize);
-                for (RetrieveTask task : retrieveTasks)
-                    mgr.rescheduleRetrieveTask(task.getPk());
-                count += retrieveTasks.size();
-            } while (retrieveTasks.size() >= rescheduleTasksFetchSize);
+                retrieveTaskPks = mgr.getRetrieveTaskPks(queueMsgPredicate, extRetrievePredicate, rescheduleTasksFetchSize);
+                for (long pk : retrieveTaskPks) {
+                    System.out.println("PK in retrieve task is : " + pk);
+                    mgr.rescheduleRetrieveTask(pk);
+                }
+                count += retrieveTaskPks.size();
+            } while (retrieveTaskPks.size() >= rescheduleTasksFetchSize);
 
             return Response.status(Response.Status.OK).entity("{\"count\":" + count + '}').build();
         } catch (IllegalTaskStateException|DifferentDeviceException e) {

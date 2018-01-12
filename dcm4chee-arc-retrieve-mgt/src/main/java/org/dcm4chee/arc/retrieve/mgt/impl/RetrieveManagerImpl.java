@@ -176,4 +176,9 @@ public class RetrieveManagerImpl implements RetrieveManager {
     public int deleteTasks(Predicate extRetrievePredicate, Predicate queueMsgPredicate) {
         return ejb.deleteTasks(extRetrievePredicate, queueMsgPredicate);
     }
+
+    @Override
+    public List<Long> getRetrieveTaskPks(Predicate queueMsgPredicate, Predicate extRetrievePredicate, int limit) {
+        return ejb.getRetrieveTaskPks(queueMsgPredicate, extRetrievePredicate, limit);
+    }
 }
