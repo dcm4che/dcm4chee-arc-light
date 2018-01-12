@@ -375,7 +375,11 @@ class QueryServiceImpl implements QueryService {
     }
 
     private String typeOf(String cuid) {
-        return "COMPOSITE";
+        String uidName = UID.nameOf(cuid);
+        int index = uidName.lastIndexOf(" Storage");
+        return uidName.startsWith("Image", index - 5) ? "IMAGE"
+            : uidName.startsWith("Waveform", index - 8) ? "WAVEFORM"
+            : "COMPOSITE";
     }
 
     private Attributes templateIdentifier() {
