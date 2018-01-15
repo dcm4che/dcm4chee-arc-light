@@ -52,13 +52,11 @@ export class TimePickerComponent implements OnInit {
                 }
                 resultArray.push(match);
             }
-            console.log("result",resultArray);
             this.hh = resultArray[0][1] || resultArray[0][4] || "00";
             this.mm = resultArray[0][2] || resultArray[0][5] || "00";
             this.ss = resultArray[0][3] || "00";
         }else{
             this.validString = false;
-            console.log("invalid time string",e);
         }
 
     }
