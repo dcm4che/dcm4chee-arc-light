@@ -12,13 +12,13 @@ export class QueuesService {
     header = new Headers({ 'Content-Type': 'application/json' });
     constructor(public $http:J4careHttpService, public mainservice: AppService, private deviceService:DevicesService) { }
 
-    search(queueName, status, offset, limit, dicomDeviceName) {
-        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName)))
+    search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime) {
+        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime)))
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     };
 
-    getCount(queueName, status, offset, limit, dicomDeviceName) {
-        return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName)))
+    getCount(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime) {
+        return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime)))
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     };
 
@@ -55,10 +55,10 @@ export class QueuesService {
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     }
 
-    flush(queueName, status, before, device) {
+/*    flush(queueName, status, before, device) {
         let urlParam = this.mainservice.param(this.flushParams(status, before, device));
         return this.$http.delete(this.url(queueName) + '?' + urlParam);
-    };
+    };*/
 
     url(queueName) {
         return '../queue/' + queueName;
@@ -83,19 +83,21 @@ export class QueuesService {
         // }
     }
 
-    queryParams(status, offset, limit, dicomDeviceName) {
+    queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime) {
         let params = {
             offset: offset,
             limit: limit,
             dicomDeviceName: dicomDeviceName,
-            status: undefined
+            status: undefined,
+            createdTime:createdTime,
+            updatedTime:updatedTime
         };
         if (status != '*')
             params.status = status;
         return params;
     }
 
-    flushParams(status, before, device) {
+/*    flushParams(status, before, device) {
         let params = {
             status: undefined,
             updatedBefore: undefined,
@@ -111,7 +113,7 @@ export class QueuesService {
         }
         console.log('params', params);
         return params;
-    }
+    }*/
     getDevices(){
         return this.deviceService.getDevices()
     }
