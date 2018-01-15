@@ -15,6 +15,7 @@
             <md-option *ngFor="let option of line[0].options" value="{{option.value}}">{{option.text}}</md-option>
           </md-select>
           <p-calendar (ngModelChange)="model[line[0].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[0].filterKey]" *ngSwitchCase="'p-calendar'"  dataType="date" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line[0].description || line[0].placeholder}}"></p-calendar>
+          <range-picker *ngSwitchCase="'range-picker'"  [model]="model[line[0]?.filterKey]" (modelChange)="model[line[0]?.filterKey] = $event" mode="range" placeholder="{{line[0]?.description || line[1]?.placeholder}}" dateFormat="yymmdd"></range-picker>
         </ng-container>
         <div *ngSwitchCase="'dummy'"></div>
         <button (click)="submitEmit(line[0].id)" class="btn-default submit" *ngSwitchCase="'button'" title="{{line[0].description}}"><span class="glyphicon glyphicon-refresh"></span>  {{line[0].text}}</button>
@@ -33,6 +34,7 @@
             <md-option *ngFor="let option of line[1]?.options" value="{{option.value}}">{{option.text}}</md-option>
           </md-select>
           <p-calendar (ngModelChange)="model[line[1]?.filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[1]?.filterKey]" *ngSwitchCase="'p-calendar'"  dataType="date" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line[1]?.description || line[1]?.placeholder}}"></p-calendar>
+          <range-picker *ngSwitchCase="'range-picker'"  [model]="model[line[1]?.filterKey]" (modelChange)="model[line[1]?.filterKey] = $event" mode="range" placeholder="{{line[1]?.description || line[1]?.placeholder}}" dateFormat="yymmdd"></range-picker>
         </ng-container>
         <div *ngSwitchCase="'dummy'"></div>
         <button (click)="submitEmit(line[1]?.id)" class="btn-default submit" *ngSwitchCase="'button'" title="{{line[1]?.description}}"><span class="glyphicon glyphicon-refresh"></span>  {{line[1]?.text}}</button>
