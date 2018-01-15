@@ -30,6 +30,7 @@ export class RangePickerComponent implements OnInit {
     mm = [];
     includeTime = false;
     maiInputValid = true;
+    showSelectOptions = false;
     constructor() {}
     ngOnInit(){
         this.mode = this.mode || "range";
@@ -80,22 +81,7 @@ export class RangePickerComponent implements OnInit {
         this.singleDateModel = '';
         this.singleTimeModel = '';
     }
-    today(){
-        this.modelChange.emit(j4care.convertDateToString(new Date()));
-        this.showPicker = false;
-    }
-    lastMonth(){
-        let todayDate = new Date();
-        todayDate.setMonth(todayDate.getMonth()-1);
-        this.modelChange.emit(`${j4care.convertDateToString(todayDate)}-${j4care.convertDateToString(new Date())}`);
-        this.showPicker = false;
-    }
-    lastYear(){
-        let todayDate = new Date();
-        todayDate.setFullYear(todayDate.getFullYear()-1);
-        this.modelChange.emit(`${j4care.convertDateToString(todayDate)}-${j4care.convertDateToString(new Date())}`);
-        this.showPicker = false;
-    }
+
     smartPicker(){
         this.mode = 'range';
         this.smartPickerActive = !this.smartPickerActive;
@@ -235,5 +221,132 @@ export class RangePickerComponent implements OnInit {
                 this.maiInputValid = false;
         }
 
+    }
+
+    toggleSelectOption(){
+        this.showSelectOptions = !this.showSelectOptions;
+    }
+    fastPicker(mode){
+        let firstDate = new Date();
+        let secondDate = new Date();
+        let quarterRangeMonth;
+        let todayDay;
+        this.showSelectOptions = false;
+        switch (mode){
+            case 'yesterday':
+                firstDate.setDate(firstDate.getDate()-1);
+                this.model = j4care.convertDateToString(firstDate);
+            break;
+            case 'this_week':
+                todayDay = firstDate.getDay();
+                if(todayDay === 0){
+                    todayDay = 7;
+                }
+                firstDate.setDate(firstDate.getDate()-(todayDay-1));
+                if(this.eqDate(firstDate, secondDate))
+                    this.model = j4care.convertDateToString(firstDate);
+                else
+                    this.model = `${j4care.convertDateToString(firstDate)}-${j4care.convertDateToString(secondDate)}`;
+            break;
+            case 'last_week':
+                todayDay = firstDate.getDay();
+                if(todayDay === 0){
+                    todayDay = 7;
+                }
+                firstDate.setDate(firstDate.getDate()-(todayDay-1));
+                firstDate.setDate(firstDate.getDate()-7);
+                secondDate.setDate(firstDate.getDate()+6);
+                if(this.eqDate(firstDate, secondDate))
+                    this.model = j4care.convertDateToString(firstDate);
+                else
+                    this.model = `${j4care.convertDateToString(firstDate)}-${j4care.convertDateToString(secondDate)}`;
+            break;
+            case 'last_month':
+                firstDate.setMonth(firstDate.getMonth()-1);
+                firstDate.setDate(1);
+                secondDate.setDate(1);
+                secondDate.setDate(secondDate.getDate()-1);
+                this.model = `${j4care.convertDateToString(firstDate)}-${j4care.convertDateToString(secondDate)}`;
+                break;
+            case 'this_quarter':
+                quarterRangeMonth = this.getQuarterRange(this.getQuarterIndex(firstDate.getMonth()));
+                this.model = `${j4care.convertDateToString(this.getStartOfMonth(quarterRangeMonth.start))}-${j4care.convertDateToString(this.getEndOfMonth(quarterRangeMonth.end))}`;
+            break;
+            case 'last_quarter':
+                quarterRangeMonth = this.getQuarterRange(this.getQuarterIndex(firstDate.getMonth())-1);
+                this.model = `${j4care.convertDateToString(this.getStartOfMonth(quarterRangeMonth.start))}-${j4care.convertDateToString(this.getEndOfMonth(quarterRangeMonth.end))}`;
+                break;
+            case 'this_year':
+                firstDate.setDate(1);
+                firstDate.setMonth(0);
+                this.model = `${j4care.convertDateToString(firstDate)}-${j4care.convertDateToString(secondDate)}`;
+                break;
+            case 'last_year':
+                firstDate.setFullYear(firstDate.getFullYear()-1);
+                firstDate.setDate(1);
+                firstDate.setMonth(0);
+                firstDate.setDate(firstDate.getDate()-1);
+                secondDate.setDate(1);
+                secondDate.setMonth(0);
+                secondDate.setDate(secondDate.getDate()-1);
+                this.model = `${j4care.convertDateToString(firstDate)}-${j4care.convertDateToString(secondDate)}`;
+            break;
+        }
+        this.modelChange.emit(this.model);
+        this.filterChanged();
+        this.showPicker = false;
+    }
+    eqDate(date1,date2){
+        return (date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDate() === date2.getDate());
+    }
+    getQuarterIndex(month){
+        return parseInt((month/3).toString());
+    }
+    getQuarterRange(quarterIndex){
+        let quarterStart = ((quarterIndex*3)+1);
+        let quarterEnd = quarterStart + 2;
+        return {
+            start:quarterStart,
+            end:quarterEnd
+        }
+    }
+    getStartOfMonth(month){
+        let newDate = new Date();
+        newDate.setMonth(month-1);
+        newDate.setDate(1);
+        return newDate;
+    }
+    getEndOfMonth(month){
+        let newDate = new Date();
+        newDate.setMonth(month);
+        newDate.setDate(1);
+        newDate.setDate(newDate.getDate()-1);
+        return newDate;
+    }
+    today(){
+        this.model = j4care.convertDateToString(new Date());
+        this.modelChange.emit(this.model);
+        this.showPicker = false;
+        this.filterChanged();
+    }
+    thisMonth(){
+        let todayDate = new Date();
+        todayDate.setDate(1);
+        let secondDate = new Date();
+        if(this.eqDate(todayDate,secondDate))
+            this.model = j4care.convertDateToString(todayDate);
+        else
+            this.model = `${j4care.convertDateToString(todayDate)}-${j4care.convertDateToString(new Date())}`;
+        this.modelChange.emit(this.model);
+        this.showPicker = false;
+        this.filterChanged();
+    }
+    lastYear(){
+        let todayDate = new Date();
+        todayDate.setFullYear(todayDate.getFullYear()-1);
+        this.model(`${j4care.convertDateToString(todayDate)}-${j4care.convertDateToString(new Date())}`);
+        this.modelChange.emit(this.model);
+        this.showPicker = false;
+        this.filterChanged();
     }
 }

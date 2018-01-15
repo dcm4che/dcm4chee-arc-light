@@ -116,7 +116,7 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
       display: flex;
       -webkit-flex-flow: row wrap;
       justify-content: space-around;
-      li{
+      & > li{
         background-color: $backgroundColor;
         list-style: none;
         display: block;
@@ -170,7 +170,7 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
       display: flex;
       -webkit-flex-flow: row wrap;
       justify-content: space-around;
-      li{
+      & > li{
         list-style: none;
         display: block;
         width: 24%;
@@ -240,4 +240,26 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
     font-size: 16px;
   }
 
+}
+
+ul.j4care_select{
+  position: relative;
+  padding:0;
+  -webkit-box-shadow: 3px 3px 6px 0px #666;
+  -moz-box-shadow: 3px 3px 6px 0px #666;
+  box-shadow: 3px 3px 6px 0px #666;
+  li{
+    list-style: none;
+  }
+  li:not(.placeholder){
+    border-top: 1px solid white;
+    background: rgb(56, 83, 103);
+    -webkit-box-shadow: 3px 3px 6px 0px #666;
+    -moz-box-shadow: 3px 3px 6px 0px #666;
+    box-shadow: 3px 3px 6px 0px #666;
+    width: 130%;
+    &:hover{
+      background: rgb(48, 91, 123);
+    }
+  }
 }
