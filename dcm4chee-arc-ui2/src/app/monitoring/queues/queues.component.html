@@ -49,7 +49,7 @@
                     </div>
                     <div class="row" *ngIf="isRole('admin')">
                         <div class="col-md-6">
-                            <button class="btn btn-danger col-md-12" (click)="flushBefore()">Flush before:</button>
+                            <!--<button class="btn btn-danger col-md-12" (click)="flushBefore()">Flush before:</button>-->
                             <range-picker [model]="createdTime" (modelChange)="createdTime = $event" mode="range" placeholder="Created" dateFormat="yymmdd"></range-picker>
                         </div>
                         <div class="col-md-6">
