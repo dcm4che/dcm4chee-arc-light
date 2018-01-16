@@ -207,9 +207,9 @@ public class RetrieveTaskRS {
             LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status, mgr.QUEUE_NAME);
             return count(mgr.cancelRetrieveTasks(
                     PredicateUtils.queueMsgPredicate(
-                            RetrieveManager.QUEUE_NAME, deviceName, status, null, null, null),
+                            RetrieveManager.QUEUE_NAME, deviceName, status, null, updatedTime, null),
                     PredicateUtils.retrievePredicate(
-                            localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime),
+                            localAET, remoteAET, destinationAET, studyIUID, createdTime, null),
                     status));
         } catch (IllegalTaskStateException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
@@ -248,9 +248,9 @@ public class RetrieveTaskRS {
 
         try {
             Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(
-                    null, deviceName, status, null, updatedTime, new Date());
+                    null, deviceName, status, null, null, new Date());
             Predicate retrievePredicate = PredicateUtils.retrievePredicate(
-                    localAET, remoteAET, destinationAET, studyIUID, createdTime, null);
+                    localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
