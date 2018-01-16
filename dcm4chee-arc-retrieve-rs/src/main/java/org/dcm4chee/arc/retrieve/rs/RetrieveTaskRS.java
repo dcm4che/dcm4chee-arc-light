@@ -300,15 +300,13 @@ public class RetrieveTaskRS {
         Stream<MediaType> acceptableTypes = httpHeaders.getAcceptableMediaTypes().stream();
         if (accept != null) {
             try {
-                acceptableTypes = acceptableTypes.filter(MediaType.valueOf(accept)::isCompatible);
+                MediaType type = MediaType.valueOf(accept);
+                return acceptableTypes.anyMatch(type::isCompatible) ? Output.valueOf(type) : null;
             } catch (IllegalArgumentException ae) {
                 return null;
             }
         }
-        return acceptableTypes.map(x ->
-                MediaType.APPLICATION_JSON_TYPE.isCompatible(x) ? Output.JSON
-                        : MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(x) ? Output.CSV
-                        : null)
+        return acceptableTypes.map(Output::valueOf)
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
@@ -352,6 +350,12 @@ public class RetrieveTaskRS {
 
         Output(MediaType type) {
             this.type = type;
+        }
+
+        static Output valueOf(MediaType type) {
+            return MediaType.APPLICATION_JSON_TYPE.isCompatible(type) ? Output.JSON
+                    : MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(type) ? Output.CSV
+                    : null;
         }
 
         abstract Object entity(final List<RetrieveTask> tasks);
