@@ -140,7 +140,7 @@ import {CalendarModule} from "primeng/components/calendar/calendar";
                 pathMatch: 'full'
             },
             { path: 'studies', component: StudiesComponent },
-            { path: 'control', component: ControlComponent },
+            { path: 'monitoring/control', component: ControlComponent },
             { path: 'monitoring/export', component: ExportComponent },
             { path: 'monitoring/external', component: ExternalRetrieveComponent },
             { path: 'monitoring/queues', component: QueuesComponent },
