@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -156,7 +157,7 @@ public class QueueManagerEJB {
                 LOG.info("Failed processing of Task[id={}] at Queue {} with Status {} - retry",
                         msgId, queueName, status);
                 entity.setStatus(QueueMessage.Status.SCHEDULED);
-                rescheduleMessage(entity, descriptor, delay * 1000L);
+                rescheduleTask(entity, descriptor, delay * 1000L);
                 return entity;
             }
         }
@@ -182,12 +183,12 @@ public class QueueManagerEJB {
             entity.setStatus(QueueMessage.Status.FAILED);
         } else {
             LOG.info("Failed processing of Task[id={}] at Queue {} - retry:\n", msgId, entity.getQueueName(), e);
-            rescheduleMessage(entity, descriptor, delay * 1000L);
+            rescheduleTask(entity, descriptor, delay * 1000L);
         }
         return entity;
     }
 
-    public boolean cancelProcessing(String msgId) throws IllegalTaskStateException {
+    public boolean cancelTask(String msgId) throws IllegalTaskStateException {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
             return false;
@@ -210,99 +211,77 @@ public class QueueManagerEJB {
         return true;
     }
 
-    public int cancelTasksInQueue(String queueName, Predicate queueMsgPredicate) {
-        if (queueName.startsWith("Export"))
-            cancelReferencedExportTasks(queueMsgPredicate);
-        if (queueName.equals("CMoveSCU"))
-            cancelReferencedRetrieveTasks(queueMsgPredicate);
-
-        return (int) new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                .set(QQueueMessage.queueMessage.status, QueueMessage.Status.CANCELED)
-                .set(QQueueMessage.queueMessage.updatedTime, new Date())
-                .where(queueMsgPredicate).execute();
-    }
-
-    private void cancelReferencedExportTasks(Predicate queueMsgPredicate) {
-        new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
-                .set(QExportTask.exportTask.updatedTime, new Date())
-                .where(QExportTask.exportTask.queueMessage.pk.in(
-                        queueMsgPksReferencedInExportTasks(queueMsgPredicate)))
-                .execute();
-    }
-
-    private void cancelReferencedRetrieveTasks(Predicate queueMsgPredicate) {
-        new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
-                .where(QRetrieveTask.retrieveTask.queueMessage.pk.in(
-                        queueMsgPksReferencedInRetrieveTasks(queueMsgPredicate)))
-                .execute();
-    }
-
-    public int cancelExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate) {
-        HibernateQuery<Long> referencedQueueMsgPkQuery = exportTasksReferencedQueueMsgPkQuery(queueMsgPredicate, exportPredicate);
-        new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
-                .set(QExportTask.exportTask.updatedTime, new Date())
-                .where(QExportTask.exportTask.queueMessage.pk.in(referencedQueueMsgPkQuery)).execute();
-
-        return (int) new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                .set(QQueueMessage.queueMessage.status, QueueMessage.Status.CANCELED)
-                .set(QQueueMessage.queueMessage.updatedTime, new Date())
-                .where(QQueueMessage.queueMessage.pk.in(referencedQueueMsgPkQuery)).execute();
-    }
-
-    private HibernateQuery<Long> exportTasksReferencedQueueMsgPkQuery(Predicate queueMsgPredicate, Predicate exportPredicate) {
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+    public long cancelTasks(Predicate queueMsgPredicate) {
+        Date now = new Date();
+        HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(queueMsgPredicate);
-        return new HibernateQuery<Long>(em.unwrap(Session.class))
-                .select(QExportTask.exportTask.queueMessage.pk)
-                .from(QExportTask.exportTask)
-                .where(exportPredicate, QExportTask.exportTask.queueMessage.in(queueMsgQuery))
-                .innerJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage);
+        updateExportTaskUpdatedTime(queueMessageQuery, now);
+        updateRetrieveTaskUpdatedTime(queueMessageQuery, now);
+        return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
+    }
+
+    private void updateExportTaskUpdatedTime(HibernateQuery<QueueMessage> queueMessageQuery, Date now) {
+        new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
+                .set(QExportTask.exportTask.updatedTime, now)
+                .where(QExportTask.exportTask.queueMessage.in(queueMessageQuery))
+                .execute();
+    }
+
+    private void updateRetrieveTaskUpdatedTime(HibernateQuery<QueueMessage> queueMessageQuery, Date now) {
+        new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+                .set(QRetrieveTask.retrieveTask.updatedTime, now)
+                .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMessageQuery))
+                .execute();
+    }
+
+    private long updateStatus(HibernateQuery<QueueMessage> queueMessageQuery, QueueMessage.Status status, Date now) {
+        return new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                .set(QQueueMessage.queueMessage.status, status)
+                .set(QQueueMessage.queueMessage.updatedTime, now)
+                .where(QQueueMessage.queueMessage.in(queueMessageQuery))
+                .execute();
+    }
+
+    public long cancelExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate) {
+        Date now = new Date();
+        HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .join(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
+                .where(ExpressionUtils.and(queueMsgPredicate, exportPredicate));
+        updateExportTaskUpdatedTime(queueMessageQuery, now);
+        return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
     public List<String> getExportTasksReferencedQueueMsgIDs(Predicate queueMsgPredicate, Predicate exportPredicate) {
-        HibernateQuery<Long> referencedQueueMsgPkQuery = exportTasksReferencedQueueMsgPkQuery(queueMsgPredicate, exportPredicate);
-        return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+        return new HibernateQuery<String>(em.unwrap(Session.class))
                 .select(QQueueMessage.queueMessage.messageID)
                 .from(QQueueMessage.queueMessage)
-                .where(QQueueMessage.queueMessage.pk.in(referencedQueueMsgPkQuery)).fetch();
+                .join(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
+                .where(ExpressionUtils.and(queueMsgPredicate, exportPredicate))
+                .fetch();
     }
 
-    public int cancelRetrieveTasks(Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
-        HibernateQuery<Long> referencedQueueMsgPkQuery = retrieveTasksReferencedQueueMsgPkQuery(queueMsgPredicate, extRetrievePredicate);
-        new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                .set(QRetrieveTask.retrieveTask.updatedTime, new Date())
-                .where(QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgPkQuery))
-                .execute();
-
-        return (int) new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                .set(QQueueMessage.queueMessage.status, QueueMessage.Status.CANCELED)
-                .set(QQueueMessage.queueMessage.updatedTime, new Date())
-                .where(QQueueMessage.queueMessage.pk.in(referencedQueueMsgPkQuery))
-                .execute();
-    }
-
-    private HibernateQuery<Long> retrieveTasksReferencedQueueMsgPkQuery(Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+    public long cancelRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate) {
+        Date now = new Date();
+        HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
-                .where(queueMsgPredicate);
-        return new HibernateQuery<Long>(em.unwrap(Session.class))
-                .select(QRetrieveTask.retrieveTask.queueMessage.pk)
-                .from(QRetrieveTask.retrieveTask)
-                .where(extRetrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery))
-                .innerJoin(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage);
+                .join(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
+                .where(ExpressionUtils.and(queueMsgPredicate, retrievePredicate));
+        updateRetrieveTaskUpdatedTime(queueMessageQuery, now);
+        return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
-    public List<String> getRetrieveTasksReferencedQueueMsgIDs(Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
-        HibernateQuery<Long> referencedQueueMsgPkQuery = retrieveTasksReferencedQueueMsgPkQuery(queueMsgPredicate, extRetrievePredicate);
-        return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+    public List<String> getRetrieveTasksReferencedQueueMsgIDs(Predicate queueMsgPredicate, Predicate retrievePredicate) {
+        return new HibernateQuery<String>(em.unwrap(Session.class))
                 .select(QQueueMessage.queueMessage.messageID)
                 .from(QQueueMessage.queueMessage)
-                .where(QQueueMessage.queueMessage.pk.in(referencedQueueMsgPkQuery)).fetch();
+                .join(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
+                .where(ExpressionUtils.and(queueMsgPredicate, retrievePredicate))
+                .fetch();
     }
 
-    public boolean rescheduleMessage(String msgId, String queueName)
+    public boolean rescheduleTask(String msgId, String queueName)
             throws IllegalTaskStateException, DifferentDeviceException {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
@@ -324,11 +303,11 @@ public class QueueManagerEJB {
         entity.setNumberOfFailures(0);
         entity.setErrorMessage(null);
         entity.setOutcomeMessage(null);
-        rescheduleMessage(entity, descriptorOf(entity.getQueueName()), 0L);
+        rescheduleTask(entity, descriptorOf(entity.getQueueName()), 0L);
         return true;
     }
 
-    private void rescheduleMessage(QueueMessage entity, QueueDescriptor descriptor, long delay) {
+    private void rescheduleTask(QueueMessage entity, QueueDescriptor descriptor, long delay) {
         ObjectMessage msg = entity.initProperties(createObjectMessage(entity.getMessageBody()));
         sendMessage(descriptor, msg, delay, entity.getPriority());
         entity.reschedule(msg, new Date(System.currentTimeMillis() + delay));
@@ -339,7 +318,7 @@ public class QueueManagerEJB {
         LOG.info("Reschedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
     }
 
-    public boolean deleteMessage(String msgId) {
+    public boolean deleteTask(String msgId) {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
             return false;
@@ -354,57 +333,17 @@ public class QueueManagerEJB {
         return true;
     }
 
-    public int deleteMessages(String queueName, Predicate queueMsgPredicate) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        if (queueName.startsWith("Export"))
-            deleteExportTasks(queueMsgPredicate, arcDev.getQueueTasksFetchSize());
-        if (queueName.equals("CMoveSCU"))
-            deleteRetrieveTasks(queueMsgPredicate, arcDev.getQueueTasksFetchSize());
+    public int deleteTasks(Predicate queueMsgPredicate) {
+        HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(queueMsgPredicate);
+        new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
+                .where(QExportTask.exportTask.queueMessage.in(queueMessageQuery)).execute();
+        new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+                .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMessageQuery)).execute();
 
         return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
                 .where(queueMsgPredicate).execute();
-    }
-
-    private void deleteExportTasks(Predicate queueMsgPredicate, int fetchSize) {
-        List<Long> referencedQueueMsgPks;
-        do {
-            referencedQueueMsgPks = queueMsgPksReferencedInExportTasks(queueMsgPredicate)
-                    .limit(fetchSize).fetch();
-            new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
-                    .where(QExportTask.exportTask.queueMessage.pk.in(referencedQueueMsgPks))
-                    .execute();
-        } while (referencedQueueMsgPks.size() >= fetchSize);
-    }
-
-    private HibernateQuery<Long> queueMsgPksReferencedInExportTasks(Predicate queueMsgPredicate) {
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(queueMsgPredicate);
-        return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
-                .select(QExportTask.exportTask.queueMessage.pk)
-                .from(QExportTask.exportTask)
-                .where(QExportTask.exportTask.queueMessage.in(queueMsgQuery));
-    }
-
-    private void deleteRetrieveTasks(Predicate queueMsgPredicate, int fetchSize) {
-        List<Long> referencedQueueMsgPks;
-        do {
-            referencedQueueMsgPks = queueMsgPksReferencedInRetrieveTasks(queueMsgPredicate)
-                    .limit(fetchSize).fetch();
-            new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                    .where(QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgPks))
-                    .execute();
-        } while (referencedQueueMsgPks.size() >= fetchSize);
-    }
-
-    private HibernateQuery<Long> queueMsgPksReferencedInRetrieveTasks(Predicate queueMsgPredicate) {
-        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(queueMsgPredicate);
-        return new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
-                .select(QRetrieveTask.retrieveTask.queueMessage.pk)
-                .from(QRetrieveTask.retrieveTask)
-                .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery));
     }
 
     public List<QueueMessage> search(Predicate queueMsgPredicate, int offset, int limit) {

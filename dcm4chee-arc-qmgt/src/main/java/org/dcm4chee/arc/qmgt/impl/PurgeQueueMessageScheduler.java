@@ -53,7 +53,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -97,13 +96,12 @@ public class PurgeQueueMessageScheduler extends Scheduler {
         if (delay == null)
             return;
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("-yyyyMMddhhmmss");
         Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
-        int count = ejb.deleteMessages(
+        int count = ejb.deleteTasks(
                         queueName,
                         PredicateUtils.queueMsgPredicate(
-                                queueName, null, status, null, dateFormat.format(before)));
+                                queueName, null, status, null, null, before));
         if (count > 0)
-            LOG.info("Deleted " + count + " COMPLETED messages from queue: " + queueName);
+            LOG.info("Deleted " + count + " messages from queue: " + queueName);
     }
 }

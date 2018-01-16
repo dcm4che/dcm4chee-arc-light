@@ -71,9 +71,9 @@ public interface ExportManager {
 
     boolean deleteExportTask(Long pk);
 
-    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
+    boolean cancelExportTask(Long pk) throws IllegalTaskStateException;
 
-    int cancelExportTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate exportPredicate)
+    long cancelExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
     boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException, DifferentDeviceException;

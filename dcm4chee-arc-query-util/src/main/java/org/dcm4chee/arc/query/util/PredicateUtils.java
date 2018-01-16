@@ -42,6 +42,7 @@ package org.dcm4chee.arc.query.util;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.dsl.DateTimeExpression;
 import org.dcm4che3.data.DatePrecision;
 import org.dcm4che3.data.DateRange;
 import org.dcm4che3.data.VR;
@@ -54,13 +55,15 @@ import java.util.Date;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jan 2018
  */
 
 public class PredicateUtils {
 
-    public static BooleanBuilder queueMsgPredicate(String queueName, String deviceName, QueueMessage.Status status, String createdTime,
-                                    String updatedTime) {
+    public static BooleanBuilder queueMsgPredicate(
+            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime,
+            Date updatedBefore) {
         BooleanBuilder predicate = new BooleanBuilder();
         if (queueName != null)
             predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
@@ -71,18 +74,18 @@ public class PredicateUtils {
         if (deviceName != null)
             predicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
         if (createdTime != null)
-            predicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
-                    QQueueMessage.queueMessage.createdTime.isNotNull()));
+            predicate.and(MatchDateTimeRange.range(
+                    QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT));
         if (updatedTime != null)
-            predicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
-                    QQueueMessage.queueMessage.updatedTime.isNotNull()));
+            predicate.and(MatchDateTimeRange.range(
+                    QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT));
+        if (updatedBefore != null)
+            predicate.and(QQueueMessage.queueMessage.updatedTime.before(new Date()));
         return predicate;
     }
 
-    public static BooleanBuilder extRetrievePredicate(String localAET, String remoteAET, String destinationAET, String studyUID,
-                                            String createdTime, String updatedTime) {
+    public static BooleanBuilder retrievePredicate(String localAET, String remoteAET, String destinationAET, String studyUID,
+                                                   String createdTime, String updatedTime) {
         BooleanBuilder predicate = new BooleanBuilder();
         if (localAET != null)
             predicate.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
@@ -93,17 +96,16 @@ public class PredicateUtils {
         if (studyUID != null)
             predicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
         if (createdTime != null)
-            predicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QRetrieveTask.retrieveTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
-                    QRetrieveTask.retrieveTask.createdTime.isNotNull()));
+            predicate.and(MatchDateTimeRange.range(
+                    QRetrieveTask.retrieveTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT));
         if (updatedTime != null)
-            predicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QRetrieveTask.retrieveTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
-                    QRetrieveTask.retrieveTask.updatedTime.isNotNull()));
+            predicate.and(MatchDateTimeRange.range(
+                    QRetrieveTask.retrieveTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT));
         return predicate;
     }
 
-    public static BooleanBuilder exportPredicate(String exporterID, String deviceName, String studyUID, String createdTime, String updatedTime) {
+    public static BooleanBuilder exportPredicate(
+            String exporterID, String deviceName, String studyUID, String createdTime, String updatedTime) {
         BooleanBuilder predicate = new BooleanBuilder();
         if (exporterID != null)
             predicate.and(QExportTask.exportTask.exporterID.eq(exporterID));
@@ -112,13 +114,11 @@ public class PredicateUtils {
         if (studyUID != null)
             predicate.and(QExportTask.exportTask.studyInstanceUID.eq(studyUID));
         if (createdTime != null)
-            predicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QExportTask.exportTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
-                    QExportTask.exportTask.createdTime.isNotNull()));
+            predicate.and(MatchDateTimeRange.range(
+                    QExportTask.exportTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT));
         if (updatedTime != null)
-            predicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QExportTask.exportTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
-                    QExportTask.exportTask.updatedTime.isNotNull()));
+            predicate.and(MatchDateTimeRange.range(
+                    QExportTask.exportTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT));
         return predicate;
     }
 

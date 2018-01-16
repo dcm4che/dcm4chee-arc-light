@@ -137,8 +137,8 @@ public class RetrieveManagerEJB {
                 .executeUpdate();
     }
 
-    public List<RetrieveTask> search(Predicate queueMsgPredicate, Predicate extRetrievePredicate, int offset, int limit) {
-        HibernateQuery<RetrieveTask> extRetrieveQuery = createQuery(queueMsgPredicate, extRetrievePredicate);
+    public List<RetrieveTask> search(Predicate queueMsgPredicate, Predicate retrievePredicate, int offset, int limit) {
+        HibernateQuery<RetrieveTask> extRetrieveQuery = createQuery(queueMsgPredicate, retrievePredicate);
         if (limit > 0)
             extRetrieveQuery.limit(limit);
         if (offset > 0)
@@ -147,23 +147,23 @@ public class RetrieveManagerEJB {
         return extRetrieveQuery.fetch();
     }
 
-    public long countRetrieveTasks(Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
-        return createQuery(queueMsgPredicate, extRetrievePredicate)
+    public long countRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate) {
+        return createQuery(queueMsgPredicate, retrievePredicate)
                 .fetchCount();
     }
 
     private HibernateQuery<RetrieveTask> createQuery(
-            Predicate queueMsgPredicate, Predicate extRetrievePredicate) {
+            Predicate queueMsgPredicate, Predicate retrievePredicate) {
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(queueMsgPredicate);
         return new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
                 .from(QRetrieveTask.retrieveTask)
-                .where(extRetrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery));
+                .where(retrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery));
     }
 
-    public List<Long> getRetrieveTaskPks(Predicate queueMsgPredicate, Predicate extRetrievePredicate, int limit) {
-        HibernateQuery<Long> retrieveTaskPkQuery = createQuery(queueMsgPredicate, extRetrievePredicate)
+    public List<Long> getRetrieveTaskPks(Predicate queueMsgPredicate, Predicate retrievePredicate, int limit) {
+        HibernateQuery<Long> retrieveTaskPkQuery = createQuery(queueMsgPredicate, retrievePredicate)
                 .select(QRetrieveTask.retrieveTask.pk);
         if (limit > 0)
             retrieveTaskPkQuery.limit(limit);
@@ -180,7 +180,7 @@ public class RetrieveManagerEJB {
         return true;
     }
 
-    public boolean cancelProcessing(Long pk) throws IllegalTaskStateException {
+    public boolean cancelRetrieveTask(Long pk) throws IllegalTaskStateException {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
             return false;
@@ -189,15 +189,14 @@ public class RetrieveManagerEJB {
         if (queueMessage == null)
             throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
 
-        queueManager.cancelProcessing(queueMessage.getMessageID());
+        queueManager.cancelTask(queueMessage.getMessageID());
         LOG.info("Cancel {}", task);
         return true;
     }
     
-    public int cancelRetrieveTasks(
-            QueueMessage.Status status, Predicate queueMsgPredicate, Predicate extRetrievePredicate)
+    public long cancelRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate, QueueMessage.Status prev)
             throws IllegalTaskStateException {
-        return queueManager.cancelRetrieveTasks(status, queueMsgPredicate, extRetrievePredicate);
+        return queueManager.cancelRetrieveTasks(queueMsgPredicate, retrievePredicate, prev);
     }
 
     public boolean rescheduleRetrieveTask(Long pk)
@@ -208,13 +207,13 @@ public class RetrieveManagerEJB {
 
         QueueMessage queueMessage = task.getQueueMessage();
         if (queueMessage != null)
-            queueManager.rescheduleMessage(queueMessage.getMessageID(), RetrieveManager.QUEUE_NAME);
+            queueManager.rescheduleTask(queueMessage.getMessageID(), RetrieveManager.QUEUE_NAME);
 
         LOG.info("Reschedule {}", task);
         return true;
     }
 
-    public int deleteTasks(Predicate extRetrievePredicate, Predicate queueMsgPredicate) {
+    public int deleteTasks(Predicate queueMsgPredicate, Predicate retrievePredicate) {
         int count = 0;
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int deleteTaskFetchSize = arcDev.getQueueTasksFetchSize();
@@ -226,11 +225,11 @@ public class RetrieveManagerEJB {
             referencedQueueMsgs = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
                     .select(QRetrieveTask.retrieveTask.queueMessage.pk)
                     .from(QRetrieveTask.retrieveTask)
-                    .where(extRetrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery))
+                    .where(retrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery))
                     .limit(deleteTaskFetchSize).fetch();
 
             new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                    .where(extRetrievePredicate, QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgs))
+                    .where(retrievePredicate, QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgs))
                     .execute();
 
             count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)

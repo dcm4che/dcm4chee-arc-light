@@ -58,20 +58,20 @@ public interface RetrieveManager {
 
     void scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx) throws QueueSizeLimitExceededException;
 
-    List<RetrieveTask> search(Predicate queueMsgPredicate, Predicate extRetrievePredicate, int offset, int limit);
+    List<RetrieveTask> search(Predicate queueMsgPredicate, Predicate retrievePredicate, int offset, int limit);
 
-    long countRetrieveTasks(Predicate queueMsgPredicate, Predicate extRetrievePredicate);
+    long countRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate);
 
     boolean deleteRetrieveTask(Long pk);
 
-    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
+    boolean cancelRetrieveTask(Long pk) throws IllegalTaskStateException;
 
-    int cancelRetrieveTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate extRetrievePredicate)
+    long cancelRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
     boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException, DifferentDeviceException;
 
-    int deleteTasks(Predicate extRetrievePredicate, Predicate queueMsgPredicate);
+    int deleteTasks(Predicate queueMsgPredicate, Predicate retrievePredicate);
 
-    List<Long> getRetrieveTaskPks(Predicate queueMsgPredicate, Predicate extRetrievePredicate, int limit);
+    List<Long> getRetrieveTaskPks(Predicate queueMsgPredicate, Predicate retrievePredicate, int limit);
 }

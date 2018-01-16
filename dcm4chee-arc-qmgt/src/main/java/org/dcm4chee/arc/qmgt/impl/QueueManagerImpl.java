@@ -112,8 +112,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public boolean cancelProcessing(String msgId) throws IllegalTaskStateException {
-        if (!ejb.cancelProcessing(msgId))
+    public boolean cancelTask(String msgId) throws IllegalTaskStateException {
+        if (!ejb.cancelTask(msgId))
             return false;
 
         messageCanceledEvent.fire(new MessageCanceled(msgId));
@@ -121,67 +121,55 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public int cancelTasksInQueue(String queueName, QueueMessage.Status status, Predicate queueMsgPredicate)
+    public long cancelTasks(Predicate queueMsgPredicate, QueueMessage.Status prev)
             throws IllegalTaskStateException {
-        return status == QueueMessage.Status.SCHEDULED
-                ? ejb.cancelTasksInQueue(queueName, queueMsgPredicate)
-                : cancelInProcessTasks(queueMsgPredicate);
+        if (prev == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getQueueMsgIDs(queueMsgPredicate, 0);
+            for (String msgID : msgIDs)
+                cancelTask(msgID);
+            return msgIDs.size();
+        }
+        return ejb.cancelTasks(queueMsgPredicate);
     }
 
     @Override
-    public int cancelExportTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate exportPredicate)
+    public long cancelExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate, QueueMessage.Status prev)
             throws IllegalTaskStateException {
-        return status == QueueMessage.Status.SCHEDULED
-                ? ejb.cancelExportTasks(queueMsgPredicate, exportPredicate)
-                : cancelInProcessExportTasks(queueMsgPredicate, exportPredicate);
+        if (prev == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getExportTasksReferencedQueueMsgIDs(queueMsgPredicate, exportPredicate);
+            for (String msgID : msgIDs)
+                cancelTask(msgID);
+            return msgIDs.size();
+        }
+        return ejb.cancelExportTasks(queueMsgPredicate, exportPredicate);
     }
 
     @Override
-    public int cancelRetrieveTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate extRetrievePredicate)
+    public long cancelRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate, QueueMessage.Status prev)
             throws IllegalTaskStateException {
-        return status == QueueMessage.Status.SCHEDULED
-                ? ejb.cancelRetrieveTasks(queueMsgPredicate, extRetrievePredicate)
-                : cancelInProcessRetrieveTasks(queueMsgPredicate, extRetrievePredicate);
-    }
-
-    private int cancelInProcessTasks(Predicate queueMsgPredicate)
-            throws IllegalTaskStateException {
-        List<String> msgIDs = ejb.getQueueMsgIDs(queueMsgPredicate, 0);
-        for (String msgID : msgIDs)
-            cancelProcessing(msgID);
-        return msgIDs.size();
-    }
-
-    private int cancelInProcessExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate)
-            throws IllegalTaskStateException {
-        List<String> msgIDs = ejb.getExportTasksReferencedQueueMsgIDs(queueMsgPredicate, exportPredicate);
-        for (String msgID : msgIDs)
-            cancelProcessing(msgID);
-        return msgIDs.size();
-    }
-
-    private int cancelInProcessRetrieveTasks(Predicate queueMsgPredicate, Predicate extRetrievePredicate)
-            throws IllegalTaskStateException {
-        List<String> msgIDs = ejb.getRetrieveTasksReferencedQueueMsgIDs(queueMsgPredicate, extRetrievePredicate);
-        for (String msgID : msgIDs)
-            cancelProcessing(msgID);
-        return msgIDs.size();
+        if (prev == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getRetrieveTasksReferencedQueueMsgIDs(queueMsgPredicate, retrievePredicate);
+            for (String msgID : msgIDs)
+                cancelTask(msgID);
+            return msgIDs.size();
+        }
+        return ejb.cancelRetrieveTasks(queueMsgPredicate, retrievePredicate);
     }
 
     @Override
-    public boolean rescheduleMessage(String msgId, String queueName)
+    public boolean rescheduleTask(String msgId, String queueName)
             throws IllegalTaskStateException, DifferentDeviceException {
-        return ejb.rescheduleMessage(msgId, queueName);
+        return ejb.rescheduleTask(msgId, queueName);
     }
 
     @Override
-    public boolean deleteMessage(String msgId) {
-        return ejb.deleteMessage(msgId);
+    public boolean deleteTask(String msgId) {
+        return ejb.deleteTask(msgId);
     }
 
     @Override
-    public int deleteMessages(String queueName, Predicate queueMsgPredicate) {
-        return ejb.deleteMessages(queueName, queueMsgPredicate);
+    public int deleteTasks(String queueName, Predicate queueMsgPredicate) {
+        return ejb.deleteTasks(queueMsgPredicate);
     }
 
     @Override

@@ -54,7 +54,8 @@ import java.util.List;
 public interface QueueManager {
     ObjectMessage createObjectMessage(Serializable object);
 
-    QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority) throws QueueSizeLimitExceededException;
+    QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority)
+            throws QueueSizeLimitExceededException;
 
     QueueMessage onProcessingStart(String msgId);
 
@@ -62,22 +63,21 @@ public interface QueueManager {
 
     QueueMessage onProcessingFailed(String msgId, Throwable e);
 
-    boolean cancelProcessing(String msgId) throws IllegalTaskStateException;
+    boolean cancelTask(String msgId) throws IllegalTaskStateException;
 
-    int cancelTasksInQueue(String queueName, QueueMessage.Status status, Predicate queueMsgPredicate)
+    long cancelTasks(Predicate queueMsgPredicate, QueueMessage.Status prev) throws IllegalTaskStateException;
+
+    long cancelExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
-    int cancelExportTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate exportPredicate)
+    long cancelRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate, QueueMessage.Status prevStatus)
             throws IllegalTaskStateException;
 
-    int cancelRetrieveTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate extRetrievePredicate)
-            throws IllegalTaskStateException;
+    boolean rescheduleTask(String msgId, String queueName) throws IllegalTaskStateException, DifferentDeviceException;
 
-    boolean rescheduleMessage(String msgId, String queueName) throws IllegalTaskStateException, DifferentDeviceException;
+    boolean deleteTask(String msgId);
 
-    boolean deleteMessage(String msgId);
-
-    int deleteMessages(String queueName, Predicate queueMsgPredicate);
+    int deleteTasks(String queueName, Predicate queueMsgPredicate);
 
     List<QueueMessage> search(Predicate queueMsgPredicate, int offset, int limit);
 

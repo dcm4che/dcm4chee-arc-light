@@ -332,7 +332,7 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public boolean cancelProcessing(Long pk) throws IllegalTaskStateException {
+    public boolean cancelExportTask(Long pk) throws IllegalTaskStateException {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
             return false;
@@ -341,15 +341,15 @@ public class ExportManagerEJB implements ExportManager {
         if (queueMessage == null)
             throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
 
-        queueManager.cancelProcessing(queueMessage.getMessageID());
+        queueManager.cancelTask(queueMessage.getMessageID());
         LOG.info("Cancel {}", task);
         return true;
     }
 
     @Override
-    public int cancelExportTasks(QueueMessage.Status status, Predicate queueMsgPredicate, Predicate exportPredicate)
+    public long cancelExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate, QueueMessage.Status prev)
             throws IllegalTaskStateException {
-        return queueManager.cancelExportTasks(status, queueMsgPredicate, exportPredicate);
+        return queueManager.cancelExportTasks(queueMsgPredicate, exportPredicate, prev);
     }
 
     @Override
@@ -361,7 +361,7 @@ public class ExportManagerEJB implements ExportManager {
 
         QueueMessage queueMessage = task.getQueueMessage();
         if (queueMessage != null)
-            queueManager.rescheduleMessage(queueMessage.getMessageID(), exporter.getQueueName());
+            queueManager.rescheduleTask(queueMessage.getMessageID(), exporter.getQueueName());
 
         task.setExporterID(exporter.getExporterID());
         LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
