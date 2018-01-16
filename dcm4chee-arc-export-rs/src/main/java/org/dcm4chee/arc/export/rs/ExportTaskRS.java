@@ -292,12 +292,6 @@ public class ExportTaskRS {
         return rsp(Response.Status.OK, "{\"count\":" + count + '}');
     }
 
-    private static Output output(MediaType mediaType) {
-        return MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType) ? Output.JSON
-                : MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(mediaType) ? Output.CSV
-                : null;
-    }
-
     private Output selectMediaType(String accept) {
         Stream<MediaType> acceptableTypes = httpHeaders.getAcceptableMediaTypes().stream();
         if (accept != null) {
