@@ -10,6 +10,7 @@ export class RangePickerComponent implements OnInit {
     @Input() model;
     @Input() placeholder;
     @Input() title;
+    @Input() header;
     @Input() dateFormat;
     @Input() onlyTime;
     @Input() onlyDate;
@@ -36,7 +37,7 @@ export class RangePickerComponent implements OnInit {
     constructor() {}
     ngOnInit(){
         this.mode = this.mode || "range";
-        this.title = this.title || "Range picker";
+        this.header = this.header || "Range picker";
         for(let i=0;i<60;i++){
             if(i<25){
                 this.HH.push({value:i,label:(i<10)?`0${i}`:i});

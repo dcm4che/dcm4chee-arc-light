@@ -250,12 +250,12 @@
                     <div class="row datetime">
                         <div class="block_seid">
                             <div class="col-md-12">
-                                <range-picker [model]="filter.StudyDate" (modelChange)="filter.StudyDate = $event" mode="range" placeholder="Study date" dateFormat="yymmdd" onlyDate="true"></range-picker>
+                                <range-picker [model]="filter.StudyDate" (modelChange)="filter.StudyDate = $event" mode="range" placeholder="Study date" dateFormat="yymmdd" onlyDate="true" title="Study date"></range-picker>
 
                                 <!--<p-calendar (change)="studyDateChanged($event)" (click)="studyDateChanged($event)" dataType="string" [(ngModel)]="studyDate.from" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Study date from"></p-calendar>-->
                             </div>
                             <div class="col-md-12">
-                                <range-picker [model]="filter.StudyTime" (modelChange)="filter.StudyTime = $event" mode="range" placeholder="Study time" dateFormat="yymmdd" onlyTime="true"></range-picker>
+                                <range-picker [model]="filter.StudyTime" (modelChange)="filter.StudyTime = $event" mode="range" placeholder="Study time" dateFormat="yymmdd" onlyTime="true" title="Study time"></range-picker>
                                 <!--<p-calendar (onSelect)="selectTime('from')" (onBlur)="selectTime('from')" (click)="timeClose()" [(ngModel)]="studyTime.fromObject" timeOnly="true" hourFormat="24" placeholder="Study time from"></p-calendar>-->
                             </div>
                             <div class="col-md-12">
@@ -274,7 +274,7 @@
                             </div>
                             <div class="col-md-12" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                                 <!--<p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder="Study time to"></p-calendar>-->
-                                <range-picker [model]="filter.StudyReceiveDateTime" (modelChange)="filter.StudyReceiveDateTime = $event" mode="range" placeholder="Study created" dateFormat="yymmdd"></range-picker>
+                                <range-picker [model]="filter.StudyReceiveDateTime" (modelChange)="filter.StudyReceiveDateTime = $event" mode="range" placeholder="Study created" title="Study created" dateFormat="yymmdd"></range-picker>
 
                             </div>
                         </div>
