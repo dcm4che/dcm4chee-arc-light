@@ -1,5 +1,6 @@
 $backgroundColor:rgba(6, 29, 47, 0.84);
 .range_picker{
+  position: relative;
   .main_input_block{
     width: 100%;
     .main_input{
@@ -30,11 +31,14 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
     width:400px;
     min-height:200px;
     background: white;
-    position: relative;
+    position: absolute;
+    top:28px;
     -webkit-box-shadow: 2px 2px 13px 0px #777;
     -moz-box-shadow: 2px 2px 13px 0px #777;
     box-shadow: 2px 2px 13px 0px #777;
     .include_time_block{
+      display: block;
+      min-height: 3px;
       //height:20px;
       //margin-bottom:10px;
       label{

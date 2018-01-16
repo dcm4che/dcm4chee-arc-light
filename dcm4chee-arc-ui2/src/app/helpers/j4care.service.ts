@@ -174,7 +174,7 @@ export class j4care {
             return '00';
     }
     static extractDateTimeFromString(str){
-        const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}$|^\d{14}$|^\d{8}-$|^-\d{8}$|^\d{8}$|^\d{6}$/m;
+        const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}$|^\d{14}$|^\d{8}-$|^-\d{8}$|^\d{8}$|^-\d{6}$|^\d{6}-$|^\d{6}$/m;
         const regex = /(-?)(\d{4})(\d{2})(\d{2})(\d{0,2})(\d{0,2})(\d{0,2})(-?)|(-?)(\d{0,4})(\d{0,2})(\d{0,2})(\d{2})(\d{2})(\d{2})(-?)/g;
         let matchString = checkRegex.exec(str);
         let match;
@@ -190,38 +190,38 @@ export class j4care {
                 resultArray.push(match);
             }
             if(resultArray.length === 2){
-                if(resultArray[0][8] ==='-')
+                if(resultArray[0][8] ==='-' || resultArray[0][16] ==='-')
                     mode = "range"
                 firstDateTime = {
                     FullYear:resultArray[0][2],
                     Month:resultArray[0][3],
                     Date:resultArray[0][4],
-                    Hours:resultArray[0][5],
-                    Minutes:resultArray[0][6],
-                    Seconds:resultArray[0][7]
+                    Hours:resultArray[0][5] || resultArray[0][13],
+                    Minutes:resultArray[0][6] || resultArray[0][14],
+                    Seconds:resultArray[0][7] || resultArray[0][15]
                 };
                 secondDateTime = {
                     FullYear:resultArray[1][2],
                     Month:resultArray[1][3],
                     Date:resultArray[1][4],
-                    Hours:resultArray[1][5],
-                    Minutes:resultArray[1][6],
-                    Seconds:resultArray[1][7]
+                    Hours:resultArray[1][5] || resultArray[1][13],
+                    Minutes:resultArray[1][6] || resultArray[1][14],
+                    Seconds:resultArray[1][7] || resultArray[1][15]
                 };
             }
             if(resultArray.length === 1){
-                if(resultArray[0][1] ==='-'){
+                if(resultArray[0][1] ==='-' || resultArray[0][9] ==='-'){
                     mode = "leftOpen";
                     secondDateTime = {
                         FullYear:resultArray[0][2],
                         Month:resultArray[0][3],
                         Date:resultArray[0][4],
-                        Hours:resultArray[0][5],
-                        Minutes:resultArray[0][6],
-                        Seconds:resultArray[0][7]
+                        Hours:resultArray[0][5] || resultArray[0][13],
+                        Minutes:resultArray[0][6] || resultArray[0][14],
+                        Seconds:resultArray[0][7] || resultArray[0][15]
                     };
                 }else{
-                    if(resultArray[0][8] ==='-')
+                    if(resultArray[0][8] ==='-' || resultArray[0][16] ==='-')
                         mode = "rightOpen";
                     else
                         mode = "single";
@@ -229,9 +229,9 @@ export class j4care {
                         FullYear:resultArray[0][2],
                         Month:resultArray[0][3],
                         Date:resultArray[0][4],
-                        Hours:resultArray[0][5],
-                        Minutes:resultArray[0][6],
-                        Seconds:resultArray[0][7]
+                        Hours:resultArray[0][5] || resultArray[0][13],
+                        Minutes:resultArray[0][6] || resultArray[0][14],
+                        Seconds:resultArray[0][7] || resultArray[0][15]
                     };
                 }
             }
@@ -279,10 +279,14 @@ export class j4care {
         return `${j4care.getSingleDateTimeValueFromInt(date.getHours())}:${j4care.getSingleDateTimeValueFromInt(date.getMinutes())}:${j4care.getSingleDateTimeValueFromInt(date.getSeconds())}`;
     }
     static getDateFromObject(object:{FullYear,Month,Date}){
-        return `${object.FullYear}${object.Month}${object.Date}`
+        if(object.FullYear && object.Month && object.Date)
+            return `${object.FullYear}${object.Month}${object.Date}`
+        return ''
     }
     static getTimeFromObject(object:{Hours,Minutes,Seconds}){
-        return `${object.Hours}:${object.Minutes}:${object.Seconds}`
+        if(object.Hours && object.Minutes && object.Seconds)
+            return `${object.Hours}:${object.Minutes}:${object.Seconds}`
+        return ''
     }
     static isEqual(a,b){
         if(a && b && a === b)

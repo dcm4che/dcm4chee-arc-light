@@ -11,6 +11,8 @@ export class RangePickerComponent implements OnInit {
     @Input() placeholder;
     @Input() title;
     @Input() dateFormat;
+    @Input() onlyTime;
+    @Input() onlyDate;
     @Input() mode:("leftOpen"|"rightOpen"|"range"|"single");
     @Output() modelChange = new EventEmitter();
     @ViewChild('fromCalendar') fromCalendarObject;
@@ -54,13 +56,13 @@ export class RangePickerComponent implements OnInit {
                 this.model = this.getDateFromValue(this.singleDateModel) + this.getTimeFromValue(this.singleTimeModel, false);
             break;
             case 'range':
-                this.model = (this.fromModel != '' || this.toModel != '') ? `${this.getDateFromValue(this.fromModel) + this.getTimeFromValue(this.fromTimeModel, false)}-${this.getDateFromValue(this.toModel) + this.getTimeFromValue(this.toTimeModel, false)}`:'';
+                this.model = (this.fromModel != '' || this.toModel != '' || this.onlyTime) ? `${this.getDateFromValue(this.fromModel) + this.getTimeFromValue(this.fromTimeModel, false)}-${this.getDateFromValue(this.toModel) + this.getTimeFromValue(this.toTimeModel, false)}`:'';
             break;
             case 'rightOpen':
-                this.model = (this.fromModel != '') ? `${this.getDateFromValue(this.fromModel) + this.getTimeFromValue(this.fromTimeModel, false)}-`:'';
+                this.model = (this.fromModel != '' || this.onlyTime) ? `${this.getDateFromValue(this.fromModel) + this.getTimeFromValue(this.fromTimeModel, false)}-`:'';
                 break;
             case 'leftOpen':
-                this.model = (this.toModel != '') ?`-${this.getDateFromValue(this.toModel) + this.getTimeFromValue(this.toTimeModel, false)}`:'';
+                this.model = (this.toModel != '' || this.onlyTime) ?`-${this.getDateFromValue(this.toModel) + this.getTimeFromValue(this.toTimeModel, false)}`:'';
                 break;
         }
         this.modelChange.emit(this.model);
@@ -150,13 +152,14 @@ export class RangePickerComponent implements OnInit {
         return newDate;
     }
     getDateFromValue(value){
-        return value || j4care.dateToString(new Date());
+        let result = value || (this.onlyTime ? '': j4care.dateToString(new Date()));
+        return result;
     }
     getDateFromObject(value){
         return value || j4care.dateToString(new Date());
     }
     getTimeFromValue(value, onEmptyNull?){
-        if(this.includeTime){
+        if(this.includeTime || this.onlyTime){
             let emptyValue = (onEmptyNull) ? '000000' : '';
             return (value && value != '') ? this.removeDoubleDotsFromTime(value) : emptyValue;
         }
@@ -184,12 +187,12 @@ export class RangePickerComponent implements OnInit {
         this.maiInputValid = true;
         if(modifyed){
             this.mode = modifyed.mode;
-            if((this.mode === "range" || this.mode === "rightOpen" || this.mode === "single") && j4care.isSetDateObject(modifyed.firstDateTime)){
-                if(j4care.validDateObject(modifyed.firstDateTime)){
+            if((this.mode === "range" || this.mode === "rightOpen" || this.mode === "single") && (j4care.isSetDateObject(modifyed.firstDateTime) || j4care.isSetTimeObject(modifyed.firstDateTime))){
+                if(j4care.validDateObject(modifyed.firstDateTime) || j4care.validTimeObject(modifyed.firstDateTime)){
                     if(this.mode === "single")
-                        this.singleDateModel = j4care.getDateFromObject(modifyed.firstDateTime);
+                        this.singleDateModel = j4care.getDateFromObject(modifyed.firstDateTime) || '';
                     else
-                        this.fromModel = j4care.getDateFromObject(modifyed.firstDateTime);
+                        this.fromModel = j4care.getDateFromObject(modifyed.firstDateTime) || '';
                     if(j4care.isSetTimeObject(modifyed.firstDateTime)){
                         if(j4care.validTimeObject(modifyed.firstDateTime)){
                             if(this.mode === "single")
@@ -203,9 +206,9 @@ export class RangePickerComponent implements OnInit {
                 }else
                     this.maiInputValid = false;
             }
-            if((this.mode === "range" || this.mode === "leftOpen") && j4care.isSetDateObject(modifyed.secondDateTime)){
-                if(j4care.validDateObject(modifyed.secondDateTime)){
-                    this.toModel =  j4care.getDateFromObject(modifyed.secondDateTime);
+            if((this.mode === "range" || this.mode === "leftOpen") && (j4care.isSetDateObject(modifyed.secondDateTime) || j4care.isSetTimeObject(modifyed.secondDateTime))){
+                if(j4care.validDateObject(modifyed.secondDateTime) || j4care.validTimeObject(modifyed.secondDateTime)){
+                    this.toModel =  j4care.getDateFromObject(modifyed.secondDateTime) || '';
                     if(j4care.isSetTimeObject(modifyed.secondDateTime)){
                         if(j4care.validTimeObject(modifyed.secondDateTime)){
                             this.toTimeModel =  j4care.getTimeFromObject(modifyed.secondDateTime);

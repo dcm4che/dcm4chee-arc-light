@@ -6,7 +6,7 @@
     <div class="picker" *ngIf="showPicker">
         <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
         <h4>{{title}}</h4>
-        <div class="left {{mode}}_mode">
+        <div class="left {{mode}}_mode" *ngIf="!onlyTime">
             <p-calendar (onFocus)="closeCalendar('fromCalendarObject')" #fromCalendar *ngIf="mode === 'range' || mode === 'rightOpen'" dataType="string" [(ngModel)]="fromModel" dateFormat="{{dateFormat}}" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="from (yyyymmdd)" showIcon="true" showOnFocus="false" monthNavigator="true" showButtonBar="true"></p-calendar>
             <div class="infinit" *ngIf="!(mode === 'range' || mode === 'rightOpen') && mode != 'single'" >&infin;</div>
                 <span *ngIf="mode != 'single'">-</span>
@@ -14,7 +14,7 @@
             <div class="infinit" *ngIf="!(mode === 'range' || mode === 'leftOpen') && mode != 'single'">&infin;</div>
             <p-calendar (onFocus)="closeCalendar('singleCalendarObject')" #singleCalendar  *ngIf="mode === 'single'"  dataType="string" [(ngModel)]="singleDateModel" dateFormat="{{dateFormat}}" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Date (yyyymmdd)" showIcon="true"></p-calendar>
         </div>
-        <ul class="fast_picker" [ngClass]="{'smart_active':smartPickerActive}">
+        <ul *ngIf="!onlyTime" class="fast_picker" [ngClass]="{'smart_active':smartPickerActive}">
             <li *ngIf="!smartPickerActive" (click)="today()">Today</li>
             <li *ngIf="!smartPickerActive" (click)="thisMonth()">This Month</li>
             <!--<li *ngIf="!smartPickerActive" (click)="lastYear()">Last Year</li>-->
@@ -40,11 +40,11 @@
             </li>
         </ul>
         <div class="include_time_block">
-            <label>
+            <label *ngIf="!(onlyTime || onlyDate)">
                 <input type="checkbox" [(ngModel)]="includeTime" (change)="toggleTime()"> Include time
             </label>
         </div>
-        <div class="left {{mode}}_mode" *ngIf="includeTime" >
+        <div class="left {{mode}}_mode" *ngIf="includeTime || onlyTime" >
             <time-picker [model]="fromTimeModel" cohereMode="true" (onValueSet)="fromTimeModel = $event" placeholder="from (hh:mm:ss)" *ngIf="mode === 'range' || mode === 'rightOpen'"></time-picker>
             <div class="infinit" *ngIf="!(mode === 'range' || mode === 'rightOpen') && mode != 'single'" >&infin;</div>
                 <span *ngIf="mode != 'single'">-</span>

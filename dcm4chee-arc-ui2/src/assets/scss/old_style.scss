@@ -1625,6 +1625,18 @@ table{
     	margin-top: 5px;
     }
 }
+app-studies{
+	.block-1-1, .block-1-2, .block-2-1, .block-2-2{
+		range-picker{
+			label,input{
+				margin-top:0;
+			}
+			.main_input_block{
+				margin-top: 5px;
+			}
+		}
+	}
+}
 .block-2-1,.block-2-2{
 	// height:121px;
 }
