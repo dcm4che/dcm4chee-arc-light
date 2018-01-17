@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -48,8 +47,14 @@ import com.querydsl.jpa.hibernate.HibernateUpdateClause;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
-import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.entity.QExportTask;
+import org.dcm4chee.arc.entity.QQueueMessage;
+import org.dcm4chee.arc.entity.QRetrieveTask;
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +72,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
