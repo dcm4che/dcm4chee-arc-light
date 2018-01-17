@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.export.mgt;
 
+import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -64,26 +65,19 @@ public interface ExportManager {
 
     void updateExportTask(Long pk);
 
-    List<ExportTask> search(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status,
-            int offset, int limit);
+    List<ExportTask> search(Predicate matchQueueMessage, Predicate matchExportTask, int offset, int limit);
 
-    long countExportTasks(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status);
+    long countExportTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 
     boolean deleteExportTask(Long pk);
 
-    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
+    boolean cancelExportTask(Long pk) throws IllegalTaskStateException;
 
-    int cancelExportTasks(String exporterID, String deviceName, String studyUID, QueueMessage.Status status,
-            String createdTime, String updatedTime) throws IllegalTaskRequestException;
+    long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException;
 
-    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException, DifferentDeviceException;
+    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter)
+            throws IllegalTaskStateException, DifferentDeviceException;
 
-    int deleteTasks(String deviceName,
-                    String exporterID,
-                    String studyUID,
-                    String createdTime,
-                    String updatedTime,
-                    QueueMessage.Status status);
+    int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 }

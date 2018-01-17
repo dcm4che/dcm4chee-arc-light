@@ -38,7 +38,7 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
-import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.*;
@@ -112,8 +112,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public boolean cancelProcessing(String msgId) throws IllegalTaskStateException {
-        if (!ejb.cancelProcessing(msgId))
+    public boolean cancelTask(String msgId) throws IllegalTaskStateException {
+        if (!ejb.cancelTask(msgId))
             return false;
 
         messageCanceledEvent.fire(new MessageCanceled(msgId));
@@ -121,45 +121,69 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public int cancelTasksInQueue(
-            String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime,
-            String updatedTime, BooleanBuilder exportPredicate, BooleanBuilder extRetrievePredicate)
-            throws IllegalTaskRequestException {
-        if (status == null
-                || !(status == QueueMessage.Status.IN_PROCESS || status == QueueMessage.Status.SCHEDULED))
-            throw new IllegalTaskRequestException("Cannot cancel tasks with Status : " + status);
-
-        return ejb.cancelTasksInQueue(
-                queueName, dicomDeviceName, status, createdTime, updatedTime, exportPredicate, extRetrievePredicate);
-
-        //TODO - messageCanceledEvent.fire(new MessageCanceled());
+    public long cancelTasks(Predicate matchQueueMessage, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        if (prev == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getQueueMsgIDs(matchQueueMessage, 0);
+            for (String msgID : msgIDs)
+                cancelTask(msgID);
+            return msgIDs.size();
+        }
+        return ejb.cancelTasks(matchQueueMessage);
     }
 
     @Override
-    public boolean rescheduleMessage(String msgId, String queueName)
+    public long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        if (prev == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getExportTasksReferencedQueueMsgIDs(matchQueueMessage, matchExportTask);
+            for (String msgID : msgIDs)
+                cancelTask(msgID);
+            return msgIDs.size();
+        }
+        return ejb.cancelExportTasks(matchQueueMessage, matchExportTask);
+    }
+
+    @Override
+    public long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        if (prev == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getRetrieveTasksReferencedQueueMsgIDs(matchQueueMessage, matchRetrieveTask);
+            for (String msgID : msgIDs)
+                cancelTask(msgID);
+            return msgIDs.size();
+        }
+        return ejb.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask);
+    }
+
+    @Override
+    public boolean rescheduleTask(String msgId, String queueName)
             throws IllegalTaskStateException, DifferentDeviceException {
-        return ejb.rescheduleMessage(msgId, queueName);
+        return ejb.rescheduleTask(msgId, queueName);
     }
 
     @Override
-    public boolean deleteMessage(String msgId) {
-        return ejb.deleteMessage(msgId);
+    public boolean deleteTask(String msgId) {
+        return ejb.deleteTask(msgId);
     }
 
     @Override
-    public int deleteMessages(String queueName, QueueMessage.Status status, String deviceName, String createdTime, String updatedTime) {
-        return ejb.deleteMessages(queueName, status, deviceName, createdTime, updatedTime);
+    public int deleteTasks(String queueName, Predicate matchQueueMessage) {
+        return ejb.deleteTasks(matchQueueMessage);
     }
 
     @Override
-    public List<QueueMessage> search(
-            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime, int offset, int limit) {
-        return ejb.search(queueName, deviceName, status, createdTime, updatedTime, offset, limit);
+    public List<QueueMessage> search(Predicate matchQueueMessage, int offset, int limit) {
+        return ejb.search(matchQueueMessage, offset, limit);
     }
 
     @Override
-    public long countTasks(
-            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime) {
-        return ejb.countTasks(queueName, deviceName, status, createdTime, updatedTime);
+    public long countTasks(Predicate matchQueueMessage) {
+        return ejb.countTasks(matchQueueMessage);
+    }
+
+    @Override
+    public List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit) {
+        return ejb.getQueueMsgIDs(matchQueueMessage, limit);
     }
 }

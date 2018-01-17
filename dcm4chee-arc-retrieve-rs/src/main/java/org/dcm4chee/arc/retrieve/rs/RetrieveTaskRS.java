@@ -40,11 +40,15 @@
 
 package org.dcm4chee.arc.retrieve.rs;
 
+import com.querydsl.core.types.Predicate;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskRequestException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -59,10 +63,14 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Oct 2017
  */
 @RequestScoped
@@ -96,6 +104,9 @@ public class RetrieveTaskRS {
 
     @Inject
     private RetrieveManager mgr;
+
+    @Inject
+    private Device device;
 
     @Context
     private HttpServletRequest request;
@@ -138,39 +149,21 @@ public class RetrieveTaskRS {
 
     @GET
     @NoCache
-    @Produces({"application/json", "text/csv; charset=UTF-8"})
-    public Response listTasks(@QueryParam("accept") String accept) throws Exception {
+    public Response listRetrieveTasks(@QueryParam("accept") String accept) throws Exception {
         logRequest();
-        if (accept != null)
-            return accept.equals("application/json") ? listRetrieveTasks(accept) : listRetrieveTasksAsCSV(accept);
-
-        return listRetrieveTasks(null);
-    }
-
-    @GET
-    @NoCache
-    @Produces("application/json")
-    public Response listRetrieveTasks(@QueryParam("accept") String accept) {
-        logRequest();
-        return accept != null && !isCompatible(accept)
-                ? Response.status(Response.Status.NOT_ACCEPTABLE).build()
-                : Response.ok(toEntity(
-                    mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
-                        parseStatus(status), parseInt(offset), parseInt(limit))))
+        Output output = selectMediaType(accept);
+        if (output == null)
+            return Response.notAcceptable(
+                    Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
                     .build();
-    }
 
-    @GET
-    @NoCache
-    @Produces("text/csv; charset=UTF-8")
-    public Response listRetrieveTasksAsCSV(@QueryParam("accept") String accept) {
-        logRequest();
-        return accept != null && !isCompatible(accept)
-                ? Response.status(Response.Status.NOT_ACCEPTABLE).build()
-                : Response.ok(toEntityAsCSV(
-                    mgr.search(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
-                        parseStatus(status), parseInt(offset), parseInt(limit))))
-                    .build();
+        List<RetrieveTask> tasks = mgr.search(
+                MatchTask.matchQueueMessage(
+                        null, deviceName, status(), null, null, null),
+                MatchTask.matchRetrieveTask(
+                        localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime),
+                parseInt(offset), parseInt(limit));
+        return Response.ok(output.entity(tasks), output.type).build();
     }
 
     @GET
@@ -179,23 +172,24 @@ public class RetrieveTaskRS {
     @Produces("application/json")
     public Response countRetrieveTasks() {
         logRequest();
-        return Response.ok("{\"count\":" +
-                mgr.countRetrieveTasks(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
-                        parseStatus(status)) + '}')
-                .build();
+        return count( mgr.countRetrieveTasks(
+                MatchTask.matchQueueMessage(
+                        null, deviceName, status(), null, null, null),
+                MatchTask.matchRetrieveTask(
+                        localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime)));
     }
 
     @POST
     @Path("{taskPK}/cancel")
-    public Response cancelProcessing(@PathParam("taskPK") long pk) {
+    public Response cancelRetrieveTask(@PathParam("taskPK") long pk) {
         logRequest();
         try {
-            return Response.status(mgr.cancelProcessing(pk)
+            return Response.status(mgr.cancelRetrieveTask(pk)
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
         } catch (IllegalTaskStateException e) {
-            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+            return rsp(Response.Status.CONFLICT, e.getMessage());
         }
     }
 
@@ -203,16 +197,22 @@ public class RetrieveTaskRS {
     @Path("/cancel")
     public Response cancelRetrieveTasks() {
         logRequest();
+        QueueMessage.Status status = status();
+        if (status == null)
+            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+        if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
+            return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
+
         try {
-            return Response.status(Response.Status.OK)
-                    .entity("{\"count\":"
-                            + mgr.cancelRetrieveTasks(
-                                    localAET, remoteAET, destinationAET, studyIUID, deviceName, parseStatus(status),
-                                    createdTime, updatedTime)
-                            + '}')
-                    .build();
-        } catch (IllegalTaskRequestException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            LOG.info("Cancel processing of Retrieve Tasks with Status {}", status);
+            return count(mgr.cancelRetrieveTasks(
+                    MatchTask.matchQueueMessage(
+                            null, deviceName, status, null, updatedTime, null),
+                    MatchTask.matchRetrieveTask(
+                            localAET, remoteAET, destinationAET, studyIUID, createdTime, null),
+                    status));
+        } catch (IllegalTaskStateException e) {
+            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
     }
 
@@ -225,6 +225,43 @@ public class RetrieveTaskRS {
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
+        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            return rsp(Response.Status.CONFLICT, e.getMessage());
+        }
+    }
+
+    @POST
+    @Path("/reschedule")
+    public Response rescheduleRetrieveTasks() {
+        logRequest();
+        QueueMessage.Status status = status();
+        if (status == null)
+            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+        if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
+            return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
+        if (deviceName == null)
+            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: dicomDeviceName");
+        if (!deviceName.equals(device.getDeviceName()))
+            return rsp(Response.Status.CONFLICT,
+                    "Cannot reschedule Tasks originally scheduled on Device " + deviceName
+                            + " on Device " + device.getDeviceName());
+
+        try {
+            Predicate matchQueueMessage = MatchTask.matchQueueMessage(
+                    null, deviceName, status, null, null, new Date());
+            Predicate matchRetrieveTask = MatchTask.matchRetrieveTask(
+                    localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
+            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+            int fetchSize = arcDev.getQueueTasksFetchSize();
+            int count = 0;
+            List<Long> retrieveTaskPks;
+            do {
+                retrieveTaskPks = mgr.getRetrieveTaskPks(matchQueueMessage, matchRetrieveTask, fetchSize);
+                for (long pk : retrieveTaskPks)
+                    mgr.rescheduleRetrieveTask(pk);
+                count += retrieveTaskPks.size();
+            } while (retrieveTaskPks.size() >= fetchSize);
+            return count(count);
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
@@ -243,51 +280,89 @@ public class RetrieveTaskRS {
     @DELETE
     public String deleteTasks() {
         logRequest();
-        return "{\"deleted\":"
-                + mgr.deleteTasks(deviceName, localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime,
-                        parseStatus(status))
-                + '}';
+        int deleted = mgr.deleteTasks(
+                MatchTask.matchQueueMessage(
+                        null, deviceName, status(), null, null, null),
+                MatchTask.matchRetrieveTask(
+                        localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime));
+        return "{\"deleted\":" + deleted + '}';
     }
 
-    private boolean isCompatible(String accept) {
-        try {
-            List<MediaType> acceptableMediaTypes = httpHeaders.getAcceptableMediaTypes();
-            for (MediaType mediaType : acceptableMediaTypes)
-                if (mediaType.isCompatible(MediaType.valueOf(accept)))
-                    return true;
-        } catch (IllegalArgumentException e) {
-            LOG.warn(e.getMessage());
-            return false;
+    private static Response rsp(Response.Status status, Object enity) {
+        return Response.status(status).entity(enity).build();
+    }
+
+    private static Response count(long count) {
+        return rsp(Response.Status.OK, "{\"count\":" + count + '}');
+    }
+
+    private Output selectMediaType(String accept) {
+        Stream<MediaType> acceptableTypes = httpHeaders.getAcceptableMediaTypes().stream();
+        if (accept != null) {
+            try {
+                MediaType type = MediaType.valueOf(accept);
+                return acceptableTypes.anyMatch(type::isCompatible) ? Output.valueOf(type) : null;
+            } catch (IllegalArgumentException ae) {
+                return null;
+            }
         }
-        return false;
+        return acceptableTypes.map(Output::valueOf)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
-    private Object toEntity(final List<RetrieveTask> tasks) {
-        return new StreamingOutput() {
+    private enum Output {
+        JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            public void write(OutputStream out) throws IOException {
-                JsonGenerator gen = Json.createGenerator(out);
-                gen.writeStartArray();
-                for (RetrieveTask task : tasks)
-                    task.writeAsJSONTo(gen);
-                gen.writeEnd();
-                gen.flush();
+            Object entity(final List<RetrieveTask> tasks) {
+                return new StreamingOutput() {
+                    @Override
+                    public void write(OutputStream out) throws IOException {
+                        JsonGenerator gen = Json.createGenerator(out);
+                        gen.writeStartArray();
+                        for (RetrieveTask task : tasks)
+                            task.writeAsJSONTo(gen);
+                        gen.writeEnd();
+                        gen.flush();
+                    }
+                };
+            }
+        },
+        CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
+            @Override
+            Object entity(final List<RetrieveTask> tasks) {
+                return new StreamingOutput() {
+                    @Override
+                    public void write(OutputStream out) throws IOException {
+                        Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                        writer.write(CSV_HEADER);
+                        for (RetrieveTask task : tasks) {
+                            task.writeAsCSVTo(writer);
+                        }
+                        writer.flush();
+                    }
+                };
             }
         };
+
+        final MediaType type;
+
+        Output(MediaType type) {
+            this.type = type;
+        }
+
+        static Output valueOf(MediaType type) {
+            return MediaType.APPLICATION_JSON_TYPE.isCompatible(type) ? Output.JSON
+                    : MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(type) ? Output.CSV
+                    : null;
+        }
+
+        abstract Object entity(final List<RetrieveTask> tasks);
     }
 
-    private Object toEntityAsCSV(final List<RetrieveTask> tasks) {
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
-                Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                writer.write(CSV_HEADER);
-                for (RetrieveTask task : tasks) {
-                    task.writeAsCSVTo(writer);
-                }
-                writer.flush();
-            }
-        };
+    private QueueMessage.Status status() {
+        return status != null ? QueueMessage.Status.fromString(status) : null;
     }
 
     private void logRequest() {
@@ -297,9 +372,5 @@ public class RetrieveTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
-    }
-
-    private static QueueMessage.Status parseStatus(String s) {
-        return s != null ? QueueMessage.Status.fromString(s) : null;
     }
 }

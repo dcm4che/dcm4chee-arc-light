@@ -958,6 +958,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.192 NAME 'dcmExportPriority'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.193 NAME 'dcmQueueTasksFetchSize'
+  DESC 'Maximal number of Tasks rescheduled or deleted or canceled in one transaction; 100 if absent'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
 -
 delete: olcObjectClasses
 -
@@ -1080,6 +1085,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmCopyMoveUpdatePolicy $
     dcmLinkMWLEntryUpdatePolicy $
     dcmAuditSoftwareConfigurationVerbose $
+    dcmQueueTasksFetchSize $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $

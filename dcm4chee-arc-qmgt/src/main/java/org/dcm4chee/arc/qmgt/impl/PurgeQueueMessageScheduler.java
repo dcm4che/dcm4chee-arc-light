@@ -47,12 +47,12 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -96,10 +96,12 @@ public class PurgeQueueMessageScheduler extends Scheduler {
         if (delay == null)
             return;
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("-yyyyMMddhhmmss");
         Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
-        int count = ejb.deleteMessages(queueName, status, null, null, dateFormat.format(before));
+        int count = ejb.deleteTasks(
+                        queueName,
+                        MatchTask.matchQueueMessage(
+                                queueName, null, status, null, null, before));
         if (count > 0)
-            LOG.info("Deleted " + count + " COMPLETED messages from queue: " + queueName);
+            LOG.info("Deleted " + count + " messages from queue: " + queueName);
     }
 }

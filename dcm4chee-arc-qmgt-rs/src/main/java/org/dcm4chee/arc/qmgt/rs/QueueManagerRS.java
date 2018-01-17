@@ -40,11 +40,14 @@
 
 package org.dcm4chee.arc.qmgt.rs;
 
+import com.querydsl.core.types.Predicate;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskRequestException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +64,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -76,6 +80,9 @@ public class QueueManagerRS {
     @Inject
     private QueueManager mgr;
 
+    @Inject
+    private Device device;
+
     @Context
     private HttpServletRequest request;
 
@@ -83,7 +90,7 @@ public class QueueManagerRS {
     private String queueName;
 
     @QueryParam("dicomDeviceName")
-    private String dicomDeviceName;
+    private String deviceName;
 
     @QueryParam("status")
     @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
@@ -109,7 +116,10 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response search() throws Exception {
         logRequest();
-        return Response.ok(toEntity(mgr.search(queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime, parseInt(offset), parseInt(limit))))
+        return Response.ok(toEntity(mgr.search(
+                MatchTask.matchQueueMessage(queueName, deviceName, status(), createdTime, updatedTime, null),
+                parseInt(offset),
+                parseInt(limit))))
                 .build();
     }
 
@@ -119,9 +129,8 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response countTasks() throws Exception {
         logRequest();
-        return Response.ok("{\"count\":"
-                + mgr.countTasks(queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime) + '}')
-                .build();
+        return count(mgr.countTasks(MatchTask.matchQueueMessage(
+                        queueName, deviceName, status(), createdTime, updatedTime, null)));
     }
 
     @POST
@@ -129,12 +138,12 @@ public class QueueManagerRS {
     public Response cancelProcessing(@PathParam("msgId") String msgId) {
         logRequest();
         try {
-            return Response.status(mgr.cancelProcessing(msgId)
+            return Response.status(mgr.cancelTask(msgId)
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
         } catch (IllegalTaskStateException e) {
-            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+            return rsp(Response.Status.CONFLICT, e.getMessage());
         }
     }
 
@@ -142,15 +151,19 @@ public class QueueManagerRS {
     @Path("/cancel")
     public Response cancelTasks() {
         logRequest();
+        QueueMessage.Status status = status();
+        if (status == null)
+            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+        if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
+            return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
+
         try {
-            return Response.status(Response.Status.OK)
-                    .entity("{\"count\":"
-                            + mgr.cancelTasksInQueue(
-                                    queueName, dicomDeviceName, parseStatus(status), createdTime, updatedTime, null, null)
-                            + '}')
-                    .build();
-        } catch (IllegalTaskRequestException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            LOG.info("Cancel processing of Tasks with Status {} at Queue {}", this.status, queueName);
+            Predicate matchQueueMessage = MatchTask.matchQueueMessage(queueName, deviceName, status,
+                    createdTime, updatedTime, null);
+            return count(mgr.cancelTasks(matchQueueMessage, status));
+        } catch (IllegalTaskStateException e) {
+            return rsp(Response.Status.CONFLICT, e.getMessage());
         }
     }
 
@@ -159,7 +172,7 @@ public class QueueManagerRS {
     public Response rescheduleMessage(@PathParam("msgId") String msgId) {
         logRequest();
         try {
-            return Response.status(mgr.rescheduleMessage(msgId, null)
+            return Response.status(mgr.rescheduleTask(msgId, null)
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
@@ -168,11 +181,46 @@ public class QueueManagerRS {
         }
     }
 
+    @POST
+    @Path("/reschedule")
+    public Response rescheduleMessages() {
+        logRequest();
+        QueueMessage.Status status = status();
+        if (status == null)
+            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+        if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
+            return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
+        if (deviceName == null)
+            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: dicomDeviceName");
+        if (!deviceName.equals(device.getDeviceName()))
+            return rsp(Response.Status.CONFLICT,
+                    "Cannot reschedule Tasks originally scheduled on Device " + deviceName
+                    + " on Device " + device.getDeviceName());
+
+        try {
+            Predicate matchQueueMessage = MatchTask.matchQueueMessage(
+                    queueName, deviceName, status, createdTime, updatedTime, new Date());
+            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+            int fetchSize = arcDev.getQueueTasksFetchSize();
+            int count = 0;
+            List<String> queueMsgIDs;
+            do {
+                queueMsgIDs = mgr.getQueueMsgIDs(matchQueueMessage, fetchSize);
+                for (String msgID : queueMsgIDs)
+                    mgr.rescheduleTask(msgID, queueName);
+                count += queueMsgIDs.size();
+            } while (queueMsgIDs.size() >= fetchSize);
+            return count(count);
+        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            return rsp(Response.Status.CONFLICT, e.getMessage());
+        }
+    }
+
     @DELETE
     @Path("{msgId}")
     public Response deleteMessage(@PathParam("msgId") String msgId) {
         logRequest();
-        return Response.status(mgr.deleteMessage(msgId)
+        return Response.status(mgr.deleteTask(msgId)
                 ? Response.Status.NO_CONTENT
                 : Response.Status.NOT_FOUND)
                 .build();
@@ -182,9 +230,17 @@ public class QueueManagerRS {
     @Produces("application/json")
     public String deleteMessages() {
         logRequest();
-        return "{\"deleted\":"
-                + mgr.deleteMessages(queueName, parseStatus(status), dicomDeviceName, createdTime, updatedTime)
-                + '}';
+        int deleted = mgr.deleteTasks(queueName, MatchTask.matchQueueMessage(
+                queueName, deviceName, status(), createdTime, updatedTime, null));
+        return "{\"deleted\":" + deleted + '}';
+    }
+
+    private static Response rsp(Response.Status status, Object enity) {
+        return Response.status(status).entity(enity).build();
+    }
+
+    private static Response count(long count) {
+        return rsp(Response.Status.OK, "{\"count\":" + count + '}');
     }
 
     private Object toEntity(final List<QueueMessage> msgs) {
@@ -205,8 +261,8 @@ public class QueueManagerRS {
         };
     }
 
-    private static QueueMessage.Status parseStatus(String s) {
-        return s != null ? QueueMessage.Status.fromString(s) : null;
+    private QueueMessage.Status status() {
+        return status != null ? QueueMessage.Status.fromString(status) : null;
     }
 
     private static int parseInt(String s) {

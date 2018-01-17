@@ -38,18 +38,17 @@
 
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QRetrieveTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.*;
-import org.dcm4chee.arc.query.util.MatchDateTimeRange;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.hibernate.Session;
@@ -63,7 +62,6 @@ import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -79,6 +77,9 @@ public class RetrieveManagerEJB {
 
     @Inject
     private QueueManager queueManager;
+
+    @Inject
+    private Device device;
 
     public void scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx)
             throws QueueSizeLimitExceededException {
@@ -136,72 +137,37 @@ public class RetrieveManagerEJB {
                 .executeUpdate();
     }
 
-    public List<RetrieveTask> search(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status,
-            int offset,
-            int limit) {
-        return createQuery(deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status, offset, limit)
-                .fetch();
+    public List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask, int offset, int limit) {
+        HibernateQuery<RetrieveTask> extRetrieveQuery = createQuery(matchQueueMessage, matchRetrieveTask);
+        if (limit > 0)
+            extRetrieveQuery.limit(limit);
+        if (offset > 0)
+            extRetrieveQuery.offset(offset);
+        extRetrieveQuery.orderBy(QRetrieveTask.retrieveTask.updatedTime.desc());
+        return extRetrieveQuery.fetch();
     }
 
-    public long countRetrieveTasks(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status) {
-        return createQuery(
-                deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status, 0, 0)
+    public long countRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+        return createQuery(matchQueueMessage, matchRetrieveTask)
                 .fetchCount();
     }
 
     private HibernateQuery<RetrieveTask> createQuery(
-            String deviceName, String localAET, String remoteAET, String destinationAET, String studyUID,
-            String createdTime, String updatedTime, QueueMessage.Status status, int offset, int limit) {
-        BooleanBuilder builder = new BooleanBuilder();
-        if (deviceName != null)
-            builder.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
-        if (localAET != null)
-            builder.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
-        if (remoteAET != null)
-            builder.and(QRetrieveTask.retrieveTask.remoteAET.eq(remoteAET));
-        if (destinationAET != null)
-            builder.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
-        if (studyUID != null)
-            builder.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
-        if (status != null)
-            builder.and(status == QueueMessage.Status.TO_SCHEDULE
-                    ? QRetrieveTask.retrieveTask.queueMessage.isNull()
-                    : QQueueMessage.queueMessage.status.eq(status));
-        if (createdTime != null)
-            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QRetrieveTask.retrieveTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
-                    QRetrieveTask.retrieveTask.createdTime.isNotNull()));
-        if (updatedTime != null)
-            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QRetrieveTask.retrieveTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
-                    QRetrieveTask.retrieveTask.updatedTime.isNotNull()));
-
-        HibernateQuery<RetrieveTask> query = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
+            Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(matchQueueMessage);
+        return new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
                 .from(QRetrieveTask.retrieveTask)
-                .leftJoin(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
-                .where(builder);
+                .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery));
+    }
+
+    public List<Long> getRetrieveTaskPks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit) {
+        HibernateQuery<Long> retrieveTaskPkQuery = createQuery(matchQueueMessage, matchRetrieveTask)
+                .select(QRetrieveTask.retrieveTask.pk);
         if (limit > 0)
-            query.limit(limit);
-        if (offset > 0)
-            query.offset(offset);
-        query.orderBy(QRetrieveTask.retrieveTask.updatedTime.desc());
-        return query;
+            retrieveTaskPkQuery.limit(limit);
+        return retrieveTaskPkQuery.fetch();
     }
 
     public boolean deleteRetrieveTask(Long pk) {
@@ -214,7 +180,7 @@ public class RetrieveManagerEJB {
         return true;
     }
 
-    public boolean cancelProcessing(Long pk) throws IllegalTaskStateException {
+    public boolean cancelRetrieveTask(Long pk) throws IllegalTaskStateException {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
             return false;
@@ -223,26 +189,14 @@ public class RetrieveManagerEJB {
         if (queueMessage == null)
             throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
 
-        queueManager.cancelProcessing(queueMessage.getMessageID());
+        queueManager.cancelTask(queueMessage.getMessageID());
         LOG.info("Cancel {}", task);
         return true;
     }
-
-    public int cancelRetrieveTasks(String localAET, String remoteAET, String destinationAET, String studyUID,
-            String deviceName, QueueMessage.Status status, String createdTime, String updatedTime)
-            throws IllegalTaskRequestException {
-        BooleanBuilder predicate = new BooleanBuilder();
-        if (localAET != null)
-            predicate.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
-        if (remoteAET != null)
-            predicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(remoteAET));
-        if (destinationAET != null)
-            predicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
-        if (studyUID != null)
-            predicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
-
-        return queueManager.cancelTasksInQueue(
-                RetrieveManager.QUEUE_NAME, deviceName, status, createdTime, updatedTime, null, predicate);
+    
+    public long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        return queueManager.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask, prev);
     }
 
     public boolean rescheduleRetrieveTask(Long pk)
@@ -253,81 +207,34 @@ public class RetrieveManagerEJB {
 
         QueueMessage queueMessage = task.getQueueMessage();
         if (queueMessage != null)
-            queueManager.rescheduleMessage(queueMessage.getMessageID(), RetrieveManager.QUEUE_NAME);
+            queueManager.rescheduleTask(queueMessage.getMessageID(), RetrieveManager.QUEUE_NAME);
 
         LOG.info("Reschedule {}", task);
         return true;
     }
 
-    public int deleteTasks(String deviceName,
-                           String localAET,
-                           String remoteAET,
-                           String destinationAET,
-                           String studyUID,
-                           String createdTime,
-                           String updatedTime,
-                           QueueMessage.Status status) {
-        BooleanBuilder queueMessagePredicate = new BooleanBuilder();
-        if (deviceName != null)
-            queueMessagePredicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
-        if (status != null)
-            queueMessagePredicate.and(QQueueMessage.queueMessage.status.eq(status));
-        if (createdTime != null)
-            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT),
-                    QQueueMessage.queueMessage.createdTime.isNotNull()));
-        if (updatedTime != null)
-            queueMessagePredicate.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT),
-                    QQueueMessage.queueMessage.updatedTime.isNotNull()));
-
-        BooleanBuilder retrieveTaskPredicate = new BooleanBuilder();
-        if (localAET != null)
-            retrieveTaskPredicate.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
-        if (remoteAET != null)
-            retrieveTaskPredicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(remoteAET));
-        if (destinationAET != null)
-            retrieveTaskPredicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
-        if (studyUID != null)
-            retrieveTaskPredicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
-
-        HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+        int count = 0;
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int deleteTaskFetchSize = arcDev.getQueueTasksFetchSize();
+        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
-                .where(queueMessagePredicate);
-        List<Long> referencedQueueMsgs = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
-                .select(QRetrieveTask.retrieveTask.queueMessage.pk)
-                .from(QRetrieveTask.retrieveTask)
-                .where(retrieveTaskPredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMessageQuery)).fetch();
+                .where(matchQueueMessage);
+        List<Long> referencedQueueMsgs;
+        do {
+            referencedQueueMsgs = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
+                    .select(QRetrieveTask.retrieveTask.queueMessage.pk)
+                    .from(QRetrieveTask.retrieveTask)
+                    .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery))
+                    .limit(deleteTaskFetchSize).fetch();
 
-        new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-            .where(retrieveTaskPredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMessageQuery))
-            .execute();
+            new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
+                    .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgs))
+                    .execute();
 
-        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-            .where(queueMessagePredicate, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
-    }
-
-    private static DateRange getDateRange(String s) {
-        String[] range = splitRange(s);
-        DatePrecision precision = new DatePrecision();
-        Date start = range[0] == null ? null
-                : VR.DT.toDate(range[0], null, 0, false, null, precision);
-        Date end = range[1] == null ? null
-                : VR.DT.toDate(range[1], null, 0, true, null, precision);
-        return new DateRange(start, end);
-    }
-
-    private static String[] splitRange(String s) {
-        String[] range = new String[2];
-        int delim = s.indexOf('-');
-        if (delim == -1)
-            range[0] = range[1] = s;
-        else {
-            if (delim > 0)
-                range[0] =  s.substring(0, delim);
-            if (delim < s.length() - 1)
-                range[1] =  s.substring(delim+1);
-        }
-        return range;
+            count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                    .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
+        } while (referencedQueueMsgs.size() >= deleteTaskFetchSize);
+        return count;
     }
 }

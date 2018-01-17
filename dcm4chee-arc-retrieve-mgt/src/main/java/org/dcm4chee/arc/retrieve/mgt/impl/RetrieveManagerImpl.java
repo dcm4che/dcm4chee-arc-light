@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.*;
@@ -141,33 +142,13 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<RetrieveTask> search(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status,
-            int offset,
-            int limit) {
-        return ejb.search(deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status,
-                offset, limit);
+    public List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask, int offset, int limit) {
+        return ejb.search(matchQueueMessage, matchRetrieveTask, offset, limit);
     }
 
     @Override
-    public long countRetrieveTasks(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status) {
-        return ejb.countRetrieveTasks(
-                deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status);
+    public long countRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+        return ejb.countRetrieveTasks(matchQueueMessage, matchRetrieveTask);
     }
 
     @Override
@@ -176,15 +157,14 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public boolean cancelProcessing(Long pk) throws IllegalTaskStateException {
-        return ejb.cancelProcessing(pk);
+    public boolean cancelRetrieveTask(Long pk) throws IllegalTaskStateException {
+        return ejb.cancelRetrieveTask(pk);
     }
 
     @Override
-    public int cancelRetrieveTasks(String localAET, String remoteAET, String destinationAET, String studyUID,
-            String deviceName, QueueMessage.Status status, String createdTime, String updatedTime)
-            throws IllegalTaskRequestException {
-        return ejb.cancelRetrieveTasks(localAET, remoteAET, destinationAET, studyUID, deviceName, status, createdTime, updatedTime);
+    public long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        return ejb.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask, prev);
     }
 
     @Override
@@ -193,16 +173,12 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public int deleteTasks(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status) {
-        return ejb.deleteTasks(
-                deviceName, localAET, remoteAET, destinationAET, studyUID, createdTime, updatedTime, status);
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+        return ejb.deleteTasks(matchQueueMessage, matchRetrieveTask);
+    }
+
+    @Override
+    public List<Long> getRetrieveTaskPks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit) {
+        return ejb.getRetrieveTaskPks(matchQueueMessage, matchRetrieveTask, limit);
     }
 }
