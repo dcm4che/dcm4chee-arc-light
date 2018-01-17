@@ -46,7 +46,9 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.core.types.dsl.StringPath;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.DatePrecision;
 import org.dcm4che3.data.DateRange;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.util.DateUtils;
 
 import java.util.Date;
@@ -121,6 +123,10 @@ public class MatchDateTimeRange {
         if (endDate == null)
             return field.goe(dt.format(startDate));
         return rangeInterval(field, startDate, endDate, dt, range);
+    }
+
+    public static Predicate range(DateTimePath field, String range, FormatDate dt) {
+        return range(field, parseDateRange(range), dt);
     }
 
     public static Predicate range(DateTimePath field, DateRange range, FormatDate dt) {
@@ -210,5 +216,29 @@ public class MatchDateTimeRange {
             ExpressionUtils.and(dateField.eq(startDate), timeField.eq("*"));
         Predicate startDayFollowing = dateField.gt(startDate);
         return ExpressionUtils.anyOf(startDayTime, startDayTimeUnknown, startDayFollowing);
+    }
+
+    private static DateRange parseDateRange(String s) {
+        String[] range = splitRange(s);
+        DatePrecision precision = new DatePrecision();
+        Date start = range[0] == null ? null
+                : VR.DT.toDate(range[0], null, 0, false, null, precision);
+        Date end = range[1] == null ? null
+                : VR.DT.toDate(range[1], null, 0, true, null, precision);
+        return new DateRange(start, end);
+    }
+
+    private static String[] splitRange(String s) {
+        String[] range = new String[2];
+        int delim = s.indexOf('-');
+        if (delim == -1)
+            range[0] = range[1] = s;
+        else {
+            if (delim > 0)
+                range[0] =  s.substring(0, delim);
+            if (delim < s.length() - 1)
+                range[1] =  s.substring(delim+1);
+        }
+        return range;
     }
 }

@@ -42,9 +42,6 @@ package org.dcm4chee.arc.query.util;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-import org.dcm4che3.data.DatePrecision;
-import org.dcm4che3.data.DateRange;
-import org.dcm4che3.data.VR;
 import org.dcm4chee.arc.entity.QExportTask;
 import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QRetrieveTask;
@@ -73,10 +70,10 @@ public class MatchTask {
             predicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
         if (createdTime != null)
             predicate.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT));
+                    QQueueMessage.queueMessage.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));
         if (updatedTime != null)
             predicate.and(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT));
+                    QQueueMessage.queueMessage.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
         if (updatedBefore != null)
             predicate.and(QQueueMessage.queueMessage.updatedTime.before(updatedBefore));
         return predicate;
@@ -95,10 +92,10 @@ public class MatchTask {
             predicate.and(QRetrieveTask.retrieveTask.studyInstanceUID.eq(studyUID));
         if (createdTime != null)
             predicate.and(MatchDateTimeRange.range(
-                    QRetrieveTask.retrieveTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT));
+                    QRetrieveTask.retrieveTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));
         if (updatedTime != null)
             predicate.and(MatchDateTimeRange.range(
-                    QRetrieveTask.retrieveTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT));
+                    QRetrieveTask.retrieveTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
         return predicate;
     }
 
@@ -113,34 +110,11 @@ public class MatchTask {
             predicate.and(QExportTask.exportTask.studyInstanceUID.eq(studyUID));
         if (createdTime != null)
             predicate.and(MatchDateTimeRange.range(
-                    QExportTask.exportTask.createdTime, getDateRange(createdTime), MatchDateTimeRange.FormatDate.DT));
+                    QExportTask.exportTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));
         if (updatedTime != null)
             predicate.and(MatchDateTimeRange.range(
-                    QExportTask.exportTask.updatedTime, getDateRange(updatedTime), MatchDateTimeRange.FormatDate.DT));
+                    QExportTask.exportTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
         return predicate;
     }
 
-    private static DateRange getDateRange(String s) {
-        String[] range = splitRange(s);
-        DatePrecision precision = new DatePrecision();
-        Date start = range[0] == null ? null
-                : VR.DT.toDate(range[0], null, 0, false, null, precision);
-        Date end = range[1] == null ? null
-                : VR.DT.toDate(range[1], null, 0, true, null, precision);
-        return new DateRange(start, end);
-    }
-
-    private static String[] splitRange(String s) {
-        String[] range = new String[2];
-        int delim = s.indexOf('-');
-        if (delim == -1)
-            range[0] = range[1] = s;
-        else {
-            if (delim > 0)
-                range[0] =  s.substring(0, delim);
-            if (delim < s.length() - 1)
-                range[1] =  s.substring(delim+1);
-        }
-        return range;
-    }
 }
