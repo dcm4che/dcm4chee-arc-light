@@ -235,44 +235,25 @@ public class StgCmtEJB implements StgCmtManager {
     }
 
     private Predicate createPredicate(Sequence refSopSeq) {
-        BooleanBuilder builder = new BooleanBuilder();
-        int size = refSopSeq.size();
-        String[] sopIUIDs = new String[size];
-        for (int i = 0; i < size; i++)
-            sopIUIDs[i] = refSopSeq.get(i).getString(Tag.ReferencedSOPInstanceUID);
-        addSOPIUIDsPredicate(builder, sopIUIDs);
-        builder.and(QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
-        return builder;
-    }
+        int limit = ((SessionFactoryImplementor) em.unwrap(Session.class).getSessionFactory())
+                .getDialect().getInExpressionCountLimit();
+        if (limit == 0)
+            limit = refSopSeq.size();
 
-    private void addSOPIUIDsPredicate(BooleanBuilder builder, String[] sopIUIDs) {
-        Session session =  em.unwrap(Session.class);
-        SessionFactoryImplementor sessionFactory = (SessionFactoryImplementor) session.getSessionFactory();
-        Dialect dialect = sessionFactory.getDialect();
-        int dialectLimit = dialect.getInExpressionCountLimit();
-        builder.and(dialectLimit > 0 && sopIUIDs.length > dialectLimit
-                        ? sopIUIDsPredicate(split(sopIUIDs, dialectLimit))
-                        : QInstance.instance.sopInstanceUID.in(sopIUIDs));
-    }
-
-    private Predicate sopIUIDsPredicate(String[][] splittedSOPIUIDs) {
+        String[] sopIUIDs = new String[limit];
         BooleanBuilder sopIUIDsPredicate = new BooleanBuilder();
-        for (int i = 0; i < splittedSOPIUIDs.length; i++)
-            sopIUIDsPredicate.or(QInstance.instance.sopInstanceUID.in(splittedSOPIUIDs[i]));
-        return sopIUIDsPredicate;
-    }
-
-    private String[][] split(String[] input, int splitSize) {
-        int numOfSplits = (int)Math.ceil((double)input.length / splitSize);
-        String[][] output = new String[numOfSplits][];
-        for(int i = 0; i < numOfSplits; ++i) {
-            int start = i * splitSize;
-            int length = Math.min(input.length - start, splitSize);
-            String[] part = new String[length];
-            System.arraycopy(input, start, part, 0, length);
-            output[i] = part;
+        Iterator<Attributes> refSopIter = refSopSeq.iterator();
+        while (refSopIter.hasNext()) {
+            for (int i = 0; i < limit; i++) {
+                if (!refSopIter.hasNext()) {
+                    sopIUIDs = Arrays.copyOf(sopIUIDs, i);
+                    break;
+                }
+                sopIUIDs[i] = refSopIter.next().getString(Tag.ReferencedSOPInstanceUID);
+            }
+            sopIUIDsPredicate.or(QInstance.instance.sopInstanceUID.in(sopIUIDs));
         }
-        return output;
+        return ExpressionUtils.and(sopIUIDsPredicate, QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
     }
 
     private Predicate createPredicate(String studyIUID, String seriesIUID, String sopIUID) {
