@@ -4,6 +4,7 @@ import {Observable, Subject, Subscription} from 'rxjs';
 import {User} from './models/user';
 import * as _ from 'lodash';
 import {WindowRefService} from "./helpers/window-ref.service";
+import {DatePipe} from "@angular/common";
 
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
