@@ -71,6 +71,7 @@ import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2015
  */
 @Stateless
@@ -213,7 +214,8 @@ public class QueueManagerEJB {
 
     public long cancelTasks(Predicate matchQueueMessage) {
         Date now = new Date();
-        HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+        HibernateQuery<Long> queueMessageQuery = new HibernateQuery<Long>(em.unwrap(Session.class))
+                .select(QQueueMessage.queueMessage.pk)
                 .from(QQueueMessage.queueMessage)
                 .where(matchQueueMessage);
         updateExportTaskUpdatedTime(queueMessageQuery, now);
@@ -221,32 +223,33 @@ public class QueueManagerEJB {
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
-    private void updateExportTaskUpdatedTime(HibernateQuery<QueueMessage> queueMessageQuery, Date now) {
+    private void updateExportTaskUpdatedTime(HibernateQuery<Long> queueMessageQuery, Date now) {
         new HibernateUpdateClause(em.unwrap(Session.class), QExportTask.exportTask)
                 .set(QExportTask.exportTask.updatedTime, now)
-                .where(QExportTask.exportTask.queueMessage.in(queueMessageQuery))
+                .where(QExportTask.exportTask.queueMessage.pk.in(queueMessageQuery))
                 .execute();
     }
 
-    private void updateRetrieveTaskUpdatedTime(HibernateQuery<QueueMessage> queueMessageQuery, Date now) {
+    private void updateRetrieveTaskUpdatedTime(HibernateQuery<Long> queueMessageQuery, Date now) {
         new HibernateUpdateClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
                 .set(QRetrieveTask.retrieveTask.updatedTime, now)
-                .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMessageQuery))
+                .where(QRetrieveTask.retrieveTask.queueMessage.pk.in(queueMessageQuery))
                 .execute();
     }
 
-    private long updateStatus(HibernateQuery<QueueMessage> queueMessageQuery, QueueMessage.Status status, Date now) {
+    private long updateStatus(HibernateQuery<Long> queueMessageQuery, QueueMessage.Status status, Date now) {
         return new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
                 .set(QQueueMessage.queueMessage.status, status)
                 .set(QQueueMessage.queueMessage.updatedTime, now)
-                .where(QQueueMessage.queueMessage.in(queueMessageQuery))
+                .where(QQueueMessage.queueMessage.pk.in(queueMessageQuery))
                 .execute();
     }
 
     public long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask) {
         Date now = new Date();
-        HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
+        HibernateQuery<Long> queueMessageQuery = new HibernateQuery<Long>(em.unwrap(Session.class))
+                .select(QExportTask.exportTask.queueMessage.pk)
+                .from(QExportTask.exportTask)
                 .join(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
                 .where(ExpressionUtils.and(matchQueueMessage, matchExportTask));
         updateExportTaskUpdatedTime(queueMessageQuery, now);
@@ -255,8 +258,8 @@ public class QueueManagerEJB {
 
     public List<String> getExportTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchExportTask) {
         return new HibernateQuery<String>(em.unwrap(Session.class))
-                .select(QQueueMessage.queueMessage.messageID)
-                .from(QQueueMessage.queueMessage)
+                .select(QExportTask.exportTask.queueMessage.messageID)
+                .from(QExportTask.exportTask)
                 .join(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
                 .where(ExpressionUtils.and(matchQueueMessage, matchExportTask))
                 .fetch();
@@ -264,8 +267,9 @@ public class QueueManagerEJB {
 
     public long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         Date now = new Date();
-        HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
+        HibernateQuery<Long> queueMessageQuery = new HibernateQuery<Long>(em.unwrap(Session.class))
+                .select(QRetrieveTask.retrieveTask.queueMessage.pk)
+                .from(QRetrieveTask.retrieveTask)
                 .join(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
                 .where(ExpressionUtils.and(matchQueueMessage, matchRetrieveTask));
         updateRetrieveTaskUpdatedTime(queueMessageQuery, now);
@@ -274,8 +278,8 @@ public class QueueManagerEJB {
 
     public List<String> getRetrieveTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         return new HibernateQuery<String>(em.unwrap(Session.class))
-                .select(QQueueMessage.queueMessage.messageID)
-                .from(QQueueMessage.queueMessage)
+                .select(QRetrieveTask.retrieveTask.queueMessage.messageID)
+                .from(QRetrieveTask.retrieveTask)
                 .join(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
                 .where(ExpressionUtils.and(matchQueueMessage, matchRetrieveTask))
                 .fetch();
