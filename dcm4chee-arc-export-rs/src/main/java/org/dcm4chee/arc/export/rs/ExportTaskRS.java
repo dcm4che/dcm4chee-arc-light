@@ -212,7 +212,7 @@ public class ExportTaskRS {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
         if (exporter == null)
-            return Response.status(Response.Status.NOT_FOUND).entity("No such exporter - " + exporterID).build();
+            return rsp(Response.Status.NOT_FOUND, "No such exporter - " + exporterID);
 
         try {
             return Response.status(mgr.rescheduleExportTask(pk, exporter)
@@ -240,13 +240,16 @@ public class ExportTaskRS {
                     "Cannot reschedule Tasks originally scheduled on Device " + deviceName
                             + " on Device " + device.getDeviceName());
 
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ExporterDescriptor exporter = null;
+        if (exporterID != null && (exporter = arcDev.getExporterDescriptor(exporterID)) == null)
+            return rsp(Response.Status.NOT_FOUND, "No such exporter - " + exporterID);
+
         try {
             Predicate matchQueueMessage = MatchTask.matchQueueMessage(
                     null, deviceName, status, null, null, new Date());
             Predicate matchExportTask = MatchTask.matchExportTask(
                     exporterID, deviceName, studyUID, createdTime, updatedTime);
-            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
             int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
             List<ExportTask> exportTasks;
@@ -263,7 +266,6 @@ public class ExportTaskRS {
             return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
         }
     }
-
 
     @DELETE
     @Path("/{taskPK}")
