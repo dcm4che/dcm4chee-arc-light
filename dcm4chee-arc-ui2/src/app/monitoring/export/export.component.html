@@ -137,6 +137,7 @@
                     </div>
                 </th>
                 <th>Modality</th>
+                <th>Study UID</th>
                 <th title="Number of instances">Nr.Inst. </th>
                 <th title="Export Task ID">Exporter ID</th>
                 <th>Status</th>
@@ -144,7 +145,6 @@
                 <th title="Scheduled time">Queue time</th>
                 <th title="Processing start time">Export time</th>
                 <th>Device name</th>
-                <th>Study UID</th>
             </tr>
             </thead>
             <tbody>
@@ -167,6 +167,7 @@
                         </a>
                     </td>
                     <td [innerHtml]="match.properties.Modality"></td>
+                    <td [innerHtml]="match.properties.StudyInstanceUID"></td>
                     <td [innerHtml]="match.properties.NumberOfInstances" ></td>
                     <td [innerHtml]="match.properties.ExporterID"></td>
                     <td [innerHtml]="match.properties.status" title="{{match.properties.outcomeMessage}}"></td>
@@ -174,7 +175,6 @@
                     <td class="text-right" [innerHtml]="getDifferenceTime(match.properties.scheduledTime,match.properties.processingStartTime)"></td>
                     <td class="text-right" [innerHtml]="getDifferenceTime(match.properties.processingStartTime,match.properties.processingEndTime)"></td>
                     <td [innerHtml]="match.properties.dicomDeviceName"></td>
-                    <td [innerHtml]="match.properties.StudyInstanceUID"></td>
                 </tr>
                 <tr *ngIf="match.showProperties">
                     <td colspan="11">

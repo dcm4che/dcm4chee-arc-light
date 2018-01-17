@@ -133,6 +133,7 @@
                     </div>
                 </th>
                 <th>Queue</th>
+                <th>Study UID</th>
                 <th>Status</th>
                 <th>Failures</th>
                 <th>Created</th>
@@ -162,6 +163,7 @@
                         </a>
                     </td>
                     <td [innerHtml]="match.properties.queue"></td>
+                    <td [innerHtml]="match.properties.StudyInstanceUID"></td>
                     <td [innerHtml]="match.properties.status" title="{{match.properties.outcomeMessage}}"></td>
                     <td [innerHtml]="match.properties.failures" title="{{match.properties.errorMessage}}"></td>
                     <td [innerHtml]="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>

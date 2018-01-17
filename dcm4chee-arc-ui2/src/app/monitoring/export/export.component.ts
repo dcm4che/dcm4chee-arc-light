@@ -166,8 +166,6 @@ export class ExportComponent implements OnInit {
         this.service.search(this.filters, offset)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
-                console.log('res2', res);
-                console.log('res', res.length);
                 if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
                         $this.cfpLoadingBar.complete();
@@ -426,8 +424,8 @@ export class ExportComponent implements OnInit {
         });
     }
     msToTime(duration) {
-
-        if (duration > 999){
+        return ((duration / 60000).toFixed(4)).toString() + ' min';
+  /*      if (duration > 999){
 
             let milliseconds: any = parseInt((((duration % 1000))).toString())
                 , seconds: any = parseInt(((duration / 1000) % 60).toString())
@@ -450,7 +448,7 @@ export class ExportComponent implements OnInit {
             }
         }else{
             return duration.toString() + ' ms';
-        }
+        }*/
     }
     delete(match){
         let $this = this;
