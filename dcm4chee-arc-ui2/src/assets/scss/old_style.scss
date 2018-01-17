@@ -2384,6 +2384,18 @@ div[tooltip]{
 		width:36px !important;
 		height:36px !important;
 		border-width:3px !important;
+		position: relative;
+		top:6px;
+	}
+	.pause{
+		position: relative;
+		top: 13px;
+		i{
+			font-size: 38px;
+			position: relative;
+			//top: -2px;
+			left: -1px;
+		}
 	}
   .mat-progress-spinner path, .mat-spinner path{
     stroke:$blue;

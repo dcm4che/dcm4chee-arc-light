@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+///<reference path="../../../../node_modules/@angular/core/src/metadata/lifecycle_hooks.d.ts"/>
+import { Component, OnDestroy } from '@angular/core';
 import {Http} from '@angular/http';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
@@ -8,12 +9,13 @@ import {MessagingComponent} from '../../widgets/messaging/messaging.component';
 import {AppService} from '../../app.service';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {HttpErrorHandler} from "../../helpers/http-error-handler";
 
 @Component({
   selector: 'app-associations',
   templateUrl: './associations.component.html'
 })
-export class AssociationsComponent{
+export class AssociationsComponent implements OnDestroy{
     updaterate: any = 3;
     // logoutUrl = myApp.logoutUrl();
     // status:any;
@@ -21,8 +23,9 @@ export class AssociationsComponent{
     message = '';
     others   = false;
     associationStatus;
+    pause = false;
     // myValue = 10;
-    constructor(public $http:J4careHttpService, public appservices: AppService, private cfpLoadingBar: SlimLoadingBarService, public messaging: MessagingComponent) {
+    constructor(public $http:J4careHttpService, public appservices: AppService, private cfpLoadingBar: SlimLoadingBarService, public messaging: MessagingComponent, public httpErrorHandler:HttpErrorHandler) {
         this.cfpLoadingBar.interval = 200;
     }
 
@@ -129,7 +132,11 @@ export class AssociationsComponent{
     abort(serialnr){
         this.cfpLoadingBar.start();
         this.$http.delete('/dcm4chee-arc/monitor/associations/' + serialnr).subscribe(res => {
+            this.cfpLoadingBar.complete();
             this.refresh();
+        },(err)=>{
+            this.cfpLoadingBar.complete();
+            this.httpErrorHandler.handleError(err);
         });
     }
 
@@ -150,6 +157,7 @@ export class AssociationsComponent{
         this.$http.get('/dcm4chee-arc/monitor/associations')
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe(res => {
+                res = this.getDummy();
                 if (res && res[0] && res[0] != ''){
                     res = this.modifyObject(res);
                     res = this.timeCalculator(res);
@@ -161,10 +169,16 @@ export class AssociationsComponent{
                 this.cfpLoadingBar.complete();
                 // },1000);
             }, (err) => {
+                this.httpErrorHandler.handleError(err);
                 this.cfpLoadingBar.complete();
             });
     }
-
+    mauseEnter(){
+        this.pause = true;
+    }
+    mauseLeave(){
+        this.pause = false;
+    }
     monitor(){
         // cfpLoadingBar.start();
         this.stopLoop = false;
@@ -184,32 +198,35 @@ export class AssociationsComponent{
             this.updaterate = this.updaterate.replace(',', '.');
         }
         let $that: any = this;
-        let associationLoop = setInterval(function () {
+        let associationLoop = setInterval(() => {
             if ($that.stopLoop){
                 clearInterval(associationLoop);
             }else{
-
-                $that.$http.get('/dcm4chee-arc/monitor/associations')
-                    .map((res) => res.json())
-                    .subscribe(
-                        (res) => {
-                            let data = res;
-                            if (data && data[0] && data[0] != ''){
-                                data = $that.modifyObject(data);
-                                data = $that.timeCalculator(data);
-                                $that.associationStatus = data;
-                            }else{
-                                $that.associationStatus = null;
+                if(!this.pause){
+                    $that.$http.get('/dcm4chee-arc/monitor/associations')
+                        .map((res) => res.json())
+                        .subscribe(
+                            (res) => {
+                                res = this.getDummy();
+                                let data = res;
+                                if (data && data[0] && data[0] != ''){
+                                    data = $that.modifyObject(data);
+                                    data = $that.timeCalculator(data);
+                                    $that.associationStatus = data;
+                                }else{
+                                    $that.associationStatus = null;
+                                }
+                            },
+                            (err) => {
+                                this.httpErrorHandler.handleError(err);
+                                //     // DeviceService.msg($scope, {
+                                //     //     "title": "Error",
+                                //     //     "text": "Connection error!",
+                                //     //     "status": "error"
+                                //     // });
                             }
-                        },
-                        (res) => {
-                            //     // DeviceService.msg($scope, {
-                            //     //     "title": "Error",
-                            //     //     "text": "Connection error!",
-                            //     //     "status": "error"
-                            //     // });
-                        }
-                    );
+                        );
+                }
             }
         }, $that.updaterate * 1000);
     };
@@ -267,5 +284,10 @@ export class AssociationsComponent{
         let file = new File([csv], 'associacions.csv', {type: 'text/csv;charset=utf-8'});
         FileSaver.saveAs(file);
     };
-
+    getDummy(){
+        return [{"serialNo":1049399,"connectTime":"2018-01-10T20:55:11.062+02:00","initiated":true,"localAETitle":"EEVNATRT1","remoteAETitle":"MAS1TRT","performedOps":{},"invokedOps":{"C-MOVE":{"RQ":1,"RSP":0}}},{"serialNo":1049422,"connectTime":"2018-01-10T20:55:37.802+02:00","initiated":true,"localAETitle":"EEVNATRT","remoteAETitle":"EEVNATLN_FW","performedOps":{},"invokedOps":{"C-STORE":{"RQ":848,"RSP":838}}},{"serialNo":1049429,"connectTime":"2018-01-10T20:55:44.075+02:00","initiated":false,"localAETitle":"EEVNATRT","remoteAETitle":"MAS1TLN","performedOps":{"C-STORE":{"RQ":8,"RSP":7}},"invokedOps":{}},{"serialNo":1049463,"connectTime":"2018-01-10T20:56:05.265+02:00","initiated":true,"localAETitle":"EEVNATRT","remoteAETitle":"EEVNATLN_FW","performedOps":{},"invokedOps":{"C-STORE":{"RQ":914,"RSP":897}}},{"serialNo":1049469,"connectTime":"2018-01-10T20:56:09.073+02:00","initiated":false,"localAETitle":"EEVNATRT_FW","remoteAETitle":"EEVNATLN","performedOps":{"C-STORE":{"RQ":810,"RSP":809}},"invokedOps":{}},{"serialNo":1049473,"connectTime":"2018-01-10T20:56:13.350+02:00","initiated":true,"localAETitle":"EEVNATRT","remoteAETitle":"EEVNATLN_FW","performedOps":{},"invokedOps":{"C-STORE":{"RQ":851,"RSP":832}}},{"serialNo":1049475,"connectTime":"2018-01-10T20:56:18.171+02:00","initiated":false,"localAETitle":"EEVNATRT","remoteAETitle":"MAS1TLN","performedOps":{"C-STORE":{"RQ":448,"RSP":447}},"invokedOps":{}},{"serialNo":1049513,"connectTime":"2018-01-10T20:56:44.496+02:00","initiated":false,"localAETitle":"EEVNATRT_FW","remoteAETitle":"EEVNATLN","performedOps":{"C-STORE":{"RQ":573,"RSP":572}},"invokedOps":{}},{"serialNo":1049529,"connectTime":"2018-01-10T20:56:52.688+02:00","initiated":true,"localAETitle":"EEVNATRT","remoteAETitle":"EEVNATLN_FW","performedOps":{},"invokedOps":{"C-STORE":{"RQ":619,"RSP":596}}},{"serialNo":1049537,"connectTime":"2018-01-10T20:56:57.407+02:00","initiated":true,"localAETitle":"EEVNATRT1","remoteAETitle":"MAS1TRT","performedOps":{},"invokedOps":{"C-MOVE":{"RQ":1,"RSP":0}}},{"serialNo":1049538,"connectTime":"2018-01-10T20:56:58.653+02:00","initiated":false,"localAETitle":"EEVNATRT","remoteAETitle":"MAS1TLN","performedOps":{"C-STORE":{"RQ":344,"RSP":343}},"invokedOps":{}},{"serialNo":1049571,"connectTime":"2018-01-10T20:57:28.052+02:00","initiated":true,"localAETitle":"EEVNATRT1","remoteAETitle":"MAS1TRT","performedOps":{},"invokedOps":{"C-MOVE":{"RQ":1,"RSP":0}}},{"serialNo":1049574,"connectTime":"2018-01-10T20:57:30.320+02:00","initiated":false,"localAETitle":"EEVNATRT","remoteAETitle":"MAS1TLN","performedOps":{"C-STORE":{"RQ":53,"RSP":52}},"invokedOps":{}},{"serialNo":1049582,"connectTime":"2018-01-10T20:57:42.966+02:00","initiated":false,"localAETitle":"EEVNATRT","remoteAETitle":"MAS1TLN","performedOps":{"C-STORE":{"RQ":130,"RSP":129}},"invokedOps":{}},{"serialNo":1049601,"connectTime":"2018-01-10T20:58:09.686+02:00","initiated":true,"localAETitle":"EEVNATRT","remoteAETitle":"EEVNATLN_FW","performedOps":{},"invokedOps":{"C-STORE":{"RQ":132,"RSP":104}}},{"serialNo":1049603,"connectTime":"2018-01-10T20:58:10.609+02:00","initiated":false,"localAETitle":"EEVNATRT","remoteAETitle":"MAS1TLN","performedOps":{"C-STORE":{"RQ":4,"RSP":3}},"invokedOps":{}},{"serialNo":1049607,"connectTime":"2018-01-10T20:58:13.607+02:00","initiated":true,"localAETitle":"EEVNATRT1","remoteAETitle":"MAS1TRT","performedOps":{},"invokedOps":{"C-MOVE":{"RQ":1,"RSP":0}}},{"serialNo":1049609,"connectTime":"2018-01-10T20:58:14.831+02:00","initiated":false,"localAETitle":"EEVNATRT_FW","remoteAETitle":"EEVNATLN","performedOps":{"C-STORE":{"RQ":60,"RSP":59}},"invokedOps":{}},{"serialNo":1049617,"connectTime":"2018-01-10T20:58:23.153+02:00","initiated":false,"localAETitle":"EEVNATRT_FW","remoteAETitle":"EEVNATLN","performedOps":{"C-STORE":{"RQ":1,"RSP":0}},"invokedOps":{}},{"serialNo":1049618,"connectTime":"2018-01-10T20:58:23.347+02:00","initiated":true,"localAETitle":"EEVNATRT1","remoteAETitle":"MAS1TRT","performedOps":{},"invokedOps":{"C-MOVE":{"RQ":1,"RSP":0}}},{"serialNo":1049619,"connectTime":"2018-01-10T20:58:24.391+02:00","initiated":false,"localAETitle":"EEVNATRT_FW","remoteAETitle":"EEVNATLN","performedOps":{"C-STORE":{"RQ":1,"RSP":0}},"invokedOps":{}}];
+    }
+    ngOnDestroy(){
+      this.stopLoop = true;
+    }
 }
