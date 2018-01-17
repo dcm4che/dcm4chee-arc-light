@@ -251,7 +251,8 @@ public class QueueManagerEJB {
                 .select(QExportTask.exportTask.queueMessage.pk)
                 .from(QExportTask.exportTask)
                 .join(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(ExpressionUtils.and(matchQueueMessage, matchExportTask));
+                .on(matchQueueMessage)
+                .where(matchExportTask);
         updateExportTaskUpdatedTime(queueMessageQuery, now);
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
@@ -261,7 +262,8 @@ public class QueueManagerEJB {
                 .select(QExportTask.exportTask.queueMessage.messageID)
                 .from(QExportTask.exportTask)
                 .join(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(ExpressionUtils.and(matchQueueMessage, matchExportTask))
+                .on(matchQueueMessage)
+                .where(matchExportTask)
                 .fetch();
     }
 
@@ -271,7 +273,8 @@ public class QueueManagerEJB {
                 .select(QRetrieveTask.retrieveTask.queueMessage.pk)
                 .from(QRetrieveTask.retrieveTask)
                 .join(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
-                .where(ExpressionUtils.and(matchQueueMessage, matchRetrieveTask));
+                .on(matchQueueMessage)
+                .where(matchRetrieveTask);
         updateRetrieveTaskUpdatedTime(queueMessageQuery, now);
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
@@ -281,7 +284,8 @@ public class QueueManagerEJB {
                 .select(QRetrieveTask.retrieveTask.queueMessage.messageID)
                 .from(QRetrieveTask.retrieveTask)
                 .join(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
-                .where(ExpressionUtils.and(matchQueueMessage, matchRetrieveTask))
+                .on(matchQueueMessage)
+                .where(matchRetrieveTask)
                 .fetch();
     }
 

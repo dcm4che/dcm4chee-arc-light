@@ -159,7 +159,7 @@ public class RetrieveTaskRS {
 
         List<RetrieveTask> tasks = mgr.search(
                 MatchTask.matchQueueMessage(
-                        RetrieveManager.QUEUE_NAME, deviceName, status(), null, null, null),
+                        null, deviceName, status(), null, null, null),
                 MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime),
                 parseInt(offset), parseInt(limit));
@@ -174,7 +174,7 @@ public class RetrieveTaskRS {
         logRequest();
         return count( mgr.countRetrieveTasks(
                 MatchTask.matchQueueMessage(
-                        RetrieveManager.QUEUE_NAME, deviceName, status(), null, null, null),
+                        null, deviceName, status(), null, null, null),
                 MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime)));
     }
@@ -204,10 +204,10 @@ public class RetrieveTaskRS {
             return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
 
         try {
-            LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status, mgr.QUEUE_NAME);
+            LOG.info("Cancel processing of Retrieve Tasks with Status {}", status);
             return count(mgr.cancelRetrieveTasks(
                     MatchTask.matchQueueMessage(
-                            RetrieveManager.QUEUE_NAME, deviceName, status, null, updatedTime, null),
+                            null, deviceName, status, null, updatedTime, null),
                     MatchTask.matchRetrieveTask(
                             localAET, remoteAET, destinationAET, studyIUID, createdTime, null),
                     status));
@@ -282,7 +282,7 @@ public class RetrieveTaskRS {
         logRequest();
         int deleted = mgr.deleteTasks(
                 MatchTask.matchQueueMessage(
-                        RetrieveManager.QUEUE_NAME, deviceName, status(), null, null, null),
+                        null, deviceName, status(), null, null, null),
                 MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime));
         return "{\"deleted\":" + deleted + '}';
