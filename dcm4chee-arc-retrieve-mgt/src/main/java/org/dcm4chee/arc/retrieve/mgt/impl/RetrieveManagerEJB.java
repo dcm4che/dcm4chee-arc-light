@@ -137,8 +137,8 @@ public class RetrieveManagerEJB {
                 .executeUpdate();
     }
 
-    public List<RetrieveTask> search(Predicate queueMsgPredicate, Predicate retrievePredicate, int offset, int limit) {
-        HibernateQuery<RetrieveTask> extRetrieveQuery = createQuery(queueMsgPredicate, retrievePredicate);
+    public List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask, int offset, int limit) {
+        HibernateQuery<RetrieveTask> extRetrieveQuery = createQuery(matchQueueMessage, matchRetrieveTask);
         if (limit > 0)
             extRetrieveQuery.limit(limit);
         if (offset > 0)
@@ -147,23 +147,23 @@ public class RetrieveManagerEJB {
         return extRetrieveQuery.fetch();
     }
 
-    public long countRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate) {
-        return createQuery(queueMsgPredicate, retrievePredicate)
+    public long countRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+        return createQuery(matchQueueMessage, matchRetrieveTask)
                 .fetchCount();
     }
 
     private HibernateQuery<RetrieveTask> createQuery(
-            Predicate queueMsgPredicate, Predicate retrievePredicate) {
+            Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
-                .where(queueMsgPredicate);
+                .where(matchQueueMessage);
         return new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
                 .from(QRetrieveTask.retrieveTask)
-                .where(retrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery));
+                .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery));
     }
 
-    public List<Long> getRetrieveTaskPks(Predicate queueMsgPredicate, Predicate retrievePredicate, int limit) {
-        HibernateQuery<Long> retrieveTaskPkQuery = createQuery(queueMsgPredicate, retrievePredicate)
+    public List<Long> getRetrieveTaskPks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit) {
+        HibernateQuery<Long> retrieveTaskPkQuery = createQuery(matchQueueMessage, matchRetrieveTask)
                 .select(QRetrieveTask.retrieveTask.pk);
         if (limit > 0)
             retrieveTaskPkQuery.limit(limit);
@@ -194,9 +194,9 @@ public class RetrieveManagerEJB {
         return true;
     }
     
-    public long cancelRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate, QueueMessage.Status prev)
+    public long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
             throws IllegalTaskStateException {
-        return queueManager.cancelRetrieveTasks(queueMsgPredicate, retrievePredicate, prev);
+        return queueManager.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask, prev);
     }
 
     public boolean rescheduleRetrieveTask(Long pk)
@@ -213,27 +213,27 @@ public class RetrieveManagerEJB {
         return true;
     }
 
-    public int deleteTasks(Predicate queueMsgPredicate, Predicate retrievePredicate) {
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         int count = 0;
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int deleteTaskFetchSize = arcDev.getQueueTasksFetchSize();
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
-                .where(queueMsgPredicate);
+                .where(matchQueueMessage);
         List<Long> referencedQueueMsgs;
         do {
             referencedQueueMsgs = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
                     .select(QRetrieveTask.retrieveTask.queueMessage.pk)
                     .from(QRetrieveTask.retrieveTask)
-                    .where(retrievePredicate, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery))
+                    .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery))
                     .limit(deleteTaskFetchSize).fetch();
 
             new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                    .where(retrievePredicate, QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgs))
+                    .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.pk.in(referencedQueueMsgs))
                     .execute();
 
             count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                    .where(queueMsgPredicate, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
+                    .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
         } while (referencedQueueMsgs.size() >= deleteTaskFetchSize);
         return count;
     }

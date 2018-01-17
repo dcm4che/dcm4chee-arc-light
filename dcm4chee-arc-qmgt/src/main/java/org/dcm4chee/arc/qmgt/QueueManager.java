@@ -65,23 +65,23 @@ public interface QueueManager {
 
     boolean cancelTask(String msgId) throws IllegalTaskStateException;
 
-    long cancelTasks(Predicate queueMsgPredicate, QueueMessage.Status prev) throws IllegalTaskStateException;
+    long cancelTasks(Predicate matchQueueMessage, QueueMessage.Status prev) throws IllegalTaskStateException;
 
-    long cancelExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate, QueueMessage.Status prev)
+    long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
-    long cancelRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate, QueueMessage.Status prevStatus)
+    long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prevStatus)
             throws IllegalTaskStateException;
 
     boolean rescheduleTask(String msgId, String queueName) throws IllegalTaskStateException, DifferentDeviceException;
 
     boolean deleteTask(String msgId);
 
-    int deleteTasks(String queueName, Predicate queueMsgPredicate);
+    int deleteTasks(String queueName, Predicate matchQueueMessage);
 
-    List<QueueMessage> search(Predicate queueMsgPredicate, int offset, int limit);
+    List<QueueMessage> search(Predicate matchQueueMessage, int offset, int limit);
 
-    long countTasks(Predicate queueMsgPredicate);
+    long countTasks(Predicate matchQueueMessage);
 
-    List<String> getQueueMsgIDs(Predicate queueMsgPredicate, int limit);
+    List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit);
 }

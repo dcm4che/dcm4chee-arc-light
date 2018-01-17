@@ -48,7 +48,7 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.query.util.PredicateUtils;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -158,9 +158,9 @@ public class RetrieveTaskRS {
                     .build();
 
         List<RetrieveTask> tasks = mgr.search(
-                PredicateUtils.queueMsgPredicate(
+                MatchTask.matchQueueMessage(
                         RetrieveManager.QUEUE_NAME, deviceName, status(), null, null, null),
-                PredicateUtils.retrievePredicate(
+                MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime),
                 parseInt(offset), parseInt(limit));
         return Response.ok(output.entity(tasks), output.type).build();
@@ -173,9 +173,9 @@ public class RetrieveTaskRS {
     public Response countRetrieveTasks() {
         logRequest();
         return count( mgr.countRetrieveTasks(
-                PredicateUtils.queueMsgPredicate(
+                MatchTask.matchQueueMessage(
                         RetrieveManager.QUEUE_NAME, deviceName, status(), null, null, null),
-                PredicateUtils.retrievePredicate(
+                MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime)));
     }
 
@@ -206,9 +206,9 @@ public class RetrieveTaskRS {
         try {
             LOG.info("Cancel processing of Tasks with Status {} at Queue {}", status, mgr.QUEUE_NAME);
             return count(mgr.cancelRetrieveTasks(
-                    PredicateUtils.queueMsgPredicate(
+                    MatchTask.matchQueueMessage(
                             RetrieveManager.QUEUE_NAME, deviceName, status, null, updatedTime, null),
-                    PredicateUtils.retrievePredicate(
+                    MatchTask.matchRetrieveTask(
                             localAET, remoteAET, destinationAET, studyIUID, createdTime, null),
                     status));
         } catch (IllegalTaskStateException e) {
@@ -247,16 +247,16 @@ public class RetrieveTaskRS {
                             + " on Device " + device.getDeviceName());
 
         try {
-            Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(
+            Predicate matchQueueMessage = MatchTask.matchQueueMessage(
                     null, deviceName, status, null, null, new Date());
-            Predicate retrievePredicate = PredicateUtils.retrievePredicate(
+            Predicate matchRetrieveTask = MatchTask.matchRetrieveTask(
                     localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
             List<Long> retrieveTaskPks;
             do {
-                retrieveTaskPks = mgr.getRetrieveTaskPks(queueMsgPredicate, retrievePredicate, fetchSize);
+                retrieveTaskPks = mgr.getRetrieveTaskPks(matchQueueMessage, matchRetrieveTask, fetchSize);
                 for (long pk : retrieveTaskPks)
                     mgr.rescheduleRetrieveTask(pk);
                 count += retrieveTaskPks.size();
@@ -281,9 +281,9 @@ public class RetrieveTaskRS {
     public String deleteTasks() {
         logRequest();
         int deleted = mgr.deleteTasks(
-                PredicateUtils.queueMsgPredicate(
+                MatchTask.matchQueueMessage(
                         RetrieveManager.QUEUE_NAME, deviceName, status(), null, null, null),
-                PredicateUtils.retrievePredicate(
+                MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime));
         return "{\"deleted\":" + deleted + '}';
     }

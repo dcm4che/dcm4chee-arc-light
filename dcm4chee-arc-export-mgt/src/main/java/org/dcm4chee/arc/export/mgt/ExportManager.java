@@ -65,18 +65,19 @@ public interface ExportManager {
 
     void updateExportTask(Long pk);
 
-    List<ExportTask> search(Predicate queueMsgPredicate, Predicate exportPredicate, int offset, int limit);
+    List<ExportTask> search(Predicate matchQueueMessage, Predicate matchExportTask, int offset, int limit);
 
-    long countExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate);
+    long countExportTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 
     boolean deleteExportTask(Long pk);
 
     boolean cancelExportTask(Long pk) throws IllegalTaskStateException;
 
-    long cancelExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate, QueueMessage.Status prev)
+    long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
-    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException, DifferentDeviceException;
+    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter)
+            throws IllegalTaskStateException, DifferentDeviceException;
 
-    int deleteTasks(Predicate queueMsgPredicate, Predicate exportPredicate);
+    int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 }

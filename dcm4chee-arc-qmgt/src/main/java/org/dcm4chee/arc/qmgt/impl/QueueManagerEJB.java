@@ -211,11 +211,11 @@ public class QueueManagerEJB {
         return true;
     }
 
-    public long cancelTasks(Predicate queueMsgPredicate) {
+    public long cancelTasks(Predicate matchQueueMessage) {
         Date now = new Date();
         HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
-                .where(queueMsgPredicate);
+                .where(matchQueueMessage);
         updateExportTaskUpdatedTime(queueMessageQuery, now);
         updateRetrieveTaskUpdatedTime(queueMessageQuery, now);
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
@@ -243,41 +243,41 @@ public class QueueManagerEJB {
                 .execute();
     }
 
-    public long cancelExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate) {
+    public long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask) {
         Date now = new Date();
         HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .join(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(ExpressionUtils.and(queueMsgPredicate, exportPredicate));
+                .where(ExpressionUtils.and(matchQueueMessage, matchExportTask));
         updateExportTaskUpdatedTime(queueMessageQuery, now);
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
-    public List<String> getExportTasksReferencedQueueMsgIDs(Predicate queueMsgPredicate, Predicate exportPredicate) {
+    public List<String> getExportTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchExportTask) {
         return new HibernateQuery<String>(em.unwrap(Session.class))
                 .select(QQueueMessage.queueMessage.messageID)
                 .from(QQueueMessage.queueMessage)
                 .join(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(ExpressionUtils.and(queueMsgPredicate, exportPredicate))
+                .where(ExpressionUtils.and(matchQueueMessage, matchExportTask))
                 .fetch();
     }
 
-    public long cancelRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate) {
+    public long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         Date now = new Date();
         HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .join(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
-                .where(ExpressionUtils.and(queueMsgPredicate, retrievePredicate));
+                .where(ExpressionUtils.and(matchQueueMessage, matchRetrieveTask));
         updateRetrieveTaskUpdatedTime(queueMessageQuery, now);
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
-    public List<String> getRetrieveTasksReferencedQueueMsgIDs(Predicate queueMsgPredicate, Predicate retrievePredicate) {
+    public List<String> getRetrieveTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         return new HibernateQuery<String>(em.unwrap(Session.class))
                 .select(QQueueMessage.queueMessage.messageID)
                 .from(QQueueMessage.queueMessage)
                 .join(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
-                .where(ExpressionUtils.and(queueMsgPredicate, retrievePredicate))
+                .where(ExpressionUtils.and(matchQueueMessage, matchRetrieveTask))
                 .fetch();
     }
 
@@ -333,21 +333,21 @@ public class QueueManagerEJB {
         return true;
     }
 
-    public int deleteTasks(Predicate queueMsgPredicate) {
+    public int deleteTasks(Predicate matchQueueMessage) {
         HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
-                .where(queueMsgPredicate);
+                .where(matchQueueMessage);
         new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
                 .where(QExportTask.exportTask.queueMessage.in(queueMessageQuery)).execute();
         new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
                 .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMessageQuery)).execute();
 
         return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                .where(queueMsgPredicate).execute();
+                .where(matchQueueMessage).execute();
     }
 
-    public List<QueueMessage> search(Predicate queueMsgPredicate, int offset, int limit) {
-        HibernateQuery<QueueMessage> queueMsgQuery = createQuery(queueMsgPredicate);
+    public List<QueueMessage> search(Predicate matchQueueMessage, int offset, int limit) {
+        HibernateQuery<QueueMessage> queueMsgQuery = createQuery(matchQueueMessage);
         if (limit > 0)
             queueMsgQuery.limit(limit);
         if (offset > 0)
@@ -356,18 +356,18 @@ public class QueueManagerEJB {
         return queueMsgQuery.fetch();
     }
 
-    public long countTasks(Predicate queueMsgPredicate) {
-        return createQuery(queueMsgPredicate).fetchCount();
+    public long countTasks(Predicate matchQueueMessage) {
+        return createQuery(matchQueueMessage).fetchCount();
     }
 
-    private HibernateQuery<QueueMessage> createQuery(Predicate queueMsgPredicate) {
+    private HibernateQuery<QueueMessage> createQuery(Predicate matchQueueMessage) {
         return new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
-                .where(queueMsgPredicate);
+                .where(matchQueueMessage);
     }
 
-    public List<String> getQueueMsgIDs(Predicate queueMsgPredicate, int limit) {
-        HibernateQuery<String> queueMsgIDsQuery =  createQuery(queueMsgPredicate)
+    public List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit) {
+        HibernateQuery<String> queueMsgIDsQuery =  createQuery(matchQueueMessage)
                 .select(QQueueMessage.queueMessage.messageID);
         if (limit > 0)
             queueMsgIDsQuery.limit(limit);

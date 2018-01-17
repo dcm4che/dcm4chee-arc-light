@@ -142,13 +142,13 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<RetrieveTask> search(Predicate queueMsgPredicate, Predicate retrievePredicate, int offset, int limit) {
-        return ejb.search(queueMsgPredicate, retrievePredicate, offset, limit);
+    public List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask, int offset, int limit) {
+        return ejb.search(matchQueueMessage, matchRetrieveTask, offset, limit);
     }
 
     @Override
-    public long countRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate) {
-        return ejb.countRetrieveTasks(queueMsgPredicate, retrievePredicate);
+    public long countRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+        return ejb.countRetrieveTasks(matchQueueMessage, matchRetrieveTask);
     }
 
     @Override
@@ -162,9 +162,9 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public long cancelRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate, QueueMessage.Status prev)
+    public long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
             throws IllegalTaskStateException {
-        return ejb.cancelRetrieveTasks(queueMsgPredicate, retrievePredicate, prev);
+        return ejb.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask, prev);
     }
 
     @Override
@@ -173,12 +173,12 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public int deleteTasks(Predicate queueMsgPredicate, Predicate retrievePredicate) {
-        return ejb.deleteTasks(queueMsgPredicate, retrievePredicate);
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+        return ejb.deleteTasks(matchQueueMessage, matchRetrieveTask);
     }
 
     @Override
-    public List<Long> getRetrieveTaskPks(Predicate queueMsgPredicate, Predicate retrievePredicate, int limit) {
-        return ejb.getRetrieveTaskPks(queueMsgPredicate, retrievePredicate, limit);
+    public List<Long> getRetrieveTaskPks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit) {
+        return ejb.getRetrieveTaskPks(matchQueueMessage, matchRetrieveTask, limit);
     }
 }

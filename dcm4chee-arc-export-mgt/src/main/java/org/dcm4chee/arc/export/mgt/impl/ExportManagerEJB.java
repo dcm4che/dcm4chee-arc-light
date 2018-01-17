@@ -294,8 +294,8 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public List<ExportTask> search(Predicate queueMsgPredicate, Predicate exportPredicate, int offset, int limit) {
-        HibernateQuery<ExportTask> exportQuery = createQuery(queueMsgPredicate, exportPredicate);
+    public List<ExportTask> search(Predicate matchQueueMessage, Predicate matchExportTask, int offset, int limit) {
+        HibernateQuery<ExportTask> exportQuery = createQuery(matchQueueMessage, matchExportTask);
         if (limit > 0)
             exportQuery.limit(limit);
         if (offset > 0)
@@ -305,19 +305,19 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public long countExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate) {
-        return createQuery(queueMsgPredicate, exportPredicate).fetchCount();
+    public long countExportTasks(Predicate matchQueueMessage, Predicate matchExportTask) {
+        return createQuery(matchQueueMessage, matchExportTask).fetchCount();
     }
 
-    private HibernateQuery<ExportTask> createQuery(Predicate queueMsgPredicate, Predicate exportPredicate) {
+    private HibernateQuery<ExportTask> createQuery(Predicate matchQueueMessage, Predicate matchExportTask) {
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
-                .where(queueMsgPredicate);
+                .where(matchQueueMessage);
 
         return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
                 .from(QExportTask.exportTask)
                 .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(exportPredicate, QExportTask.exportTask.queueMessage.in(queueMsgQuery));
+                .where(matchExportTask, QExportTask.exportTask.queueMessage.in(queueMsgQuery));
     }
 
     @Override
@@ -347,9 +347,9 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public long cancelExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate, QueueMessage.Status prev)
+    public long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
             throws IllegalTaskStateException {
-        return queueManager.cancelExportTasks(queueMsgPredicate, exportPredicate, prev);
+        return queueManager.cancelExportTasks(matchQueueMessage, matchExportTask, prev);
     }
 
     @Override
@@ -369,19 +369,19 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public int deleteTasks(Predicate queueMsgPredicate, Predicate exportPredicate) {
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask) {
         int count = 0;
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int deleteTaskFetchSize = arcDev.getQueueTasksFetchSize();
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
-                .where(queueMsgPredicate);
+                .where(matchQueueMessage);
         List<Long> referencedQueueMsgs;
         do {
             referencedQueueMsgs = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
                     .select(QExportTask.exportTask.queueMessage.pk)
                     .from(QExportTask.exportTask)
-                    .where(exportPredicate, QExportTask.exportTask.queueMessage.in(queueMsgQuery))
+                    .where(matchExportTask, QExportTask.exportTask.queueMessage.in(queueMsgQuery))
                     .limit(deleteTaskFetchSize).fetch();
 
             new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)

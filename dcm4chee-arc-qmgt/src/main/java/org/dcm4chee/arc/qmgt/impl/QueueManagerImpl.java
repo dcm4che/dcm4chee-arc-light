@@ -121,39 +121,39 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public long cancelTasks(Predicate queueMsgPredicate, QueueMessage.Status prev)
+    public long cancelTasks(Predicate matchQueueMessage, QueueMessage.Status prev)
             throws IllegalTaskStateException {
         if (prev == QueueMessage.Status.IN_PROCESS) {
-            List<String> msgIDs = ejb.getQueueMsgIDs(queueMsgPredicate, 0);
+            List<String> msgIDs = ejb.getQueueMsgIDs(matchQueueMessage, 0);
             for (String msgID : msgIDs)
                 cancelTask(msgID);
             return msgIDs.size();
         }
-        return ejb.cancelTasks(queueMsgPredicate);
+        return ejb.cancelTasks(matchQueueMessage);
     }
 
     @Override
-    public long cancelExportTasks(Predicate queueMsgPredicate, Predicate exportPredicate, QueueMessage.Status prev)
+    public long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
             throws IllegalTaskStateException {
         if (prev == QueueMessage.Status.IN_PROCESS) {
-            List<String> msgIDs = ejb.getExportTasksReferencedQueueMsgIDs(queueMsgPredicate, exportPredicate);
+            List<String> msgIDs = ejb.getExportTasksReferencedQueueMsgIDs(matchQueueMessage, matchExportTask);
             for (String msgID : msgIDs)
                 cancelTask(msgID);
             return msgIDs.size();
         }
-        return ejb.cancelExportTasks(queueMsgPredicate, exportPredicate);
+        return ejb.cancelExportTasks(matchQueueMessage, matchExportTask);
     }
 
     @Override
-    public long cancelRetrieveTasks(Predicate queueMsgPredicate, Predicate retrievePredicate, QueueMessage.Status prev)
+    public long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
             throws IllegalTaskStateException {
         if (prev == QueueMessage.Status.IN_PROCESS) {
-            List<String> msgIDs = ejb.getRetrieveTasksReferencedQueueMsgIDs(queueMsgPredicate, retrievePredicate);
+            List<String> msgIDs = ejb.getRetrieveTasksReferencedQueueMsgIDs(matchQueueMessage, matchRetrieveTask);
             for (String msgID : msgIDs)
                 cancelTask(msgID);
             return msgIDs.size();
         }
-        return ejb.cancelRetrieveTasks(queueMsgPredicate, retrievePredicate);
+        return ejb.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask);
     }
 
     @Override
@@ -168,22 +168,22 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public int deleteTasks(String queueName, Predicate queueMsgPredicate) {
-        return ejb.deleteTasks(queueMsgPredicate);
+    public int deleteTasks(String queueName, Predicate matchQueueMessage) {
+        return ejb.deleteTasks(matchQueueMessage);
     }
 
     @Override
-    public List<QueueMessage> search(Predicate queueMsgPredicate, int offset, int limit) {
-        return ejb.search(queueMsgPredicate, offset, limit);
+    public List<QueueMessage> search(Predicate matchQueueMessage, int offset, int limit) {
+        return ejb.search(matchQueueMessage, offset, limit);
     }
 
     @Override
-    public long countTasks(Predicate queueMsgPredicate) {
-        return ejb.countTasks(queueMsgPredicate);
+    public long countTasks(Predicate matchQueueMessage) {
+        return ejb.countTasks(matchQueueMessage);
     }
 
     @Override
-    public List<String> getQueueMsgIDs(Predicate queueMsgPredicate, int limit) {
-        return ejb.getQueueMsgIDs(queueMsgPredicate, limit);
+    public List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit) {
+        return ejb.getQueueMsgIDs(matchQueueMessage, limit);
     }
 }

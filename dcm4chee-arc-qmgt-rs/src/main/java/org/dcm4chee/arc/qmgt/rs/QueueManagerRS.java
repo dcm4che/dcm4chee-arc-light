@@ -40,14 +40,14 @@
 
 package org.dcm4chee.arc.qmgt.rs;
 
-import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.query.util.PredicateUtils;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,7 +117,7 @@ public class QueueManagerRS {
     public Response search() throws Exception {
         logRequest();
         return Response.ok(toEntity(mgr.search(
-                PredicateUtils.queueMsgPredicate(queueName, deviceName, status(), createdTime, updatedTime, null),
+                MatchTask.matchQueueMessage(queueName, deviceName, status(), createdTime, updatedTime, null),
                 parseInt(offset),
                 parseInt(limit))))
                 .build();
@@ -129,7 +129,7 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response countTasks() throws Exception {
         logRequest();
-        return count(mgr.countTasks(PredicateUtils.queueMsgPredicate(
+        return count(mgr.countTasks(MatchTask.matchQueueMessage(
                         queueName, deviceName, status(), createdTime, updatedTime, null)));
     }
 
@@ -159,9 +159,9 @@ public class QueueManagerRS {
 
         try {
             LOG.info("Cancel processing of Tasks with Status {} at Queue {}", this.status, queueName);
-            BooleanBuilder queueMsgPredicate = PredicateUtils.queueMsgPredicate(queueName, deviceName, status,
+            Predicate matchQueueMessage = MatchTask.matchQueueMessage(queueName, deviceName, status,
                     createdTime, updatedTime, null);
-            return count(mgr.cancelTasks(queueMsgPredicate, status));
+            return count(mgr.cancelTasks(matchQueueMessage, status));
         } catch (IllegalTaskStateException e) {
             return rsp(Response.Status.CONFLICT, e.getMessage());
         }
@@ -198,14 +198,14 @@ public class QueueManagerRS {
                     + " on Device " + device.getDeviceName());
 
         try {
-            BooleanBuilder predicate = PredicateUtils.queueMsgPredicate(
+            Predicate matchQueueMessage = MatchTask.matchQueueMessage(
                     queueName, deviceName, status, createdTime, updatedTime, new Date());
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
             List<String> queueMsgIDs;
             do {
-                queueMsgIDs = mgr.getQueueMsgIDs(predicate, fetchSize);
+                queueMsgIDs = mgr.getQueueMsgIDs(matchQueueMessage, fetchSize);
                 for (String msgID : queueMsgIDs)
                     mgr.rescheduleTask(msgID, queueName);
                 count += queueMsgIDs.size();
@@ -230,11 +230,9 @@ public class QueueManagerRS {
     @Produces("application/json")
     public String deleteMessages() {
         logRequest();
-        BooleanBuilder predicate = PredicateUtils.queueMsgPredicate(
-                queueName, deviceName, status(), createdTime, updatedTime, null);
-        return "{\"deleted\":"
-                + mgr.deleteTasks(queueName, predicate)
-                + '}';
+        int deleted = mgr.deleteTasks(queueName, MatchTask.matchQueueMessage(
+                queueName, deviceName, status(), createdTime, updatedTime, null));
+        return "{\"deleted\":" + deleted + '}';
     }
 
     private static Response rsp(Response.Status status, Object enity) {

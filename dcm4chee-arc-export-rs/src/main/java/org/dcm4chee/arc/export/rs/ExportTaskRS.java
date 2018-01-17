@@ -49,7 +49,7 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.query.util.PredicateUtils;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,9 +146,9 @@ public class ExportTaskRS {
                     .build();
 
         List<ExportTask> tasks = mgr.search(
-                PredicateUtils.queueMsgPredicate(
+                MatchTask.matchQueueMessage(
                         null, deviceName, status(), null, null, null),
-                PredicateUtils.exportPredicate(
+                MatchTask.matchExportTask(
                         exporterID, deviceName, studyUID, createdTime, updatedTime),
                 parseInt(offset),
                 parseInt(limit));
@@ -162,9 +162,9 @@ public class ExportTaskRS {
     public Response countExportTasks() throws Exception {
         logRequest();
         return count(mgr.countExportTasks(
-                PredicateUtils.queueMsgPredicate(
+                MatchTask.matchQueueMessage(
                 null, deviceName, status(), null, null, null),
-                PredicateUtils.exportPredicate(
+                MatchTask.matchExportTask(
                         exporterID, deviceName, studyUID, createdTime, updatedTime)));
     }
 
@@ -195,9 +195,9 @@ public class ExportTaskRS {
         try {
             LOG.info("Cancel processing of Export Tasks with Status {}", status);
             return count(mgr.cancelExportTasks(
-                    PredicateUtils.queueMsgPredicate(
+                    MatchTask.matchQueueMessage(
                             null, deviceName, status, null, updatedTime, null),
-                    PredicateUtils.exportPredicate(
+                    MatchTask.matchExportTask(
                             exporterID, deviceName, studyUID, createdTime, null),
                     status));
         } catch (IllegalTaskStateException e) {
@@ -241,9 +241,9 @@ public class ExportTaskRS {
                             + " on Device " + device.getDeviceName());
 
         try {
-            Predicate queueMsgPredicate = PredicateUtils.queueMsgPredicate(
+            Predicate matchQueueMessage = MatchTask.matchQueueMessage(
                     null, deviceName, status, null, null, new Date());
-            Predicate exportPredicate = PredicateUtils.exportPredicate(
+            Predicate matchExportTask = MatchTask.matchExportTask(
                     exporterID, deviceName, studyUID, createdTime, updatedTime);
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
@@ -251,7 +251,7 @@ public class ExportTaskRS {
             int count = 0;
             List<ExportTask> exportTasks;
             do {
-                exportTasks = mgr.search(queueMsgPredicate, exportPredicate, 0, fetchSize);
+                exportTasks = mgr.search(matchQueueMessage, matchExportTask, 0, fetchSize);
                 for (ExportTask task : exportTasks)
                     mgr.rescheduleExportTask(
                             task.getPk(),
@@ -279,8 +279,8 @@ public class ExportTaskRS {
     public String deleteTasks() {
         logRequest();
         int deleted = mgr.deleteTasks(
-                PredicateUtils.queueMsgPredicate(null, deviceName, status(), null, null, null),
-                PredicateUtils.exportPredicate(exporterID, deviceName, studyUID, createdTime, updatedTime));
+                MatchTask.matchQueueMessage(null, deviceName, status(), null, null, null),
+                MatchTask.matchExportTask(exporterID, deviceName, studyUID, createdTime, updatedTime));
         return "{\"deleted\":" + deleted + '}';
     }
 
