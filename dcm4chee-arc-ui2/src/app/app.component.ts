@@ -35,6 +35,10 @@ export class AppComponent implements OnInit {
     authServerUrl;
     showMenu = false;
     showScrollButton = false;
+    currentServerTime;
+    currentClockTime;
+    clockInterval;
+    j4care = j4care;
     @ViewChild(MessagingComponent) msg;
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
     constructor(
@@ -52,9 +56,13 @@ export class AppComponent implements OnInit {
         let $this = this;
         if (!this.mainservice.user){
             this.mainservice.user = this.mainservice.getUserInfo().share();
+            let currentBrowserTime = new Date().getTime();
             this.mainservice.user
                 .subscribe(
                     (response) => {
+                        if(_.hasIn(response,"systemCurrentTime") && response.systemCurrentTime){
+                            this.startClock((response.systemCurrentTime * 1000)+(((new Date().getTime())-currentBrowserTime)/2));
+                        }
                         if(_.hasIn(response,"token") && response.token === null){
                             if ($this.mainservice.global && !$this.mainservice.global.notSecure){
                                 let global = _.cloneDeep($this.mainservice.global);
@@ -136,6 +144,17 @@ export class AppComponent implements OnInit {
 
     }
 
+    startClock(serverTime){
+        this.currentServerTime = serverTime;
+        this.clockInterval = setInterval(() => {         //replaced function() by ()=>
+            this.currentClockTime = new Date(this.currentServerTime);
+            this.currentServerTime += 1000;
+        }, 1000);
+    }
+    synchronizeClock(serverTime){
+        clearInterval(this.clockInterval);
+        this.startClock(serverTime);
+    }
     progress(){
         let changeTo = function (t) {
             this.progressValue = t;

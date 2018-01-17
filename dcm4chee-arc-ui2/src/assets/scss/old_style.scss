@@ -1625,6 +1625,18 @@ table{
     	margin-top: 5px;
     }
 }
+app-studies{
+	.block-1-1, .block-1-2, .block-2-1, .block-2-2{
+		range-picker{
+			label,input{
+				margin-top:0;
+			}
+			.main_input_block{
+				margin-top: 5px;
+			}
+		}
+	}
+}
 .block-2-1,.block-2-2{
 	// height:121px;
 }
@@ -1703,8 +1715,6 @@ table{
 }
 .user {
     background: #ffffff none repeat scroll 0 0;
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
     -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
     -webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
     box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);

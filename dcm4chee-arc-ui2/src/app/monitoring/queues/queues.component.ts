@@ -24,7 +24,9 @@ export class QueuesComponent implements OnInit{
     queueName = null;
     dicomDeviceName = null;
     status = '*';
-    before;
+    // before;
+    createdTime;
+    updatedTime;
     isRole: any = (user)=>{return false;};
     user: User;
     dialogRef: MdDialogRef<any>;
@@ -85,7 +87,9 @@ export class QueuesComponent implements OnInit{
         let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
         let filter = {
             dicomDeviceName:this.dicomDeviceName?this.dicomDeviceName:undefined,
-            status:this.status?this.status:undefined
+            status:this.status?this.status:undefined,
+            createdTime:this.createdTime || undefined,
+            updatedTime:this.updatedTime || undefined
         };
         switch (this.allAction){
             case "cancel":
@@ -158,7 +162,7 @@ export class QueuesComponent implements OnInit{
     }
     init(){
         this.initQuery();
-        this.before = new Date();
+        // this.before = new Date();
         let $this = this;
         if (!this.mainservice.user){
             // console.log("in if studies ajax");
@@ -213,7 +217,7 @@ export class QueuesComponent implements OnInit{
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.search(this.queueName, this.status, offset, this.limit, this.dicomDeviceName)
+        this.service.search(this.queueName, this.status, offset, this.limit, this.dicomDeviceName, this.createdTime,this.updatedTime)
             .subscribe((res) => {
                 if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
@@ -240,7 +244,7 @@ export class QueuesComponent implements OnInit{
     }
     getCount(){
         this.cfpLoadingBar.start();
-        this.service.getCount(this.queueName, this.status, undefined, undefined, this.dicomDeviceName).subscribe((count)=>{
+        this.service.getCount(this.queueName, this.status, undefined, undefined, this.dicomDeviceName, this.createdTime,this.updatedTime).subscribe((count)=>{
             try{
                 this.count = count.count;
             }catch (e){
@@ -365,10 +369,10 @@ export class QueuesComponent implements OnInit{
         });
         return description;
     };
-    flushBefore() {
+/*    flushBefore() {
         let $this = this;
         let datePipeEn = new DatePipe('us-US');
-        let beforeDate = datePipeEn.transform(this.before, 'yyyy-MM-dd');
+        // let beforeDate = datePipeEn.transform(this.before, 'yyyy-MM-dd');
         console.log('beforeDate', beforeDate);
         console.log('this.status', this.status);
         let parameters = {
@@ -399,7 +403,7 @@ export class QueuesComponent implements OnInit{
                     });
             }
         });
-    };
+    };*/
     hasOlder(objs) {
         return objs && (objs.length === this.limit);
     };

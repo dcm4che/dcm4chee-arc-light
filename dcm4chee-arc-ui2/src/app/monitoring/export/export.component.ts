@@ -34,9 +34,9 @@ export class ExportComponent implements OnInit {
         dicomDeviceName: '',
         StudyInstanceUID: undefined,
         updatedTime: undefined,
-        updatedTimeObject: undefined,
-        createdTime: undefined,
-        createdTimeObject: undefined
+        // updatedTimeObject: undefined,
+        createdTime: undefined
+        // createdTimeObject: undefined
     };
 
     isRole: any = (user)=>{return false;};
@@ -163,7 +163,6 @@ export class ExportComponent implements OnInit {
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.convertDates();
         this.service.search(this.filters, offset)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
@@ -198,7 +197,6 @@ export class ExportComponent implements OnInit {
     };
     getCount(){
         this.cfpLoadingBar.start();
-        // this.convertDates();
         this.service.getCount(this.filters).subscribe((count)=>{
             try{
                 this.count = count.count;
@@ -313,10 +311,6 @@ export class ExportComponent implements OnInit {
                 break;
         }
     }
-    convertDates(){
-        this.filters.updatedTime = j4care.convertDateRangeToString(this.filters.updatedTimeObject);
-        this.filters.createdTime = j4care.convertDateRangeToString(this.filters.createdTimeObject);
-    }
     getDifferenceTime(starttime, endtime){
         let start = new Date(starttime).getTime();
         let end = new Date(endtime).getTime();
@@ -327,7 +321,6 @@ export class ExportComponent implements OnInit {
         }
     };
     checkAll(event){
-        console.log("in checkall",event.target.checked);
         this.matches.forEach((match)=>{
             match.checked = event.target.checked;
         });

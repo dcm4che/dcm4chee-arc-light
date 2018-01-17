@@ -24,8 +24,8 @@ export class TimePickerComponent implements OnInit {
     mm = '00';
     ss = '00';
     timepickerOpen = true;
+    validString = true;
     ngOnInit() {
-        console.log("set time",this.model);
         if(this.cohereMode){
             this.timepickerOpen = false;
         }
@@ -39,7 +39,31 @@ export class TimePickerComponent implements OnInit {
             i++;
         }
     }
+    change(e){
+        let validTimeString =  this.validateString(this.model);
+        const extractTimeRegex = /(\d{2}):(\d{2}):(\d{2})|(\d{2}):(\d{2})/g;
+        let resultArray = [];
+        let match;
+        if (validTimeString !== null && validTimeString[0]) {
+            this.validString = true;
+            while ((match = extractTimeRegex.exec(validTimeString[0])) !== null) {
+                if (match.index === extractTimeRegex.lastIndex) {
+                    extractTimeRegex.lastIndex++;
+                }
+                resultArray.push(match);
+            }
+            this.hh = resultArray[0][1] || resultArray[0][4] || "00";
+            this.mm = resultArray[0][2] || resultArray[0][5] || "00";
+            this.ss = resultArray[0][3] || "00";
+        }else{
+            this.validString = false;
+        }
 
+    }
+    validateString(str){
+        const validationRegex = /^[0-2][0-4]:[0-5][0-9]:[0-5][0-9]$|^[0-2][0-4]:[0-5][0-9]$/m;
+        return validationRegex.exec(this.model)
+    }
     addTime() {
         this.onValueSet.emit(`${this.hh}:${this.mm}:${this.ss}`);
         if(this.cohereMode){

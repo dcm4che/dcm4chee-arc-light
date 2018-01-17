@@ -110,6 +110,9 @@ $hoverBlue:#5293C1;
     display: none;
   }
 }
+input.ng-invalid:focus{
+  outline-color: #a94442 !important;
+}
 p-calendar{
   button.ui-button,.ui-button:focus{
     background: rgba(6, 29, 47, 0.84);
@@ -118,6 +121,34 @@ p-calendar{
   .ui-calendar button:enabled:hover{
     background: rgba(6, 29, 47, 0.84);
     border: 1px solid rgba(6, 29, 47, 0.84);
+  }
+}
+.clock{
+  background: rgba(6, 29, 47, 0.88);
+  -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+  -webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+  box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+  color: white;
+  display: block;
+  font-weight: bold;
+  position: fixed;
+  right: 3px;
+  top: 0;
+  z-index: 9999;
+  width: 130px;
+  height: 61px;
+  box-sizing: border-box;
+  padding: 5px 10px;
+  text-align: center;
+  .time{
+    text-align: center;
+    font-weight: bold;
+    font-size: 23px;
+  }
+  .text{
+    text-align: center;
+    font-size: 12px;
+    font-weight: 100;
   }
 }
 .custom_icon{
@@ -259,7 +290,7 @@ md-grid-list{
           float: right;
         }
       }
-      & > input,p-calendar input, modality input{
+      & > input,p-calendar input, modality input,range-picker input{
         border:none;
         border-bottom:1px solid #cccccc;
         background:transparent;

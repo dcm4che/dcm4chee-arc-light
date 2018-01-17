@@ -397,12 +397,12 @@ export class ExternalRetrieveComponent implements OnInit {
     }
     onSubmit(object){
         if(_.hasIn(object,"id") && _.hasIn(object,"model")){
-            if(_.hasIn(object,"model.createdTime")){
+/*            if(_.hasIn(object,"model.createdTime")){
                 object.model.createdTime = this.datePipe.transform(object.model.createdTime,'yyyyMMdd');
             }
             if(_.hasIn(object,"model.updatedTime")){
                 object.model.updatedTime = this.datePipe.transform(object.model.updatedTime,'yyyyMMdd');
-            }
+            }*/
             if(object.id === "count"){
                 this.getCount();
             }else{

@@ -3,6 +3,7 @@
 <!--<md-progress-circle *ngIf="!stopLoop" mode="indeterminate" color="'#2FA6C1'"></md-progress-circle>-->
 
 <div class="main_content ctrl">
+    <monitoring-tabs></monitoring-tabs>
     <h3>Archive</h3>
     <p [innerHtml]="status === 'STARTED' ? 'Archive is running' : 'Archive is not running'"></p>
     <div class="btn-group">

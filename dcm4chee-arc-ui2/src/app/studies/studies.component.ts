@@ -72,7 +72,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
         'ScheduledProcedureStepSequence.ScheduledProcedureStepStatus': '',
         returnempty: false,
         PatientSex: '',
-        PatientBirthDate: ''
+        PatientBirthDate: '',
+        StudyDate:''
     };
     queryMode = 'queryStudies';
     ScheduledProcedureStepSequence: any = {
@@ -124,6 +125,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.studyDate.toObject = null;
         this.studyDate.from = '';
         this.studyDate.to = '';
+        this.filter.StudyDate = "";
     }
     clearForm(){
         _.forEach(this.filter, (m, i) => {

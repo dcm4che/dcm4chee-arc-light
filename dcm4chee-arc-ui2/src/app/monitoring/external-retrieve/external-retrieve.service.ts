@@ -174,12 +174,12 @@ export class ExternalRetrieveService {
             ],[
                 [
                     {
-                        tag:"p-calendar",
+                        tag:"range-picker",
                         filterKey:"createdTime",
                         description:"Created Date"
                     },
                     {
-                        tag:"p-calendar",
+                        tag:"range-picker",
                         filterKey:"updatedTime",
                         description:"Updated Date"
                     }

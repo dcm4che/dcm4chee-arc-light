@@ -218,49 +218,76 @@
                         <label class="col-md-12">Scheduled Procedure Step Start Date / Time:</label>
                     </div>
                     <div class="row datetime">
-                        <div class="block_seid">
-                            <div class="col-md-12">
-                                <p-calendar dataType="string" [(ngModel)]="studyDate.from" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Start date from"></p-calendar>
+                        <!--<div class="block_seid">-->
+                            <div class="col-md-6">
+                                <range-picker [model]="filter.StudyDate" (modelChange)="filter.StudyDate = $event" mode="range" placeholder="Scheduled Procedure Step Start Date" title="Scheduled Procedure Step Start Date" dateFormat="yymmdd" onlyDate="true"></range-picker>
+
+                                <!--<p-calendar dataType="string" [(ngModel)]="studyDate.from" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Start date from"></p-calendar>-->
                             </div>
-                            <div class="col-md-12">
-                                <p-calendar (onSelect)="selectTime('from')" (onBlur)="selectTime('from')" (click)="timeClose()" [(ngModel)]="studyTime.fromObject" timeOnly="true" hourFormat="24" placeholder="Start time from"></p-calendar>
+                            <div class="col-md-6">
+                                <range-picker [model]="filter.StudyTime" (modelChange)="filter.StudyTime = $event" mode="range" placeholder="Scheduled Procedure Step Start Time" title="Scheduled Procedure Step Start Date" dateFormat="yymmdd" onlyTime="true"></range-picker>
+
+                                <!--<p-calendar (onSelect)="selectTime('from')" (onBlur)="selectTime('from')" (click)="timeClose()" [(ngModel)]="studyTime.fromObject" timeOnly="true" hourFormat="24" placeholder="Start time from"></p-calendar>-->
                             </div>
-                        </div>
-                        <div class="minus text-center">
+                        <!--</div>-->
+<!--                        <div class="minus text-center">
                             -
-                        </div>
-                        <div class="block_seid">
-                            <div class="col-md-12">
-                                <p-calendar dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Start date to"></p-calendar>
+                        </div>-->
+                        <!--<div class="block_seid">-->
+                            <div class="col-md-6">
+                                <!--<p-calendar dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Start date to"></p-calendar>-->
                             </div>
-                            <div class="col-md-12">
-                                <p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder="Start time to"></p-calendar>
+                            <div class="col-md-6">
+                                <!--<p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder="Start time to"></p-calendar>-->
                             </div>
-                        </div>
+                        <!--</div>-->
                     </div>
                 </div>
-                <div class="col-md-3 block-1-2" *ngIf="filterMode === 'study' || filterMode === 'diff' || filterMode === 'diff'">
-                    <div class="row">
+                <div class="col-md-3 block-1-2" *ngIf="filterMode === 'study' || filterMode === 'diff'">
+    <!--                <div class="row">
                         <label class="col-md-12">Study Date / Time:</label>
-                    </div>
+                    </div>-->
                     <div class="row datetime">
                         <div class="block_seid">
                             <div class="col-md-12">
-                                <p-calendar (change)="studyDateChanged($event)" (click)="studyDateChanged($event)" dataType="string" [(ngModel)]="studyDate.from" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Study date from"></p-calendar>
+                                <range-picker [model]="filter.StudyDate" (modelChange)="filter.StudyDate = $event" mode="range" placeholder="Study date" dateFormat="yymmdd" onlyDate="true" title="Study date"></range-picker>
+
+                                <!--<p-calendar (change)="studyDateChanged($event)" (click)="studyDateChanged($event)" dataType="string" [(ngModel)]="studyDate.from" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Study date from"></p-calendar>-->
                             </div>
                             <div class="col-md-12">
-                                <p-calendar (onSelect)="selectTime('from')" (onBlur)="selectTime('from')" (click)="timeClose()" [(ngModel)]="studyTime.fromObject" timeOnly="true" hourFormat="24" placeholder="Study time from"></p-calendar>
+                                <range-picker [model]="filter.StudyTime" (modelChange)="filter.StudyTime = $event" mode="range" placeholder="Study time" dateFormat="yymmdd" onlyTime="true" title="Study time"></range-picker>
+                                <!--<p-calendar (onSelect)="selectTime('from')" (onBlur)="selectTime('from')" (click)="timeClose()" [(ngModel)]="studyTime.fromObject" timeOnly="true" hourFormat="24" placeholder="Study time from"></p-calendar>-->
                             </div>
-                        </div>
-                        <div class="minus text-center">
+                            <div class="col-md-12">
+                                <input id="InstitutionalDepartmentName" type="text" [(ngModel)]="filter.InstitutionalDepartmentName" placeholder="Institutional Department Name" title="Institutional Department Name" class="col-md-12 clearable" />
+                            </div>
+
+                            </div>
+<!--                        <div class="minus text-center">
                             -
-                        </div>
+                        </div>-->
                         <div class="block_seid">
                             <div class="col-md-12">
-                                <p-calendar (change)="studyDateChanged($event)" (click)="studyDateChanged($event)" dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Study date to"></p-calendar>
+                                <!--<p-calendar (change)="studyDateChanged($event)" (click)="studyDateChanged($event)" dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Study date to"></p-calendar>-->
+                                <!--<input id="StudyInstanceUID" type="text" [(ngModel)]="filter.StudyInstanceUID" placeholder="Study Instance UID" title="study._VALUE instance UID" class="col-md-12 clearable" />-->
+                                    <input id="StudyInstanceUID" type="text" [(ngModel)]="filter.StudyInstanceUID" placeholder="Study Instance UID" title="study._VALUE instance UID" class="col-md-12 clearable" />
                             </div>
-                            <div class="col-md-12">
-                                <p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder="Study time to"></p-calendar>
+                            <div class="col-md-12" *ngIf="filterMode === 'study' || filterMode === 'diff'">
+                                <!--<p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder="Study time to"></p-calendar>-->
+                                <range-picker [model]="filter.StudyReceiveDateTime" (modelChange)="filter.StudyReceiveDateTime = $event" mode="range" placeholder="Study created" title="Study created" dateFormat="yymmdd"></range-picker>
+
+                            </div>
+                        </div>
+                        <div class="block_seid">
+                            <div class="col-md-12" *ngIf="filterMode === 'study' || filterMode === 'diff'">
+                                <!--<p-calendar (change)="studyDateChanged($event)" (click)="studyDateChanged($event)" dataType="string" [(ngModel)]="studyDate.to" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Study date to"></p-calendar>-->
+                                <!--<input id="StudyInstanceUID" type="text" [(ngModel)]="filter.StudyInstanceUID" placeholder="Study Instance UID" title="study._VALUE instance UID" class="col-md-12 clearable" />-->
+                                <input id="SendingApplicationEntityTitleOfSeries" type="text" [(ngModel)]="filter.SendingApplicationEntityTitleOfSeries" placeholder="Sending Application Entity Title of Series" title="Sending Application Entity Title of Series" class="col-md-12 clearable" />
+                            </div>
+                            <div class="col-md-12" *ngIf="filterMode === 'study' || filterMode === 'diff'">
+                                <!--<p-calendar (onSelect)="selectTime('to')" [(ngModel)]="studyTime.toObject" timeOnly="true" hourFormat="24" placeholder="Study time to"></p-calendar>-->
+                                <!--<range-picker [model]="filter.StudyReceiveDateTime" (modelChange)="filter.StudyReceiveDateTime = $event" mode="range" placeholder="Study created" dateFormat="yymmdd"></range-picker>-->
+
                             </div>
                         </div>
                     </div>
@@ -332,10 +359,10 @@
                         <input id="InstitutionName" type="text" [(ngModel)]="filter.InstitutionName" placeholder="Institution Name" title="Institution Name" class="col-md-12" />
                     </div>
                     <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
-                        <input id="SendingApplicationEntityTitleOfSeries" type="text" [(ngModel)]="filter.SendingApplicationEntityTitleOfSeries" placeholder="Sending Application Entity Title of Series" title="Sending Application Entity Title of Series" class="col-md-12 clearable" />
+                        <!--<input id="SendingApplicationEntityTitleOfSeries" type="text" [(ngModel)]="filter.SendingApplicationEntityTitleOfSeries" placeholder="Sending Application Entity Title of Series" title="Sending Application Entity Title of Series" class="col-md-12 clearable" />-->
                     </div>
                     <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
-                        <input id="InstitutionalDepartmentName" type="text" [(ngModel)]="filter.InstitutionalDepartmentName" placeholder="Institutional Department Name" title="Institutional Department Name" class="col-md-12 clearable" />
+                        <!--<input id="InstitutionalDepartmentName" type="text" [(ngModel)]="filter.InstitutionalDepartmentName" placeholder="Institutional Department Name" title="Institutional Department Name" class="col-md-12 clearable" />-->
                     </div>
                     <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <input id="StationName" type="text" [(ngModel)]="filter.StationName" placeholder="Station Name" title="Station Name" class="col-md-12" />
@@ -430,29 +457,16 @@
                     <div class="col-md-6" *ngIf="filterMode === 'mwl'">
                         <input id="ScheduledPerformingPhysicianName" type="text" [(ngModel)]="filter['ScheduledProcedureStepSequence.ScheduledPerformingPhysicianName']" placeholder="Scheduled Performing Physician's Name" title="Scheduled Performing Physician's Name" class="col-md-12" />
                     </div>
-                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff' || filterMode === 'mwl'">
-                        <input id="StudyInstanceUID" type="text" [(ngModel)]="filter.StudyInstanceUID" placeholder="Study Instance UID" title="study._VALUE instance UID" class="col-md-12 clearable" />
-                    </div>
+                    <!--<div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff' || filterMode === 'mwl'">-->
+                        <!--<input id="StudyInstanceUID" type="text" [(ngModel)]="filter.StudyInstanceUID" placeholder="Study Instance UID" title="study._VALUE instance UID" class="col-md-12 clearable" />-->
+                    <!--</div>-->
                     <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <input id="StudyDescription" type="text" [(ngModel)]="filter.StudyDescription" placeholder="Study Description" title="study._VALUE description" class="col-md-12" />
                     </div>
                     <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
-                        <input id="BodyPartExamined" type="text" [(ngModel)]="filter.BodyPartExamined" placeholder="Body Part Examined" title="Body Part Examined" class="col-md-12 clearable" />
+                        <!--<input id="BodyPartExamined" type="text" [(ngModel)]="filter.BodyPartExamined" placeholder="Body Part Examined" title="Body Part Examined" class="col-md-12 clearable" />-->
                     </div>
                     <div class="col-md-6" *ngIf="filterMode === 'patient'">
-                        <!--                 <input id="PatientBirthDate" [(ngModel)]="birthDate.filter" type="hiden" [(ngModel)]="filter.PatientBirthDate" />
-                         -->
-                        <!--<input-->
-                        <!--class="col-md-12"-->
-                        <!--placeholder="Patient's Birth Date"-->
-                        <!--(click)="birthDateOpen()"-->
-                        <!--id="birthDate"-->
-                        <!--type="text"-->
-                        <!--uib-datepicker-popup="{{format}}"-->
-                        <!--[(ngModel)]="birthDate.object"-->
-                        <!--is-open="birthDate.opened"-->
-                        <!--datepicker-options="dateOptions"-->
-                        <!--close-text="Close"/>-->
                         <p-calendar dataType="string" [(ngModel)]="filter.PatientBirthDate" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Patient's Birth Date"></p-calendar>
 
                     </div>
@@ -483,19 +497,22 @@
                         </label>
                     </div>
                 </div>
-                <div class="row" *ngIf="filterMode === 'study' || filterMode === 'diff'">
+<!--                <div class="row" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                     <div class="col-md-12">
                           <label>
                             Study created date/time:
                           </label>
                     </div>
-                </div>
+                </div>-->
                 <div class="row" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                     <div class="col-md-6">
-                        <p-calendar (ngModelChange)="studyReceiveDateTimeChanged($event,'from')" [(ngModel)]="StudyReceiveDateTime.from" dateFormat="yy-mm-dd"  showTime="showTime" hourFormat="24" placeholder="from"></p-calendar>
+                        <!--<p-calendar (ngModelChange)="studyReceiveDateTimeChanged($event,'from')" [(ngModel)]="StudyReceiveDateTime.from" dateFormat="yy-mm-dd"  showTime="showTime" hourFormat="24" placeholder="from"></p-calendar>-->
+                        <!--<range-picker [model]="filter.StudyReceiveDateTime" (modelChange)="filter.StudyReceiveDateTime = $event" mode="range" placeholder="Study created" dateFormat="yymmdd"></range-picker>-->
+                        <input id="BodyPartExamined" type="text" [(ngModel)]="filter.BodyPartExamined" placeholder="Body Part Examined" title="Body Part Examined" class="col-md-12 clearable" />
+
                     </div>
                     <div class="col-md-6">
-                        <p-calendar (ngModelChange)="studyReceiveDateTimeChanged($event,'to')" [(ngModel)]="StudyReceiveDateTime.to" dateFormat="yy-mm-dd"  showTime="showTime" hourFormat="24" placeholder="to"></p-calendar>
+                        <!--<p-calendar (ngModelChange)="studyReceiveDateTimeChanged($event,'to')" [(ngModel)]="StudyReceiveDateTime.to" dateFormat="yy-mm-dd"  showTime="showTime" hourFormat="24" placeholder="to"></p-calendar>-->
                     </div>
                 </div>
             </div>
