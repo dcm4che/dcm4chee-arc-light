@@ -325,6 +325,8 @@ class StoreServiceImpl implements StoreService {
                 StoreContext ctx = newStoreContext(session);
                 for (Location location : il.getLocations()) {
                     ctx.getLocations().add(location);
+                    if (location.getObjectType() == Location.ObjectType.DICOM_FILE)
+                        ctx.setStoreTranferSyntax(location.getTransferSyntaxUID());
                 }
                 ctx.setRetrieveAETs(il.getRetrieveAETs());
                 ctx.setAvailability(il.getAvailability());
