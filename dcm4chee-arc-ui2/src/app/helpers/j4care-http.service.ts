@@ -103,7 +103,7 @@ export class J4careHttpService{
         }
     }
     tokenValid(){
-        if(_.hasIn(this.mainservice,"global.authentication.expiration") && (this.mainservice.global.authentication.expiration > Math.floor(Date.now() / 1000))){
+        if(_.hasIn(this.mainservice,"global.authentication.expiration") && (this.mainservice.global.authentication.expiration > Math.floor(Date.now() / 1000)+500)){
             return true;
         }else{
             return false;
