@@ -159,13 +159,12 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, PatientTrackingNotAllowedException {
-        if (ctx.getPatientID().matches(ctx.getPreviousPatientID()))
-            throw new CircularPatientMergeException();
-
         if (device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).isHl7TrackChangedPatientID()) {
             if (isEitherHavingNoIssuer(ctx))
                 throw new PatientTrackingNotAllowedException(
                         "Either previous or new Patient ID has missing issuer and change patient id tracking is enabled. Disable change patient id tracking feature and retry update");
+            if (ctx.getPatientID().equals(ctx.getPreviousPatientID()))
+                throw new CircularPatientMergeException();
             createPatient(ctx);
             return mergePatient(ctx);
         }
