@@ -137,7 +137,7 @@ public class ExportTaskRS {
 
     @GET
     @NoCache
-    public Response listExportTasks(@QueryParam("accept") String accept) throws Exception {
+    public Response listExportTasks(@QueryParam("accept") String accept) {
         logRequest();
         Output output = selectMediaType(accept);
         if (output == null)
@@ -159,7 +159,7 @@ public class ExportTaskRS {
     @NoCache
     @Path("/count")
     @Produces("application/json")
-    public Response countExportTasks() throws Exception {
+    public Response countExportTasks() {
         logRequest();
         return count(mgr.countExportTasks(
                 MatchTask.matchQueueMessage(
@@ -178,7 +178,7 @@ public class ExportTaskRS {
                     : Response.Status.NOT_FOUND)
                     .build();
         } catch (IllegalTaskStateException e) {
-            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+            return rsp(Response.Status.CONFLICT, e.getMessage());
         }
     }
 
@@ -201,7 +201,7 @@ public class ExportTaskRS {
                             exporterID, deviceName, studyUID, createdTime, null),
                     status));
         } catch (IllegalTaskStateException e) {
-            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+            return rsp(Response.Status.CONFLICT, e.getMessage());
         }
     }
 
@@ -220,7 +220,7 @@ public class ExportTaskRS {
                     : Response.Status.NOT_FOUND)
                     .build();
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
-            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+            return rsp(Response.Status.CONFLICT, e.getMessage());
         }
     }
 
@@ -263,7 +263,7 @@ public class ExportTaskRS {
             } while (exportTasks.size() >= fetchSize);
             return count(count);
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
-            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+            return rsp(Response.Status.CONFLICT, e.getMessage());
         }
     }
 
@@ -286,8 +286,8 @@ public class ExportTaskRS {
         return "{\"deleted\":" + deleted + '}';
     }
 
-    private static Response rsp(Response.Status status, Object enity) {
-        return Response.status(status).entity(enity).build();
+    private static Response rsp(Response.Status status, Object entity) {
+        return Response.status(status).entity(entity).build();
     }
 
     private static Response count(long count) {
@@ -314,32 +314,26 @@ public class ExportTaskRS {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
             Object entity(final List<ExportTask> tasks) {
-                return new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream out) throws IOException {
+                return (StreamingOutput) out -> {
                         JsonGenerator gen = Json.createGenerator(out);
                         gen.writeStartArray();
                         for (ExportTask task : tasks)
                             task.writeAsJSONTo(gen);
                         gen.writeEnd();
                         gen.flush();
-                    }
                 };
             }
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
             Object entity(final List<ExportTask> tasks) {
-                return new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream out) throws IOException {
+                return (StreamingOutput) out -> {
                         Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
                         writer.write(CSV_HEADER);
                         for (ExportTask task : tasks) {
                             task.writeAsCSVTo(writer);
                         }
                         writer.flush();
-                    }
                 };
             }
         };

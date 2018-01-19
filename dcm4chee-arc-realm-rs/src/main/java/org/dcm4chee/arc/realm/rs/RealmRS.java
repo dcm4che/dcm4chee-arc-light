@@ -52,8 +52,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
@@ -78,11 +76,9 @@ public class RealmRS {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput query() throws Exception {
+    public StreamingOutput query() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return out -> {
                 if (request.getUserPrincipal() != null) {
                     JsonGenerator gen = Json.createGenerator(out);
                     JsonWriter writer = new JsonWriter(gen);
@@ -102,7 +98,6 @@ public class RealmRS {
                     w.write("{\"auth-server-url\":null,\"realm\":null,\"token\":null,\"user\":null,\"roles\":[]}");
                     w.flush();
                 }
-            }
         };
     }
 }

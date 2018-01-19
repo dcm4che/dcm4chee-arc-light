@@ -57,9 +57,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -81,18 +78,15 @@ public class QueryAETs {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput query() throws Exception {
+    public StreamingOutput query() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (ApplicationEntity ae : sortedApplicationEntities())
                     writeTo(ae, gen);
                 gen.writeEnd();
                 gen.flush();
-            }
         };
     }
 
@@ -117,9 +111,8 @@ public class QueryAETs {
     }
 
     private ApplicationEntity[] sortedApplicationEntities() {
-        ApplicationEntity[] applicationEntities = device.getApplicationEntities().toArray(
-                new ApplicationEntity[device.getApplicationEntities().size()]);
-        Arrays.sort(applicationEntities, Comparator.comparing(ApplicationEntity::getAETitle));
-        return applicationEntities;
+        return device.getApplicationEntities().stream()
+                .sorted(Comparator.comparing(ApplicationEntity::getAETitle))
+                .toArray(ApplicationEntity[]::new);
     }
 }

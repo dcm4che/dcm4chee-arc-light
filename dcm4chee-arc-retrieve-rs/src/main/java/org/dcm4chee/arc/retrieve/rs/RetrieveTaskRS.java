@@ -130,7 +130,7 @@ public class RetrieveTaskRS {
     private String studyIUID;
 
     @QueryParam("status")
-    @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
+    @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
     private String status;
 
     @QueryParam("createdTime")
@@ -149,7 +149,7 @@ public class RetrieveTaskRS {
 
     @GET
     @NoCache
-    public Response listRetrieveTasks(@QueryParam("accept") String accept) throws Exception {
+    public Response listRetrieveTasks(@QueryParam("accept") String accept) {
         logRequest();
         Output output = selectMediaType(accept);
         if (output == null)
@@ -212,7 +212,7 @@ public class RetrieveTaskRS {
                             localAET, remoteAET, destinationAET, studyIUID, createdTime, null),
                     status));
         } catch (IllegalTaskStateException e) {
-            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+            return rsp(Response.Status.CONFLICT, e.getMessage());
         }
     }
 
@@ -263,7 +263,7 @@ public class RetrieveTaskRS {
             } while (retrieveTaskPks.size() >= fetchSize);
             return count(count);
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
-            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+            return rsp(Response.Status.CONFLICT, e.getMessage());
         }
     }
 
@@ -288,8 +288,8 @@ public class RetrieveTaskRS {
         return "{\"deleted\":" + deleted + '}';
     }
 
-    private static Response rsp(Response.Status status, Object enity) {
-        return Response.status(status).entity(enity).build();
+    private static Response rsp(Response.Status status, Object entity) {
+        return Response.status(status).entity(entity).build();
     }
 
     private static Response count(long count) {
@@ -316,32 +316,26 @@ public class RetrieveTaskRS {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
             Object entity(final List<RetrieveTask> tasks) {
-                return new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream out) throws IOException {
+                return (StreamingOutput) out -> {
                         JsonGenerator gen = Json.createGenerator(out);
                         gen.writeStartArray();
                         for (RetrieveTask task : tasks)
                             task.writeAsJSONTo(gen);
                         gen.writeEnd();
                         gen.flush();
-                    }
                 };
             }
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
             Object entity(final List<RetrieveTask> tasks) {
-                return new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream out) throws IOException {
+                return (StreamingOutput) out -> {
                         Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
                         writer.write(CSV_HEADER);
                         for (RetrieveTask task : tasks) {
                             task.writeAsCSVTo(writer);
                         }
                         writer.flush();
-                    }
                 };
             }
         };

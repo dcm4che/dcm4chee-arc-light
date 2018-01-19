@@ -114,7 +114,7 @@ public class QueueManagerRS {
     @GET
     @NoCache
     @Produces("application/json")
-    public Response search() throws Exception {
+    public Response search() {
         logRequest();
         return Response.ok(toEntity(mgr.search(
                 MatchTask.matchQueueMessage(queueName, deviceName, status(), createdTime, updatedTime, null),
@@ -127,7 +127,7 @@ public class QueueManagerRS {
     @NoCache
     @Path("/count")
     @Produces("application/json")
-    public Response countTasks() throws Exception {
+    public Response countTasks() {
         logRequest();
         return count(mgr.countTasks(MatchTask.matchQueueMessage(
                         queueName, deviceName, status(), createdTime, updatedTime, null)));
@@ -177,7 +177,7 @@ public class QueueManagerRS {
                     : Response.Status.NOT_FOUND)
                     .build();
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
-            return Response.status(Response.Status.CONFLICT).entity(e.getMessage()).build();
+            return rsp(Response.Status.CONFLICT, e.getMessage());
         }
     }
 
@@ -235,18 +235,16 @@ public class QueueManagerRS {
         return "{\"deleted\":" + deleted + '}';
     }
 
-    private static Response rsp(Response.Status status, Object enity) {
-        return Response.status(status).entity(enity).build();
+    private static Response rsp(Response.Status status, Object entity) {
+        return Response.status(status).entity(entity).build();
     }
 
     private static Response count(long count) {
         return rsp(Response.Status.OK, "{\"count\":" + count + '}');
     }
 
-    private Object toEntity(final List<QueueMessage> msgs) {
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+    private StreamingOutput toEntity(final List<QueueMessage> msgs) {
+        return out -> {
                 Writer w = new OutputStreamWriter(out, "UTF-8");
                 int count = 0;
                 w.write('[');
@@ -257,7 +255,6 @@ public class QueueManagerRS {
                 }
                 w.write(']');
                 w.flush();
-            }
         };
     }
 

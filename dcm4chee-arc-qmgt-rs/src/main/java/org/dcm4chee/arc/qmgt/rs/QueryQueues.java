@@ -58,9 +58,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -82,11 +79,9 @@ public class QueryQueues {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput query() throws Exception {
+    public StreamingOutput query() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (QueueDescriptor queueDesc : sortedQueueDescriptors()) {
@@ -98,14 +93,13 @@ public class QueryQueues {
                 }
                 gen.writeEnd();
                 gen.flush();
-            }
         };
     }
 
     private QueueDescriptor[] sortedQueueDescriptors() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        QueueDescriptor[] queueDescriptors = arcDev.getQueueDescriptors().toArray(new QueueDescriptor[arcDev.getQueueDescriptors().size()]);
-        Arrays.sort(queueDescriptors, Comparator.comparing(QueueDescriptor::getQueueName));
-        return queueDescriptors;
+        return device.getDeviceExtension(ArchiveDeviceExtension.class)
+                .getQueueDescriptors().stream()
+                .sorted(Comparator.comparing(QueueDescriptor::getQueueName))
+                .toArray(QueueDescriptor[]::new);
     }
 }
