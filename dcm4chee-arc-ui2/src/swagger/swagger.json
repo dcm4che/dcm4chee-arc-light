@@ -946,6 +946,29 @@
         }
       }
     },
+    "/monitor/serverTime": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Get Server Time with Timezone",
+        "operationId": "getServerTime",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "server time with timezone",
+            "schema": {
+              "$ref": "#/definitions/ServerTime"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/monitor/export": {
       "get": {
         "tags": [
@@ -7684,6 +7707,17 @@
       ],
       "properties": {
         "dicomDeviceName": {
+          "type": "string"
+        }
+      }
+    },
+    "ServerTime": {
+      "type": "object",
+      "required": [
+        "serverTimeWithTimezone"
+      ],
+      "properties": {
+        "serverTimeWithTimezone": {
           "type": "string"
         }
       }

@@ -131,6 +131,15 @@ public class ArchiveMonitor {
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
+    @GET
+    @NoCache
+    @Path("/serverTime")
+    public String getServerTime() {
+        logRequest();
+        return "{\"serverTimeWithTimezone\": "
+                + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()) + '}';
+    }
+
     private void writeOtherProperties(Writer w, Association as) throws IOException {
         for (String key : as.getPropertyNames()) {
             Object value = as.getProperty(key);
