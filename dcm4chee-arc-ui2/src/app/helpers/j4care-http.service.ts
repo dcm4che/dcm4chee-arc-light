@@ -35,27 +35,17 @@ export class J4careHttpService{
         let headerIndex = (param.length === 3) ? 2:1;
         $this.setHeader(param[headerIndex]);
         return $this.refreshToken().flatMap((response)=>{
-                this.setValueInGlobal('getRealmStateActive',false);
-                if(response && response.length != 0){
-                    if(response['token'] === null){
-                        $this.setValueInGlobal('notSecure',true);
-
-                    }else{
-                        $this.setValueInGlobal('notSecure',false);
-                        $this.resetAuthenticationInfo(response);
-                        $this.token = response['token'];
-                        // $this.setHeader(param[headerIndex]);
-                        $this.mainservice.global.getRealmStateActive = true;
-                    }
-                }
-                if(!$this.mainservice.global.notSecure){
-                    $this.setHeader(param[headerIndex]);
-                    param[headerIndex] = {"headers":$this.header};
-                }
+                this.setGlobalToken(response,param,headerIndex);
                 return $this.$http[requestFunctionName].apply($this.$http , param);
             }).catch(res=>{
                 if(res.ok === false && res.status === 0 && res.type === 3){
                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+                }
+                if(res.statusText === "Unauthorized"){
+                    return $this.getRealm().flatMap((resp)=>{
+                        this.setGlobalToken(resp,param,headerIndex);
+                        return $this.$http[requestFunctionName].apply($this.$http , param);
+                    });
                 }
                 return Observable.throw(res);
         });
@@ -68,48 +58,60 @@ export class J4careHttpService{
         }
         this.setValueInGlobal('authentication',response);
     }
-    refreshToken():Observable<any>{
-        if((!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()) && (!this.mainservice.global || !this.mainservice.global.notSecure) && (!this.mainservice.global || !this.mainservice.global.getRealmStateActive)){
-            this.setValueInGlobal('getRealmStateActive',true);
-            return this.$http.get('rs/realm').map(res => {
-                let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+    setGlobalToken(response, param, headerIndex){
+        if(response && response.length != 0){
+            if(response['token'] === null){
+                this.setValueInGlobal('notSecure',true);
+
+            }else{
+                this.setValueInGlobal('notSecure',false);
+                this.resetAuthenticationInfo(response);
+                this.token = response['token'];
+                // this.setHeader(param[headerIndex]);
+                this.mainservice.global.getRealmStateActive = true;
+            }
+        }
+        if(!this.mainservice.global.notSecure){
+            this.setHeader(param[headerIndex]);
+            param[headerIndex] = {"headers":this.header};
+        }
+        this.setValueInGlobal('getRealmStateActive',false);
+    }
+    getRealm(){
+        return this.$http.get('rs/realm').map(res => {
+            let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
                 if(pattern.exec(res.url)){
                     WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                 }
                 resjson = res.json();
-                }catch (e){
-                    resjson = [];
-                } return resjson;
-            });
+            }catch (e){
+                resjson = [];
+            } return resjson;
+        })
+    }
+    refreshToken():Observable<any>{
+        if((!_.hasIn(this.mainservice,"global.authentication") || !this.tokenValid()) && (!this.mainservice.global || !this.mainservice.global.notSecure) && (!this.mainservice.global || !this.mainservice.global.getRealmStateActive)){
+            this.setValueInGlobal('getRealmStateActive',true);
+            return this.getRealm();
         }else{
             if(!this.mainservice.global.notSecure){
                 if(_.hasIn(this.mainservice, "global.authentication.token")){
-                    this.token = this.mainservice.global.authentication.token;
+                        this.token = this.mainservice.global.authentication.token;
                 }else{
                     this.setValueInGlobal('getRealmStateActive',true);
-                    return this.$http.get('rs/realm').map(res => {
-                        let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                            if(pattern.exec(res.url)){
-                                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                            }
-                            resjson = res.json();
-                        }catch (e){
-                            resjson = [];
-                        } return resjson;
-                    });
+                    return this.getRealm();
                 }
             }
             return Observable.of([]);
         }
     }
     tokenValid(){
-        if(_.hasIn(this.mainservice,"global.authentication.expiration") && (this.mainservice.global.authentication.expiration > Math.floor(Date.now() / 1000)+500)){
+        if(_.hasIn(this.mainservice,"global.authentication.expiration") && (this.mainservice.global.authentication.expiration > Math.floor(Date.now() / 1000))){
             return true;
         }else{
             return false;
         }
     }
-
     setValueInGlobal(key, value){
         if (this.mainservice.global && !this.mainservice.global[key]){
             let global = _.cloneDeep(this.mainservice.global);

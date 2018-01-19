@@ -143,7 +143,6 @@ export class AppComponent implements OnInit {
         }
 
     }
-
     startClock(serverTime){
         this.currentServerTime = serverTime;
         this.clockInterval = setInterval(() => {         //replaced function() by ()=>
