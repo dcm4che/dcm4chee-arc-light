@@ -40,6 +40,7 @@ export class AppComponent implements OnInit {
     clockInterval;
     j4care = j4care;
     @ViewChild(MessagingComponent) msg;
+    clockUnExtended = true;
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
     constructor(
         public viewContainerRef: ViewContainerRef,
@@ -157,6 +158,12 @@ export class AppComponent implements OnInit {
             // this.currentServerTime += 1000;
             this.currentServerTime.setMilliseconds(this.currentServerTime.getMilliseconds()+1000);
         }, 1000);
+        this.hideExtendedClock();
+    }
+    hideExtendedClock(){
+        setTimeout(()=>{
+            this.clockUnExtended = false;
+        },2000);
     }
     synchronizeClock(serverTime){
         clearInterval(this.clockInterval);

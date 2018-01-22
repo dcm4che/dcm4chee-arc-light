@@ -140,6 +140,11 @@ p-calendar{
   box-sizing: border-box;
   padding: 5px 10px;
   text-align: center;
+  -webkit-transition:  0.5s;
+  -moz-transition:  0.5s;
+  -ms-transition:  0.5s;
+  -o-transition:  0.5s;
+  transition:  0.5s;
   .time{
     text-align: center;
     font-weight: bold;
@@ -149,6 +154,13 @@ p-calendar{
     text-align: center;
     font-size: 12px;
     font-weight: 100;
+  }
+  &.extend{
+    height: 33px;
+    padding: 0px 10px;
+    .text{
+      display: none;
+    }
   }
 }
 .custom_icon{
