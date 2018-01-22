@@ -218,7 +218,7 @@ export class ExternalRetrieveComponent implements OnInit {
                         this.service.cancelAll(this.filterObject).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.cancel + ' queues deleted successfully!',
+                                'text': res.count + ' queues deleted successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();
@@ -240,7 +240,7 @@ export class ExternalRetrieveComponent implements OnInit {
                         this.service.rescheduleAll(this.filterObject).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.reschedule + ' queues deleted successfully!',
+                                'text': res.count + ' queues rescheduled successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();

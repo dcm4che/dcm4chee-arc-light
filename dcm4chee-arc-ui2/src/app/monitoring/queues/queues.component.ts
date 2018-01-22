@@ -101,7 +101,7 @@ export class QueuesComponent implements OnInit{
                         this.service.cancelAll(filter,this.queueName).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.cancel + ' queues deleted successfully!',
+                                'text': res.count + ' queues deleted successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();
@@ -123,7 +123,7 @@ export class QueuesComponent implements OnInit{
                         this.service.rescheduleAll(filter,this.queueName).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.reschedule + ' queues deleted successfully!',
+                                'text': res.count + ' queues rescheduled successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();

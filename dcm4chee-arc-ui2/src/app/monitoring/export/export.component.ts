@@ -232,7 +232,7 @@ export class ExportComponent implements OnInit {
                         this.service.cancelAll(filter).subscribe((res) => {
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.cancel + ' queues deleted successfully!',
+                                'text': res.count + ' queues deleted successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();
@@ -272,7 +272,7 @@ export class ExportComponent implements OnInit {
                         this.service.rescheduleAll(filter,ok.selectedExporter).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.deleted + ' queues deleted successfully!',
+                                'text': res.count + ' queues rescheduled successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();
