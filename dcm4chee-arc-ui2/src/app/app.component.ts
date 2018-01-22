@@ -140,7 +140,7 @@ export class AppComponent implements OnInit {
         }
         let currentBrowserTime = new Date().getTime();
         this.$http.get('../monitor/serverTime')
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            .map(res => {j4care.redirectOnAuthResponse(res)})
             .subscribe(res=>{
                 if(_.hasIn(res,"serverTimeWithTimezone") && res.serverTimeWithTimezone){
                     console.log("server clock res",res);

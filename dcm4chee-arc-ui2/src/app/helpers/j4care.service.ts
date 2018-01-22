@@ -7,6 +7,7 @@ import {Observable} from "rxjs/Observable";
 declare var fetch;
 import * as _ from 'lodash';
 import {DatePipe} from "@angular/common";
+import {WindowRefService} from "./window-ref.service";
 
 @Injectable()
 export class j4care {
@@ -282,6 +283,19 @@ export class j4care {
             }
         }
         return string;
+    }
+    static redirectOnAuthResponse(res){
+        let resjson;
+        try{
+            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+            if(pattern.exec(res.url)){
+                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+            }
+            resjson = res.json();
+        }catch (e){
+            resjson = [];
+        }
+        return resjson;
     }
     static dateToString(date:Date){
         return `${date.getFullYear()}${this.getSingleDateTimeValueFromInt(date.getMonth()+1)}${this.getSingleDateTimeValueFromInt(date.getDate())}`;
