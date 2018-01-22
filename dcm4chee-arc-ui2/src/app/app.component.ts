@@ -56,13 +56,10 @@ export class AppComponent implements OnInit {
         let $this = this;
         if (!this.mainservice.user){
             this.mainservice.user = this.mainservice.getUserInfo().share();
-            let currentBrowserTime = new Date().getTime();
             this.mainservice.user
                 .subscribe(
                     (response) => {
-                        if(_.hasIn(response,"systemCurrentTime") && response.systemCurrentTime){
-                            this.startClock((response.systemCurrentTime * 1000)+(((new Date().getTime())-currentBrowserTime)/2));
-                        }
+
                         if(_.hasIn(response,"token") && response.token === null){
                             if ($this.mainservice.global && !$this.mainservice.global.notSecure){
                                 let global = _.cloneDeep($this.mainservice.global);
@@ -141,13 +138,24 @@ export class AppComponent implements OnInit {
                     }
                 );
         }
-
+        let currentBrowserTime = new Date().getTime();
+        this.$http.get('../monitor/serverTime')
+            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            .subscribe(res=>{
+                if(_.hasIn(res,"serverTimeWithTimezone") && res.serverTimeWithTimezone){
+                    console.log("server clock res",res);
+                    let serverTimeObject = j4care.splitTimeAndTimezone(res.serverTimeWithTimezone);
+                    this.startClock(new Date(serverTimeObject.time).getTime()+((new Date().getTime()-currentBrowserTime)/2));
+                    // this.startClock(new Date(serverTimeObject.time));
+                }
+            });
     }
     startClock(serverTime){
-        this.currentServerTime = serverTime;
-        this.clockInterval = setInterval(() => {         //replaced function() by ()=>
-            this.currentClockTime = new Date(this.currentServerTime);
-            this.currentServerTime += 1000;
+        this.currentServerTime = new Date(serverTime);
+        this.clockInterval = setInterval(() => {
+            // this.currentClockTime = new Date(this.currentServerTime);
+            // this.currentServerTime += 1000;
+            this.currentServerTime.setMilliseconds(this.currentServerTime.getMilliseconds()+1000);
         }, 1000);
     }
     synchronizeClock(serverTime){

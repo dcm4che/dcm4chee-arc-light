@@ -272,6 +272,17 @@ export class j4care {
             return true;
         return false;
     }
+    static splitTimeAndTimezone(string){
+        const regex = /(.*)([+-])(\d{4})/;
+        let m;
+        if ((m = regex.exec(string)) !== null) {
+            return {
+                time:m[1],
+                timeZone:`${m[2]||''}${m[3]||''}`
+            }
+        }
+        return string;
+    }
     static dateToString(date:Date){
         return `${date.getFullYear()}${this.getSingleDateTimeValueFromInt(date.getMonth()+1)}${this.getSingleDateTimeValueFromInt(date.getDate())}`;
     }
