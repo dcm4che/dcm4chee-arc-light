@@ -67,8 +67,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 
 /**
@@ -171,7 +169,7 @@ public class RejectRS {
         if (rjNote == null)
             throw new WebApplicationException(Response.Status.NOT_FOUND);
 
-        List<Attributes> matches = null;
+        List<Attributes> matches;
         try {
             matches = findSCU.find(localAE, externalAET, priority(), QueryRetrieveLevel2.IMAGE,
                     studyUID, seriesUID, objectUID,
@@ -226,15 +224,14 @@ public class RejectRS {
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(buildErrorResponse(
+            throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
         return ae;
     }
 
-    private Response buildErrorResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 
     private Response success(int status, String errorComment, List<Attributes> matches) {
@@ -262,9 +259,7 @@ public class RejectRS {
     }
 
     private Object entity(int status, String error, int rejected, int failed) {
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return (StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 JsonWriter writer = new JsonWriter(gen);
                 gen.writeStartObject();
@@ -274,7 +269,6 @@ public class RejectRS {
                 writer.writeNotDef("failed", failed, 0);
                 gen.writeEnd();
                 gen.flush();
-            }
         };
     }
 

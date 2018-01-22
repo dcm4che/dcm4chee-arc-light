@@ -59,9 +59,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -88,11 +85,9 @@ public class QueryRejectionNotes {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput query() throws Exception {
+    public StreamingOutput query() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (RejectionNote rjNote : sortedRejectionNotes()) {
@@ -111,15 +106,14 @@ public class QueryRejectionNotes {
                 }
                 gen.writeEnd();
                 gen.flush();
-            }
         };
     }
 
     private RejectionNote[] sortedRejectionNotes() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        RejectionNote[] rejectionNotes = arcDev.getRejectionNotes().toArray(new RejectionNote[arcDev.getRejectionNotes().size()]);
-        Arrays.sort(rejectionNotes, Comparator.comparing(RejectionNote::getRejectionNoteLabel));
-        return rejectionNotes;
+        return device.getDeviceExtension(ArchiveDeviceExtension.class)
+                .getRejectionNotes().stream()
+                .sorted(Comparator.comparing(RejectionNote::getRejectionNoteLabel))
+                .toArray(RejectionNote[]::new);
     }
 
 }

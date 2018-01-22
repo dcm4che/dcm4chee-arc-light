@@ -69,8 +69,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -217,9 +215,7 @@ public class ExporterRS {
     }
 
     private static Object entity(final RetrieveContext ctx) {
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return (StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 JsonWriter writer = new JsonWriter(gen);
                 gen.writeStartObject();
@@ -230,7 +226,6 @@ public class ExporterRS {
                 writer.writeNotNullOrDef("error", ctx.getException(), null);
                 gen.writeEnd();
                 gen.flush();
-            }
         };
     }
 
@@ -238,7 +233,9 @@ public class ExporterRS {
         if (exporterID.startsWith("dicom:"))
             try {
                 return new URI(exporterID);
-            } catch (URISyntaxException e) {}
+            } catch (URISyntaxException e) {
+                LOG.warn("Malformed URI");
+            }
         return null;
     }
 

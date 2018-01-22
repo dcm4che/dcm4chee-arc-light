@@ -41,6 +41,7 @@ package org.dcm4chee.arc.dimse.rs;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.DicomConfiguration;
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.AAbort;
@@ -51,6 +52,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -58,8 +61,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -89,7 +90,7 @@ public class EchoRS {
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(buildErrorResponse(
+            throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
         return ae;
@@ -99,15 +100,14 @@ public class EchoRS {
         try {
             return conf.findApplicationEntity(remoteAET);
         } catch (ConfigurationNotFoundException e) {
-            throw new WebApplicationException(buildErrorResponse(
+            throw new WebApplicationException(errResponse(
                     "No such Application Entity configured: " + remoteAET,
                     Response.Status.NOT_FOUND));
         }
     }
 
-    private Response buildErrorResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 
     private AAssociateRQ createAARQ() {
@@ -205,29 +205,18 @@ public class EchoRS {
         }
 
         @Override
-        public void write(OutputStream out) throws IOException {
-            Writer w = new OutputStreamWriter(out, "UTF-8");
-            w.write("{\"result\":");
-            w.write(Integer.toString(code.ordinal()));
-            if (exception != null) {
-                w.write(",\"errorMessage\":\"");
-                w.write(code.errorMessage(exception));
-                w.write('"');
-            }
-            if (connectionTime != null) {
-                w.write(",\"connectionTime\":");
-                w.write(connectionTime);
-            }
-            if (echoTime != null) {
-                w.write(",\"echoTime\":");
-                w.write(echoTime);
-            }
-            if (releaseTime != null) {
-                w.write(",\"releaseTime\":");
-                w.write(releaseTime);
-            }
-            w.write('}');
-            w.flush();
+        public void write(OutputStream out) {
+            JsonGenerator gen = Json.createGenerator(out);
+            JsonWriter writer = new JsonWriter(gen);
+            gen.writeStartObject();
+            writer.writeNotNullOrDef("result", Integer.toString(code.ordinal()), null);
+            if (exception != null)
+                writer.writeNotNullOrDef("errorMessage", code.errorMessage(exception), null);
+            writer.writeNotNullOrDef("connectionTime", connectionTime, null);
+            writer.writeNotNullOrDef("echoTime", echoTime, null);
+            writer.writeNotNullOrDef("releaseTime", releaseTime, null);
+            gen.writeEnd();
+            gen.flush();
         }
     }
 }

@@ -60,8 +60,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -120,29 +118,22 @@ public class StorageCmtRS {
         validateArchiveAE();
         Attributes eventInfo = stgCmtMgr.calculateResult(studyUID, seriesUID, sopUID);
         stgCmtEvent.fire(new StgCmtEventInfoImpl(request, eventInfo));
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return out -> {
                 try (JsonGenerator gen = Json.createGenerator(out)) {
                     JSONWriter writer = new JSONWriter(gen);
                     gen.writeStartArray();
                     writer.write(eventInfo);
                     gen.writeEnd();
                 }
-            }
         };
     }
 
     private void validateArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(getResponse(
-                    "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND));
-    }
-
-    private Response getResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
+            throw new WebApplicationException(
+                    Response.status(Response.Status.NOT_FOUND)
+                            .entity("{\"errorMessage\":\"" + "No such Application Entity: " + aet + "\"}")
+                            .build());
     }
 }

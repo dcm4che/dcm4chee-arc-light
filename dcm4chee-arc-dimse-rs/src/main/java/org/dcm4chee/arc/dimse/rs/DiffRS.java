@@ -71,7 +71,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.ConnectException;
 import java.util.Date;
 import java.util.EnumSet;
@@ -178,12 +177,9 @@ public class DiffRS {
             Attributes keys = queryAttributes.getQueryKeys();
             int[] returnKeys = keys.tags();
             keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
-            ar.register(new CompletionCallback() {
-                @Override
-                public void onComplete(Throwable throwable) {
+            ar.register((CompletionCallback) throwable ->  {
                     safeRelease(as1);
                     safeRelease(as2);
-                }
             });
             EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
             if (Boolean.parseBoolean(fuzzymatching))
@@ -218,7 +214,7 @@ public class DiffRS {
             }
             ar.resume(Response.noContent().build());
         } catch (ConnectException e) {
-            throw new WebApplicationException(buildErrorResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
         }
     }
 
@@ -228,15 +224,14 @@ public class DiffRS {
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(buildErrorResponse(
+            throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
         return ae;
     }
 
-    private Response buildErrorResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 
     private void addReturnTags(QueryAttributes queryAttributes, int[] compareKeys) {
@@ -303,9 +298,7 @@ public class DiffRS {
 
     private Object entity(
             final DimseRSP dimseRSP, final DimseRSP dimseRSP2, final int[] compareKeys, final int[] returnKeys) {
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return (StreamingOutput) out -> {
                 try (JsonGenerator gen = Json.createGenerator(out)) {
                     JSONWriter writer = new JSONWriter(gen);
                     gen.writeStartArray();
@@ -324,7 +317,6 @@ public class DiffRS {
                     }
                     gen.writeEnd();
                 }
-            }
         };
     }
 

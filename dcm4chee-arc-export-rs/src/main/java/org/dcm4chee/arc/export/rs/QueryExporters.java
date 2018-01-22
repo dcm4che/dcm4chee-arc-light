@@ -58,9 +58,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -82,11 +79,9 @@ public class QueryExporters {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput query() throws Exception {
+    public StreamingOutput query() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (ExporterDescriptor exporter : sortedExporterDescriptors()) {
@@ -98,14 +93,13 @@ public class QueryExporters {
                 }
                 gen.writeEnd();
                 gen.flush();
-            }
         };
     }
 
     private ExporterDescriptor[] sortedExporterDescriptors() {
-        ArchiveDeviceExtension ext = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        ExporterDescriptor[] exporterDescriptors = ext.getExporterDescriptors().toArray(new ExporterDescriptor[ext.getExporterDescriptors().size()]);
-        Arrays.sort(exporterDescriptors, Comparator.comparing(ExporterDescriptor::getExporterID));
-        return exporterDescriptors;
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).getExporterDescriptors()
+                .stream()
+                .sorted(Comparator.comparing(ExporterDescriptor::getExporterID))
+                .toArray(ExporterDescriptor[]::new);
     }
 }

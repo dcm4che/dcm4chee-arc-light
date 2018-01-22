@@ -65,7 +65,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -179,6 +180,8 @@ public class RetrieveRS {
                     .setRemoteHostName(as.getSocket().getInetAddress().getHostName())
                     .setResponse(cmd));
             return status(cmd).entity(entity(cmd)).build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
         } finally {
             try {
                 as.release();
@@ -190,15 +193,21 @@ public class RetrieveRS {
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(buildErrorResponse(
+            throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
         return ae;
     }
 
-    private Response buildErrorResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 
     private ExternalRetrieveContext toInstancesRetrieved(String destAET, Attributes keys) {
@@ -255,9 +264,7 @@ public class RetrieveRS {
     }
 
     private Object entity(Attributes cmd) {
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return (StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 JsonWriter writer = new JsonWriter(gen);
                 gen.writeStartObject();
@@ -268,7 +275,6 @@ public class RetrieveRS {
                 writer.writeNotDef("failed", cmd.getInt(Tag.NumberOfFailedSuboperations, -1), -1);
                 gen.writeEnd();
                 gen.flush();
-            }
         };
     }
 

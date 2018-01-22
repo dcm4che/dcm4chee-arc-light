@@ -120,16 +120,16 @@ public class MwlRS {
             final Attributes attrs = reader.readDataset(null);
             IDWithIssuer patientID = IDWithIssuer.pidOf(attrs);
             if (patientID == null)
-                throw new WebApplicationException(getResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
+                throw new WebApplicationException(errResponse("missing Patient ID in message body", Response.Status.BAD_REQUEST));
 
             Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
             if (spsItem == null)
-                throw new WebApplicationException(getResponse(
+                throw new WebApplicationException(errResponse(
                         "Missing or empty (0040,0100) Scheduled Procedure Step Sequence", Response.Status.BAD_REQUEST));
 
             Patient patient = patientService.findPatient(patientID);
             if (patient == null)
-                throw new WebApplicationException(getResponse("Patient[id=" + patientID + "] does not exists",
+                throw new WebApplicationException(errResponse("Patient[id=" + patientID + "] does not exists",
                         Response.Status.NOT_FOUND));
 
             if (!attrs.containsValue(Tag.AccessionNumber))
@@ -151,24 +151,20 @@ public class MwlRS {
             RSOperation rsOp = ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Create)
                                 ? RSOperation.CreateMWL : RSOperation.UpdateMWL;
             rsForward.forward(rsOp, arcAE, attrs, request);
-            return new StreamingOutput() {
-                @Override
-                public void write(OutputStream out) throws IOException {
+            return out -> {
                     try (JsonGenerator gen = Json.createGenerator(out)) {
                         new JSONWriter(gen).write(attrs);
                     }
-                }
             };
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
-                    getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
+                    errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
         }
     }
 
     @DELETE
     @Path("/mwlitems/{studyIUID}/{spsID}")
-    public void deleteSPS(@PathParam("studyIUID") String studyIUID, @PathParam("spsID") String spsID)
-            throws Exception {
+    public void deleteSPS(@PathParam("studyIUID") String studyIUID, @PathParam("spsID") String spsID) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
@@ -176,14 +172,13 @@ public class MwlRS {
         ctx.setSpsID(spsID);
         procedureService.deleteProcedure(ctx);
         if (ctx.getEventActionCode() == null)
-            throw new WebApplicationException(getResponse("MWLItem with study instance UID : " + studyIUID +
+            throw new WebApplicationException(errResponse("MWLItem with study instance UID : " + studyIUID +
                     " and SPS ID : " + spsID + " not found.", Response.Status.NOT_FOUND));
         rsForward.forward(RSOperation.DeleteMWL, arcAE, null, request);
     }
 
-    private Response getResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 
     private void logRequest() {
@@ -194,7 +189,7 @@ public class MwlRS {
     private ArchiveAEExtension getArchiveAE() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(getResponse(
+            throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
         return ae.getAEExtension(ArchiveAEExtension.class);

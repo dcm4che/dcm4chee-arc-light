@@ -71,7 +71,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.ConnectException;
 import java.util.EnumSet;
 
@@ -257,37 +256,33 @@ public class QueryRS {
             EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
             if (Boolean.parseBoolean(fuzzymatching))
                 queryOptions.add(QueryOption.FUZZY);
-            ar.register(new CompletionCallback() {
-                @Override
-                public void onComplete(Throwable throwable) {
+            ar.register((CompletionCallback) throwable -> {
                     if (as != null)
                         try {
                             as.release();
                         } catch (IOException e) {
                             LOG.info("{}: Failed to release association:\\n", as, e);
                         }
-                }
             });
             as = findSCU.openAssociation(localAE, externalAET, level.cuid, queryOptions);
             DimseRSP dimseRSP = findSCU.query(as, priority(), keys, !count && limit != null ? offset() + limit() : 0);
             dimseRSP.next();
             ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP)).build());
         } catch (ConnectException e) {
-            throw new WebApplicationException(buildErrorResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
         }
     }
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(buildErrorResponse(
+            throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
         return ae;
     }
 
-    private Response buildErrorResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 
     private Response.ResponseBuilder responseBuilder(DimseRSP dimseRSP) {
@@ -343,9 +338,7 @@ public class QueryRS {
     }
 
     private Object writeJSON(final DimseRSP dimseRSP) {
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return (StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 JSONWriter writer = new JSONWriter(gen);
                 gen.writeStartArray();
@@ -369,7 +362,6 @@ public class QueryRS {
                 }
                 gen.writeEnd();
                 gen.flush();
-            }
         };
     }
 
