@@ -140,7 +140,7 @@ export class AppComponent implements OnInit {
         }
         let currentBrowserTime = new Date().getTime();
         this.$http.get('../monitor/serverTime')
-            .map(res => {j4care.redirectOnAuthResponse(res)})
+            .map(res => j4care.redirectOnAuthResponse(res))
             .subscribe(res=>{
                 if(_.hasIn(res,"serverTimeWithTimezone") && res.serverTimeWithTimezone){
                     console.log("server clock res",res);
