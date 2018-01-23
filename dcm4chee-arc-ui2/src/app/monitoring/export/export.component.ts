@@ -132,6 +132,7 @@ export class ExportComponent implements OnInit {
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
         }
+        this.statusChange();
     }
     // changeTest(e){
     //     console.log("changetest",e);
@@ -212,7 +213,10 @@ export class ExportComponent implements OnInit {
             if(this.filters.status == "SCHEDULED" || this.filters.status == "IN PROCESS"){
                 return o.value != 'reschedule';
             }else{
-                return o.value != 'cancel';
+                if(this.filters.status === '*')
+                    return o.value != 'cancel' && o.value != 'reschedule';
+                else
+                    return o.value != 'cancel';
             }
         });
     }

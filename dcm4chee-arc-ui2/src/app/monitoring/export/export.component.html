@@ -93,7 +93,7 @@
                 <div class="w45percent csv_button"><span class="custom_icon csv_icon"></span>Download CSV</div>
             </div>-->
             <div class="filter single_block">
-                <div class="filter_block" *ngIf="filters.status && filters.status != '*' && allActionsActive.length > 0;">
+                <div class="filter_block">
                     <div class="line">
                         <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text">Download CSV</span></div>
                         <md-select [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
