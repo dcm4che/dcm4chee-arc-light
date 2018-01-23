@@ -92,7 +92,7 @@
             </div>
             </div>
         <!--</div>-->
-        <div class="main_filter_block" *ngIf="status && status != '*' && allActionsActive.length > 0">
+        <div class="main_filter_block">
             <div class="morefunctionblock">
                 <md-select [(ngModel)]="allAction" class="w45percent" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
                     <md-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</md-option>

@@ -73,13 +73,17 @@ export class QueuesComponent implements OnInit{
                 this.init();
             }
         }
+        this.statusChange();
     }
     statusChange(){
         this.allActionsActive = this.allActionsOptions.filter((o)=>{
             if(this.status == "SCHEDULED" || this.status == "IN PROCESS"){
                 return o.value != 'reschedule';
             }else{
-                return o.value != 'cancel';
+                if(this.status === '*')
+                    return o.value != 'cancel' && o.value != 'reschedule';
+                else
+                    return o.value != 'cancel';
             }
         });
     }
