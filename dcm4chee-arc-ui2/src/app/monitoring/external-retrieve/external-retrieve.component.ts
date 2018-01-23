@@ -166,6 +166,7 @@ export class ExternalRetrieveComponent implements OnInit {
             this.initSchema();
         });
         this.initExporters(2);
+        this.onFormChange(this.filterObject);
     }
     hasOlder(objs) {
         // console.log("objs.length",objs.length);
@@ -185,7 +186,6 @@ export class ExternalRetrieveComponent implements OnInit {
     };
     initSchema(){
         this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET, this.devices,`COUNT ${((this.count || this.count == 0)?this.count:'')}`);
-
     }
     confirm(confirmparameters){
         this.config.viewContainerRef = this.viewContainerRef;
@@ -336,7 +336,10 @@ export class ExternalRetrieveComponent implements OnInit {
             if(filters.status == "SCHEDULED" || filters.status == "IN PROCESS"){
                 return o.value != 'reschedule';
             }else{
-                return o.value != 'cancel';
+                if(filters.status === '*' || !filters.status || filters.status === '')
+                    return o.value != 'cancel' && o.value != 'reschedule';
+                else
+                    return o.value != 'cancel';
             }
         });
     }

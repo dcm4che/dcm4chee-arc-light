@@ -2,7 +2,7 @@
   <monitoring-tabs></monitoring-tabs>
   <div class="tab-content">
     <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onFormChange($event)"></filter-generator>
-    <div class="filter single_block"  *ngIf="filterObject?.status && allActionsActive">
+    <div class="filter single_block">
         <div class="filter_block">
             <div class="line">
               <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text">Download CSV</span></div>

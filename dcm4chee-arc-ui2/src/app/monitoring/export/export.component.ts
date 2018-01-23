@@ -213,7 +213,7 @@ export class ExportComponent implements OnInit {
             if(this.filters.status == "SCHEDULED" || this.filters.status == "IN PROCESS"){
                 return o.value != 'reschedule';
             }else{
-                if(this.filters.status === '*')
+                if(!this.filters.status || this.filters.status === '*' || this.filters.status === '')
                     return o.value != 'cancel' && o.value != 'reschedule';
                 else
                     return o.value != 'cancel';
