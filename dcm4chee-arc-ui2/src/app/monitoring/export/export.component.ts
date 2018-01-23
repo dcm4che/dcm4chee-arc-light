@@ -154,12 +154,28 @@ export class ExportComponent implements OnInit {
         return this.dialogRef.afterClosed();
     };
     downloadCsv(){
-        this.service.downloadCsv(this.filters).subscribe((csv)=>{
+        let token;
+        this.$http.refreshToken().subscribe((response)=>{
+            if(!this.mainservice.global.notSecure){
+                if(response && response.length != 0){
+                    this.$http.resetAuthenticationInfo(response);
+                    token = response['token'];
+                }else{
+                    token = this.mainservice.global.authentication.token;
+                }
+            }
+            if(!this.mainservice.global.notSecure){
+                WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv&access_token=${token}`);
+            }else{
+                WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv`);
+            }
+        });
+/*        this.service.downloadCsv(this.filters).subscribe((csv)=>{
             let file = new File([csv._body], `export_${new Date().toDateString()}.csv`, {type: 'text/csv;charset=utf-8'});
             FileSaver.saveAs(file);
         },(err)=>{
             this.httpErrorHandler.handleError(err);
-        });
+        });*/
     }
     search(offset) {
         let $this = this;
