@@ -76,8 +76,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.transform.stream.StreamResult;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -161,7 +161,7 @@ public class QidoRS {
     @NoCache
     @Path("/patients")
     @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForPatientsXML() throws Exception {
+    public Response searchForPatientsXML() {
         return search("SearchForPatients", Model.PATIENT, null, null, QIDO.PATIENT, Output.DICOM_XML);
     }
 
@@ -169,7 +169,7 @@ public class QidoRS {
     @NoCache
     @Path("/patients")
     @Produces("application/dicom+json,application/json")
-    public Response searchForPatientsJSON() throws Exception {
+    public Response searchForPatientsJSON() {
         return search("SearchForPatients", Model.PATIENT, null, null, QIDO.PATIENT, Output.JSON);
     }
 
@@ -177,7 +177,7 @@ public class QidoRS {
     @NoCache
     @Path("/studies")
     @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForStudiesXML() throws Exception {
+    public Response searchForStudiesXML() {
         return search("SearchForStudies", Model.STUDY, null, null, QIDO.STUDY, Output.DICOM_XML);
     }
 
@@ -185,7 +185,7 @@ public class QidoRS {
     @NoCache
     @Path("/studies")
     @Produces("application/dicom+json,application/json")
-    public Response searchForStudiesJSON() throws Exception {
+    public Response searchForStudiesJSON() {
         return search("SearchForStudies", Model.STUDY, null, null, QIDO.STUDY, Output.JSON);
     }
 
@@ -201,7 +201,7 @@ public class QidoRS {
     @NoCache
     @Path("/series")
     @Produces("application/dicom+json,application/json")
-    public Response searchForSeriesJSON() throws Exception {
+    public Response searchForSeriesJSON() {
         return search("SearchForSeries", Model.SERIES, null, null, QIDO.STUDY_SERIES, Output.JSON);
     }
 
@@ -210,7 +210,7 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/series")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForSeriesOfStudyXML(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return search("SearchForStudySeries", Model.SERIES, studyInstanceUID, null, QIDO.SERIES, Output.DICOM_XML);
     }
 
@@ -219,7 +219,7 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/series")
     @Produces("application/dicom+json,application/json")
     public Response searchForSeriesOfStudyJSON(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return search("SearchForStudySeries", Model.SERIES, studyInstanceUID, null, QIDO.SERIES, Output.JSON);
     }
 
@@ -227,7 +227,7 @@ public class QidoRS {
     @NoCache
     @Path("/instances")
     @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForInstancesXML() throws Exception {
+    public Response searchForInstancesXML() {
         return search("SearchForInstances", Model.INSTANCE, null, null, QIDO.STUDY_SERIES_INSTANCE, Output.DICOM_XML);
     }
 
@@ -235,7 +235,7 @@ public class QidoRS {
     @NoCache
     @Path("/instances")
     @Produces("application/dicom+json,application/json")
-    public Response searchForInstancesJSON() throws Exception {
+    public Response searchForInstancesJSON() {
         return search("SearchForInstances", Model.INSTANCE, null, null, QIDO.STUDY_SERIES_INSTANCE, Output.JSON);
     }
 
@@ -244,7 +244,7 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForInstancesOfStudyXML(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return search("SearchForStudyInstances", Model.INSTANCE,
                 studyInstanceUID, null, QIDO.SERIES_INSTANCE, Output.DICOM_XML);
     }
@@ -254,7 +254,7 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("application/dicom+json,application/json")
     public Response searchForInstancesOfStudyJSON(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return search("SearchForStudyInstances", Model.INSTANCE,
                 studyInstanceUID, null, QIDO.SERIES_INSTANCE, Output.JSON);
     }
@@ -265,7 +265,7 @@ public class QidoRS {
     @Produces("multipart/related;type=application/dicom+xml")
     public Response searchForInstancesOfSeriesXML(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
         return search("SearchForStudySeriesInstances", Model.INSTANCE,
                 studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, Output.DICOM_XML);
     }
@@ -276,7 +276,7 @@ public class QidoRS {
     @Produces("application/dicom+json,application/json")
     public Response searchForInstancesOfSeriesJSON(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
         return search("SearchForStudySeriesInstances", Model.INSTANCE,
                 studyInstanceUID, seriesInstanceUID, QIDO.INSTANCE, Output.JSON);
     }
@@ -285,7 +285,7 @@ public class QidoRS {
     @NoCache
     @Path("/mwlitems")
     @Produces("multipart/related;type=application/dicom+xml")
-    public Response searchForSPSXML() throws Exception {
+    public Response searchForSPSXML() {
         return search("SearchForSPS", Model.MWL, null, null, QIDO.MWL, Output.DICOM_XML);
     }
 
@@ -293,7 +293,7 @@ public class QidoRS {
     @NoCache
     @Path("/mwlitems")
     @Produces("application/dicom+json,application/json")
-    public Response searchForSPSJSON() throws Exception {
+    public Response searchForSPSJSON() {
         return search("SearchForSPS", Model.MWL, null, null, QIDO.MWL, Output.JSON);
     }
 
@@ -301,7 +301,7 @@ public class QidoRS {
     @NoCache
     @Path("/patients/count")
     @Produces("application/json")
-    public Response countPatients() throws Exception {
+    public Response countPatients() {
         return count("CountPatients", Model.PATIENT, null, null);
     }
 
@@ -309,7 +309,7 @@ public class QidoRS {
     @NoCache
     @Path("/studies/count")
     @Produces("application/json")
-    public Response countStudies() throws Exception {
+    public Response countStudies() {
         return count("CountStudies", Model.STUDY, null, null);
     }
 
@@ -317,7 +317,7 @@ public class QidoRS {
     @NoCache
     @Path("/series/count")
     @Produces("application/json")
-    public Response countSeries() throws Exception {
+    public Response countSeries() {
         return count("CountSeries", Model.SERIES, null, null);
     }
 
@@ -326,7 +326,7 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/series/count")
     @Produces("application/json")
     public Response countSeriesOfStudy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return count("CountStudySeries", Model.SERIES, studyInstanceUID, null);
     }
 
@@ -334,7 +334,7 @@ public class QidoRS {
     @NoCache
     @Path("/instances/count")
     @Produces("application/json")
-    public Response countInstances() throws Exception {
+    public Response countInstances() {
         return count("CountInstances", Model.INSTANCE, null, null);
     }
 
@@ -343,7 +343,7 @@ public class QidoRS {
     @Path("/studies/{StudyInstanceUID}/instances/count")
     @Produces("application/json")
     public Response countInstancesOfStudy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return count("CountStudyInstances", Model.INSTANCE, studyInstanceUID, null);
     }
 
@@ -353,7 +353,7 @@ public class QidoRS {
     @Produces("application/json")
     public Response countInstancesOfSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
         return count("CountStudySeriesInstances", Model.INSTANCE, studyInstanceUID, seriesInstanceUID);
     }
 
@@ -361,7 +361,7 @@ public class QidoRS {
     @NoCache
     @Path("/mwlitems/count")
     @Produces("application/json")
-    public Response countSPS() throws Exception {
+    public Response countSPS() {
         return count("CountSPS", Model.MWL, null, null);
     }
 
@@ -369,7 +369,7 @@ public class QidoRS {
     @NoCache
     @Path("/studies/size")
     @Produces("application/json")
-    public Response sizeOfStudies() throws Exception {
+    public Response sizeOfStudies() {
         logRequest();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(
@@ -380,6 +380,8 @@ public class QidoRS {
                 Iterator<Long> studyPks = query.withUnknownSize(device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize());
                 while (studyPks.hasNext())
                     ctx.getQueryService().calculateStudySize(studyPks.next());
+            } catch (Exception e) {
+                throw new WebApplicationException(errResponseAsTextPlain(e));
             } finally {
                 try {
                     transaction.commit();
@@ -393,19 +395,19 @@ public class QidoRS {
         }
     }
 
-    private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID)
-            throws Exception {
+    private Response count(String method, Model model, String studyInstanceUID, String seriesInstanceUID) {
         logRequest();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
         try (Query query = model.createQuery(service, ctx)) {
             return Response.ok("{\"count\":" + query.fetchCount() + '}').build();
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
     private Response search(String method, Model model, String studyInstanceUID, String seriesInstanceUID,
-                            QIDO qido, Output output)
-            throws Exception {
+                            QIDO qido, Output output) {
         logRequest();
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         QueryContext ctx = newQueryContext(method, queryAttrs, studyInstanceUID, seriesInstanceUID, model);
@@ -453,6 +455,8 @@ public class QidoRS {
                     LOG.warn("Failed to commit transaction:\n{}", e);
                 }
             }
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -632,17 +636,12 @@ public class QidoRS {
 
             final Attributes match = adjust(tmp, model, query, coercion);
             LOG.debug("{}: Match #{}:\n{}", method, ++count, match);
-            output.addPart(
-                    new StreamingOutput() {
-                        @Override
-                        public void write(OutputStream out) throws IOException,
-                                WebApplicationException {
+            output.addPart((StreamingOutput) out -> {
                             try {
                                 SAXTransformer.getSAXWriter(new StreamResult(out)).write(match);
                             } catch (Exception e) {
                                 throw new WebApplicationException(e);
                             }
-                        }
                     },
                     MediaTypes.APPLICATION_DICOM_XML_TYPE);
         }
@@ -663,18 +662,14 @@ public class QidoRS {
             matches.add(match);
         }
         LOG.info("{}: {} Matches", method, count);
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return (StreamingOutput) out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 JSONWriter writer = new JSONWriter(gen);
                 gen.writeStartArray();
-                for (Attributes match : matches) {
+                for (Attributes match : matches)
                     writer.write(match);
-                }
                 gen.writeEnd();
                 gen.flush();
-            }
         };
     }
 
@@ -687,5 +682,12 @@ public class QidoRS {
         if (sb != null)
             match.setString(Tag.RetrieveURL, VR.UR, sb.toString());
         return match;
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 }

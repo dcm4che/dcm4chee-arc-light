@@ -72,7 +72,8 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.*;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -354,7 +355,7 @@ public class WadoRS {
 
             Date lastModified = service.getLastModified(ctx);
             if (lastModified == null)
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
+                throw new WebApplicationException(errResponse("Last Modified date is null.", Response.Status.NOT_FOUND));
             Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
 
             if (respBuilder == null)
@@ -382,20 +383,21 @@ public class WadoRS {
         service.calculateMatches(ctx);
         LOG.info("{}: {} Matches", method, ctx.getNumberOfMatches());
         if (ctx.getNumberOfMatches() == 0)
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            throw new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
 //            Collection<InstanceLocations> notAccessable = service.removeNotAccessableMatches(ctx);
         Collection<InstanceLocations> notAccepted = output.removeNotAcceptedMatches(this, ctx);
-        if (ctx.getMatches().isEmpty())
-            throw new WebApplicationException(
-                    notAccepted.isEmpty() ? Response.Status.NOT_FOUND : Response.Status.NOT_ACCEPTABLE);
+        if (ctx.getMatches().isEmpty()) {
+            Response errResp = notAccepted.isEmpty()
+                    ? errResponse("No matches found.", Response.Status.NOT_FOUND)
+                    : errResponse("Not accepted instances present.", Response.Status.NOT_ACCEPTABLE);
+            throw new WebApplicationException(errResp);
+        }
 
         if (lastModified == null)
             lastModified = service.getLastModifiedFromMatches(ctx);
 
         retrieveStart.fire(ctx);
-        ar.register(new CompletionCallback() {
-            @Override
-            public void onComplete(Throwable throwable) {
+        ar.register((CompletionCallback) throwable -> {
                 SafeClose.close(compressedMFPixelDataOutput);
                 SafeClose.close(uncompressedFramesOutput);
                 SafeClose.close(compressedFramesOutput);
@@ -403,7 +405,6 @@ public class WadoRS {
                 purgeSpoolDirectory();
                 ctx.setException(throwable);
                 retrieveEnd.fire(ctx);
-            }
         });
         responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
         Object entity = output.entity(this, ctx, frameList, attributePath);
@@ -418,9 +419,9 @@ public class WadoRS {
     private void checkAET() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
+            throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND);
+                    Response.Status.NOT_FOUND));
     }
 
     private enum Output {
@@ -551,7 +552,8 @@ public class WadoRS {
 
         protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
                                InstanceLocations inst, int[] frameList, int[] attributePath) throws IOException {
-             throw new WebApplicationException(name() + " not implemented", Response.Status.SERVICE_UNAVAILABLE);
+             throw new WebApplicationException(errResponse(
+                     name() + " not implemented", Response.Status.SERVICE_UNAVAILABLE));
         }
 
         public boolean isMetadata() {
@@ -591,7 +593,7 @@ public class WadoRS {
                 entity = new BulkdataOutput(ctx, inst, Tag.EncapsulatedDocument);
                 break;
             default:
-                throw new AssertionError("Unexcepted object type: " + objectType);
+                throw new AssertionError("Unexpected object type: " + objectType);
         }
         OutputPart outputPart = output.addPart(entity, mediaType);
         outputPart.getHeaders().putSingle("Content-Location", bulkdataURL.toString());
@@ -641,7 +643,7 @@ public class WadoRS {
             return frameList;
 
         if (len == 0)
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            throw new WebApplicationException(errResponse("Frame length is zero.", Response.Status.NOT_FOUND));
 
         responseStatus = Response.Status.PARTIAL_CONTENT;
         return Arrays.copyOf(frameList, len);
@@ -740,28 +742,22 @@ public class WadoRS {
     }
 
     private MediaType selectMediaType(MediaType... mediaTypes) {
-        for (MediaType acceptableMediaType : acceptableMediaTypes()) {
-            for (MediaType mediaType : mediaTypes) {
+        for (MediaType acceptableMediaType : acceptableMediaTypes())
+            for (MediaType mediaType : mediaTypes)
                 if (mediaType.isCompatible(acceptableMediaType))
                     return mediaType;
-            }
-        }
         return null;
     }
 
     private void writeMetadataXML(MultipartRelatedOutput output, final RetrieveContext ctx,
                                   final InstanceLocations inst) {
         output.addPart(
-                new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream out) throws IOException,
-                            WebApplicationException {
+                (StreamingOutput) out -> {
                         try {
                             SAXTransformer.getSAXWriter(new StreamResult(out)).write(loadMetadata(ctx, inst));
                         } catch (Exception e) {
-                            throw new WebApplicationException(e);
+                            throw new WebApplicationException(errResponseAsTextPlain(e));
                         }
-                    }
                 },
                 MediaTypes.APPLICATION_DICOM_XML_TYPE);
 
@@ -769,22 +765,18 @@ public class WadoRS {
 
     private Object writeMetadataJSON(final RetrieveContext ctx) {
         final Collection<InstanceLocations> insts = ctx.getMatches();
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return (StreamingOutput) out -> {
                 try {
                     JsonGenerator gen = Json.createGenerator(out);
                     JSONWriter writer = new JSONWriter(gen);
                     gen.writeStartArray();
-                    for (InstanceLocations inst : insts) {
+                    for (InstanceLocations inst : insts)
                         writer.write(loadMetadata(ctx, inst));
-                    }
                     gen.writeEnd();
                     gen.flush();
                 } catch (Exception e) {
-                    throw new WebApplicationException(e);
+                    throw new WebApplicationException(errResponseAsTextPlain(e));
                 }
-            }
         };
     }
 
@@ -799,8 +791,7 @@ public class WadoRS {
         return metadata;
     }
 
-    private void setBulkdataURI(Attributes attrs, String retrieveURL)
-            throws IOException {
+    private void setBulkdataURI(Attributes attrs, String retrieveURL) {
         try {
             final List<ItemPointer> itemPointers = new ArrayList<>(4);
             attrs.accept(new Attributes.SequenceVisitor() {
@@ -904,5 +895,16 @@ public class WadoRS {
             LOG.warn("Failed to purge spool directory {}", spoolDirectory, e);
         }
 
+    }
+
+    private static Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 }
