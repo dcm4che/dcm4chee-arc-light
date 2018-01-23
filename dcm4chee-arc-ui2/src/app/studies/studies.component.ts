@@ -2482,6 +2482,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
         },(err)=>{
             this.showGetCountLoader = false;
+            this.httpErrorHandler.handleError(err);
         });
     }
     getSize(){
@@ -2512,6 +2513,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
         },(err)=>{
             this.showGetSizeLoader = false;
+            this.httpErrorHandler.handleError(err);
         });
     }
     queryPatients = function(offset){
