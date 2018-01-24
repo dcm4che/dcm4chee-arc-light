@@ -92,6 +92,8 @@ public class QueryAttributes {
                 case "StudyReceiveDateTime":
                 case "ExternalRetrieveAET":
                 case "ExternalRetrieveAET!":
+                case "only-stgcmt":
+                case "only-ian":
                     break;
                 default:
                     addQueryKey(key, entry.getValue());
