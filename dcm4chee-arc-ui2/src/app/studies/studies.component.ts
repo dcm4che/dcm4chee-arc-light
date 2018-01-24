@@ -2048,6 +2048,16 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 ""
             );
     }
+    exportMultipleStudies(){
+        this.exporter(
+            '',
+            'Export all matching studies',
+            'Studies will not be sent!',
+            'multipleExport',
+            {},
+            "study"
+        );
+    }
     exportStudy(study) {
         this.exporter(
             this.studyURL(study.attrs),
@@ -2119,30 +2129,37 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 if(mode === "multiple"){
                     urlRest = `../aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}?${ this.mainservice.param(this.createStudyFilterParams())}` ;
                 }else{
-                    if($this.externalInternalAetMode === 'external'){
-                        let param = result.queue ? `?queue=true` : ''
-                        urlRest = `../aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}${param}`;
-/*                        switch (dicomMode){
-                            case 'study':
-                                console.log("newUrl",this.studyURL(objectAttr));
-                                break;
-                            case 'series':
-                                console.log("newUrl",this.seriesURL(objectAttr));
-                                break;
-                            case 'instance':
-                                console.log("newUrl",this.instanceURL(objectAttr));
-                                break;
-                        }
-                        id = 'dicom:' + result.selectedAet;
-                        urlRest = url  + '/export/' + id + '?' + this.mainservice.param({queue:result.queue});*/
+                    if(mode === 'multipleExport'){
+                        let checkbox = `${(result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''}${(result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''}`;
+                        if(checkbox != '' && this.mainservice.param(this.createStudyFilterParams()) != '')
+                            checkbox = '&' + checkbox;
+                        urlRest = `../aets/${this.aet}/export/${result.selectedExporter}/studies?${this.mainservice.param(this.createStudyFilterParams())}${checkbox}`;
                     }else{
-                        if (result.exportType === 'dicom'){
-                            //id = result.dicomPrefix + result.selectedAet;
+                        if($this.externalInternalAetMode === 'external'){
+                            let param = result.queue ? `?queue=true` : ''
+                            urlRest = `../aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}${param}`;
+    /*                        switch (dicomMode){
+                                case 'study':
+                                    console.log("newUrl",this.studyURL(objectAttr));
+                                    break;
+                                case 'series':
+                                    console.log("newUrl",this.seriesURL(objectAttr));
+                                    break;
+                                case 'instance':
+                                    console.log("newUrl",this.instanceURL(objectAttr));
+                                    break;
+                            }
                             id = 'dicom:' + result.selectedAet;
+                            urlRest = url  + '/export/' + id + '?' + this.mainservice.param({queue:result.queue});*/
                         }else{
-                            id = result.selectedExporter;
+                            if (result.exportType === 'dicom'){
+                                //id = result.dicomPrefix + result.selectedAet;
+                                id = 'dicom:' + result.selectedAet;
+                            }else{
+                                id = result.selectedExporter;
+                            }
+                            urlRest = url  + '/export/' + id + '?' + this.mainservice.param(result.checkboxes);
                         }
-                        urlRest = url  + '/export/' + id + '?' + this.mainservice.param(result.checkboxes);
                     }
                 }
                 $this.$http.post(
