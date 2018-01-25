@@ -360,10 +360,10 @@ public class ExportManagerEJB implements ExportManager {
             return false;
 
         QueueMessage queueMessage = task.getQueueMessage();
+        task.setExporterID(exporter.getExporterID());
         if (queueMessage != null)
             queueManager.rescheduleTask(queueMessage.getMessageID(), exporter.getQueueName());
 
-        task.setExporterID(exporter.getExporterID());
         LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
         return true;
     }

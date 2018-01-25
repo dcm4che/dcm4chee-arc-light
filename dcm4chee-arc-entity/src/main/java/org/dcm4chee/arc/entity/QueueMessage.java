@@ -126,7 +126,7 @@ public class QueueMessage {
     private String messageID;
 
     @Basic(optional = false)
-    @Column(name = "msg_props", updatable = false, length = 4000)
+    @Column(name = "msg_props", length = 4000)
     private String messageProperties;
 
     @Basic(optional = false)
@@ -434,6 +434,20 @@ public class QueueMessage {
             throw new RuntimeException("Unexpected Exception", e);
         }
         return baos.toByteArray();
+    }
+
+    public void updateExporterIDInMessageProperties() {
+        if (exportTask == null)
+            return;
+
+        int before = messageProperties.lastIndexOf("\"ExporterID\":\"") + 14;
+        if (messageProperties.startsWith(exportTask.getExporterID(), before))
+            return;
+
+        int after = messageProperties.indexOf('"', before);
+        messageProperties = messageProperties.substring(0, before)
+                + exportTask.getExporterID()
+                + messageProperties.substring(after);
     }
 
     @PrePersist
