@@ -16,8 +16,15 @@ export class ClickOutsideDirective {
         let exception;
         const clickedInside = this._elementRef.nativeElement.contains(targetElement);
         console.log("targetElementt.classList",targetElement.classList);
-        if(this.clickOutsideExceptionClass && targetElement.classList && targetElement.classList.length > 0)
-            exception = targetElement.classList.contains(this.clickOutsideExceptionClass);
+        if(this.clickOutsideExceptionClass && targetElement.classList && targetElement.classList.length > 0){
+            if(Array.isArray(this.clickOutsideExceptionClass)){
+                this.clickOutsideExceptionClass.forEach(css=>{
+                    exception = exception || targetElement.classList.contains(css);
+                })
+            }else{
+                exception = targetElement.classList.contains(this.clickOutsideExceptionClass);
+            }
+        }
         if (!clickedInside && !exception) {
             this.clickOutside.emit(null);
         }
