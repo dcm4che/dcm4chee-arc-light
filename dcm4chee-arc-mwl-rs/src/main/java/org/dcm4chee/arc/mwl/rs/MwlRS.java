@@ -112,7 +112,7 @@ public class MwlRS {
     @Path("/mwlitems")
     @Consumes("application/dicom+json,application/json")
     @Produces("application/dicom+json,application/json")
-    public StreamingOutput updateSPS(InputStream in) throws Exception {
+    public StreamingOutput updateSPS(InputStream in) {
         logRequest();
         try {
             ArchiveAEExtension arcAE = getArchiveAE();
@@ -159,6 +159,8 @@ public class MwlRS {
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
                     errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -193,5 +195,12 @@ public class MwlRS {
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
         return ae.getAEExtension(ArchiveAEExtension.class);
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 }

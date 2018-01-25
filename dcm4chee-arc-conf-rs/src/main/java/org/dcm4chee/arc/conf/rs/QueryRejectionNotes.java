@@ -91,9 +91,6 @@ public class QueryRejectionNotes {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (RejectionNote rjNote : sortedRejectionNotes()) {
-                    if (rjNote.isRevokeRejection() != Boolean.parseBoolean(revokeRejection))
-                        continue;
-
                     Code code = rjNote.getRejectionNoteCode();
                     JsonWriter writer = new JsonWriter(gen);
                     gen.writeStartObject();
@@ -113,6 +110,7 @@ public class QueryRejectionNotes {
         return device.getDeviceExtension(ArchiveDeviceExtension.class)
                 .getRejectionNotes().stream()
                 .sorted(Comparator.comparing(RejectionNote::getRejectionNoteLabel))
+                .filter(rjNote -> rjNote.isRevokeRejection() == Boolean.parseBoolean(revokeRejection))
                 .toArray(RejectionNote[]::new);
     }
 
