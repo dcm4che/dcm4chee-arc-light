@@ -151,6 +151,10 @@ export class AppComponent implements OnInit {
                 }
             });
     }
+    closeFromOutside(){
+        if(this.showMenu)
+            this.showMenu = false;
+    }
     startClock(serverTime){
         this.currentServerTime = new Date(serverTime);
         this.clockInterval = setInterval(() => {

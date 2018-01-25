@@ -1,4 +1,4 @@
-<div class="range_picker">
+<div class="range_picker" (clickOutside)="closeFromOutside()">
     <div class="main_input_block" title="{{title}}">
         <input class="main_input" [ngClass]="{'ng-invalid':(!maiInputValid)}" type="text" [(ngModel)]="model" placeholder="{{placeholder}}"  (ngModelChange)="filterChanged()">
         <span class="glyphicon glyphicon-calendar" (click)="togglePicker()"></span>
@@ -19,7 +19,7 @@
             <li *ngIf="!smartPickerActive" (click)="thisMonth()">This Month</li>
             <!--<li *ngIf="!smartPickerActive" (click)="lastYear()">Last Year</li>-->
             <li *ngIf="!smartPickerActive" class="select_parent">
-                <ul class="j4care_select">
+                <ul class="j4care_select" (clickOutside)="closeSelectOptions()">
                     <li class="placeholder" (click)="toggleSelectOption()">Fast Picker</li>
                     <ng-container *ngIf="showSelectOptions">
                         <li (click)="fastPicker('yesterday')">Yesterday</li>

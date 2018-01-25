@@ -46,8 +46,11 @@ export class RangePickerComponent implements OnInit {
         }
     }
     closeCalendar(clanedarName){
-        // console.log("inclose",e);
         this[clanedarName].overlayVisible = false;
+    }
+    closeFromOutside(){
+        if(this.showPicker)
+            this.showPicker = false;
     }
     toggleTime(){
     }
@@ -70,6 +73,10 @@ export class RangePickerComponent implements OnInit {
         this.filterChanged();
         this.showPicker = false;
     }
+    closeSelectOptions(){
+        console.log("in closeselectoptions");
+        this.showSelectOptions = false;
+    }
     togglePicker(){
         this.showPicker = !this.showPicker;
     }
@@ -83,6 +90,7 @@ export class RangePickerComponent implements OnInit {
         this.toTimeModel = '';
         this.singleDateModel = '';
         this.singleTimeModel = '';
+        // this.modelChange.emit('');
     }
 
     smartPicker(){
@@ -224,7 +232,9 @@ export class RangePickerComponent implements OnInit {
             if(this.model != '')
                 this.maiInputValid = false;
         }
-
+        if(this.maiInputValid){
+            this.modelChange.emit(this.model);
+        }
     }
 
     toggleSelectOption(){

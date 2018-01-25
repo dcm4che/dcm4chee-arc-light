@@ -69,6 +69,7 @@ import { ExternalRetrieveComponent } from './monitoring/external-retrieve/extern
 import {ExternalRetrieveService} from "./monitoring/external-retrieve/external-retrieve.service";
 import { FilterGeneratorComponent } from './helpers/filter-generator/filter-generator.component';
 import {CalendarModule} from "primeng/components/calendar/calendar";
+import { ClickOutsideDirective } from './helpers/click-outside.directive';
 
 @NgModule({
     declarations: [
@@ -112,8 +113,8 @@ import {CalendarModule} from "primeng/components/calendar/calendar";
         MonitoringTabsComponent,
         Hl7ApplicationsComponent,
         ExternalRetrieveComponent,
-        FilterGeneratorComponent
-
+        FilterGeneratorComponent,
+        ClickOutsideDirective,
     ],
     imports: [
         BrowserModule,

@@ -161,7 +161,7 @@
                         <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                             <input id="ReferringPhysicianName" type="text" [(ngModel)]="filter.ReferringPhysicianName" placeholder="Referring physician name" title="Referring physician name" class="col-md-12" />
                         </div>
-                        <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
+                        <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'" (clickOutside)='showModalitySelector = false'>
                             <input type="text" size="5"  [(ngModel)]="filter.ModalitiesInStudy" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
                             <div class="modality_selector [hidden]" *ngIf="showModalitySelector">
                                 <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
@@ -319,7 +319,7 @@
                         <span *ngIf="showGetCountLoader" class="fa fa-circle-o-notch fa-spin"></span>
                 </div>
                 <div class="orderbyblock" [ngClass]="{notrash:trashaktive==false,diff:filterMode==='diff'}">
-                    <div class="btn-group" role="group" >
+                    <div class="btn-group" role="group" (clickOutside)="showoptionlist = false">
                         <button id="showoptionlistbutton" type="button" class="btn btn-default selectedorderbutton" (click)="showoptionlist = !showoptionlist" >
                             <span id="selectedorder" class="selectedorder"  [innerHtml]="orderbytext"></span>
                             <span class="caret"></span>
@@ -520,7 +520,7 @@
         <div class="morefunctionblock">
             <a href="" (click)="extendedFilter(true, $event)" *ngIf="!advancedConfig" class="more">More filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
             <a href="" (click)="extendedFilter(false, $event)" *ngIf="advancedConfig" class="more [hidden]">Close more filters<i class="glyphicon glyphicon-triangle-top"></i></a>
-            <div class="more functions" *ngIf="isRole('admin')">
+            <div class="more functions" *ngIf="isRole('admin')" (clickOutside)="moreFunctionsButtons = false">
                 <div class="mainbutton" (click)="moreFunctionsButtons = !moreFunctionsButtons">
                    <span *ngIf="!moreFunctionsButtons" >More functions<i class="glyphicon glyphicon-triangle-bottom"></i></span>
                     <span *ngIf="moreFunctionsButtons">Close more functions<i class="glyphicon glyphicon-triangle-top"></i></span>
