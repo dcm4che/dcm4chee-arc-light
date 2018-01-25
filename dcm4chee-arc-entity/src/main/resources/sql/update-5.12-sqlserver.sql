@@ -32,6 +32,7 @@ alter table series alter column tsuid varchar(255) not null;
 create index UK_kvtxqtdow67hcr2wv8irtdwqy on queue_msg (device_name);
 create index UK_mrn00m45lkq1xbehmbw5d9jbl on series (sop_cuid);
 create index UK_tahx0q1ejidnsam40ans7oecx on series (tsuid);
+create index UK_e2lo4ep4t4k07njc09anf6xkm on retrieve_task (updated_time);
 
 drop index UK_djkqk3dls3xkru1n0c3p5rm3 on retrieve_task;
 alter table retrieve_task drop column device_name;

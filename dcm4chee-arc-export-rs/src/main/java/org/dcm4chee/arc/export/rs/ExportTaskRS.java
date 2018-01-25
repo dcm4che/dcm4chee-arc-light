@@ -227,6 +227,16 @@ public class ExportTaskRS {
     @POST
     @Path("/reschedule")
     public Response rescheduleExportTasks() {
+        return rescheduleTasks(null);
+    }
+
+    @POST
+    @Path("/reschedule/{ExporterID}")
+    public Response rescheduleExportTasks(@PathParam("ExporterID") String newExporterID) {
+        return rescheduleTasks(newExporterID);
+    }
+
+    private Response rescheduleTasks(String newExporterID) {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
@@ -242,8 +252,11 @@ public class ExportTaskRS {
 
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = null;
-        if (exporterID != null && (exporter = arcDev.getExporterDescriptor(exporterID)) == null)
-            return rsp(Response.Status.NOT_FOUND, "No such exporter - " + exporterID);
+        if ((exporterID != null && (exporter = arcDev.getExporterDescriptor(exporterID)) == null)
+                || (newExporterID != null && (exporter = arcDev.getExporterDescriptor(newExporterID)) == null)) {
+            return rsp(Response.Status.NOT_FOUND,
+                    "No such exporter - " + (newExporterID != null ? newExporterID : exporterID));
+        }
 
         try {
             Predicate matchQueueMessage = MatchTask.matchQueueMessage(
