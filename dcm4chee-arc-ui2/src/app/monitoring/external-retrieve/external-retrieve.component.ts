@@ -385,29 +385,22 @@ export class ExternalRetrieveComponent implements OnInit {
                             });
                     }
                 });
+                //TODO
                 setTimeout(()=>{
                     this.getTasks(this.externalRetrieveEntries[0].offset || 0);
                     this.cfpLoadingBar.complete();
                 },300);
-
             }
         });
     }
     onSubmit(object){
         if(_.hasIn(object,"id") && _.hasIn(object,"model")){
-/*            if(_.hasIn(object,"model.createdTime")){
-                object.model.createdTime = this.datePipe.transform(object.model.createdTime,'yyyyMMdd');
-            }
-            if(_.hasIn(object,"model.updatedTime")){
-                object.model.updatedTime = this.datePipe.transform(object.model.updatedTime,'yyyyMMdd');
-            }*/
             if(object.id === "count"){
                 this.getCount();
             }else{
                 this.getTasks(0);
             }
         }
-
     }
     getTasks(offset){
         let $this = this;

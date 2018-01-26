@@ -19,13 +19,13 @@
           <div class="arrow_block">
             <button class="btn btn-link btn-xs"
                     [disabled]="!hasNewer(externalRetrieveEntries)"
-                    (click)="onSubmit(newerOffset(externalRetrieveEntries))"
+                    (click)="getTasks(newerOffset(externalRetrieveEntries))"
                     title="Newer">
               <span class="glyphicon glyphicon-menu-left"></span>
             </button>
             <button class="btn btn-link btn-xs"
                     [disabled]="!hasOlder(externalRetrieveEntries)"
-                    (click)="onSubmit(olderOffset(externalRetrieveEntries))"
+                    (click)="getTasks(olderOffset(externalRetrieveEntries))"
                     title="Older">
               <span class="glyphicon glyphicon-menu-right"></span>
             </button>
