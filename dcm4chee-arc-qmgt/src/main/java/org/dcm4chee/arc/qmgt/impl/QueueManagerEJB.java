@@ -297,12 +297,16 @@ public class QueueManagerEJB {
 
     public boolean rescheduleTask(String msgId, String queueName)
             throws IllegalTaskStateException, DifferentDeviceException {
-        QueueMessage entity = findQueueMessage(msgId);
+        return rescheduleTask(findQueueMessage(msgId), queueName);
+    }
+
+    public boolean rescheduleTask(QueueMessage entity, String queueName)
+            throws IllegalTaskStateException, DifferentDeviceException {
         if (entity == null)
             return false;
 
         if (!device.getDeviceName().equals(entity.getDeviceName()))
-            throw new DifferentDeviceException("Cannot reschedule Task[id=" + msgId
+            throw new DifferentDeviceException("Cannot reschedule Task[id=" + entity.getMessageID()
                     + "] previous scheduled on Device " + entity.getDeviceName()
                     + " on Device " + device.getDeviceName());
 
@@ -310,7 +314,8 @@ public class QueueManagerEJB {
             case SCHEDULED:
             case IN_PROCESS:
                 throw new IllegalTaskStateException(
-                        "Cannot reschedule Task[id=" + msgId + "] with Status: " + entity.getStatus());
+                        "Cannot reschedule Task[id=" + entity.getMessageID()
+                                + "] with Status: " + entity.getStatus());
         }
         if (queueName != null)
             entity.setQueueName(queueName);

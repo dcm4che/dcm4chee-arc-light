@@ -75,6 +75,9 @@ public interface QueueManager {
 
     boolean rescheduleTask(String msgId, String queueName) throws IllegalTaskStateException, DifferentDeviceException;
 
+    boolean rescheduleTask(QueueMessage task, String queueName)
+            throws IllegalTaskStateException, DifferentDeviceException;
+
     boolean deleteTask(String msgId);
 
     int deleteTasks(String queueName, Predicate matchQueueMessage);
