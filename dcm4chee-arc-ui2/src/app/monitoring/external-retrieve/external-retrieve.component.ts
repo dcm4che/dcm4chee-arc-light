@@ -203,35 +203,28 @@ export class ExternalRetrieveComponent implements OnInit {
         let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
         let filter = Object.assign(this.filterObject);
         delete filter.limit;
-        switch (this.allAction){
-            case "cancel":
-                this.confirm({
-                    content: text
-                }).subscribe((ok)=>{
-                    if(ok){
-                        this.cfpLoadingBar.start();
-                        this.service.cancelAll(this.filterObject).subscribe((res)=>{
-                            this.mainservice.setMessage({
-                                'title': 'Info',
-                                'text': res.count + ' queues deleted successfully!',
-                                'status': 'info'
+        delete filter.offset;
+        this.confirm({
+            content: text
+        }).subscribe((ok)=>{
+            if(ok){
+                this.cfpLoadingBar.start();
+                switch (this.allAction){
+                case "cancel":
+                            this.service.cancelAll(this.filterObject).subscribe((res)=>{
+                                this.mainservice.setMessage({
+                                    'title': 'Info',
+                                    'text': res.count + ' queues deleted successfully!',
+                                    'status': 'info'
+                                });
+                                this.cfpLoadingBar.complete();
+                            }, (err) => {
+                                this.cfpLoadingBar.complete();
+                                this.httpErrorHandler.handleError(err);
                             });
-                            this.cfpLoadingBar.complete();
-                        }, (err) => {
-                            this.cfpLoadingBar.complete();
-                            this.httpErrorHandler.handleError(err);
-                        });
-                    }
-                    this.allAction = "";
-                    this.allAction = undefined;
-                });
-                break;
-            case "reschedule":
-                this.confirm({
-                    content: text
-                }).subscribe((ok)=>{
-                    if(ok){
-                        this.cfpLoadingBar.start();
+
+                    break;
+                case "reschedule":
                         this.service.rescheduleAll(this.filterObject).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
@@ -243,17 +236,8 @@ export class ExternalRetrieveComponent implements OnInit {
                             this.cfpLoadingBar.complete();
                             this.httpErrorHandler.handleError(err);
                         });
-                    }
-                    this.allAction = "";
-                    this.allAction = undefined;
-                });
-                break;
-            case "delete":
-                this.confirm({
-                    content: text
-                }).subscribe((ok)=>{
-                    if(ok){
-                        this.cfpLoadingBar.start();
+                    break;
+                case "delete":
                         this.service.deleteAll(this.filterObject).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
@@ -265,12 +249,13 @@ export class ExternalRetrieveComponent implements OnInit {
                             this.cfpLoadingBar.complete();
                             this.httpErrorHandler.handleError(err);
                         });
-                    }
-                    this.allAction = "";
-                    this.allAction = undefined;
-                });
-                break;
-        }
+                    break;
+                }
+                this.cfpLoadingBar.complete();
+                this.allAction = "";
+                this.allAction = undefined;
+            }
+        });
     }
     delete(match){
         let $this = this;

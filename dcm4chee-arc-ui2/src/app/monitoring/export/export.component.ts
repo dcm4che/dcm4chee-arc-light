@@ -238,10 +238,13 @@ export class ExportComponent implements OnInit {
     }
     allActionChanged(e){
         let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
-        let filter = {
+/*        let filter = {
             dicomDeviceName:this.filters.dicomDeviceName?this.filters.dicomDeviceName:undefined,
             status:this.filters.status?this.filters.status:undefined
-        };
+        };*/
+        let filter = _.cloneDeep(this.filters);
+        delete filter.limit;
+        delete filter.offset;
         switch (this.allAction) {
             case "cancel":
                 this.confirm({
