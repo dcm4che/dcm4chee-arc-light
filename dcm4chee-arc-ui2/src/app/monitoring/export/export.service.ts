@@ -5,6 +5,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {DevicesService} from "../../devices/devices.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import * as _ from 'lodash';
+import {j4care} from "../../helpers/j4care.service";
 
 @Injectable()
 export class ExportService {
@@ -18,8 +19,8 @@ export class ExportService {
     };
 
     getCount(filters) {
-        return this.$http.get('../monitor/export' + '/count' + '?' +  this.mainservice.param(this.queryParams(filters, undefined)))
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
+        return this.$http.get('../monitor/export' + '/count' + '?' +  this.mainservice.param(this.paramWithoutLimit(filters)))
+            .map(res => j4care.redirectOnAuthResponse(res));
     };
     paramWithoutLimit(filters){
         let clonedFilters = this.queryParams(filters,undefined);
@@ -55,7 +56,7 @@ export class ExportService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.post(`../monitor/export/cancel${urlParam}`, {}, this.header)
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
+            .map(res => j4care.redirectOnAuthResponse(res));
     }
     delete(pk){
         return this.$http.delete('../monitor/export/' + pk);
@@ -64,7 +65,7 @@ export class ExportService {
         let urlParam = this.mainservice.param(filter);
         urlParam = urlParam?`?${urlParam}`:'';
         return this.$http.delete(`../monitor/export${urlParam}`, this.header)
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
+            .map(res => j4care.redirectOnAuthResponse(res));
     }
     reschedule(pk, exporterID){
         return this.$http.post('../monitor/export/' + pk + '/reschedule/' + exporterID, {});
@@ -75,7 +76,7 @@ export class ExportService {
         urlParam = urlParam?`?${urlParam}`:'';
         let exporter = exporterID? `/${exporterID}`:'';
         return this.$http.post(`../monitor/export/reschedule${exporter}${urlParam}`, {}, this.header)
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
+            .map(res => j4care.redirectOnAuthResponse(res));
     }
     downloadCsv(filter){
         let urlParam = this.mainservice.param(filter);
