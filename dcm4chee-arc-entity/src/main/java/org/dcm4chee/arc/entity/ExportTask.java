@@ -119,7 +119,7 @@ public class ExportTask {
     private String deviceName;
 
     @Basic(optional = false)
-    @Column(name = "exporter_id", updatable = false)
+    @Column(name = "exporter_id")
     private String exporterID;
 
     @Basic(optional = false)
