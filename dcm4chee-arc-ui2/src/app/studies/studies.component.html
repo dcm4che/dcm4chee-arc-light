@@ -522,7 +522,7 @@
         <div class="morefunctionblock">
             <a href="" (click)="extendedFilter(true, $event)" *ngIf="!advancedConfig" class="more">More filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
             <a href="" (click)="extendedFilter(false, $event)" *ngIf="advancedConfig" class="more [hidden]">Close more filters<i class="glyphicon glyphicon-triangle-top"></i></a>
-            <div class="more functions" *ngIf="isRole('admin')" (clickOutside)="moreFunctionsButtons = false" [clickOutsideExceptionClass]="['mainbutton','mainbutton_more_icon']">
+            <div class="more functions" *ngIf="isRole('admin')" (clickOutside)="moreFunctionsButtons = false" [clickOutsideExceptionClass]="['mainbutton','mainbutton_more_icon','glyphicon']">
                 <div class="mainbutton" (click)="moreFunctionsButtons = !moreFunctionsButtons" >
                    <span class="mainbutton_more_icon" *ngIf="!moreFunctionsButtons" >More functions<i class="glyphicon glyphicon-triangle-bottom"></i></span>
                     <span class="mainbutton_more_icon" *ngIf="moreFunctionsButtons">Close more functions<i class="glyphicon glyphicon-triangle-top"></i></span>

@@ -11,7 +11,7 @@ export class TrimPipe implements PipeTransform {
         let limit = !isNaN(l) ? parseInt(l, 10) : 10;
         let trail = isNaN(limit) ? value : '...';
 
-        return value.length > limit ? value.substring(0, limit) + trail : value;
+        return value && value.length > limit ? value.substring(0, limit) + trail : value;
     }
 
 }
