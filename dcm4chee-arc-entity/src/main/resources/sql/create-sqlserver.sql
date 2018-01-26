@@ -31,6 +31,7 @@ alter table code add constraint UK_sb4oc9lkns36wswku831c33w6  unique (code_value
 create index UK_i715nk4mi378f9bxflvfroa5a on content_item (rel_type);
 create index UK_6iism30y000w85v649ju968sv on content_item (text_value);
 create index UK_c5cof80jx0oopvovf3p4jv4l8 on export_task (device_name);
+create index UK_7iil4v32vf234i75edsxkdr8f on export_task (created_time);
 create index UK_p5jjs08sdp9oecvr93r2g0kyq on export_task (updated_time);
 create index UK_j1t0mj3vlmf5xwt4fs5xida1r on export_task (scheduled_time);
 create index UK_q7gmfr3aog1hateydhfeiu7si on export_task (exporter_id);
@@ -91,11 +92,14 @@ alter table queue_msg add constraint UK_k520j369nwx6rpbkvlp4kn623  unique (msg_i
 create index UK_kvtxqtdow67hcr2wv8irtdwqy on queue_msg (device_name);
 create index UK_b5mbe6jenklf1r5wp5csrvf67 on queue_msg (queue_name);
 create index UK_o8pu8axwpcm4chqxy75y09gpo on queue_msg (msg_status);
+create index UK_jfyulc3fo7cmn29sbha0l72m3 on queue_msg (created_time);
 create index UK_gsdfgth9kxjat98cmabtj8x1h on queue_msg (updated_time);
 alter table retrieve_task add constraint UK_mxokt1gw5g1e7rc3ssotvuqix  unique (queue_msg_fk);
 create index UK_a26s4yqy4rnpw7nniuyt7tkpo on retrieve_task (local_aet);
 create index UK_3avjusmul00fc3yi1notyh16j on retrieve_task (remote_aet);
 create index UK_jgaej0gm9appih04n09qto8yh on retrieve_task (destination_aet);
+create index UK_sf2g7oi8cfx89olwch9095hx7 on retrieve_task (created_time);
+create index UK_e2lo4ep4t4k07njc09anf6xkm on retrieve_task (updated_time);
 create index UK_gafcma0d5wwdjlq8jueqknlq0 on retrieve_task (study_iuid);
 alter table series add constraint UK_bdj2kuutidekc2en6dckev7l6  unique (dicomattrs_fk);
 alter table series add constraint UK_83y2fx8cou17h3xggxspgikna  unique (study_fk, series_iuid);

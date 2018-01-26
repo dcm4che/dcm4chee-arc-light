@@ -58,6 +58,7 @@ import java.util.Date;
                 @Index(columnList = "local_aet"),
                 @Index(columnList = "remote_aet"),
                 @Index(columnList = "destination_aet"),
+                @Index(columnList = "created_time"),
                 @Index(columnList = "updated_time"),
                 @Index(columnList = "study_iuid") }
 )

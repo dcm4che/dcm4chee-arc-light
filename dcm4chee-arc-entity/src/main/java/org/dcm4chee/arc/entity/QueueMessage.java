@@ -64,6 +64,7 @@ import java.util.*;
         @Index(columnList = "device_name"),
         @Index(columnList = "queue_name"),
         @Index(columnList = "msg_status"),
+        @Index(columnList = "created_time"),
         @Index(columnList = "updated_time")
 })
 @NamedQueries({
