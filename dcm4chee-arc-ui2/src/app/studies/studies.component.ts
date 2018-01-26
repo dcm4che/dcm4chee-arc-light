@@ -2485,11 +2485,14 @@ export class StudiesComponent implements OnDestroy,OnInit{
         }
     }
     getCountService(mode, filters){
+        let clonedFilters = _.cloneDeep(filters);
+        delete clonedFilters.orderby;
+        delete clonedFilters.limit;
         this.showGetCountLoader = true;
         this.service.getCount(
             this.rsURL(),
             mode,
-            filters
+            clonedFilters
         ).subscribe((res)=>{
             this.showGetCountLoader = false;
             try{
@@ -2517,10 +2520,13 @@ export class StudiesComponent implements OnDestroy,OnInit{
         }
     }
     getSizeService(filters){
+        let clonedFilters = _.cloneDeep(filters);
+        delete clonedFilters.orderby;
+        delete clonedFilters.limit;
         this.showGetSizeLoader = true;
         this.service.getSize(
             this.rsURL(),
-            filters
+            clonedFilters
         ).subscribe((res)=>{
             this.showGetSizeLoader = false;
             try {

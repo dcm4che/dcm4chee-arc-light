@@ -6,6 +6,7 @@ import {Observable} from 'rxjs';
 import {WindowRefService} from "../helpers/window-ref.service";
 import {AppService} from "../app.service";
 import {J4careHttpService} from "../helpers/j4care-http.service";
+import {j4care} from "../helpers/j4care.service";
 declare var DCM4CHE: any;
 declare var window: any;
 
@@ -173,46 +174,15 @@ export class StudiesService {
 
     setExpiredDate(aet,studyUID, expiredDate){
         let url = `../aets/${aet}/rs/studies/${studyUID}/expire/${expiredDate}`
-        return this.$http.put(url,{}).map(res => {
-            let resjson;
-            try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
-                resjson = res.json();
-            }catch (e){
-                resjson = {};
-            }
-            return resjson;
-        });
+        return this.$http.put(url,{}).map(res => j4care.redirectOnAuthResponse(res));
     }
 
     queryPatients = function(url, params) {
-        console.log('this._config(aparms', this._config(params));
-
-        // this.headers = new Headers();
-        // this.headers.append('Content-Type', 'application/json');
-        // this.headers.append('Parameter',  + params);
-        //
-        //
-        // let options = new RequestOptions({
-        //     method: RequestMethod.Get,
-        //     url: url,
-        //     headers: this.headers
-        // });
-        // this.http.request(new Request(this.options))
-
         return this.$http.get(
             url + '/patients' + this._config(params),
             {
                 headers:  new Headers({'Accept': 'application/dicom+json'})
-            }).map(res => {let resjson; try{
-            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-            if(pattern.exec(res.url)){
-                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-            }
-            resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+            }).map(res => j4care.redirectOnAuthResponse(res));
     };
     queryDiffs = function(url, params) {
         params["missing"] = params["missing"] || true;
@@ -221,19 +191,7 @@ export class StudiesService {
             {
                 headers:  new Headers({'Accept': 'application/dicom+json'})
             }
-        ).map(res => {
-            let resjson;
-            try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
-                resjson = res.json();
-            }catch (e){
-                resjson = {};
-            }
-            return resjson;
-        });
+        ).map(res => j4care.redirectOnAuthResponse(res));
     };
 
     getCount(url,mode,params) {
@@ -242,20 +200,7 @@ export class StudiesService {
             {
                 headers:  new Headers({'Accept': 'application/json'})
             }
-        )
-            .map(res => {
-            let resjson;
-            try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
-                resjson = res.json();
-            }catch (e){
-                resjson = {};
-            }
-            return resjson;
-        });
+        ).map(res => j4care.redirectOnAuthResponse(res));
     };
     getSize(url,params) {
         return this.$http.get(
@@ -263,19 +208,7 @@ export class StudiesService {
             {
                 headers:  new Headers({'Accept': 'application/json'})
             }
-        ).map(res => {
-            let resjson;
-            try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
-                resjson = res.json();
-            }catch (e){
-                resjson = {};
-            }
-            return resjson;
-        });
+        ).map(res => j4care.redirectOnAuthResponse(res));
     };
 
     queryStudies = function(url, params) {
@@ -284,19 +217,7 @@ export class StudiesService {
             {
                 headers:  new Headers({'Accept': 'application/dicom+json'})
             }
-        ).map(res => {
-            let resjson;
-            try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
-                resjson = res.json();
-            }catch (e){
-                resjson = {};
-            }
-            return resjson;
-        });
+        ).map(res => j4care.redirectOnAuthResponse(res));
     };
     otherAttributesButIDWasChanged(originalAttr,changedAttr){
         let firstObject = _.cloneDeep(originalAttr);
@@ -361,12 +282,7 @@ export class StudiesService {
             {
                 headers:  new Headers({'Accept': 'application/dicom+json'})
             }
-        ).map(res => {let resjson; try{
-            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-            if(pattern.exec(res.url)){
-                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-            }
-            resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+        ).map(res => j4care.redirectOnAuthResponse(res));
     };
 
     queryInstances = function(url, studyIUID, seriesIUID, params) {
@@ -378,12 +294,7 @@ export class StudiesService {
             {
                 headers:  new Headers({'Accept': 'application/dicom+json'})
             }
-        ).map(res => {let resjson; try{
-            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-            if(pattern.exec(res.url)){
-                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-            }
-            resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+        ).map(res => j4care.redirectOnAuthResponse(res));
     };
 
     getPatientIod(){
@@ -391,12 +302,7 @@ export class StudiesService {
         if (this._patientIod) {
             return Observable.of(this._patientIod);
         } else {
-            return this.$http.get('assets/iod/patient.iod.json').map(res => {let resjson; try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
-                resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+            return this.$http.get('assets/iod/patient.iod.json').map(res => j4care.redirectOnAuthResponse(res));
         }
     };
     getStudyIod(){
@@ -404,12 +310,7 @@ export class StudiesService {
         if (this._studyIod) {
             return Observable.of(this._studyIod);
         } else {
-            return this.$http.get('assets/iod/study.iod.json').map(res => {let resjson; try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
-                resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+            return this.$http.get('assets/iod/study.iod.json').map(res => j4care.redirectOnAuthResponse(res));
         }
     };
     getMwlIod(){
@@ -419,12 +320,7 @@ export class StudiesService {
         } else {
             return this.$http.get(
                 'assets/iod/mwl.iod.json'
-            ).map(res => {let resjson; try{
-                let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-                if(pattern.exec(res.url)){
-                    WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                }
-                resjson = res.json(); }catch (e){resjson = {}; } return resjson; });
+            ).map(res => j4care.redirectOnAuthResponse(res));
         }
     };
 
@@ -647,7 +543,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 url,
                 object,
                 {headers: headers}
-            ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            ).map(res => j4care.redirectOnAuthResponse(res))
             ,
             successMsg:'Patient ID changed successfully!'
         };
