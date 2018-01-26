@@ -21,6 +21,11 @@ export class ExportService {
         return this.$http.get('../monitor/export' + '/count' + '?' +  this.mainservice.param(this.queryParams(filters, undefined)))
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     };
+    paramWithoutLimit(filters){
+        let clonedFilters = this.queryParams(filters,undefined);
+        delete clonedFilters.limit;
+        return clonedFilters;
+    }
     queryParams(filters, offset) {
 /*        var params = {
             offset: (offset && offset != '') ? offset : 0,

@@ -104,8 +104,6 @@ export class ExternalRetrieveComponent implements OnInit {
                         };
                     },
                     (response) => {
-                        // $this.user = $this.user || {};
-                        console.log('get user error');
                         $this.user.user = 'user';
                         $this.mainservice.user.user = 'user';
                         $this.user.roles = ['user', 'admin'];
@@ -119,24 +117,9 @@ export class ExternalRetrieveComponent implements OnInit {
                         };
                     }
                 );
-
         }else{
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
-
-            /*
-
-            status
-            StudyInstanceUID
-            RemoteAET
-            DestinationAET
-            scheduledTime
-            processingStartTime
-            processingEndTime,
-            NumberOfInstances (failures + completed + warnings),
-
-            Instance/sec (processingEndTime - processingStartTime)/NumberOfInstances
-            */
         }
         this.filterObject = {
             limit:20
@@ -172,13 +155,9 @@ export class ExternalRetrieveComponent implements OnInit {
         this.onFormChange(this.filterObject);
     }
     hasOlder(objs) {
-        // console.log("objs.length",objs.length);
-        // console.log("this.filterObject.limit",this.filterObject.limit);
-        // console.log("hasOlder",(objs && (objs.length == this.filterObject.limit)));
         return objs && (objs.length == this.filterObject.limit);
     };
     hasNewer(objs) {
-        // console.log("hasNewer",(objs && objs.length && objs[0].offset));
         return objs && objs.length && objs[0].offset;
     };
     newerOffset(objs) {
@@ -210,18 +189,15 @@ export class ExternalRetrieveComponent implements OnInit {
                     token = this.mainservice.global.authentication.token;
                 }
             }
+            let filterClone = _.cloneDeep(this.filterObject);
+            delete filterClone.offset;
+            delete filterClone.limit;
             if(!this.mainservice.global.notSecure){
-                WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv&access_token=${token}`);
+                WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv&access_token=${token}&${this.mainservice.param(filterClone)}`);
             }else{
-                WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv`);
+                WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv&${this.mainservice.param(filterClone)}`);
             }
         });
-/*        this.service.downloadCsv(this.filterObject).subscribe((csv)=>{
-            let file = new File([csv._body], `export_${new Date().toDateString()}.csv`, {type: 'text/csv;charset=utf-8'});
-            FileSaver.saveAs(file);
-        },(err)=>{
-            this.httpErrorHandler.handleError(err);
-        });*/
     }
     allActionChanged(e){
         let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;

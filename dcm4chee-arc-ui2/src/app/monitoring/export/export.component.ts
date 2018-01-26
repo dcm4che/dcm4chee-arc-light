@@ -165,9 +165,9 @@ export class ExportComponent implements OnInit {
                 }
             }
             if(!this.mainservice.global.notSecure){
-                WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv&access_token=${token}`);
+                WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv&access_token=${token}&${this.mainservice.param(this.service.paramWithoutLimit(this.filters))}`);
             }else{
-                WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv`);
+                WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv&${this.mainservice.param(this.service.paramWithoutLimit(this.filters))}`);
             }
         });
 /*        this.service.downloadCsv(this.filters).subscribe((csv)=>{
