@@ -161,14 +161,15 @@
                         <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                             <input id="ReferringPhysicianName" type="text" [(ngModel)]="filter.ReferringPhysicianName" placeholder="Referring physician name" title="Referring physician name" class="col-md-12" />
                         </div>
-                        <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'" (clickOutside)='showModalitySelector = false'>
-                            <input type="text" size="5"  [(ngModel)]="filter.ModalitiesInStudy" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
+                        <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff' || filterMode === 'mwl'" (clickOutside)='showModalitySelector = false'>
+                            <input *ngIf="filterMode === 'mwl'" type="text" size="5"  [(ngModel)]="filter['ScheduledProcedureStepSequence.Modality']" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
+                            <input *ngIf="filterMode === 'study' || filterMode === 'diff'" type="text" size="5"  [(ngModel)]="filter.ModalitiesInStudy" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
                             <div class="modality_selector [hidden]" *ngIf="showModalitySelector">
                                 <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
                                 <div class="common">
                                     <a href="" *ngFor="let value of modalities.common | getKey;" (click)="$event.preventDefault();selectModality(value._KEY)" title="{{value._VALUE}}">{{value._KEY}}</a>
                                 </div>
-                                <button (click)="filter.ModalitiesInStudy='';showModalitySelector=false;" class="clear custom_button">Clear</button>
+                                <button (click)="filter.ModalitiesInStudy='';filter.ScheduledProcedureStepSequence.Modality='';showModalitySelector=false;" class="clear custom_button">Clear</button>
                                 <!-- <div class="col-md-12"></div> -->
                                 <a href="" (click)="$event.preventDefault();showMore=true" *ngIf="!showMore" class="more">more<i class="glyphicon glyphicon-triangle-bottom"></i></a>
                                 <a href="" (click)="$event.preventDefault();showMore=false" *ngIf="showMore" class="more">less<i class="glyphicon glyphicon-triangle-top"></i></a>
@@ -176,24 +177,25 @@
                                     <a href="" *ngFor="let value of modalities.more | getKey;" (click)="$event.preventDefault();selectModality(value._KEY)" title="{{value._VALUE}}">{{value._KEY}}</a>
                                     <div class="form-group">
                                         <label>Custom modality code:</label>
-                                        <input [(ngModel)]="filter.ModalitiesInStudy" />
+                                        <input *ngIf="filterMode === 'mwl'" [(ngModel)]="filter['ScheduledProcedureStepSequence.Modality']" />
+                                        <input *ngIf="filterMode === 'study' || filterMode === 'diff'" [(ngModel)]="filter.ModalitiesInStudy" />
                                         <button (click)="showModalitySelector=false" class="custom_button">Add</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6" *ngIf="filterMode === 'mwl'">
+<!--                        <div class="col-md-6" *ngIf="filterMode === 'mwl'">
                             <input type="text" size="5"  [(ngModel)]="filter['ScheduledProcedureStepSequence.Modality']" (click)="showModalitySelector = !showModalitySelector" placeholder="Modality"  class="col-md-12" ng-keypress="checkKeyModality($event)"/>
                             <div class="modality_selector [hidden]" *ngIf="showModalitySelector">
                                 <a href="" (click)="showModalitySelector=false" class="close"><i class="glyphicon glyphicon-remove"></i></a>
                                 <div class="common">
-                                    <a href="" *ngFor="let value of modalities.common; let key = index;" (click)="selectModality(key)" title="{{value}}">{{key}}</a>
+                                    <a href="" *ngFor="let value of modalities.common | getKey;" (click)="$event.preventDefault();filter.ScheduledProcedureStepSequence.Modality = value._KEY" title="{{value}}">{{key}}</a>
                                 </div>
                                 <button (click)="filter.ScheduledProcedureStepSequence.Modality='';showModalitySelector=false;" class="clear custom_button">Clear</button>
                                 <a href="" (click)="showMore=true" *ngIf="!showMore" class="more">more<i class="glyphicon glyphicon-triangle-bottom"></i></a>
                                 <a href="" (click)="showMore=false" *ngIf="showMore" class="more">less<i class="glyphicon glyphicon-triangle-top"></i></a>
                                 <div class="more_block" *ngIf="showMore">
-                                    <a href="" *ngFor="let value of modalities.more; let key = index;" (click)="selectModality(key)" title="{{value}}">{{key}}</a>
+                                    <a href="" *ngFor="let value of modalities.more; let key = index;" (click)="$event.preventDefault();filter.ScheduledProcedureStepSequence.Modality = value._KEY" title="{{value}}">{{key}}</a>
                                     <div class="form-group">
                                         <label>Custom modality code:</label>
                                         <input [(ngModel)]="filter['ScheduledProcedureStepSequence.Modality']" />
@@ -201,7 +203,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -520,10 +522,10 @@
         <div class="morefunctionblock">
             <a href="" (click)="extendedFilter(true, $event)" *ngIf="!advancedConfig" class="more">More filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
             <a href="" (click)="extendedFilter(false, $event)" *ngIf="advancedConfig" class="more [hidden]">Close more filters<i class="glyphicon glyphicon-triangle-top"></i></a>
-            <div class="more functions" *ngIf="isRole('admin')" (clickOutside)="moreFunctionsButtons = false">
-                <div class="mainbutton" (click)="moreFunctionsButtons = !moreFunctionsButtons">
-                   <span *ngIf="!moreFunctionsButtons" >More functions<i class="glyphicon glyphicon-triangle-bottom"></i></span>
-                    <span *ngIf="moreFunctionsButtons">Close more functions<i class="glyphicon glyphicon-triangle-top"></i></span>
+            <div class="more functions" *ngIf="isRole('admin')" (clickOutside)="moreFunctionsButtons = false" [clickOutsideExceptionClass]="['mainbutton','mainbutton_more_icon']">
+                <div class="mainbutton" (click)="moreFunctionsButtons = !moreFunctionsButtons" >
+                   <span class="mainbutton_more_icon" *ngIf="!moreFunctionsButtons" >More functions<i class="glyphicon glyphicon-triangle-bottom"></i></span>
+                    <span class="mainbutton_more_icon" *ngIf="moreFunctionsButtons">Close more functions<i class="glyphicon glyphicon-triangle-top"></i></span>
                 </div>
                 <ul *ngIf="moreFunctionsButtons">
                     <li (click)="moreFunctionsButtons = false;createPatient()" title="Create new patient">Create patient</li>
