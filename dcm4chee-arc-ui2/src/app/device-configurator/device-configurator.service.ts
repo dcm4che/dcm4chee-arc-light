@@ -18,7 +18,7 @@ import {j4care} from "../helpers/j4care.service";
 import {J4careHttpService} from "../helpers/j4care-http.service";
 
 @Injectable()
-export class DeviceConfiguratorService{
+export class DeviceConfiguratorService implements OnInit{
     getFormaterValue = {};
     device;
     schema;
@@ -29,7 +29,8 @@ export class DeviceConfiguratorService{
         private deviceService:DevicesService,
         private aeListService:AeListService,
         private hl7service:Hl7ApplicationsService
-    ) {
+    ) {}
+    ngOnInit(){
         this.pagination = [
             {
                 url: '/device/devicelist',
@@ -37,51 +38,53 @@ export class DeviceConfiguratorService{
                 devicereff: undefined
             }
         ];
-        _.forEach(Globalvar.DYNAMIC_FORMATER,(m,i)=>{
-            if(m.pathInDevice){
-                this.getFormaterValue[i] = {};
-                this.getFormaterValue[i] = (device)=>{
-                    if(_.hasIn(device,m.pathInDevice) && _.get(device,m.pathInDevice)){
-                        return Observable.of(_.get(device,m.pathInDevice));
-                    }else{
-                        return Observable.of([]);
+        // setTimeout(()=>{
+            _.forEach(Globalvar.DYNAMIC_FORMATER,(m,i)=>{
+                if(m.pathInDevice){
+                    this.getFormaterValue[i] = {};
+                    this.getFormaterValue[i] = (device)=>{
+                        if(_.hasIn(device,m.pathInDevice) && _.get(device,m.pathInDevice)){
+                            return Observable.of(_.get(device,m.pathInDevice));
+                        }else{
+                            return Observable.of([]);
+                        }
+                    }
+                }else{
+                    switch (i) {
+                        case 'dcmAETitle':
+                                this.getFormaterValue['dcmAETitle'] = {};
+                                this.getFormaterValue['dcmAETitle'] = (device)=>{
+                                    if(_.hasIn(this.mainservice.global,'aes')){
+                                            return Observable.of(this.mainservice.global.aes);
+                                    }else{
+                                            return this.aeListService.getAes();
+                                    }
+                                };
+                            break;
+                        case 'dicomDeviceName':
+                                this.getFormaterValue['dicomDeviceName'] = {};
+                                this.getFormaterValue['dicomDeviceName'] = (device)=>{
+                                    if(_.hasIn(this.mainservice.global,'devices')){
+                                            return Observable.of(this.mainservice.global.devices);
+                                    }else{
+                                            return this.deviceService.getDevices();
+                                    }
+                                };
+                            break;
+                        case 'hl7ApplicationName':
+                                this.getFormaterValue['hl7ApplicationName'] = {};
+                                this.getFormaterValue['hl7ApplicationName'] = (device)=>{
+                                    if(_.hasIn(this.mainservice.global,'hl7')){
+                                            return Observable.of(this.mainservice.global.hl7);
+                                    }else{
+                                            return this.hl7service.getHl7ApplicationsList('');
+                                    }
+                                };
+                            break;
                     }
                 }
-            }else{
-                switch (i) {
-                    case 'dcmAETitle':
-                            this.getFormaterValue['dcmAETitle'] = {};
-                            this.getFormaterValue['dcmAETitle'] = (device)=>{
-                                if(_.hasIn(this.mainservice.global,'aes')){
-                                        return Observable.of(this.mainservice.global.aes);
-                                }else{
-                                        return this.aeListService.getAes();
-                                }
-                            };
-                        break;
-                    case 'dicomDeviceName':
-                            this.getFormaterValue['dicomDeviceName'] = {};
-                            this.getFormaterValue['dicomDeviceName'] = (device)=>{
-                                if(_.hasIn(this.mainservice.global,'devices')){
-                                        return Observable.of(this.mainservice.global.devices);
-                                }else{
-                                        return this.deviceService.getDevices();
-                                }
-                            };
-                        break;
-                    case 'hl7ApplicationName':
-                            this.getFormaterValue['hl7ApplicationName'] = {};
-                            this.getFormaterValue['hl7ApplicationName'] = (device)=>{
-                                if(_.hasIn(this.mainservice.global,'hl7')){
-                                        return Observable.of(this.mainservice.global.hl7);
-                                }else{
-                                        return this.hl7service.getHl7ApplicationsList('');
-                                }
-                            };
-                        break;
-                }
-            }
-        })
+            })
+        // },2000);
     }
     replaceOldAETitleWithTheNew(object, newAeTitle){
         let oldAETitle = object.dicomAETitle;
@@ -296,6 +299,8 @@ export class DeviceConfiguratorService{
                         //Get the value / array that is needed for the defined format
                         this.getFormatValue(m.format, this.device).subscribe(
                             (formatValue) =>{
+                                // setTimeout(()=>{
+
                                 if(formatValue && formatValue.length > 0){
                                     m.formatValue = formatValue.map((el)=>{
                                         return {
@@ -312,6 +317,7 @@ export class DeviceConfiguratorService{
                                     }
                                 }
                                 this.processSchemaEntries(m,i, requiredArray, propertiesPath, params, device, form);
+                                // },500);
                             },(error)=>{
                                 m.formatValue = null;
                                 this.processSchemaEntries(m,i, requiredArray, propertiesPath, params, device, form);

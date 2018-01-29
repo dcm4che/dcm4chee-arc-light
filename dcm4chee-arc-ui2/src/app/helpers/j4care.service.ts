@@ -85,7 +85,7 @@ export class j4care {
                 a.dcmOtherAETitle.forEach(alias=>{
                     clone.dicomAETitle = alias;
                     if(usedAliasNames.indexOf(alias) === -1){
-                        aliases.push(clone);
+                        aliases.push(_.cloneDeep(clone));
                         usedAliasNames.push(alias);
                     }
                 });
