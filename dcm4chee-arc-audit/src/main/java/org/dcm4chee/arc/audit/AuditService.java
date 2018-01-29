@@ -56,6 +56,8 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -147,6 +149,9 @@ public class AuditService {
                 break;
             case LDAP_CHANGES:
                 auditSoftwareConfiguration(auditLogger, path, eventType);
+                break;
+            case QUEUE_EVENT:
+                auditQueueMessageEvent(auditLogger, path, eventType);
                 break;
         }
     }
@@ -289,6 +294,72 @@ public class AuditService {
                 b.append(';').append(connections.get(i).getHostname());
         }
         return b.toString();
+    }
+
+    void spoolQueueMessageEvent(QueueMessageEvent queueMsgEvent) {
+        HttpServletRequest req = queueMsgEvent.getRequest();
+        QueueMessage queueMsg = queueMsgEvent.getQueueMsg();
+        String queueMsgAsString = queueMsg != null
+                ? toString(queueMsg) : null;
+        AuditInfoBuilder info = new AuditInfoBuilder.Builder()
+                .callingUserID(KeycloakContext.valueOf(req).getUserName())
+                .callingHost(req.getRemoteHost())
+                .calledUserID(req.getRequestURI())
+                .outcome(getOD(queueMsgEvent.getException()))
+                .filters(buildStrings(queueMsgEvent.getFilters()))
+                .count(queueMsgEvent.getCount())
+                .queueMsg(queueMsgAsString)
+                .taskPOID(queueMsg != null ? queueMsg.getMessageID() : queueMsgEvent.getType().name())
+                .build();
+        writeSpoolFile(AuditServiceUtils.EventType.forQueueEvent(queueMsgEvent), info);
+    }
+
+    private void auditQueueMessageEvent(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
+            throws IOException {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo info = new AuditInfo(reader.getMainInfo());
+
+        EventIdentificationBuilder eiBuilder = toBuildEventIdentification(
+                eventType, info.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
+        ActiveParticipantBuilder[] apBuilder = new ActiveParticipantBuilder[2];
+        String callingUserID = info.getField(AuditInfo.CALLING_USERID);
+        String calledUserID = info.getField(AuditInfo.CALLED_USERID);
+        AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(calledUserID);
+        apBuilder[0] = new ActiveParticipantBuilder.Builder(
+                callingUserID,
+                info.getField(AuditInfo.CALLING_HOST))
+                .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
+                .requester(true).build();
+        apBuilder[1] = new ActiveParticipantBuilder.Builder(
+                calledUserID,
+                getLocalHostName(auditLogger))
+                .userIDTypeCode(archiveUserIDTypeCode)
+                .build();
+        ParticipantObjectIdentificationBuilder poiBuilder = info.getField(AuditInfo.QUEUE_MSG) != null
+                ? buildTaskPOI(info)
+                : buildTasksPOI(info);
+        emitAuditMessage(auditLogger, eiBuilder, apBuilder, poiBuilder);
+    }
+
+    private ParticipantObjectIdentificationBuilder buildTaskPOI(AuditInfo info) {
+        return new ParticipantObjectIdentificationBuilder.Builder(
+                info.getField(AuditInfo.TASK_POID),
+                AuditMessages.ParticipantObjectIDTypeCode.TASK,
+                AuditMessages.ParticipantObjectTypeCode.SystemObject,
+                null)
+                .detail(getPod("Task", info.getField(AuditInfo.QUEUE_MSG)))
+                .build();
+    }
+
+    private ParticipantObjectIdentificationBuilder buildTasksPOI(AuditInfo info) {
+        return new ParticipantObjectIdentificationBuilder.Builder(
+                info.getField(AuditInfo.TASK_POID),
+                AuditMessages.ParticipantObjectIDTypeCode.TASKS,
+                AuditMessages.ParticipantObjectTypeCode.SystemObject,
+                null)
+                .detail(getPod("Filters", info.getField(AuditInfo.FILTERS)),
+                        getPod("Count", info.getField(AuditInfo.COUNT)))
+                .build();
     }
 
     void spoolSoftwareConfiguration(SoftwareConfiguration softwareConfiguration) {
@@ -1460,6 +1531,9 @@ public class AuditService {
     }
 
     private String buildStrings(String[] strings) {
+        if (strings.length == 0)
+            return null;
+
         StringBuilder b = new StringBuilder();
         b.append(strings[0]);
         for (int i = 1; i < strings.length; i++)
@@ -1778,5 +1852,15 @@ public class AuditService {
 
         LOG.warn("Calling user ID was not set during spooling.");
         return null;
+    }
+
+    public String toString(QueueMessage queueMsg) {
+        StringWriter w = new StringWriter(256);
+        try {
+            queueMsg.writeAsJSON(w);
+        } catch (IOException e) {
+            LOG.warn(e.getMessage());
+        }
+        return w.toString();
     }
 }

@@ -73,6 +73,10 @@ class AuditInfo {
     static final int IS_EXTERNAL_HL7 = 22;
     static final int HL7_SENDER_EXTERNAL = 23;
     static final int HL7_RECEIVER_EXTERNAL = 24;
+    static final int FILTERS = 25;
+    static final int COUNT = 26;
+    static final int QUEUE_MSG = 27;
+    static final int TASK_POID = 28;
 
     private final String[] fields;
 
@@ -102,7 +106,11 @@ class AuditInfo {
                 i.isExport ? String.valueOf(true) : null,
                 i.isExternalHL7 ? String.valueOf(true) : null,
                 i.hl7SenderExternal,
-                i.hl7ReceiverExternal
+                i.hl7ReceiverExternal,
+                i.filters,
+                String.valueOf(i.count),
+                i.queueMsg,
+                i.taskPOID
         };
     }
 

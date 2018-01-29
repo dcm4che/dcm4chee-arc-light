@@ -46,6 +46,7 @@ import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
@@ -55,6 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -107,6 +109,9 @@ public class RetrieveTaskRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private Event<QueueMessageEvent> queueMsgEvent;
 
     @Context
     private HttpServletRequest request;
@@ -183,13 +188,17 @@ public class RetrieveTaskRS {
     @Path("{taskPK}/cancel")
     public Response cancelRetrieveTask(@PathParam("taskPK") long pk) {
         logRequest();
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.CancelTask);
         try {
-            return Response.status(mgr.cancelRetrieveTask(pk)
+            return Response.status(mgr.cancelRetrieveTask(pk, queueEvent)
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
         } catch (IllegalTaskStateException e) {
+            queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } finally {
+            queueMsgEvent.fire(queueEvent);
         }
     }
 
@@ -203,16 +212,23 @@ public class RetrieveTaskRS {
         if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
             return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
 
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.CancelTasks);
+        queueEvent.setFilters(filters());
         try {
             LOG.info("Cancel processing of Retrieve Tasks with Status {}", status);
-            return count(mgr.cancelRetrieveTasks(
+            long count = mgr.cancelRetrieveTasks(
                     MatchTask.matchQueueMessage(
                             null, deviceName, status, null, updatedTime, null),
                     MatchTask.matchRetrieveTask(
                             localAET, remoteAET, destinationAET, studyIUID, createdTime, null),
-                    status));
+                    status);
+            queueEvent.setCount(count);
+            return count(count);
         } catch (IllegalTaskStateException e) {
+            queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } finally {
+            queueMsgEvent.fire(queueEvent);
         }
     }
 
@@ -220,13 +236,17 @@ public class RetrieveTaskRS {
     @Path("{taskPK}/reschedule")
     public Response rescheduleTask(@PathParam("taskPK") long pk) {
         logRequest();
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.RescheduleTask);
         try {
-            return Response.status(mgr.rescheduleRetrieveTask(pk)
+            return Response.status(mgr.rescheduleRetrieveTask(pk, queueEvent)
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } finally {
+            queueMsgEvent.fire(queueEvent);
         }
     }
 
@@ -246,6 +266,8 @@ public class RetrieveTaskRS {
                     "Cannot reschedule Tasks originally scheduled on Device " + deviceName
                             + " on Device " + device.getDeviceName());
 
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.RescheduleTasks);
+        queueEvent.setFilters(filters());
         try {
             Predicate matchQueueMessage = MatchTask.matchQueueMessage(
                     null, deviceName, status, null, null, new Date());
@@ -258,12 +280,16 @@ public class RetrieveTaskRS {
             do {
                 retrieveTaskPks = mgr.getRetrieveTaskPks(matchQueueMessage, matchRetrieveTask, fetchSize);
                 for (long pk : retrieveTaskPks)
-                    mgr.rescheduleRetrieveTask(pk);
+                    mgr.rescheduleRetrieveTask(pk, null);
                 count += retrieveTaskPks.size();
             } while (retrieveTaskPks.size() >= fetchSize);
+            queueEvent.setCount(count);
             return count(count);
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } finally {
+            queueMsgEvent.fire(queueEvent);
         }
     }
 
@@ -271,7 +297,10 @@ public class RetrieveTaskRS {
     @Path("/{taskPK}")
     public Response deleteTask(@PathParam("taskPK") long pk) {
         logRequest();
-        return Response.status(mgr.deleteRetrieveTask(pk)
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.DeleteTask);
+        boolean deleteRetrieveTask = mgr.deleteRetrieveTask(pk, queueEvent);
+        queueMsgEvent.fire(queueEvent);
+        return Response.status(deleteRetrieveTask
                 ? Response.Status.NO_CONTENT
                 : Response.Status.NOT_FOUND)
                 .build();
@@ -280,11 +309,15 @@ public class RetrieveTaskRS {
     @DELETE
     public String deleteTasks() {
         logRequest();
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.DeleteTasks);
+        queueEvent.setFilters(filters());
         int deleted = mgr.deleteTasks(
                 MatchTask.matchQueueMessage(
                         null, deviceName, status(), null, null, null),
                 MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime));
+        queueEvent.setCount(deleted);
+        queueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
     }
 
@@ -353,6 +386,18 @@ public class RetrieveTaskRS {
         }
 
         abstract Object entity(final List<RetrieveTask> tasks);
+    }
+
+    private String[] filters() {
+        return Stream.of("localAET:" + localAET,
+                "remoteAET:" + remoteAET,
+                "destinationAET:" + destinationAET,
+                "archiveDevice:" + deviceName,
+                "status:" + status,
+                "studyUID:" + studyIUID,
+                "createdTime:" + createdTime,
+                "updatedTime:" + updatedTime)
+                .toArray(String[]::new);
     }
 
     private QueueMessage.Status status() {

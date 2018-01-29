@@ -44,6 +44,7 @@ import com.querydsl.core.types.Predicate;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
@@ -53,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
@@ -64,6 +66,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -80,6 +83,9 @@ public class QueueManagerRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private Event<QueueMessageEvent> queueMsgEvent;
 
     @Context
     private HttpServletRequest request;
@@ -135,13 +141,17 @@ public class QueueManagerRS {
     @Path("{msgId}/cancel")
     public Response cancelProcessing(@PathParam("msgId") String msgId) {
         logRequest();
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.CancelTask);
         try {
-            return Response.status(mgr.cancelTask(msgId)
+            return Response.status(mgr.cancelTask(msgId, queueEvent)
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
         } catch (IllegalTaskStateException e) {
+            queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } finally {
+            queueMsgEvent.fire(queueEvent);
         }
     }
 
@@ -155,13 +165,20 @@ public class QueueManagerRS {
         if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
             return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
 
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.CancelTasks);
+        queueEvent.setFilters(filters());
         try {
             LOG.info("Cancel processing of Tasks with Status {} at Queue {}", this.status, queueName);
             Predicate matchQueueMessage = MatchTask.matchQueueMessage(queueName, deviceName, status,
                     createdTime, updatedTime, null);
-            return count(mgr.cancelTasks(matchQueueMessage, status));
+            long count = mgr.cancelTasks(matchQueueMessage, status);
+            queueEvent.setCount(count);
+            return count(count);
         } catch (IllegalTaskStateException e) {
+            queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } finally {
+            queueMsgEvent.fire(queueEvent);
         }
     }
 
@@ -169,13 +186,17 @@ public class QueueManagerRS {
     @Path("{msgId}/reschedule")
     public Response rescheduleMessage(@PathParam("msgId") String msgId) {
         logRequest();
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.RescheduleTask);
         try {
-            return Response.status(mgr.rescheduleTask(msgId, null)
+            return Response.status(mgr.rescheduleTask(msgId, null, queueEvent)
                     ? Response.Status.NO_CONTENT
                     : Response.Status.NOT_FOUND)
                     .build();
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } finally {
+            queueMsgEvent.fire(queueEvent);
         }
     }
 
@@ -195,6 +216,8 @@ public class QueueManagerRS {
                     "Cannot reschedule Tasks originally scheduled on Device " + deviceName
                     + " on Device " + device.getDeviceName());
 
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.RescheduleTasks);
+        queueEvent.setFilters(filters());
         try {
             Predicate matchQueueMessage = MatchTask.matchQueueMessage(
                     queueName, deviceName, status, createdTime, updatedTime, new Date());
@@ -205,12 +228,16 @@ public class QueueManagerRS {
             do {
                 queueMsgIDs = mgr.getQueueMsgIDs(matchQueueMessage, fetchSize);
                 for (String msgID : queueMsgIDs)
-                    mgr.rescheduleTask(msgID, queueName);
+                    mgr.rescheduleTask(msgID, queueName, null);
                 count += queueMsgIDs.size();
             } while (queueMsgIDs.size() >= fetchSize);
+            queueEvent.setCount(count);
             return count(count);
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
+        } finally {
+            queueMsgEvent.fire(queueEvent);
         }
     }
 
@@ -218,7 +245,10 @@ public class QueueManagerRS {
     @Path("{msgId}")
     public Response deleteMessage(@PathParam("msgId") String msgId) {
         logRequest();
-        return Response.status(mgr.deleteTask(msgId)
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.DeleteTask);
+        boolean deleteTask = mgr.deleteTask(msgId, queueEvent);
+        queueMsgEvent.fire(queueEvent);
+        return Response.status(deleteTask
                 ? Response.Status.NO_CONTENT
                 : Response.Status.NOT_FOUND)
                 .build();
@@ -228,8 +258,12 @@ public class QueueManagerRS {
     @Produces("application/json")
     public String deleteMessages() {
         logRequest();
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.DeleteTasks);
+        queueEvent.setFilters(filters());
         int deleted = mgr.deleteTasks(queueName, MatchTask.matchQueueMessage(
                 queueName, deviceName, status(), createdTime, updatedTime, null));
+        queueEvent.setCount(deleted);
+        queueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
     }
 
@@ -254,6 +288,15 @@ public class QueueManagerRS {
                 w.write(']');
                 w.flush();
         };
+    }
+
+    private String[] filters() {
+        return Stream.of("queue:" + queueName,
+                "archiveDevice:" + deviceName,
+                "status:" + status,
+                "createdTime:" + createdTime,
+                "updatedTime:" + updatedTime)
+                .toArray(String[]::new);
     }
 
     private QueueMessage.Status status() {

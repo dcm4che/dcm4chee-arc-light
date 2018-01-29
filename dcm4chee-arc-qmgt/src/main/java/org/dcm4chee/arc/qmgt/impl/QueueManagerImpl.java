@@ -41,6 +41,7 @@ package org.dcm4chee.arc.qmgt.impl;
 import com.querydsl.core.types.Predicate;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,8 +113,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public boolean cancelTask(String msgId) throws IllegalTaskStateException {
-        if (!ejb.cancelTask(msgId))
+    public boolean cancelTask(String msgId, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
+        if (!ejb.cancelTask(msgId, queueEvent))
             return false;
 
         messageCanceledEvent.fire(new MessageCanceled(msgId));
@@ -126,7 +127,7 @@ public class QueueManagerImpl implements QueueManager {
         if (prev == QueueMessage.Status.IN_PROCESS) {
             List<String> msgIDs = ejb.getQueueMsgIDs(matchQueueMessage, 0);
             for (String msgID : msgIDs)
-                cancelTask(msgID);
+                cancelTask(msgID, null);
             return msgIDs.size();
         }
         return ejb.cancelTasks(matchQueueMessage);
@@ -138,7 +139,7 @@ public class QueueManagerImpl implements QueueManager {
         if (prev == QueueMessage.Status.IN_PROCESS) {
             List<String> msgIDs = ejb.getExportTasksReferencedQueueMsgIDs(matchQueueMessage, matchExportTask);
             for (String msgID : msgIDs)
-                cancelTask(msgID);
+                cancelTask(msgID, null);
             return msgIDs.size();
         }
         return ejb.cancelExportTasks(matchQueueMessage, matchExportTask);
@@ -150,21 +151,21 @@ public class QueueManagerImpl implements QueueManager {
         if (prev == QueueMessage.Status.IN_PROCESS) {
             List<String> msgIDs = ejb.getRetrieveTasksReferencedQueueMsgIDs(matchQueueMessage, matchRetrieveTask);
             for (String msgID : msgIDs)
-                cancelTask(msgID);
+                cancelTask(msgID, null);
             return msgIDs.size();
         }
         return ejb.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask);
     }
 
     @Override
-    public boolean rescheduleTask(String msgId, String queueName)
+    public boolean rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
             throws IllegalTaskStateException, DifferentDeviceException {
-        return ejb.rescheduleTask(msgId, queueName);
+        return ejb.rescheduleTask(msgId, queueName, queueEvent);
     }
 
     @Override
-    public boolean deleteTask(String msgId) {
-        return ejb.deleteTask(msgId);
+    public boolean deleteTask(String msgId, QueueMessageEvent queueEvent) {
+        return ejb.deleteTask(msgId, queueEvent);
     }
 
     @Override

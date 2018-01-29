@@ -77,6 +77,10 @@ class AuditInfoBuilder {
     final boolean isExternalHL7;
     final String hl7SenderExternal;
     final String hl7ReceiverExternal;
+    final String filters;
+    final int count;
+    final String queueMsg;
+    final String taskPOID;
 
     static class Builder {
         private String callingHost;
@@ -104,6 +108,10 @@ class AuditInfoBuilder {
         private boolean isExternalHL7;
         private String hl7SenderExternal;
         private String hl7ReceiverExternal;
+        private String filters;
+        private int count;
+        private String queueMsg;
+        private String taskPOID;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -201,6 +209,22 @@ class AuditInfoBuilder {
             hl7ReceiverExternal = val;
             return this;
         }
+        Builder filters(String val) {
+            filters = val;
+            return this;
+        }
+        Builder count(int val) {
+            count = val;
+            return this;
+        }
+        Builder queueMsg(String val) {
+            queueMsg = val;
+            return this;
+        }
+        Builder taskPOID(String val) {
+            taskPOID = val;
+            return this;
+        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -232,6 +256,10 @@ class AuditInfoBuilder {
         isExternalHL7 = builder.isExternalHL7;
         hl7SenderExternal = builder.hl7SenderExternal;
         hl7ReceiverExternal = builder.hl7ReceiverExternal;
+        filters = builder.filters;
+        count = builder.count;
+        queueMsg = builder.queueMsg;
+        taskPOID = builder.taskPOID;
     }
 
     private static String[] toPIDAndName(Attributes attr, ArchiveDeviceExtension arcDev) {

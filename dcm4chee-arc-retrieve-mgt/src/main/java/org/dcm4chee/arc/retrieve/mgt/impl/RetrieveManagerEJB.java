@@ -48,6 +48,7 @@ import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QRetrieveTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
@@ -170,17 +171,18 @@ public class RetrieveManagerEJB {
         return retrieveTaskPkQuery.fetch();
     }
 
-    public boolean deleteRetrieveTask(Long pk) {
+    public boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
             return false;
 
+        queueEvent.setQueueMsg(task.getQueueMessage());
         em.remove(task);
         LOG.info("Delete {}", task);
         return true;
     }
 
-    public boolean cancelRetrieveTask(Long pk) throws IllegalTaskStateException {
+    public boolean cancelRetrieveTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
             return false;
@@ -189,7 +191,7 @@ public class RetrieveManagerEJB {
         if (queueMessage == null)
             throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
 
-        queueManager.cancelTask(queueMessage.getMessageID());
+        queueManager.cancelTask(queueMessage.getMessageID(), queueEvent);
         LOG.info("Cancel {}", task);
         return true;
     }
@@ -199,7 +201,7 @@ public class RetrieveManagerEJB {
         return queueManager.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask, prev);
     }
 
-    public boolean rescheduleRetrieveTask(Long pk)
+    public boolean rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent)
             throws IllegalTaskStateException, DifferentDeviceException {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
@@ -207,7 +209,7 @@ public class RetrieveManagerEJB {
 
         QueueMessage queueMessage = task.getQueueMessage();
         if (queueMessage != null)
-            queueManager.rescheduleTask(queueMessage.getMessageID(), RetrieveManager.QUEUE_NAME);
+            queueManager.rescheduleTask(queueMessage.getMessageID(), RetrieveManager.QUEUE_NAME, queueEvent);
 
         LOG.info("Reschedule {}", task);
         return true;

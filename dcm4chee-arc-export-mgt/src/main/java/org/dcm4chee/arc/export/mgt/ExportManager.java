@@ -44,6 +44,7 @@ import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.store.StoreContext;
 
@@ -69,14 +70,14 @@ public interface ExportManager {
 
     long countExportTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 
-    boolean deleteExportTask(Long pk);
+    boolean deleteExportTask(Long pk, QueueMessageEvent queueEvent);
 
-    boolean cancelExportTask(Long pk) throws IllegalTaskStateException;
+    boolean cancelExportTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
     long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
-    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter)
+    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent)
             throws IllegalTaskStateException, DifferentDeviceException;
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask);

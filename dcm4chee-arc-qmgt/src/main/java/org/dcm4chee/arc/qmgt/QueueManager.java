@@ -42,6 +42,7 @@ package org.dcm4chee.arc.qmgt;
 
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 
 import javax.jms.ObjectMessage;
 import java.io.Serializable;
@@ -63,7 +64,7 @@ public interface QueueManager {
 
     QueueMessage onProcessingFailed(String msgId, Throwable e);
 
-    boolean cancelTask(String msgId) throws IllegalTaskStateException;
+    boolean cancelTask(String msgId, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
     long cancelTasks(Predicate matchQueueMessage, QueueMessage.Status prev) throws IllegalTaskStateException;
 
@@ -73,9 +74,9 @@ public interface QueueManager {
     long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prevStatus)
             throws IllegalTaskStateException;
 
-    boolean rescheduleTask(String msgId, String queueName) throws IllegalTaskStateException, DifferentDeviceException;
+    boolean rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) throws IllegalTaskStateException, DifferentDeviceException;
 
-    boolean deleteTask(String msgId);
+    boolean deleteTask(String msgId, QueueMessageEvent queueEvent);
 
     int deleteTasks(String queueName, Predicate matchQueueMessage);
 

@@ -51,6 +51,7 @@ import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QExportTask;
 import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.QueryService;
@@ -321,18 +322,19 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public boolean deleteExportTask(Long pk) {
+    public boolean deleteExportTask(Long pk, QueueMessageEvent queueEvent) {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
             return false;
 
+        queueEvent.setQueueMsg(task.getQueueMessage());
         em.remove(task);
         LOG.info("Delete {}", task);
         return true;
     }
 
     @Override
-    public boolean cancelExportTask(Long pk) throws IllegalTaskStateException {
+    public boolean cancelExportTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
             return false;
@@ -341,7 +343,7 @@ public class ExportManagerEJB implements ExportManager {
         if (queueMessage == null)
             throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
 
-        queueManager.cancelTask(queueMessage.getMessageID());
+        queueManager.cancelTask(queueMessage.getMessageID(), queueEvent);
         LOG.info("Cancel {}", task);
         return true;
     }
@@ -353,7 +355,7 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter)
+    public boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent)
             throws IllegalTaskStateException, DifferentDeviceException {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
@@ -362,7 +364,7 @@ public class ExportManagerEJB implements ExportManager {
         QueueMessage queueMessage = task.getQueueMessage();
         task.setExporterID(exporter.getExporterID());
         if (queueMessage != null)
-            queueManager.rescheduleTask(queueMessage.getMessageID(), exporter.getQueueName());
+            queueManager.rescheduleTask(queueMessage.getMessageID(), exporter.getQueueName(), queueEvent);
 
         LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
         return true;

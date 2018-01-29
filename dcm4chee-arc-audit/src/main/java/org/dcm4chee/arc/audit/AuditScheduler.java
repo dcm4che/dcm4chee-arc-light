@@ -112,13 +112,9 @@ public class AuditScheduler extends Scheduler {
             final long maxLastModifiedTime = System.currentTimeMillis() - duration.getSeconds() * 1000L;
             ArrayList<Path> pathList = new ArrayList<>();
             try {
-                try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir, new DirectoryStream.Filter<Path>() {
-                    @Override
-                    public boolean accept(Path file) throws IOException {
-                        return !file.getFileName().toString().endsWith(FAILED)
-                                && Files.getLastModifiedTime(file).toMillis() <= maxLastModifiedTime;
-                    }
-                })) {
+                try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(dir, file ->
+                        !file.getFileName().toString().endsWith(FAILED)
+                            && Files.getLastModifiedTime(file).toMillis() <= maxLastModifiedTime)) {
                     for (Path path : dirStream) {
                         pathList.add(path);
                     }

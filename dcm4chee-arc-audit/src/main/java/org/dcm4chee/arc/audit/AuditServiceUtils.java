@@ -41,6 +41,7 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
 import org.dcm4chee.arc.ArchiveServiceEvent;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.store.StoreContext;
 import java.nio.file.Path;
@@ -53,7 +54,7 @@ import java.nio.file.Path;
 class AuditServiceUtils {
     enum EventClass {
         QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
-        STGCMT, INST_RETRIEVED, LDAP_CHANGES
+        STGCMT, INST_RETRIEVED, LDAP_CHANGES, QUEUE_EVENT
     }
     enum EventType {
         WADO___URI(EventClass.STORE_WADOR, AuditMessages.EventID.DICOMInstancesTransferred, AuditMessages.EventActionCode.Read,
@@ -117,7 +118,14 @@ class AuditServiceUtils {
                 AuditMessages.EventTypeCode.ITI_41_ProvideAndRegisterDocumentSetB),
 
         LDAP_CHNGS(EventClass.LDAP_CHANGES, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
-                null, null, AuditMessages.EventTypeCode.SoftwareConfiguration);
+                null, null, AuditMessages.EventTypeCode.SoftwareConfiguration),
+
+        CANCEL_TSK(EventClass.QUEUE_EVENT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
+                null, null, AuditMessages.EventTypeCode.CancelTask),
+        RESCHD_TSK(EventClass.QUEUE_EVENT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
+                null, null, AuditMessages.EventTypeCode.RescheduleTask),
+        DELETE_TSK(EventClass.QUEUE_EVENT, AuditMessages.EventID.SecurityAlert, AuditMessages.EventActionCode.Execute,
+                null, null, AuditMessages.EventTypeCode.DeleteTask);
 
 
         final EventClass eventClass;
@@ -168,6 +176,14 @@ class AuditServiceUtils {
                     : eventActionCode.equals(AuditMessages.EventActionCode.Update)
                         ? EventType.PROC_STD_U
                         : PROC_STD_D;
+        }
+
+        static EventType forQueueEvent(QueueMessageEvent queueMsgEvent) {
+            String eventType = queueMsgEvent.getType().name();
+            return eventType.startsWith("Cancel")
+                    ? EventType.CANCEL_TSK
+                    : eventType.startsWith("Reschedule")
+                        ? EventType.RESCHD_TSK : EventType.DELETE_TSK;
         }
     }
 

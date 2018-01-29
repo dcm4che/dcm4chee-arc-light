@@ -51,6 +51,7 @@ import org.dcm4chee.arc.entity.QExportTask;
 import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QRetrieveTask;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -195,10 +196,13 @@ public class QueueManagerEJB {
         return entity;
     }
 
-    public boolean cancelTask(String msgId) throws IllegalTaskStateException {
+    public boolean cancelTask(String msgId, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
             return false;
+
+        if (queueEvent != null)
+            queueEvent.setQueueMsg(entity);
 
         switch (entity.getStatus()) {
             case COMPLETED:
@@ -295,11 +299,14 @@ public class QueueManagerEJB {
                 .fetch();
     }
 
-    public boolean rescheduleTask(String msgId, String queueName)
+    public boolean rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
             throws IllegalTaskStateException, DifferentDeviceException {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
             return false;
+
+        if (queueEvent != null)
+            queueEvent.setQueueMsg(entity);
 
         if (!device.getDeviceName().equals(entity.getDeviceName()))
             throw new DifferentDeviceException("Cannot reschedule Task[id=" + msgId
@@ -333,11 +340,12 @@ public class QueueManagerEJB {
         LOG.info("Reschedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
     }
 
-    public boolean deleteTask(String msgId) {
+    public boolean deleteTask(String msgId, QueueMessageEvent queueEvent) {
         QueueMessage entity = findQueueMessage(msgId);
         if (entity == null)
             return false;
 
+        queueEvent.setQueueMsg(entity);
         if (entity.getExportTask() != null)
             em.remove(entity.getExportTask());
         else if (entity.getRetrieveTask() != null)

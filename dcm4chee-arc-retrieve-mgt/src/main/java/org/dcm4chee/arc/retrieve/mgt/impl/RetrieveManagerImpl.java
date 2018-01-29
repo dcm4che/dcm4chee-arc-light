@@ -45,6 +45,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
@@ -152,13 +153,13 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public boolean deleteRetrieveTask(Long pk) {
-        return ejb.deleteRetrieveTask(pk);
+    public boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
+        return ejb.deleteRetrieveTask(pk, queueEvent);
     }
 
     @Override
-    public boolean cancelRetrieveTask(Long pk) throws IllegalTaskStateException {
-        return ejb.cancelRetrieveTask(pk);
+    public boolean cancelRetrieveTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
+        return ejb.cancelRetrieveTask(pk, queueEvent);
     }
 
     @Override
@@ -168,8 +169,9 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException, DifferentDeviceException {
-        return ejb.rescheduleRetrieveTask(pk);
+    public boolean rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException, DifferentDeviceException {
+        return ejb.rescheduleRetrieveTask(pk, queueEvent);
     }
 
     @Override

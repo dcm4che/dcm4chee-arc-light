@@ -46,6 +46,7 @@ import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.event.RejectionNoteSent;
@@ -169,6 +170,11 @@ public class AuditTriggerObserver {
     public void onSoftwareConfiguration(@Observes SoftwareConfiguration softwareConfiguration) {
         if (deviceHasAuditLoggers())
             auditService.spoolSoftwareConfiguration(softwareConfiguration);
+    }
+
+    public void onQueueMessage(@Observes QueueMessageEvent queueMsgEvent) {
+        if (deviceHasAuditLoggers())
+            auditService.spoolQueueMessageEvent(queueMsgEvent);
     }
 
     private boolean deviceHasAuditLoggers() {
