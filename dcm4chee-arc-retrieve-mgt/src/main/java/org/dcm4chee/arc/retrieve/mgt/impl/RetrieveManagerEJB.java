@@ -209,7 +209,7 @@ public class RetrieveManagerEJB {
 
         QueueMessage queueMessage = task.getQueueMessage();
         if (queueMessage != null)
-            queueManager.rescheduleTask(queueMessage.getMessageID(), RetrieveManager.QUEUE_NAME, queueEvent);
+            queueManager.rescheduleTask(queueMessage, RetrieveManager.QUEUE_NAME, queueEvent);
 
         LOG.info("Reschedule {}", task);
         return true;

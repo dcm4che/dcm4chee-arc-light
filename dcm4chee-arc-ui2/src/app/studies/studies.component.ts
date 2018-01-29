@@ -240,8 +240,12 @@ export class StudiesComponent implements OnDestroy,OnInit{
     };
     pressedKey;
     selectModality(key){
-        this.filter.ModalitiesInStudy = key;
-        this.filter['ScheduledProcedureStepSequence.Modality'] = key;
+        this.filter.ModalitiesInStudy = '';
+        this.filter['ScheduledProcedureStepSequence.Modality'] = '';
+        if(this.filterMode === 'mwl')
+            this.filter['ScheduledProcedureStepSequence.Modality'] = key;
+        else
+            this.filter.ModalitiesInStudy = key;
         $('.Modality').show();
         this.showModalitySelector = false;
     };

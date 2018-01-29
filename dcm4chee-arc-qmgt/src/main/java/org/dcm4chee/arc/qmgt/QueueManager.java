@@ -74,9 +74,13 @@ public interface QueueManager {
     long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prevStatus)
             throws IllegalTaskStateException;
 
-    boolean rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) throws IllegalTaskStateException, DifferentDeviceException;
+    boolean rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException, DifferentDeviceException;
 
     boolean deleteTask(String msgId, QueueMessageEvent queueEvent);
+
+    boolean rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException, DifferentDeviceException;
 
     int deleteTasks(String queueName, Predicate matchQueueMessage);
 
