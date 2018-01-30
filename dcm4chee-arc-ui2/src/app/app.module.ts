@@ -70,6 +70,7 @@ import {ExternalRetrieveService} from "./monitoring/external-retrieve/external-r
 import { FilterGeneratorComponent } from './helpers/filter-generator/filter-generator.component';
 import {CalendarModule} from "primeng/components/calendar/calendar";
 import { ClickOutsideDirective } from './helpers/click-outside.directive';
+import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service";
 
 @NgModule({
     declarations: [
@@ -183,7 +184,8 @@ import { ClickOutsideDirective } from './helpers/click-outside.directive';
         AeListService,
         HttpErrorHandler,
         j4care,
-        ExternalRetrieveService
+        ExternalRetrieveService,
+        DynamicFieldService
     ],
     bootstrap: [AppComponent]
 })

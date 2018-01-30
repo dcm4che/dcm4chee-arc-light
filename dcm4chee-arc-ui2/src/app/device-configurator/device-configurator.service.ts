@@ -18,7 +18,7 @@ import {j4care} from "../helpers/j4care.service";
 import {J4careHttpService} from "../helpers/j4care-http.service";
 
 @Injectable()
-export class DeviceConfiguratorService implements OnInit{
+export class DeviceConfiguratorService{
     getFormaterValue = {};
     device;
     schema;
@@ -29,8 +29,7 @@ export class DeviceConfiguratorService implements OnInit{
         private deviceService:DevicesService,
         private aeListService:AeListService,
         private hl7service:Hl7ApplicationsService
-    ) {}
-    ngOnInit(){
+    ) {
         this.pagination = [
             {
                 url: '/device/devicelist',
@@ -38,53 +37,51 @@ export class DeviceConfiguratorService implements OnInit{
                 devicereff: undefined
             }
         ];
-        // setTimeout(()=>{
-            _.forEach(Globalvar.DYNAMIC_FORMATER,(m,i)=>{
-                if(m.pathInDevice){
-                    this.getFormaterValue[i] = {};
-                    this.getFormaterValue[i] = (device)=>{
-                        if(_.hasIn(device,m.pathInDevice) && _.get(device,m.pathInDevice)){
-                            return Observable.of(_.get(device,m.pathInDevice));
-                        }else{
-                            return Observable.of([]);
-                        }
-                    }
-                }else{
-                    switch (i) {
-                        case 'dcmAETitle':
-                                this.getFormaterValue['dcmAETitle'] = {};
-                                this.getFormaterValue['dcmAETitle'] = (device)=>{
-                                    if(_.hasIn(this.mainservice.global,'aes')){
-                                            return Observable.of(this.mainservice.global.aes);
-                                    }else{
-                                            return this.aeListService.getAes();
-                                    }
-                                };
-                            break;
-                        case 'dicomDeviceName':
-                                this.getFormaterValue['dicomDeviceName'] = {};
-                                this.getFormaterValue['dicomDeviceName'] = (device)=>{
-                                    if(_.hasIn(this.mainservice.global,'devices')){
-                                            return Observable.of(this.mainservice.global.devices);
-                                    }else{
-                                            return this.deviceService.getDevices();
-                                    }
-                                };
-                            break;
-                        case 'hl7ApplicationName':
-                                this.getFormaterValue['hl7ApplicationName'] = {};
-                                this.getFormaterValue['hl7ApplicationName'] = (device)=>{
-                                    if(_.hasIn(this.mainservice.global,'hl7')){
-                                            return Observable.of(this.mainservice.global.hl7);
-                                    }else{
-                                            return this.hl7service.getHl7ApplicationsList('');
-                                    }
-                                };
-                            break;
+        _.forEach(Globalvar.DYNAMIC_FORMATER,(m,i)=>{
+            if(m.pathInDevice){
+                this.getFormaterValue[i] = {};
+                this.getFormaterValue[i] = (device)=>{
+                    if(_.hasIn(device,m.pathInDevice) && _.get(device,m.pathInDevice)){
+                        return Observable.of(_.get(device,m.pathInDevice));
+                    }else{
+                        return Observable.of([]);
                     }
                 }
-            })
-        // },2000);
+            }else{
+                switch (i) {
+                    case 'dcmAETitle':
+                        this.getFormaterValue['dcmAETitle'] = {};
+                        this.getFormaterValue['dcmAETitle'] = (device)=>{
+                            if(_.hasIn(this.mainservice.global,'aes')){
+                                return Observable.of(this.mainservice.global.aes);
+                            }else{
+                                return this.aeListService.getAes();
+                            }
+                        };
+                        break;
+                    case 'dicomDeviceName':
+                        this.getFormaterValue['dicomDeviceName'] = {};
+                        this.getFormaterValue['dicomDeviceName'] = (device)=>{
+                            if(_.hasIn(this.mainservice.global,'devices')){
+                                return Observable.of(this.mainservice.global.devices);
+                            }else{
+                                return this.deviceService.getDevices();
+                            }
+                        };
+                        break;
+                    case 'hl7ApplicationName':
+                        this.getFormaterValue['hl7ApplicationName'] = {};
+                        this.getFormaterValue['hl7ApplicationName'] = (device)=>{
+                            if(_.hasIn(this.mainservice.global,'hl7')){
+                                return Observable.of(this.mainservice.global.hl7);
+                            }else{
+                                return this.hl7service.getHl7ApplicationsList('');
+                            }
+                        };
+                        break;
+                }
+            }
+        })
     }
     replaceOldAETitleWithTheNew(object, newAeTitle){
         let oldAETitle = object.dicomAETitle;
@@ -632,29 +629,43 @@ export class DeviceConfiguratorService implements OnInit{
                             });
                         });
                     }
-                    if(_.hasIn(m.formatValue,'state')){
-                        form.push({
-                            controlType: 'message',
-                            key: i,
-                            label: m.title,
-                            description: m.description,
-                            msg:m.formatValue.msg,
-                            order: (5 + newOrderSuffix),
-                            show: true
-                        })
-                    }else{
+/*                    if(m.format === "dicomDeviceName"){
                         form.push(
-                            new Checkbox({
+                            new ArrayElement({
                                 key: i,
                                 label: m.title,
-                                format: m.format,
                                 description: m.description,
-                                options: options,
+                                type: 'text',
+                                value: (value) ? value : [''],
                                 order: (5 + newOrderSuffix),
-                                validation: validation
+                                validation: validation,
+                                format: m.format
+                            }))
+                    }else{*/
+                        if(_.hasIn(m.formatValue,'state')){
+                            form.push({
+                                controlType: 'message',
+                                key: i,
+                                label: m.title,
+                                description: m.description,
+                                msg:m.formatValue.msg,
+                                order: (5 + newOrderSuffix),
+                                show: true
                             })
-                        );
-                    }
+                        }else{
+                            form.push(
+                                new Checkbox({
+                                    key: i,
+                                    label: m.title,
+                                    format: m.format,
+                                    description: m.description,
+                                    options: options,
+                                    order: (5 + newOrderSuffix),
+                                    validation: validation
+                                })
+                            );
+                        }
+                    // }/**/
                     console.log(`ì= ${i} form= `,form);
                 }else{
                     console.log('this.device', this.device);
@@ -800,8 +811,9 @@ export class DeviceConfiguratorService implements OnInit{
                                     });
                                 }else{
                                     let type = (_.hasIn(m, 'items.type')) ? m.items.type : 'text';
-                                    form.push(
-                                        new ArrayElement({
+                                    if(m.format === 'dicomDeviceName' || m.format === 'dicomAETitle' || m.format === 'hl7ApplicationName'){
+                                        form.push({
+                                            controlType: 'dynamiccheckbox',
                                             key: i,
                                             label: m.title,
                                             description: m.description,
@@ -809,9 +821,23 @@ export class DeviceConfiguratorService implements OnInit{
                                             value: (value) ? value : [''],
                                             order: (5 + newOrderSuffix),
                                             validation: validation,
-                                            format: m.format
-                                        })
-                                    );
+                                            format: m.format,
+                                            show: true
+                                        });
+                                    }else{
+                                        form.push(
+                                            new ArrayElement({
+                                                key: i,
+                                                label: m.title,
+                                                description: m.description,
+                                                type: type,
+                                                value: (value) ? value : [''],
+                                                order: (5 + newOrderSuffix),
+                                                validation: validation,
+                                                format: m.format
+                                            })
+                                        );
+                                    }
                                 }
                             }
                         }
