@@ -5,7 +5,7 @@ import {
     Component, Input, ElementRef, ComponentFactoryResolver, ChangeDetectionStrategy,
     ViewContainerRef, ChangeDetectorRef, HostListener
 } from '@angular/core';
-import {FormGroup, FormControl, FormArray} from '@angular/forms';
+import {FormGroup, FormControl, FormArray, FormBuilder} from '@angular/forms';
 import {DynamicFormComponent} from './dynamic-form.component';
 import {FormService} from '../../helpers/form/form.service';
 import {FormElement} from '../../helpers/form/form-element';
@@ -52,7 +52,8 @@ export class DynamicFormElementComponent{
         private ref: ChangeDetectorRef,
         private mainservice: AppService,
         private controlService:ControlService,
-        private j4care:j4care
+        private j4care:j4care,
+        private _fb: FormBuilder
     ){
         // dcl.resolveComponentFactory(DynamicFormComponent);
         this.partRemoved = false;
@@ -429,10 +430,13 @@ export class DynamicFormElementComponent{
                 formcontrol[i].setValue(e);
                 formelement.value[i] = e;
             }else{
-
-                formcontrol.setValue(e);
-                formelement.value = e;
-                console.log("in value change",e);
+                if(formelement.controlType === "dynamiccheckbox"){
+                    this.form.setControl(formelement.key,this._fb.array(e));
+                }else{
+                    formcontrol.setValue(e);
+                    formelement.value = e;
+                    console.log("in value change",e);
+                }
             }
         }
         formelement.showPicker = false;

@@ -458,11 +458,11 @@ export class Globalvar {
     }
     public static get DYNAMIC_FORMATER(): any{
         return {
-            dcmAETitle:{
+/*            dcmAETitle:{
                 key:'dicomAETitle',
                 labelKey:'{dicomAETitle}',
                 msg:'Create first an AE Title!'
-            },
+            },*/
             dcmArchiveAETitle:{
                 key:'dicomAETitle',
                 labelKey:'{dicomAETitle}',
@@ -471,7 +471,7 @@ export class Globalvar {
             },
             dcmQueueName:{
                 key:'dcmQueueName',
-                labelKey:'{dcmQueueName}',
+                labelKey:'{dicomDescription} ({dcmQueueName})',
                 msg:'Configure first an Queue',
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmQueue'
             },
@@ -499,16 +499,16 @@ export class Globalvar {
                 msg:'Create first an Rejection Note!',
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmRejectionNote'
             },
-            dicomDeviceName:{
+/*            dicomDeviceName:{
                 key:'dicomDeviceName',
                 labelKey:'{dicomDeviceName}',
                 msg:'Create first any device first!'
-            },
-            hl7ApplicationName:{
+            },*/
+/*            hl7ApplicationName:{
                 key:'hl7ApplicationName',
                 labelKey:'{hl7ApplicationName}',
                 msg:'Create first an hl7 Application!'
-            }
+            }*/
         };
     }
     public static get HL7_LIST_LINK(): string{

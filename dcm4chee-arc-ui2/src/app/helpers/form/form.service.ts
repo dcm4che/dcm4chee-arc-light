@@ -123,6 +123,10 @@ export class FormService{
                     });
                     group[element.key] = validation ? $this._fb.array(checkboxArr, validation) : $this._fb.array(checkboxArr);
                     break;
+                case 'dynamiccheckbox':
+                    element['value'] = element['value'] || [];
+                    group[element.key] = validation ? $this._fb.array(element['value'], validation) : $this._fb.array(element['value']);
+                    break;
                 default:
                     if (element.key){
                         if (element['type'] === 'number'){

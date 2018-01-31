@@ -50,34 +50,34 @@ export class DeviceConfiguratorService{
             }else{
                 switch (i) {
                     case 'dcmAETitle':
-                            this.getFormaterValue['dcmAETitle'] = {};
-                            this.getFormaterValue['dcmAETitle'] = (device)=>{
-                                if(_.hasIn(this.mainservice.global,'aes')){
-                                        return Observable.of(this.mainservice.global.aes);
-                                }else{
-                                        return this.aeListService.getAes();
-                                }
-                            };
+                        this.getFormaterValue['dcmAETitle'] = {};
+                        this.getFormaterValue['dcmAETitle'] = (device)=>{
+                            if(_.hasIn(this.mainservice.global,'aes')){
+                                return Observable.of(this.mainservice.global.aes);
+                            }else{
+                                return this.aeListService.getAes();
+                            }
+                        };
                         break;
                     case 'dicomDeviceName':
-                            this.getFormaterValue['dicomDeviceName'] = {};
-                            this.getFormaterValue['dicomDeviceName'] = (device)=>{
-                                if(_.hasIn(this.mainservice.global,'devices')){
-                                        return Observable.of(this.mainservice.global.devices);
-                                }else{
-                                        return this.deviceService.getDevices();
-                                }
-                            };
+                        this.getFormaterValue['dicomDeviceName'] = {};
+                        this.getFormaterValue['dicomDeviceName'] = (device)=>{
+                            if(_.hasIn(this.mainservice.global,'devices')){
+                                return Observable.of(this.mainservice.global.devices);
+                            }else{
+                                return this.deviceService.getDevices();
+                            }
+                        };
                         break;
                     case 'hl7ApplicationName':
-                            this.getFormaterValue['hl7ApplicationName'] = {};
-                            this.getFormaterValue['hl7ApplicationName'] = (device)=>{
-                                if(_.hasIn(this.mainservice.global,'hl7')){
-                                        return Observable.of(this.mainservice.global.hl7);
-                                }else{
-                                        return this.hl7service.getHl7ApplicationsList('');
-                                }
-                            };
+                        this.getFormaterValue['hl7ApplicationName'] = {};
+                        this.getFormaterValue['hl7ApplicationName'] = (device)=>{
+                            if(_.hasIn(this.mainservice.global,'hl7')){
+                                return Observable.of(this.mainservice.global.hl7);
+                            }else{
+                                return this.hl7service.getHl7ApplicationsList('');
+                            }
+                        };
                         break;
                 }
             }
@@ -296,6 +296,8 @@ export class DeviceConfiguratorService{
                         //Get the value / array that is needed for the defined format
                         this.getFormatValue(m.format, this.device).subscribe(
                             (formatValue) =>{
+                                // setTimeout(()=>{
+
                                 if(formatValue && formatValue.length > 0){
                                     m.formatValue = formatValue.map((el)=>{
                                         return {
@@ -312,6 +314,7 @@ export class DeviceConfiguratorService{
                                     }
                                 }
                                 this.processSchemaEntries(m,i, requiredArray, propertiesPath, params, device, form);
+                                // },500);
                             },(error)=>{
                                 m.formatValue = null;
                                 this.processSchemaEntries(m,i, requiredArray, propertiesPath, params, device, form);
@@ -626,29 +629,43 @@ export class DeviceConfiguratorService{
                             });
                         });
                     }
-                    if(_.hasIn(m.formatValue,'state')){
-                        form.push({
-                            controlType: 'message',
-                            key: i,
-                            label: m.title,
-                            description: m.description,
-                            msg:m.formatValue.msg,
-                            order: (5 + newOrderSuffix),
-                            show: true
-                        })
-                    }else{
+/*                    if(m.format === "dicomDeviceName"){
                         form.push(
-                            new Checkbox({
+                            new ArrayElement({
                                 key: i,
                                 label: m.title,
-                                format: m.format,
                                 description: m.description,
-                                options: options,
+                                type: 'text',
+                                value: (value) ? value : [''],
                                 order: (5 + newOrderSuffix),
-                                validation: validation
+                                validation: validation,
+                                format: m.format
+                            }))
+                    }else{*/
+                        if(_.hasIn(m.formatValue,'state')){
+                            form.push({
+                                controlType: 'message',
+                                key: i,
+                                label: m.title,
+                                description: m.description,
+                                msg:m.formatValue.msg,
+                                order: (5 + newOrderSuffix),
+                                show: true
                             })
-                        );
-                    }
+                        }else{
+                            form.push(
+                                new Checkbox({
+                                    key: i,
+                                    label: m.title,
+                                    format: m.format,
+                                    description: m.description,
+                                    options: options,
+                                    order: (5 + newOrderSuffix),
+                                    validation: validation
+                                })
+                            );
+                        }
+                    // }/**/
                     console.log(`ì= ${i} form= `,form);
                 }else{
                     console.log('this.device', this.device);
@@ -794,8 +811,9 @@ export class DeviceConfiguratorService{
                                     });
                                 }else{
                                     let type = (_.hasIn(m, 'items.type')) ? m.items.type : 'text';
-                                    form.push(
-                                        new ArrayElement({
+                                    if(m.format === 'dicomDeviceName' || m.format === 'dicomAETitle' || m.format === 'hl7ApplicationName'){
+                                        form.push({
+                                            controlType: 'dynamiccheckbox',
                                             key: i,
                                             label: m.title,
                                             description: m.description,
@@ -803,9 +821,23 @@ export class DeviceConfiguratorService{
                                             value: (value) ? value : [''],
                                             order: (5 + newOrderSuffix),
                                             validation: validation,
-                                            format: m.format
-                                        })
-                                    );
+                                            format: m.format,
+                                            show: true
+                                        });
+                                    }else{
+                                        form.push(
+                                            new ArrayElement({
+                                                key: i,
+                                                label: m.title,
+                                                description: m.description,
+                                                type: type,
+                                                value: (value) ? value : [''],
+                                                order: (5 + newOrderSuffix),
+                                                validation: validation,
+                                                format: m.format
+                                            })
+                                        );
+                                    }
                                 }
                             }
                         }
