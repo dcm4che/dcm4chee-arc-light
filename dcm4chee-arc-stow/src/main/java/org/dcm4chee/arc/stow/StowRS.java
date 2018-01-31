@@ -268,40 +268,33 @@ public class StowRS {
 
     private void store(AsyncResponse ar, InputStream in, final Input input, Output output)  throws Exception {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        ar.register(new CompletionCallback() {
-            @Override
-            public void onComplete(Throwable throwable) {
-                purgeSpoolDirectory();
-            }
-        });
+        ar.register((CompletionCallback) throwable -> purgeSpoolDirectory());
         final StoreSession session = service.newStoreSession(request, aet, getApplicationEntity());
-        new MultipartParser(boundary()).parse(new BufferedInputStream(in), new MultipartParser.Handler() {
-            @Override
-            public void bodyPart(int partNumber, MultipartInputStream in) throws IOException {
-                Map<String, List<String>> headerParams = in.readHeaderParams();
-                LOG.info("storeInstances: Extract Part #{}{}", partNumber, headerParams);
-                String contentLocation = getHeaderParamValue(headerParams, "content-location");
-                String contentType = getHeaderParamValue(headerParams, "content-type");
-                MediaType mediaType = MediaType.valueOf(contentType);
-                try {
-                    if (!input.readBodyPart(StowRS.this, session, in, mediaType, contentLocation)) {
-                        LOG.info("{}: Ignore Part with Content-Type={}", session, mediaType);
-                        in.skipAll();
+        new MultipartParser(boundary())
+                .parse(new BufferedInputStream(in), (partNumber, multipartInputStream) -> {
+                    Map<String, List<String>> headerParams = multipartInputStream.readHeaderParams();
+                    LOG.info("storeInstances: Extract Part #{}{}", partNumber, headerParams);
+                    String contentLocation = getHeaderParamValue(headerParams, "content-location");
+                    String contentType = getHeaderParamValue(headerParams, "content-type");
+                    MediaType mediaType = MediaType.valueOf(contentType);
+                    try {
+                        if (!input.readBodyPart(StowRS.this, session, multipartInputStream, mediaType, contentLocation)) {
+                            LOG.info("{}: Ignore Part with Content-Type={}", session, mediaType);
+                            multipartInputStream.skipAll();
+                        }
+                    } catch (JsonParsingException e) {
+                        throw new WebApplicationException(
+                                errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
+                    } catch (Exception e) {
+                        if (instances.size() == 1)
+                            throw new WebApplicationException(e.getMessage());
+                        else
+                            throw new WebApplicationException("Failed to process Part #" + partNumber + headerParams, e);
                     }
-                } catch (JsonParsingException e) {
-                    throw new WebApplicationException(
-                            getResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST));
-                } catch (Exception e) {
-                    if (instances.size() == 1)
-                        throw new WebApplicationException(e.getMessage());
-                    new WebApplicationException("Failed to process Part #" + partNumber + headerParams, e);
-                }
-            }
-        });
+                });
         int instanceNumber = 0;
-        for (Attributes instance : instances) {
+        for (Attributes instance : instances) 
             storeDicomObject(session, instance, ++instanceNumber);
-        }
 
         response.setString(Tag.RetrieveURL, VR.UR, retrieveURL());
         Response.ResponseBuilder responseBuilder = Response.status(status());
@@ -332,7 +325,7 @@ public class StowRS {
     private String boundary() {
         String boundary = contentType.getParameters().get("boundary");
         if (boundary == null)
-            throw new WebApplicationException(getResponse("Missing Boundary Parameter", Response.Status.BAD_REQUEST));
+            throw new WebApplicationException(errResponse("Missing Boundary Parameter", Response.Status.BAD_REQUEST));
 
         return boundary;
     }
@@ -340,7 +333,7 @@ public class StowRS {
     private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(getResponse(
+            throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet, Response.Status.NOT_FOUND));
         return ae;
     }
@@ -471,14 +464,11 @@ public class StowRS {
     private BulkDataWithMediaType resolveBulkdataRefs(Attributes attrs) throws DicomServiceException {
         final BulkDataWithMediaType[] bulkdataWithMediaType = new BulkDataWithMediaType[1];
         try {
-            attrs.accept(new Attributes.Visitor() {
-                @Override
-                public boolean visit(Attributes attrs, int tag, VR vr, Object value) throws Exception {
-                    if (value instanceof BulkData) {
-                        bulkdataWithMediaType[0] = resolveBulkdataRef(attrs, tag, vr, (BulkData) value);
-                    }
-                    return true;
-                }
+            attrs.accept((attrs1, tag, vr, value) -> {
+                if (value instanceof BulkData)
+                    bulkdataWithMediaType[0] = resolveBulkdataRef(attrs1, tag, vr, (BulkData) value);
+
+                return true;
             }, true);
         } catch (DicomServiceException e) {
             throw e;
@@ -493,9 +483,9 @@ public class StowRS {
         BulkDataWithMediaType bulkdataWithMediaType = bulkdataMap.get(bulkdata.getURI());
         if (bulkdataWithMediaType == null)
             throw new DicomServiceException(0xA922, "Missing Bulkdata: " + bulkdata.getURI());
-        if (tag != Tag.PixelData || MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(bulkdataWithMediaType.mediaType)) {
+        if (tag != Tag.PixelData || MediaType.APPLICATION_OCTET_STREAM_TYPE.equals(bulkdataWithMediaType.mediaType))
             bulkdata.setURI(bulkdataWithMediaType.bulkData.getURI());
-        } else {
+        else {
             Fragments frags = attrs.newFragments(tag, vr, 2);
             frags.add(ByteUtils.EMPTY_BYTES);
             frags.add(new BulkData(null, bulkdataWithMediaType.bulkData.getURI(), false));
@@ -520,11 +510,10 @@ public class StowRS {
         abstract boolean parseHeader(byte[] header, Attributes attrs, long flen);
 
         static CompressedPixelData valueOf(MediaType mediaType) {
-            if (MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.IMAGE_JPEG_TYPE))
-                return JPEG;
-            if (MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_MPEG_TYPE))
-                return MPEG;
-            return null;
+            return MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.IMAGE_JPEG_TYPE)
+                    ? JPEG
+                    : MediaTypes.equalsIgnoreParameters(mediaType, MediaTypes.VIDEO_MPEG_TYPE)
+                        ? MPEG : null;
         }
 
     }
@@ -566,8 +555,8 @@ public class StowRS {
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
             LOG.error(sw.toString());
-            throw new WebApplicationException(getResponse("IOException caught while spooling bulkdata : " + e.getMessage(),
-                    Response.Status.INTERNAL_SERVER_ERROR));
+            throw new WebApplicationException(errResponse("IOException caught while spooling bulkdata : " + e.getMessage(),
+                    Response.Status.BAD_REQUEST));
         }
     }
 
@@ -635,28 +624,22 @@ public class StowRS {
         DICOM_XML {
             @Override
             StreamingOutput entity(final Attributes response) {
-                return new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream out) throws IOException {
+                return out -> {
                         try {
                             SAXTransformer.getSAXWriter(new StreamResult(out)).write(response);
                         } catch (Exception e) {
-                            throw new WebApplicationException(e);
+                            throw new WebApplicationException(errResponseAsTextPlain(e));
                         }
-                    }
                 };
             }
         },
         JSON {
             @Override
             StreamingOutput entity(final Attributes response) {
-                return new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream out) throws IOException {
+                return out -> {
                         JsonGenerator gen = Json.createGenerator(out);
                         new JSONWriter(gen).write(response);
                         gen.flush();
-                    }
                 };
             }
         };
@@ -674,8 +657,14 @@ public class StowRS {
         }
     }
 
-    private Response getResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    }
+
+    private static Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 }

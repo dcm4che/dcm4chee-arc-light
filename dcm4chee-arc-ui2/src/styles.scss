@@ -110,7 +110,96 @@ $hoverBlue:#5293C1;
     display: none;
   }
 }
-
+input.ng-invalid:focus{
+  outline-color: #a94442 !important;
+}
+p-calendar{
+  button.ui-button,.ui-button:focus{
+    background: rgba(6, 29, 47, 0.84);
+    border: 1px solid rgba(6, 29, 47, 0.84);
+  }
+  .ui-calendar button:enabled:hover{
+    background: rgba(6, 29, 47, 0.84);
+    border: 1px solid rgba(6, 29, 47, 0.84);
+  }
+}
+.clock{
+  background: rgba(6, 29, 47, 0.88);
+  -moz-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+  -webkit-box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+  box-shadow: 3px 3px 9px 4px rgba(0, 0, 0, 0.37);
+  color: white;
+  display: block;
+  font-weight: bold;
+  position: fixed;
+  right: 3px;
+  top: 0;
+  z-index: 9999;
+  width: 130px;
+  height: 61px;
+  box-sizing: border-box;
+  padding: 5px 10px;
+  text-align: center;
+  -webkit-transition:  0.5s;
+  -moz-transition:  0.5s;
+  -ms-transition:  0.5s;
+  -o-transition:  0.5s;
+  transition:  0.5s;
+  .time{
+    text-align: center;
+    font-weight: bold;
+    font-size: 23px;
+  }
+  .text{
+    text-align: center;
+    font-size: 12px;
+    font-weight: 100;
+  }
+  &.extend{
+    height: 33px;
+    padding: 0px 10px;
+    .text{
+      display: none;
+    }
+  }
+}
+.custom_icon{
+  content: '';
+  display: inline-block;
+  min-width:2px;
+  min-height:2px;
+  &.csv_icon{
+    background-image: url("assets/img/csv_icon.png");
+    background-repeat:no-repeat;
+    height:100%;
+    width:30px;
+    background-position: center center;
+    float: left;
+  }
+}
+.csv_button{
+  background:rgba(6, 29, 47, 0.84);
+  color: white;
+  padding-left: 1vw;
+  &:hover{
+    cursor: pointer;
+  }
+  span{
+    float: left;
+    &.text{
+      display: inline-block;
+      float: left;
+      height: 100%;
+      vertical-align: middle;
+      line-height: 27px;
+      text-align: center;
+    }
+  }
+}
+.single_block{
+  float: left;
+  width:100%;
+}
 body{
     margin: 0;
     font-family: Robot, sans-serif;
@@ -138,6 +227,9 @@ md-grid-list{
 /*[draggable=true] {
   -khtml-user-drag: element;
 }*/
+.w45percent{
+  width: 45%;
+}
 .group_input{
   border: 1px solid #ccc;
   margin-left: 0;
@@ -210,7 +302,7 @@ md-grid-list{
           float: right;
         }
       }
-      & > input,p-calendar input, modality input{
+      & > input,p-calendar input, modality input,range-picker input{
         border:none;
         border-bottom:1px solid #cccccc;
         background:transparent;

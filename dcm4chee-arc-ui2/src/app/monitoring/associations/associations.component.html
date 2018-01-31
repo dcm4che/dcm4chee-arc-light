@@ -20,19 +20,26 @@
             <!--<span *ngIf="!stopLoop" class="loader"></span>-->
             <button type="button" class="btn btn-default" (click)="downloadAssocImmage()" title="Download copy of the table as csv-file">Download copy</button>
             <div *ngIf="!stopLoop" id="loading-bar-spinner">
-                <div class="spinner-icon">
+                <div class="spinner-icon" *ngIf="!pause">
                     <md-progress-spinner mode="indeterminate" ></md-progress-spinner>
                 </div>
+                <div class="pause" *ngIf="pause">
+                   <i class="material-icons">pause_circle_outline</i>
+                </div>
             </div>
-            <table  class="table table-inverse">
+            <table  class="table table-inverse"  (mouseenter)="mauseEnter()" (mouseleave)="mauseLeave()">
                 <tr>
                     <th>
                             <span title="Sort by Local AE Title" (click)="sortBy('localAETitle')">
                                 Local AE Title
                             </span>
+                    </th>
+                    <th>
                         <span title="Sort by initiated" (click)="sortBy('initiated')">
                                 ⇆
                             </span>
+                    </th>
+                    <th>
                         <span title="Sort by Remote AE Title" (click)="sortBy('remoteAETitle')">
                                 Remote AE Title
                             </span>
@@ -56,16 +63,16 @@
                 </tr>
 
                 <tr  *ngFor="let value of associationStatus| orderBy:propertyName:reverse">
-                    <td *ngIf="value.initiated">
-                        {{value.localAETitle}}
-                        <span class="glyphicon glyphicon-arrow-right"></span>
-                        {{value.remoteAETitle}}
-                    </td>
-                    <td *ngIf="!value.initiated">
-                        {{value.localAETitle}}
-                        <span class="glyphicon glyphicon-arrow-left"></span>
-                        {{value.remoteAETitle}}
-                    </td>
+                    <ng-container *ngIf="value.initiated">
+                         <td>{{value.localAETitle}}</td>
+                         <td><span class="glyphicon glyphicon-arrow-right"></span></td>
+                         <td>{{value.remoteAETitle}}</td>
+                    </ng-container>
+                    <ng-container *ngIf="!value.initiated">
+                        <td>{{value.localAETitle}}</td>
+                        <td><span class="glyphicon glyphicon-arrow-left"></span></td>
+                        <td>{{value.remoteAETitle}}</td>
+                    </ng-container>
                     <td>
                         <!--<pre>-->
                         <!--invokedopsobj:{{value?.invokedOps|json}}-->

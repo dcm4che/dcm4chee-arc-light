@@ -7,6 +7,7 @@ import {Observable} from "rxjs/Observable";
 declare var fetch;
 import * as _ from 'lodash';
 import {DatePipe} from "@angular/common";
+import {WindowRefService} from "./window-ref.service";
 
 @Injectable()
 export class j4care {
@@ -84,7 +85,7 @@ export class j4care {
                 a.dcmOtherAETitle.forEach(alias=>{
                     clone.dicomAETitle = alias;
                     if(usedAliasNames.indexOf(alias) === -1){
-                        aliases.push(clone);
+                        aliases.push(_.cloneDeep(clone));
                         usedAliasNames.push(alias);
                     }
                 });
@@ -103,13 +104,229 @@ export class j4care {
             });
             return (stringArray.length > 1)?stringArray.join('-'):stringArray.join('');
         }else{
-         console.log("typeofrange:",typeof rangeArray);
-         console.log("isdatee:",_.isDate(rangeArray));
             if(_.isDate(rangeArray)){
                 return datePipe.transform(rangeArray,'yyyyMMdd')
             }
             return '';
         }
+    }
+    static extractDurationFromValue(value:string){
+        let match;
+        const ptrn = /([P|p|T|t])|((\d*)(\w))/g;
+        let year;
+        let day;
+        let month;
+        let hour;
+        let minute;
+        let second;
+        let week;
+        let mode;
+        try {
+            while ((match = ptrn.exec(value)) != null) {
+                if(match[1]){
+                    mode = match[1];
+                }
+                switch(true) {
+                    case (this.isEqual(match[4],'Y') || this.isEqual(match[4],'y')):
+                        year = parseInt(match[3]);
+                        break;
+                    case (this.isEqual(match[4],'W') || this.isEqual(match[4],'w')):
+                        week = parseInt(match[3]);
+                        break;
+                    case (this.isEqual(match[4],'M') || this.isEqual(match[4],'m')):
+                        if(mode === "T" || mode === "t"){
+                            minute = parseInt(match[3]);
+                        }else{
+                            month = parseInt(match[3]);
+                        }
+                        break;
+                    case (this.isEqual(match[4],'D') || this.isEqual(match[4],'d')):
+                        day= parseInt(match[3]);
+                        break;
+                    case (this.isEqual(match[4],'H') || this.isEqual(match[4],'h')):
+                        hour = parseInt(match[3]);
+                        break;
+                    case (this.isEqual(match[4],'S') || this.isEqual(match[4],'s')):
+                        second = parseInt(match[3]);
+                        break;
+                }
+            }
+            return {
+                Week:week,
+                FullYear:year,
+                Date:day,
+                Hours:hour,
+                Minutes:minute,
+                Month:month,
+                Seconds:second
+            }
+        }catch (e){
+            console.error("error parsing data!",e);
+            return null;
+        }
+    }
+    static getSingleDateTimeValueFromInt(value){
+        if(value)
+            if(value < 10)
+                return `0${value}`;
+            else
+                return value.toString();
+        else
+            return '00';
+    }
+    static extractDateTimeFromString(str){
+        const checkRegex = /^\d{14}-\d{14}$|^\d{8}-\d{8}$|^\d{6}-\d{6}$|^\d{14}-$|^-\d{14}$|^\d{14}$|^\d{8}-$|^-\d{8}$|^\d{8}$|^-\d{6}$|^\d{6}-$|^\d{6}$/m;
+        const regex = /(-?)(\d{4})(\d{2})(\d{2})(\d{0,2})(\d{0,2})(\d{0,2})(-?)|(-?)(\d{0,4})(\d{0,2})(\d{0,2})(\d{2})(\d{2})(\d{2})(-?)/g;
+        let matchString = checkRegex.exec(str);
+        let match;
+        let resultArray = [];
+        let mode;
+        let firstDateTime;
+        let secondDateTime;
+        if (matchString !== null && matchString[0]) {
+            while ((match = regex.exec(matchString[0])) !== null) {
+                if (match.index === regex.lastIndex) {
+                    regex.lastIndex++;
+                }
+                resultArray.push(match);
+            }
+            if(resultArray.length === 2){
+                if(resultArray[0][8] ==='-' || resultArray[0][16] ==='-')
+                    mode = "range"
+                firstDateTime = {
+                    FullYear:resultArray[0][2],
+                    Month:resultArray[0][3],
+                    Date:resultArray[0][4],
+                    Hours:resultArray[0][5] || resultArray[0][13],
+                    Minutes:resultArray[0][6] || resultArray[0][14],
+                    Seconds:resultArray[0][7] || resultArray[0][15]
+                };
+                secondDateTime = {
+                    FullYear:resultArray[1][2],
+                    Month:resultArray[1][3],
+                    Date:resultArray[1][4],
+                    Hours:resultArray[1][5] || resultArray[1][13],
+                    Minutes:resultArray[1][6] || resultArray[1][14],
+                    Seconds:resultArray[1][7] || resultArray[1][15]
+                };
+            }
+            if(resultArray.length === 1){
+                if(resultArray[0][1] ==='-' || resultArray[0][9] ==='-'){
+                    mode = "leftOpen";
+                    secondDateTime = {
+                        FullYear:resultArray[0][2],
+                        Month:resultArray[0][3],
+                        Date:resultArray[0][4],
+                        Hours:resultArray[0][5] || resultArray[0][13],
+                        Minutes:resultArray[0][6] || resultArray[0][14],
+                        Seconds:resultArray[0][7] || resultArray[0][15]
+                    };
+                }else{
+                    if(resultArray[0][8] ==='-' || resultArray[0][16] ==='-')
+                        mode = "rightOpen";
+                    else
+                        mode = "single";
+                    firstDateTime = {
+                        FullYear:resultArray[0][2],
+                        Month:resultArray[0][3],
+                        Date:resultArray[0][4],
+                        Hours:resultArray[0][5] || resultArray[0][13],
+                        Minutes:resultArray[0][6] || resultArray[0][14],
+                        Seconds:resultArray[0][7] || resultArray[0][15]
+                    };
+                }
+            }
+            return {
+                mode:mode,
+                firstDateTime:firstDateTime,
+                secondDateTime:secondDateTime
+            }
+        }
+        return null;
+    }
+    static stringValidDate(string:string){
+        if(Date.parse(string))
+            return true;
+        return false;
+    }
+    static validTimeObject(time:{Hours,Minutes,Seconds}){
+        if(
+            time.Hours && time.Hours < 25 &&
+            time.Minutes && time.Minutes < 60 &&
+            ((time.Seconds && time.Seconds < 60) || !time.Seconds || time.Seconds === "" || time.Seconds === "00")
+        )
+            return true;
+        return false;
+    }
+    static isSetDateObject(date:{FullYear,Month,Date}){
+        if(date && date.FullYear && date.Month && date.Date)
+            return true;
+        return false;
+    }
+    static isSetTimeObject(time:{Hours,Minutes,Seconds}){
+        if(time && time.Hours && time.Minutes && time.Seconds)
+            return true;
+        return false;
+    }
+    static validDateObject(date:{FullYear,Month,Date}){
+        if(this.stringValidDate(`${date.FullYear}-${date.Month}-${date.Date}`))
+            return true;
+        return false;
+    }
+    static splitTimeAndTimezone(string){
+        const regex = /(.*)([+-])(\d{4})/;
+        let m;
+        if ((m = regex.exec(string)) !== null) {
+            return {
+                time:m[1],
+                timeZone:`${m[2]||''}${m[3]||''}`
+            }
+        }
+        return string;
+    }
+    static redirectOnAuthResponse(res){
+        let resjson;
+        try{
+            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+            if(pattern.exec(res.url)){
+                WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
+            }
+            resjson = res.json();
+        }catch (e){
+            resjson = [];
+        }
+        return resjson;
+    }
+    static dateToString(date:Date){
+        return `${date.getFullYear()}${this.getSingleDateTimeValueFromInt(date.getMonth()+1)}${this.getSingleDateTimeValueFromInt(date.getDate())}`;
+    }
+    static fullDateToString(date:Date){
+        return `${date.getFullYear()}.${this.getSingleDateTimeValueFromInt(date.getMonth()+1)}.${this.getSingleDateTimeValueFromInt(date.getDate())} ${this.getSingleDateTimeValueFromInt(date.getHours())}:${this.getSingleDateTimeValueFromInt(date.getMinutes())}:${this.getSingleDateTimeValueFromInt(date.getSeconds())}`;
+    }
+    static getTimeFromDate(date:Date){
+        return `${j4care.getSingleDateTimeValueFromInt(date.getHours())}:${j4care.getSingleDateTimeValueFromInt(date.getMinutes())}:${j4care.getSingleDateTimeValueFromInt(date.getSeconds())}`;
+    }
+    static getDateFromObject(object:{FullYear,Month,Date}){
+        if(object.FullYear && object.Month && object.Date)
+            return `${object.FullYear}${object.Month}${object.Date}`
+        return ''
+    }
+    static getTimeFromObject(object:{Hours,Minutes,Seconds}){
+        if(object.Hours && object.Minutes && object.Seconds)
+            return `${object.Hours}:${object.Minutes}:${object.Seconds}`
+        return ''
+    }
+    static isEqual(a,b){
+        if(a && b && a === b)
+            return true;
+        return false;
+    }
+    static convertDateToString(date:Date){
+        let datePipe = new DatePipe('us-US');
+        if(_.isDate(date)){
+            return datePipe.transform(date,'yyyyMMdd')
+        }
+        return '';
     }
     download(url){
         this.httpJ4car.refreshToken().subscribe((res)=>{

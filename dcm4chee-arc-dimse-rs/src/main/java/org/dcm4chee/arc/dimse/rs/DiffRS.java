@@ -44,6 +44,7 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.Entity;
@@ -70,7 +71,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.ConnectException;
 import java.util.Date;
 import java.util.EnumSet;
@@ -168,8 +168,8 @@ public class DiffRS {
     private void search(AsyncResponse ar, boolean count) throws Exception {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
-        checkAE(externalAET, aeCache.get(externalAET));
-        checkAE(originalAET, aeCache.get(originalAET));
+        ApplicationEntity externalAE = checkAE(externalAET, aeCache.get(externalAET));
+        ApplicationEntity originalAE = checkAE(originalAET, aeCache.get(originalAET));
         try {
             QueryAttributes queryAttributes = new QueryAttributes(uriInfo);
             int[] compareKeys = compareKeys();
@@ -177,23 +177,28 @@ public class DiffRS {
             Attributes keys = queryAttributes.getQueryKeys();
             int[] returnKeys = keys.tags();
             keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
-            ar.register(new CompletionCallback() {
-                @Override
-                public void onComplete(Throwable throwable) {
+            ar.register((CompletionCallback) throwable ->  {
                     safeRelease(as1);
                     safeRelease(as2);
-                }
             });
             EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
             if (Boolean.parseBoolean(fuzzymatching))
                 queryOptions.add(QueryOption.FUZZY);
             as1 = findSCU.openAssociation(localAE, externalAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
             as2 = findSCU.openAssociation(localAE, originalAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
+            DimseRSP dimseRSP2 = null;
+            if (hasArchiveAEExtension(externalAE) && hasArchiveAEExtension(originalAE)) {
+                Attributes item = new Attributes(1);
+                item.setInt(Tag.SelectorAttribute,  VR.AT, Tag.StudyInstanceUID);
+                keys.newSequence(Tag.SortingOperationsSequence, 1).add(item);
+                dimseRSP2 = findSCU.query(as2, priority(), keys, 0);
+                dimseRSP2.next();
+            }
             DimseRSP dimseRSP = findSCU.query(as1, priority(), keys, 0);
             if (count) {
                 int[] counts = new int[2];
                 while (dimseRSP.next()) {
-                    diff(dimseRSP, compareKeys, returnKeys, counts);
+                    diff(dimseRSP, dimseRSP2, compareKeys, returnKeys, counts);
                 }
                 ar.resume(Response.ok("{\"missing\":" + counts[0] + ",\"different\":" + counts[1] + "}").build());
                 return;
@@ -202,28 +207,31 @@ public class DiffRS {
             includeDifferent = different == null || Boolean.parseBoolean(different);
             int skip = offset();
             while (dimseRSP.next()) {
-                if (diff(dimseRSP, compareKeys, returnKeys, null) && skip-- == 0) {
-                    ar.resume(Response.ok(entity(dimseRSP, compareKeys, returnKeys)).build());
+                if (diff(dimseRSP, dimseRSP2, compareKeys, returnKeys, null) && skip-- == 0) {
+                    ar.resume(Response.ok(entity(dimseRSP, dimseRSP2, compareKeys, returnKeys)).build());
                     return;
                 }
             }
             ar.resume(Response.noContent().build());
         } catch (ConnectException e) {
-            throw new WebApplicationException(buildErrorResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
         }
+    }
+
+    private static boolean hasArchiveAEExtension(ApplicationEntity ae) {
+        return ae.getAEExtension(ArchiveAEExtension.class) != null;
     }
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(buildErrorResponse(
+            throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
         return ae;
     }
 
-    private Response buildErrorResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 
     private void addReturnTags(QueryAttributes queryAttributes, int[] compareKeys) {
@@ -288,10 +296,9 @@ public class DiffRS {
         return s != null ? Integer.parseInt(s) : defval;
     }
 
-    private Object entity(final DimseRSP dimseRSP, final int[] compareKeys, final int[] returnKeys) {
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+    private Object entity(
+            final DimseRSP dimseRSP, final DimseRSP dimseRSP2, final int[] compareKeys, final int[] returnKeys) {
+        return (StreamingOutput) out -> {
                 try (JsonGenerator gen = Json.createGenerator(out)) {
                     JSONWriter writer = new JSONWriter(gen);
                     gen.writeStartArray();
@@ -299,7 +306,7 @@ public class DiffRS {
                     int remaining = limit();
                     try {
                         while (dimseRSP.next())
-                            if (diff(dimseRSP, compareKeys, returnKeys, null)) {
+                            if (diff(dimseRSP, dimseRSP2, compareKeys, returnKeys, null)) {
                                 writer.write(dimseRSP.getDataset());
                                 if (limit != null && --remaining == 0)
                                     break;
@@ -310,7 +317,6 @@ public class DiffRS {
                     }
                     gen.writeEnd();
                 }
-            }
         };
     }
 
@@ -318,14 +324,13 @@ public class DiffRS {
         return null;
     }
 
-    private boolean diff(DimseRSP dimseRSP, int[] compareKeys, int[] returnKeys, int[] counts) throws Exception {
+    private boolean diff(DimseRSP dimseRSP, DimseRSP dimseRSP2, int[] compareKeys, int[] returnKeys, int[] counts)
+            throws Exception {
         Attributes match = dimseRSP.getDataset();
         if (match == null)
             return false;
 
-        List<Attributes> matches = findSCU.find(as2, priority(), QueryRetrieveLevel2.STUDY,
-                match.getString(Tag.StudyInstanceUID), null, null, returnKeys);
-        Attributes other = !matches.isEmpty() ? matches.get(0) : null;
+        Attributes other = findOther(dimseRSP2, match.getString(Tag.StudyInstanceUID), returnKeys);
         if (counts != null) {
             if (other == null)
                 counts[0]++;
@@ -356,6 +361,25 @@ public class DiffRS {
         item.setString(Tag.ModifyingSystem, VR.LO, externalAET);
         item.setString(Tag.ReasonForTheAttributeModification, VR.CS, "DIFFS");
         return true;
+    }
+
+    private Attributes findOther(DimseRSP dimseRSP2, String studyIUID, int[] returnKeys) throws Exception {
+        if (dimseRSP2 == null) {
+            List<Attributes> matches = findSCU.find(as2, priority(), QueryRetrieveLevel2.STUDY,
+                    studyIUID, null, null, returnKeys);
+            return !matches.isEmpty() ? matches.get(0) : null;
+        }
+        do {
+            Attributes other = dimseRSP2.getDataset();
+            if (other == null) break;
+            int compare = studyIUID.compareTo(other.getString(Tag.StudyInstanceUID));
+            if (compare == 0) {
+                dimseRSP2.next();
+                return other;
+            }
+            if (compare < 0) break;
+        } while (dimseRSP2.next());
+        return null;
     }
 
 }

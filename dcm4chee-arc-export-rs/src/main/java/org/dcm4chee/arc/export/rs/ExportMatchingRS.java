@@ -156,7 +156,7 @@ public class ExportMatchingRS {
     @POST
     @Path("/studies")
     @Produces("application/json")
-    public Response exportMatchingStudies() throws Exception {
+    public Response exportMatchingStudies() {
         return exportMatching(
                 "exportMatchingStudies",
                 QueryRetrieveLevel2.STUDY,
@@ -167,7 +167,7 @@ public class ExportMatchingRS {
     @POST
     @Path("/series")
     @Produces("application/json")
-    public Response exportMatchingSeries() throws Exception {
+    public Response exportMatchingSeries() {
         return exportMatching(
                 "exportMatchingSeries",
                 QueryRetrieveLevel2.SERIES,
@@ -179,7 +179,7 @@ public class ExportMatchingRS {
     @Path("/studies/{StudyInstanceUID}/series")
     @Produces("application/json")
     public Response exportMatchingSeriesOfStudy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return exportMatching(
                 "exportMatchingSeriesOfStudy",
                 QueryRetrieveLevel2.SERIES,
@@ -190,7 +190,7 @@ public class ExportMatchingRS {
     @POST
     @Path("/instances")
     @Produces("application/json")
-    public Response exportMatchingInstances() throws Exception {
+    public Response exportMatchingInstances() {
         return exportMatching(
                 "exportMatchingInstances",
                 QueryRetrieveLevel2.IMAGE,
@@ -202,7 +202,7 @@ public class ExportMatchingRS {
     @Path("/studies/{StudyInstanceUID}/instances")
     @Produces("application/json")
     public Response exportMatchingInstancesOfStudy(
-            @PathParam("StudyInstanceUID") String studyInstanceUID) throws Exception {
+            @PathParam("StudyInstanceUID") String studyInstanceUID) {
         return exportMatching(
                 "exportMatchingInstancesOfStudy",
                 QueryRetrieveLevel2.IMAGE, studyInstanceUID,
@@ -213,7 +213,7 @@ public class ExportMatchingRS {
     @Produces("application/json")
     public Response exportMatchingInstancesOfSeries(
             @PathParam("StudyInstanceUID") String studyInstanceUID,
-            @PathParam("SeriesInstanceUID") String seriesInstanceUID) throws Exception {
+            @PathParam("SeriesInstanceUID") String seriesInstanceUID) {
         return exportMatching(
                 "exportMatchingInstancesOfSeries",
                 QueryRetrieveLevel2.IMAGE,
@@ -222,8 +222,7 @@ public class ExportMatchingRS {
     }
 
     private Response exportMatching(
-            String method, QueryRetrieveLevel2 qrlevel, String studyInstanceUID, String seriesInstanceUID)
-            throws Exception {
+            String method, QueryRetrieveLevel2 qrlevel, String studyInstanceUID, String seriesInstanceUID) {
         LOG.info("Process POST {}?{} from {}@{}",
                 request.getRequestURI(),
                 request.getQueryString(),

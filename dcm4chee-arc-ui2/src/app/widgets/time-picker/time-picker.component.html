@@ -1,16 +1,23 @@
-<div class="timepicker">
+<div class="input_block" *ngIf="cohereMode"><input type="text" [ngClass]="{'ng-invalid':(!validString)}"  [(ngModel)]="model" placeholder="{{placeholder}}" (ngModelChange)="change($event)"/><span (click)="toggle()" class="glyphicon glyphicon-time"></span></div>
+<div class="timepicker" [ngClass]="{'cohere':cohereMode}" *ngIf="timepickerOpen">
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
     <h4>Select time (hh:mm:ss)</h4>
-    <md-select [(ngModel)]="hh">
-        <md-option value="{{h}}" *ngFor="let h of hhArray">{{h}}</md-option>
-    </md-select>:
-    <md-select [(ngModel)]="mm">
-        <md-option value="{{m}}" *ngFor="let m of mmArray">{{m}}</md-option>
-    </md-select>:
-    <md-select [(ngModel)]="ss">
-        <md-option value="{{s}}" *ngFor="let s of ssArray">{{s}}</md-option>
-    </md-select>
+    <div class="timers_block">
+        <select [(ngModel)]="hh">
+            <option value="{{h}}" *ngFor="let h of hhArray">{{h}}</option>
+        </select>
+        <span>:</span>
+        <select [(ngModel)]="mm">
+            <option value="{{m}}" *ngFor="let m of mmArray">{{m}}</option>
+        </select>
+        <span>:</span>
+        <select [(ngModel)]="ss">
+            <option value="{{s}}" *ngFor="let s of ssArray">{{s}}</option>
+        </select>
+    </div>
     <div class="btn_content">
-        <button class="btn" (click)="addTime()">Set time</button>
+        <button class="btn set_time" (click)="addTime()">Set time</button>
+        <button class="btn" (click)="setTo00()">00:00</button>
+        <button class="btn" (click)="setToNow()">Now</button>
     </div>
 </div>

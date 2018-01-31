@@ -43,7 +43,6 @@ package org.dcm4chee.arc.wado;
 import org.dcm4che3.data.*;
 import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
 import org.dcm4che3.io.DicomInputStream;
-import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
@@ -72,9 +71,10 @@ import javax.ws.rs.container.CompletionCallback;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.*;
 import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
 import java.awt.*;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.List;
 
@@ -208,7 +208,7 @@ public class WadoURI {
 
             Date lastModified = service.getLastModified(ctx);
             if (lastModified == null)
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
+                throw new WebApplicationException(errResponse("Last Modified date is null.", Response.Status.NOT_FOUND));
             Response.ResponseBuilder respBuilder = evaluatePreConditions(lastModified);
 
             if (respBuilder == null)
@@ -222,7 +222,7 @@ public class WadoURI {
 
     private void buildResponse(@Suspended AsyncResponse ar, final RetrieveContext ctx, Date lastModified) throws IOException {
         if (!service.calculateMatches(ctx))
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            throw new WebApplicationException(errResponse("No matches found.", Response.Status.NOT_FOUND));
 
         List<InstanceLocations> matches = ctx.getMatches();
         int numMatches = matches.size();
@@ -236,7 +236,7 @@ public class WadoURI {
         ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, frameNumber);
         MediaType mimeType = selectMimeType(objectType);
         if (mimeType == null)
-            throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+            throw new WebApplicationException(errResponse("Mime type is null.", Response.Status.NOT_ACCEPTABLE));
 
         StreamingOutput entity;
         if (mimeType.isCompatible(MediaTypes.APPLICATION_DICOM_TYPE)) {
@@ -245,12 +245,9 @@ public class WadoURI {
         } else {
             entity = entityOf(ctx, inst, objectType, mimeType);
         }
-        ar.register(new CompletionCallback() {
-            @Override
-            public void onComplete(Throwable throwable) {
+        ar.register((CompletionCallback) throwable -> {
                 ctx.setException(throwable);
                 retrieveWado.fire(ctx);
-            }
         });
         ar.resume(Response.ok(entity, mimeType).lastModified(lastModified).tag(String.valueOf(lastModified.hashCode())).build());
     }
@@ -262,9 +259,9 @@ public class WadoURI {
     private void checkAET() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(
+            throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
-                    Response.Status.NOT_FOUND);
+                    Response.Status.NOT_FOUND));
     }
 
     private StreamingOutput entityOf(RetrieveContext ctx, InstanceLocations inst, ObjectType objectType,
@@ -322,9 +319,9 @@ public class WadoURI {
 
         int n = Integer.parseInt(frameNumber);
         if (n > attrs.getInt(Tag.NumberOfFrames, 1))
-                throw new WebApplicationException("frameNumber=" + frameNumber
-                                + " exceeds number of frames of specified resource",
-                        Response.Status.NOT_FOUND);
+                throw new WebApplicationException(errResponse(
+                        "frameNumber=" + frameNumber + " exceeds number of frames of specified resource",
+                        Response.Status.NOT_FOUND));
         return n;
     }
 
@@ -339,12 +336,10 @@ public class WadoURI {
             attrs = dis.readDataset(-1, -1);
         }
         service.getAttributesCoercion(ctx, inst).coerce(attrs, null);
-        return new DicomXSLTOutput(attrs, getTemplate(ctx, mimeType), new SAXTransformer.SetupTransformer() {
-            @Override
-            public void setup(Transformer transformer) {
-                transformer.setParameter("wadoURL", request.getRequestURL().toString());
-            }
-        });
+        return new DicomXSLTOutput(
+                attrs,
+                getTemplate(ctx, mimeType),
+                transformer -> transformer.setParameter("wadoURL", request.getRequestURL().toString()));
     }
 
     private Templates getTemplate(RetrieveContext ctx, MediaType mimeType) {
@@ -356,7 +351,7 @@ public class WadoURI {
         try {
             return TemplatesCache.getDefault().get(uri);
         } catch (Exception e) {
-            throw new WebApplicationException(e);
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -386,16 +381,15 @@ public class WadoURI {
             if (!readers.hasNext())
                 throw new RuntimeException("DICOM Image Reader not registered");
         }
-        ImageReader reader = readers.next();
-        return reader;
+        return readers.next();
     }
 
     private static ImageWriter getImageWriter(MediaType mimeType) {
         String formatName = formatNameOf(mimeType);
         Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(formatName);
-        if (!writers.hasNext()) {
+        if (!writers.hasNext())
             throw new RuntimeException(formatName + " Image Writer not registered");
-        }
+
         return writers.next();
     }
 
@@ -408,12 +402,13 @@ public class WadoURI {
         RetrieveContext ctx = service.newRetrieveContextWADO(
                 HttpServletRequestInfo.valueOf(request), aet, studyUID, presentationSeriesUID, presentationUID);
         if (!service.calculateMatches(ctx))
-            throw new WebApplicationException(
-                    "Specified Presentation State does not exist", Response.Status.NOT_FOUND);
+            throw new WebApplicationException(errResponse(
+                    "Specified Presentation State does not exist", Response.Status.NOT_FOUND));
 
         Collection<InstanceLocations> matches = ctx.getMatches();
         if (matches.size() > 1)
-            throw new WebApplicationException("More than one matching Presentation State found");
+            throw new WebApplicationException(errResponse(
+                    "More than one matching Presentation State found", Response.Status.BAD_REQUEST));
 
         InstanceLocations inst = matches.iterator().next();
         try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
@@ -477,5 +472,16 @@ public class WadoURI {
                     (int) Math.ceil((right - left) * columns),
                     (int) Math.ceil((bottom - top) * rows));
         }
+    }
+
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 }

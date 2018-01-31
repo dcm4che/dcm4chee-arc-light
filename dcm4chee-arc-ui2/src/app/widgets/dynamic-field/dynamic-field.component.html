@@ -1,0 +1,8 @@
+<p *ngIf="loader">
+  loading...
+</p>
+<div *ngIf="!loader && elements">
+  <div class="checkbox_parent">
+    <div *ngFor="let element of elements"><input type="checkbox" [(ngModel)]="model[element[key]]" (change)="valueChanged()"> {{element[key]}}<br/></div>
+  </div>
+</div>

@@ -148,15 +148,14 @@ public class QueryRetrieveRS {
 
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
-            throw new WebApplicationException(buildErrorResponse(
+            throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
                     Response.Status.NOT_FOUND));
         return ae;
     }
 
-    private Response buildErrorResponse(String errorMessage, Response.Status status) {
-        Object entity = "{\"errorMessage\":\"" + errorMessage + "\"}";
-        return Response.status(status).entity(entity).build();
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 
     private int priority() {
@@ -215,12 +214,12 @@ public class QueryRetrieveRS {
                 }
         }
         if (warning == null)
-            return Response.accepted(toJSON(count)).build();
+            return Response.accepted(count(count)).build();
 
         Response.ResponseBuilder builder = Response.status(errorStatus)
                 .header("Warning", warning);
         if (count > 0)
-            builder.entity(toJSON(count));
+            builder.entity(count(count));
         return builder.build();
     }
 
@@ -235,7 +234,7 @@ public class QueryRetrieveRS {
                 .setKeys(keys);
     }
 
-    private static String toJSON(int count) {
+    private static String count(int count) {
         return "{\"count\":" + count + '}';
     }
 

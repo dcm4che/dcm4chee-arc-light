@@ -57,6 +57,7 @@ import java.util.Date;
 @Table(name = "export_task",
     indexes = {
         @Index(columnList = "device_name"),
+        @Index(columnList = "created_time"),
         @Index(columnList = "updated_time"),
         @Index(columnList = "scheduled_time"),
         @Index(columnList = "exporter_id"),
@@ -118,7 +119,7 @@ public class ExportTask {
     private String deviceName;
 
     @Basic(optional = false)
-    @Column(name = "exporter_id", updatable = false)
+    @Column(name = "exporter_id")
     private String exporterID;
 
     @Basic(optional = false)

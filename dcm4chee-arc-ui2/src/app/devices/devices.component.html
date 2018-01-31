@@ -83,7 +83,7 @@
                 <div class="morefunctionblock">
                     <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
                     <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
-                    <div class="more functions">
+                    <div class="more functions" (clickOutside)="moreFunctionsButtons = false">
                         <div class="mainbutton" (click)="moreFunctionsButtons = !moreFunctionsButtons">
                             <span *ngIf="!moreFunctionsButtons" >More functions<i class="glyphicon glyphicon-triangle-bottom"></i></span>
                             <span *ngIf="moreFunctionsButtons">Close more functions<i class="glyphicon glyphicon-triangle-top"></i></span>

@@ -946,6 +946,29 @@
         }
       }
     },
+    "/monitor/serverTime": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "Get Server Time with Timezone",
+        "operationId": "getServerTime",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "server time with timezone",
+            "schema": {
+              "$ref": "#/definitions/ServerTime"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/monitor/export": {
       "get": {
         "tags": [
@@ -959,6 +982,16 @@
           "text/csv"
         ],
         "parameters": [
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Response Content Type",
+            "type": "string",
+            "enum": [
+              "application/json",
+              "text/csv"
+            ]
+          },
           {
             "name": "dicomDeviceName",
             "in": "query",
@@ -1208,7 +1241,7 @@
             "type": "string",
             "enum": [
               "SCHEDULED",
-              "IN PROCESS",
+              "IN PROCESS"
             ]
           },
           {
@@ -1230,6 +1263,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Invalid status for Cancel of Export tasks"
           },
           "default": {
             "description": "unexpected error"
@@ -1300,6 +1336,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Export task status is null or invalid or device name is null"
           },
           "409": {
             "description": "Archive Device Name does not match device name of archive instance"
@@ -1509,6 +1548,16 @@
           "text/csv"
         ],
         "parameters": [
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Response Content Type",
+            "type": "string",
+            "enum": [
+              "application/json",
+              "text/csv"
+            ]
+          },
           {
             "name": "dicomDeviceName",
             "in": "query",
@@ -1827,6 +1876,9 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Invalid status for Cancel of Retrieve tasks"
+          },
           "default": {
             "description": "unexpected error"
           }
@@ -1908,6 +1960,9 @@
             "schema": {
               "$ref": "#/definitions/Count"
             }
+          },
+          "400": {
+            "description": "Retrieve tasks status is null or invalid or device name is null"
           },
           "409": {
             "description": "Archive Device Name does not match device name of archive instance"
@@ -2304,10 +2359,7 @@
             }
           },
           "400": {
-            "description": "Queue Message status is invalid"
-          },
-          "404": {
-            "description": "Queue not found"
+            "description": "Invalid Queue Message status"
           },
           "default": {
             "description": "unexpected error"
@@ -2373,8 +2425,8 @@
               "$ref": "#/definitions/Count"
             }
           },
-          "404": {
-            "description": "Queue not found"
+          "400": {
+            "description": "Queue Message status is null or invalid or device name is null"
           },
           "409": {
             "description": "Archive Device Name does not match device name of archive instance"
@@ -7655,6 +7707,17 @@
       ],
       "properties": {
         "dicomDeviceName": {
+          "type": "string"
+        }
+      }
+    },
+    "ServerTime": {
+      "type": "object",
+      "required": [
+        "serverTimeWithTimezone"
+      ],
+      "properties": {
+        "serverTimeWithTimezone": {
           "type": "string"
         }
       }

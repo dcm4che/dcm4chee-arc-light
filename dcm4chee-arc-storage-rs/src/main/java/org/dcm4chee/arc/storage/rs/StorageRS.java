@@ -67,7 +67,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.*;
 
 /**
@@ -107,11 +106,9 @@ public class StorageRS {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput search() throws Exception {
+    public StreamingOutput search() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return new StreamingOutput() {
-            @Override
-            public void write (OutputStream out) throws IOException {
+        return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (StorageSystem ss : getStorageSystems()) {
@@ -138,7 +135,6 @@ public class StorageRS {
                 }
                 gen.writeEnd();
                 gen.flush();
-            }
         };
     }
 
@@ -171,27 +167,20 @@ public class StorageRS {
                 return storageSystems;
             }
         }
-        List<StorageDescriptor> sortedStorageDescriptors = getSortedStorageDescriptors();
-        for (StorageDescriptor desc : sortedStorageDescriptors)
+        for (StorageDescriptor desc : sortedStorageDescriptors())
             storageSystems.add(new StorageSystem(desc));
-        Iterator<StorageSystem> iter = storageSystems.iterator();
-        while (iter.hasNext()) {
-            StorageSystem ss = iter.next();
-            if ((usableSpaceBelow != null && ss.usableSpace > usableSpaceBelow)
-                    || (dicomAETitle != null && !ss.aets.contains(dicomAETitle))
-                    || (usage != null && !ss.usages.contains(usage))
-                    || (uriScheme != null && !ss.desc.getStorageURI().getScheme().equals(uriScheme)))
-                iter.remove();
-        }
+        storageSystems.removeIf(ss -> (usableSpaceBelow != null && ss.usableSpace > usableSpaceBelow)
+                || (dicomAETitle != null && !ss.aets.contains(dicomAETitle))
+                || (usage != null && !ss.usages.contains(usage))
+                || (uriScheme != null && !ss.desc.getStorageURI().getScheme().equals(uriScheme)));
         return storageSystems;
     }
 
-    private List<StorageDescriptor> getSortedStorageDescriptors() {
-        ArchiveDeviceExtension ext = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        List<StorageDescriptor> storageDescriptors = new ArrayList<>();
-        storageDescriptors.addAll(ext.getStorageDescriptors());
-        storageDescriptors.sort(Comparator.comparing(StorageDescriptor::getStorageID));
-        return storageDescriptors;
+    private StorageDescriptor[] sortedStorageDescriptors() {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).getStorageDescriptors()
+                .stream()
+                .sorted(Comparator.comparing(StorageDescriptor::getStorageID))
+                .toArray(StorageDescriptor[]::new);
     }
 
     class StorageSystem {

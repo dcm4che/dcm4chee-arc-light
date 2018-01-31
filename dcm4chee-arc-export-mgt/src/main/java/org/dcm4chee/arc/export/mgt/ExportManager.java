@@ -40,14 +40,12 @@
 
 package org.dcm4chee.arc.export.mgt;
 
+import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 import javax.enterprise.event.Observes;
 import java.util.List;
@@ -67,23 +65,19 @@ public interface ExportManager {
 
     void updateExportTask(Long pk);
 
-    List<ExportTask> search(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status,
-            int offset, int limit);
+    List<ExportTask> search(Predicate matchQueueMessage, Predicate matchExportTask, int offset, int limit);
 
-    long countExportTasks(
-            String deviceName, String exporterID, String studyUID, String createdTime, String updatedTime, QueueMessage.Status status);
+    long countExportTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 
     boolean deleteExportTask(Long pk);
 
-    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
+    boolean cancelExportTask(Long pk) throws IllegalTaskStateException;
 
-    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter) throws IllegalTaskStateException, DifferentDeviceException;
+    long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException;
 
-    int deleteTasks(String deviceName,
-                    String exporterID,
-                    String studyUID,
-                    String createdTime,
-                    String updatedTime,
-                    QueueMessage.Status status);
+    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter)
+            throws IllegalTaskStateException, DifferentDeviceException;
+
+    int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 }

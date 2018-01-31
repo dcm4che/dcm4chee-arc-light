@@ -60,7 +60,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.DateFormat;
@@ -82,11 +81,9 @@ public class ArchiveMonitor {
     @NoCache
     @Path("associations")
     @Produces("application/json")
-    public StreamingOutput listOpenAssociations() throws Exception {
+    public StreamingOutput listOpenAssociations() {
         logRequest();
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return out -> {
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
                 Writer w = new OutputStreamWriter(out, "UTF-8");
                 int count = 0;
@@ -114,7 +111,6 @@ public class ArchiveMonitor {
                 }
                 w.write(']');
                 w.flush();
-            }
         };
     }
 
@@ -129,6 +125,15 @@ public class ArchiveMonitor {
             }
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
+
+    @GET
+    @NoCache
+    @Path("/serverTime")
+    public String getServerTime() {
+        logRequest();
+        return "{\"serverTimeWithTimezone\": \""
+                + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()) + "\"}";
     }
 
     private void writeOtherProperties(Writer w, Association as) throws IOException {

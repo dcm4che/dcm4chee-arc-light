@@ -10,6 +10,7 @@ import {HostListener} from '@angular/core';
 import {WindowRefService} from "./helpers/window-ref.service";
 import * as _ from 'lodash';
 import {J4careHttpService} from "./helpers/j4care-http.service";
+import {j4care} from "./helpers/j4care.service";
 // import {DCM4CHE} from "./constants/dcm4-che";
 // declare var $:JQueryStatic;
 // import * as vex from "vex-js";
@@ -34,7 +35,12 @@ export class AppComponent implements OnInit {
     authServerUrl;
     showMenu = false;
     showScrollButton = false;
+    currentServerTime;
+    currentClockTime;
+    clockInterval;
+    j4care = j4care;
     @ViewChild(MessagingComponent) msg;
+    clockUnExtended = true;
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
     constructor(
         public viewContainerRef: ViewContainerRef,
@@ -45,12 +51,16 @@ export class AppComponent implements OnInit {
     ){}
 
     ngOnInit(){
+        Date.prototype.toDateString = function() {
+            return `${this.getFullYear()}${j4care.getSingleDateTimeValueFromInt(this.getMonth()+1)}${j4care.getSingleDateTimeValueFromInt(this.getDate())}${j4care.getSingleDateTimeValueFromInt(this.getHours())}${j4care.getSingleDateTimeValueFromInt(this.getMinutes())}${j4care.getSingleDateTimeValueFromInt(this.getSeconds())}`;
+        };
         let $this = this;
         if (!this.mainservice.user){
             this.mainservice.user = this.mainservice.getUserInfo().share();
             this.mainservice.user
                 .subscribe(
                     (response) => {
+
                         if(_.hasIn(response,"token") && response.token === null){
                             if ($this.mainservice.global && !$this.mainservice.global.notSecure){
                                 let global = _.cloneDeep($this.mainservice.global);
@@ -129,9 +139,40 @@ export class AppComponent implements OnInit {
                     }
                 );
         }
-
+        let currentBrowserTime = new Date().getTime();
+        this.$http.get('../monitor/serverTime')
+            .map(res => j4care.redirectOnAuthResponse(res))
+            .subscribe(res=>{
+                if(_.hasIn(res,"serverTimeWithTimezone") && res.serverTimeWithTimezone){
+                    console.log("server clock res",res);
+                    let serverTimeObject = j4care.splitTimeAndTimezone(res.serverTimeWithTimezone);
+                    this.startClock(new Date(serverTimeObject.time).getTime()+((new Date().getTime()-currentBrowserTime)/2));
+                    // this.startClock(new Date(serverTimeObject.time));
+                }
+            });
     }
-
+    closeFromOutside(){
+        if(this.showMenu)
+            this.showMenu = false;
+    }
+    startClock(serverTime){
+        this.currentServerTime = new Date(serverTime);
+        this.clockInterval = setInterval(() => {
+            // this.currentClockTime = new Date(this.currentServerTime);
+            // this.currentServerTime += 1000;
+            this.currentServerTime.setMilliseconds(this.currentServerTime.getMilliseconds()+1000);
+        }, 1000);
+        this.hideExtendedClock();
+    }
+    hideExtendedClock(){
+        setTimeout(()=>{
+            this.clockUnExtended = false;
+        },2000);
+    }
+    synchronizeClock(serverTime){
+        clearInterval(this.clockInterval);
+        this.startClock(serverTime);
+    }
     progress(){
         let changeTo = function (t) {
             this.progressValue = t;

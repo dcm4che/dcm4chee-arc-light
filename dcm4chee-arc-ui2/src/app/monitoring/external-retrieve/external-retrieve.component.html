@@ -1,7 +1,17 @@
 <div class="main_content queues monitoring">
   <monitoring-tabs></monitoring-tabs>
   <div class="tab-content">
-    <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)"></filter-generator>
+    <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onFormChange($event)"></filter-generator>
+    <div class="filter single_block">
+        <div class="filter_block">
+            <div class="line">
+              <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text">Download CSV</span></div>
+              <md-select [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
+                  <md-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</md-option>
+              </md-select>
+            </div>
+        </div>
+    </div>
     <table class="table table-bordered table-condensed" *ngIf="_.size(externalRetrieveEntries) > 0">
       <thead>
       <tr>
@@ -9,13 +19,13 @@
           <div class="arrow_block">
             <button class="btn btn-link btn-xs"
                     [disabled]="!hasNewer(externalRetrieveEntries)"
-                    (click)="onSubmit(newerOffset(externalRetrieveEntries))"
+                    (click)="getTasks(newerOffset(externalRetrieveEntries))"
                     title="Newer">
               <span class="glyphicon glyphicon-menu-left"></span>
             </button>
             <button class="btn btn-link btn-xs"
                     [disabled]="!hasOlder(externalRetrieveEntries)"
-                    (click)="onSubmit(olderOffset(externalRetrieveEntries))"
+                    (click)="getTasks(olderOffset(externalRetrieveEntries))"
                     title="Older">
               <span class="glyphicon glyphicon-menu-right"></span>
             </button>

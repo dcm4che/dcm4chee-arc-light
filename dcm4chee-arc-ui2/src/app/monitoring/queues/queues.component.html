@@ -16,7 +16,7 @@
                     <div class="row">
                         <label for="status" class="col-md-6 text-right control-label">Status:</label>
                         <div class="col-md-6">
-                            <select id="status" [(ngModel)]="status" class="col-md-12">
+                            <select id="status" [(ngModel)]="status" (change)="statusChange()" class="col-md-12">
                                 <option>*</option>
                                 <option>SCHEDULED</option>
                                 <option>IN PROCESS</option>
@@ -49,11 +49,13 @@
                     </div>
                     <div class="row" *ngIf="isRole('admin')">
                         <div class="col-md-6">
-                            <button class="btn btn-danger col-md-12" (click)="flushBefore()">Flush before:</button>
+                            <!--<button class="btn btn-danger col-md-12" (click)="flushBefore()">Flush before:</button>-->
+                            <range-picker [model]="createdTime" (modelChange)="createdTime = $event" mode="range" placeholder="Created" dateFormat="yymmdd"></range-picker>
                         </div>
                         <div class="col-md-6">
                             <!--<input id="before" type="date" class="col-md-12" [(ngModel)]="before"/>-->
-                            <p-calendar  dataType="string" [(ngModel)]="before" dateFormat="yy-mm-dd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Flush before this date"></p-calendar>
+                            <!--<p-calendar  dataType="string" [(ngModel)]="before" dateFormat="yy-mm-dd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Flush before this date"></p-calendar>-->
+                            <range-picker [model]="updatedTime" (modelChange)="updatedTime = $event" mode="range" placeholder="Updated" dateFormat="yymmdd"></range-picker>
                         </div>
                     </div>
                     <div class="row">
@@ -90,6 +92,13 @@
             </div>
             </div>
         <!--</div>-->
+        <div class="main_filter_block">
+            <div class="morefunctionblock">
+                <md-select [(ngModel)]="allAction" class="w45percent" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
+                    <md-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</md-option>
+                </md-select>
+            </div>
+        </div>
         <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
             <thead>
             <tr>
@@ -124,6 +133,7 @@
                     </div>
                 </th>
                 <th>Queue</th>
+                <th>Study UID</th>
                 <th>Status</th>
                 <th>Failures</th>
                 <th>Created</th>
@@ -153,6 +163,7 @@
                         </a>
                     </td>
                     <td [innerHtml]="match.properties.queue"></td>
+                    <td [innerHtml]="match.properties.StudyInstanceUID"></td>
                     <td [innerHtml]="match.properties.status" title="{{match.properties.outcomeMessage}}"></td>
                     <td [innerHtml]="match.properties.failures" title="{{match.properties.errorMessage}}"></td>
                     <td [innerHtml]="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>

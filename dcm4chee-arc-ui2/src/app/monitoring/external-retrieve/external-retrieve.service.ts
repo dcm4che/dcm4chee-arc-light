@@ -1,13 +1,16 @@
 import { Injectable } from '@angular/core';
+import { Headers } from '@angular/http';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {AppService} from "../../app.service";
 import {DevicesService} from "../../devices/devices.service";
 import * as _ from 'lodash';
+import {j4care} from "../../helpers/j4care.service";
 
 @Injectable()
 export class ExternalRetrieveService {
 
+    header = new Headers({ 'Content-Type': 'application/json' });
     constructor(
       public $http:J4careHttpService,
       public mainservice: AppService,
@@ -17,28 +20,53 @@ export class ExternalRetrieveService {
     getExternalRetrieveEntries(filter, offset){
         filter.offset = (offset && offset != '') ? offset : 0;
         return this.$http.get('../monitor/retrieve' + '?' + this.mainservice.param(filter))
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            .map(res => j4care.redirectOnAuthResponse(res));
     };
     getCount(filter) {
         let filterClone = _.cloneDeep(filter);
             delete filterClone.offset;
             delete filterClone.limit;
         return this.$http.get('../monitor/retrieve/count' + '?' + this.mainservice.param(filterClone))
-            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+            .map(res => j4care.redirectOnAuthResponse(res));
     };
     getExporters(){
       return this.$http.get('../export')
-          .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
-
+          .map(res => j4care.redirectOnAuthResponse(res));
     }
     delete(pk){
         return this.$http.delete('../monitor/retrieve/' + pk);
     }
+    deleteAll(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.delete(`../monitor/retrieve${urlParam}`, this.header)
+            .map(res => j4care.redirectOnAuthResponse(res));
+    }
     reschedule(pk){
         return this.$http.post(`../monitor/retrieve/${pk}/reschedule`, {});
     }
+    rescheduleAll(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`../monitor/retrieve/reschedule${urlParam}`, {}, this.header)
+            .map(res => j4care.redirectOnAuthResponse(res));
+    }
     cancel(pk){
         return this.$http.post('../monitor/retrieve/' + pk + '/cancel', {});
+    }
+
+    cancelAll(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.post(`../monitor/retrieve/cancel${urlParam}`, {}, this.header)
+            .map(res => j4care.redirectOnAuthResponse(res));
+    }
+    downloadCsv(filter){
+        let urlParam = this.mainservice.param(filter);
+        urlParam = urlParam?`?${urlParam}`:'';
+        // let header = new Headers({ 'Content-Type': 'text/csv' });
+        let header = new Headers({ 'Accept': 'text/csv' });
+        return this.$http.get(`/dcm4chee-arc/monitor/retrieve${urlParam}`, header)
     }
     getFilterSchema(localAET,destinationAET,remoteAET,devices, countText){
     return [
@@ -147,12 +175,12 @@ export class ExternalRetrieveService {
             ],[
                 [
                     {
-                        tag:"p-calendar",
+                        tag:"range-picker",
                         filterKey:"createdTime",
                         description:"Created Date"
                     },
                     {
-                        tag:"p-calendar",
+                        tag:"range-picker",
                         filterKey:"updatedTime",
                         description:"Updated Date"
                     }

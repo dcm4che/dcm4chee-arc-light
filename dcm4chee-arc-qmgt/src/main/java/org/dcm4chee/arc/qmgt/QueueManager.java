@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.qmgt;
 
+import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
 
 import javax.jms.ObjectMessage;
@@ -53,7 +54,8 @@ import java.util.List;
 public interface QueueManager {
     ObjectMessage createObjectMessage(Serializable object);
 
-    QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority) throws QueueSizeLimitExceededException;
+    QueueMessage scheduleMessage(String queueName, ObjectMessage message, int priority)
+            throws QueueSizeLimitExceededException;
 
     QueueMessage onProcessingStart(String msgId);
 
@@ -61,20 +63,28 @@ public interface QueueManager {
 
     QueueMessage onProcessingFailed(String msgId, Throwable e);
 
-    boolean cancelProcessing(String msgId) throws IllegalTaskStateException;
+    boolean cancelTask(String msgId) throws IllegalTaskStateException;
 
-    int cancelTasks(String queueName, String dicomDeviceName, QueueMessage.Status status, String createdTime,
-                        String updatedTime);
+    long cancelTasks(Predicate matchQueueMessage, QueueMessage.Status prev) throws IllegalTaskStateException;
 
-    boolean rescheduleMessage(String msgId, String queueName) throws IllegalTaskStateException, DifferentDeviceException;
+    long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException;
 
-    boolean deleteMessage(String msgId);
+    long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prevStatus)
+            throws IllegalTaskStateException;
 
-    int deleteMessages(String queueName, QueueMessage.Status status, String deviceName, String createdTime, String updatedTime);
+    boolean rescheduleTask(String msgId, String queueName) throws IllegalTaskStateException, DifferentDeviceException;
 
-    List<QueueMessage> search(
-            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime, int offset, int limit);
+    boolean rescheduleTask(QueueMessage task, String queueName)
+            throws IllegalTaskStateException, DifferentDeviceException;
 
-    long countTasks(
-            String queueName, String deviceName, QueueMessage.Status status, String createdTime, String updatedTime);
+    boolean deleteTask(String msgId);
+
+    int deleteTasks(String queueName, Predicate matchQueueMessage);
+
+    List<QueueMessage> search(Predicate matchQueueMessage, int offset, int limit);
+
+    long countTasks(Predicate matchQueueMessage);
+
+    List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit);
 }

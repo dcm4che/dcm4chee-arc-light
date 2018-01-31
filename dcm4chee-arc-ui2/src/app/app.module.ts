@@ -69,6 +69,8 @@ import { ExternalRetrieveComponent } from './monitoring/external-retrieve/extern
 import {ExternalRetrieveService} from "./monitoring/external-retrieve/external-retrieve.service";
 import { FilterGeneratorComponent } from './helpers/filter-generator/filter-generator.component';
 import {CalendarModule} from "primeng/components/calendar/calendar";
+import { ClickOutsideDirective } from './helpers/click-outside.directive';
+import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service";
 
 @NgModule({
     declarations: [
@@ -112,8 +114,8 @@ import {CalendarModule} from "primeng/components/calendar/calendar";
         MonitoringTabsComponent,
         Hl7ApplicationsComponent,
         ExternalRetrieveComponent,
-        FilterGeneratorComponent
-
+        FilterGeneratorComponent,
+        ClickOutsideDirective,
     ],
     imports: [
         BrowserModule,
@@ -140,7 +142,7 @@ import {CalendarModule} from "primeng/components/calendar/calendar";
                 pathMatch: 'full'
             },
             { path: 'studies', component: StudiesComponent },
-            { path: 'control', component: ControlComponent },
+            { path: 'monitoring/control', component: ControlComponent },
             { path: 'monitoring/export', component: ExportComponent },
             { path: 'monitoring/external', component: ExternalRetrieveComponent },
             { path: 'monitoring/queues', component: QueuesComponent },
@@ -182,7 +184,8 @@ import {CalendarModule} from "primeng/components/calendar/calendar";
         AeListService,
         HttpErrorHandler,
         j4care,
-        ExternalRetrieveService
+        ExternalRetrieveService,
+        DynamicFieldService
     ],
     bootstrap: [AppComponent]
 })

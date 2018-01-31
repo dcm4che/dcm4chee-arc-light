@@ -1,7 +1,30 @@
 <div class="vex vex-theme-os export" xmlns="http://www.w3.org/1999/html" (keydown)="dialogKeyHandler($event,dialogRef)">
     <div class="vex-dialog-form">
         <h5>{{title}}</h5>
+        <h6 *ngIf="subTitle">{{subTitle}}</h6>
         <p *ngIf="count && mode==='multiple'">{{count}} studies selected to be retrieved</p>
+        <div class="content" *ngIf="mode === 'multipleExport'">
+            <label *ngIf="noDicomExporters.length === 0" class="text-danger">
+                <input type="radio" name="exportType" value="nonedicom" DISABLED> Create first an exporter!
+            </label>
+            <ng-container *ngIf="noDicomExporters.length > 0">
+                <div class="noneDicomBlock">
+                    <p>Select the exporter:</p>
+                    <md-select [(ngModel)]="result.selectedExporter">
+                        <md-option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters" title="{{exporter.description}}">{{exporter.id}}</md-option>
+                    </md-select>
+                </div>
+                <label title="If checked the study will not be sent" *ngIf="warning">
+                    <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> Storage commitment without export
+                </label><br>
+                <label title="If checked the study will not be sent" *ngIf="warning">
+                    <input type="checkbox" name="only-ian" [(ngModel)]="result['checkboxes']['only-ian']"> IAN without export
+                </label>
+                <div *ngIf="(_.hasIn(result,'checkboxes.only-stgcmt') && result['checkboxes']['only-stgcmt']) || (_.hasIn(result,'checkboxes.only-ian') && result['checkboxes']['only-ian'])" >
+                    <span class="text-danger">{{warning}}</span>
+                </div>
+            </ng-container>
+        </div>
         <div class="content" *ngIf="externalInternalAetMode === 'internal' &&  mode ==='single'">
             <p>Select the type of the exporter:</p>
             <label>
@@ -79,6 +102,14 @@
                     </md-select>
                 </div>
             </ng-container>
+        </div>
+        <div class="content" *ngIf="mode === 'reschedule'">
+            <div class="dicomBlock">
+                <p>Exporter ID:</p>
+                <md-select class="aes" [(ngModel)]="result.selectedExporter">
+                    <md-option value="{{export.id}}" *ngFor="let export of noDicomExporters" title="{{export.id}}">{{export.id}}</md-option>
+                </md-select>
+            </div>
         </div>
         <div class="dialogbuttons">
             <button *ngIf="!okButtonLabel" class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()">EXPORT</button>

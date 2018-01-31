@@ -11,6 +11,9 @@ import {MdDialog, MdDialogConfig, MdDialogRef} from "@angular/material";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {DatePipe} from "@angular/common";
 import {j4care} from "../../helpers/j4care.service";
+import * as FileSaver from 'file-saver';
+import {WindowRefService} from "../../helpers/window-ref.service";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
 
 @Component({
   selector: 'external-retrieve',
@@ -33,6 +36,20 @@ export class ExternalRetrieveComponent implements OnInit {
     datePipe = new DatePipe('us-US');
     devices;
     count;
+    allActionsActive = [];
+    allActionsOptions = [
+        {
+            value:"cancel",
+            label:"Cancel all matching tasks"
+        },{
+            value:"reschedule",
+            label:"Reschedule all matching tasks"
+        },{
+            value:"delete",
+            label:"Delete all matching tasks"
+        }
+    ];
+    allAction;
     constructor(
       public cfpLoadingBar: SlimLoadingBarService,
       public mainservice: AppService,
@@ -41,8 +58,9 @@ export class ExternalRetrieveComponent implements OnInit {
       public httpErrorHandler:HttpErrorHandler,
       public dialog: MdDialog,
       public config: MdDialogConfig,
-      public viewContainerRef: ViewContainerRef
-  ) { }
+      public viewContainerRef: ViewContainerRef,
+      private $http:J4careHttpService
+    ) { }
 
     ngOnInit(){
         this.initCheck(10);
@@ -86,8 +104,6 @@ export class ExternalRetrieveComponent implements OnInit {
                         };
                     },
                     (response) => {
-                        // $this.user = $this.user || {};
-                        console.log('get user error');
                         $this.user.user = 'user';
                         $this.mainservice.user.user = 'user';
                         $this.user.roles = ['user', 'admin'];
@@ -101,24 +117,9 @@ export class ExternalRetrieveComponent implements OnInit {
                         };
                     }
                 );
-
         }else{
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
-
-            /*
-
-            status
-            StudyInstanceUID
-            RemoteAET
-            DestinationAET
-            scheduledTime
-            processingStartTime
-            processingEndTime,
-            NumberOfInstances (failures + completed + warnings),
-
-            Instance/sec (processingEndTime - processingStartTime)/NumberOfInstances
-            */
         }
         this.filterObject = {
             limit:20
@@ -151,15 +152,12 @@ export class ExternalRetrieveComponent implements OnInit {
             this.initSchema();
         });
         this.initExporters(2);
+        this.onFormChange(this.filterObject);
     }
     hasOlder(objs) {
-        // console.log("objs.length",objs.length);
-        // console.log("this.filterObject.limit",this.filterObject.limit);
-        // console.log("hasOlder",(objs && (objs.length == this.filterObject.limit)));
         return objs && (objs.length == this.filterObject.limit);
     };
     hasNewer(objs) {
-        // console.log("hasNewer",(objs && objs.length && objs[0].offset));
         return objs && objs.length && objs[0].offset;
     };
     newerOffset(objs) {
@@ -170,7 +168,6 @@ export class ExternalRetrieveComponent implements OnInit {
     };
     initSchema(){
         this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET, this.devices,`COUNT ${((this.count || this.count == 0)?this.count:'')}`);
-
     }
     confirm(confirmparameters){
         this.config.viewContainerRef = this.viewContainerRef;
@@ -181,6 +178,85 @@ export class ExternalRetrieveComponent implements OnInit {
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
+    downloadCsv(){
+        let token;
+        this.$http.refreshToken().subscribe((response)=>{
+            if(!this.mainservice.global.notSecure){
+                if(response && response.length != 0){
+                    this.$http.resetAuthenticationInfo(response);
+                    token = response['token'];
+                }else{
+                    token = this.mainservice.global.authentication.token;
+                }
+            }
+            let filterClone = _.cloneDeep(this.filterObject);
+            delete filterClone.offset;
+            delete filterClone.limit;
+            if(!this.mainservice.global.notSecure){
+                WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv&access_token=${token}&${this.mainservice.param(filterClone)}`);
+            }else{
+                WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv&${this.mainservice.param(filterClone)}`);
+            }
+        });
+    }
+    allActionChanged(e){
+        let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
+        let filter = Object.assign(this.filterObject);
+        delete filter.limit;
+        delete filter.offset;
+        this.confirm({
+            content: text
+        }).subscribe((ok)=>{
+            if(ok){
+                this.cfpLoadingBar.start();
+                switch (this.allAction){
+                case "cancel":
+                            this.service.cancelAll(this.filterObject).subscribe((res)=>{
+                                this.mainservice.setMessage({
+                                    'title': 'Info',
+                                    'text': res.count + ' queues deleted successfully!',
+                                    'status': 'info'
+                                });
+                                this.cfpLoadingBar.complete();
+                            }, (err) => {
+                                this.cfpLoadingBar.complete();
+                                this.httpErrorHandler.handleError(err);
+                            });
+
+                    break;
+                case "reschedule":
+                        this.service.rescheduleAll(this.filterObject).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.count + ' queues rescheduled successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    break;
+                case "delete":
+                        this.service.deleteAll(this.filterObject).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.deleted + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    break;
+                }
+                this.cfpLoadingBar.complete();
+                this.allAction = "";
+                this.allAction = undefined;
+            }
+        });
+    }
     delete(match){
         let $this = this;
         let parameters: any = {
@@ -235,6 +311,18 @@ export class ExternalRetrieveComponent implements OnInit {
             }
         });
     };
+    onFormChange(filters){
+        this.allActionsActive = this.allActionsOptions.filter((o)=>{
+            if(filters.status == "SCHEDULED" || filters.status == "IN PROCESS"){
+                return o.value != 'reschedule';
+            }else{
+                if(filters.status === '*' || !filters.status || filters.status === '')
+                    return o.value != 'cancel' && o.value != 'reschedule';
+                else
+                    return o.value != 'cancel';
+            }
+        });
+    }
     reschedule(match) {
         let $this = this;
         let parameters: any = {
@@ -282,29 +370,22 @@ export class ExternalRetrieveComponent implements OnInit {
                             });
                     }
                 });
+                //TODO
                 setTimeout(()=>{
                     this.getTasks(this.externalRetrieveEntries[0].offset || 0);
                     this.cfpLoadingBar.complete();
                 },300);
-
             }
         });
     }
     onSubmit(object){
         if(_.hasIn(object,"id") && _.hasIn(object,"model")){
-            if(_.hasIn(object,"model.createdTime")){
-                object.model.createdTime = this.datePipe.transform(object.model.createdTime,'yyyyMMdd');
-            }
-            if(_.hasIn(object,"model.updatedTime")){
-                object.model.updatedTime = this.datePipe.transform(object.model.updatedTime,'yyyyMMdd');
-            }
             if(object.id === "count"){
                 this.getCount();
             }else{
                 this.getTasks(0);
             }
         }
-
     }
     getTasks(offset){
         let $this = this;

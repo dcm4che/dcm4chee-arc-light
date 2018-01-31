@@ -73,7 +73,7 @@ public class QueryElasticSearch {
     @GET
     @NoCache
     @Produces("application/json")
-    public String getElasticSearchURL() throws Exception {
+    public String getElasticSearchURL() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         return "{\"url\":\"" + device.getDeviceExtension(ArchiveDeviceExtension.class).getElasticSearchURL() + "\"}";
     }

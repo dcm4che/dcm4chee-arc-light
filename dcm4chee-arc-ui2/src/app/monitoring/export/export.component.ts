@@ -12,6 +12,8 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
+import * as FileSaver from 'file-saver';
+
 
 @Component({
   selector: 'app-export',
@@ -32,15 +34,30 @@ export class ExportComponent implements OnInit {
         dicomDeviceName: '',
         StudyInstanceUID: undefined,
         updatedTime: undefined,
-        updatedTimeObject: undefined,
-        createdTime: undefined,
-        createdTimeObject: undefined
+        // updatedTimeObject: undefined,
+        createdTime: undefined
+        // createdTimeObject: undefined
     };
+
     isRole: any = (user)=>{return false;};
     dialogRef: MdDialogRef<any>;
     _ = _;
     devices;
     count;
+    allAction;
+    allActionsOptions = [
+        {
+            value:"cancel",
+            label:"Cancel all matching tasks"
+        },{
+            value:"reschedule",
+            label:"Reschedule all matching tasks"
+        },{
+            value:"delete",
+            label:"Delete all matching tasks"
+        }
+    ];
+    allActionsActive = [];
     constructor(
         public $http:J4careHttpService,
         public cfpLoadingBar: SlimLoadingBarService,
@@ -51,7 +68,6 @@ export class ExportComponent implements OnInit {
         public config: MdDialogConfig,
         private httpErrorHandler:HttpErrorHandler
     ) {}
-
     ngOnInit(){
         this.initCheck(10);
     }
@@ -116,7 +132,12 @@ export class ExportComponent implements OnInit {
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
         }
+        this.statusChange();
     }
+    // changeTest(e){
+    //     console.log("changetest",e);
+    //     this.filters.createdTime = e;
+    // }
     filterKeyUp(e){
         let code = (e.keyCode ? e.keyCode : e.which);
         if (code === 13){
@@ -132,15 +153,36 @@ export class ExportComponent implements OnInit {
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
+    downloadCsv(){
+        let token;
+        this.$http.refreshToken().subscribe((response)=>{
+            if(!this.mainservice.global.notSecure){
+                if(response && response.length != 0){
+                    this.$http.resetAuthenticationInfo(response);
+                    token = response['token'];
+                }else{
+                    token = this.mainservice.global.authentication.token;
+                }
+            }
+            if(!this.mainservice.global.notSecure){
+                WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv&access_token=${token}&${this.mainservice.param(this.service.paramWithoutLimit(this.filters))}`);
+            }else{
+                WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv&${this.mainservice.param(this.service.paramWithoutLimit(this.filters))}`);
+            }
+        });
+/*        this.service.downloadCsv(this.filters).subscribe((csv)=>{
+            let file = new File([csv._body], `export_${new Date().toDateString()}.csv`, {type: 'text/csv;charset=utf-8'});
+            FileSaver.saveAs(file);
+        },(err)=>{
+            this.httpErrorHandler.handleError(err);
+        });*/
+    }
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.convertDates();
         this.service.search(this.filters, offset)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
-                console.log('res2', res);
-                console.log('res', res.length);
                 if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
                         $this.cfpLoadingBar.complete();
@@ -170,7 +212,6 @@ export class ExportComponent implements OnInit {
     };
     getCount(){
         this.cfpLoadingBar.start();
-        this.convertDates();
         this.service.getCount(this.filters).subscribe((count)=>{
             try{
                 this.count = count.count;
@@ -183,9 +224,113 @@ export class ExportComponent implements OnInit {
             this.httpErrorHandler.handleError(err);
         });
     }
-    convertDates(){
-        this.filters.updatedTime = j4care.convertDateRangeToString(this.filters.updatedTimeObject);
-        this.filters.createdTime = j4care.convertDateRangeToString(this.filters.createdTimeObject);
+    statusChange(){
+        this.allActionsActive = this.allActionsOptions.filter((o)=>{
+            if(this.filters.status == "SCHEDULED" || this.filters.status == "IN PROCESS"){
+                return o.value != 'reschedule';
+            }else{
+                if(!this.filters.status || this.filters.status === '*' || this.filters.status === '')
+                    return o.value != 'cancel' && o.value != 'reschedule';
+                else
+                    return o.value != 'cancel';
+            }
+        });
+    }
+    allActionChanged(e){
+        let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
+/*        let filter = {
+            dicomDeviceName:this.filters.dicomDeviceName?this.filters.dicomDeviceName:undefined,
+            status:this.filters.status?this.filters.status:undefined
+        };*/
+        let filter = _.cloneDeep(this.filters);
+        delete filter.limit;
+        delete filter.offset;
+        switch (this.allAction) {
+            case "cancel":
+                this.confirm({
+                    content: text
+                }).subscribe((ok) => {
+                    if (ok) {
+                        this.cfpLoadingBar.start();
+                        this.service.cancelAll(filter).subscribe((res) => {
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.count + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+                break;
+            case "reschedule":
+                let dicomPrefixes = [];
+                let noDicomExporters = [];
+                _.forEach(this.exporters, (m, i) => {
+                    if (m.id.indexOf(':') > -1) {
+                        dicomPrefixes.push(m);
+                    } else {
+                        noDicomExporters.push(m);
+                    }
+                });
+                this.config.viewContainerRef = this.viewContainerRef;
+                this.dialogRef = this.dialog.open(ExportDialogComponent, {
+                    height: 'auto',
+                    width: '500px'
+                });
+                this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
+                this.dialogRef.componentInstance.title = `Are you sure, you want to reschedule all matching tasks?`;
+                this.dialogRef.componentInstance.warning = null;
+                this.dialogRef.componentInstance.mode = "reschedule";
+                this.dialogRef.componentInstance.subTitle = "Select an Exporter ID if you don't want to use the default one:";
+                this.dialogRef.componentInstance.okButtonLabel = 'RESCHEDULE';
+                this.dialogRef.afterClosed().subscribe((ok) => {
+                    if (ok) {
+                        this.cfpLoadingBar.start();
+                        this.service.rescheduleAll(filter,ok.selectedExporter).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.count + ' queues rescheduled successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+                break;
+            case "delete":
+                this.confirm({
+                    content: text
+                }).subscribe((ok)=>{
+                    if(ok){
+                        this.cfpLoadingBar.start();
+                        this.service.deleteAll(filter).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.deleted + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+                break;
+        }
     }
     getDifferenceTime(starttime, endtime){
         let start = new Date(starttime).getTime();
@@ -197,7 +342,6 @@ export class ExportComponent implements OnInit {
         }
     };
     checkAll(event){
-        console.log("in checkall",event.target.checked);
         this.matches.forEach((match)=>{
             match.checked = event.target.checked;
         });
@@ -303,8 +447,8 @@ export class ExportComponent implements OnInit {
         });
     }
     msToTime(duration) {
-
-        if (duration > 999){
+        return ((duration / 60000).toFixed(4)).toString() + ' min';
+  /*      if (duration > 999){
 
             let milliseconds: any = parseInt((((duration % 1000))).toString())
                 , seconds: any = parseInt(((duration / 1000) % 60).toString())
@@ -327,7 +471,7 @@ export class ExportComponent implements OnInit {
             }
         }else{
             return duration.toString() + ' ms';
-        }
+        }*/
     }
     delete(match){
         let $this = this;
@@ -431,6 +575,7 @@ export class ExportComponent implements OnInit {
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
         this.dialogRef.componentInstance.title = 'Task reschedule';
         this.dialogRef.componentInstance.warning = null;
+        this.dialogRef.componentInstance.mode = "reschedule";
         this.dialogRef.componentInstance.result = result;
         this.dialogRef.componentInstance.okButtonLabel = 'RESCHEDULE';
         this.dialogRef.afterClosed().subscribe(result => {
@@ -441,22 +586,22 @@ export class ExportComponent implements OnInit {
                 }else{
                     id = result.selectedExporter;
                 }
-                    $this.cfpLoadingBar.start();
-                    this.service.reschedule(match.properties.pk, id)
-                        .subscribe(
-                            (res) => {
-                                $this.search(0);
-                                $this.cfpLoadingBar.complete();
-                                $this.mainservice.setMessage({
-                                    'title': 'Info',
-                                    'text': 'Task rescheduled successfully!',
-                                    'status': 'info'
-                                });
-                            },
-                            (err) => {
-                                $this.cfpLoadingBar.complete();
-                                $this.httpErrorHandler.handleError(err);
+                $this.cfpLoadingBar.start();
+                this.service.reschedule(match.properties.pk, id)
+                    .subscribe(
+                        (res) => {
+                            $this.search(0);
+                            $this.cfpLoadingBar.complete();
+                            $this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': 'Task rescheduled successfully!',
+                                'status': 'info'
                             });
+                        },
+                        (err) => {
+                            $this.cfpLoadingBar.complete();
+                            $this.httpErrorHandler.handleError(err);
+                        });
             }
         });
     };

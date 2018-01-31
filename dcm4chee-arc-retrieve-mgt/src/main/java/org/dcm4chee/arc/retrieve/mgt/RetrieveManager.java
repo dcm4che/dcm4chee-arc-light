@@ -38,12 +38,10 @@
 
 package org.dcm4chee.arc.retrieve.mgt;
 
+import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 
 import java.util.List;
@@ -60,40 +58,20 @@ public interface RetrieveManager {
 
     void scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx) throws QueueSizeLimitExceededException;
 
-    List<RetrieveTask> search(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status,
-            int offset,
-            int limit);
+    List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask, int offset, int limit);
 
-    long countRetrieveTasks(
-            String deviceName,
-            String localAET,
-            String remoteAET,
-            String destinationAET,
-            String studyUID,
-            String createdTime,
-            String updatedTime,
-            QueueMessage.Status status);
+    long countRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 
     boolean deleteRetrieveTask(Long pk);
 
-    boolean cancelProcessing(Long pk) throws IllegalTaskStateException;
+    boolean cancelRetrieveTask(Long pk) throws IllegalTaskStateException;
+
+    long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException;
 
     boolean rescheduleRetrieveTask(Long pk) throws IllegalTaskStateException, DifferentDeviceException;
 
-    int deleteTasks(String deviceName,
-                    String localAET,
-                    String remoteAET,
-                    String destinationAET,
-                    String studyUID,
-                    String createdTime,
-                    String updatedTime,
-                    QueueMessage.Status status);
+    int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
+
+    List<Long> getRetrieveTaskPks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit);
 }

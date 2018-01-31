@@ -19,7 +19,7 @@
                     <div class="row">
                         <label for="status" class="col-md-6 text-right control-label">Status:</label>
                         <div class="col-md-6">
-                            <select id="status" [(ngModel)]="filters.status" class="col-md-12">
+                            <select id="status" [(ngModel)]="filters.status" (change)="statusChange()" class="col-md-12">
                                 <option>*</option>
                                 <option>TO SCHEDULE</option>
                                 <option>SCHEDULED</option>
@@ -57,10 +57,12 @@
                     <div class="row">
                         <!--<label class="col-md-6 text-right control-label">Updated before:</label>-->
                         <div class="col-md-6">
-                            <p-calendar  [(ngModel)]="filters.createdTimeObject" selectionMode="range" showButtonBar="true" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Created"></p-calendar>
+                            <!--<p-calendar  [(ngModel)]="filters.createdTimeObject" selectionMode="range" showButtonBar="true" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Created"></p-calendar>-->
+                            <range-picker [model]="filters.createdTime" (modelChange)="filters.createdTime = $event" mode="range" placeholder="Created" dateFormat="yymmdd"></range-picker>
                         </div>
                         <div class="col-md-6">
-                            <p-calendar  [(ngModel)]="filters.updatedTimeObject" selectionMode="range" showButtonBar="true" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Updated"></p-calendar>
+                            <range-picker [model]="filters.updatedTime" (modelChange)="filters.updatedTime = $event" mode="range" placeholder="Updated" dateFormat="yymmdd"></range-picker>
+                            <!--<p-calendar  [(ngModel)]="filters.updatedTimeObject" selectionMode="range" showButtonBar="true" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Updated"></p-calendar>-->
                         </div>
                     </div>
                     <div class="row">
@@ -77,6 +79,26 @@
                                 SUBMIT
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="main_filter_block">
+<!--            <div class="morefunctionblock">
+                <div class="w45percent">
+                    <md-select [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
+                        <md-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</md-option>
+                    </md-select>
+                </div>
+                <div class="w45percent csv_button"><span class="custom_icon csv_icon"></span>Download CSV</div>
+            </div>-->
+            <div class="filter single_block">
+                <div class="filter_block">
+                    <div class="line">
+                        <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text">Download CSV</span></div>
+                        <md-select [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
+                            <md-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</md-option>
+                        </md-select>
                     </div>
                 </div>
             </div>
@@ -115,6 +137,7 @@
                     </div>
                 </th>
                 <th>Modality</th>
+                <th>Study UID</th>
                 <th title="Number of instances">Nr.Inst. </th>
                 <th title="Export Task ID">Exporter ID</th>
                 <th>Status</th>
@@ -122,7 +145,6 @@
                 <th title="Scheduled time">Queue time</th>
                 <th title="Processing start time">Export time</th>
                 <th>Device name</th>
-                <th>Study UID</th>
             </tr>
             </thead>
             <tbody>
@@ -145,6 +167,7 @@
                         </a>
                     </td>
                     <td [innerHtml]="match.properties.Modality"></td>
+                    <td [innerHtml]="match.properties.StudyInstanceUID"></td>
                     <td [innerHtml]="match.properties.NumberOfInstances" ></td>
                     <td [innerHtml]="match.properties.ExporterID"></td>
                     <td [innerHtml]="match.properties.status" title="{{match.properties.outcomeMessage}}"></td>
@@ -152,7 +175,6 @@
                     <td class="text-right" [innerHtml]="getDifferenceTime(match.properties.scheduledTime,match.properties.processingStartTime)"></td>
                     <td class="text-right" [innerHtml]="getDifferenceTime(match.properties.processingStartTime,match.properties.processingEndTime)"></td>
                     <td [innerHtml]="match.properties.dicomDeviceName"></td>
-                    <td [innerHtml]="match.properties.StudyInstanceUID"></td>
                 </tr>
                 <tr *ngIf="match.showProperties">
                     <td colspan="11">

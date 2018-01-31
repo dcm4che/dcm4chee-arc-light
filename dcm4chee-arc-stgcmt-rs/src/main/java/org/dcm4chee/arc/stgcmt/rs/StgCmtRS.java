@@ -56,8 +56,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -104,13 +102,11 @@ public class StgCmtRS {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput listStgCmts() throws Exception {
+    public StreamingOutput listStgCmts() {
         logRequest();
         final List<StgCmtResult> stgCmtResults = mgr.listStgCmts(
                 statusOf(status), studyUID, exporterID, parseInt(offset), parseInt(limit));
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+        return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 gen.writeStartArray();
                 for (StgCmtResult stgCmtResult : stgCmtResults) {
@@ -131,7 +127,6 @@ public class StgCmtRS {
                 }
                 gen.writeEnd();
                 gen.flush();
-            }
         };
     }
 

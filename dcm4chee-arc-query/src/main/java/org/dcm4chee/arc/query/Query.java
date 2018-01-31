@@ -75,8 +75,6 @@ public interface Query extends Closeable {
 
     void offset(long offset);
 
-    void orderBy(OrderSpecifier<?>... orderSpecifiers);
-
     boolean hasMoreMatches() throws DicomServiceException;
 
     Attributes nextMatch();

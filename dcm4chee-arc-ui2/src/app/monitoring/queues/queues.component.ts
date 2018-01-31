@@ -24,13 +24,29 @@ export class QueuesComponent implements OnInit{
     queueName = null;
     dicomDeviceName = null;
     status = '*';
-    before;
+    // before;
+    createdTime;
+    updatedTime;
     isRole: any = (user)=>{return false;};
     user: User;
     dialogRef: MdDialogRef<any>;
     _ = _;
     devices;
     count;
+    allAction;
+    allActionsOptions = [
+        {
+            value:"cancel",
+            label:"Cancel all matching tasks"
+        },{
+            value:"reschedule",
+            label:"Reschedule all matching tasks"
+        },{
+            value:"delete",
+            label:"Delete all matching tasks"
+        }
+    ];
+    allActionsActive = [];
     constructor(
         public $http:J4careHttpService,
         public service: QueuesService,
@@ -57,10 +73,100 @@ export class QueuesComponent implements OnInit{
                 this.init();
             }
         }
+        this.statusChange();
+    }
+    statusChange(){
+        this.allActionsActive = this.allActionsOptions.filter((o)=>{
+            if(this.status == "SCHEDULED" || this.status == "IN PROCESS"){
+                return o.value != 'reschedule';
+            }else{
+                if(this.status === '*')
+                    return o.value != 'cancel' && o.value != 'reschedule';
+                else
+                    return o.value != 'cancel';
+            }
+        });
+    }
+    allActionChanged(e){
+        let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
+        let filter = {
+            dicomDeviceName:this.dicomDeviceName?this.dicomDeviceName:undefined,
+            status:this.status?this.status:undefined,
+            createdTime:this.createdTime || undefined,
+            updatedTime:this.updatedTime || undefined
+        };
+        switch (this.allAction){
+            case "cancel":
+                this.confirm({
+                    content: text
+                }).subscribe((ok)=>{
+                    if(ok){
+                        this.cfpLoadingBar.start();
+                        this.service.cancelAll(filter,this.queueName).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.count + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+            break;
+            case "reschedule":
+                this.confirm({
+                    content: text
+                }).subscribe((ok)=>{
+                    if(ok){
+                        this.cfpLoadingBar.start();
+                        this.service.rescheduleAll(filter,this.queueName).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.count + ' queues rescheduled successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+            break;
+            case "delete":
+                this.confirm({
+                    content: text
+                }).subscribe((ok)=>{
+                    if(ok){
+                        this.cfpLoadingBar.start();
+                        this.service.deleteAll(filter,this.queueName).subscribe((res)=>{
+                            this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': res.deleted + ' queues deleted successfully!',
+                                'status': 'info'
+                            });
+                            this.cfpLoadingBar.complete();
+                        }, (err) => {
+                            this.cfpLoadingBar.complete();
+                            this.httpErrorHandler.handleError(err);
+                        });
+                    }
+                    this.allAction = "";
+                    this.allAction = undefined;
+                });
+            break;
+        }
     }
     init(){
         this.initQuery();
-        this.before = new Date();
+        // this.before = new Date();
         let $this = this;
         if (!this.mainservice.user){
             // console.log("in if studies ajax");
@@ -115,7 +221,7 @@ export class QueuesComponent implements OnInit{
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.search(this.queueName, this.status, offset, this.limit, this.dicomDeviceName)
+        this.service.search(this.queueName, this.status, offset, this.limit, this.dicomDeviceName, this.createdTime,this.updatedTime)
             .subscribe((res) => {
                 if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
@@ -142,7 +248,7 @@ export class QueuesComponent implements OnInit{
     }
     getCount(){
         this.cfpLoadingBar.start();
-        this.service.getCount(this.queueName, this.status, undefined, undefined, this.dicomDeviceName).subscribe((count)=>{
+        this.service.getCount(this.queueName, this.status, undefined, undefined, this.dicomDeviceName, this.createdTime,this.updatedTime).subscribe((count)=>{
             try{
                 this.count = count.count;
             }catch (e){
@@ -267,10 +373,10 @@ export class QueuesComponent implements OnInit{
         });
         return description;
     };
-    flushBefore() {
+/*    flushBefore() {
         let $this = this;
         let datePipeEn = new DatePipe('us-US');
-        let beforeDate = datePipeEn.transform(this.before, 'yyyy-MM-dd');
+        // let beforeDate = datePipeEn.transform(this.before, 'yyyy-MM-dd');
         console.log('beforeDate', beforeDate);
         console.log('this.status', this.status);
         let parameters = {
@@ -301,7 +407,7 @@ export class QueuesComponent implements OnInit{
                     });
             }
         });
-    };
+    };*/
     hasOlder(objs) {
         return objs && (objs.length === this.limit);
     };

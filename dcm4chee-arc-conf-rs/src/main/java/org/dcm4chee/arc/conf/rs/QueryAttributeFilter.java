@@ -58,8 +58,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -84,29 +82,26 @@ public class QueryAttributeFilter {
     @NoCache
     @Path("/{Entity}")
     @Produces("application/json")
-    public StreamingOutput getAttributeFilter(@PathParam("Entity") String entityName) throws Exception {
+    public StreamingOutput getAttributeFilter(@PathParam("Entity") String entityName) {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         final Entity entity;
         try {
             entity = Entity.valueOf(entityName);
-        } catch (IllegalArgumentException e) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-
-        final AttributeFilter filter = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
-                .getAttributeFilter(entity);
-        if (filter == null)
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-
-        return new StreamingOutput() {
-            @Override
-            public void write(OutputStream out) throws IOException {
+            final AttributeFilter filter = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getAttributeFilter(entity);
+            return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
                 JsonWriter writer = new JsonWriter(gen);
                 jsonConf.getJsonConfigurationExtension(JsonArchiveConfiguration.class)
                         .writeAttributeFilter(writer, entity, filter);
                 gen.flush();
-            }
-        };
+            };
+        } catch (IllegalArgumentException e) {
+            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_REQUEST));
+        }
+    }
+
+    private static Response errResponse(String errorMessage, Response.Status status) {
+        return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 }

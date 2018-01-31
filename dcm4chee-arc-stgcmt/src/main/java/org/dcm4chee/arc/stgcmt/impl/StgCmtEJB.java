@@ -42,6 +42,7 @@ package org.dcm4chee.arc.stgcmt.impl;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
@@ -59,6 +60,7 @@ import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -232,14 +234,25 @@ public class StgCmtEJB implements StgCmtManager {
     }
 
     private Predicate createPredicate(Sequence refSopSeq) {
-        BooleanBuilder builder = new BooleanBuilder();
-        int size = refSopSeq.size();
-        String[] sopIUIDs = new String[size];
-        for (int i = 0; i < size; i++)
-            sopIUIDs[i] = refSopSeq.get(i).getString(Tag.ReferencedSOPInstanceUID);
-        builder.and(QInstance.instance.sopInstanceUID.in(sopIUIDs));
-        builder.and(QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
-        return builder;
+        int limit = ((SessionFactoryImplementor) em.unwrap(Session.class).getSessionFactory())
+                .getDialect().getInExpressionCountLimit();
+        if (limit == 0)
+            limit = refSopSeq.size();
+
+        String[] sopIUIDs = new String[limit];
+        BooleanBuilder sopIUIDsPredicate = new BooleanBuilder();
+        Iterator<Attributes> refSopIter = refSopSeq.iterator();
+        while (refSopIter.hasNext()) {
+            for (int i = 0; i < limit; i++) {
+                if (!refSopIter.hasNext()) {
+                    sopIUIDs = Arrays.copyOf(sopIUIDs, i);
+                    break;
+                }
+                sopIUIDs[i] = refSopIter.next().getString(Tag.ReferencedSOPInstanceUID);
+            }
+            sopIUIDsPredicate.or(QInstance.instance.sopInstanceUID.in(sopIUIDs));
+        }
+        return ExpressionUtils.and(sopIUIDsPredicate, QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
     }
 
     private Predicate createPredicate(String studyIUID, String seriesIUID, String sopIUID) {

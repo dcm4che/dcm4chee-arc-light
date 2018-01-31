@@ -41,6 +41,7 @@
     "dcmStoreUpdateDBMaxRetryDelay",
     "dcmAllowRejectionForDataRetentionPolicyExpired",
     "dcmAllowDeleteStudyPermanently",
+    "dcmQueueTasksFetchSize",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
     "hl7PSUTaskFetchSize",
@@ -718,6 +719,13 @@
       "description": "AE Title of local Application Entity associated with XDS-I Imaging Document Source.",
       "type": "string",
       "format": "dcmArchiveAETitle"
+    },
+    "dcmQueueTasksFetchSize": {
+      "title": "Queue Tasks Fetch Size",
+      "description": "Maximal number of Tasks rescheduled or deleted or canceled in one transaction.",
+      "type": "integer",
+      "default": 100,
+      "minimum": 1
     },
     "dcmAttributeFilter": {
       "title": "Attribute Filter",
