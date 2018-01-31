@@ -88,6 +88,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             storeDiffConfig(diffs, uiDiffConfig, uiConfigDN);
         for (UIDashboardConfig uiDashboardConfig : uiConfig.getDashboardConfigs())
             storeDashboardConfig(diffs, uiDashboardConfig, uiConfigDN);
+
     }
 
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIConfig uiConfig, Attributes attrs) {

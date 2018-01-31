@@ -426,19 +426,21 @@ export class DynamicFormElementComponent{
     onValueChange(e, formelement, formcontrol,i){
         try{
             console.log("trying to set the new value",e);
-            if(formelement.controlType === "arrayelement"){
-                // (<FormArray>this.form.controls[formelement.key]).insert(i, new FormControl(e))
-                formcontrol[i].setValue(e);
-                formelement.value[i] = e;
+            if(formelement.controlType === "dynamiccheckbox"){
+                if(formelement.type === 'array')
+                    this.form.setControl(formelement.key,this._fb.array(e));
+                else
+                    (<FormControl>this.form.controls[formelement.key]).setValue(e);
             }else{
-                if(formelement.controlType === "dynamiccheckbox"){
-                    if(formelement.type === 'array')
-                        this.form.setControl(formelement.key,this._fb.array(e));
-                    else
-                        (<FormControl>this.form.controls[formelement.key]).setValue(e);
-                }else{
-                    formcontrol.setValue(e);
-                    formelement.value = e;
+                if(e && e != ''){
+                    if(formelement.controlType === "arrayelement"){
+                        // (<FormArray>this.form.controls[formelement.key]).insert(i, new FormControl(e))
+                        formcontrol[i].setValue(e);
+                        formelement.value[i] = e;
+                    }else{
+                        formcontrol.setValue(e);
+                        formelement.value = e;
+                    }
                 }
             }
         }catch(ev){

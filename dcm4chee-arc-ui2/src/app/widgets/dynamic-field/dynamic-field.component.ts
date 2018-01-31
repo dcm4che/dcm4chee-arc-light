@@ -25,7 +25,6 @@ export class DynamicFieldComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-
         switch (this.mode){
             case 'dcmAETitle':
                 this.getObject('getAets');
@@ -40,10 +39,10 @@ export class DynamicFieldComponent implements OnInit {
                 this.key = 'hl7ApplicationName';
             break;
         }
-      this.checked = this.checked || [];
-      this.checked.forEach(element =>{
+        this.checked = this.checked || [];
+        this.checked.forEach(element =>{
           this.model[element] = true;
-      })
+        })
     }
     valueChanged(){
         if(this.type === 'array')
