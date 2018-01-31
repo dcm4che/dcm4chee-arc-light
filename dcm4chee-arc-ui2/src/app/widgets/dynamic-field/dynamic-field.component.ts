@@ -1,10 +1,10 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {DynamicFieldService} from "./dynamic-field.service";
 
 @Component({
   selector: 'dynamic-field',
   templateUrl: './dynamic-field.component.html',
-  styleUrls: ['./dynamic-field.component.css']
+  styleUrls: ['./dynamic-field.component.scss']
 })
 export class DynamicFieldComponent implements OnInit {
 
@@ -12,15 +12,20 @@ export class DynamicFieldComponent implements OnInit {
     elements;
     model = {};
     key = '';
+    longMode = false;
+    search = '';
     @Input() checked;
     @Input() mode;
     @Output() onValueChange = new EventEmitter();
+    @Input() type;
+    @ViewChild('checkboxes') elementView: ElementRef;
     constructor(
         private service:DynamicFieldService,
         private ref: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
+
         switch (this.mode){
             case 'dcmAETitle':
                 this.getObject('getAets');
@@ -41,7 +46,10 @@ export class DynamicFieldComponent implements OnInit {
       })
     }
     valueChanged(){
-      this.onValueChange.emit(Object.keys(this.model).filter(key=>{return this.model[key];}));
+        if(this.type === 'array')
+            this.onValueChange.emit(Object.keys(this.model).filter(key=>{return this.model[key];}));
+        else
+            this.onValueChange.emit(this.model);
     }
     getObject(functionName){
       this.loader = true;
@@ -49,6 +57,13 @@ export class DynamicFieldComponent implements OnInit {
           this.elements = res;
           this.loader = false;
           this.ref.detectChanges();
+          if(this.type === 'array'){
+              let height = this.elementView.nativeElement.offsetHeight;
+              if(height > 200){
+                  this.longMode = true;
+                  this.ref.detectChanges();
+              }
+          }
       },(err)=>{
           this.loader = false;
       });

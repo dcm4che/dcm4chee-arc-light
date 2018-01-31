@@ -26,7 +26,7 @@
                 <specific-char-picker *ngIf="formelement.controlType === 'text' && formelement.format && formelement.showCharSetPicker" [format]="formelement.format" [mode]="'configurator'" [value]="form.controls[formelement.key].value" (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key],null)"></specific-char-picker>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
-                <dynamic-field *ngSwitchCase="'dynamiccheckbox'" [mode]="formelement.format" [checked]="formelement.value" (onValueChange)="onValueChange($event, formelement,form.controls[formelement.key].controls,null)"></dynamic-field>
+                <dynamic-field *ngSwitchCase="'dynamiccheckbox'" [mode]="formelement.format" [checked]="formelement.value" [type]="formelement.type" (onValueChange)="onValueChange($event, formelement,form.controls[formelement.key].controls,null)"></dynamic-field>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
                 <input class="simple_input number" *ngSwitchCase="'number'" [formControlName]="formelement.key" [id]="formelement.key" type="number" />

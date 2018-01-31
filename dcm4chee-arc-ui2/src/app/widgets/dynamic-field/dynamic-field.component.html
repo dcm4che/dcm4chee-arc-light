@@ -2,7 +2,14 @@
   loading...
 </p>
 <div *ngIf="!loader && elements">
-  <div class="checkbox_parent">
-    <div *ngFor="let element of elements"><input type="checkbox" [(ngModel)]="model[element[key]]" (change)="valueChanged()"> {{element[key]}}<br/></div>
+  <div class="checkbox_parent" [ngClass]="{'long_mode':longMode}" *ngIf="type === 'array'" #checkboxes>
+      <input *ngIf="longMode" type="text" [(ngModel)]="search" placeholder="Search list...">
+      <div *ngFor="let element of elements|search:search"><input type="checkbox" [(ngModel)]="model[element[key]]" (change)="valueChanged()"> {{element[key]}}<br/></div>
+  </div>
+  <div class="dropdown_parent" *ngIf="type === 'string'">
+    <select (change)="valueChanged()" class="dropdown" [(ngModel)]="model">
+      <option value="">-</option>
+      <option value="{{element[key]}}" *ngFor="let element of elements">{{element[key]}}</option>
+    </select>
   </div>
 </div>

@@ -483,18 +483,33 @@ export class DeviceConfiguratorService{
                             );
                         }
                     }else{
-                        form.push(
-                            new InputText({
+                        if(_.hasIn(m, "format")  && (m.format === 'dcmAETitle' || m.format === 'dicomDeviceName' || m.format === 'hl7ApplicationName')){
+                            form.push({
+                                controlType: 'dynamiccheckbox',
                                 key: i,
                                 label: m.title,
                                 description: m.description,
                                 type: 'string',
-                                value: value,
+                                value: (value) ? value : '',
                                 order: (5 + newOrderSuffix),
                                 validation: validation,
-                                format: m.format
-                            })
-                        );
+                                format: m.format,
+                                show: true
+                            });
+                        }else{
+                            form.push(
+                                new InputText({
+                                    key: i,
+                                    label: m.title,
+                                    description: m.description,
+                                    type: 'string',
+                                    value: value,
+                                    order: (5 + newOrderSuffix),
+                                    validation: validation,
+                                    format: m.format
+                                })
+                            );
+                        }
                     }
                 }
                 break;
@@ -811,13 +826,13 @@ export class DeviceConfiguratorService{
                                     });
                                 }else{
                                     let type = (_.hasIn(m, 'items.type')) ? m.items.type : 'text';
-                                    if(m.format === 'dicomDeviceName' || m.format === 'dicomAETitle' || m.format === 'hl7ApplicationName'){
+                                    if(m.format === 'dicomDeviceName' || m.format === 'dcmAETitle' || m.format === 'hl7ApplicationName'){
                                         form.push({
                                             controlType: 'dynamiccheckbox',
                                             key: i,
                                             label: m.title,
                                             description: m.description,
-                                            type: type,
+                                            type: 'array',
                                             value: (value) ? value : [''],
                                             order: (5 + newOrderSuffix),
                                             validation: validation,

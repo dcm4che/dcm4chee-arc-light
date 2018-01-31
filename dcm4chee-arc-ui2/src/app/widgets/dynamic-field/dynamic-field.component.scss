@@ -1,0 +1,10 @@
+.checkbox_parent{
+  &.long_mode{
+    overflow: auto;
+    max-height: 200px;
+    padding: 6px;
+    -webkit-box-shadow: inset 0px 0px 17px 3px #ccc;
+    -moz-box-shadow: inset 0px 0px 17px 3px #ccc;
+    box-shadow: inset 0px 0px 17px 3px #ccc;
+  }
+}

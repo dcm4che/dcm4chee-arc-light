@@ -424,20 +424,25 @@ export class DynamicFormElementComponent{
         // this.activetab = 'tab_'+(orderId-1);
     }
     onValueChange(e, formelement, formcontrol,i){
-        if(e && e != ""){
+        try{
+            console.log("trying to set the new value",e);
             if(formelement.controlType === "arrayelement"){
                 // (<FormArray>this.form.controls[formelement.key]).insert(i, new FormControl(e))
                 formcontrol[i].setValue(e);
                 formelement.value[i] = e;
             }else{
                 if(formelement.controlType === "dynamiccheckbox"){
-                    this.form.setControl(formelement.key,this._fb.array(e));
+                    if(formelement.type === 'array')
+                        this.form.setControl(formelement.key,this._fb.array(e));
+                    else
+                        (<FormControl>this.form.controls[formelement.key]).setValue(e);
                 }else{
                     formcontrol.setValue(e);
                     formelement.value = e;
-                    console.log("in value change",e);
                 }
             }
+        }catch(ev){
+            console.error("error setting changed value",ev);
         }
         formelement.showPicker = false;
         formelement.showTimePicker = false;
