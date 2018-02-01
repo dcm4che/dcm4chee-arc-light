@@ -72,9 +72,9 @@ body{
 }
 ul.nav#mainmenu {
     background: rgba(27, 42, 53, 0.95) none repeat scroll 0 0;
-    -moz-box-shadow: 10px 10px 10px #959292;
-    -webkit-box-shadow: 10px 10px 10px #959292;
-    box-shadow: 10px 10px 10px #959292;
+    -moz-box-shadow: 0px 0px 21px 2px #000000;
+    -webkit-box-shadow: 0px 0px 21px 2px #000000;
+    box-shadow: 0px 0px 21px 2px #000000;
     color: white;
     // display: none;
     height: 100%;
@@ -135,13 +135,14 @@ ul.nav#mainmenu {
 	}
 }
 .toggle-button.out {
-	background: white none repeat scroll 0 0;
+	background: rgba(6, 29, 47, 0.88);
 	-moz-box-shadow: 5px 2px 7px 3px #7e7e7e;
 	-webkit-box-shadow: 5px 2px 7px 3px #7e7e7e;
 	box-shadow: 5px 2px 7px 3px #7e7e7e;
 	height: 25px;
-	left: 0;
+	left: -2px;
 	line-height: 25px;
+	color: white;
 	position: fixed;
 	text-align: center;
 	top: 30px;
