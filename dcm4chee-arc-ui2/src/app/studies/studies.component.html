@@ -9,38 +9,6 @@
 </pre>-->
 <div class="main_content studies">
     <div *ngIf="user">
-
-    <!--  <pre style="position: absolute;width:50%;top:0;z-index: 9999999;">
-            queryMode:{{queryMode}}
-            <button (click)="fireRightQuery()">{{queryMode}}</button>
-    </pre> -->
-
-    <!-- contextmenu -->
-    <div class="dropdown contextmenu" > <!--contextmenu="meta.contextmenu"-->
-        <ul *ngIf="isRole('admin')" class="dropdown-menu" role="menu">
-            <!--     <li class="dropdown-header">
-                Test header
-                {{meta.contextmenu.item.modus}}
-                </li> -->
-            <!--<li [hidden]="meta.contextmenu.item.modus === 'patient._VALUE'" ><a role="menuitem" href="" (click)="ctrlC(meta.contextmenu.item)"><label>Copy</label><span>Ctrl + c</span></a></li>-->
-            <li><a role="menuitem" href="" (click)="ctrlV()"><label>Paste</label><span>Ctrl + v</span></a></li>
-            <!--<li [hidden]="meta.contextmenu.item.modus === 'patient._VALUE'" ><a role="menuitem" href="" (click)="ctrlX(meta.contextmenu.item)"><label>Cut</label><span>Ctrl + x</span></a></li>-->
-            <li>
-                <!--       <a role="menuitem" tabindex="-1" href (click)="editTest(meta.contextmenu.item)"
-                      >
-                        <span>Edit</span>
-                      </a> -->
-            </li>
-3            <!--     <li>
-                  <a role="menuitem" href
-                    (click)="delete(meta.contextmenu.item)"
-                  >
-                    <span>Delete</span>
-                  </a>
-                </li> -->
-        </ul>
-    </div>
-    <!-- /contextmenu -->
     <div id="clipboard" class="clipboard said"  *ngIf="clipBoardNotEmpty()">
         <div id="clipboardtoggle" class="toggle_button" (click)="showClipboardContent = !showClipboardContent">
             <i id="clipboardtoggle_icon" class="glyphicon glyphicon-copy"></i>
@@ -397,50 +365,8 @@
                         <input id="SeriesDescription" type="text" [(ngModel)]="filter.SeriesDescription" placeholder="Series Description" title="Series Description" class="col-md-12 clearable" />
                     </div>
                 </div>
-
-                <!--         <div class="row">
-                            <div class="col-md-6 col-md-offset-6">
-                                <input id="SeriesDescription" type="text" [(ngModel)]="filter.SeriesDescription" placeholder=" Series Description" class="col-md-12" />
-                            </div>
-                        </div> -->
-                <!--         <div class="row">
-                            <div class="col-md-6 col-md-offset-6">
-                                <input id="BodyPartExamined" type="text" [(ngModel)]="filter.BodyPartExamined" placeholder=" Body Part" class="col-md-12" />
-                            </div>
-                        </div> -->
-
-                <!--         <div class="row">
-                            <div class="col-md-6 col-md-offset-6">
-                                <input id="InstitutionName" type="text" [(ngModel)]="filter.InstitutionName" placeholder=" Institution Name" class="col-md-12" />
-                            </div>
-                        </div> -->
-                <!--         <div class="row">
-                        </div> -->
-                <!--         <div class="row">
-                            <div class="col-md-6 col-md-offset-6">
-                                <input id="SeriesInstanceUID" type="text" [(ngModel)]="filter.SeriesInstanceUID" placeholder=" Series Instance UID" class="col-md-12" />
-                            </div>
-                        </div> -->
-                <!--         <div class="row">
-                            <div class="col-md-6 col-md-offset-6">
-                                <input id="objectUID" type="text" [(ngModel)]="filter.ObjectUID" placeholder=" Object UID" class="col-md-12" />
-                            </div>
-                        </div> -->
-
             </div>
             <div class="col-md-3 block-2-1">
-                <!-- <div class="row" *ngIf="isRole('admin')"> -->
-                <!--             <label for="reject" class="block_seid text-right">Reject:</label>
-                            <div class="block_seid"> -->
-                <!--                 <select id="reject" [(ngModel)]="reject" class="col-md-9">
-                                    <option ng-repeat="rjn in rjnotes" tooltip="{{rjn.codeMeaning}}"
-                                            value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
-                                </select> -->
-                <!--                 <a (click)="deleteRejectedInstances()" href="" tooltip="Delete Rejected Instances permanently" class="custom_button deleteRejctedI">
-                                    <span class="glyphicon glyphicon-remove"></span>
-                                </a> -->
-                <!-- </div> -->
-                <!-- </div> -->
                 <div class="row">
 
                     <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
@@ -476,45 +402,26 @@
             </div>
             <div class="col-md-3 block-2-1" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                 <div class="row">
-<!--                    <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'" ng-init="ExternalRetrieveAETchecked = false">
-                        <label title="Show only studies failed to be retrieved">
-                            <input type="checkbox" [(ngModel)]="ExternalRetrieveAETchecked" (change)="filter.ExternalRetrieveAET = '';filter['ExternalRetrieveAET!'] = ''">Not retrieveable from external retrieve AET
-                        </label>
-                    </div>-->
                     <div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                         <div class="input-group">
                             <span class="checkboxpart">
-                                <!--<input type="checkbox" aria-label="Checkbox for following text input"> No-->
                                 <input type="checkbox" [(ngModel)]="ExternalRetrieveAETchecked" (change)="filter.ExternalRetrieveAET = '';filter['ExternalRetrieveAET!'] = ''"> No
                             </span>
                             <input class="col-md-12 clearable inputpart" id="ExternalRetrieveAET" *ngIf="!ExternalRetrieveAETchecked" type="text" [(ngModel)]="filter.ExternalRetrieveAET" placeholder="External retrieve AET" title="Retrievable from external retrieve AET" />
                             <input class="col-md-12 clearable inputpart" id="ExternalRetrieveAET!" *ngIf="ExternalRetrieveAETchecked" type="text" [(ngModel)]="filter['ExternalRetrieveAET!']" placeholder="External retrieve AET" title="Not retrievable from external retrieve AET"/>
                         </div>
                     </div>
-                    <!--<div class="col-md-6" *ngIf="filterMode === 'study' || filterMode === 'diff' && ExternalRetrieveAETchecked">-->
-                    <!--</div>-->
                     <div class="col-md-6">
                         <label title="Show only studies failed to be retrieved">
                             <input type="checkbox" [(ngModel)]="filter.retrievefailed"> Only failed to be retrieved
                         </label>
                     </div>
                 </div>
-<!--                <div class="row" *ngIf="filterMode === 'study' || filterMode === 'diff'">
-                    <div class="col-md-12">
-                          <label>
-                            Study created date/time:
-                          </label>
-                    </div>
-                </div>-->
                 <div class="row" *ngIf="filterMode === 'study' || filterMode === 'diff'">
                     <div class="col-md-6">
-                        <!--<p-calendar (ngModelChange)="studyReceiveDateTimeChanged($event,'from')" [(ngModel)]="StudyReceiveDateTime.from" dateFormat="yy-mm-dd"  showTime="showTime" hourFormat="24" placeholder="from"></p-calendar>-->
-                        <!--<range-picker [model]="filter.StudyReceiveDateTime" (modelChange)="filter.StudyReceiveDateTime = $event" mode="range" placeholder="Study created" dateFormat="yymmdd"></range-picker>-->
                         <input id="BodyPartExamined" type="text" [(ngModel)]="filter.BodyPartExamined" placeholder="Body Part Examined" title="Body Part Examined" class="col-md-12 clearable" />
-
                     </div>
                     <div class="col-md-6">
-                        <!--<p-calendar (ngModelChange)="studyReceiveDateTimeChanged($event,'to')" [(ngModel)]="StudyReceiveDateTime.to" dateFormat="yy-mm-dd"  showTime="showTime" hourFormat="24" placeholder="to"></p-calendar>-->
                     </div>
                 </div>
             </div>
@@ -536,19 +443,6 @@
                 </ul>
             </div>
         </div>
-<!--        <div class="morefunctionblock">
-            <div class="row">
-                <div class="col-md-6">
-                    <button class="col-md-12 checkbox_button" [ngClass]="{active: externalInternalAetMode}" (click)="externalInternalAetMode = !externalInternalAetMode"><span class="glyphicon glyphicon-share"></span> External AET Mode</button>
-                </div>
-            </div>
-        </div>-->
-
-
-
-        <!--<pre>-->
-            <!--visibleHeaderIndex:{{visibleHeaderIndex}};-->
-        <!--</pre>-->
         <div class="header_block" *ngIf="patients && patients.length != 0">
             <div class="thead header1" [ngClass]="{'hover':visibleHeaderIndex === 0}">
                 <div class="tr_row">
@@ -670,14 +564,7 @@
             </div>
         </div>
     </div>
-
-    <!-- Table -->
     <div id="tableblock" class="div-table animated" [ngClass]="{extended:(advancedConfig),modality:showModalitySelector}" contextmenu-container="meta.contextmenu">
-<!--<pre>-->
-    <!--<div *ngFor="let m of patients | getKey">-->
-        <!--{{m._KEY}} : {{m._VALUE.attrs |json}}-->
-    <!--</div>-->
-<!--</pre>-->
         <div class="repeat0" contextmenu-item='patient._VALUE' *ngFor="let patient of patients | getKey">
             <div class="more_menu_content" *ngIf="filterMode != 'diff'">
                 <div class="more_menu_study" [ngClass]="{show_checkboxes:showCheckboxes}">

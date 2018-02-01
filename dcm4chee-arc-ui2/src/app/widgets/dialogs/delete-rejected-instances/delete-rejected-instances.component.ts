@@ -4,11 +4,7 @@ import {MdDialogRef} from '@angular/material';
 @Component({
   selector: 'app-delete-rejected-instances',
   templateUrl: './delete-rejected-instances.component.html',
-    styles: [`
-        .vex-theme-os.confirm{
-            width:500px;
-            
-        }
+    styles: [`        
     `]
 })
 export class DeleteRejectedInstancesComponent{

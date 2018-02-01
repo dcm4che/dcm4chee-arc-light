@@ -369,7 +369,7 @@ md-grid-list{
   li{
     a{
       &.active{
-        text-decoration:underline;
+        background: rgba(32, 46, 58, 0.45);
       }
     }
   }

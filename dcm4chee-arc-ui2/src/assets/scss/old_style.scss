@@ -71,7 +71,7 @@ body{
 	}
 }
 ul.nav#mainmenu {
-    background: rgba(0, 0, 0, 0.74) none repeat scroll 0 0;
+    background: rgba(27, 42, 53, 0.95) none repeat scroll 0 0;
     -moz-box-shadow: 10px 10px 10px #959292;
     -webkit-box-shadow: 10px 10px 10px #959292;
     box-shadow: 10px 10px 10px #959292;
@@ -85,14 +85,18 @@ ul.nav#mainmenu {
     z-index: 999;
     margin:0;
     li {
-	    background: transparent none repeat scroll 0 0;
+	    background: transparent;
 	    color: white;
 	    width: 100%;
+		border-top: 1px solid white;
+		&:last-child{
+			border-bottom: 1px solid white;
+		}
 	    a{
 	    	//background:white;
 	    	background: transparent;
 	    	color:white;
-	    	text-align: right;
+	    	//text-align: right;
 
 	    }
 	    a:hover{
@@ -100,14 +104,18 @@ ul.nav#mainmenu {
 	    	font-weight: bold;
 	    }
 	    a:active{
-	    	background: transparent;
 			outline: none;
 	    }
+		a.active{
+			background: rgba(32, 46, 58, 0.45);
+			font-weight:bold;
+		}
 	}
 	li.active{
+		background: rgba(32, 46, 58, 0.45);
 		a{
 			background: transparent;
-			text-decoration: underline;
+			//text-decoration: underline;
 			outline: none;
 		}
 		a:hover{
@@ -123,6 +131,7 @@ ul.nav#mainmenu {
 	    background-position: right center;
 	    left: 80%;
 		padding-top: 30px;
+		padding-bottom: 20px;
 	}
 }
 .toggle-button.out {
