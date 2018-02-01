@@ -1,21 +1,20 @@
 package org.dcm4chee.arc.event;
 
-import org.dcm4chee.arc.entity.QueueMessage;
-
 import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Jan 2018
+ * @since Feb 2018
  */
 
-public class QueueMessageEvent {
+public class BulkQueueMessageEvent {
     private final HttpServletRequest request;
     private final QueueMessageOperation operation;
-    private QueueMessage queueMsg;
+    private String[] filters = {};
+    private long count;
     private Exception exception;
 
-    public QueueMessageEvent(HttpServletRequest request, QueueMessageOperation operation) {
+    public BulkQueueMessageEvent(HttpServletRequest request, QueueMessageOperation operation) {
         this.request = request;
         this.operation = operation;
     }
@@ -28,12 +27,20 @@ public class QueueMessageEvent {
         return operation;
     }
 
-    public QueueMessage getQueueMsg() {
-        return queueMsg;
+    public String[] getFilters() {
+        return filters;
     }
 
-    public void setQueueMsg(QueueMessage queueMsg) {
-        this.queueMsg = queueMsg;
+    public void setFilters(String[] filters) {
+        this.filters = filters;
+    }
+
+    public int getCount() {
+        return (int) count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
     }
 
     public Exception getException() {

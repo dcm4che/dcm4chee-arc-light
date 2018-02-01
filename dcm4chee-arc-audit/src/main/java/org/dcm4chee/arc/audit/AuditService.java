@@ -57,6 +57,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
@@ -299,19 +300,29 @@ public class AuditService {
     void spoolQueueMessageEvent(QueueMessageEvent queueMsgEvent) {
         HttpServletRequest req = queueMsgEvent.getRequest();
         QueueMessage queueMsg = queueMsgEvent.getQueueMsg();
-        String queueMsgAsString = queueMsg != null
-                ? toString(queueMsg) : null;
         AuditInfoBuilder info = new AuditInfoBuilder.Builder()
                 .callingUserID(KeycloakContext.valueOf(req).getUserName())
                 .callingHost(req.getRemoteHost())
                 .calledUserID(req.getRequestURI())
                 .outcome(getOD(queueMsgEvent.getException()))
-                .filters(buildStrings(queueMsgEvent.getFilters()))
-                .count(queueMsgEvent.getCount())
-                .queueMsg(queueMsgAsString)
-                .taskPOID(queueMsg != null ? queueMsg.getMessageID() : queueMsgEvent.getType().name())
+                .queueMsg(queueMsg != null ? toString(queueMsg) : null)
+                .taskPOID(queueMsg != null ? queueMsg.getMessageID() : null)
                 .build();
-        writeSpoolFile(AuditServiceUtils.EventType.forQueueEvent(queueMsgEvent), info);
+        writeSpoolFile(AuditServiceUtils.EventType.forQueueEvent(queueMsgEvent.getOperation()), info);
+    }
+
+    void spoolBulkQueueMessageEvent(BulkQueueMessageEvent bulkQueueMsgEvent) {
+        HttpServletRequest req = bulkQueueMsgEvent.getRequest();
+        AuditInfoBuilder info = new AuditInfoBuilder.Builder()
+                .callingUserID(KeycloakContext.valueOf(req).getUserName())
+                .callingHost(req.getRemoteHost())
+                .calledUserID(req.getRequestURI())
+                .outcome(getOD(bulkQueueMsgEvent.getException()))
+                .filters(buildStrings(bulkQueueMsgEvent.getFilters()))
+                .count(bulkQueueMsgEvent.getCount())
+                .taskPOID(bulkQueueMsgEvent.getOperation().name())
+                .build();
+        writeSpoolFile(AuditServiceUtils.EventType.forQueueEvent(bulkQueueMsgEvent.getOperation()), info);
     }
 
     private void auditQueueMessageEvent(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)

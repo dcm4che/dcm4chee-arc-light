@@ -42,6 +42,7 @@ package org.dcm4chee.arc.audit;
 import org.dcm4che3.audit.*;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.store.StoreContext;
 import java.nio.file.Path;
@@ -178,11 +179,10 @@ class AuditServiceUtils {
                         : PROC_STD_D;
         }
 
-        static EventType forQueueEvent(QueueMessageEvent queueMsgEvent) {
-            String eventType = queueMsgEvent.getType().name();
-            return eventType.startsWith("Cancel")
+        static EventType forQueueEvent(QueueMessageOperation operation) {
+            return operation == QueueMessageOperation.CancelTasks
                     ? EventType.CANCEL_TSK
-                    : eventType.startsWith("Reschedule")
+                    : operation == QueueMessageOperation.RescheduleTasks
                         ? EventType.RESCHD_TSK : EventType.DELETE_TSK;
         }
     }

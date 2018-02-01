@@ -46,7 +46,9 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
@@ -106,6 +108,9 @@ public class ExportTaskRS {
 
     @Inject
     private Event<QueueMessageEvent> queueMsgEvent;
+
+    @Inject
+    private Event<BulkQueueMessageEvent> bulkQueueMsgEvent;
 
     @Context
     private HttpHeaders httpHeaders;
@@ -177,7 +182,7 @@ public class ExportTaskRS {
     @Path("{taskPK}/cancel")
     public Response cancelExportTask(@PathParam("taskPK") long pk) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.CancelTask);
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
 
         try {
             return Response.status(mgr.cancelExportTask(pk, queueEvent)
@@ -202,7 +207,7 @@ public class ExportTaskRS {
         if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
             return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
 
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.CancelTasks);
+        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         queueEvent.setFilters(filters());
         try {
             LOG.info("Cancel processing of Export Tasks with Status {}", status);
@@ -218,7 +223,7 @@ public class ExportTaskRS {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
         } finally {
-            queueMsgEvent.fire(queueEvent);
+            bulkQueueMsgEvent.fire(queueEvent);
         }
     }
 
@@ -231,7 +236,7 @@ public class ExportTaskRS {
         if (exporter == null)
             return rsp(Response.Status.NOT_FOUND, "No such exporter - " + exporterID);
 
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.RescheduleTask);
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             return Response.status(mgr.rescheduleExportTask(pk, exporter, queueEvent)
                     ? Response.Status.NO_CONTENT
@@ -271,7 +276,7 @@ public class ExportTaskRS {
                     "Cannot reschedule Tasks originally scheduled on Device " + deviceName
                             + " on Device " + device.getDeviceName());
 
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.RescheduleTasks);
+        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         queueEvent.setFilters(filters());
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = null;
@@ -304,7 +309,7 @@ public class ExportTaskRS {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
         } finally {
-            queueMsgEvent.fire(queueEvent);
+            bulkQueueMsgEvent.fire(queueEvent);
         }
     }
 
@@ -312,7 +317,7 @@ public class ExportTaskRS {
     @Path("/{taskPK}")
     public Response deleteTask(@PathParam("taskPK") long pk) {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.DeleteTask);
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         boolean deleteExportTask = mgr.deleteExportTask(pk, queueEvent);
         queueMsgEvent.fire(queueEvent);
         return Response.status(deleteExportTask
@@ -324,13 +329,13 @@ public class ExportTaskRS {
     @DELETE
     public String deleteTasks() {
         logRequest();
-        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageEvent.Type.DeleteTasks);
+        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         queueEvent.setFilters(filters());
         int deleted = mgr.deleteTasks(
                 MatchTask.matchQueueMessage(null, deviceName, status(), null, null, null),
                 MatchTask.matchExportTask(exporterID, deviceName, studyUID, createdTime, updatedTime));
         queueEvent.setCount(deleted);
-        queueMsgEvent.fire(queueEvent);
+        bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
     }
 
