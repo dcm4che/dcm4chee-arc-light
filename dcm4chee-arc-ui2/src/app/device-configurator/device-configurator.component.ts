@@ -31,6 +31,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     pressedKey = [];
     submitValue;
     isNew = false;
+    searchBreadcrum = [];
     constructor(
         private route: ActivatedRoute,
         private router: Router,
@@ -108,6 +109,9 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                         {
                                             url: '/device/devicelist',
                                             title: 'devicelist',
+                                            prefixArray:[],
+                                            suffixArray:[],
+                                            allArray:[],
                                             devicereff: undefined
                                         }
                                     ];
@@ -276,6 +280,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         // }
     };
     ngOnInit(){
+
         this.initCheck(10);
     }
     initCheck(retries){
@@ -297,9 +302,14 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         let form;
         this.params = $this.service.pagination;
         this.inClone = false;
+        this.service.pagination.forEach((m,i)=>{
+            this.searchBreadcrum[i] = '';
+        });
         $this.cfpLoadingBar.start();
         this.route.params
             .subscribe((params) => {
+
+                console.log("allOptions",this.service.allOptions);
                 if (
                     ($this.service.pagination.length < 3) // If the deepest pagination level is the device than go one
                         ||
@@ -320,6 +330,9 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     let newPaginationObject = {
                         url: '/device/edit/' + params['device'],
                         title: params['device'],
+                        prefixArray:[],
+                        suffixArray:[],
+                        allArray:[],
                         devicereff: '',
                     };
                     let newPaginationIndex = _.findIndex($this.service.pagination, (p) => {
@@ -421,22 +434,39 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         }else{
             this.isNew = false;
         }
+        let newUrl = '/device/edit/' + params['device'] + '/' + params['devicereff'] + '/' + params['schema'];
+        let prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['schema']]);
         let newPaginationObject = {
-            url: '/device/edit/' + params['device'] + '/' + params['devicereff'] + '/' + params['schema'],
+            url: newUrl,
             // title:_.replace(newTitle,lastreff,''),
             title: title,
+            prefixArray:prefixSuffix.prefix,
+            suffixArray:prefixSuffix.suffix,
+            allArray:this.service.allOptions[params['schema']],
             devicereff: params['devicereff']
         };
         let newPaginationIndex = _.findIndex($this.service.pagination, (p) => {
-            return p.url === newPaginationObject.url;
+            return this.service.isSameSiblingUrl(p.url,newPaginationObject.url);
         });
         if (newPaginationIndex > -1) {
             let dropedPaginations = _.dropRight($this.service.pagination, $this.service.pagination.length - newPaginationIndex - 1);
+            if(this.service.isSameSiblingUrl(newUrl, dropedPaginations[dropedPaginations.length-1].url) && newUrl !== dropedPaginations[dropedPaginations.length-1].url){
+                dropedPaginations[dropedPaginations.length-1] = newPaginationObject;
+            }
             $this.service.pagination = dropedPaginations;
             $this.params = dropedPaginations;
+
         } else {
-            $this.service.pagination.push(newPaginationObject);
+
+            if(this.service.isSameSiblingUrl(this.service.pagination[this.service.pagination.length-1].url,newPaginationObject.url)){
+                this.service.pagination[this.service.pagination.length-1] = newPaginationObject;
+                $this.params = this.service.pagination;
+            }else{
+                $this.service.pagination.push(newPaginationObject);
+                $this.params = this.service.pagination;
+            }
         }
+
         $this.deleteForm();
         $this.showform = false;
         $this.model = newModel;
@@ -503,12 +533,21 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             this.model = {};
             this.formObj = [];
         }
+        clearSearch(){
+            this.searchBreadcrum.forEach((m,i) =>{
+                this.searchBreadcrum[i] = '';
+            });
+        }
         fireBreadcrumb(breadcrumb){
+            this.clearSearch();
             if (breadcrumb.url ===  '/device/devicelist'){ // for some reason when the user visited the device configurator and than comes back while trying to create new device, the old device is still in the pagination
                 this.params = this.service.pagination = [
                      {
                          url: '/device/devicelist',
                          title: 'devicelist',
+                         prefixArray:[],
+                         suffixArray:[],
+                         allArray:[],
                          devicereff: undefined
                      }
                  ];

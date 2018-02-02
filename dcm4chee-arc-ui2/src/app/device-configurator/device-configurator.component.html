@@ -4,8 +4,36 @@
         <div class="row">
             <div class="btn-group btn-breadcrumb">
                 <ng-container *ngFor="let pagination of params;let i = index">
-                    <a *ngIf="i!=(params.length-1)" (click)="fireBreadcrumb(pagination)" class="btn btn-default" >{{pagination.title}} </a> <!--<span class="slash" *ngIf="i!=(params.length-1)"> / </span>-->
-                    <a class="current_title btn btn-default" *ngIf="i == (params.length-1)" (click)="$event.preventDefault()"> {{pagination.title}}</a>
+                    <a *ngIf="i!=(params.length-1)" (click)="fireBreadcrumb(pagination)" class="btn btn-default prev_breadcrumb" >
+<!--                        <ul class="prefix_breadcrumb" [ngClass]="{'visible_input':pagination.prefixArray && pagination.prefixArray.length > 9}" *ngIf="pagination.prefixArray && pagination.prefixArray.length > 0">
+                            <li *ngIf="pagination.prefixArray && pagination.prefixArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>
+                            <li *ngFor="let prefix of pagination.prefixArray|search:searchBreadcrum[i]">
+                                <a (click)="fireBreadcrumb(prefix)">{{prefix.title}}</a>
+                            </li>
+                        </ul>-->
+                        {{pagination.title}}
+                        <ul class="suffix_breadcrumb" *ngIf="pagination.allArray && pagination.allArray.length > 0" [ngClass]="{'visible_input':pagination.allArray && pagination.allArray.length > 9}">
+                            <li *ngIf="pagination.allArray && pagination.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>
+                            <li *ngFor="let suffix of pagination.allArray|search:searchBreadcrum[i]">
+                                <a (click)="fireBreadcrumb(suffix)">{{suffix.title}}</a>
+                            </li>
+                        </ul>
+                    </a>
+                    <a class="current_title btn btn-default" *ngIf="i == (params.length-1)" (click)="$event.preventDefault()">
+<!--                        <ul class="prefix_breadcrumb" *ngIf="pagination.prefixArray && pagination.prefixArray.length > 0" [ngClass]="{'visible_input':pagination.prefixArray && pagination.prefixArray.length > 9}">
+                            <li *ngIf="pagination.prefixArray && pagination.prefixArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>
+                            <li *ngFor="let prefix of pagination.prefixArray|search:searchBreadcrum[i]">
+                                <a (click)="fireBreadcrumb(prefix)">{{prefix.title}}</a>
+                            </li>
+                        </ul>-->
+                        <span>{{pagination.title}}</span>
+                        <ul class="suffix_breadcrumb" *ngIf="pagination.allArray && pagination.allArray.length > 0" [ngClass]="{'visible_input':pagination.allArray && pagination.allArray.length > 9}">
+                            <li *ngIf="pagination.allArray && pagination.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>
+                            <li *ngFor="let suffix of pagination.allArray|search:searchBreadcrum[i]">
+                                <a (click)="fireBreadcrumb(suffix)">{{suffix.title}}</a>
+                            </li>
+                        </ul>
+                    </a>
                 </ng-container>
             </div>
         </div>

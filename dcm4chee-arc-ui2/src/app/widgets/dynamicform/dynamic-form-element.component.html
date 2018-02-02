@@ -81,7 +81,7 @@
             <div *ngIf="formelement.show || partSearch != ''">
                 <div class="button_parent" *ngSwitchCase="'button'">
                     <div class="button_content" *ngIf="formelement.value > 0">
-                        <a [ngClass]="{'disabled':!form.valid}" class="button edit" [routerLink]="[formelement.url]" title="{{formelement.description}}"><i class="material-icons">mode_edit</i> <span class="text">Edit extension</span></a>
+                        <a [ngClass]="{'disabled':!form.valid}" class="button edit" (click)="$event.preventDefault();navigateTo(formelement.url)" title="{{formelement.description}}"><i class="material-icons">mode_edit</i> <span class="text">Edit extension</span></a>
                         <a [ngClass]="{'disabled':!form.valid}" class="delete button" (click)="$event.preventDefault();removeObject(formelement,form.controls[formelement.key])" title="Remove {{formelement.title}} extension from device"><i class="material-icons">clear</i></a>
                     </div>
                     <div class="button_content" *ngIf="formelement.value === 0">
@@ -93,7 +93,7 @@
             <div *ngIf="formelement.show || partSearch != ''">
                 <div class="dropdown_button" *ngSwitchCase="'buttondropdown'">
                     <!--<input class="dropdownSearch"  formControlName="{{'search_'+formelement.key}}" type="text" placeholder="Search..." >-->
-                    <select [attr.disabled]="form.valid ? null:true" (change)="navigateTo($event.target.value)" *ngIf="formelement.options && formelement.options.length > 0" >
+                    <select [attr.disabled]="form.valid ? null:true" (change)="navigateTo($event.target.value, formelement.options)" *ngIf="formelement.options && formelement.options.length > 0" >
                         <option [value]="">-</option>
                         <!--<option *ngFor="let opt of formelement.options | search:form.controls['search_'+formelement.key].value" [value]="opt.url">{{opt.title}}</option>-->
                         <option *ngFor="let opt of formelement.options" [value]="opt.url">{{opt.title}}</option>

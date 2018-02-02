@@ -23,6 +23,7 @@ import {ControlService} from "../../control/control.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
+import {OrderByPipe} from "../../pipes/order-by.pipe";
 
 @Component({
     selector: 'df-element',
@@ -394,8 +395,13 @@ export class DynamicFormElementComponent{
             (<FormArray>this.form.controls[formelement.key]).removeAt(_.indexOf(this.form.controls[formelement.key].value, e.target.defaultValue));
         }
     }
-    navigateTo(e){
+    navigateTo(e,options?){
+        const regex = /\/\S*\/\S*\/(\S*)/;
+        let match;
         if (e != '-'){
+            if ((match = regex.exec(e)) !== null && match[1]) {
+                this.deviceConfiguratorService.allOptions[match[1]] = new OrderByPipe().transform(options,'title');
+            }
             this.router.navigateByUrl(e);
         }
     }
