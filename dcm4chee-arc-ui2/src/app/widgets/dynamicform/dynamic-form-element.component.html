@@ -98,8 +98,8 @@
                         <!--<option *ngFor="let opt of formelement.options | search:form.controls['search_'+formelement.key].value" [value]="opt.url">{{opt.title}}</option>-->
                         <option *ngFor="let opt of formelement.options" [value]="opt.url">{{opt.title}}</option>
                     </select>
-                    <a *ngIf="formelement.options && formelement.options.length > 0" [ngClass]="{'disabled':!form.valid}" class="button add" [routerLink]="[formelement.addUrl]" title="Add new {{formelement.label}}"><i class="material-icons">add</i></a>
-                    <a *ngIf="!(formelement.options && formelement.options.length > 0)" [ngClass]="{'disabled':!form.valid}" class="button add big" [routerLink]="[formelement.addUrl]" title="Add new {{formelement.label}}"><i class="material-icons">add</i> Add</a>
+                    <a *ngIf="formelement.options && formelement.options.length > 0" [ngClass]="{'disabled':!form.valid}" class="button add" (click)="$event.preventDefault();navigateTo(formelement.url)"  title="Add new {{formelement.label}}"><i class="material-icons">add</i></a>
+                    <a *ngIf="!(formelement.options && formelement.options.length > 0)" [ngClass]="{'disabled':!form.valid}" class="button add big" (click)="$event.preventDefault();navigateTo(formelement.url)"  title="Add new {{formelement.label}}"><i class="material-icons">add</i> Add</a>
                     <a [ngClass]="{'disabled':!form.valid}" class="button clone" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement)" title="Clone a {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
                     <a [ngClass]="{'disabled':!form.valid}" class="delete button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();removePart(formelement)" title="Delete a {{formelement.label}} part"><i class="material-icons">clear</i></a>
                 </div>

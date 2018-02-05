@@ -137,6 +137,21 @@ export class DeviceConfiguratorService{
             return false;
         }
     }
+    getObjectsFromPath(path){
+        const regex = /\/(\S*)\/(\S*)\/(\S*)/;
+        let m;
+        if ((m = regex.exec(path)) !== null) {
+           if(m[2] && m[3]){
+               return {
+                   model:_.get(this.device,m[2]),
+                   schemaObject:_.get(this.schema,m[3]),
+                   schema:m[3],
+                   devicereff:m[2]
+               }
+           }
+        }
+        return null;
+    }
     getPrefixAndSuffixArray(currentUrl,allArray){
         try{
             if(allArray.length < 2){

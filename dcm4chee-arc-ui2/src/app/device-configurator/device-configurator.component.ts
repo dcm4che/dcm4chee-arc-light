@@ -442,7 +442,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             title: title,
             prefixArray:prefixSuffix.prefix,
             suffixArray:prefixSuffix.suffix,
-            allArray:this.service.allOptions[params['schema']],
+            allArray:[...prefixSuffix.prefix,...prefixSuffix.suffix],
             devicereff: params['devicereff']
         };
         let newPaginationIndex = _.findIndex($this.service.pagination, (p) => {
@@ -554,8 +554,30 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             }
             this.router.navigateByUrl(breadcrumb.url);
         }
-
-
+    hoveredElement(element){
+            console.log("element",element);
+            console.log("device",this.service.device);
+            console.log("obj",this.service.getObjectsFromPath(element.url));
+    }
+    toCompareObject;
+    toCompareFormelement;
+    showCompare = false;
+    compare(element){
+        console.log("param",this.params);
+        this.showCompare = false;
+        this.toCompareObject = undefined;
+        this.toCompareObject = undefined;
+        setTimeout(()=>{
+            let objects = this.service.getObjectsFromPath(element.url);
+            this.toCompareFormelement =  this.service.convertSchemaToForm(objects.model, objects.schemaObject, {
+                device:'dcm4chee-arc',
+                devicereff:objects.devicereff,
+                schema:objects.schema
+            });
+            this.toCompareObject = objects.model;
+            this.showCompare = true;
+        },1)
+    }
         ngOnDestroy(){
 /*            this.service.pagination = [
                 {

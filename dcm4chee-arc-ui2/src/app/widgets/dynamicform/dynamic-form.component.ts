@@ -21,6 +21,7 @@ export class DynamicFormComponent implements OnInit{
     @Input() model;
     @Input() dontShowSearch;
     @Input() dontGroup;
+    @Input() readOnlyMode;
     @Output() submitFunction = new EventEmitter<any>();
     form: FormGroup;
     payLoad = '';
