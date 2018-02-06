@@ -1449,7 +1449,7 @@ md-dialog-container{
       }
       li{
         height:22px;
-
+        display: flex;
         input{
           position: absolute;
           left: 10px;
@@ -1478,7 +1478,7 @@ md-dialog-container{
           width: calc(100% - 30px);
           float: left;
           height: 100%;
-          padding: 0px 22px;
+          padding: 0px 10px 0 22px;
           text-align: left;
           box-sizing: border-box;
           &:hover{
@@ -1703,7 +1703,7 @@ md-dialog-container{
       border: 1px solid #ccc;
       height: 30px;
       line-height: 30px;
-      margin-left: 1%;
+      margin-left: 2px;
       color: #777;
       text-decoration: none;
       i{
@@ -1715,10 +1715,10 @@ md-dialog-container{
         color:white;
       }
       &.delete,&.add{
-        width: 9%;
+        width: 40px;
       }
       &.edit{
-        width:89%;
+        width:calc(100% - 45px);
         position:relative;
         i{
 /*          position: absolute;
@@ -1741,7 +1741,7 @@ md-dialog-container{
   }
   &.buttondropdown{
 
-    &:hover{
+/*    &:hover{
       .dropdown_button{
         .button{
           -webkit-transition-delay: 0.2s;
@@ -1752,15 +1752,17 @@ md-dialog-container{
           visibility: visible;
           opacity: 1;
         }
-        select{
-          width:70%;
+        dcm-select{
+          display: inline-block;
+          width:calc(100% - 43px);
         }
       }
-    }
+    }*/
     .dropdown_button{
       position:relative;
-      select{
-        width:100%;
+      dcm-select{
+        width:calc(100% - 43px);
+        display: inline-block;
         float:left;
         height: 30px;
         background: transparent;
@@ -1770,18 +1772,43 @@ md-dialog-container{
         -ms-transition: 0.2s all ;
         -o-transition: 0.2s all ;
         transition: 0.2s all ;
+        li{
+          display:flex;
+          .title_select_block,
+          .clone_button,
+          .remove_button{
+            display: block;
+            float: left;
+          }
+          .title_select_block{
+            width:calc(100% - 84px);
+            white-space: nowrap;
+            line-height: 30px;
+          }
+          .clone_button,.remove_button{
+            width: 40px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            vertical-align: middle;
+          }
+          .clone_button{
+          }
+          .remove_button{
+          }
+        }
       }
 
       .button{
         position:absolute;
-        width: 9%;
-        visibility: hidden;
-        opacity: 0;
+        width: 40px;
+/*        visibility: hidden;
+        opacity: 0;*/
         float: left;
         text-align: center;
         border: 1px solid #ccc;
         height: 30px;
-        margin-left: 1%;
+        margin-left: 2px;
         color: #777;
         -webkit-transition: 0.2s visibility, opacity 0.2s linear;
         -moz-transition: 0.2s visibility, opacity 0.2s linear ;
@@ -1789,7 +1816,7 @@ md-dialog-container{
         -o-transition: 0.2s visibility, opacity 0.2s linear ;
         transition: 0.2s visibility, opacity 0.2s linear ;
         &.clone{
-          right:10%;
+          right:42px;
         }
         &.delete{
           right:0;
@@ -1841,7 +1868,8 @@ md-dialog-container{
       float: left;
       height: 30px;
       padding-left: 7px;
-      width: 100%;
+      //width: 100%;
+      width:calc(100% - 42px);
       -webkit-transition: 0.2s all;
       -moz-transition: 0.2s all ;
       -ms-transition: 0.2s all ;
@@ -1849,14 +1877,14 @@ md-dialog-container{
       transition: 0.2s all ;
     }
     .delete{
-      width: 9%;
-      visibility: hidden;
-      opacity: 0;
+      width: 40px;
+      //visibility: hidden;
+      //opacity: 0;
       float: left;
       text-align: center;
       border: 1px solid #ccc;
       height: 30px;
-      margin-left: 1%;
+      margin-left: 2px;
       color: #777;
       position:absolute;
       -webkit-transition: 0.2s visibility, opacity 0.2s linear;
@@ -1878,7 +1906,7 @@ md-dialog-container{
       float: left;
       width: 100%;
       position:relative;
-      &:hover {
+/*      &:hover {
         .delete{
           -webkit-transition-delay: 0.2s;
           -moz-transition-delay: 0.2s;
@@ -1889,9 +1917,9 @@ md-dialog-container{
           opacity: 1;
         }
         input{
-          width:90%;
+          width:calc(100% - 45px);
         }
-      }
+      }*/
       &.picker{
         &:hover{
           input{
@@ -1919,9 +1947,8 @@ md-dialog-container{
       text-align: center;
       position: relative;
       i{
-        position: absolute;
-        left: 38%;
-        top: 2px;
+        font-size: 24px;
+        vertical-align: middle;
       }
       &:hover{
         cursor: pointer;

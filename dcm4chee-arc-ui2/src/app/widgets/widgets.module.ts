@@ -33,6 +33,7 @@ import {DicomFlatListComponent} from "./dicom-list/dicom-flat-list.component";
 import { ModalityComponent } from './modality/modality.component';
 import { RangePickerComponent } from './range-picker/range-picker.component';
 import { DynamicFieldComponent } from './dynamic-field/dynamic-field.component';
+import { DcmSelectComponent } from './dcm-select/dcm-select.component';
 
 
 @NgModule({
@@ -75,5 +76,6 @@ export const WidgetsComponents = [
     DicomFlatListComponent,
     ModalityComponent,
     RangePickerComponent,
-    DynamicFieldComponent
+    DynamicFieldComponent,
+    DcmSelectComponent
 ];

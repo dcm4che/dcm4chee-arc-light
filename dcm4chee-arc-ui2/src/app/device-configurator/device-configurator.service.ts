@@ -122,8 +122,8 @@ export class DeviceConfiguratorService{
     }
     isSameSiblingUrl(lastUrl,newUrl){
         try{
-            // let lastUrl = allPaginations[allPaginations.length-1].url;
-            // let newUrl = newPaginationObject.url;
+            if(lastUrl === newUrl)
+                return true;
             let firstMatch;
             let secondMatch;
             const regex = /\/(\S*)\/((\S*)\[(\d*)\])\/(\S*)/;

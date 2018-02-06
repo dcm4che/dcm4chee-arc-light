@@ -75,7 +75,7 @@
                         <specific-char-picker *ngIf="formelement.controlType === 'arrayelement' && formelement.format && formelement.showCharSetPicker && formelement.showCharSetPicker[i]" [mode]="'configurator'" [value]="item"  (onValueSet)="onValueChange($event, formelement,form.controls[formelement.key].controls,i)"></specific-char-picker>
                         <!--<device-picker *ngIf="formelement.controlType === 'arrayelement' && formelement.format === 'dicomDeviceName'"></device-picker>-->
                     </div>
-                    <div class="add" (click)="addArrayElement(formelement.value, form.controls[formelement.key].controls, form)"><i class="material-icons">add</i> Add</div>
+                    <div class="add" (click)="addArrayElement(formelement.value, form.controls[formelement.key].controls, form)"><i class="material-icons">add</i> <span>Add</span></div>
                 </div>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
@@ -93,15 +93,27 @@
             <div *ngIf="formelement.show || partSearch != ''">
                 <div class="dropdown_button" *ngSwitchCase="'buttondropdown'">
                     <!--<input class="dropdownSearch"  formControlName="{{'search_'+formelement.key}}" type="text" placeholder="Search..." >-->
-                    <select [attr.disabled]="form.valid ? null:true" (change)="navigateTo($event.target.value, formelement.options)" *ngIf="formelement.options && formelement.options.length > 0" >
-                        <option [value]="">-</option>
-                        <!--<option *ngFor="let opt of formelement.options | search:form.controls['search_'+formelement.key].value" [value]="opt.url">{{opt.title}}</option>-->
-                        <option *ngFor="let opt of formelement.options" [value]="opt.url">{{opt.title}}</option>
-                    </select>
-                    <a *ngIf="formelement.options && formelement.options.length > 0" [ngClass]="{'disabled':!form.valid}" class="button add" (click)="$event.preventDefault();navigateTo(formelement.url)"  title="Add new {{formelement.label}}"><i class="material-icons">add</i></a>
-                    <a *ngIf="!(formelement.options && formelement.options.length > 0)" [ngClass]="{'disabled':!form.valid}" class="button add big" (click)="$event.preventDefault();navigateTo(formelement.url)"  title="Add new {{formelement.label}}"><i class="material-icons">add</i> Add</a>
-                    <a [ngClass]="{'disabled':!form.valid}" class="button clone" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement)" title="Clone a {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
-                    <a [ngClass]="{'disabled':!form.valid}" class="delete button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();removePart(formelement)" title="Delete a {{formelement.label}} part"><i class="material-icons">clear</i></a>
+                    <!--<select [attr.disabled]="form.valid ? null:true" (change)="navigateTo($event.target.value, formelement.options)" *ngIf="formelement.options && formelement.options.length > 0" >-->
+                        <!--<option [value]="">-</option>-->
+                        <!--&lt;!&ndash;<option *ngFor="let opt of formelement.options | search:form.controls['search_'+formelement.key].value" [value]="opt.url">{{opt.title}}</option>&ndash;&gt;-->
+                        <!--<option *ngFor="let opt of formelement.options" [value]="opt.url">{{opt.title}} </option>-->
+                    <!--</select>-->
+<!--                    <div [attr.disabled]="form.valid ? null:true" class="select" *ngIf="formelement.options && formelement.options.length > 0">
+                        <ul class="option">
+                            <li *ngFor="let opt of formelement.options"><span (click)="navigateTo(pt.url, formelement.options)">{{opt.title}}</span><i class="material-icons">content_copy</i><i class="material-icons">clear</i></li>
+                        </ul>
+                    </div>-->
+                    <dcm-select [options]="formelement.options" [placeholder]="'Test placeholder'">
+                        <ng-template let-select="select">
+                            <div class="title_select_block" (click)="navigateTo(select.url, formelement.options)">{{select.title}}</div>
+                            <a [ngClass]="{'disabled':!form.valid}" class="clone_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement, select)" title="Clone this {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
+                            <a [ngClass]="{'disabled':!form.valid}" class="remove_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();removePart(formelement, select)" title="Delete this {{formelement.label}} part"><i class="material-icons">clear</i></a>
+                        </ng-template>
+                    </dcm-select>
+                    <a *ngIf="formelement.options && formelement.options.length > 0" [ngClass]="{'disabled':!form.valid}" class="button add" (click)="$event.preventDefault();navigateTo(formelement.addUrl)"  title="Add new {{formelement.label}}"><i class="material-icons">add</i></a>
+                    <a *ngIf="!(formelement.options && formelement.options.length > 0)" [ngClass]="{'disabled':!form.valid}" class="button add big" (click)="$event.preventDefault();navigateTo(formelement.addUrl)"  title="Add new {{formelement.label}}"><i class="material-icons">add</i> Add</a>
+<!--                    <a [ngClass]="{'disabled':!form.valid}" class="button clone" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement)" title="Clone a {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
+                    <a [ngClass]="{'disabled':!form.valid}" class="delete button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();removePart(formelement)" title="Delete a {{formelement.label}} part"><i class="material-icons">clear</i></a>-->
                 </div>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">

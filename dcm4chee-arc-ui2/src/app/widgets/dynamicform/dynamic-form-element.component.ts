@@ -252,18 +252,22 @@ export class DynamicFormElementComponent{
             }
         }
     }
-    removePart(formelement){
+    removePart(formelement, selected){
         if(!this.readOnlyMode) {
             let $this = this;
             let globalForm = this.formcomp.getForm();
             let value = globalForm.value;
-            this.dialogRef = this.dialog.open(RemovePartSelectorComponent, {
+/*            this.dialogRef = this.dialog.open(RemovePartSelectorComponent, {
                 height: 'auto',
                 width: '500px'
             });
             this.dialogRef.componentInstance.toRemoveElement = formelement;
             this.dialogRef.afterClosed().subscribe((selected) => {
-                if (selected) {
+                if (selected) {*/
+            this.confirm({
+                content: 'Are you sure you want remove this part from device?'
+            }).subscribe(ok => {
+                if(ok){
                     let elementFound = false;
                     _.forEach(formelement.options, (m, i) => {
                         if (m === selected) {
@@ -352,28 +356,28 @@ export class DynamicFormElementComponent{
         }
     }
 
-    clone(formelement){
+    clone(formelement,selected){
 /*        console.log("formelement",formelement);
         let value = (<FormArray>this.form.controls[formelement.key]).getRawValue();
         (<FormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new FormControl(value));*/
         if(!this.readOnlyMode){
-            let $this = this;
-            let globalForm = this.formcomp.getForm();
-            let value = globalForm.value;
-            this.dialogRef = this.dialog.open(CloneSelectorComponent, {
-                height: 'auto',
-                width: '500px'
-            });
-            this.dialogRef.componentInstance.toCloneElement = formelement;
-            this.dialogRef.afterClosed().subscribe((selected) => {
-                if (selected){
-                    if(formelement.key === "dicomNetworkAE"){
-
-                    }
+            // let $this = this;
+            // let globalForm = this.formcomp.getForm();
+            // let value = globalForm.value;
+            // this.dialogRef = this.dialog.open(CloneSelectorComponent, {
+            //     height: 'auto',
+            //     width: '500px'
+            // });
+            // this.dialogRef.componentInstance.toCloneElement = formelement;
+            // this.dialogRef.afterClosed().subscribe((selected) => {
+            //     if (selected){
+            //         if(formelement.key === "dicomNetworkAE"){
+            //
+            //         }
                     let cloneUrl = formelement.addUrl + '/' + selected.currentElementUrl;
-                    $this.router.navigateByUrl(cloneUrl);
-                }
-            });
+                    this.router.navigateByUrl(cloneUrl);
+            //     }
+            // });
         }
     }
     addArrayElement(element: any, formpart: FormControl[], form: any){
