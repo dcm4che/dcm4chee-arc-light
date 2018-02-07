@@ -11,7 +11,8 @@
                                 <a (click)="fireBreadcrumb(prefix)">{{prefix.title}}</a>
                             </li>
                         </ul>-->
-                        {{pagination.title}}
+                        <i class="material-icons breadcrumb_icon">{{pagination.materialIconName}}</i>
+                        <span>{{pagination.title}}</span>
                         <ul class="suffix_breadcrumb" *ngIf="pagination.allArray && pagination.allArray.length > 0" [ngClass]="{'visible_input':pagination.allArray && pagination.allArray.length > 9}">
                             <li *ngIf="pagination.allArray && pagination.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>
                             <li *ngFor="let prefix of pagination.prefixArray|search:searchBreadcrum[i]" (mouseenter)="hoveredElement(prefix)">
@@ -30,6 +31,7 @@
                                 <a (click)="fireBreadcrumb(prefix)">{{prefix.title}}</a>
                             </li>
                         </ul>-->
+                        <i class="material-icons breadcrumb_icon">{{pagination.materialIconName}}</i>
                         <span>{{pagination.title}}</span>
                         <ul class="suffix_breadcrumb" *ngIf="pagination.allArray && pagination.allArray.length > 0" [ngClass]="{'visible_input':pagination.allArray && pagination.allArray.length > 9}">
                             <li *ngIf="pagination.allArray && pagination.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>

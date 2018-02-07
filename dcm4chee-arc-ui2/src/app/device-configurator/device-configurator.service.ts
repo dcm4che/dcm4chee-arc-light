@@ -190,6 +190,13 @@ export class DeviceConfiguratorService{
         }
 
     }
+    getMaterialIconNameForBreadcrumbs(deviceReff){
+        const regex = /\[\d*\]+$/m;
+        if ((regex.exec(deviceReff)) !== null) {
+            return 'subdirectory_arrow_right';
+        }
+        return 'extension';
+    }
     removeExtensionFromDevice(devicereff){
         console.log('in service devicereff', devicereff);
         _.unset(this.device, devicereff);

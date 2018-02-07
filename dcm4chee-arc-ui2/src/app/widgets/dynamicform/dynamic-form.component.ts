@@ -60,6 +60,7 @@ export class DynamicFormComponent implements OnInit{
         let orderValue = 0;
         let order = 0;
         let diffState = 0;
+        let materialIconName;
         orderedGroup = new OrderByPipe().transform(this.formelements, 'order');
         orderedGroupClone = _.cloneDeep(orderedGroup);
         orderedGroupClone = new OrderByPipe().transform(orderedGroupClone, 'order');
@@ -70,13 +71,16 @@ export class DynamicFormComponent implements OnInit{
                 let title = '';
                 if (1 <= m.order && m.order < 3){
                     title = 'Extensions';
+                    materialIconName = 'extension';
                     order = 0;
                 }else{
                     if (3 <= m.order && m.order  < 4) {
                         title = 'Child Objects';
+                        materialIconName = 'subdirectory_arrow_right';
                         order = 2;
                     }else{
                         title = 'Attributes';
+                        materialIconName = 'list';
                         order = 4;
                     }
                 }
@@ -84,7 +88,8 @@ export class DynamicFormComponent implements OnInit{
                     controlType: 'togglebutton',
                     title: title,
                     orderId: order,
-                    order: order
+                    order: order,
+                    materialIconName: materialIconName
                 });
                 diffState++;
             }

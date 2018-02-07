@@ -436,6 +436,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         }
         let newUrl = '/device/edit/' + params['device'] + '/' + params['devicereff'] + '/' + params['schema'];
         let prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['schema']]);
+
         let newPaginationObject = {
             url: newUrl,
             // title:_.replace(newTitle,lastreff,''),
@@ -443,7 +444,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             prefixArray:prefixSuffix.prefix,
             suffixArray:prefixSuffix.suffix,
             allArray:[...prefixSuffix.prefix,...prefixSuffix.suffix],
-            devicereff: params['devicereff']
+            devicereff: params['devicereff'],
+            materialIconName:this.service.getMaterialIconNameForBreadcrumbs(params['devicereff'])
         };
         let newPaginationIndex = _.findIndex($this.service.pagination, (p) => {
             return this.service.isSameSiblingUrl(p.url,newPaginationObject.url);

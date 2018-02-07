@@ -91,7 +91,7 @@
                 </div>
             </div>
             <div *ngIf="formelement.show || partSearch != ''">
-                <div class="dropdown_button" *ngSwitchCase="'buttondropdown'">
+                <div class="dropdown_button" *ngSwitchCase="'buttondropdown'" [ngClass]="{'empty':(!formelement.options || !formelement.options.length || formelement.options.length === 0)}">
                     <!--<input class="dropdownSearch"  formControlName="{{'search_'+formelement.key}}" type="text" placeholder="Search..." >-->
                     <!--<select [attr.disabled]="form.valid ? null:true" (change)="navigateTo($event.target.value, formelement.options)" *ngIf="formelement.options && formelement.options.length > 0" >-->
                         <!--<option [value]="">-</option>-->
@@ -103,7 +103,7 @@
                             <li *ngFor="let opt of formelement.options"><span (click)="navigateTo(pt.url, formelement.options)">{{opt.title}}</span><i class="material-icons">content_copy</i><i class="material-icons">clear</i></li>
                         </ul>
                     </div>-->
-                    <dcm-select [options]="formelement.options" [placeholder]="'Test placeholder'">
+                    <dcm-select [options]="formelement.options" [placeholder]="(formelement.options && formelement.options.length && formelement.options.length > 0 ? 'Select a ' + formelement.label:'Create some childe')">
                         <ng-template let-select="select">
                             <div class="title_select_block" (click)="navigateTo(select.url, formelement.options)">{{select.title}}</div>
                             <a [ngClass]="{'disabled':!form.valid}" class="clone_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement, select)" title="Clone this {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
@@ -133,7 +133,7 @@
         </div>
 
         <div class="toggle" *ngSwitchCase="'togglebutton'">
-            <h4 [ngClass]="{'disabled':!form.valid}" (click)="toggleTab(formelement.order)">{{formelement.title}}</h4>
+            <h4 [ngClass]="{'disabled':!form.valid}" (click)="toggleTab(formelement.order)"><i class="material-icons" *ngIf="formelement.materialIconName">{{formelement.materialIconName}}</i> {{formelement.title}}</h4>
         </div>
     </div>
     <div  class="description_parent" *ngIf="formelement.show || partSearch != ''">

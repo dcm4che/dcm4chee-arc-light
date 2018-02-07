@@ -1419,6 +1419,14 @@ md-dialog-container{
   margin:15px;
   .current_title,.prev_breadcrumb{
     position: relative;
+    .breadcrumb_icon{
+      font-size: 21px;
+      height: 14px;
+      line-height: 14px;
+      vertical-align: middle;
+      margin-right: 5px;
+      color: $blue;
+    }
     .prefix_breadcrumb,.suffix_breadcrumb{
       position: absolute;
       display: block;
@@ -1445,11 +1453,18 @@ md-dialog-container{
         min-height:40px;
         li:first-child{
           height:35px;
+          &:hover{
+            background:white;
+          }
+          input{
+            color:black;
+          }
         }
       }
       li{
         height:22px;
         display: flex;
+        overflow: hidden;
         input{
           position: absolute;
           left: 10px;
@@ -1513,6 +1528,9 @@ md-dialog-container{
   .btn:not(:last-child):hover{
     background:$lightBlueNoTransparence;
     color:white;
+    i.breadcrumb_icon{
+      color:white;
+    }
   }
   .btn:last-child:hover{
     background:white;
@@ -1774,6 +1792,7 @@ md-dialog-container{
         transition: 0.2s all ;
         li{
           display:flex;
+          overflow: hidden;
           .title_select_block,
           .clone_button,
           .remove_button{
@@ -1791,11 +1810,30 @@ md-dialog-container{
             text-align: center;
             line-height: 30px;
             vertical-align: middle;
+            border: 1px solid #ccc;
+            color: #777;
+            -webkit-box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.61);
+            -moz-box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.61);
+            box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.61);
+            i.material-icons{
+              font-size:20px;
+              line-height:28px;
+            }
+            &:hover{
+              color: white;
+              background:rgba(6, 29, 47, 0.84);
+            }
           }
           .clone_button{
+            margin-right:2px;
           }
           .remove_button{
           }
+        }
+      }
+      &.empty{
+        dcm-select{
+          width:100%;
         }
       }
 
@@ -1973,6 +2011,13 @@ md-dialog-container{
       margin-top: 10px;
       padding: 5px 10px;
       width: 100%;
+      i.material-icons{
+        font-size: 20px;
+        margin-right: 5px;
+        line-height: 18px;
+        height: 18px;
+        vertical-align: middle;
+      }
       &:hover{
         cursor: pointer;
       }
