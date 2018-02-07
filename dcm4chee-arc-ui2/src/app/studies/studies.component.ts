@@ -73,21 +73,22 @@ export class StudiesComponent implements OnDestroy,OnInit{
         returnempty: false,
         PatientSex: '',
         PatientBirthDate: '',
-        StudyDate:''
+        StudyDate:'',
+        StudyTime:''
     };
     queryMode = 'queryStudies';
-    ScheduledProcedureStepSequence: any = {
-        ScheduledProcedureStepStartTime: {
-            from: '',
-            to: ''
-        },
-        ScheduledProcedureStepStartDate: {
-            from: this.service.getTodayDate(),
-            to: this.service.getTodayDate(),
-            toObject: new Date(),
-            fromObject: new Date()
-        }
-    };
+    // ScheduledProcedureStepSequence: any = {
+    //     ScheduledProcedureStepStartTime: {
+    //         from: '',
+    //         to: ''
+    //     },
+    //     ScheduledProcedureStepStartDate: {
+    //         from: this.service.getTodayDate(),
+    //         to: this.service.getTodayDate(),
+    //         toObject: new Date(),
+    //         fromObject: new Date()
+    //     }
+    // };
     moreMWL;
     morePatients;
     moreStudies;
@@ -147,14 +148,14 @@ export class StudiesComponent implements OnDestroy,OnInit{
         // this.birthDate = {};
         // this.birthDate.object = null;
         // this.birthDate.opened = false;
-        this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.fromObject = null;
+/*        this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.fromObject = null;
         this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.toObject = null;
         this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.from = '';
         this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.to = '';
         this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime.fromObject = null;
         this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime.toObject = null;
         this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime.from = '';
-        this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime.to = '';
+        this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime.to = '';*/
     };
     options = {genders:
                         [
@@ -292,10 +293,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
         if (dateset === 'no'){
             this.clearStudyDate();
             this.filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'] = null;
-            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.fromObject = null;
+/*            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.fromObject = null;
             this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.toObject = null;
             this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.from = '';
-            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.to = '';
+            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.to = '';*/
         }
 
         if (_.hasIn(this.mainservice.global, 'state')){
@@ -3102,18 +3103,22 @@ export class StudiesComponent implements OnDestroy,OnInit{
     }
     createStudyFilterParams() {
         let filter = Object.assign({}, this.filter);
-        this.appendFilter(filter, 'StudyDate', this.studyDate, /-/g);
-        this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate, /-/g);
-        this.appendFilter(filter, 'StudyTime', this.studyTime, /:/g);
-        this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime, /-/g);
+        delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'];
+        delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime'];
+        // this.appendFilter(filter, 'StudyDate', this.studyDate, /-/g);
+        // this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate, /-/g);
+        // this.appendFilter(filter, 'StudyTime', this.studyTime, /:/g);
+        // this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime, /-/g);
         return filter;
     }
     createMwlFilterParams() {
         let filter = Object.assign({}, this.filter);
-        this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.studyDate, /-/g);
+        delete filter.StudyDate;
+        delete filter.StudyTime;
+/*        this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.studyDate, /-/g);
         this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate, /-/g);
         this.appendFilter(filter, 'StudyTime', this.studyTime, /:/g);
-        this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime, /-/g);
+        this.appendFilter(filter, 'ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime', this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime, /-/g);*/
         return filter;
     }
 
@@ -4263,7 +4268,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             limit: this.limit,
             trashaktive: this.trashaktive,
             patientmode: this.patientmode,
-            ScheduledProcedureStepSequence: this.ScheduledProcedureStepSequence,
+            // ScheduledProcedureStepSequence: this.ScheduledProcedureStepSequence,
             filterMode: this.filterMode,
             user: this.user,
             patients: this.patients,
