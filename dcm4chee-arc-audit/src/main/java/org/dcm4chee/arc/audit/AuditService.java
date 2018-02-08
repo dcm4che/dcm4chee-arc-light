@@ -298,15 +298,18 @@ public class AuditService {
     }
 
     void spoolQueueMessageEvent(QueueMessageEvent queueMsgEvent) {
-        HttpServletRequest req = queueMsgEvent.getRequest();
         QueueMessage queueMsg = queueMsgEvent.getQueueMsg();
+        if (queueMsg == null)
+            return;
+
+        HttpServletRequest req = queueMsgEvent.getRequest();
         AuditInfoBuilder info = new AuditInfoBuilder.Builder()
                 .callingUserID(KeycloakContext.valueOf(req).getUserName())
                 .callingHost(req.getRemoteHost())
                 .calledUserID(req.getRequestURI())
                 .outcome(getOD(queueMsgEvent.getException()))
-                .queueMsg(queueMsg != null ? toString(queueMsg) : null)
-                .taskPOID(queueMsg != null ? queueMsg.getMessageID() : null)
+                .queueMsg(toString(queueMsg))
+                .taskPOID(queueMsg.getMessageID())
                 .build();
         writeSpoolFile(AuditServiceUtils.EventType.forQueueEvent(queueMsgEvent.getOperation()), info);
     }
