@@ -40,6 +40,7 @@ export class DynamicFormElementComponent{
     dialogRef: MdDialogRef<any>;
     // activetab = "tab_1";
     partRemoved: boolean;
+    search = new FormControl('');
     constructor(
         private formservice: FormService,
         private formcomp: DynamicFormComponent,
@@ -413,7 +414,7 @@ export class DynamicFormElementComponent{
     }
     checkboxChange(e, formelement){
         if(!this.readOnlyMode) {
-            if (e.target.checked && !_.hasIn(this.form.controls[formelement.key].value, e.target.defaultValue)) {
+            if (e.target.checked && !_.hasIn(this.form.controls[formelement.key].value, e.target.defaultValue) && !_.hasIn((<FormArray>this.form.controls[formelement.key]).getRawValue(), e.target.defaultValue)) {
                 (<FormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new FormControl(e.target.defaultValue));
             } else {
                 (<FormArray>this.form.controls[formelement.key]).removeAt(_.indexOf(this.form.controls[formelement.key].value, e.target.defaultValue));
