@@ -39,10 +39,7 @@ export class DynamicFieldComponent implements OnInit {
                 this.key = 'hl7ApplicationName';
             break;
         }
-        this.checked = this.checked || [];
-        this.checked.forEach(element =>{
-          this.model[element] = true;
-        })
+
     }
     valueChanged(){
         if(this.type === 'array')
@@ -51,8 +48,19 @@ export class DynamicFieldComponent implements OnInit {
             this.onValueChange.emit(this.model);
     }
     getObject(functionName){
-      this.loader = true;
-      this.service[functionName]().subscribe((res)=>{
+        if(Array.isArray(this.checked)){
+            this.checked = this.checked || [];
+            this.checked.forEach(element =>{
+                this.model[element] = true;
+            });
+            this.type = "array";
+        }else{
+            this.checked = this.checked || '';
+            this.model = this.checked;
+            this.type = "string";
+        }
+        this.loader = true;
+        this.service[functionName]().subscribe((res)=>{
           this.elements = res;
           this.loader = false;
           this.ref.detectChanges();
@@ -63,9 +71,9 @@ export class DynamicFieldComponent implements OnInit {
                   this.ref.detectChanges();
               }
           }
-      },(err)=>{
+        },(err)=>{
           this.loader = false;
-      });
+        });
     }
 
 }
