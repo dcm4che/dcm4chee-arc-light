@@ -112,7 +112,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                             prefixArray:[],
                                             suffixArray:[],
                                             allArray:[],
-                                            devicereff: undefined
+                                            devicereff: undefined,
+                                            childObjectTitle:''
                                         }
                                     ];
                                 }catch (e){
@@ -334,6 +335,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         suffixArray:[],
                         allArray:[],
                         devicereff: '',
+                        childObjectTitle:''
                     };
                     let newPaginationIndex = _.findIndex($this.service.pagination, (p) => {
                         return p.url === newPaginationObject.url;
@@ -445,7 +447,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             suffixArray:prefixSuffix.suffix,
             allArray:[...prefixSuffix.prefix,...prefixSuffix.suffix],
             devicereff: params['devicereff'],
-            materialIconName:this.service.getMaterialIconNameForBreadcrumbs(params['devicereff'])
+            materialIconName:this.service.getMaterialIconNameForBreadcrumbs(params['devicereff']),
+            childObjectTitle:newSchema.title || ''
         };
         let newPaginationIndex = _.findIndex($this.service.pagination, (p) => {
             return this.service.isSameSiblingUrl(p.url,newPaginationObject.url);
@@ -550,7 +553,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                          prefixArray:[],
                          suffixArray:[],
                          allArray:[],
-                         devicereff: undefined
+                         devicereff: undefined,
+                         childObjectTitle:''
                      }
                  ];
             }

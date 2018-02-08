@@ -4,7 +4,7 @@
         <div class="row">
             <div class="btn-group btn-breadcrumb">
                 <ng-container *ngFor="let pagination of params;let i = index">
-                    <a *ngIf="i!=(params.length-1)" (click)="fireBreadcrumb(pagination)" class="btn btn-default prev_breadcrumb" >
+                    <a *ngIf="i!=(params.length-1)" (click)="fireBreadcrumb(pagination)" class="btn btn-default prev_breadcrumb"  title="{{(pagination.materialIconName === 'subdirectory_arrow_right'? pagination.childObjectTitle:'')}}">
 <!--                        <ul class="prefix_breadcrumb" [ngClass]="{'visible_input':pagination.prefixArray && pagination.prefixArray.length > 9}" *ngIf="pagination.prefixArray && pagination.prefixArray.length > 0">
                             <li *ngIf="pagination.prefixArray && pagination.prefixArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>
                             <li *ngFor="let prefix of pagination.prefixArray|search:searchBreadcrum[i]">
@@ -12,6 +12,7 @@
                             </li>
                         </ul>-->
                         <i class="material-icons breadcrumb_icon">{{pagination.materialIconName}}</i>
+                        <!--<span *ngIf="pagination.materialIconName === 'subdirectory_arrow_right'">{{pagination.childObjectTitle}}:</span>-->
                         <span>{{pagination.title}}</span>
                         <ul class="suffix_breadcrumb" *ngIf="pagination.allArray && pagination.allArray.length > 0" [ngClass]="{'visible_input':pagination.allArray && pagination.allArray.length > 9}">
                             <li *ngIf="pagination.allArray && pagination.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>
@@ -24,7 +25,7 @@
                             </li>
                         </ul>
                     </a>
-                    <a class="current_title btn btn-default" *ngIf="i == (params.length-1)" (click)="$event.preventDefault()">
+                    <a class="current_title btn btn-default" *ngIf="i == (params.length-1)" (click)="$event.preventDefault()" title="{{(pagination.materialIconName === 'subdirectory_arrow_right'? pagination.childObjectTitle:'')}}">
 <!--                        <ul class="prefix_breadcrumb" *ngIf="pagination.prefixArray && pagination.prefixArray.length > 0" [ngClass]="{'visible_input':pagination.prefixArray && pagination.prefixArray.length > 9}">
                             <li *ngIf="pagination.prefixArray && pagination.prefixArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>
                             <li *ngFor="let prefix of pagination.prefixArray|search:searchBreadcrum[i]">
@@ -32,6 +33,7 @@
                             </li>
                         </ul>-->
                         <i class="material-icons breadcrumb_icon">{{pagination.materialIconName}}</i>
+                        <!--<span *ngIf="pagination.materialIconName === 'subdirectory_arrow_right'">{{pagination.childObjectTitle}}:</span>-->
                         <span>{{pagination.title}}</span>
                         <ul class="suffix_breadcrumb" *ngIf="pagination.allArray && pagination.allArray.length > 0" [ngClass]="{'visible_input':pagination.allArray && pagination.allArray.length > 9}">
                             <li *ngIf="pagination.allArray && pagination.allArray.length > 9" ><input type="text" [(ngModel)]="searchBreadcrum[i]" placeholder="Search..."></li>
