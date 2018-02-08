@@ -668,7 +668,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             if (tsuids.contains(UID.ExplicitVRLittleEndian))
                 tsuid = UID.ExplicitVRLittleEndian;
             else if (tsuids.contains(UID.ImplicitVRLittleEndian))
-                tsuid = UID.ExplicitVRLittleEndian;
+                tsuid = UID.ImplicitVRLittleEndian;
             else
                 throw new NoPresentationContextException(inst.getSopClassUID(), tsuid);
         }

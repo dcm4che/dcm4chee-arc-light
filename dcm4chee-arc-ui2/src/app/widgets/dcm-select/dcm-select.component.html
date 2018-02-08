@@ -1,0 +1,14 @@
+<div class="option" >
+    <input class="toggle_button" [(ngModel)]="selectedElement" (click)="selectOpen = !selectOpen" placeholder="{{placeholder}}"/>
+    <div class="toggle_block" *ngIf="selectOpen" (clickOutside)='selectOpen = !selectOpen' [clickOutsideExceptionClass]="['toggle_button', 'option']">
+        <!--<span class="selected_element">{{selectedElement}}</span>-->
+        <input *ngIf="options && options.length > 6" type="text" [(ngModel)]="search" placeholder="Search...">
+        <ul>
+            <li *ngFor="let select of options|search:search">
+                <ng-template [ngTemplateOutlet]="templ" [ngTemplateOutletContext]="{select: select}">
+                    <span (click)="selectedElement=select.value">{{select.title}}</span>
+                </ng-template>
+            </li>
+        </ul>
+    </div>
+</div>

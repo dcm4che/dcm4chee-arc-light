@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 export class SearchPipe implements PipeTransform {
 
   transform(value: any, args?: any): any {
-      if (args === ''){
+      if (args === '' || !args){
           return value;
       }else{
           if (value){

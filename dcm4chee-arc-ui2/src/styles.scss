@@ -110,6 +110,94 @@ $hoverBlue:#5293C1;
     display: none;
   }
 }
+/*progress{
+  background: rgba(6, 29, 47, 0.84);
+}*/
+
+.active_breadcrumb{
+  background: rgba(6, 29, 47, 0.68);
+  color: white;
+  text-align: left;
+  padding: 0 22px;
+  &:hover{
+    cursor: auto;
+  }
+}
+.compare_mode{
+  &.first_block{
+    float: left;
+    width: 49%;
+  }
+  &.second_block{
+    float: right;
+    width:49%;
+  }
+}
+progress {
+  display: inline-block;
+  width: 300px;
+  margin: 10px 2px;
+  padding: 2px;
+  border: 0 none;
+  background: rgba(45, 64, 79, 0.56);
+  border-radius: 14px;
+  -webkit-box-shadow: inset  0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2);
+  -moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2);
+  box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2);
+}
+progress::-moz-progress-bar {
+  border-radius: 12px;
+  background: rgba(6, 29, 47, 0.84);
+  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0px rgba(0,0,0,0.3);
+
+}
+/* webkit */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  progress {
+    height:8px;
+  }
+}
+progress::-webkit-progress-bar {
+  background: transparent;
+}
+progress::-webkit-progress-value {
+  border-radius: 12px;
+  background: rgba(6, 29, 47, 0.84);
+  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0px rgba(0,0,0,0.3);
+}
+.check_block,.send_block{
+  border: 1px solid #ccc;
+  padding: 11px 10px;
+  margin-top:10px;
+  //height: 60px;
+  display: flex;
+  flex-wrap: wrap;
+  & > *{
+    flex-grow: 1;
+  }
+  & > input{
+/*    float: left;
+    margin: 7px 8px;*/
+  }
+  & > span{
+/*    margin-top: 10px;
+    display: inline-block;*/
+  }
+  .button_block{
+    text-align: right;
+    max-width: 250px;
+     button{
+      //float: right;
+    }
+  }
+  .progress_content{
+    width:400px;
+    text-align: right;
+    progress{
+
+    }
+  }
+}
 input.ng-invalid:focus{
   outline-color: #a94442 !important;
 }
@@ -369,7 +457,7 @@ md-grid-list{
   li{
     a{
       &.active{
-        text-decoration:underline;
+        background: rgba(32, 46, 58, 0.45);
       }
     }
   }
@@ -1325,15 +1413,134 @@ md-dialog-container{
     width:100%;
   }
 }
+.checkbox_parent{
+  &.long_mode{
+    overflow: auto;
+    max-height: 200px;
+    padding: 6px;
+    -webkit-box-shadow: inset 0px 0px 17px 3px #ccc;
+    -moz-box-shadow: inset 0px 0px 17px 3px #ccc;
+    box-shadow: inset 0px 0px 17px 3px #ccc;
+  }
+}
 .breadcrumb_container{
   float:left;
   width:100%;
   margin:15px;
+  .current_title,.prev_breadcrumb{
+    position: relative;
+    .breadcrumb_icon{
+      font-size: 21px;
+      height: 14px;
+      line-height: 14px;
+      vertical-align: middle;
+      margin-right: 5px;
+      color: $blue;
+    }
+    .prefix_breadcrumb,.suffix_breadcrumb{
+      position: absolute;
+      display: block;
+      visibility: hidden;
+      opacity: 0;
+      list-style: none;
+      padding: 0;
+      min-height:24px;
+      border: 1px solid #ccc;
+      min-width: 100%;
+      left: 1px;
+      -webkit-box-shadow: 1px 1px 4px 0px rgba(0, 0, 0, 0.78);
+      -moz-box-shadow: 1px 1px 4px 0px rgba(0, 0, 0, 0.78);
+      box-shadow: 1px 1px 4px 0px rgba(0, 0, 0, 0.78);
+      background: white;
+      overflow: auto;
+      -webkit-transition: visibility 0.5s, opacity 0.5s;
+      -moz-transition: visibility 0.5s, opacity 0.5s;
+      -ms-transition: visibility 0.5s, opacity 0.5s;
+      -o-transition: visibility 0.5s, opacity 0.5s;
+      transition: visibility 0.5s, opacity 0.5s; ;
+      &.visible_input{
+        padding:6px 0;
+        min-height:40px;
+        li:first-child{
+          height:35px;
+          &:hover{
+            background:white;
+          }
+          input{
+            color:black;
+          }
+        }
+      }
+      li{
+        height:22px;
+        display: flex;
+        overflow: hidden;
+        input{
+          position: absolute;
+          left: 10px;
+          height: 26px;
+          border-radius: 0;
+          border: 1px solid #ccc;
+          padding: 0 7px;
+          top: 5px;
+          max-width:calc(98% - 10px);
+        }
+        .compare_button{
+          float: right;
+          width: 30px;
+          border: 1px solid #ccc;
+          color: black;
+          height: 100%;
+          font-size: 16px;
+          line-height: 26px;
+          display: inline-block;
+          i{
+            font-size: inherit;
+          }
+        }
+        a{
+          display: block;
+          width: calc(100% - 30px);
+          float: left;
+          height: 100%;
+          padding: 0px 10px 0 22px;
+          text-align: left;
+          box-sizing: border-box;
+          &:hover{
+            text-decoration: none;
+
+          }
+        }
+        &:hover{
+          background: #2c404f;
+          color: white;
+          a,.compare_button{
+            color: white;
+          }
+        }
+      }
+    }
+    &:hover .prefix_breadcrumb, &:hover .suffix_breadcrumb{
+      visibility: visible;
+      opacity: 1;
+    }
+    .prefix_breadcrumb{
+      bottom:23px;
+      max-height: 115px;
+    }
+    .suffix_breadcrumb{
+      max-height: 200px;
+      top:33px;
+    }
+  }
 }
 .btn-breadcrumb{
   .btn:not(:last-child):hover{
     background:$lightBlueNoTransparence;
     color:white;
+    i.breadcrumb_icon{
+      color:white;
+    }
   }
   .btn:last-child:hover{
     background:white;
@@ -1524,7 +1731,7 @@ md-dialog-container{
       border: 1px solid #ccc;
       height: 30px;
       line-height: 30px;
-      margin-left: 1%;
+      margin-left: 2px;
       color: #777;
       text-decoration: none;
       i{
@@ -1536,10 +1743,10 @@ md-dialog-container{
         color:white;
       }
       &.delete,&.add{
-        width: 9%;
+        width: 40px;
       }
       &.edit{
-        width:89%;
+        width:calc(100% - 45px);
         position:relative;
         i{
 /*          position: absolute;
@@ -1562,7 +1769,7 @@ md-dialog-container{
   }
   &.buttondropdown{
 
-    &:hover{
+/*    &:hover{
       .dropdown_button{
         .button{
           -webkit-transition-delay: 0.2s;
@@ -1573,36 +1780,83 @@ md-dialog-container{
           visibility: visible;
           opacity: 1;
         }
-        select{
-          width:70%;
+        dcm-select{
+          display: inline-block;
+          width:calc(100% - 43px);
         }
       }
-    }
+    }*/
     .dropdown_button{
       position:relative;
-      select{
-        width:100%;
+      dcm-select{
+        width:calc(100% - 43px);
+        display: inline-block;
         float:left;
         height: 30px;
         background: transparent;
-
+        border:1px solid #cccccc;
         -webkit-transition: 0.2s all;
         -moz-transition: 0.2s all ;
         -ms-transition: 0.2s all ;
         -o-transition: 0.2s all ;
         transition: 0.2s all ;
+        li{
+          display:flex;
+          overflow: hidden;
+          .title_select_block,
+          .clone_button,
+          .remove_button{
+            display: block;
+            float: left;
+          }
+          .title_select_block{
+            width:calc(100% - 84px);
+            white-space: nowrap;
+            line-height: 30px;
+          }
+          .clone_button,.remove_button{
+            width: 40px;
+            height: 28px;
+            text-align: center;
+            line-height: 30px;
+            vertical-align: middle;
+            border: 1px solid #ccc;
+            color: #777;
+            -webkit-box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.61);
+            -moz-box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.61);
+            box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.61);
+            i.material-icons{
+              font-size:20px;
+              line-height:28px;
+            }
+            &:hover{
+              color: white;
+              background:rgba(6, 29, 47, 0.84);
+            }
+          }
+          .clone_button{
+            margin-right:2px;
+          }
+          .remove_button{
+          }
+        }
+      }
+      &.empty{
+        dcm-select{
+          width:100%;
+        }
       }
 
       .button{
         position:absolute;
-        width: 9%;
-        visibility: hidden;
-        opacity: 0;
+        width: 40px;
+/*        visibility: hidden;
+        opacity: 0;*/
         float: left;
         text-align: center;
         border: 1px solid #ccc;
         height: 30px;
-        margin-left: 1%;
+        margin-left: 2px;
         color: #777;
         -webkit-transition: 0.2s visibility, opacity 0.2s linear;
         -moz-transition: 0.2s visibility, opacity 0.2s linear ;
@@ -1610,7 +1864,7 @@ md-dialog-container{
         -o-transition: 0.2s visibility, opacity 0.2s linear ;
         transition: 0.2s visibility, opacity 0.2s linear ;
         &.clone{
-          right:10%;
+          right:42px;
         }
         &.delete{
           right:0;
@@ -1662,7 +1916,8 @@ md-dialog-container{
       float: left;
       height: 30px;
       padding-left: 7px;
-      width: 100%;
+      //width: 100%;
+      width:calc(100% - 42px);
       -webkit-transition: 0.2s all;
       -moz-transition: 0.2s all ;
       -ms-transition: 0.2s all ;
@@ -1670,14 +1925,14 @@ md-dialog-container{
       transition: 0.2s all ;
     }
     .delete{
-      width: 9%;
-      visibility: hidden;
-      opacity: 0;
+      width: 40px;
+      //visibility: hidden;
+      //opacity: 0;
       float: left;
       text-align: center;
       border: 1px solid #ccc;
       height: 30px;
-      margin-left: 1%;
+      margin-left: 2px;
       color: #777;
       position:absolute;
       -webkit-transition: 0.2s visibility, opacity 0.2s linear;
@@ -1699,7 +1954,7 @@ md-dialog-container{
       float: left;
       width: 100%;
       position:relative;
-      &:hover {
+/*      &:hover {
         .delete{
           -webkit-transition-delay: 0.2s;
           -moz-transition-delay: 0.2s;
@@ -1710,9 +1965,9 @@ md-dialog-container{
           opacity: 1;
         }
         input{
-          width:90%;
+          width:calc(100% - 45px);
         }
-      }
+      }*/
       &.picker{
         &:hover{
           input{
@@ -1740,9 +1995,8 @@ md-dialog-container{
       text-align: center;
       position: relative;
       i{
-        position: absolute;
-        left: 38%;
-        top: 2px;
+        font-size: 24px;
+        vertical-align: middle;
       }
       &:hover{
         cursor: pointer;
@@ -1767,6 +2021,13 @@ md-dialog-container{
       margin-top: 10px;
       padding: 5px 10px;
       width: 100%;
+      i.material-icons{
+        font-size: 20px;
+        margin-right: 5px;
+        line-height: 18px;
+        height: 18px;
+        vertical-align: middle;
+      }
       &:hover{
         cursor: pointer;
       }

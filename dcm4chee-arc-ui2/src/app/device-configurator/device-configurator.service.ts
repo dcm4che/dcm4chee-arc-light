@@ -16,6 +16,7 @@ import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.servi
 import {Globalvar} from "../constants/globalvar";
 import {j4care} from "../helpers/j4care.service";
 import {J4careHttpService} from "../helpers/j4care-http.service";
+import {OrderByPipe} from "../pipes/order-by.pipe";
 
 @Injectable()
 export class DeviceConfiguratorService{
@@ -23,6 +24,7 @@ export class DeviceConfiguratorService{
     device;
     schema;
     pagination = [];
+    allOptions = {};
     constructor(
         private $http:J4careHttpService,
         private mainservice:AppService,
@@ -117,6 +119,83 @@ export class DeviceConfiguratorService{
             }
         }
         return false;
+    }
+    isSameSiblingUrl(lastUrl,newUrl){
+        try{
+            if(lastUrl === newUrl)
+                return true;
+            let firstMatch;
+            let secondMatch;
+            const regex = /\/(\S*)\/((\S*)\[(\d*)\])\/(\S*)/;
+            if ((firstMatch = regex.exec(lastUrl)) !== null && (secondMatch = regex.exec(newUrl)) !== null) {
+                if(firstMatch[1] === secondMatch[1] && firstMatch[3] === secondMatch[3] && firstMatch[5] === secondMatch[5]){
+                    return true
+                }
+            }
+            return false;
+        }catch(e){
+            return false;
+        }
+    }
+    getObjectsFromPath(path){
+        const regex = /\/(\S*)\/(\S*)\/(\S*)/;
+        let m;
+        if ((m = regex.exec(path)) !== null) {
+           if(m[2] && m[3]){
+               return {
+                   model:_.get(this.device,m[2]),
+                   schemaObject:_.get(this.schema,m[3]),
+                   schema:m[3],
+                   devicereff:m[2]
+               }
+           }
+        }
+        return null;
+    }
+    getPrefixAndSuffixArray(currentUrl,allArray){
+        try{
+            if(allArray.length < 2){
+             return {
+                 prefix:[],
+                 suffix:[]
+             };
+            }else{
+                let currentSiblingIndex = _.findIndex(allArray, (p) => {
+                    return p['url'] === currentUrl;
+                });
+                if(allArray.length === 2){
+                    if(currentSiblingIndex === 0){
+                        return {
+                            prefix:[],
+                            suffix:allArray.slice(1,2),
+                        };
+                    }else{
+                        return {
+                            prefix:allArray.slice(0,1),
+                            suffix:[],
+                        };
+                    }
+                }else{
+                    return {
+                        prefix:allArray.slice(0,currentSiblingIndex),
+                        suffix:allArray.slice(currentSiblingIndex+1,allArray.length),
+                    };
+                }
+            }
+        }catch(e){
+            return {
+                prefix:[],
+                suffix:[]
+            };
+        }
+
+    }
+    getMaterialIconNameForBreadcrumbs(deviceReff){
+        const regex = /\[\d*\]+$/m;
+        if ((regex.exec(deviceReff)) !== null) {
+            return 'subdirectory_arrow_right';
+        }
+        return 'extension';
     }
     removeExtensionFromDevice(devicereff){
         console.log('in service devicereff', devicereff);
@@ -475,7 +554,7 @@ export class DeviceConfiguratorService{
                                     key: i,
                                     label: m.title,
                                     description: m.description,
-                                    options: options,
+                                    options: new OrderByPipe().transform(options,'label'),
                                     order: (5 + newOrderSuffix),
                                     validation: validation,
                                     value: value
@@ -629,7 +708,7 @@ export class DeviceConfiguratorService{
                        }else{
                            _.forEach(m.enum, (opt) => {
                                options.push({
-                                   label: opt,
+                                   key: opt,
                                    value: opt,
                                    active: (opt === value) ? true : false
                                });
@@ -674,9 +753,10 @@ export class DeviceConfiguratorService{
                                     label: m.title,
                                     format: m.format,
                                     description: m.description,
-                                    options: options,
+                                    options: new OrderByPipe().transform(options,'key'),
                                     order: (5 + newOrderSuffix),
-                                    validation: validation
+                                    validation: validation,
+                                    search:''
                                 })
                             );
                         }
@@ -685,8 +765,6 @@ export class DeviceConfiguratorService{
                 }else{
                     console.log('this.device', this.device);
                     if (_.hasIn(m, 'items.enum')){
-                        //TODO when m.item.enum is too long than don't shown checkboxes but show some widget
-
                         _.forEach(m.items.enum, (opt) => {
                             options.push({
                                 key: opt,
@@ -699,9 +777,10 @@ export class DeviceConfiguratorService{
                                 key: i,
                                 label: m.title,
                                 description: m.description,
-                                options: options,
+                                options: new OrderByPipe().transform(options,'key'),
                                 order: (5 + newOrderSuffix),
-                                validation: validation
+                                validation: validation,
+                                search:''
                             })
                         );
                     }else{
@@ -753,7 +832,7 @@ export class DeviceConfiguratorService{
                                         key: i,
                                         label: m.title,
                                         description: m.description,
-                                        options: options,
+                                        options: new OrderByPipe().transform(options,'title'),
                                         addUrl: addUrl,
                                         order: (3 + newOrderSuffix)
                                     });
@@ -806,7 +885,7 @@ export class DeviceConfiguratorService{
                                     key: i,
                                     label: m.title,
                                     description: m.description,
-                                    options: options,
+                                    options: new OrderByPipe().transform(options,'title'),
                                     addUrl: addUrl,
                                     order: (3 + newOrderSuffix)
                                 });

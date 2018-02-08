@@ -1,10 +1,11 @@
 <div (keydown)="keyDown($event)" (keyup)="keyUp($event)">
     <input placeholder="Search in this part..." [(ngModel)]="partSearch" (keyup)="filterFormElements()">
+    <!--<div (click)="form.disable()">disable</div>-->
     <form  [formGroup]="form">
         <div *ngFor="let formelement of formelements" class="form-row">
-            <df-element [formelement]="formelement" [formelements]="formelements" [form]="form" [partSearch]="partSearch"></df-element>
+            <df-element [formelement]="formelement" [formelements]="formelements" [form]="form" [partSearch]="partSearch" [readOnlyMode]="readOnlyMode"></df-element>
         </div>
-        <div class="form-row submit_button_block">
+        <div class="form-row submit_button_block" *ngIf="!readOnlyMode">
             <fieldset [disabled]="!form.valid">
                 <div class="btn btn-default submit" (click)="onSubmit(form.valid)" type="submit">Save</div>
             </fieldset>

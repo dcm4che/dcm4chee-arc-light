@@ -6,6 +6,7 @@ import {FormElement} from './form-element';
 export class Checkbox extends FormElement<string>{
     controlType = 'checkbox';
     options: {key: string, value: any, active: boolean}[] = [];
+    search:string = '';
 
     constructor(options: {} = {}){
         super(options);
