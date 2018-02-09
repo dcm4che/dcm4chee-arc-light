@@ -398,9 +398,9 @@ export class ExternalRetrieveComponent implements OnInit {
                         if (_.hasIn(properties, 'Modality')){
                             properties.Modality = properties.Modality.join(',');
                         }
-                        properties.NumberOfInstances = ((properties.failed ? properties.failed*1:0) + (properties.completed ? properties.completed*1:0) + (properties.warning ? properties.warning*1:0));
+                        properties.taskState = (properties.completed ? properties.completed*1:0) + ' / ' + (properties.remaining ? properties.remaining*1:0) + ' / '+ (properties.failed ? properties.failed*1:0);
                         try{
-                            properties.InstancePerSec = Math.round((((new Date(properties.processingEndTime).getTime()/1000) - (new Date(properties.processingStartTime).getTime()/1000)) / properties.NumberOfInstances)*1000)/1000;
+                            properties.InstancePerSec = (Math.round((((new Date(properties.processingEndTime).getTime()/1000) - (new Date(properties.processingStartTime).getTime()/1000)) / properties.NumberOfInstances)*1000)/1000) || 0;
                         }catch (e){
                             properties.InstancePerSec = '';
                         }

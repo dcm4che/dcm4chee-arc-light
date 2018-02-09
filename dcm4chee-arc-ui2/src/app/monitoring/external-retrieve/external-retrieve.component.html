@@ -52,7 +52,7 @@
         <th class="hideMobile hideOn800px">Scheduled</th>
         <th class="hideMobile hideOn1400px">Started</th>
         <th class="hideMobile">Finished</th>
-        <th class="hideMobile hideOn1200px" title="Number of Instances">Nr. of Inst.</th>
+        <th class="hideMobile hideOn1200px" title="Completed / Remainning / Failed">Completed / Remaining / Failed</th>
         <th class="hideMobile hideOn1200px">Instance / sec</th>
       </tr>
       </thead>
@@ -82,11 +82,11 @@
           <td class="hideMobile hideOn800px" [innerHtml]="match.properties.scheduledTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
           <td class="hideMobile hideOn1400px" [innerHtml]="match.properties.processingStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
           <td class="hideMobile" [innerHtml]="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-          <td [innerHtml]="match.properties.NumberOfInstances" class="hideOn1200px"></td>
+          <td [innerHtml]="match.properties.taskState" class="hideOn1200px"></td>
           <td [innerHtml]="match.properties.InstancePerSec" class="hideOn1200px"></td>
         </tr>
         <tr *ngIf="match.showProperties">
-          <td colspan="9">
+          <td colspan="10">
             <table class="table table-bordered table-condensed attribute_list">
               <tr *ngFor="let key of match.properties | getKey">
                 <th [innerHtml]="key._KEY"></th>
