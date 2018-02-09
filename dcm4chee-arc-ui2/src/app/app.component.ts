@@ -41,6 +41,7 @@ export class AppComponent implements OnInit {
     j4care = j4care;
     @ViewChild(MessagingComponent) msg;
     clockUnExtended = true;
+    myDeviceName = '';
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
     constructor(
         public viewContainerRef: ViewContainerRef,
@@ -285,6 +286,11 @@ export class AppComponent implements OnInit {
                             arc => {
                                 $this.mainservice["archiveDevice"] = arc[0];
                                 $this.archive = arc[0];
+                                try{
+                                    this.myDeviceName = arc[0].dicomDeviceName;
+                                }catch (e){
+
+                                }
                             },
                             (err2)=>{
                                 if (retries)
