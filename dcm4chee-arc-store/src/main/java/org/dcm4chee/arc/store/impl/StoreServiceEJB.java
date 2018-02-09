@@ -683,7 +683,7 @@ public class StoreServiceEJB {
                 if (issuerEntity == null)
                     patientID.setIssuer(issuerService.mergeOrCreate(issuer));
                 else
-                    issuerEntity.getIssuer().merge(issuer);
+                    issuerEntity.merge(issuer);
             }
         }
         pat.setAttributes(attrs, filter, arcDev.getFuzzyStr());

@@ -97,7 +97,8 @@ public class PatientServiceEJB {
         if (issuer != null) {
             for (Iterator<Patient> it = list.iterator(); it.hasNext();) {
                 IssuerEntity ie = it.next().getPatientID().getIssuer();
-                if (ie != null && !ie.getIssuer().matches(issuer))
+                Issuer other = ie != null ? ie.getIssuer() : null;
+                if (other != null && !other.matches(issuer))
                     it.remove();
             }
         }

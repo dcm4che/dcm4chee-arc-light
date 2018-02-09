@@ -102,4 +102,11 @@ public class IssuerEntity {
     public String toString() {
         return issuer.toString();
     }
+
+    public void merge(Issuer other) {
+        if (issuer != null)
+            issuer.matches(other);
+        else
+            issuer = other;
+    }
 }

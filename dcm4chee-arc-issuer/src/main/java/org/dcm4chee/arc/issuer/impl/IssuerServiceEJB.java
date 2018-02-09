@@ -75,7 +75,7 @@ public class IssuerServiceEJB implements IssuerService {
     public IssuerEntity mergeOrCreate(Issuer issuer) {
         try {
             IssuerEntity entity = find(issuer);
-            entity.getIssuer().merge(issuer);
+            entity.merge(issuer);
             return entity;
         } catch (NoResultException e) {
             return create(issuer);
