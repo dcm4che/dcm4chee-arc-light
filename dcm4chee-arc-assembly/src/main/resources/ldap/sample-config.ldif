@@ -185,7 +185,7 @@ dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
 dcmSeriesMetadataStorageID: series-metadata
-dicomSoftwareVersion: 5.11.1
+dicomSoftwareVersion: 5.12.0
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D
@@ -1224,6 +1224,10 @@ dicomTransferRole: SCU
 objectClass: dcmArchiveAttributeCoercion
 dcmSupplementFromDeviceReference: dicomDeviceName=storescu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 cn: Supplement Composite
+
+dn: dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiConfigName: default
+objectClass: dcmuiConfig
 
 dn: cn=Leading DCMQRSCP FIND,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_FIND_RSP
@@ -6950,6 +6954,74 @@ dcmIIOFormatName: jpeg2000
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 objectClass: dcmImageWriter
 dcmImageWriteParam: writeCodeStreamOnly=true
+
+dn: dcmuiDiffConfigName=default,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiDiffSecondaryCFindSCP: DCM4CHEE
+dcmuiDiffConfigName: default
+dcmuiDiffPrimaryCFindSCP: DCMQRSCP
+objectClass: dcmuiDiffConfig
+dcmuiDiffCallingAET: DCM4CHEE
+
+dn: dcmuiPermissionName=BrowseArchive,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: BrowseArchive
+dcmAcceptedUserRole: user
+dcmuiAction: BrowseArchive
+objectClass: dcmuiPermission
+dcmuiActionParam: DCM4CHEE
+
+dn: dcmuiPermissionName=BrowseArchiveAdmin,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: BrowseArchiveAdmin
+dcmAcceptedUserRole: admin
+dcmuiAction: BrowseArchive
+objectClass: dcmuiPermission
+dcmuiActionParam: DCM4CHEE_ADMIN
+dcmuiActionParam: DCM4CHEE_TRASH
+
+dn: dcmuiDiffCriteriaTitle=Missing Studies,dcmuiDiffConfigName=default,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiDiffCriteriaTitle: Missing Studies
+dcmuiDiffCriteriaNumber: 4
+dicomDescription: List missing Studies
+dcmuiDiffGroupButton: export
+dcmuiDiffGroupButton: reject
+dcmuiDiffAction: study-reject
+dcmuiDiffAction: study-export
+objectClass: dcmuiDiffCriteria
+dcmuiDiffIncludeMissing: TRUE
+
+dn: dcmuiDiffCriteriaTitle=Study attributes,dcmuiDiffConfigName=default,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiDiffCriteriaTitle: Study attributes
+dcmuiDiffCriteriaNumber: 1
+dicomDescription: Compares only Study attributes
+dcmuiDiffGroupButton: synchronize
+dcmuiDiffGroupButton: export
+dcmuiDiffGroupButton: reject
+dcmuiDiffAction: study-reject-export
+dcmuiDiffAction: study-reject
+dcmuiDiffAction: study-export
+dcmAttributeSetID: study
+objectClass: dcmuiDiffCriteria
+
+dn: dcmuiDiffCriteriaTitle=Patient attributes,dcmuiDiffConfigName=default,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiDiffCriteriaTitle: Patient attributes
+dcmuiDiffCriteriaNumber: 2
+dicomDescription: Compares only Patient attributes
+dcmuiDiffGroupButton: synchronize
+dcmuiDiffAction: patient-update
+dcmAttributeSetID: patient
+objectClass: dcmuiDiffCriteria
+
+dn: dcmuiDiffCriteriaTitle=Request attributes,dcmuiDiffConfigName=default,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiDiffCriteriaTitle: Request attributes
+dcmuiDiffCriteriaNumber: 3
+dicomDescription: Compares Request attributes
+dcmuiDiffGroupButton: synchronize
+dcmuiDiffGroupButton: export
+dcmuiDiffGroupButton: reject
+dcmuiDiffAction: study-reject-export
+dcmuiDiffAction: study-reject
+dcmuiDiffAction: study-export
+dcmAttributeSetID: accno
+objectClass: dcmuiDiffCriteria
 
 dn: cn=RT Dose Storage SCU,dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.481.2

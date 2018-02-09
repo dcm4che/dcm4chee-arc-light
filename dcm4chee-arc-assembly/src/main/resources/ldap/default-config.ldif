@@ -74,7 +74,7 @@ dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
 dcmPurgeQueueMessagePollingInterval: PT1H
 dcmKeyStorePin: secret
 dicomInstalled: TRUE
-dicomSoftwareVersion: 5.11.1
+dicomSoftwareVersion: 5.12.0
 dcmPurgeStoragePollingInterval: PT5M
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D
