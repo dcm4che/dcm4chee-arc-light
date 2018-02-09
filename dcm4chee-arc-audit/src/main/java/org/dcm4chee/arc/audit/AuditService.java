@@ -725,6 +725,12 @@ public class AuditService {
         if (isDuplicateReceivedInstance(ctx))
             return;
 
+        if (ctx.getAttributes() == null) {
+            LOG.warn("Instances stored is not audited as store context attributes are not set. "
+                    + (ctx.getException() != null ? ctx.getException().getMessage() : null));
+            return;
+        }
+
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forInstanceStored(ctx);
 
         StoreSession ss = ctx.getStoreSession();
