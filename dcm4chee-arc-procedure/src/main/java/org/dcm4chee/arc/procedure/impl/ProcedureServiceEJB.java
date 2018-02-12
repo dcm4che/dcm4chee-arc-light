@@ -113,8 +113,14 @@ public class ProcedureServiceEJB {
                             mwlItem.getPatient() + " in previous " + mwlItem);
 
                 Attributes attrs = mwlItem.getAttributes();
-                if (!attrs.update(ctx.getAttributeUpdatePolicy(), mwlAttrs, null))
+                Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+                Attributes mwlSPSItem = mwlAttrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+                attrs.remove(Tag.ScheduledProcedureStepSequence);
+                mwlAttrs.remove(Tag.ScheduledProcedureStepSequence);
+                if (!(attrs.update(ctx.getAttributeUpdatePolicy(), mwlAttrs, null)
+                        && spsItem.update(ctx.getAttributeUpdatePolicy(), mwlSPSItem, null)))
                     return;
+                attrs.newSequence(Tag.ScheduledProcedureStepSequence, 1).add(spsItem);
                 updateMWL(ctx, issuerOfAccessionNumber, mwlItem, attrs);
             }
         }
