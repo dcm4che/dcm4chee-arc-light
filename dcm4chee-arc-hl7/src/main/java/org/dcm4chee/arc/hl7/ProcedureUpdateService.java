@@ -63,7 +63,6 @@ import org.xml.sax.SAXException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
 import java.net.Socket;
@@ -102,13 +101,10 @@ public class ProcedureUpdateService extends AbstractHL7Service {
         HL7Segment msh = msg.msh();
         String hl7cs = msh.getField(17, hl7App.getHL7DefaultCharacterSet());
         Attributes attrs = SAXTransformer.transform(
-                msg.data(), hl7cs, arcHL7App.scheduleProcedureTemplateURI(), new org.dcm4che3.io.SAXTransformer.SetupTransformer() {
-                    @Override
-                    public void setup(Transformer tr) {
-                        tr.setParameter("hl7ScheduledProtocolCodeInOrder", arcHL7App.hl7ScheduledProtocolCodeInOrder().toString());
-                        if (arcHL7App.hl7ScheduledStationAETInOrder() != null)
-                            tr.setParameter("hl7ScheduledStationAETInOrder", arcHL7App.hl7ScheduledStationAETInOrder().toString());
-                    }
+                msg.data(), hl7cs, arcHL7App.scheduleProcedureTemplateURI(), tr -> {
+                    tr.setParameter("hl7ScheduledProtocolCodeInOrder", arcHL7App.hl7ScheduledProtocolCodeInOrder().toString());
+                    if (arcHL7App.hl7ScheduledStationAETInOrder() != null)
+                        tr.setParameter("hl7ScheduledStationAETInOrder", arcHL7App.hl7ScheduledStationAETInOrder().toString());
                 });
         boolean result = adjust(attrs, arcHL7App, msh, s);
         if (!result) {
@@ -141,9 +137,6 @@ public class ProcedureUpdateService extends AbstractHL7Service {
                 if (result)
                     break;
             }
-            if ("SCHEDULED".equals(sps.getString(Tag.ScheduledProcedureStepStatus))
-                    && !sps.containsValue(Tag.ScheduledProcedureStepStartDate))
-                sps.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
             if (sps.getString(Tag.ScheduledStationAETitle) == null) {
                 List<String> ssAETs = new ArrayList<>();
                 List<String> ssNames = new ArrayList<>();

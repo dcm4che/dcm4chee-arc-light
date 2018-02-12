@@ -74,7 +74,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.*;
-import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -140,8 +139,6 @@ public class MwlRS {
                 idService.newScheduledProcedureStepID(spsItem);
             if (!attrs.containsValue(Tag.StudyInstanceUID))
                 attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
-            if (!spsItem.containsValue(Tag.ScheduledProcedureStepStartDate) && !spsItem.containsValue(Tag.ScheduledProcedureStepStartTime))
-                spsItem.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
             if (!spsItem.containsValue(Tag.ScheduledProcedureStepStatus))
                 spsItem.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.SCHEDULED.toString());
             ProcedureContext ctx = procedureService.createProcedureContextWEB(request);

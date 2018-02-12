@@ -156,6 +156,9 @@ public class ProcedureServiceEJB {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         MWLItem mwlItem = new MWLItem();
         mwlItem.setPatient(patient);
+        Attributes spsItem = attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence);
+        if (!spsItem.containsValue(Tag.ScheduledProcedureStepStartDate))
+            spsItem.setDate(Tag.ScheduledProcedureStepStartDateAndTime, new Date());
         mwlItem.setAttributes(attrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
         mwlItem.setIssuerOfAccessionNumber(issuerOfAccessionNumber);
         em.persist(mwlItem);
