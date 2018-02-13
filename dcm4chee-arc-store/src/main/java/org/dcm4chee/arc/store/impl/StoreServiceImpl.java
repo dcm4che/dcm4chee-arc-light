@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.store.impl;
 
 
+import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.data.*;
@@ -61,6 +62,7 @@ import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.MergeMWLCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
@@ -114,6 +116,9 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private Event<StoreContext> storeEvent;
+
+    @Inject
+    private Event<SoftwareConfiguration> softwareConfigurationEvent;
 
     @Inject
     private RetrieveService retrieveService;
@@ -603,17 +608,22 @@ class StoreServiceImpl implements StoreService {
         session.setObjectStorageID(storageID);
         if (descriptors.size() < storageIDs.length) {
             arcAE.setObjectStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
-            updateDeviceConfiguration(arcDev.getDevice());
+            updateDeviceConfiguration(arcDev);
         }
         return storage;
     }
 
-    private void updateDeviceConfiguration(Device device) {
+    private void updateDeviceConfiguration(ArchiveDeviceExtension arcDev) {
+        Device device = arcDev.getDevice();
         try {
             LOG.info("Update Storage configuration of Device: {}:\n", device.getDeviceName());
-            conf.merge(device, EnumSet.of(
+            ConfigurationChanges diffs = conf.merge(device, EnumSet.of(
                     DicomConfiguration.Option.PRESERVE_VENDOR_DATA,
-                    DicomConfiguration.Option.PRESERVE_CERTIFICATE));
+                    DicomConfiguration.Option.PRESERVE_CERTIFICATE,
+                    arcDev.isAuditSoftwareConfigurationVerbose()
+                            ? DicomConfiguration.Option.CONFIGURATION_CHANGES_VERBOSE
+                            : DicomConfiguration.Option.CONFIGURATION_CHANGES));
+            softwareConfigurationEvent.fire(new SoftwareConfiguration(null, device.getDeviceName(), diffs));
         } catch (ConfigurationException e) {
             LOG.warn("Failed to update Storage configuration of Device: {}:\n", device.getDeviceName(), e);
         }
@@ -633,7 +643,7 @@ class StoreServiceImpl implements StoreService {
         session.setMetadataStorageID(storageID);
         if (descriptors.size() < storageIDs.length) {
             arcAE.setMetadataStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
-            updateDeviceConfiguration(arcDev.getDevice());
+            updateDeviceConfiguration(arcDev);
         }
         return storage;
     }

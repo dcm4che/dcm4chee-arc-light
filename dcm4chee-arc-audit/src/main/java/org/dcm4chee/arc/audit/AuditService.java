@@ -378,12 +378,23 @@ public class AuditService {
 
     void spoolSoftwareConfiguration(SoftwareConfiguration softwareConfiguration) {
         HttpServletRequest request = softwareConfiguration.getRequest();
-        AuditInfoBuilder info = new AuditInfoBuilder.Builder()
-                                .callingUserID(KeycloakContext.valueOf(request).getUserName())
-                                .callingHost(request.getRemoteAddr())
-                                .calledUserID(softwareConfiguration.getDeviceName())
-                                .build();
+        String deviceName = softwareConfiguration.getDeviceName();
+        AuditInfoBuilder info = request != null
+                ? buildSoftwareConfAuditForWeb(request, deviceName)
+                : buildSystemTriggeredSoftwareConfAudit(deviceName);
         writeSpoolFile(AuditServiceUtils.EventType.LDAP_CHNGS, info, softwareConfiguration.getLdapDiff().toString());
+    }
+
+    private AuditInfoBuilder buildSoftwareConfAuditForWeb(HttpServletRequest request, String deviceName) {
+        return new AuditInfoBuilder.Builder()
+                    .callingUserID(KeycloakContext.valueOf(request).getUserName())
+                    .callingHost(request.getRemoteAddr())
+                    .calledUserID(deviceName)
+                    .build();
+    }
+
+    private AuditInfoBuilder buildSystemTriggeredSoftwareConfAudit(String deviceName) {
+        return new AuditInfoBuilder.Builder().calledUserID(deviceName).build();
     }
 
     private void auditSoftwareConfiguration(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType eventType)
@@ -394,13 +405,18 @@ public class AuditService {
         EventIdentificationBuilder ei = toBuildEventIdentification(eventType, null, getEventTime(path, auditLogger));
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[1];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
-        activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
-                callingUserID,
-                auditInfo.getField(AuditInfo.CALLING_HOST))
-                .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
-                .requester(true).build();
-        ParticipantObjectIdentificationBuilder poiLDAPDiff = new ParticipantObjectIdentificationBuilder.Builder(auditInfo.getField(
-                                                    AuditInfo.CALLED_USERID),
+        String calledUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
+        activeParticipantBuilder[0] = callingUserID != null ? new ActiveParticipantBuilder.Builder(
+                    callingUserID,
+                    auditInfo.getField(AuditInfo.CALLING_HOST))
+                    .userIDTypeCode(AuditMessages.userIDTypeCode(callingUserID))
+                    .requester(true).build()
+                : new ActiveParticipantBuilder.Builder(
+                    calledUserID,
+                    getLocalHostName(auditLogger))
+                    .userIDTypeCode(archiveUserIDTypeCode(calledUserID))
+                    .requester(true).build();
+        ParticipantObjectIdentificationBuilder poiLDAPDiff = new ParticipantObjectIdentificationBuilder.Builder(calledUserID,
                                                     AuditMessages.ParticipantObjectIDTypeCode.DeviceName,
                                                     AuditMessages.ParticipantObjectTypeCode.SystemObject,
                                                     null).detail(getPod("Alert Description", getData(reader)))
