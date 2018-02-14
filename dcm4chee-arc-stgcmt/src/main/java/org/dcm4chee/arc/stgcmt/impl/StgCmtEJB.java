@@ -236,8 +236,8 @@ public class StgCmtEJB implements StgCmtManager {
     private List<Predicate> createPredicate(Sequence refSopSeq) {
         List<Predicate> predicates = new ArrayList<>();
         int limit = ((SessionFactoryImplementor) em.unwrap(Session.class).getSessionFactory())
-                .getDialect().getInExpressionCountLimit();
-        if (limit == 0)
+                .getDialect().getInExpressionCountLimit() - 1;
+        if (limit <= 0)
             limit = refSopSeq.size();
 
         String[] sopIUIDs = new String[limit];
