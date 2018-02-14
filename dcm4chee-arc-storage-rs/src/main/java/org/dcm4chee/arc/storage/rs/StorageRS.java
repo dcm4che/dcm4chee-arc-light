@@ -125,7 +125,7 @@ public class StorageRS {
                     writeDeleterThresholds(writer, gen, desc.getDeleterThresholds());
                     writer.writeNotNullOrDef("dcmExternalRetrieveAET", desc.getExternalRetrieveAETitle(), null);
                     writer.writeNotEmpty("dcmProperty", descriptorProperties(desc.getProperties()));
-                    writer.writeNotEmpty("dicomAETitle", ss.aets.toArray(new String[ss.aets.size()]));
+                    writer.writeNotEmpty("dicomAETitle", ss.aets.stream().sorted().toArray(String[]::new));
                     writer.writeNotEmpty("usages", ss.usages.toArray(new String[ss.usages.size()]));
                     if (ss.usableSpace > 0L)
                         gen.write("usableSpace", ss.usableSpace);
@@ -187,8 +187,8 @@ public class StorageRS {
         private StorageDescriptor desc;
         private long usableSpace;
         private long totalSpace;
-        private List<String> usages = new ArrayList<>();
-        private List<String> aets = new ArrayList<>();
+        private Set<String> usages = new HashSet<>();
+        private Set<String> aets = new HashSet<>();
 
         StorageSystem(StorageDescriptor desc) {
             this.desc = desc;
@@ -209,8 +209,6 @@ public class StorageRS {
 
         void getAETsAndUsages(StorageDescriptor desc) {
             for (String aet : device.getApplicationAETitles()) {
-                if (usages.size() == 2)
-                    break;
                 ApplicationEntity ae = device.getApplicationEntity(aet);
                 ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
                 if (Arrays.asList(arcAE.getObjectStorageIDs()).contains(desc.getStorageID())) {
