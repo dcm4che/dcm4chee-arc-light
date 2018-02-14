@@ -429,15 +429,18 @@
     <xsl:param name="vr"/>
     <xsl:param name="sqtag"/>
     <xsl:param name="ei"/>
-    <xsl:if test="$ei/text()">
+    <xsl:variable name="val" select="$ei/text()"/>
+    <xsl:if test="$val">
       <DicomAttribute tag="{$tag}" vr="{$vr}">
-        <Value number="1">
-          <xsl:value-of select="$ei/text()"/>
-        </Value>
+        <xsl:if test="$val != '&quot;&quot;'">
+          <Value number="1">
+            <xsl:value-of select="$val"/>
+          </Value>
+        </xsl:if>
       </DicomAttribute>
-      <xsl:if test="$ei/component">
-        <DicomAttribute tag="{$sqtag}" vr="SQ">
-          <Item number="1">
+      <DicomAttribute tag="{$sqtag}" vr="SQ">
+        <Item number="1">
+          <xsl:if test="$ei/component and $val != '&quot;&quot;'">
             <xsl:if test="$ei/component[1]">
               <DicomAttribute tag="00400031" vr="UT">
                 <Value number="1">
@@ -457,9 +460,9 @@
                 </Value>
               </DicomAttribute>
             </xsl:if>
-          </Item>
-         </DicomAttribute>
-      </xsl:if>
+          </xsl:if>
+        </Item>
+      </DicomAttribute>
     </xsl:if>
   </xsl:template>
   <xsl:template name="attrDATM">

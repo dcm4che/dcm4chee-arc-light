@@ -26,40 +26,56 @@
       <xsl:with-param name="tag" select="'00080090'"/>
       <xsl:with-param name="cn" select="field[8]"/>
     </xsl:call-template>
-    <xsl:call-template name="pregnancyStatus">
-      <xsl:with-param name="ambulantStatus" select="string(field[15]/text())"/>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'001021C0'"/>
+      <xsl:with-param name="vr" select="'US'"/>
+      <xsl:with-param name="val">
+        <xsl:call-template name="pregnancyStatus">
+          <xsl:with-param name="ambulantStatus" select="field[15]/text()"/>
+        </xsl:call-template>
+      </xsl:with-param>
     </xsl:call-template>
     <!-- Admission ID, Issuer -->
-    <DicomAttribute tag="00380010" vr="LO">
-      <Value number="1">
-        <xsl:value-of select="string(field[19]/text())"/>
-      </Value>
-    </DicomAttribute>
-    <xsl:variable name="issuerOfAdmissionID" select="string(field[19]/component[3]/text())"/>
-    <xsl:if test="$issuerOfAdmissionID">
-      <!-- Issuer of Admission ID Sequence -->
+    <xsl:call-template name="admissionID">
+      <xsl:with-param name="ei" select="field[19]"/>
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="pregnancyStatus">
+    <xsl:param name="ambulantStatus"/>
+    <xsl:if test="$ambulantStatus">
+        <xsl:choose>
+          <xsl:when test="$ambulantStatus = 'B6'">3</xsl:when>
+          <xsl:otherwise>&quot;&quot;</xsl:otherwise>
+        </xsl:choose>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="admissionID">
+    <xsl:param name="ei"/>
+    <xsl:variable name="val" select="$ei/text()"/>
+    <xsl:if test="$val">
+      <DicomAttribute tag="00380010" vr="LO">
+        <xsl:if test="$val != '&quot;&quot;'">
+          <Value number="1">
+            <xsl:value-of select="$val"/>
+          </Value>
+        </xsl:if>
+      </DicomAttribute>
       <DicomAttribute tag="00380014" vr="SQ">
         <Item number="1">
-          <!-- Local Namespace Entity ID -->
-          <DicomAttribute tag="00400031" vr="UT">
-            <Value number="1">
-              <xsl:value-of select="$issuerOfAdmissionID"/>
-            </Value>
-          </DicomAttribute>
+          <xsl:if test="$ei/component and $val != '&quot;&quot;'">
+            <DicomAttribute tag="00400031" vr="UT">
+                <Value number="1">
+                  <xsl:value-of select="$ei/component[3]/text()"/>
+                </Value>
+            </DicomAttribute>
+          </xsl:if>
         </Item>
       </DicomAttribute>
     </xsl:if>
   </xsl:template>
-  <xsl:template name="pregnancyStatus">
-    <xsl:param name="ambulantStatus"/>
-    <xsl:if test="normalize-space($ambulantStatus)">
-      <DicomAttribute tag="001021C0" vr="US">
-        <Value number="1">
-          <xsl:if test="$ambulantStatus = 'B6'">3</xsl:if>
-        </Value>
-      </DicomAttribute>
-    </xsl:if>
-  </xsl:template>
+
   <xsl:template match="ORC[1]">
     <!-- Placer Order Number -->
     <xsl:call-template name="ei2attr">
@@ -75,28 +91,37 @@
       <xsl:with-param name="sqtag" select="'00400027'"/>
       <xsl:with-param name="ei" select="field[3]"/>
     </xsl:call-template>
-    <xsl:call-template name="procedurePriority">
-      <xsl:with-param name="priority" select="string(field[7]/component[5]/text())"/>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00401003'"/>
+      <xsl:with-param name="vr" select="'CS'"/>
+      <xsl:with-param name="val">
+        <xsl:call-template name="procedurePriority">
+          <xsl:with-param name="priority" select="field[7]/component[5]/text()"/>
+        </xsl:call-template>
+      </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
   <xsl:template name="procedurePriority">
     <xsl:param name="priority"/>
-    <xsl:if test="normalize-space($priority)">
-      <DicomAttribute tag="00401003" vr="CS">
-        <Value number="1">
-          <xsl:choose>
-            <xsl:when test="$priority = 'S'">STAT</xsl:when>
-            <xsl:when test="$priority = 'A' or $priority = 'P' or $priority = 'C' ">HIGH</xsl:when>
-            <xsl:when test="$priority = 'R'">ROUTINE</xsl:when>
-            <xsl:when test="$priority = 'T'">MEDIUM</xsl:when>
-          </xsl:choose>
-        </Value>
-      </DicomAttribute>
+    <xsl:if test="$priority">
+        <xsl:choose>
+          <xsl:when test="$priority = 'S'">STAT</xsl:when>
+          <xsl:when test="$priority = 'A' or $priority = 'P' or $priority = 'C' ">HIGH</xsl:when>
+          <xsl:when test="$priority = 'R'">ROUTINE</xsl:when>
+          <xsl:when test="$priority = 'T'">MEDIUM</xsl:when>
+          <xsl:otherwise>&quot;&quot;</xsl:otherwise>
+        </xsl:choose>
     </xsl:if>
   </xsl:template>
   <xsl:template match="TQ1[1]">
-    <xsl:call-template name="procedurePriority">
-      <xsl:with-param name="priority" select="field[9]"/>
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00401003'"/>
+      <xsl:with-param name="vr" select="'CS'"/>
+      <xsl:with-param name="val">
+        <xsl:call-template name="procedurePriority">
+          <xsl:with-param name="priority" select="field[9]/text()"/>
+        </xsl:call-template>
+      </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
   <xsl:template match="OBR[1]">
