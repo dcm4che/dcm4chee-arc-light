@@ -233,14 +233,14 @@ public class StgCmtEJB implements StgCmtManager {
         return eventInfo;
     }
 
-    private Predicate createPredicate(Sequence refSopSeq) {
+    private List<Predicate> createPredicate(Sequence refSopSeq) {
+        List<Predicate> predicates = new ArrayList<>();
         int limit = ((SessionFactoryImplementor) em.unwrap(Session.class).getSessionFactory())
                 .getDialect().getInExpressionCountLimit();
         if (limit == 0)
             limit = refSopSeq.size();
 
         String[] sopIUIDs = new String[limit];
-        BooleanBuilder sopIUIDsPredicate = new BooleanBuilder();
         Iterator<Attributes> refSopIter = refSopSeq.iterator();
         while (refSopIter.hasNext()) {
             for (int i = 0; i < limit; i++) {
@@ -250,12 +250,15 @@ public class StgCmtEJB implements StgCmtManager {
                 }
                 sopIUIDs[i] = refSopIter.next().getString(Tag.ReferencedSOPInstanceUID);
             }
-            sopIUIDsPredicate.or(QInstance.instance.sopInstanceUID.in(sopIUIDs));
+            predicates.add(ExpressionUtils.and(
+                    QInstance.instance.sopInstanceUID.in(sopIUIDs),
+                    QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE)));
         }
-        return ExpressionUtils.and(sopIUIDsPredicate, QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
+        return predicates;
     }
 
-    private Predicate createPredicate(String studyIUID, String seriesIUID, String sopIUID) {
+    private List<Predicate> createPredicate(String studyIUID, String seriesIUID, String sopIUID) {
+        List<Predicate> predicates = new ArrayList<>();
         BooleanBuilder builder = new BooleanBuilder(QStudy.study.studyInstanceUID.eq(studyIUID));
         if (seriesIUID != null) {
             builder.and(QSeries.series.seriesInstanceUID.eq(seriesIUID));
@@ -263,24 +266,26 @@ public class StgCmtEJB implements StgCmtManager {
                 builder.and(QInstance.instance.sopInstanceUID.eq(sopIUID));
         }
         builder.and(QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
-        return builder;
+        predicates.add(builder);
+        return predicates;
     }
 
-    private String queryInstances(Predicate predicate, Map<String, List<Tuple>> instances) {
+    private String queryInstances(List<Predicate> predicates, Map<String, List<Tuple>> instances) {
         String commonRetrieveAETs = null;
-        for (Tuple location : queryLocations(predicate)) {
-            String iuid = location.get(QInstance.instance.sopInstanceUID);
-            List<Tuple> list = instances.get(iuid);
-            if (list == null) {
-                instances.put(iuid, list = new ArrayList<>());
-                if (instances.isEmpty())
-                    commonRetrieveAETs = location.get(QInstance.instance.retrieveAETs);
-                else if (commonRetrieveAETs != null
-                        && !commonRetrieveAETs.equals(location.get(QInstance.instance.retrieveAETs)))
-                    commonRetrieveAETs = null;
+        for (Predicate predicate : predicates)
+            for (Tuple location : queryLocations(predicate)) {
+                String iuid = location.get(QInstance.instance.sopInstanceUID);
+                List<Tuple> list = instances.get(iuid);
+                if (list == null) {
+                    instances.put(iuid, list = new ArrayList<>());
+                    if (instances.isEmpty())
+                        commonRetrieveAETs = location.get(QInstance.instance.retrieveAETs);
+                    else if (commonRetrieveAETs != null
+                            && !commonRetrieveAETs.equals(location.get(QInstance.instance.retrieveAETs)))
+                        commonRetrieveAETs = null;
+                }
+                list.add(location);
             }
-            list.add(location);
-        }
         return commonRetrieveAETs;
     }
 
