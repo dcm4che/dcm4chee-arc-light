@@ -88,7 +88,7 @@ public class AuditTriggerObserver {
 
     public void onStore(@Observes StoreContext ctx) {
         if (deviceHasAuditLoggers())
-            auditService.spoolInstanceStored(ctx);
+            auditService.spoolStoreEvent(ctx);
     }
 
     public void onQuery(@Observes QueryContext ctx) {
