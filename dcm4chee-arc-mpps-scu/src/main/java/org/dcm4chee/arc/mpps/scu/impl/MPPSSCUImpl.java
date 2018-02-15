@@ -98,7 +98,7 @@ class MPPSSCUImpl implements MPPSSCU {
             msg.setStringProperty("RemoteAET", remoteAET);
             msg.setStringProperty("DIMSE", dimse.name());
             msg.setStringProperty("SOPInstanceUID", iuid);
-            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY);
+            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null);
         } catch (Exception e) {
             LOG.warn("Failed to Schedule Forward of {} MPPS[uid={}] to AE: {}", dimse, iuid, remoteAET, e);
         }

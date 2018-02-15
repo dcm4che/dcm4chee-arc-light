@@ -1038,6 +1038,12 @@
             "type": "string"
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped tasks before first task in returned list",
@@ -1117,6 +1123,12 @@
             "in": "query",
             "description": "delete export tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
           }
         ],
         "responses": {
@@ -1188,6 +1200,12 @@
             "in": "query",
             "description": "count export tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
           }
         ],
         "responses": {
@@ -1254,6 +1272,12 @@
             "name": "updatedTime",
             "in": "query",
             "description": "cancel export tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
             "type": "string"
           }
         ],
@@ -1327,6 +1351,12 @@
             "name": "updatedTime",
             "in": "query",
             "description": "reschedule export tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
             "type": "string"
           }
         ],
@@ -1410,6 +1440,12 @@
             "name": "updatedTime",
             "in": "query",
             "description": "reschedule export tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
             "type": "string"
           }
         ],
@@ -1616,6 +1652,12 @@
             "type": "string"
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped tasks before first task in returned list",
@@ -1706,6 +1748,12 @@
             "in": "query",
             "description": "delete retrieve tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
           }
         ],
         "responses": {
@@ -1788,6 +1836,12 @@
             "in": "query",
             "description": "count retrieve tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
           }
         ],
         "responses": {
@@ -1866,6 +1920,12 @@
             "name": "updatedTime",
             "in": "query",
             "description": "cancel retrieve tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
             "type": "string"
           }
         ],
@@ -1951,6 +2011,12 @@
             "name": "updatedTime",
             "in": "query",
             "description": "reschedule retrieve tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
             "type": "string"
           }
         ],
@@ -2143,6 +2209,12 @@
             "type": "string"
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped tasks before first task in returned list",
@@ -2218,6 +2290,12 @@
             "in": "query",
             "description": "delete tasks in queue which were updated between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
           }
         ],
         "responses": {
@@ -2285,6 +2363,12 @@
             "in": "query",
             "description": "count tasks in queue which were updated between <datetime1>-<datetime2>",
             "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
           }
         ],
         "responses": {
@@ -2348,6 +2432,12 @@
             "name": "updatedTime",
             "in": "query",
             "description": "cancel tasks in queue which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
             "type": "string"
           }
         ],
@@ -2415,6 +2505,12 @@
             "name": "updatedTime",
             "in": "query",
             "description": "reschedule tasks in queue which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
             "type": "string"
           }
         ],
@@ -3315,6 +3411,12 @@
             "default": 0
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
             "name": "queue",
             "in": "query",
             "description": "queue request",
@@ -3407,6 +3509,12 @@
             "type": "integer",
             "enum": [ 0, 1, 2 ],
             "default": 0
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           },
           {
             "name": "queue",
@@ -3508,6 +3616,12 @@
             "type": "integer",
             "enum": [ 0, 1, 2 ],
             "default": 0
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           },
           {
             "name": "queue",
@@ -3870,6 +3984,12 @@
             "default": 0
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
@@ -3972,6 +4092,12 @@
             "collectionFormat": "multi"
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
             "name": "fuzzymatching",
             "in": "query",
             "description": "fuzzy semantic matching of person names",
@@ -4069,6 +4195,12 @@
               "type": "string"
             },
             "collectionFormat": "multi"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           },
           {
             "name": "fuzzymatching",
@@ -5335,6 +5467,12 @@
             "in": "query",
             "description": "Only enable IAN without export",
             "type": "boolean"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -5397,6 +5535,12 @@
             "in": "query",
             "description": "Only enable IAN without export",
             "type": "boolean"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -5466,6 +5610,12 @@
             "in": "query",
             "description": "Only enable IAN without export",
             "type": "boolean"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -5579,6 +5729,12 @@
             "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           }
         ],
         "responses": {
@@ -5676,6 +5832,12 @@
             "name": "ExternalRetrieveAET!",
             "in": "query",
             "description": "export Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
             "type": "string"
           },
           {
@@ -5805,6 +5967,12 @@
             "type": "string"
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
             "name": "expired",
             "in": "query",
             "description": "export only expired Studies",
@@ -5921,6 +6089,12 @@
             "name": "ExternalRetrieveAET!",
             "in": "query",
             "description": "export Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
             "type": "string"
           },
           {
@@ -6047,6 +6221,12 @@
             "name": "ExternalRetrieveAET!",
             "in": "query",
             "description": "export Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
             "type": "string"
           },
           {
@@ -6180,6 +6360,12 @@
             "name": "ExternalRetrieveAET!",
             "in": "query",
             "description": "export Studies which are not retrieveable from external <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
             "type": "string"
           },
           {

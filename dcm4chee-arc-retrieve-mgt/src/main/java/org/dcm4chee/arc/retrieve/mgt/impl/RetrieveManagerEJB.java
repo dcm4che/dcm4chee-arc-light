@@ -82,7 +82,7 @@ public class RetrieveManagerEJB {
     @Inject
     private Device device;
 
-    public void scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx)
+    public void scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx, String batchID)
             throws QueueSizeLimitExceededException {
         try {
             ObjectMessage msg = queueManager.createObjectMessage(ctx.getKeys());
@@ -95,7 +95,7 @@ public class RetrieveManagerEJB {
             msg.setStringProperty("RequesterHostName", ctx.getRequesterHostName());
             msg.setStringProperty("RequestURI", ctx.getRequestURI());
             QueueMessage queueMessage = queueManager.scheduleMessage(RetrieveManager.QUEUE_NAME, msg,
-                    Message.DEFAULT_PRIORITY);
+                    Message.DEFAULT_PRIORITY, batchID);
             createRetrieveTask(device, ctx, queueMessage);
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);

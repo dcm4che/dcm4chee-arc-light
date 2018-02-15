@@ -132,7 +132,7 @@ public class HL7SenderImpl implements HL7Sender {
             msg.setStringProperty("MessageControlID", messageControlID);
             if (httpServletRequestInfo != null)
                 httpServletRequestInfo.copyTo(msg);
-            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY);
+            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

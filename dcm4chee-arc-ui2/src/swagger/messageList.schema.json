@@ -90,6 +90,11 @@
         "title": "Message Property XX",
         "description": "other JMS property of this message",
         "type": "string"
+      },
+      "batchID": {
+        "title": "Batch ID",
+        "description": "Batch ID of this task",
+        "type": "string"
       }
     }
   }

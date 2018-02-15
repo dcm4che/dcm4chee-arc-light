@@ -219,7 +219,7 @@ public class ExportManagerEJB implements ExportManager {
         for (ExportTask exportTask : resultList) {
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
             try {
-                scheduleExportTask(exportTask, exporter, null);
+                scheduleExportTask(exportTask, exporter, null, null);
             } catch (QueueSizeLimitExceededException e) {
                 LOG.info(e.getLocalizedMessage() + " - retry to schedule Export Tasks");
                 return count;
@@ -231,7 +231,7 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                                   HttpServletRequestInfo httpServletRequestInfo)
+                                   HttpServletRequestInfo httpServletRequestInfo, String batchID)
             throws QueueSizeLimitExceededException {
         ExportTask task = createExportTask(
                 exporter.getExporterID(),
@@ -239,16 +239,17 @@ public class ExportManagerEJB implements ExportManager {
                 StringUtils.maskNull(seriesUID, "*"),
                 StringUtils.maskNull(objectUID, "*"),
                 new Date());
-        scheduleExportTask(task, exporter, httpServletRequestInfo);
+        scheduleExportTask(task, exporter, httpServletRequestInfo, batchID);
     }
 
     private void scheduleExportTask(ExportTask exportTask, ExporterDescriptor exporter,
-                                    HttpServletRequestInfo httpServletRequestInfo)
+                                    HttpServletRequestInfo httpServletRequestInfo, String batchID)
             throws QueueSizeLimitExceededException {
         QueueMessage queueMessage = queueManager.scheduleMessage(
                 exporter.getQueueName(),
                 createMessage(exportTask, exporter.getAETitle(), httpServletRequestInfo),
-                exporter.getPriority());
+                exporter.getPriority(),
+                batchID);
         exportTask.setQueueMessage(queueMessage);
         try {
             Attributes attrs = queryService.queryExportTaskInfo(

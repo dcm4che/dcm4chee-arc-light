@@ -112,6 +112,9 @@ public class ExporterRS {
     @Pattern(regexp = "true|false")
     private String onlyIAN;
 
+    @QueryParam("batchID")
+    private String batchID;
+
     @Context
     private HttpServletRequest request;
 
@@ -171,7 +174,7 @@ public class ExporterRS {
                         stgCmtSCU.scheduleStorageCommit(ctx, exporter);
                 } else
                     exportManager.scheduleExportTask(studyUID, seriesUID, objectUID, exporter,
-                            HttpServletRequestInfo.valueOf(request));
+                            HttpServletRequestInfo.valueOf(request), batchID);
             } catch (QueueSizeLimitExceededException e) {
                 return errResponse(Response.Status.SERVICE_UNAVAILABLE, e.getMessage());
             }

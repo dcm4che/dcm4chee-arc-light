@@ -149,6 +149,9 @@ public class RetrieveTaskRS {
     @QueryParam("updatedTime")
     private String updatedTime;
 
+    @QueryParam("batchID")
+    private String batchID;
+
     @QueryParam("offset")
     @Pattern(regexp = "0|([1-9]\\d{0,4})")
     private String offset;
@@ -169,7 +172,7 @@ public class RetrieveTaskRS {
 
         List<RetrieveTask> tasks = mgr.search(
                 MatchTask.matchQueueMessage(
-                        null, deviceName, status(), null, null, null),
+                        null, deviceName, status(), batchID, null, null, null),
                 MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime),
                 parseInt(offset), parseInt(limit));
@@ -184,7 +187,7 @@ public class RetrieveTaskRS {
         logRequest();
         return count( mgr.countRetrieveTasks(
                 MatchTask.matchQueueMessage(
-                        null, deviceName, status(), null, null, null),
+                        null, deviceName, status(), batchID, null, null, null),
                 MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime)));
     }
@@ -223,7 +226,7 @@ public class RetrieveTaskRS {
             LOG.info("Cancel processing of Retrieve Tasks with Status {}", status);
             long count = mgr.cancelRetrieveTasks(
                     MatchTask.matchQueueMessage(
-                            null, deviceName, status, null, updatedTime, null),
+                            null, deviceName, status, batchID,null, updatedTime, null),
                     MatchTask.matchRetrieveTask(
                             localAET, remoteAET, destinationAET, studyIUID, createdTime, null),
                     status);
@@ -275,7 +278,7 @@ public class RetrieveTaskRS {
         queueEvent.setFilters(filters());
         try {
             Predicate matchQueueMessage = MatchTask.matchQueueMessage(
-                    null, deviceName, status, null, null, new Date());
+                    null, deviceName, status, batchID,null, null, new Date());
             Predicate matchRetrieveTask = MatchTask.matchRetrieveTask(
                     localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -318,7 +321,7 @@ public class RetrieveTaskRS {
         queueEvent.setFilters(filters());
         int deleted = mgr.deleteTasks(
                 MatchTask.matchQueueMessage(
-                        null, deviceName, status(), null, null, null),
+                        null, deviceName, status(), batchID,null, null, null),
                 MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime));
         queueEvent.setCount(deleted);
@@ -400,6 +403,7 @@ public class RetrieveTaskRS {
                 "archiveDevice:" + deviceName,
                 "status:" + status,
                 "studyUID:" + studyIUID,
+                "batchID:" + batchID,
                 "createdTime:" + createdTime,
                 "updatedTime:" + updatedTime)
                 .toArray(String[]::new);

@@ -100,6 +100,9 @@ public class QueryRetrieveRS {
     @Pattern(regexp = "0|1|2")
     private String priority;
 
+    @QueryParam("batchID")
+    private String batchID;
+
     @Inject
     private CFindSCU findSCU;
 
@@ -195,7 +198,7 @@ public class QueryRetrieveRS {
             do {
                 status = dimseRSP.getCommand().getInt(Tag.Status, -1);
                 if (Status.isPending(status)) {
-                    retrieveManager.scheduleRetrieveTask(priority(), toInstancesRetrieved(destAET, dimseRSP));
+                    retrieveManager.scheduleRetrieveTask(priority(), toInstancesRetrieved(destAET, dimseRSP), batchID);
                     count++;
                 }
             } while (dimseRSP.next()) ;

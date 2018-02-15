@@ -103,6 +103,9 @@ public class RetrieveRS {
     @QueryParam("queue")
     private boolean queue;
 
+    @QueryParam("batchID")
+    private String batchID;
+
     @Inject
     private CMoveSCU moveSCU;
 
@@ -161,7 +164,7 @@ public class RetrieveRS {
 
     private Response queueExport(String destAET, Attributes keys) {
         try {
-            retrieveManager.scheduleRetrieveTask(priority(), toInstancesRetrieved(destAET, keys));
+            retrieveManager.scheduleRetrieveTask(priority(), toInstancesRetrieved(destAET, keys), batchID);
         } catch (QueueSizeLimitExceededException e) {
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }

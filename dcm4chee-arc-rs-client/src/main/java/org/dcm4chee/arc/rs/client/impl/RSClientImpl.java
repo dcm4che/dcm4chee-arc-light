@@ -75,7 +75,7 @@ public class RSClientImpl implements RSClient {
             ObjectMessage msg = queueManager.createObjectMessage(content);
             msg.setStringProperty("Method", method);
             msg.setStringProperty("URI", uri);
-            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY);
+            queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
         }

@@ -57,7 +57,7 @@ public interface RetrieveManager {
 
     Outcome cmove(int priority, ExternalRetrieveContext ctx, QueueMessage queueMessage) throws Exception;
 
-    void scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx) throws QueueSizeLimitExceededException;
+    void scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID) throws QueueSizeLimitExceededException;
 
     List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask, int offset, int limit);
 

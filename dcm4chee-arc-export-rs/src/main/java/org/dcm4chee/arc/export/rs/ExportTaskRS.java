@@ -134,6 +134,9 @@ public class ExportTaskRS {
     @QueryParam("updatedTime")
     private String updatedTime;
 
+    @QueryParam("batchID")
+    private String batchID;
+
     @QueryParam("offset")
     @Pattern(regexp = "0|([1-9]\\d{0,4})")
     private String offset;
@@ -157,7 +160,7 @@ public class ExportTaskRS {
 
         List<ExportTask> tasks = mgr.search(
                 MatchTask.matchQueueMessage(
-                        null, deviceName, status(), null, null, null),
+                        null, deviceName, status(), batchID,null, null, null),
                 MatchTask.matchExportTask(
                         exporterID, deviceName, studyUID, createdTime, updatedTime),
                 parseInt(offset),
@@ -173,7 +176,7 @@ public class ExportTaskRS {
         logRequest();
         return count(mgr.countExportTasks(
                 MatchTask.matchQueueMessage(
-                null, deviceName, status(), null, null, null),
+                null, deviceName, status(), batchID, null, null, null),
                 MatchTask.matchExportTask(
                         exporterID, deviceName, studyUID, createdTime, updatedTime)));
     }
@@ -213,7 +216,7 @@ public class ExportTaskRS {
             LOG.info("Cancel processing of Export Tasks with Status {}", status);
             long count = mgr.cancelExportTasks(
                     MatchTask.matchQueueMessage(
-                            null, deviceName, status, null, updatedTime, null),
+                            null, deviceName, status, batchID, null, updatedTime, null),
                     MatchTask.matchExportTask(
                             exporterID, deviceName, studyUID, createdTime, null),
                     status);
@@ -288,7 +291,7 @@ public class ExportTaskRS {
 
         try {
             Predicate matchQueueMessage = MatchTask.matchQueueMessage(
-                    null, deviceName, status, null, null, new Date());
+                    null, deviceName, status, batchID, null, null, new Date());
             Predicate matchExportTask = MatchTask.matchExportTask(
                     exporterID, deviceName, studyUID, createdTime, updatedTime);
             int fetchSize = arcDev.getQueueTasksFetchSize();
@@ -332,7 +335,7 @@ public class ExportTaskRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         queueEvent.setFilters(filters());
         int deleted = mgr.deleteTasks(
-                MatchTask.matchQueueMessage(null, deviceName, status(), null, null, null),
+                MatchTask.matchQueueMessage(null, deviceName, status(), batchID, null, null, null),
                 MatchTask.matchExportTask(exporterID, deviceName, studyUID, createdTime, updatedTime));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
@@ -411,6 +414,7 @@ public class ExportTaskRS {
                 "archiveDevice:" + deviceName,
                 "status:" + status,
                 "studyUID:" + studyUID,
+                "batchID:" + batchID,
                 "createdTime:" + createdTime,
                 "updatedTime:" + updatedTime)
                 .toArray(String[]::new);

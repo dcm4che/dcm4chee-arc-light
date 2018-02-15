@@ -57,8 +57,9 @@ import java.util.Date;
 
 public class MatchTask {
 
-    public static Predicate matchQueueMessage(String queueName, String deviceName, QueueMessage.Status status,
-                                              String createdTime, String updatedTime, Date updatedBefore) {
+    public static Predicate matchQueueMessage(
+            String queueName, String deviceName, QueueMessage.Status status, String batchID,
+            String createdTime, String updatedTime, Date updatedBefore) {
         BooleanBuilder predicate = new BooleanBuilder();
         if (queueName != null)
             predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
@@ -68,6 +69,8 @@ public class MatchTask {
                     : QQueueMessage.queueMessage.status.eq(status));
         if (deviceName != null)
             predicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
+        if (batchID != null)
+            predicate.and(QQueueMessage.queueMessage.batchID.eq(batchID));
         if (createdTime != null)
             predicate.and(MatchDateTimeRange.range(
                     QQueueMessage.queueMessage.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));

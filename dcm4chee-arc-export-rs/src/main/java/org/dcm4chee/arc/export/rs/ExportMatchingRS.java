@@ -148,6 +148,9 @@ public class ExportMatchingRS {
     @QueryParam("ExternalRetrieveAET!")
     private String externalRetrieveAETNot;
 
+    @QueryParam("batchID")
+    private String batchID;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -358,7 +361,8 @@ public class ExportMatchingRS {
                 qrlevel != QueryRetrieveLevel2.STUDY ? match.getString(Tag.SeriesInstanceUID) : null,
                 qrlevel == QueryRetrieveLevel2.IMAGE ? match.getString(Tag.SOPInstanceUID) : null,
                 exporter,
-                HttpServletRequestInfo.valueOf(request));
+                HttpServletRequestInfo.valueOf(request),
+                batchID);
     }
 
 }

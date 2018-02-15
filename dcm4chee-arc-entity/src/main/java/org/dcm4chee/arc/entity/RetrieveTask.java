@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.entity;
 
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.TagUtils;
 
 import javax.json.stream.JsonGenerator;
@@ -276,34 +277,24 @@ public class RetrieveTask {
 
     public void writeAsJSONTo(JsonGenerator gen) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        JsonWriter writer = new JsonWriter(gen);
         gen.writeStartObject();
-        gen.write("pk", pk);
-        gen.write("createdTime", df.format(createdTime));
-        gen.write("updatedTime", df.format(updatedTime));
-        gen.write("LocalAET", localAET);
-        gen.write("RemoteAET", remoteAET);
-        gen.write("DestinationAET", destinationAET);
-        gen.write("StudyInstanceUID", studyInstanceUID);
-        if (seriesInstanceUID != null) {
-            gen.write("SeriesInstanceUID", seriesInstanceUID);
-            if (sopInstanceUID != null) {
-                gen.write("SOPInstanceUID", sopInstanceUID);
-            }
-        }
-        if (remaining > 0)
-            gen.write("remaining", remaining);
-        if (completed > 0)
-            gen.write("completed", completed);
-        if (failed > 0)
-            gen.write("failed", failed);
-        if (warning > 0)
-            gen.write("warning", warning);
-        if (statusCode != -1)
-            gen.write("statusCode", TagUtils.shortToHexString(statusCode));
-        if (errorComment != null)
-            gen.write("errorComment", errorComment);
-
-        queueMessage.writeStatusAsJSONTo(gen, df);
+        writer.writeNotNullOrDef("pk", pk, null);
+        writer.writeNotNullOrDef("createdTime", df.format(createdTime), null);
+        writer.writeNotNullOrDef("updatedTime", df.format(updatedTime), null);
+        writer.writeNotNullOrDef("LocalAET", localAET, null);
+        writer.writeNotNullOrDef("RemoteAET", remoteAET, null);
+        writer.writeNotNullOrDef("DestinationAET", destinationAET, null);
+        writer.writeNotNullOrDef("StudyInstanceUID", studyInstanceUID, null);
+        writer.writeNotNullOrDef("SeriesInstanceUID", seriesInstanceUID, null);
+        writer.writeNotNullOrDef("SOPInstanceUID", sopInstanceUID, null);
+        writer.writeNotNullOrDef("remaining", remaining, 0);
+        writer.writeNotNullOrDef("completed", completed, 0);
+        writer.writeNotNullOrDef("failed", failed, 0);
+        writer.writeNotNullOrDef("warning", warning, 0);
+        writer.writeNotNullOrDef("statusCode", TagUtils.shortToHexString(statusCode), -1);
+        writer.writeNotNullOrDef("errorComment", errorComment, null);
+        queueMessage.writeStatusAsJSONTo(writer, df);
         gen.writeEnd();
         gen.flush();
     }

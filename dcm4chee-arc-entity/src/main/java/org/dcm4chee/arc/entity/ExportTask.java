@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.entity;
 
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
 
 import javax.json.stream.JsonGenerator;
@@ -247,34 +248,23 @@ public class ExportTask {
 
     public void writeAsJSONTo(JsonGenerator gen) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        JsonWriter writer = new JsonWriter(gen);
         gen.writeStartObject();
-        gen.write("pk", pk);
-        gen.write("createdTime", df.format(createdTime));
-        gen.write("updatedTime", df.format(updatedTime));
-        gen.write("ExporterID", exporterID);
-        gen.write("StudyInstanceUID", studyInstanceUID);
-        if (!seriesInstanceUID.equals("*")) {
-            gen.write("SeriesInstanceUID", seriesInstanceUID);
-            if (!sopInstanceUID.equals("*")) {
-                gen.write("SOPInstanceUID", sopInstanceUID);
-            }
-        }
-        if (numberOfInstances != null)
-            gen.write("NumberOfInstances", numberOfInstances);
-        if (modalities != null) {
-            gen.writeStartArray("Modality");
-            for (String modality : getModalities()) {
-                gen.write(modality);
-            }
-            gen.writeEnd();
-        }
+        writer.writeNotNullOrDef("pk", pk, null);
+        writer.writeNotNullOrDef("createdTime", df.format(createdTime), null);
+        writer.writeNotNullOrDef("updatedTime", df.format(updatedTime), null);
+        writer.writeNotNullOrDef("ExporterID", exporterID, null);
+        writer.writeNotNullOrDef("StudyInstanceUID", studyInstanceUID, null);
+        writer.writeNotNullOrDef("SeriesInstanceUID", seriesInstanceUID, "*");
+        writer.writeNotNullOrDef("SOPInstanceUID", sopInstanceUID, "*");
+        writer.writeNotNullOrDef("NumberOfInstances", numberOfInstances, null);
+        writer.writeNotEmpty("Modality", getModalities());
         if (queueMessage == null) {
-            gen.write("dicomDeviceName", deviceName);
-            gen.write("status", QueueMessage.Status.TO_SCHEDULE.toString());
-            gen.write("scheduledTime", df.format(scheduledTime));
-        } else {
-            queueMessage.writeStatusAsJSONTo(gen, df);
-        }
+            writer.writeNotNullOrDef("dicomDeviceName", deviceName, null);
+            writer.writeNotNullOrDef("status", QueueMessage.Status.TO_SCHEDULE.toString(), null);
+            writer.writeNotNullOrDef("scheduledTime", df.format(scheduledTime), null);
+        } else
+            queueMessage.writeStatusAsJSONTo(writer, df);
         gen.writeEnd();
         gen.flush();
     }

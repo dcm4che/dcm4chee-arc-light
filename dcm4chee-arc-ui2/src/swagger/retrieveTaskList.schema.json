@@ -138,6 +138,11 @@
         "title": "Outcome Message",
         "description": "outcome message of process this task",
         "type": "string"
+      },
+      "batchID": {
+        "title": "Batch ID",
+        "description": "Batch ID of this task",
+        "type": "string"
       }
     }
   }

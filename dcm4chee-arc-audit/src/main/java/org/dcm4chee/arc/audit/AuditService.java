@@ -1890,7 +1890,7 @@ public class AuditService {
         return null;
     }
 
-    public String toString(QueueMessage queueMsg) {
+    private String toString(QueueMessage queueMsg) {
         StringWriter w = new StringWriter(256);
         try {
             queueMsg.writeAsJSON(w);

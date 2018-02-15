@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.entity;
 
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.util.StringUtils;
 
 import javax.jms.JMSException;
@@ -65,7 +66,8 @@ import java.util.*;
         @Index(columnList = "queue_name"),
         @Index(columnList = "msg_status"),
         @Index(columnList = "created_time"),
-        @Index(columnList = "updated_time")
+        @Index(columnList = "updated_time"),
+        @Index(columnList = "batchID")
 })
 @NamedQueries({
         @NamedQuery(name = QueueMessage.FIND_BY_MSG_ID,
@@ -154,6 +156,9 @@ public class QueueMessage {
     @Basic(optional = false)
     @Column(name = "num_failures")
     private int numberOfFailures;
+
+    @Column(name = "batchID", updatable = false)
+    private String batchID;
 
     @Column(name = "error_msg")
     private String errorMessage;
@@ -288,6 +293,14 @@ public class QueueMessage {
         this.retrieveTask = retrieveTask;
     }
 
+    public String getBatchID() {
+        return batchID;
+    }
+
+    public void setBatchID(String batchID) {
+        this.batchID = batchID;
+    }
+
     public void reschedule(ObjectMessage msg, Date date) {
         try {
             this.messageID = msg.getJMSMessageID();
@@ -301,13 +314,14 @@ public class QueueMessage {
     public void writeAsJSON(Writer out) throws IOException {
         JsonGenerator gen = Json.createGenerator(out);
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        JsonWriter writer = new JsonWriter(gen);
         gen.writeStartObject();
-        gen.write("id", messageID);
-        gen.write("queue", queueName);
-        gen.write("priority", priority);
-        gen.write("createdTime", df.format(createdTime));
-        gen.write("updatedTime", df.format(updatedTime));
-        writeStatusAsJSONTo(gen, df);
+        writer.writeNotNullOrDef("id", messageID, null);
+        writer.writeNotNullOrDef("queue", queueName, null);
+        writer.writeNotNullOrDef("priority", priority, 0);
+        writer.writeNotNullOrDef("createdTime", df.format(createdTime), null);
+        writer.writeNotNullOrDef("updatedTime", df.format(updatedTime), null);
+        writeStatusAsJSONTo(writer, df);
         gen.flush();
         out.write(',');
         out.write(messageProperties);
@@ -315,20 +329,16 @@ public class QueueMessage {
         gen.flush();
     }
 
-    public void writeStatusAsJSONTo(JsonGenerator gen, DateFormat df) {
-        gen.write("dicomDeviceName", deviceName);
-        gen.write("status", status.toString());
-        if (numberOfFailures > 0)
-            gen.write("failures", numberOfFailures);
-        gen.write("scheduledTime", df.format(scheduledTime));
-        if (processingStartTime != null)
-            gen.write("processingStartTime", df.format(processingStartTime));
-        if (processingEndTime != null)
-            gen.write("processingEndTime", df.format(processingEndTime));
-        if (errorMessage != null)
-            gen.write("errorMessage", errorMessage);
-        if (outcomeMessage != null)
-            gen.write("outcomeMessage", outcomeMessage);
+    public void writeStatusAsJSONTo(JsonWriter writer, DateFormat df) {
+        writer.writeNotNullOrDef("dicomDeviceName", deviceName, null);
+        writer.writeNotNullOrDef("status", status.toString(), null);
+        writer.writeNotNullOrDef("batchID", batchID, null);
+        writer.writeNotNullOrDef("failures", numberOfFailures, 0);
+        writer.writeNotNullOrDef("scheduledTime", df.format(scheduledTime), null);
+        writer.writeNotNullOrDef("processingStartTime", df.format(processingStartTime), null);
+        writer.writeNotNullOrDef("processingEndTime", df.format(processingEndTime), null);
+        writer.writeNotNullOrDef("errorMessage", errorMessage, null);
+        writer.writeNotNullOrDef("outcomeMessage", outcomeMessage, null);
     }
 
     public void writeStatusAsCSVTo(Writer writer, DateFormat df) throws IOException {
@@ -340,6 +350,9 @@ public class QueueMessage {
         writer.append(',');
         if (numberOfFailures > 0)
             writer.write(String.valueOf(numberOfFailures));
+        writer.append(',');
+        if (batchID != null)
+            writer.write(batchID);
         writer.append(',');
         if (processingStartTime != null)
             writer.write(df.format(processingStartTime));
