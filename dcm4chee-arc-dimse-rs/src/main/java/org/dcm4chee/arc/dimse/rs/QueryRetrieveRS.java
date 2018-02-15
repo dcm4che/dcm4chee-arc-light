@@ -92,6 +92,9 @@ public class QueryRetrieveRS {
     @PathParam("ExternalAET")
     private String externalAET;
 
+    @QueryParam("batchID")
+    private String batchID;
+
     @QueryParam("fuzzymatching")
     @Pattern(regexp = "true|false")
     private String fuzzymatching;
@@ -99,9 +102,6 @@ public class QueryRetrieveRS {
     @QueryParam("priority")
     @Pattern(regexp = "0|1|2")
     private String priority;
-
-    @QueryParam("batchID")
-    private String batchID;
 
     @Inject
     private CFindSCU findSCU;

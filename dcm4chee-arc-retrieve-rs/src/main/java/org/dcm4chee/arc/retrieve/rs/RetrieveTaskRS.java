@@ -101,6 +101,7 @@ public class RetrieveTaskRS {
             "dicomDeviceName," +
             "status,scheduledTime," +
             "failures," +
+            "batchID," +
             "processingStartTime," +
             "processingEndTime," +
             "errorMessage," +

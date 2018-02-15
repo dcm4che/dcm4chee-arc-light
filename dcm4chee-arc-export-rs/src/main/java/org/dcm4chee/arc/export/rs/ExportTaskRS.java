@@ -95,6 +95,7 @@ public class ExportTaskRS {
             "status," +
             "scheduledTime," +
             "failures," +
+            "batchID," +
             "processingStartTime," +
             "processingEndTime," +
             "errorMessage," +

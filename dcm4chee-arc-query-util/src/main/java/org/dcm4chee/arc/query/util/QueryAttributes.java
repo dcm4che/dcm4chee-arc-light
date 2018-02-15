@@ -94,6 +94,7 @@ public class QueryAttributes {
                 case "ExternalRetrieveAET!":
                 case "only-stgcmt":
                 case "only-ian":
+                case "batchID":
                     break;
                 default:
                     addQueryKey(key, entry.getValue());
