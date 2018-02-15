@@ -56,6 +56,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
+import org.dcm4chee.arc.conf.RejectionNote;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
@@ -732,14 +733,18 @@ public class AuditService {
         }
     }
 
-    void spoolInstanceStored(StoreContext ctx) {
-        if (ctx.getRejectionNote() != null) {
+    void spoolStoreEvent(StoreContext ctx) {
+        RejectionNote rejectionNote = ctx.getRejectionNote();
+        if (rejectionNote != null && !rejectionNote.isRevokeRejection()) {
             spoolInstancesDeleted(ctx);
             return;
         }
 
-        if (isDuplicateReceivedInstance(ctx))
+        if (isDuplicateReceivedInstance(ctx)) {
+            if (rejectionNote != null && rejectionNote.isRevokeRejection())
+                spoolInstancesStored(ctx);
             return;
+        }
 
         if (ctx.getAttributes() == null) {
             LOG.warn("Instances stored is not audited as store context attributes are not set. "
@@ -747,6 +752,10 @@ public class AuditService {
             return;
         }
 
+        spoolInstancesStored(ctx);
+    }
+
+    private void spoolInstancesStored(StoreContext ctx) {
         AuditServiceUtils.EventType eventType = AuditServiceUtils.EventType.forInstanceStored(ctx);
 
         StoreSession ss = ctx.getStoreSession();
@@ -755,12 +764,11 @@ public class AuditService {
                 ? KeycloakContext.valueOf(req).getUserName()
                 : ss.getCallingAET();
 
-        String rjNoteMeaning = ctx.getException() == null && null != ctx.getRejectionNote()
-                            ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null;
-        String exception = getOD(ctx.getException());
-        String outcome = ctx.getRejectionNote() == null
-                            ? exception
-                            : exception + " - " + rjNoteMeaning;
+        String outcome = ctx.getException() != null
+                            ? ctx.getRejectionNote() != null
+                                ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + '-' + ctx.getException().getMessage()
+                                : ctx.getException().getMessage()
+                            : null;
 
         AuditInfoBuilder instanceInfo = new AuditInfoBuilder.Builder()
                 .sopCUID(ctx.getSopClassUID()).sopIUID(ctx.getSopInstanceUID())
@@ -775,7 +783,8 @@ public class AuditService {
                 .studyUIDAccNumDate(attr)
                 .pIDAndName(attr, arcDev)
                 .outcome(outcome)
-                .warning(rjNoteMeaning)
+                .warning(ctx.getRejectionNote() != null
+                            ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null)
                 .build();
 
         if (ctx.getException() != null)
@@ -838,7 +847,11 @@ public class AuditService {
                 mppsUIDs.add(mppsUID);
         }
 
-        EventIdentificationBuilder ei = toBuildEventIdentification(eventType, auditInfo.getField(AuditInfo.OUTCOME), getEventTime(path, auditLogger));
+        EventIdentificationBuilder ei = toCustomBuildEventIdentification(
+                                            eventType,
+                                            auditInfo.getField(AuditInfo.OUTCOME),
+                                            auditInfo.getField(AuditInfo.WARNING),
+                                            getEventTime(path, auditLogger));
 
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
