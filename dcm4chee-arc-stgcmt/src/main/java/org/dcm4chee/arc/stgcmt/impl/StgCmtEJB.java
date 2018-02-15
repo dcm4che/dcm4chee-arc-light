@@ -236,7 +236,8 @@ public class StgCmtEJB implements StgCmtManager {
     private List<Predicate> createPredicate(Sequence refSopSeq) {
         List<Predicate> predicates = new ArrayList<>();
         int limit = ((SessionFactoryImplementor) em.unwrap(Session.class).getSessionFactory())
-                .getDialect().getInExpressionCountLimit() - 1;
+                .getDialect().getInExpressionCountLimit() - 10;
+        // SQL Server actually does support lesser parameters than its specified limit (2100)
         if (limit <= 0)
             limit = refSopSeq.size();
 
