@@ -9,7 +9,9 @@
       "ExporterID",
       "createdTimeRange",
       "updatedTimeRange",
-      "scheduledTimeRange"
+      "scheduledTimeRange",
+      "processingStartTimeRange",
+      "processingEndTimeRange"
     ],
     "properties": {
       "batchID": {

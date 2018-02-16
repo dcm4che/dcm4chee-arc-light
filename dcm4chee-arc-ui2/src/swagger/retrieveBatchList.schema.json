@@ -11,7 +11,9 @@
       "DestinationAET",
       "createdTimeRange",
       "updatedTimeRange",
-      "scheduledTimeRange"
+      "scheduledTimeRange",
+      "processingStartTimeRange",
+      "processingEndTimeRange"
     ],
     "properties": {
       "batchID": {
