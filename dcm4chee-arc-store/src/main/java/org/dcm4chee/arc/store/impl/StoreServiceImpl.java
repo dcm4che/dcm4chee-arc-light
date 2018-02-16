@@ -134,11 +134,12 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public StoreSession newStoreSession(HttpServletRequest httpRequest, String aet, ApplicationEntity ae) {
+    public StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae, String rejectionNoteObjectStorageID) {
         StoreSessionImpl session = new StoreSessionImpl(this);
         session.setHttpRequest(httpRequest);
         session.setApplicationEntity(ae);
-        session.setCalledAET(aet);
+        session.setCalledAET(ae.getAETitle());
+        session.setObjectStorageID(rejectionNoteObjectStorageID);
         return session;
     }
 
@@ -544,11 +545,13 @@ class StoreServiceImpl implements StoreService {
         attrs.update(Attributes.UpdatePolicy.OVERWRITE, seriesAttrs, modified);
     }
 
-    private Storage getStorage(StoreSession session, StorageDescriptor descriptor) {
-        Storage storage = session.getStorage(descriptor.getStorageID());
+    private Storage getStorage(StoreSession session, String storageID) {
+        ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
+        StorageDescriptor descriptor = arcDev.getStorageDescriptor(storageID);
+        Storage storage = session.getStorage(storageID);
         if (storage == null) {
             storage = storageFactory.getStorage(descriptor);
-            session.putStorage(descriptor.getStorageID(), storage);
+            session.putStorage(storageID, storage);
         }
         return storage;
     }
@@ -591,7 +594,7 @@ class StoreServiceImpl implements StoreService {
 
     private Storage selectObjectStorage(StoreSession session) throws IOException {
         if (session.getObjectStorageID() != null)
-            return session.getStorage(session.getObjectStorageID());
+            return getStorage(session, session.getObjectStorageID());
 
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
@@ -654,8 +657,7 @@ class StoreServiceImpl implements StoreService {
     public ZipInputStream openZipInputStream(
             StoreSession session, String storageID, String storagePath, String studyUID)
             throws IOException {
-        ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
-        Storage storage = getStorage(session,  arcDev.getStorageDescriptor(storageID));
+        Storage storage = getStorage(session, storageID);
         ReadContext readContext = storage.createReadContext();
         readContext.setStoragePath(storagePath);
         readContext.setStudyInstanceUID(studyUID);

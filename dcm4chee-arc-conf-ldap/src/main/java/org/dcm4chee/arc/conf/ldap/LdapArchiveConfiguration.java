@@ -225,6 +225,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmAuditSoftwareConfigurationVerbose", ext.isAuditSoftwareConfigurationVerbose(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7UseNullValue", ext.isHl7UseNullValue(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQueueTasksFetchSize", ext.getQueueTasksFetchSize(), 100);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectionNoteStorageAET",
+                ext.getRejectionNoteStorageAET(), null);
+
     }
 
     @Override
@@ -376,6 +379,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAuditSoftwareConfigurationVerbose(LdapUtils.booleanValue(attrs.get("dcmAuditSoftwareConfigurationVerbose"), false));
         ext.setHl7UseNullValue(LdapUtils.booleanValue(attrs.get("hl7UseNullValue"), false));
         ext.setQueueTasksFetchSize(LdapUtils.intValue(attrs.get("dcmQueueTasksFetchSize"), 100));
+        ext.setRejectionNoteStorageAET(LdapUtils.stringValue(
+                attrs.get("dcmRejectionNoteStorageAET"), null));
     }
 
     @Override
@@ -637,6 +642,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getQueueTasksFetchSize(),
                 bb.getQueueTasksFetchSize(),
                 100);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRejectionNoteStorageAET",
+                aa.getRejectionNoteStorageAET(), bb.getRejectionNoteStorageAET(),
+                null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

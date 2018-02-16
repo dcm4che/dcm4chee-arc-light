@@ -226,6 +226,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmAuditSoftwareConfigurationVerbose", arcDev.isAuditSoftwareConfigurationVerbose(), false);
         writer.writeNotDef("hl7UseNullValue", arcDev.isHl7UseNullValue(), false);
         writer.writeNotDef("dcmQueueTasksFetchSize", arcDev.getQueueTasksFetchSize(), 100);
+        writer.writeNotNullOrDef("dcmRejectionNoteStorageAET",
+                arcDev.getRejectionNoteStorageAET(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1002,6 +1004,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmQueueTasksFetchSize":
                     arcDev.setQueueTasksFetchSize(reader.intValue());
+                    break;
+                case "dcmRejectionNoteStorageAET":
+                    arcDev.setRejectionNoteStorageAET(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
