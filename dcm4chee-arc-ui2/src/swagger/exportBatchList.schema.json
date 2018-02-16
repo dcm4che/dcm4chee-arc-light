@@ -32,8 +32,8 @@
             "type": "integer"
           },
           "warning": {
-            "title": "Completed Tasks",
-            "description": "Number of completed tasks in the batch",
+            "title": "Warning Tasks",
+            "description": "Number of warning tasks in the batch",
             "type": "integer"
           },
           "failed": {
@@ -42,8 +42,13 @@
             "type": "integer"
           },
           "canceled": {
-            "title": "Failed Tasks",
+            "title": "Canceled Tasks",
             "description": "Number of canceled tasks in the batch",
+            "type": "integer"
+          },
+          "completed": {
+            "title": "Completed Tasks",
+            "description": "Number of completed tasks in the batch",
             "type": "integer"
           }
         }
