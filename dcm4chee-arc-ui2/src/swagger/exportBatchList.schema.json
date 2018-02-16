@@ -1,0 +1,114 @@
+{
+  "title": "ExportBatchList",
+  "type": "array",
+  "items": {
+    "required": [
+      "batchID",
+      "tasks",
+      "dicomDeviceName",
+      "ExporterID",
+      "createdTimeRange",
+      "updatedTimeRange",
+      "scheduledTimeRange"
+    ],
+    "properties": {
+      "batchID": {
+        "title": "Export Batch ID",
+        "description": "Export Batch ID",
+        "type": "string"
+      },
+      "tasks": {
+        "title": "Tasks",
+        "type": "object",
+        "properties": {
+          "scheduled": {
+            "title": "Scheduled Tasks",
+            "description": "Number of scheduled tasks in the batch",
+            "type": "integer"
+          },
+          "in-process": {
+            "title": "In process Tasks",
+            "description": "Number of in process tasks in the batch",
+            "type": "integer"
+          },
+          "warning": {
+            "title": "Completed Tasks",
+            "description": "Number of completed tasks in the batch",
+            "type": "integer"
+          },
+          "failed": {
+            "title": "Failed Tasks",
+            "description": "Number of failed tasks in the batch",
+            "type": "integer"
+          },
+          "canceled": {
+            "title": "Failed Tasks",
+            "description": "Number of canceled tasks in the batch",
+            "type": "integer"
+          }
+        }
+       },
+      "dicomDeviceName": {
+        "title": "Device Name",
+        "description": "Name of Devices performing tasks in the batch",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "ExporterID": {
+        "title": "Exporter ID",
+        "description": "ID of exporters performing tasks in the batch",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "createdTimeRange": {
+        "title": "Created Time Range",
+        "description": "time range when tasks of the batch were created",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "updatedTimeRange": {
+        "title": "Updated Time Range",
+        "description": "time range when tasks of the batch were last updated",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "scheduledTimeRange": {
+        "title": "Scheduled Time Range",
+        "description": "time range when next attempt to process tasks of the batch are scheduled",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "processingStartTimeRange": {
+        "title": "Processing Start Time Range",
+        "description": "time range when last attempt to process tasks of the batch started",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "processingEndTimeRange": {
+        "title": "Processing End Time Range",
+        "description": "time when last attempt to process tasks of the batch finished",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

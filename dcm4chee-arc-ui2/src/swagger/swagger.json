@@ -1132,6 +1132,82 @@
         }
       }
     },
+    "/monitor/export/batch": {
+      "get": {
+        "tags": [
+          "MONITOR-RS",
+          "EXPORT-RS"
+        ],
+        "summary": "List Export Batches",
+        "operationId": "listExportBatches",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "list batches which at least one export task with the specified Device Name",
+            "type": "string"
+          },
+          {
+            "name": "ExporterID",
+            "in": "query",
+            "description": "list batches which at least one export task with the specified Exporter ID",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "list batches which at least one export task with the specified status",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "list batches which at least one export task were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "list batches which at least one export tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped batches before first task in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of batches in returned list",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "exportBatchList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/monitor/export/count": {
       "get": {
         "tags": [
@@ -1713,6 +1789,94 @@
             "description": "successful operation",
             "schema": {
               "$ref": "#/definitions/Deleted"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/retrieve/batch": {
+      "get": {
+        "tags": [
+          "MONITOR-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "List Retrieve Batches",
+        "operationId": "listRetrieveBatches",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "list batches which at least one retrieve task with the specified Device Name",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "list batches which at least one retrieve task with the specified Archive AE Title",
+            "type": "string"
+          },
+          {
+            "name": "RemoteAET",
+            "in": "query",
+            "description": "list batches which at least one retrieve task with the specified C-MOVE SCP AE Title",
+            "type": "string"
+          },
+          {
+            "name": "DestinationAET",
+            "in": "query",
+            "description": "list batches which at least one retrieve task with the specified Destination AE Title",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "list batches which at least one retrieve task with the specified status",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "list batches which at least one retrieve task were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "list batches which at least one retrieve tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped batches before first task in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of batches in returned list",
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "retrieveBatchList.schema.json"
             }
           },
           "default": {
