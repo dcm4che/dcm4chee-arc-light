@@ -1147,19 +1147,19 @@
           {
             "name": "dicomDeviceName",
             "in": "query",
-            "description": "list batches which at least one export task with the specified Device Name",
+            "description": "list batches with at least one export task with the specified Device Name",
             "type": "string"
           },
           {
             "name": "ExporterID",
             "in": "query",
-            "description": "list batches which at least one export task with the specified Exporter ID",
+            "description": "list batches with at least one export task with the specified Exporter ID",
             "type": "string"
           },
           {
             "name": "status",
             "in": "query",
-            "description": "list batches which at least one export task with the specified status",
+            "description": "list batches with at least one export task with the specified status",
             "type": "string",
             "enum": [
               "SCHEDULED",
@@ -1173,13 +1173,13 @@
           {
             "name": "createdTime",
             "in": "query",
-            "description": "list batches which at least one export task were created between <datetime1>-<datetime2>",
+            "description": "list batches with at least one export task were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "list batches which at least one export tasks which were updated between <datetime1>-<datetime2>",
+            "description": "list batches with at least one export tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -1812,31 +1812,31 @@
           {
             "name": "dicomDeviceName",
             "in": "query",
-            "description": "list batches which at least one retrieve task with the specified Device Name",
+            "description": "list batches with at least one retrieve task with the specified Device Name",
             "type": "string"
           },
           {
             "name": "LocalAET",
             "in": "query",
-            "description": "list batches which at least one retrieve task with the specified Archive AE Title",
+            "description": "list batches with at least one retrieve task with the specified Archive AE Title",
             "type": "string"
           },
           {
             "name": "RemoteAET",
             "in": "query",
-            "description": "list batches which at least one retrieve task with the specified C-MOVE SCP AE Title",
+            "description": "list batches with at least one retrieve task with the specified C-MOVE SCP AE Title",
             "type": "string"
           },
           {
             "name": "DestinationAET",
             "in": "query",
-            "description": "list batches which at least one retrieve task with the specified Destination AE Title",
+            "description": "list batches with at least one retrieve task with the specified Destination AE Title",
             "type": "string"
           },
           {
             "name": "status",
             "in": "query",
-            "description": "list batches which at least one retrieve task with the specified status",
+            "description": "list batches with at least one retrieve task with the specified status",
             "type": "string",
             "enum": [
               "SCHEDULED",
@@ -1850,13 +1850,13 @@
           {
             "name": "createdTime",
             "in": "query",
-            "description": "list batches which at least one retrieve task were created between <datetime1>-<datetime2>",
+            "description": "list batches with at least one retrieve task were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "list batches which at least one retrieve tasks which were updated between <datetime1>-<datetime2>",
+            "description": "list batches with at least one retrieve tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
