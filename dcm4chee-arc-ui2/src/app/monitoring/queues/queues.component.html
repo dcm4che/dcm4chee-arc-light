@@ -94,9 +94,9 @@
         <!--</div>-->
         <div class="main_filter_block">
             <div class="morefunctionblock">
-                <md-select [(ngModel)]="allAction" class="w45percent" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
-                    <md-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</md-option>
-                </md-select>
+                <mat-select [(ngModel)]="allAction" class="w45percent" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
+                    <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</mat-option>
+                </mat-select>
             </div>
         </div>
         <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">

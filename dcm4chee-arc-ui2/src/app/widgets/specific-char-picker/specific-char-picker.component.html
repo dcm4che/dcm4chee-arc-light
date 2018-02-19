@@ -1,9 +1,9 @@
-<md-select *ngIf="!mode" [ngModel]="localModel" (ngModelChange)="modelChanged($event)" ngDefaultControl>
+<mat-select *ngIf="!mode" [ngModel]="localModel" (ngModelChange)="modelChanged($event)" ngDefaultControl>
     <ng-container *ngFor="let chargroup of specificChar">
         <span title="{{chargroup.groupName}}" class="groupName">{{chargroup.groupName}}</span>
-        <md-option title="{{ char.title }} ({{char.value}})" *ngFor="let char of chargroup.groupValues" value="{{char.value}}">{{ char.title }}</md-option>
+        <mat-option title="{{ char.title }} ({{char.value}})" *ngFor="let char of chargroup.groupValues" value="{{char.value}}">{{ char.title }}</mat-option>
     </ng-container>
-</md-select>
+</mat-select>
 <div *ngIf="mode && mode === 'configurator'"  class="widghet_content" (keydown)="keyDown($event)">
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
     <input class="dictionary_widget_search" [(ngModel)]="filter" placeholder="  Search..">

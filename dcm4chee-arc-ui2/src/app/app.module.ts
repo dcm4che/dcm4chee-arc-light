@@ -1,10 +1,13 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {LOCALE_ID, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule }   from '@angular/router';
 import {AppComponent} from './app.component';
-import {MaterialModule, MdDialogConfig} from '@angular/material';
+import {
+    MatDialogConfig, MatDialogModule, MatIconModule, MatProgressBarModule, MatProgressSpinnerModule,
+    MatSelectModule
+} from '@angular/material';
 import { StudiesComponent } from './studies/studies.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { ControlComponent } from './control/control.component';
@@ -121,7 +124,11 @@ import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service
         BrowserModule,
         FormsModule,
         HttpModule,
-        MaterialModule.forRoot(),
+        MatDialogModule,
+        MatIconModule,
+        MatSelectModule,
+        MatProgressBarModule,
+        MatProgressSpinnerModule,
         SlimLoadingBarModule.forRoot(),
         WidgetsModule,
         CommonModule,
@@ -162,7 +169,7 @@ import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service
     ],
     entryComponents: [WidgetsComponents],
     providers: [
-        MdDialogConfig,
+        MatDialogConfig,
         WidgetsComponents,
         AppService,
         StudiesService,
@@ -185,7 +192,8 @@ import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service
         HttpErrorHandler,
         j4care,
         ExternalRetrieveService,
-        DynamicFieldService
+        DynamicFieldService,
+        {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent]
 })

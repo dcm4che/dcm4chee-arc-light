@@ -4,13 +4,13 @@ import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import * as _ from 'lodash';
 import {ConfirmComponent} from '../widgets/dialogs/confirm/confirm.component';
 import {AppService} from '../app.service';
-import {MdDialog, MdDialogConfig, MdDialogRef} from '@angular/material';
 import {CreateAeComponent} from '../widgets/dialogs/create-ae/create-ae.component';
 import {DevicesService} from '../devices/devices.service';
 import {WindowRefService} from "../helpers/window-ref.service";
 import {AeListService} from "./ae-list.service";
 import {HttpErrorHandler} from "../helpers/http-error-handler";
 import {J4careHttpService} from "../helpers/j4care-http.service";
+import {MatDialog, MatDialogRef, MatDialogConfig} from "@angular/material";
 
 @Component({
   selector: 'app-ae-list',
@@ -36,15 +36,15 @@ export class AeListComponent implements OnInit{
         loaderActive: false
     };
     devices;
-    dialogRef: MdDialogRef<any>;
+    dialogRef: MatDialogRef<any>;
 
     constructor(
       public $http:J4careHttpService,
       public cfpLoadingBar: SlimLoadingBarService,
       public mainservice: AppService,
       public viewContainerRef: ViewContainerRef ,
-      public dialog: MdDialog,
-      public config: MdDialogConfig,
+      public dialog: MatDialog,
+      public config: MatDialogConfig,
       public service: AeListService,
       public httpErrorHandler:HttpErrorHandler
   ){}

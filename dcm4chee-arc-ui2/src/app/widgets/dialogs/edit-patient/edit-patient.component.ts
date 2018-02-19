@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {MdDialogRef} from '@angular/material';
+import {MatDialogRef} from '@angular/material';
 import {Globalvar} from '../../../constants/globalvar';
 declare var DCM4CHE: any;
 import * as _ from 'lodash';
@@ -30,7 +30,7 @@ export class EditPatientComponent {
     private _externalInternalAetMode;
     iod: any;
 
-    constructor(public dialogRef: MdDialogRef<EditPatientComponent>, public mainservice: AppService) {
+    constructor(public dialogRef: MatDialogRef<EditPatientComponent>, public mainservice: AppService) {
     }
     onChange(newValue, model) {
         _.set(this, model, newValue);

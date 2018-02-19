@@ -1,9 +1,11 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
-import {MdDialog, MdDialogRef, MdDialogConfig} from '@angular/material';
+import {MatDialog, MatDialogRef, MatDialogConfig} from '@angular/material';
 import {MessagingComponent} from './widgets/messaging/messaging.component';
 import {AppService} from './app.service';
 import {ViewChild} from '@angular/core';
 import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/share';
+
 import {Http} from '@angular/http';
 import {ProductLabellingComponent} from './widgets/dialogs/product-labelling/product-labelling.component';
 import {HostListener} from '@angular/core';
@@ -25,7 +27,7 @@ export class AppComponent implements OnInit {
     progressValue = 30;
     //Detect witch header should be shown.
     user: any = {};
-    dialogRef: MdDialogRef<any>;
+    dialogRef: MatDialogRef<any>;
     showUserMenu = false;
     url = '/auth';
     logoutUrl = '';
@@ -45,8 +47,8 @@ export class AppComponent implements OnInit {
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
     constructor(
         public viewContainerRef: ViewContainerRef,
-        public dialog: MdDialog,
-        public config: MdDialogConfig,
+        public dialog: MatDialog,
+        public config: MatDialogConfig,
         public mainservice: AppService,
         public $http:J4careHttpService
     ){}

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {MdDialogRef} from '@angular/material';
+import {MatDialogRef} from '@angular/material';
 
 @Component({
   selector: 'app-remove-part-selector',
@@ -9,7 +9,7 @@ export class RemovePartSelectorComponent{
     selectedOption;
     private _toRemoveElement;
 
-    constructor(public dialogRef: MdDialogRef<RemovePartSelectorComponent>) { }
+    constructor(public dialogRef: MatDialogRef<RemovePartSelectorComponent>) { }
 
     get toRemoveElement() {
         return this._toRemoveElement;

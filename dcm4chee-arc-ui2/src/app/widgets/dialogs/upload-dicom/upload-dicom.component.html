@@ -3,20 +3,20 @@
         <h5>Upload DICOM data</h5>
         <div class="content">
             <label>Select the ae title:</label>
-            <md-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
-                <md-option *ngFor="let ae of aes" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</md-option>
-            </md-select>
+            <mat-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
+                <mat-option *ngFor="let ae of aes" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>
+            </mat-select>
             <!--<input type="file" ng2FileSelect [uploader]="vendorUpload" />-->
             <label>Chose DICOM Files to upload:</label>
             <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  multiple>
-            <div md-dialog-content>
+            <div mat-dialog-content>
                 <div class="upload_state" *ngFor="let file of fileList">
                     {{file.name}}
                     <span class="text-danger" *ngIf="percentComplete[file.name] && percentComplete[file.name].status">Error {{percentComplete[file.name].status}}</span>
                     <span class="upload_ticker" *ngIf="percentComplete[file.name] && percentComplete[file.name].showLoader && !percentComplete[file.name].showTicker"><i class="fa fa-circle-o-notch fa-spin"></i></span>
                     <span class="upload_ticker" *ngIf="percentComplete[file.name] && percentComplete[file.name].showTicker"><i class="material-icons">check</i></span>
                     <div>
-                        <md-progress-bar color="primary" mode="determinate" [value]="percentComplete[file.name].value"></md-progress-bar>
+                        <mat-progress-bar color="primary" mode="determinate" [value]="percentComplete[file.name].value"></mat-progress-bar>
                     </div>
                 </div>
             </div>

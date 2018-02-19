@@ -105,6 +105,7 @@ export class DynamicFormComponent implements OnInit{
             this.form.patchValue(this.model);
         }*/
 
+/*
         this.form.valueChanges
             .debounceTime(500)
             .distinctUntilChanged()
@@ -112,6 +113,7 @@ export class DynamicFormComponent implements OnInit{
                 console.log('insubscribe changes fe', fe);
                 console.log('form', this.form);
             });
+*/
 
         console.log('form', this.form);
     }

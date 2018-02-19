@@ -7,7 +7,7 @@
                 <li role="presentation" [ngClass]="{'active':activetab==='createdevice'}" (click)="changeTabAERegister('createdevice')"><a>Create new device</a></li>
                 <li role="presentation" [ngClass]="{'active':activetab==='selectdevice'}" (click)="changeTabAERegister('selectdevice')"><a>Select existing device</a></li>
             </ul>
-            <div md-dialog-content>
+            <div mat-dialog-content>
                 <div class="createdevice tabcontain">
                     <div class="tab_body" [hidden]="!(activetab === 'createdevice')">
                         <h4 (click)="showdevice=!showdevice;showconn=false">New Device <span *ngIf="newAetModel.dicomDeviceName && !showdevice"> <b>{{newAetModel.dicomDeviceName}}</b></span></h4>

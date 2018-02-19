@@ -296,19 +296,19 @@ body{
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-md-sidenav-layout{
+mat-sidenav-layout{
     height:100vh;
 }
-md-sidenav{
+mat-sidenav{
     width:320px;
 }
-md-toolbar-row{
+mat-toolbar-row{
     justify-content: space-between ;
 }
-[md-raised-button]{
+[mat-raised-button]{
     width:100%;
 }
-md-grid-list{
+mat-grid-list{
     max-width:1403px;
     margin:16px;
 }
@@ -359,7 +359,7 @@ md-grid-list{
 .mat-select-underline{
   border-bottom:1px solid #ccc;
 }
-[md-icon-button] {
+[mat-icon-button] {
     width: 27px;
     height:27px;
 }
@@ -472,7 +472,7 @@ md-grid-list{
     top: 0;
   }
 }
-md-progress-circle, [_nghost-nyg-8]{
+mat-progress-circle, [_nghost-nyg-8]{
   width:25px !important;
   height:25px !important;
   svg{
@@ -486,7 +486,7 @@ iod-form-generator{
   specific-char-picker{
     width: 98%;
     float: left;
-    md-select{
+    mat-select{
       width:100%;
     }
   }
@@ -532,7 +532,7 @@ iod-form-generator{
     margin-bottom: 20px;
     padding-left:7px;
   }
-  md-dialog-container{
+  mat-dialog-container{
     overflow:visible;
     float: left;
     width: 100%;
@@ -678,7 +678,7 @@ iod-form-generator{
     }
   }
 }
-.md-overlay-pane{
+.mat-overlay-pane{
   .edit-mwl{
     .dropdown{
       margin-top:0;
@@ -850,11 +850,11 @@ p-calendar{
 p-calendar select{
 
 }
-.md-overlay-backdrop{
+.mat-overlay-backdrop{
   position: fixed !important;
 }
 
-md-dialog-container{
+mat-dialog-container{
   border-top: 20px solid $lightBlue;
   border-radius: 5px;
   &.mat-dialog-container{
@@ -865,17 +865,17 @@ md-dialog-container{
   .cdk-global-overlay-wrapper{
     top: 5% !important;
     transform: translateX(-50%) translateX(0px) translateY(0px) !important;
-    md-dialog-container{
+    mat-dialog-container{
       border-top: 20px solid $lightBlue;
       border-radius: 5px;
     }
   }
 }*/
-.md-overlay-container{
-  .md-overlay-pane{
+.mat-overlay-container{
+  .mat-overlay-pane{
     top: 5% !important;
     transform: translateX(-50%) translateX(0px) translateY(0px) !important;
-    md-dialog-container{
+    mat-dialog-container{
       border-top: 20px solid $lightBlue;
       border-radius: 5px;
     }
@@ -1101,7 +1101,7 @@ md-dialog-container{
     select{
       background-color: white;
     }
-    .col-md-3{
+    .col-mat-3{
       input{
         margin:0;
       }
@@ -1141,7 +1141,7 @@ md-dialog-container{
     float: left;
     width: 100%;
   }
-  md-select{
+  mat-select{
     padding:0;
   }
 }
@@ -1195,7 +1195,7 @@ md-dialog-container{
     }
   }
   .noneDicomBlock{
-    md-select{
+    mat-select{
       width:100%;
     }
   }
@@ -1266,7 +1266,7 @@ md-dialog-container{
     border: 1px solid #ccc;
     padding:3px 7px;
   }
-  md-select{
+  mat-select{
     width:100%;
   }
 }
@@ -2042,7 +2042,7 @@ md-dialog-container{
   input{
     width:65%;
   }
-  md-select, select{
+  mat-select, select{
     width:35%;
     float: right;
     border-left:none;
