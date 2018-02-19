@@ -81,4 +81,6 @@ public interface ExportManager {
             throws IllegalTaskStateException, DifferentDeviceException;
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask);
+
+    List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch, int offset, int limit);
 }

@@ -48,6 +48,7 @@ import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
+import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.slf4j.Logger;
@@ -61,6 +62,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2017
  */
 @ApplicationScoped
@@ -182,5 +184,10 @@ public class RetrieveManagerImpl implements RetrieveManager {
     @Override
     public List<Long> getRetrieveTaskPks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit) {
         return ejb.getRetrieveTaskPks(matchQueueMessage, matchRetrieveTask, limit);
+    }
+
+    @Override
+    public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch, int offset, int limit) {
+        return ejb.listRetrieveBatches(matchQueueBatch, matchRetrieveBatch, offset, limit);
     }
 }

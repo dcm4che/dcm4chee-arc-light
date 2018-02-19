@@ -38,6 +38,8 @@
 
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -51,6 +53,7 @@ import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
+import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -63,10 +66,12 @@ import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2017
  */
 @Stateless
@@ -81,6 +86,20 @@ public class RetrieveManagerEJB {
 
     @Inject
     private Device device;
+
+    private static final Expression<?>[] SELECT = {
+            QQueueMessage.queueMessage.processingStartTime.min(),
+            QQueueMessage.queueMessage.processingStartTime.max(),
+            QQueueMessage.queueMessage.processingEndTime.min(),
+            QQueueMessage.queueMessage.processingEndTime.max(),
+            QQueueMessage.queueMessage.scheduledTime.min(),
+            QQueueMessage.queueMessage.scheduledTime.max(),
+            QRetrieveTask.retrieveTask.createdTime.min(),
+            QRetrieveTask.retrieveTask.createdTime.max(),
+            QRetrieveTask.retrieveTask.updatedTime.min(),
+            QRetrieveTask.retrieveTask.updatedTime.max(),
+            QQueueMessage.queueMessage.batchID
+    };
 
     public void scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx, String batchID)
             throws QueueSizeLimitExceededException {
@@ -238,5 +257,107 @@ public class RetrieveManagerEJB {
                     .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
         } while (referencedQueueMsgs.size() >= deleteTaskFetchSize);
         return count;
+    }
+
+    public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch, int offset, int limit) {
+        HibernateQuery<RetrieveTask> retrieveTaskQuery = createQuery(matchQueueBatch, matchRetrieveBatch);
+        if (limit > 0)
+            retrieveTaskQuery.limit(limit);
+        if (offset > 0)
+            retrieveTaskQuery.offset(offset);
+
+        List<Tuple> batches = retrieveTaskQuery.select(SELECT).groupBy(QQueueMessage.queueMessage.batchID).fetch();
+        
+        List<RetrieveBatch> retrieveBatches = new ArrayList<>();
+        for (Tuple batch : batches) {
+            RetrieveBatch retrieveBatch = new RetrieveBatch();
+            String batchID = batch.get(QQueueMessage.queueMessage.batchID);
+            retrieveBatch.setBatchID(batchID);
+
+            retrieveBatch.setCreatedTimeRange(
+                    batch.get(QRetrieveTask.retrieveTask.createdTime.min()),
+                    batch.get(QRetrieveTask.retrieveTask.createdTime.max()));
+            retrieveBatch.setUpdatedTimeRange(
+                    batch.get(QRetrieveTask.retrieveTask.updatedTime.min()),
+                    batch.get(QRetrieveTask.retrieveTask.updatedTime.max()));
+            retrieveBatch.setScheduledTimeRange(
+                    batch.get(QQueueMessage.queueMessage.scheduledTime.min()),
+                    batch.get(QQueueMessage.queueMessage.scheduledTime.max()));
+            retrieveBatch.setProcessingStartTimeRange(
+                    batch.get(QQueueMessage.queueMessage.processingStartTime.min()),
+                    batch.get(QQueueMessage.queueMessage.processingStartTime.max()));
+            retrieveBatch.setProcessingEndTimeRange(
+                    batch.get(QQueueMessage.queueMessage.processingEndTime.min()),
+                    batch.get(QQueueMessage.queueMessage.processingEndTime.max()));
+
+            retrieveBatch.setDeviceNames(
+                    batchIDQuery(batchID)
+                    .select(QQueueMessage.queueMessage.deviceName)
+                    .distinct()
+                    .fetch()
+                    .stream()
+                    .sorted()
+                    .toArray(String[]::new));
+            retrieveBatch.setLocalAETs(
+                    batchIDQuery(batchID)
+                    .select(QRetrieveTask.retrieveTask.localAET)
+                    .distinct()
+                    .fetch()
+                    .stream()
+                    .sorted()
+                    .toArray(String[]::new));
+            retrieveBatch.setRemoteAETs(
+                    batchIDQuery(batchID)
+                    .select(QRetrieveTask.retrieveTask.remoteAET)
+                    .distinct()
+                    .fetch()
+                    .stream()
+                    .sorted()
+                    .toArray(String[]::new));
+            retrieveBatch.setDestinationAETs(
+                    batchIDQuery(batchID)
+                    .select(QRetrieveTask.retrieveTask.destinationAET)
+                    .distinct()
+                    .fetch()
+                    .stream()
+                    .sorted()
+                    .toArray(String[]::new));
+
+            retrieveBatch.setCompleted(
+                    batchIDQuery(batchID)
+                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
+                    .fetchCount());
+            retrieveBatch.setCanceled(
+                    batchIDQuery(batchID)
+                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
+                    .fetchCount());
+            retrieveBatch.setWarning(
+                    batchIDQuery(batchID)
+                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
+                    .fetchCount());
+            retrieveBatch.setFailed(
+                    batchIDQuery(batchID)
+                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
+                    .fetchCount());
+            retrieveBatch.setScheduled(
+                    batchIDQuery(batchID)
+                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
+                    .fetchCount());
+            retrieveBatch.setInProcess(
+                    batchIDQuery(batchID)
+                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
+                    .fetchCount());
+
+            retrieveBatches.add(retrieveBatch);
+        }
+
+        return retrieveBatches;
+    }
+
+    private HibernateQuery<RetrieveTask> batchIDQuery(String batchID) {
+        return new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
+                .from(QRetrieveTask.retrieveTask)
+                .leftJoin(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
+                .where(QQueueMessage.queueMessage.batchID.eq(batchID));
     }
 }

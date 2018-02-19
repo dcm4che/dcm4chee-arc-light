@@ -49,6 +49,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2017
  */
 public interface RetrieveManager {
@@ -75,4 +76,6 @@ public interface RetrieveManager {
     int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 
     List<Long> getRetrieveTaskPks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit);
+
+    List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch, int offset, int limit);
 }

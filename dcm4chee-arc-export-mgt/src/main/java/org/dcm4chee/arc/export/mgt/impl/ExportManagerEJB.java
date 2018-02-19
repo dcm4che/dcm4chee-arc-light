@@ -40,6 +40,8 @@
 
 package org.dcm4chee.arc.export.mgt.impl;
 
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -52,6 +54,7 @@ import org.dcm4chee.arc.entity.QExportTask;
 import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.export.mgt.ExportBatch;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.QueryService;
@@ -70,10 +73,7 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -96,6 +96,20 @@ public class ExportManagerEJB implements ExportManager {
 
     @Inject
     private QueueManager queueManager;
+
+    private static final Expression<?>[] SELECT = {
+            QQueueMessage.queueMessage.processingStartTime.min(),
+            QQueueMessage.queueMessage.processingStartTime.max(),
+            QQueueMessage.queueMessage.processingEndTime.min(),
+            QQueueMessage.queueMessage.processingEndTime.max(),
+            QExportTask.exportTask.createdTime.min(),
+            QExportTask.exportTask.createdTime.max(),
+            QExportTask.exportTask.updatedTime.min(),
+            QExportTask.exportTask.updatedTime.max(),
+            QExportTask.exportTask.scheduledTime.min(),
+            QExportTask.exportTask.scheduledTime.max(),
+            QQueueMessage.queueMessage.batchID
+    };
 
     @Override
     public void onStore(@Observes StoreContext ctx) {
@@ -397,4 +411,88 @@ public class ExportManagerEJB implements ExportManager {
         return count;
     }
 
+    @Override
+    public List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch, int offset, int limit) {
+        HibernateQuery<ExportTask> exportTaskQuery = createQuery(matchQueueBatch, matchExportBatch);
+        if (limit > 0)
+            exportTaskQuery.limit(limit);
+        if (offset > 0)
+            exportTaskQuery.offset(offset);
+
+        List<Tuple> batches = exportTaskQuery.select(SELECT).groupBy(QQueueMessage.queueMessage.batchID).fetch();
+
+        List<ExportBatch> exportBatches = new ArrayList<>();
+        for (Tuple batch : batches) {
+            ExportBatch exportBatch = new ExportBatch();
+            String batchID = batch.get(QQueueMessage.queueMessage.batchID);
+            exportBatch.setBatchID(batchID);
+            exportBatch.setCreatedTimeRange(
+                    batch.get(QExportTask.exportTask.createdTime.min()),
+                    batch.get(QExportTask.exportTask.createdTime.max()));
+            exportBatch.setUpdatedTimeRange(
+                    batch.get(QExportTask.exportTask.updatedTime.min()),
+                    batch.get(QExportTask.exportTask.updatedTime.max()));
+            exportBatch.setScheduledTimeRange(
+                    batch.get(QExportTask.exportTask.scheduledTime.min()),
+                    batch.get(QExportTask.exportTask.scheduledTime.max()));
+            exportBatch.setProcessingStartTimeRange(
+                    batch.get(QQueueMessage.queueMessage.processingStartTime.min()),
+                    batch.get(QQueueMessage.queueMessage.processingStartTime.max()));
+            exportBatch.setProcessingEndTimeRange(
+                    batch.get(QQueueMessage.queueMessage.processingEndTime.min()),
+                    batch.get(QQueueMessage.queueMessage.processingEndTime.max()));
+
+            exportBatch.setDeviceNames(
+                    batchIDQuery(batchID)
+                    .select(QExportTask.exportTask.deviceName)
+                    .distinct()
+                    .fetch()
+                    .stream()
+                    .sorted()
+                    .toArray(String[]::new));
+            exportBatch.setExporterIDs(
+                    batchIDQuery(batchID)
+                    .select(QExportTask.exportTask.exporterID)
+                    .distinct()
+                    .fetch()
+                    .stream()
+                    .sorted()
+                    .toArray(String[]::new));
+
+            exportBatch.setCompleted(
+                    batchIDQuery(batchID)
+                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
+                    .fetchCount());
+            exportBatch.setCanceled(
+                    batchIDQuery(batchID)
+                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
+                    .fetchCount());
+            exportBatch.setWarning(
+                    batchIDQuery(batchID)
+                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
+                    .fetchCount());
+            exportBatch.setFailed(
+                    batchIDQuery(batchID)
+                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
+                    .fetchCount());
+            exportBatch.setScheduled(
+                    batchIDQuery(batchID)
+                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
+                    .fetchCount());
+            exportBatch.setInProcess(
+                    batchIDQuery(batchID)
+                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
+                    .fetchCount());
+
+            exportBatches.add(exportBatch);
+        }
+        return exportBatches;
+    }
+
+    private HibernateQuery<ExportTask> batchIDQuery(String batchID) {
+        return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
+                .from(QExportTask.exportTask)
+                .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
+                .where(QQueueMessage.queueMessage.batchID.eq(batchID));
+    }
 }
