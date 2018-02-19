@@ -111,7 +111,7 @@ public class ExportBatchRS {
     public Response listExportBatches() {
         logRequest();
         List<ExportBatch> exportBatches = mgr.listExportBatches(
-                MatchBatch.matchQueueBatch(deviceName, status(), null, null),
+                MatchBatch.matchQueueBatch(deviceName, status()),
                 MatchBatch.matchExportBatch(exporterID, deviceName, createdTime, updatedTime),
                 parseInt(offset), parseInt(limit));
         return Response.ok().entity(Output.JSON.entity(exportBatches)).build();
@@ -128,14 +128,7 @@ public class ExportBatchRS {
                         JsonWriter writer = new JsonWriter(gen);
                         gen.writeStartObject();
                         writer.writeNotNullOrDef("batchID", exportBatch.getBatchID(), null);
-                        writer.writeStartObject("tasks");
-                        writer.writeNotNullOrDef("scheduled", exportBatch.getScheduled(), 0);
-                        writer.writeNotNullOrDef("in-process", exportBatch.getInProcess(), 0);
-                        writer.writeNotNullOrDef("warning", exportBatch.getWarning(), 0);
-                        writer.writeNotNullOrDef("failed", exportBatch.getFailed(), 0);
-                        writer.writeNotNullOrDef("canceled", exportBatch.getCanceled(), 0);
-                        writer.writeNotNullOrDef("completed", exportBatch.getCompleted(), 0);
-                        writer.writeEnd();
+                        writeTasks(exportBatch, writer);
                         writer.writeNotEmpty("dicomDeviceName", exportBatch.getDeviceNames());
                         writer.writeNotEmpty("ExporterID", exportBatch.getExporterIDs());
                         writer.writeNotEmpty("createdTimeRange", exportBatch.getCreatedTimeRange());
@@ -148,6 +141,17 @@ public class ExportBatchRS {
                     gen.writeEnd();
                     gen.flush();
                 };
+            }
+
+            private void writeTasks(ExportBatch exportBatch, JsonWriter writer) {
+                writer.writeStartObject("tasks");
+                writer.writeNotNullOrDef("scheduled", exportBatch.getScheduled(), 0);
+                writer.writeNotNullOrDef("in-process", exportBatch.getInProcess(), 0);
+                writer.writeNotNullOrDef("warning", exportBatch.getWarning(), 0);
+                writer.writeNotNullOrDef("failed", exportBatch.getFailed(), 0);
+                writer.writeNotNullOrDef("canceled", exportBatch.getCanceled(), 0);
+                writer.writeNotNullOrDef("completed", exportBatch.getCompleted(), 0);
+                writer.writeEnd();
             }
         };
 

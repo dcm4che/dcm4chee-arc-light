@@ -14,20 +14,13 @@ import org.dcm4chee.arc.entity.QueueMessage;
  */
 
 public class MatchBatch {
-    public static Predicate matchQueueBatch(
-            String deviceName, QueueMessage.Status status, String createdTime, String updatedTime) {
+    public static Predicate matchQueueBatch(String deviceName, QueueMessage.Status status) {
         BooleanBuilder predicate = new BooleanBuilder();
         predicate.and(QQueueMessage.queueMessage.batchID.isNotNull());
         if (status != null)
             predicate.and(QQueueMessage.queueMessage.status.in(status));
         if (deviceName != null)
             predicate.and(QQueueMessage.queueMessage.deviceName.in(deviceName));
-        if (createdTime != null)
-            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT)));
-        if (updatedTime != null)
-            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
-                    QQueueMessage.queueMessage.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT)));
         return predicate;
     }
 

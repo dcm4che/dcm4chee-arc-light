@@ -117,7 +117,7 @@ public class RetrieveBatchRS {
     public Response listRetrieveBatches() {
         logRequest();
         List<RetrieveBatch> retrieveBatches =  mgr.listRetrieveBatches(
-                MatchBatch.matchQueueBatch(deviceName, status(), null, null),
+                MatchBatch.matchQueueBatch(deviceName, status()),
                 MatchBatch.matchRetrieveBatch(localAET, remoteAET, destinationAET, createdTime, updatedTime),
                 parseInt(offset), parseInt(limit));
         return Response.ok().entity(Output.JSON.entity(retrieveBatches)).build();
@@ -134,14 +134,7 @@ public class RetrieveBatchRS {
                         JsonWriter writer = new JsonWriter(gen);
                         gen.writeStartObject();
                         writer.writeNotNullOrDef("batchID", retrieveBatch.getBatchID(), null);
-                        writer.writeStartObject("tasks");
-                        writer.writeNotNullOrDef("scheduled", retrieveBatch.getScheduled(), 0);
-                        writer.writeNotNullOrDef("in-process", retrieveBatch.getInProcess(), 0);
-                        writer.writeNotNullOrDef("warning", retrieveBatch.getWarning(), 0);
-                        writer.writeNotNullOrDef("failed", retrieveBatch.getFailed(), 0);
-                        writer.writeNotNullOrDef("canceled", retrieveBatch.getCanceled(), 0);
-                        writer.writeNotNullOrDef("completed", retrieveBatch.getCompleted(), 0);
-                        writer.writeEnd();
+                        writeTasks(retrieveBatch, writer);
                         writer.writeNotEmpty("dicomDeviceName", retrieveBatch.getDeviceNames());
                         writer.writeNotEmpty("LocalAET", retrieveBatch.getLocalAETs());
                         writer.writeNotEmpty("RemoteAET", retrieveBatch.getRemoteAETs());
@@ -156,6 +149,17 @@ public class RetrieveBatchRS {
                     gen.writeEnd();
                     gen.flush();
                 };
+            }
+
+            private void writeTasks(RetrieveBatch retrieveBatch, JsonWriter writer) {
+                writer.writeStartObject("tasks");
+                writer.writeNotNullOrDef("scheduled", retrieveBatch.getScheduled(), 0);
+                writer.writeNotNullOrDef("in-process", retrieveBatch.getInProcess(), 0);
+                writer.writeNotNullOrDef("warning", retrieveBatch.getWarning(), 0);
+                writer.writeNotNullOrDef("failed", retrieveBatch.getFailed(), 0);
+                writer.writeNotNullOrDef("canceled", retrieveBatch.getCanceled(), 0);
+                writer.writeNotNullOrDef("completed", retrieveBatch.getCompleted(), 0);
+                writer.writeEnd();
             }
         };
 
