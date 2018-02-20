@@ -92,7 +92,7 @@
                 </configuration>
               </execution>
               <execution>
-                <id>yarn install</id>
+                <id>yarn install --pure-lockfile</id>
                 <goals>
                   <goal>yarn</goal>
                 </goals>
