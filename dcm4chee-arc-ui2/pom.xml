@@ -97,7 +97,7 @@
                   <goal>yarn</goal>
                 </goals>
                 <configuration>
-                  <arguments>install</arguments>
+                  <arguments>install --pure-lockfile</arguments>
                 </configuration>
               </execution>
               <execution>
