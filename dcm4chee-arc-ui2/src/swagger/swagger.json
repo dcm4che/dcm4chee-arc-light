@@ -65,6 +65,10 @@
     {
       "name": "RETRIEVE-RS",
       "description": "Retrieve Tasks"
+    },
+    {
+      "name": "X-ROAD-RS",
+      "description": "Query Estonia National Patient Registry"
     }
   ],
   "paths": {
@@ -7976,6 +7980,45 @@
           }
         }
       }
+    },
+    "/xroad/RR441/{patientID}": {
+      "get": {
+        "tags": [
+          "X-ROAD-RS"
+        ],
+        "summary": "x-road RR441",
+        "operationId": "xroadRR441",
+        "produces": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "patientID",
+            "in": "path",
+            "description": "Patient ID and Issuer encoded as HL7 CX",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "204": {
+            "description": "no patient found"
+          },
+          "502": {
+            "description": "x-road RR441 returns error response"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -8058,6 +8101,9 @@
       "properties": {
         "dicomDeviceName": {
           "type": "string"
+        },
+        "xRoad": {
+          "type": "boolean"
         }
       }
     },

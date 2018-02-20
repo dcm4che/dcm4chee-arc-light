@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {FileUploader} from 'ng2-file-upload';
-import {MdDialogRef} from '@angular/material';
+import {MatDialogRef} from '@angular/material';
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {AppService} from "../../../app.service";
 
@@ -13,7 +13,7 @@ export class UploadVendorComponent implements OnInit {
     private _deviceName;
     selectedFile;
     constructor(
-        public dialogRef: MdDialogRef<UploadVendorComponent>,
+        public dialogRef: MatDialogRef<UploadVendorComponent>,
         public $http:J4careHttpService,
         public mainservice:AppService
     ) { }

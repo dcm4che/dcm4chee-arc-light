@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
-import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
+import {MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
 import {Http} from '@angular/http';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {AppService} from '../../app.service';
@@ -29,7 +29,7 @@ export class StorageSystemsComponent implements OnInit {
         usableSpaceBelow: undefined
     };
     isRole: any;
-    dialogRef: MdDialogRef<any>;
+    dialogRef: MatDialogRef<any>;
     _ = _;
     aets;
     usableSpaceBelow;
@@ -41,8 +41,8 @@ export class StorageSystemsComponent implements OnInit {
         public mainservice: AppService,
         public  service: StorageSystemsService,
         public viewContainerRef: ViewContainerRef,
-        public dialog: MdDialog,
-        public config: MdDialogConfig,
+        public dialog: MatDialog,
+        public config: MatDialogConfig,
         public httpErrorHandler:HttpErrorHandler
     ){}
     ngOnInit(){

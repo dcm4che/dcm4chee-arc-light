@@ -3,7 +3,7 @@ import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {User} from '../../models/user';
 import {Http} from '@angular/http';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
-import {MdDialogConfig, MdDialog, MdDialogRef} from '@angular/material';
+import {MatDialogConfig, MatDialog, MatDialogRef} from '@angular/material';
 import * as _ from 'lodash';
 import {AppService} from '../../app.service';
 import {StorageCommitmentService} from './storage-commitment.service';
@@ -31,7 +31,7 @@ export class StorageCommitmentComponent implements OnInit {
         dicomDeviceName: undefined
     };
     isRole: any = (user)=>{return false;};
-    dialogRef: MdDialogRef<any>;
+    dialogRef: MatDialogRef<any>;
     _ = _;
 
     constructor(
@@ -40,8 +40,8 @@ export class StorageCommitmentComponent implements OnInit {
         public mainservice: AppService,
         public  service: StorageCommitmentService,
         public viewContainerRef: ViewContainerRef,
-        public dialog: MdDialog,
-        public config: MdDialogConfig,
+        public dialog: MatDialog,
+        public config: MatDialogConfig,
         public httpErrorHandler:HttpErrorHandler
     ) {}
     ngOnInit(){

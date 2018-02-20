@@ -35,5 +35,7 @@ DCM4CHE.elementName.addDictionary({
 "7777xx51":"Storage Path",
 "7777xx52":"Storage Transfer Syntax UID",
 "7777xx53":"Storage Object Size",
-"7777xx54":"Storage Object Digest"
+"7777xx54":"Storage Object Digest",
+"7777xxE0":"X-Road Person Status",
+"7777xxE1":"X-Road Data Status"
 });

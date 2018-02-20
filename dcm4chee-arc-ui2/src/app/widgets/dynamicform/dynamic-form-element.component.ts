@@ -13,7 +13,7 @@ import * as _ from 'lodash';
 import {Router} from '@angular/router';
 import {DeviceConfiguratorService} from '../../device-configurator/device-configurator.service';
 import {CloneSelectorComponent} from '../dialogs/clone-selector/clone-selector.component';
-import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
+import {MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
 import {UploadVendorComponent} from '../dialogs/upload-vendor/upload-vendor.component';
 import {ConfirmComponent} from '../dialogs/confirm/confirm.component';
 import {Http} from '@angular/http';
@@ -37,7 +37,7 @@ export class DynamicFormElementComponent{
     @Input() form: FormGroup;
     @Input() partSearch: string;
     @Input() readOnlyMode: boolean;
-    dialogRef: MdDialogRef<any>;
+    dialogRef: MatDialogRef<any>;
     // activetab = "tab_1";
     partRemoved: boolean;
     search = new FormControl('');
@@ -48,8 +48,8 @@ export class DynamicFormElementComponent{
         elementRef: ElementRef,
         private router: Router,
         private deviceConfiguratorService: DeviceConfiguratorService,
-        public dialog: MdDialog,
-        public config: MdDialogConfig,
+        public dialog: MatDialog,
+        public config: MatDialogConfig,
         public viewContainerRef: ViewContainerRef,
         public $http:J4careHttpService,
         private ref: ChangeDetectorRef,

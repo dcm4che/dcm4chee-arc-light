@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {MdDialogRef} from '@angular/material';
+import {MatDialogRef} from '@angular/material';
 import {AppService} from '../../../app.service';
 import {Http} from '@angular/http';
 import * as _ from 'lodash';
@@ -36,7 +36,7 @@ export class ExportDialogComponent{
         }
     };
     private _preselectedAet;
-    constructor(public dialogRef: MdDialogRef<ExportDialogComponent>, private $http:J4careHttpService, private mainservice: AppService) {
+    constructor(public dialogRef: MatDialogRef<ExportDialogComponent>, private $http:J4careHttpService, private mainservice: AppService) {
         this.getAes();
     }
 

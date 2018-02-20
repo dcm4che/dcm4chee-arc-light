@@ -5,7 +5,7 @@
         <div id="dropdown" class="dropdown" *ngIf="opendropdown">
             <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addPatientAttribut"  (click)="$event.preventDefault();addAttribute(m.code, patient)">({{m.codeComma}}) {{m.name}}</a>
         </div>
-        <div md-dialog-content>
+        <div mat-dialog-content>
             <iod-form-generator [externalInternalAetMode]="externalInternalAetMode" [object]="patient.attrs" [prefix]="" [mode]="mode" [iod]="iod" (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
         </div>
         <div class="dialogbuttons">

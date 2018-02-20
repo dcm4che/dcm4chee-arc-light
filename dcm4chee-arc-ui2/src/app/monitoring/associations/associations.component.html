@@ -21,7 +21,7 @@
             <button type="button" class="btn btn-default" (click)="downloadAssocImmage()" title="Download copy of the table as csv-file">Download copy</button>
             <div *ngIf="!stopLoop" id="loading-bar-spinner">
                 <div class="spinner-icon" *ngIf="!pause">
-                    <md-progress-spinner mode="indeterminate" ></md-progress-spinner>
+                    <mat-progress-spinner mode="indeterminate" [diameter]="30" ></mat-progress-spinner>
                 </div>
                 <div class="pause" *ngIf="pause">
                    <i class="material-icons">pause_circle_outline</i>

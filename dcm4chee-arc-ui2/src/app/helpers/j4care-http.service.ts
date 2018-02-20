@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs';
 import {AppService} from "../app.service";
+import 'rxjs/add/operator/mergeMap';
 import * as _ from 'lodash';
 import {WindowRefService} from "./window-ref.service";
 import {HttpErrorHandler} from "./http-error-handler";

@@ -3,19 +3,19 @@
         <h5>Upload image,video or pdf to study</h5>
         <div class="content">
             <label>Select the ae title:</label>
-            <md-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
-                <md-option *ngFor="let ae of aes" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</md-option>
-            </md-select>
+            <mat-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
+                <mat-option *ngFor="let ae of aes" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>
+            </mat-select>
             <ng-container *ngIf="isImage">
                 <label>Captured Image Type:</label>
-                <md-select [ngModel]="selectedSopClass" (ngModelChange)="selectedSopClass = $event">
-                    <md-option *ngFor="let type of imageType" [value]="type" title="{{type.description}}">{{ type.title }}</md-option>
-                </md-select>
+                <mat-select [ngModel]="selectedSopClass" (ngModelChange)="selectedSopClass = $event">
+                    <mat-option *ngFor="let type of imageType" [value]="type" title="{{type.description}}">{{ type.title }}</mat-option>
+                </mat-select>
             </ng-container>
             <label title="Series Description">Description:</label><input type="text" [(ngModel)]="description"><br>
             <label>Chose a File to upload:</label><br>
             <input type="file" [(ngModel)]="file" (change)="fileChange($event)" placeholder="Upload file"  accept="image/jpeg,video/mpeg,application/pdf">
-            <div md-dialog-content>
+            <div mat-dialog-content>
                 <ng-container *ngIf="showFileList">
                     <div class="upload_state" *ngFor="let file of fileList">
                         {{file.name |trim:62}}
@@ -23,7 +23,7 @@
                         <span class="upload_ticker" *ngIf="percentComplete[file.name] && percentComplete[file.name].showLoader && !percentComplete[file.name].showTicker"><i class="fa fa-circle-o-notch fa-spin"></i></span>
                         <span class="upload_ticker"  *ngIf="percentComplete[file.name] && percentComplete[file.name].showTicker"><i class="material-icons">check</i></span>
                         <div *ngIf="percentComplete[file.name]">
-                            <md-progress-bar color="primary" mode="determinate" [value]="percentComplete[file.name].value"></md-progress-bar>
+                            <mat-progress-bar color="primary" mode="determinate" [value]="percentComplete[file.name].value"></mat-progress-bar>
                         </div>
                     </div>
                 </ng-container>

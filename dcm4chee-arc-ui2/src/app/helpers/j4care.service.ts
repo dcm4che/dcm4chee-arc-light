@@ -8,6 +8,8 @@ declare var fetch;
 import * as _ from 'lodash';
 import {DatePipe} from "@angular/common";
 import {WindowRefService} from "./window-ref.service";
+import localeUs from '@angular/common/locales/es-US';
+
 
 @Injectable()
 export class j4care {
@@ -94,7 +96,8 @@ export class j4care {
         return [...aet,...aliases];
     }
     static convertDateRangeToString(rangeArray:Date[]){
-        let datePipe = new DatePipe('us-US');
+        let datePipe = new DatePipe('en_US');
+
         if(rangeArray && rangeArray.length > 0){
             let stringArray:string[] = [];
             rangeArray.forEach(date =>{
@@ -322,7 +325,7 @@ export class j4care {
         return false;
     }
     static convertDateToString(date:Date){
-        let datePipe = new DatePipe('us-US');
+        let datePipe = new DatePipe('en_US');
         if(_.isDate(date)){
             return datePipe.transform(date,'yyyyMMdd')
         }
