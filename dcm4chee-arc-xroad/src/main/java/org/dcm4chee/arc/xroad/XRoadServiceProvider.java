@@ -57,8 +57,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Map;
 
@@ -74,8 +72,7 @@ public class XRoadServiceProvider {
 
     private XRoadService service = new XRoadService();
 
-    public Attributes rr441(String patientID)
-            throws GeneralSecurityException, IOException, XRoadException, ConfigurationException {
+    public Attributes rr441(String patientID) throws XRoadException, ConfigurationException {
         Map<String, String> props = device.getDeviceExtension(ArchiveDeviceExtension.class)
                 .getXRoadProperties();
         Headers h = new Headers(props, "RR441");
@@ -133,8 +130,7 @@ public class XRoadServiceProvider {
         return null;
     }
 
-    private XRoadAdapterPortType port(Map<String, String> props)
-            throws GeneralSecurityException, IOException, ConfigurationException {
+    private XRoadAdapterPortType port(Map<String, String> props) throws ConfigurationException {
         String endpoint = props.get("endpoint");
         if (endpoint == null)
             throw new ConfigurationException("Missing XRoadProperty endpoint");
@@ -151,11 +147,14 @@ public class XRoadServiceProvider {
         return port;
     }
 
-    private TLSClientParameters tlsClientParams(Map<String, String> props)
-            throws GeneralSecurityException, IOException {
+    private TLSClientParameters tlsClientParams(Map<String, String> props) throws ConfigurationException {
         TLSClientParameters params = new TLSClientParameters();
-        params.setKeyManagers(device.keyManagers());
-        params.setTrustManagers(device.trustManagers());
+        try {
+            params.setKeyManagers(device.keyManagers());
+            params.setTrustManagers(device.trustManagers());
+        } catch (Exception e) {
+            throw new ConfigurationException(e);
+        }
         params.setSecureSocketProtocol(props.get("TLS.protocol"));
         for (String cipherSuite : StringUtils.split(
                 props.getOrDefault("TLS.cipherSuites", ""), ','))
