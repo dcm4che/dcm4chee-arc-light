@@ -356,8 +356,9 @@ mat-grid-list{
   .mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{
   color: $blue;
 }
-.mat-select-underline{
+.mat-select-trigger{
   border-bottom:1px solid #ccc;
+  min-height: 25px;
 }
 [mat-icon-button] {
     width: 27px;

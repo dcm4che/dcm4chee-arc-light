@@ -14,6 +14,7 @@ import {j4care} from "../../helpers/j4care.service";
 import * as FileSaver from 'file-saver';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
+import "rxjs/add/observable/forkJoin";
 
 @Component({
   selector: 'external-retrieve',
