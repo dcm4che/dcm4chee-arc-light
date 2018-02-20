@@ -45,6 +45,7 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
@@ -133,11 +134,14 @@ public class XRoadServiceProvider {
     }
 
     private XRoadAdapterPortType port(Map<String, String> props)
-            throws GeneralSecurityException, IOException {
+            throws GeneralSecurityException, IOException, ConfigurationException {
+        String endpoint = props.get("endpoint");
+        if (endpoint == null)
+            throw new ConfigurationException("Missing XRoadProperty endpoint");
+
         XRoadAdapterPortType port = service.getXRoadServicePort();
         BindingProvider bindingProvider = (BindingProvider) port;
         Map<String, Object> reqCtx = bindingProvider.getRequestContext();
-        String endpoint = props.get("endpoint");
         reqCtx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
         if (endpoint.startsWith("https")) {
             Client client = ClientProxy.getClient(port);
