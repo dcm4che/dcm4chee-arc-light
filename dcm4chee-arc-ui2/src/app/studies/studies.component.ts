@@ -269,6 +269,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     ) {}
     ngOnInit(){
         this.initCheck(10);
+        console.log("deviceName,",this.mainservice["deviceName"]);
     }
     initCheck(retries){
         let $this = this;
@@ -4249,6 +4250,18 @@ export class StudiesComponent implements OnDestroy,OnInit{
         //             .catch(error => console.log(error));
         //         }).catch(error => console.log(error));
         //     });
+    }
+    queryNationalPationtRegister(patientId){
+        console.log("queryNationalPationtRegister",patientId);
+        console.log("patienid",this.service.getPatientId(patientId));
+        this.cfpLoadingBar.start();
+        this.service.queryNationalPationtRegister(this.service.getPatientId(patientId.attrs)).subscribe((xroadAttr)=>{
+            patientId.xroad = xroadAttr;
+        },(err)=>{
+            console.error("Error Querieng National Pation Register",err);
+            this.httpErrorHandler.handleError(err);
+            this.cfpLoadingBar.complete();
+        });
     }
     ngOnDestroy() {
         // Save state of the study page in a global variable after leaving it
