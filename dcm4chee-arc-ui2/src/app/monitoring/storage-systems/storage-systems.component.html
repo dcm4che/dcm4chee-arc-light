@@ -7,24 +7,24 @@
                     <div class="row">
                         <label class="col-md-6 text-right control-label">Uri Schema:</label>
                         <div class="col-md-6">
-                            <md-select [(ngModel)]="filters.uriScheme" class="col-md-12">
-                                <!--<md-option *ngFor="let ae of aets" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</md-option>-->
-                                <md-option value="">*</md-option>
-                                <md-option value="file">file</md-option>
-                                <md-option value="jclouds">jclouds</md-option>
-                                <md-option value="emc-ecs-s3">emc-ecs-s3</md-option>
-                                <md-option value="hcp">hcp</md-option>
-                                <md-option value="documentu">documentu</md-option>
-                            </md-select>
+                            <mat-select [(ngModel)]="filters.uriScheme" class="col-md-12">
+                                <!--<mat-option *ngFor="let ae of aets" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>-->
+                                <mat-option value="">*</mat-option>
+                                <mat-option value="file">file</mat-option>
+                                <mat-option value="jclouds">jclouds</mat-option>
+                                <mat-option value="emc-ecs-s3">emc-ecs-s3</mat-option>
+                                <mat-option value="hcp">hcp</mat-option>
+                                <mat-option value="documentu">documentu</mat-option>
+                            </mat-select>
                         </div>
                     </div>
                     <div class="row">
                         <label class="col-md-6 text-right control-label">AETitle:</label>
                         <div class="col-md-6">
-                            <md-select [(ngModel)]="filters.dicomAETitle" class="col-md-12">
-                                <md-option value="">*</md-option>
-                                <md-option *ngFor="let ae of aets" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</md-option>
-                            </md-select>
+                            <mat-select [(ngModel)]="filters.dicomAETitle" class="col-md-12">
+                                <mat-option value="">*</mat-option>
+                                <mat-option *ngFor="let ae of aets" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>
+                            </mat-select>
                         </div>
                     </div>
                     <div class="row">
@@ -38,11 +38,11 @@
                                     <option value="MB">MB</option>
                                     <option value="BYTE">Byte</option>
                                 </select>
-<!--                                <md-select [(ngModel)]="usableSpaceBelowMode" class="col-md-12">
-                                    <md-option value="GB">GB</md-option>
-                                    <md-option value="MB">MB</md-option>
-                                    <md-option value="BYTE">Byte</md-option>
-                                </md-select>-->
+<!--                                <mat-select [(ngModel)]="usableSpaceBelowMode" class="col-md-12">
+                                    <mat-option value="GB">GB</mat-option>
+                                    <mat-option value="MB">MB</mat-option>
+                                    <mat-option value="BYTE">Byte</mat-option>
+                                </mat-select>-->
                             </div>
                         </div>
                     </div>
@@ -58,12 +58,12 @@
                         <label for="usage" class="col-md-6 text-right control-label">Usage:</label>
                         <div class="col-md-6">
                             <!--<input id="usage" type="text" min="1" [(ngModel)]="filters.usage" class="col-md-12" />-->
-                            <md-select [(ngModel)]="filters.usage" class="col-md-12">
-                                <md-option value="">*</md-option>
-                                <md-option value="dcmObjectStorageID">Object Storage</md-option>
-                                <md-option value="dcmMetadataStorageID">Metadata Storage</md-option>
-                                <md-option value="dcmSeriesMetadataStorageID">SeriesMetadata Storage</md-option>
-                            </md-select>
+                            <mat-select [(ngModel)]="filters.usage" class="col-md-12">
+                                <mat-option value="">*</mat-option>
+                                <mat-option value="dcmObjectStorageID">Object Storage</mat-option>
+                                <mat-option value="dcmMetadataStorageID">Metadata Storage</mat-option>
+                                <mat-option value="dcmSeriesMetadataStorageID">SeriesMetadata Storage</mat-option>
+                            </mat-select>
                         </div>
                     </div>
                     <div class="row" title="Only return Storage Systems which have usable space below specified value">

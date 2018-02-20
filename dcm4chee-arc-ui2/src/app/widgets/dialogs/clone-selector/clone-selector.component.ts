@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {MdDialogRef} from '@angular/material';
+import {MatDialogRef} from '@angular/material';
 
 @Component({
   selector: 'app-clone-selector',
@@ -9,7 +9,7 @@ export class CloneSelectorComponent {
     selectedOption;
     private _toCloneElement;
 
-    constructor(public dialogRef: MdDialogRef<CloneSelectorComponent>) { }
+    constructor(public dialogRef: MatDialogRef<CloneSelectorComponent>) { }
 
     get toCloneElement() {
         return this._toCloneElement;

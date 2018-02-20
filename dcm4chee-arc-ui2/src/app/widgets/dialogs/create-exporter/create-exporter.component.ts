@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {Http} from '@angular/http';
-import {MdDialogRef} from '@angular/material';
+import {MatDialogRef} from '@angular/material';
 import {AppService} from '../../../app.service';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import * as _ from 'lodash';
@@ -37,7 +37,7 @@ export class CreateExporterComponent {
     _ = _;
     constructor(
         public $http:J4careHttpService,
-        public dialogRef: MdDialogRef<CreateExporterComponent>,
+        public dialogRef: MatDialogRef<CreateExporterComponent>,
         public mainservice: AppService,
         public cfpLoadingBar: SlimLoadingBarService,
         private service: CreateExporterService,

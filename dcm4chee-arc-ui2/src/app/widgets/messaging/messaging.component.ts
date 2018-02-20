@@ -2,7 +2,7 @@ import {Component, OnDestroy} from '@angular/core';
 import {AppService} from '../../app.service';
 import {Subscription} from 'rxjs';
 import {InfoComponent} from '../dialogs/info/info.component';
-import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
+import {MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
 @Component({
   selector: 'app-messaging',
   template: `
@@ -25,11 +25,11 @@ export class MessagingComponent implements OnDestroy{
     public msg: Array<any> = [];
     subscription: Subscription;
 
-    dialogRef: MdDialogRef<any>;
+    dialogRef: MatDialogRef<any>;
     constructor(
         private mainservice: AppService,
-        public dialog: MdDialog,
-        public config: MdDialogConfig
+        public dialog: MatDialog,
+        public config: MatDialogConfig
     ){
         this.subscription = this.mainservice.messageSet$.subscribe(msg => {
             console.log('msg in subscribe messagecomponent ', msg);

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {MdDialogRef} from '@angular/material';
+import {MatDialogRef} from '@angular/material';
 import * as _ from 'lodash';
 import {StudiesService} from '../../../studies/studies.service';
 
@@ -19,7 +19,7 @@ export class CopyMoveObjectsComponent {
     private _title;
     private _reject;
     _ = _;
-    constructor(public dialogRef: MdDialogRef<CopyMoveObjectsComponent>, public service: StudiesService) {
+    constructor(public dialogRef: MatDialogRef<CopyMoveObjectsComponent>, public service: StudiesService) {
         console.log('in construct copymovecomponent');
     }
 

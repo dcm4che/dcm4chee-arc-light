@@ -80,18 +80,18 @@
                 <div class="col-md-3 block-1-1">
                     <div class="row group_input">
                         <div class=" col-md-6">
-                            <md-select [(ngModel)]="externalInternalAetMode" (ngModelChange)="aetModeChange($event)">
-                                <md-option value="internal" title="Internal AET mode">Internal AET:</md-option>
-                                <md-option value="external" title="External AET mode">External AET:</md-option>
-                            </md-select>
+                            <mat-select [(ngModel)]="externalInternalAetMode" (ngModelChange)="aetModeChange($event)">
+                                <mat-option value="internal" title="Internal AET mode">Internal AET:</mat-option>
+                                <mat-option value="external" title="External AET mode">External AET:</mat-option>
+                            </mat-select>
                         </div>
                         <div class=" col-md-6">
-                            <md-select *ngIf="externalInternalAetMode === 'internal'" [(ngModel)]="aetmodel" (ngModelChange)="onChange($event, 'aetmodel')">
-                                <md-option *ngFor="let ae of aes" [value]="ae" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</md-option>
-                            </md-select>
-                            <md-select *ngIf="externalInternalAetMode === 'external'" [(ngModel)]="externalInternalAetModel" (ngModelChange)="onChange($event, 'externalInternalAetModel')">
-                                <md-option *ngFor="let ae of allAes" [value]="ae" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</md-option>
-                            </md-select>
+                            <mat-select *ngIf="externalInternalAetMode === 'internal'" [(ngModel)]="aetmodel" (ngModelChange)="onChange($event, 'aetmodel')">
+                                <mat-option *ngFor="let ae of aes" [value]="ae" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>
+                            </mat-select>
+                            <mat-select *ngIf="externalInternalAetMode === 'external'" [(ngModel)]="externalInternalAetModel" (ngModelChange)="onChange($event, 'externalInternalAetModel')">
+                                <mat-option *ngFor="let ae of allAes" [value]="ae" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>
+                            </mat-select>
                         </div>
                     </div>
                     <div class="row">
@@ -268,15 +268,15 @@
             </div>
             <div class="buttons_block col-md-2">
                 <div class="row col-md-12" title="AE Title of first C-FIND SCP" *ngIf="filterMode === 'diff'">
-                    <md-select [(ngModel)]="aet1" placeholder="Primary AET" floatPlaceholder="never">
-                        <md-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</md-option>
-                    </md-select>
+                    <mat-select [(ngModel)]="aet1" placeholder="Primary AET" floatPlaceholder="never">
+                        <mat-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</mat-option>
+                    </mat-select>
                 </div>
                 <i title="Switch the primary and secondary AET" (click)="swapDiff()" *ngIf="filterMode === 'diff'"  class="swap_icon material-icons">swap_vert</i>
                 <div class="row col-md-12" title="AE Title of second C-FIND SCP" *ngIf="filterMode === 'diff'">
-                    <md-select [(ngModel)]="aet2" placeholder="Secondary AET" floatPlaceholder="never">
-                        <md-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</md-option>
-                    </md-select>
+                    <mat-select [(ngModel)]="aet2" placeholder="Secondary AET" floatPlaceholder="never">
+                        <mat-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</mat-option>
+                    </mat-select>
                 </div>
                 <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" >
                    <span class="count_text" title="Total size of filtered studies found">Size: <b>{{size}}</b></span>

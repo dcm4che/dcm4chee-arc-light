@@ -8,7 +8,7 @@ import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import * as _ from 'lodash';
 import {MessagingComponent} from '../widgets/messaging/messaging.component';
 import {SelectItem} from 'primeng/components/common/api';
-import {MdDialogConfig, MdDialog, MdDialogRef} from '@angular/material';
+import {MatDialogConfig, MatDialog, MatDialogRef} from '@angular/material';
 import {EditPatientComponent} from '../widgets/dialogs/edit-patient/edit-patient.component';
 import {EditMwlComponent} from '../widgets/dialogs/edit-mwl/edit-mwl.component';
 import {CopyMoveObjectsComponent} from '../widgets/dialogs/copy-move-objects/copy-move-objects.component';
@@ -253,7 +253,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
 
     showGetSizeLoader;
     showGetCountLoader;
-    dialogRef: MdDialogRef<any>;
+    dialogRef: MatDialogRef<any>;
     subscription: Subscription;
 
     constructor(
@@ -262,8 +262,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
         public mainservice: AppService,
         public cfpLoadingBar: SlimLoadingBarService,
         public viewContainerRef: ViewContainerRef ,
-        public dialog: MdDialog,
-        public config: MdDialogConfig,
+        public dialog: MatDialog,
+        public config: MatDialogConfig,
         public httpErrorHandler:HttpErrorHandler,
         public j4care:j4care
     ) {}

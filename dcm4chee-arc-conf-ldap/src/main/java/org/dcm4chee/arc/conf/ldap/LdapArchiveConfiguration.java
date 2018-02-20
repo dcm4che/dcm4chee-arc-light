@@ -227,7 +227,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmQueueTasksFetchSize", ext.getQueueTasksFetchSize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectionNoteStorageAET",
                 ext.getRejectionNoteStorageAET(), null);
-
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmXRoadProperty", toStrings(ext.getXRoadProperties()));
     }
 
     @Override
@@ -381,6 +381,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setQueueTasksFetchSize(LdapUtils.intValue(attrs.get("dcmQueueTasksFetchSize"), 100));
         ext.setRejectionNoteStorageAET(LdapUtils.stringValue(
                 attrs.get("dcmRejectionNoteStorageAET"), null));
+        ext.setXRoadProperties(LdapUtils.stringArray(attrs.get("dcmXRoadProperty")));
     }
 
     @Override
@@ -645,6 +646,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRejectionNoteStorageAET",
                 aa.getRejectionNoteStorageAET(), bb.getRejectionNoteStorageAET(),
                 null);
+        storeDiffProperties(ldapObj, mods, "dcmXRoadProperty", aa.getXRoadProperties(), bb.getXRoadProperties());
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
@@ -1307,7 +1309,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getDescription(), attributeSet.getDescription(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmAttributeSetNumber",
                 prev.getNumber(), attributeSet.getNumber(), 0);
-        storeDiffProperties(ldapObj, mods, prev.getProperties(), attributeSet.getProperties());
+        storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), attributeSet.getProperties());
         LdapUtils.storeDiff(ldapObj, mods, "dicomInstalled",
                 prev.isInstalled(), attributeSet.isInstalled(), true);
         storeDiffTags(mods, "dcmTag", prev.getSelection(), attributeSet.getSelection());
@@ -1422,20 +1424,19 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageThreshold", prev.getStorageThreshold(), desc.getStorageThreshold(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThreshold",
                 prev.getDeleterThresholdsAsStrings(), desc.getDeleterThresholdsAsStrings());
-        storeDiffProperties(ldapObj, mods, prev.getProperties(), desc.getProperties());
+        storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalRetrieveAET", prev.getExternalRetrieveAETitle(), desc.getExternalRetrieveAETitle(), null);
         return mods;
     }
 
-    private static void storeDiffProperties(ConfigurationChanges.ModifiedObject ldapObj, List<ModificationItem> mods, Map<String, ?> prevs, Map<String, ?> props) {
+    private static void storeDiffProperties(ConfigurationChanges.ModifiedObject ldapObj, List<ModificationItem> mods,
+                                            String attrID, Map<String, ?> prevs, Map<String, ?> props) {
         if (!equalsProperties(prevs, props)) {
             mods.add(props.size() == 0
-                    ? new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
-                        new BasicAttribute("dcmProperty"))
-                    : new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
-                        LdapUtils.attr("dcmProperty", toStrings(props))));
+                    ? new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(attrID))
+                    : new ModificationItem(DirContext.REPLACE_ATTRIBUTE, LdapUtils.attr(attrID, toStrings(props))));
             if (ldapObj != null) {
-                ConfigurationChanges.ModifiedAttribute attribute = new ConfigurationChanges.ModifiedAttribute("dcmProperty");
+                ConfigurationChanges.ModifiedAttribute attribute = new ConfigurationChanges.ModifiedAttribute(attrID);
                 for (String val : toStrings(props))
                     attribute.addValue(val);
                 for (String prev : toStrings(prevs))
@@ -1666,7 +1667,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability(), Availability.ONLINE);
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), desc.getSchedules());
-        storeDiffProperties(ldapObj, mods, prev.getProperties(), desc.getProperties());
+        storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
         LdapUtils.storeDiff(ldapObj, mods, "dcmExportPriority", prev.getPriority(), desc.getPriority(), 4);
         return mods;
     }
@@ -1763,7 +1764,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, ExportRule prev, ExportRule rule, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiff(ldapObj, mods, "dcmSchedule", prev.getSchedules(), rule.getSchedules());
-        storeDiffProperties(ldapObj, mods, prev.getConditions().getMap(), rule.getConditions().getMap());
+        storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getConditions().getMap(), rule.getConditions().getMap());
         LdapUtils.storeDiff(ldapObj, mods, "dcmExporterID", prev.getExporterIDs(), rule.getExporterIDs());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmEntity", prev.getEntity(), rule.getEntity(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDuration", prev.getExportDelay(), rule.getExportDelay(), null);
@@ -2244,7 +2245,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private List<ModificationItem> storeDiffs(
             ConfigurationChanges.ModifiedObject ldapObj, ArchiveCompressionRule prev, ArchiveCompressionRule rule, ArrayList<ModificationItem> mods) {
-        storeDiffProperties(ldapObj, mods, prev.getConditions().getMap(), rule.getConditions().getMap());
+        storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getConditions().getMap(), rule.getConditions().getMap());
         LdapUtils.storeDiffObject(ldapObj, mods, "dicomTransferSyntax", prev.getTransferSyntax(), rule.getTransferSyntax(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmImageWriteParam", prev.getImageWriteParams(), rule.getImageWriteParams());
         LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), rule.getPriority(), 0);
@@ -2253,7 +2254,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private List<ModificationItem> storeDiffs(
             ConfigurationChanges.ModifiedObject ldapObj, StoreAccessControlIDRule prev, StoreAccessControlIDRule rule, ArrayList<ModificationItem> mods) {
-        storeDiffProperties(ldapObj, mods, prev.getConditions().getMap(), rule.getConditions().getMap());
+        storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getConditions().getMap(), rule.getConditions().getMap());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStoreAccessControlID",
                 prev.getStoreAccessControlID(), rule.getStoreAccessControlID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), rule.getPriority(), 0);
@@ -2262,7 +2263,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private List<ModificationItem> storeDiffs(
             ConfigurationChanges.ModifiedObject ldapObj, StudyRetentionPolicy prev, StudyRetentionPolicy policy, ArrayList<ModificationItem> mods) {
-        storeDiffProperties(ldapObj, mods, prev.getConditions().getMap(), policy.getConditions().getMap());
+        storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getConditions().getMap(), policy.getConditions().getMap());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetentionPeriod", prev.getRetentionPeriod(), policy.getRetentionPeriod(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), policy.getPriority(), 0);
         LdapUtils.storeDiff(ldapObj, mods, "dcmExpireSeriesIndividually", prev.isExpireSeriesIndividually(),
@@ -2272,7 +2273,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private static List<ModificationItem> storeDiffs(
             ConfigurationChanges.ModifiedObject ldapObj, HL7ForwardRule prev, HL7ForwardRule rule, ArrayList<ModificationItem> mods) {
-        storeDiffProperties(ldapObj, mods, prev.getConditions().getMap(), rule.getConditions().getMap());
+        storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getConditions().getMap(), rule.getConditions().getMap());
         LdapUtils.storeDiff(ldapObj, mods, "hl7FwdApplicationName", prev.getDestinations(), rule.getDestinations());
         return mods;
     }

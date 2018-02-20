@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {MdDialogRef} from '@angular/material';
+import {MatDialogRef} from '@angular/material';
 import * as _ from 'lodash';
 import {AppService} from '../../../app.service';
 import {Http} from '@angular/http';
@@ -29,7 +29,7 @@ export class CreateAeComponent {
     _ = _;
     constructor(
         public $http:J4careHttpService,
-        public dialogRef: MdDialogRef<CreateAeComponent>,
+        public dialogRef: MatDialogRef<CreateAeComponent>,
         public mainservice: AppService,
         public cfpLoadingBar: SlimLoadingBarService,
         public httpErrorHandler:HttpErrorHandler

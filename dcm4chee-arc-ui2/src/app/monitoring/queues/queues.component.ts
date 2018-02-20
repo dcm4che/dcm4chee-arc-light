@@ -5,7 +5,7 @@ import {AppService} from '../../app.service';
 import {User} from '../../models/user';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
-import {MdDialogRef, MdDialog, MdDialogConfig} from '@angular/material';
+import {MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
 import {DatePipe} from '@angular/common';
 import * as _ from 'lodash';
 import {WindowRefService} from "../../helpers/window-ref.service";
@@ -29,7 +29,7 @@ export class QueuesComponent implements OnInit{
     updatedTime;
     isRole: any = (user)=>{return false;};
     user: User;
-    dialogRef: MdDialogRef<any>;
+    dialogRef: MatDialogRef<any>;
     _ = _;
     devices;
     count;
@@ -53,8 +53,8 @@ export class QueuesComponent implements OnInit{
         public mainservice: AppService,
         public cfpLoadingBar: SlimLoadingBarService,
         public viewContainerRef: ViewContainerRef,
-        public dialog: MdDialog,
-        public config: MdDialogConfig,
+        public dialog: MatDialog,
+        public config: MatDialogConfig,
         private httpErrorHandler:HttpErrorHandler
     ) {};
     ngOnInit(){

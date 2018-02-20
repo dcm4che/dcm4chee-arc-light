@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {j4care} from "../../../helpers/j4care.service";
 import {AppService} from "../../../app.service";
-import {MdDialogRef} from "@angular/material";
+import {MatDialogRef} from "@angular/material";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 
@@ -20,7 +20,7 @@ export class ViewerComponent implements OnInit {
     xhr = new XMLHttpRequest();
     showLoader;
     constructor(
-        public dialogRef: MdDialogRef<ViewerComponent>,
+        public dialogRef: MatDialogRef<ViewerComponent>,
         private j4care:j4care,
         private mainservice:AppService,
         private $http:J4careHttpService,

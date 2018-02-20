@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {FileUploader} from 'ng2-file-upload';
-import {MdDialogRef} from '@angular/material';
+import {MatDialogRef} from '@angular/material';
 import {Http} from '@angular/http';
 import {UploadDicomService} from './upload-dicom.service';
 import * as _ from 'lodash';
@@ -27,7 +27,7 @@ export class UploadDicomComponent implements OnInit{
         // ,disableMultipart: true
     });
     constructor(
-        public dialogRef: MdDialogRef<UploadDicomComponent>,
+        public dialogRef: MatDialogRef<UploadDicomComponent>,
         private $http:J4careHttpService,
         private service: UploadDicomService,
         public mainservice:AppService

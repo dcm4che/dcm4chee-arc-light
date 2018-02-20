@@ -43,8 +43,6 @@ package org.dcm4chee.arc.conf;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.LocalTime;
 
 import org.dcm4che3.net.DeviceExtension;
@@ -207,6 +205,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final ArrayList<ArchiveAttributeCoercion> attributeCoercions = new ArrayList<>();
     private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
+    private final Map<String,String> xRoadProperties = new HashMap<>();
 
     private transient FuzzyStr fuzzyStr;
 
@@ -1091,6 +1090,28 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return hl7NoPatientCreateMessageTypes.contains(messageType);
     }
 
+    public Map<String, String> getXRoadProperties() {
+        return xRoadProperties;
+    }
+
+    public void setXRoadProperty(String name, String value) {
+        xRoadProperties.put(name, value);
+    }
+
+    public void setXRoadProperties(String[] ss) {
+        xRoadProperties.clear();
+        for (String s : ss) {
+            int index = s.indexOf('=');
+            if (index < 0)
+                throw new IllegalArgumentException("Property in incorrect format : " + s);
+            setXRoadProperty(s.substring(0, index), s.substring(index+1));
+        }
+    }
+
+    public boolean hasXRoadProperties() {
+        return xRoadProperties.containsKey("endpoint");
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         AttributeFilter filter = attributeFilters.get(entity);
         if (filter == null)
@@ -1810,5 +1831,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storeAccessControlIDRules.addAll(arcdev.storeAccessControlIDRules);
         rejectionNoteMap.clear();
         rejectionNoteMap.putAll(arcdev.rejectionNoteMap);
+        xRoadProperties.clear();
+        xRoadProperties.putAll(arcdev.xRoadProperties);
     }
 }

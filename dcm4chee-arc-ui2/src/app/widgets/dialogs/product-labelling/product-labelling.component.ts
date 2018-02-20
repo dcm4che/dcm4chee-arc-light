@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {MdDialogRef} from '@angular/material';
+import {MatDialogRef} from '@angular/material';
 
 @Component({
   selector: 'app-product-labelling',
@@ -7,7 +7,7 @@ import {MdDialogRef} from '@angular/material';
 })
 export class ProductLabellingComponent {
     private _archive;
-    constructor(public dialogRef: MdDialogRef<ProductLabellingComponent>) { }
+    constructor(public dialogRef: MatDialogRef<ProductLabellingComponent>) { }
 
     get archive() {
         return this._archive;

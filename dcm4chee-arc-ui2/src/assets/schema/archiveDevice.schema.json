@@ -998,6 +998,14 @@
         "$ref": "idGenerator.schema.json"
       }
     },
+    "dcmXRoadProperty": {
+      "title": "X-Road Property",
+      "description": "Properties for accessing Estonian National Patient Registry in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "hl7ForwardRule": {
       "title": "HL7 Forward Rule",
       "description": "HL7 Forward Rules for HL7 messages received by any HL7 Application. May be supplemented by configured HL7 Forward Rules for particular HL7 Applications.",

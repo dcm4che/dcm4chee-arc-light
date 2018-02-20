@@ -3,7 +3,7 @@ import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {User} from '../../models/user';
 import {Http} from '@angular/http';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
-import {MdDialogConfig, MdDialog, MdDialogRef} from '@angular/material';
+import {MatDialogConfig, MatDialog, MatDialogRef} from '@angular/material';
 import * as _ from 'lodash';
 import {AppService} from '../../app.service';
 import {ExportService} from './export.service';
@@ -40,7 +40,7 @@ export class ExportComponent implements OnInit {
     };
 
     isRole: any = (user)=>{return false;};
-    dialogRef: MdDialogRef<any>;
+    dialogRef: MatDialogRef<any>;
     _ = _;
     devices;
     count;
@@ -64,8 +64,8 @@ export class ExportComponent implements OnInit {
         public mainservice: AppService,
         public  service: ExportService,
         public viewContainerRef: ViewContainerRef,
-        public dialog: MdDialog,
-        public config: MdDialogConfig,
+        public dialog: MatDialog,
+        public config: MatDialogConfig,
         private httpErrorHandler:HttpErrorHandler
     ) {}
     ngOnInit(){

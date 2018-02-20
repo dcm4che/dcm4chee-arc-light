@@ -7,13 +7,14 @@ import {Observable} from "rxjs/Observable";
 import {ExternalRetrieveService} from "./external-retrieve.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {ExportDialogComponent} from "../../widgets/dialogs/export/export.component";
-import {MdDialog, MdDialogConfig, MdDialogRef} from "@angular/material";
+import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
 import {DatePipe} from "@angular/common";
 import {j4care} from "../../helpers/j4care.service";
 import * as FileSaver from 'file-saver';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
+import "rxjs/add/observable/forkJoin";
 
 @Component({
   selector: 'external-retrieve',
@@ -30,7 +31,7 @@ export class ExternalRetrieveComponent implements OnInit {
     user;
     externalRetrieveEntries;
     _ = _;
-    dialogRef: MdDialogRef<any>;
+    dialogRef: MatDialogRef<any>;
     exporters;
     exporterID;
     datePipe = new DatePipe('us-US');
@@ -56,8 +57,8 @@ export class ExternalRetrieveComponent implements OnInit {
       public aeListService:AeListService,
       public service:ExternalRetrieveService,
       public httpErrorHandler:HttpErrorHandler,
-      public dialog: MdDialog,
-      public config: MdDialogConfig,
+      public dialog: MatDialog,
+      public config: MatDialogConfig,
       public viewContainerRef: ViewContainerRef,
       private $http:J4careHttpService
     ) { }

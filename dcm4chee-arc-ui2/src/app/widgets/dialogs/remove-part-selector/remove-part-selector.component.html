@@ -2,9 +2,9 @@
     <div class="vex-dialog-form">
         <h5>Select element to remove from device</h5>
         <div class="content">
-            <md-select [(ngModel)]="selectedOption" (ngModelChange)="selectedOption = $event">
-                <md-option *ngFor="let options of toRemoveElement.options" [value]="options" title="{{options.description}}">{{ options.title }}</md-option>
-            </md-select>
+            <mat-select [(ngModel)]="selectedOption" (ngModelChange)="selectedOption = $event">
+                <mat-option *ngFor="let options of toRemoveElement.options" [value]="options" title="{{options.description}}">{{ options.title }}</mat-option>
+            </mat-select>
         </div>
         <div class="dialogbuttons">
             <button class="save" type="button" (click)="dialogRef.close(selectedOption)">REMOVE FROM DEVICE</button>

@@ -228,6 +228,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmQueueTasksFetchSize", arcDev.getQueueTasksFetchSize(), 100);
         writer.writeNotNullOrDef("dcmRejectionNoteStorageAET",
                 arcDev.getRejectionNoteStorageAET(), null);
+        writer.writeNotEmpty("dcmXRoadProperty", descriptorProperties(arcDev.getXRoadProperties()));
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1007,6 +1008,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmRejectionNoteStorageAET":
                     arcDev.setRejectionNoteStorageAET(reader.stringValue());
+                    break;
+                case "dcmXRoadProperty":
+                    arcDev.setXRoadProperties(reader.stringArray());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {MdDialogRef} from '@angular/material';
+import {MatDialogRef} from '@angular/material';
 
 @Component({
   selector: 'app-info',
@@ -11,7 +11,7 @@ export class InfoComponent{
         title: 'Info',
         content: undefined
     };
-    constructor(public dialogRef: MdDialogRef<InfoComponent>) {
+    constructor(public dialogRef: MatDialogRef<InfoComponent>) {
 
     }
 

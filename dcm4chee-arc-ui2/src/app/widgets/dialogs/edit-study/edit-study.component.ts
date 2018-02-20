@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {AppService} from '../../../app.service';
-import {MdDialogRef} from '@angular/material';
+import {MatDialogRef} from '@angular/material';
 import {Globalvar} from '../../../constants/globalvar';
 import {SearchPipe} from '../../../pipes/search.pipe';
 declare var DCM4CHE: any;
@@ -31,7 +31,7 @@ export class EditStudyComponent{
     options = Globalvar.OPTIONS;
 
     DCM4CHE = DCM4CHE;
-    constructor(public dialogRef: MdDialogRef<EditStudyComponent>, public mainservice: AppService) {
+    constructor(public dialogRef: MatDialogRef<EditStudyComponent>, public mainservice: AppService) {
 /*
         setTimeout(function(){
             if(this._mode === "create"){

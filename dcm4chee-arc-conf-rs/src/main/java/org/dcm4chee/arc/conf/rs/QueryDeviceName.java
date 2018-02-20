@@ -39,6 +39,7 @@
 package org.dcm4chee.arc.conf.rs;
 
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +72,9 @@ public class QueryDeviceName {
     @Produces("application/json")
     public String devicename() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return "{\"dicomDeviceName\":\"" + device.getDeviceName() + "\"}";
+        return "{\"dicomDeviceName\":\"" + device.getDeviceName()
+                + (device.getDeviceExtension(ArchiveDeviceExtension.class).hasXRoadProperties()
+                ? "\",\"xRoad\":true}"
+                : "\"}");
     }
 }

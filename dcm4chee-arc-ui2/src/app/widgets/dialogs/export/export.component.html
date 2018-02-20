@@ -10,9 +10,9 @@
             <ng-container *ngIf="noDicomExporters.length > 0">
                 <div class="noneDicomBlock">
                     <p>Select the exporter:</p>
-                    <md-select [(ngModel)]="result.selectedExporter">
-                        <md-option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters" title="{{exporter.description}}">{{exporter.id}}</md-option>
-                    </md-select>
+                    <mat-select [(ngModel)]="result.selectedExporter">
+                        <mat-option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters" title="{{exporter.description}}">{{exporter.id}}</mat-option>
+                    </mat-select>
                 </div>
                 <label title="If checked the study will not be sent" *ngIf="warning">
                     <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> Storage commitment without export
@@ -41,12 +41,12 @@
 <!--                <select class="prefix" [(ngModel)]="result.dicomPrefix">
                     <option value="{{prefix.id}}" *ngFor="let prefix of dicomPrefixes">{{prefix.id}}</option>
                 </select>
-                <md-select class="prefix"  [(ngModel)]="result.dicomPrefix">
-                    <md-option value="{{prefix.id}}" *ngFor="let prefix of dicomPrefixes"title="{{prefix.description}}">{{prefix.id}}</md-option>
-                </md-select>-->
-                <md-select class="aes" [(ngModel)]="result.selectedAet">
-                    <md-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</md-option>
-                </md-select>
+                <mat-select class="prefix"  [(ngModel)]="result.dicomPrefix">
+                    <mat-option value="{{prefix.id}}" *ngFor="let prefix of dicomPrefixes"title="{{prefix.description}}">{{prefix.id}}</mat-option>
+                </mat-select>-->
+                <mat-select class="aes" [(ngModel)]="result.selectedAet">
+                    <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
+                </mat-select>
 <!--                <select class="aes" [(ngModel)]="result.selectedAet">
                     <option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes">{{aet.dicomAETitle}}</option>
                 </select>-->
@@ -56,9 +56,9 @@
 <!--                <select [(ngModel)]="result.selectedExporter">
                     <option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters">{{exporter.id}}</option>
                 </select>-->
-                <md-select [(ngModel)]="result.selectedExporter">
-                    <md-option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters" title="{{exporter.description}}">{{exporter.id}}</md-option>
-                </md-select>
+                <mat-select [(ngModel)]="result.selectedExporter">
+                    <mat-option value="{{exporter.id}}" *ngFor="let exporter of noDicomExporters" title="{{exporter.description}}">{{exporter.id}}</mat-option>
+                </mat-select>
             </div>
             <label title="If checked the study will not be sent" *ngIf="warning && result.exportType != 'dicom'">
                 <input type="checkbox" name="only-stgcmt" [(ngModel)]="result['checkboxes']['only-stgcmt']"> Storage commitment without export
@@ -74,16 +74,16 @@
             <div class="dicomBlock">
                 <p *ngIf="mode ==='single'">Select the destination AETitle (STORE-SCP):</p>
                 <p *ngIf="mode ==='multiple'">Select the calling AETitle:</p>
-                <md-select class="aes" [(ngModel)]="result.selectedAet">
-                    <md-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</md-option>
-                </md-select>
+                <mat-select class="aes" [(ngModel)]="result.selectedAet">
+                    <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
+                </mat-select>
             </div>
             <div class="dicomBlock">
                 <p *ngIf="mode ==='single'">Select the external AETitle (C-MOVE SCP):</p>
                 <p *ngIf="mode ==='multiple'">Select the external AETitle:</p>
-                <md-select class="aes" [(ngModel)]="result.externalAET">
-                    <md-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</md-option>
-                </md-select>
+                <mat-select class="aes" [(ngModel)]="result.externalAET">
+                    <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
+                </mat-select>
             </div>
             <label title="If checked the process will be queued" *ngIf="mode ==='single'">
                 <input type="checkbox" name="queue" [(ngModel)]="result['queue']"> Queued DICOM export
@@ -91,24 +91,24 @@
             <ng-container *ngIf="mode === 'multiple'">
                 <div class="dicomBlock">
                     <p>Select the query AETitle:</p>
-                    <md-select class="aes" [(ngModel)]="result.queryAET">
-                        <md-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</md-option>
-                    </md-select>
+                    <mat-select class="aes" [(ngModel)]="result.queryAET">
+                        <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
+                    </mat-select>
                 </div>
                 <div class="dicomBlock">
                     <p>Select the destination AETitle:</p>
-                    <md-select class="aes" [(ngModel)]="result.destinationAET">
-                        <md-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</md-option>
-                    </md-select>
+                    <mat-select class="aes" [(ngModel)]="result.destinationAET">
+                        <mat-option value="{{aet.dicomAETitle}}" *ngFor="let aet of aes" title="{{aet.dicomDescription}}">{{aet.dicomAETitle}}</mat-option>
+                    </mat-select>
                 </div>
             </ng-container>
         </div>
         <div class="content" *ngIf="mode === 'reschedule'">
             <div class="dicomBlock">
                 <p>Exporter ID:</p>
-                <md-select class="aes" [(ngModel)]="result.selectedExporter">
-                    <md-option value="{{export.id}}" *ngFor="let export of noDicomExporters" title="{{export.id}}">{{export.id}}</md-option>
-                </md-select>
+                <mat-select class="aes" [(ngModel)]="result.selectedExporter">
+                    <mat-option value="{{export.id}}" *ngFor="let export of noDicomExporters" title="{{export.id}}">{{export.id}}</mat-option>
+                </mat-select>
             </div>
         </div>
         <div class="dialogbuttons">

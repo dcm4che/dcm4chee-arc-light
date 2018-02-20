@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {MdDialogRef} from "@angular/material";
+import {MatDialogRef} from "@angular/material";
 import * as _ from 'lodash';
 import {AppService} from "../../../app.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
@@ -38,7 +38,7 @@ export class UploadFilesComponent implements OnInit {
         }
     ]
     constructor(
-        public dialogRef: MdDialogRef<UploadFilesComponent>,
+        public dialogRef: MatDialogRef<UploadFilesComponent>,
         public mainservice:AppService,
         public $http:J4careHttpService
     ) {

@@ -1631,7 +1631,7 @@ table{
     padding: 18px 15px 15px;
     margin-right: 15px;
     width: 32%;
-    label,input{
+    label,input,select{
     	margin-top: 5px;
     }
 }
@@ -2395,7 +2395,8 @@ div[tooltip]{
 		height:36px !important;
 		border-width:3px !important;
 		position: relative;
-		top:6px;
+		top: -8px;
+		left: 3px;
 	}
 	.pause{
 		position: relative;
@@ -2407,7 +2408,7 @@ div[tooltip]{
 			left: -1px;
 		}
 	}
-  .mat-progress-spinner path, .mat-spinner path{
+  .mat-progress-spinner path, .mat-spinner path,.mat-progress-spinner svg circle{
     stroke:$blue;
   }
 }
