@@ -75,7 +75,7 @@ public class XRoadServiceProvider {
     private XRoadService service = new XRoadService();
 
     public Attributes rr441(String patientID)
-            throws GeneralSecurityException, IOException, XRoadException {
+            throws GeneralSecurityException, IOException, XRoadException, ConfigurationException {
         Map<String, String> props = device.getDeviceExtension(ArchiveDeviceExtension.class)
                 .getXRoadProperties();
         Headers h = new Headers(props, "RR441");
