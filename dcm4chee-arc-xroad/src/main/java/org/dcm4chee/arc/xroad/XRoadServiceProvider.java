@@ -121,12 +121,14 @@ public class XRoadServiceProvider {
     }
 
     private static String patientSex(String sugu) {
-        if ("M".equals(sugu))
-            return "M";
-
-        if ("N".equals(sugu))
-            return "F";
-
+        if (sugu != null && sugu.length() == 1) {
+            switch (sugu.charAt(0)) {
+                case 'M':
+                    return "M";
+                case 'N':
+                    return "F";
+            }
+        }
         return null;
     }
 
