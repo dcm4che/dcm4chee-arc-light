@@ -163,8 +163,7 @@ public class XRoadServiceProvider {
             throw new ConfigurationException(e);
         }
         params.setSecureSocketProtocol(props.get("TLS.protocol"));
-        for (String cipherSuite : StringUtils.split(
-                props.getOrDefault("TLS.cipherSuites", ""), ','))
+        for (String cipherSuite : StringUtils.split(props.get("TLS.cipherSuites"), ','))
             params.getCipherSuites().add(cipherSuite.trim());
         params.setDisableCNCheck(
                 Boolean.parseBoolean(props.getOrDefault("TLS.disableCNCheck", "false")));
