@@ -186,7 +186,7 @@ public class XRoadServiceProvider {
             XRoadClientIdentifierType type = new XRoadClientIdentifierType();
             type.setObjectType(XRoadObjectType.valueOf(
                     props.getOrDefault("client.objectType", XRoadObjectType.SUBSYSTEM.name())));
-            type.setXRoadInstance(props.getOrDefault("client.xRoadInstance", "ee-test"));
+            type.setXRoadInstance(props.getOrDefault("client.xRoadInstance", "EE"));
             type.setMemberClass(props.getOrDefault("client.memberClass", "NGO"));
             type.setMemberCode(props.getOrDefault("client.memberCode", "90007945"));
             type.setSubsystemCode(props.getOrDefault("client.subsystemCode", "mia"));
@@ -197,7 +197,7 @@ public class XRoadServiceProvider {
             XRoadServiceIdentifierType type = new XRoadServiceIdentifierType();
             type.setObjectType(XRoadObjectType.valueOf(
                     props.getOrDefault("service.objectType", XRoadObjectType.SERVICE.name())));
-            type.setXRoadInstance(props.getOrDefault("service.xRoadInstance", "ee-test"));
+            type.setXRoadInstance(props.getOrDefault("service.xRoadInstance", "EE"));
             type.setMemberClass(props.getOrDefault("service.memberClass", "GOV"));
             type.setMemberCode(props.getOrDefault("service.memberCode", "70008440"));
             type.setSubsystemCode(props.getOrDefault("service.subsystemCode", "rr"));
