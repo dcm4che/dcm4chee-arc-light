@@ -49,7 +49,7 @@ public interface StoreService {
 
     StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae, String rejectionNoteObjectStorageID);
 
-    StoreSession newStoreSession(ApplicationEntity ae);
+    StoreSession newStoreSession(ApplicationEntity ae, String rejectionNoteObjectStorageID);
 
     StoreSession newStoreSession(HL7Application hl7App, Socket socket, UnparsedHL7Message msg, ApplicationEntity ae);
 

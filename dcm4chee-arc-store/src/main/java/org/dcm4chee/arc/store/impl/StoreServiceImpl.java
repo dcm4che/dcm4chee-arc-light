@@ -144,9 +144,10 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public StoreSession newStoreSession(ApplicationEntity ae) {
+    public StoreSession newStoreSession(ApplicationEntity ae, String rejectionNoteObjectStorageID) {
         StoreSessionImpl session = new StoreSessionImpl(this);
         session.setApplicationEntity(ae);
+        session.setObjectStorageID(rejectionNoteObjectStorageID);
         return session;
     }
 
