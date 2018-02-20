@@ -1107,10 +1107,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         }
     }
 
-    public String getXRoadProperty(String name, String defValue) {
-        return xRoadProperties.getOrDefault(name, defValue);
-    }
-
     public boolean hasXRoadProperties() {
         return xRoadProperties.containsKey("endpoint");
     }

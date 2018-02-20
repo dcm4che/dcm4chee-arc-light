@@ -73,37 +73,45 @@ public class XRoadServiceProvider {
 
     private XRoadService service = new XRoadService();
 
-    public Attributes rr441(String patientID) throws GeneralSecurityException, IOException, XRoadException {
-        Headers h = new Headers(arcdev(), "RR441");
-        Holder<RR441RequestType> request = new Holder<>(toRR441(patientID));
+    public Attributes rr441(String patientID)
+            throws GeneralSecurityException, IOException, XRoadException {
+        Map<String, String> props = device.getDeviceExtension(ArchiveDeviceExtension.class)
+                .getXRoadProperties();
+        Headers h = new Headers(props, "RR441");
+        Holder<RR441RequestType> request = new Holder<>(toRR441(props, patientID));
         Holder<RR441ResponseType> response = new Holder<>();
-        port().rr441(request, h.client, h.service, h.userId, h.id, h.protocolVersion, response,  h.requestHash);
-        return toAttributes(XRoadException.validate(response.value));
+        port(props).rr441(request, h.client, h.service, h.userId, h.id, h.protocolVersion, response,  h.requestHash);
+        return toAttributes(props, XRoadException.validate(response.value));
     }
 
-    private RR441RequestType toRR441(String patientID) {
+    private static RR441RequestType toRR441(Map<String, String> props, String patientID) {
         RR441RequestType rq = new RR441RequestType();
-        rq.setCValjad(arcdev().getXRoadProperty("rr441.cValjad", "1,2,6,7,9,10"));
+        rq.setCValjad(props.getOrDefault("rr441.cValjad", "1,2,6,7,9,10"));
         rq.setCIsikukoodid(patientID);
         return rq;
     }
 
-    private Attributes toAttributes(RR441ResponseType rsp) {
+    private static Attributes toAttributes(Map<String, String> props, RR441ResponseType rsp) {
         List<RR441ResponseType.TtIsikuid.TtIsikud> ttIsikudList = rsp.getTtIsikuid().getTtIsikud();
         if (ttIsikudList.isEmpty())
             return null;
 
         RR441ResponseType.TtIsikuid.TtIsikud ttIsikud = ttIsikudList.get(0);
         Attributes attrs = new Attributes();
-        attrs.setString(Tag.SpecificCharacterSet, VR.CS, arcdev().getDefaultCharacterSet());
-        attrs.setString(Tag.PatientName, VR.PN, ttIsikud.getTtIsikudCPerenimi() + '^' + ttIsikud.getTtIsikudCEesnimi());
+        attrs.setString(Tag.SpecificCharacterSet, VR.CS,
+                props.getOrDefault("SpecificCharacterSet","ISO_IR 100"));
+        attrs.setString(Tag.PatientName, VR.PN, patientName(ttIsikud));
         attrs.setString(Tag.PatientID, VR.LO, ttIsikud.getTtIsikudCIsikukood());
         attrs.setString(Tag.PatientSex, VR.CS, patientSex(ttIsikud.getTtIsikudCSugu()));
         attrs.setString(Tag.PatientBirthDate, VR.DA, patientBirthDate(ttIsikud.getTtIsikudCSynniaeg()));
         return attrs;
     }
 
-    private String patientBirthDate(String synniaeg) {
+    private static String patientName(RR441ResponseType.TtIsikuid.TtIsikud ttIsikud) {
+        return ttIsikud.getTtIsikudCPerenimi() + '^' + ttIsikud.getTtIsikudCEesnimi();
+    }
+
+    private static String patientBirthDate(String synniaeg) {
         if (synniaeg == null || synniaeg.length() != 10)
             return null;
 
@@ -114,7 +122,7 @@ public class XRoadServiceProvider {
         return new String(data);
     }
 
-    private String patientSex(String sugu) {
+    private static String patientSex(String sugu) {
         if ("M".equals(sugu))
             return "M";
 
@@ -124,35 +132,32 @@ public class XRoadServiceProvider {
         return null;
     }
 
-    private ArchiveDeviceExtension arcdev() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class);
-    }
-
-    private XRoadAdapterPortType port() throws GeneralSecurityException, IOException {
+    private XRoadAdapterPortType port(Map<String, String> props)
+            throws GeneralSecurityException, IOException {
         XRoadAdapterPortType port = service.getXRoadServicePort();
         BindingProvider bindingProvider = (BindingProvider) port;
         Map<String, Object> reqCtx = bindingProvider.getRequestContext();
-        String endpoint = arcdev().getXRoadProperty("endpoint", null);
+        String endpoint = props.get("endpoint");
         reqCtx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
         if (endpoint.startsWith("https")) {
             Client client = ClientProxy.getClient(port);
             HTTPConduit conduit = (HTTPConduit) client.getConduit();
-            conduit.setTlsClientParameters(tlsClientParams());
+            conduit.setTlsClientParameters(tlsClientParams(props));
         }
         return port;
     }
 
-    private TLSClientParameters tlsClientParams() throws GeneralSecurityException, IOException {
-        ArchiveDeviceExtension arcdev = arcdev();
+    private TLSClientParameters tlsClientParams(Map<String, String> props)
+            throws GeneralSecurityException, IOException {
         TLSClientParameters params = new TLSClientParameters();
         params.setKeyManagers(device.keyManagers());
         params.setTrustManagers(device.trustManagers());
-        params.setSecureSocketProtocol(arcdev.getXRoadProperty("TLS.protocol", null));
+        params.setSecureSocketProtocol(props.get("TLS.protocol"));
         for (String cipherSuite : StringUtils.split(
-                arcdev.getXRoadProperty("TLS.cipherSuites", null), ','))
+                props.getOrDefault("TLS.cipherSuites", ""), ','))
             params.getCipherSuites().add(cipherSuite.trim());
         params.setDisableCNCheck(
-                Boolean.parseBoolean(arcdev.getXRoadProperty("TLS.disableCNCheck", null)));
+                Boolean.parseBoolean(props.getOrDefault("TLS.disableCNCheck", "false")));
         return params;
     }
 
@@ -164,35 +169,35 @@ public class XRoadServiceProvider {
         final Holder<String> protocolVersion = new Holder<>();
         final Holder<RequestHash> requestHash = new Holder<>();
 
-        private Headers(ArchiveDeviceExtension arcdev, String serviceCode) {
-            client.value = client(arcdev);
-            service.value = service(arcdev, serviceCode);
-            userId.value = arcdev.getXRoadProperty("userId", "EE11111111111");
-            id.value = arcdev.getXRoadProperty("id", null);
-            protocolVersion.value = arcdev.getXRoadProperty("protocolVersion", "4.0");
+        private Headers(Map<String, String> props, String serviceCode) {
+            client.value = client(props);
+            service.value = service(props, serviceCode);
+            userId.value = props.getOrDefault("userId", "EE11111111111");
+            id.value = props.getOrDefault("id", "");
+            protocolVersion.value = props.getOrDefault("protocolVersion", "4.0");
         }
 
-        private static XRoadClientIdentifierType client(ArchiveDeviceExtension arcdev) {
+        private static XRoadClientIdentifierType client(Map<String, String> props) {
             XRoadClientIdentifierType type = new XRoadClientIdentifierType();
             type.setObjectType(XRoadObjectType.valueOf(
-                    arcdev.getXRoadProperty("client.objectType", XRoadObjectType.SUBSYSTEM.name())));
-            type.setXRoadInstance(arcdev.getXRoadProperty("client.xRoadInstance", "ee-test"));
-            type.setMemberClass(arcdev.getXRoadProperty("client.memberClass", "NGO"));
-            type.setMemberCode(arcdev.getXRoadProperty("client.memberCode", "90007945"));
-            type.setSubsystemCode(arcdev.getXRoadProperty("client.subsystemCode", "mia"));
+                    props.getOrDefault("client.objectType", XRoadObjectType.SUBSYSTEM.name())));
+            type.setXRoadInstance(props.getOrDefault("client.xRoadInstance", "ee-test"));
+            type.setMemberClass(props.getOrDefault("client.memberClass", "NGO"));
+            type.setMemberCode(props.getOrDefault("client.memberCode", "90007945"));
+            type.setSubsystemCode(props.getOrDefault("client.subsystemCode", "mia"));
             return type;
         }
 
-        private static XRoadServiceIdentifierType service(ArchiveDeviceExtension arcdev, String serviceCode) {
+        private static XRoadServiceIdentifierType service(Map<String, String> props, String serviceCode) {
             XRoadServiceIdentifierType type = new XRoadServiceIdentifierType();
             type.setObjectType(XRoadObjectType.valueOf(
-                    arcdev.getXRoadProperty("service.objectType", XRoadObjectType.SERVICE.name())));
-            type.setXRoadInstance(arcdev.getXRoadProperty("service.xRoadInstance", "ee-test"));
-            type.setMemberClass(arcdev.getXRoadProperty("service.memberClass", "GOV"));
-            type.setMemberCode(arcdev.getXRoadProperty("service.memberCode", "70008440"));
-            type.setSubsystemCode(arcdev.getXRoadProperty("service.subsystemCode", "rr"));
+                    props.getOrDefault("service.objectType", XRoadObjectType.SERVICE.name())));
+            type.setXRoadInstance(props.getOrDefault("service.xRoadInstance", "ee-test"));
+            type.setMemberClass(props.getOrDefault("service.memberClass", "GOV"));
+            type.setMemberCode(props.getOrDefault("service.memberCode", "70008440"));
+            type.setSubsystemCode(props.getOrDefault("service.subsystemCode", "rr"));
             type.setServiceCode(serviceCode);
-            type.setServiceVersion(arcdev.getXRoadProperty("serviceVersion", "v1"));
+            type.setServiceVersion(props.getOrDefault("serviceVersion", "v1"));
             return type;
         }
     }

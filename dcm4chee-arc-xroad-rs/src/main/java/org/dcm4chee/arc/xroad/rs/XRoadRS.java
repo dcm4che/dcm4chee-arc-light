@@ -42,19 +42,24 @@
 package org.dcm4chee.arc.xroad.rs;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4chee.arc.xroad.XRoadException;
 import org.dcm4chee.arc.xroad.XRoadServiceProvider;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -66,6 +71,10 @@ import javax.ws.rs.core.StreamingOutput;
 @RequestScoped
 @Path("/xroad")
 public class XRoadRS {
+    private static final Logger LOG = LoggerFactory.getLogger(XRoadRS.class);
+
+    @Context
+    private HttpServletRequest request;
 
     @Inject
     private XRoadServiceProvider service;
@@ -74,14 +83,20 @@ public class XRoadRS {
     @NoCache
     @Path("/RR441/{PatientID}")
     @Produces("application/dicom+json,application/json")
-    public Response rr441(@PathParam("PatientID") String patientID) throws Exception {
+    public Response rr441(@PathParam("PatientID") IDWithIssuer patientID) throws Exception {
+        logRequest();
         Attributes attrs;
         try {
-            attrs = service.rr441(patientID);
+            attrs = service.rr441(patientID.getID());
         } catch (XRoadException e) {
             return errResponse(e.getMessage(), Response.Status.BAD_GATEWAY);
         }
         return (attrs == null ? Response.status(Response.Status.NOT_FOUND) : Response.ok(toJSON(attrs))).build();
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
+                request.getRemoteUser(), request.getRemoteHost());
     }
 
     private Response errResponse(String errorMessage, Response.Status status) {
