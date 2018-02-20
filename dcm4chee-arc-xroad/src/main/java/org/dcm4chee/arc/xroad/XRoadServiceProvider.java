@@ -49,6 +49,7 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -102,6 +103,10 @@ public class XRoadServiceProvider {
         attrs.setString(Tag.PatientID, VR.LO, ttIsikud.getTtIsikudCIsikukood());
         attrs.setString(Tag.PatientSex, VR.CS, patientSex(ttIsikud.getTtIsikudCSugu()));
         attrs.setString(Tag.PatientBirthDate, VR.DA, patientBirthDate(ttIsikud.getTtIsikudCSynniaeg()));
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.XRoadPersonStatus, VR.CS,
+                ttIsikud.getTtIsikudCIsStaatus());
+        attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.XRoadDataStatus, VR.CS,
+                ttIsikud.getTtIsikudCKirjeStaatus());
         return attrs;
     }
 
