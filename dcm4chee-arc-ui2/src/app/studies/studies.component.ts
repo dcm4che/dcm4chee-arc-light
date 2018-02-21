@@ -4254,15 +4254,19 @@ export class StudiesComponent implements OnDestroy,OnInit{
     queryNationalPationtRegister(patientId){
 /*        console.log("queryNationalPationtRegister",patientId);
         console.log("patienid",this.service.getPatientId(patientId));*/
-        this.cfpLoadingBar.start();
-        this.service.queryNationalPationtRegister(this.service.getPatientId(patientId.attrs)).subscribe((xroadAttr)=>{
-            console.log("xroadAttr",xroadAttr);
-            patientId.xroad = xroadAttr;
-        },(err)=>{
-            console.error("Error Querieng National Pation Register",err);
-            this.httpErrorHandler.handleError(err);
-            this.cfpLoadingBar.complete();
-        });
+        if(patientId.xroad){
+            delete patientId.xroad;
+        }else{
+            this.cfpLoadingBar.start();
+            this.service.queryNationalPationtRegister(this.service.getPatientId(patientId.attrs)).subscribe((xroadAttr)=>{
+                console.log("xroadAttr",xroadAttr);
+                patientId.xroad = xroadAttr;
+            },(err)=>{
+                console.error("Error Querieng National Pation Register",err);
+                this.httpErrorHandler.handleError(err);
+                this.cfpLoadingBar.complete();
+            });
+        }
     }
     ngOnDestroy() {
         // Save state of the study page in a global variable after leaving it

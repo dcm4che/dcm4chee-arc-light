@@ -245,7 +245,7 @@ export class ExportComponent implements OnInit {
         let filter = _.cloneDeep(this.filters);
         if(filter.status === '*')
             delete filter.status;
-        if(filter.deviceName === '*')
+        if(filter.dicomDeviceName === '*')
             delete filter.dicomDeviceName;
         delete filter.limit;
         delete filter.offset;
