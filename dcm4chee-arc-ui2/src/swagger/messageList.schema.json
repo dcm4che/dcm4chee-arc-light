@@ -3,7 +3,7 @@
   "type": "array",
   "items": {
     "required": [
-      "id",
+      "JMSMessageID",
       "queue",
       "priority",
       "status",
@@ -13,9 +13,9 @@
       "scheduledTime"
     ],
     "properties": {
-      "id": {
-        "title": "Message ID",
-        "description": "id of message",
+      "JMSMessageID": {
+        "title": "JMS Message ID",
+        "description": "id of JMS message",
         "type": "string"
       },
       "queue": {
