@@ -17,6 +17,11 @@
         "description": "Export Task PK",
         "type": "integer"
       },
+      "JMSMessageID": {
+        "title": "JMS Message ID",
+        "description": "id of JMS message",
+        "type": "string"
+      },
       "status": {
         "title": "Task Status",
         "description": "status of task",

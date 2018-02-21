@@ -4,6 +4,7 @@
   "items": {
     "required": [
       "pk",
+      "JMSMessageID",
       "status",
       "dicomDeviceName",
       "LocalAET",
@@ -19,6 +20,11 @@
         "title": "Retrieve Task PK",
         "description": "Retrieve Task PK",
         "type": "integer"
+      },
+      "JMSMessageID": {
+        "title": "JMS Message ID",
+        "description": "id of JMS message",
+        "type": "string"
       },
       "status": {
         "title": "Task Status",
