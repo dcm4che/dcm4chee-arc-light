@@ -624,7 +624,7 @@
                     <attribute-list *ngIf="patient._VALUE.attrs" [attrs]="patient._VALUE.attrs"></attribute-list>
                 </div>
             </div>
-            <div class="tr_row"  *ngIf="patient._VALUE.xroad && patient._VALUE.xroad.length > 0">
+            <div class="tr_row"  *ngIf="patient._VALUE.xroad">
                 <div class="td_cell attribute_list">
                     <attribute-list [attrs]="patient._VALUE.xroad"></attribute-list>
                 </div>
