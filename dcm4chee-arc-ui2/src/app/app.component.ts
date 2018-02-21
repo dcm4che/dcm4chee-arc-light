@@ -282,7 +282,7 @@ export class AppComponent implements OnInit {
             .subscribe(
                 (res) => {
                     $this.mainservice["deviceName"] = res.dicomDeviceName;
-                    $this.mainservice["xRoad"] = res.xRoad || true;
+                    $this.mainservice["xRoad"] = res.xRoad || false;
                     $this.$http.get('../devices?dicomDeviceName=' + res.dicomDeviceName)
                         .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                         .subscribe(
