@@ -91,6 +91,7 @@ public class ExportTaskRS {
             "SOPInstanceUID," +
             "NumberOfInstances," +
             "Modality," +
+            "JMSMessageID," +
             "dicomDeviceName," +
             "status," +
             "scheduledTime," +

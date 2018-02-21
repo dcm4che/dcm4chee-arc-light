@@ -3,7 +3,7 @@
   "type": "array",
   "items": {
     "required": [
-      "id",
+      "JMSMessageID",
       "queue",
       "priority",
       "status",
