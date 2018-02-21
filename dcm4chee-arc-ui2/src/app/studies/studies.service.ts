@@ -664,5 +664,8 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         }
         return url;
     }
-
+    queryNationalPationtRegister(patientID){
+       return this.$http.get(`../xroad/RR441/${patientID}`)
+            .map(res => j4care.redirectOnAuthResponse(res));
+    }
 }

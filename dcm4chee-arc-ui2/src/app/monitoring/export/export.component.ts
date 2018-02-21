@@ -243,6 +243,10 @@ export class ExportComponent implements OnInit {
             status:this.filters.status?this.filters.status:undefined
         };*/
         let filter = _.cloneDeep(this.filters);
+        if(filter.status === '*')
+            delete filter.status;
+        if(filter.dicomDeviceName === '*')
+            delete filter.dicomDeviceName;
         delete filter.limit;
         delete filter.offset;
         switch (this.allAction) {
