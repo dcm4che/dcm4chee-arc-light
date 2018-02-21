@@ -4252,15 +4252,13 @@ export class StudiesComponent implements OnDestroy,OnInit{
         //     });
     }
     queryNationalPationtRegister(patientId){
-/*        console.log("queryNationalPationtRegister",patientId);
-        console.log("patienid",this.service.getPatientId(patientId));*/
         if(patientId.xroad){
             delete patientId.xroad;
         }else{
             this.cfpLoadingBar.start();
             this.service.queryNationalPationtRegister(this.service.getPatientId(patientId.attrs)).subscribe((xroadAttr)=>{
-                console.log("xroadAttr",xroadAttr);
                 patientId.xroad = xroadAttr;
+                this.cfpLoadingBar.complete();
             },(err)=>{
                 console.error("Error Querieng National Pation Register",err);
                 this.httpErrorHandler.handleError(err);
