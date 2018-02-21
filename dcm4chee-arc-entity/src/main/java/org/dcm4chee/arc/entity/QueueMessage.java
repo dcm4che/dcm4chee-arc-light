@@ -333,6 +333,7 @@ public class QueueMessage {
 
     public void writeStatusAsCSVTo(Writer writer, DateFormat df) throws IOException {
         writer.write(messageID);
+        writer.write(',');
         writer.write(deviceName);
         writer.write(',');
         writer.write(status.toString());
