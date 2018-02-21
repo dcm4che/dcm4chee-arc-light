@@ -90,8 +90,8 @@ export class QueuesComponent implements OnInit{
     allActionChanged(e){
         let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
         let filter = {
-            dicomDeviceName:this.dicomDeviceName?this.dicomDeviceName:undefined,
-            status:this.status?this.status:undefined,
+            dicomDeviceName:(this.dicomDeviceName && this.status != '*') ? this.dicomDeviceName : undefined,
+            status:(this.status && this.status != '*') ? this.status : undefined,
             createdTime:this.createdTime || undefined,
             updatedTime:this.updatedTime || undefined
         };

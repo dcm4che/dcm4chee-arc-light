@@ -1089,7 +1089,7 @@ table{
 				    float: left;
 				    height: 27px;
 				    text-align: center;
-          width: 40%;
+          			width: 40%;
 
 				    &:hover{
 						background:#C2C2C2;
@@ -1117,8 +1117,13 @@ table{
 				    color: black;
 				}
 				&:first-child{
-          padding-left:54px;
-        }
+				  padding-left:54px;
+				}
+				&.xroad{
+					a{
+						width: 33%;
+					}
+				}
       }
     }
   }

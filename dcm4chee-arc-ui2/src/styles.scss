@@ -113,7 +113,19 @@ $hoverBlue:#5293C1;
 /*progress{
   background: rgba(6, 29, 47, 0.84);
 }*/
-
+.xroad_icon{
+  background-image: url("assets/img/icon-xroad_black.svg");
+  background-repeat:no-repeat;
+  width: 100%;
+  height: 100%;
+  background-position: center center;
+  display: block;
+  background-size: 40%;
+  &:hover{
+    background-image: url("assets/img/icon-xroad.svg");
+    background-repeat:no-repeat;
+  }
+}
 .active_breadcrumb{
   background: rgba(6, 29, 47, 0.68);
   color: white;
@@ -347,6 +359,7 @@ mat-grid-list{
     color: #000;
   }
 }
+
 .mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{
   color: $blue;
 }

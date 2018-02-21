@@ -5,6 +5,7 @@ import {AppService} from "../../app.service";
 import * as _ from 'lodash';
 import {Hl7ApplicationsService} from "../../hl7-applications/hl7-applications.service";
 import {AeListService} from "../../ae-list/ae-list.service";
+import "rxjs/add/observable/of";
 
 @Injectable()
 export class DynamicFieldService {

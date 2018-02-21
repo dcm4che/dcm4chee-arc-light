@@ -593,8 +593,11 @@
               </div>
               <div class="thead" [ngClass]="{hide:patient._VALUE.hide}" (click)='select(patient._VALUE,"patient",{"patientkey":patient._KEY},"click")'>
                   <div class="tr_row" [ngClass]="{selected: patient._VALUE.selected}">
-                      <div class="th" style="width:10%">
+                      <div class="th" style="width:10%" [ngClass]="{'xroad':mainservice['xRoad']}">
                           <!--<div *ngIf="patientmode" class="table_btn" [innerHtml]="patient._VALUE.offset+1+'.'"> </div>-->
+                          <a class="table_btn hiddenbuttons"  *ngIf="isRole('admin') && mainservice['xRoad']"  (click)="$event.preventDefault();queryNationalPationtRegister(patient._VALUE)" href="" title="Query National Patient Registry">
+                              <span class="xroad_icon"></span>
+                          </a>
                           <a class="table_btn" (click)="$event.preventDefault();patient._VALUE.showAttributes = !patient._VALUE.showAttributes" href="" title="Show Attributes">
                               <span class="glyphicon glyphicon-th-list"></span>
                           </a>
@@ -619,6 +622,11 @@
             <div class="tr_row"  *ngIf="patient._VALUE.showAttributes && patient._VALUE.attrs">
                 <div class="td_cell attribute_list" id="{{patient._VALUE.attrs['00100020'].Value[0]}}">
                     <attribute-list *ngIf="patient._VALUE.attrs" [attrs]="patient._VALUE.attrs"></attribute-list>
+                </div>
+            </div>
+            <div class="tr_row"  *ngIf="patient._VALUE.xroad">
+                <div class="td_cell attribute_list">
+                    <attribute-list [attrs]="patient._VALUE.xroad"></attribute-list>
                 </div>
             </div>
             <ng-container *ngIf="patients[patient._KEY].showStudies || filterMode != 'diff'">
