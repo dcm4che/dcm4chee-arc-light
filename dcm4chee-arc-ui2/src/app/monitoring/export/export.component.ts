@@ -246,7 +246,7 @@ export class ExportComponent implements OnInit {
         if(filter.status === '*')
             delete filter.status;
         if(filter.deviceName === '*')
-            delete filter.deviceName;
+            delete filter.dicomDeviceName;
         delete filter.limit;
         delete filter.offset;
         switch (this.allAction) {
