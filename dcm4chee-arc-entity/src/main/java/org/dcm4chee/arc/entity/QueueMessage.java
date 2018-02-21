@@ -302,7 +302,7 @@ public class QueueMessage {
         JsonGenerator gen = Json.createGenerator(out);
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         gen.writeStartObject();
-        gen.write("id", messageID);
+        gen.write("JMSMessageID", messageID);
         gen.write("queue", queueName);
         gen.write("priority", priority);
         gen.write("createdTime", df.format(createdTime));
