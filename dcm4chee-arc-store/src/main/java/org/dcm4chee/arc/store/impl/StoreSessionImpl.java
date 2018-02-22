@@ -51,6 +51,7 @@ import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.UIDMap;
 import org.dcm4chee.arc.storage.Storage;
+import org.dcm4chee.arc.storage.StorageFactory;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 
@@ -188,8 +189,10 @@ class StoreSessionImpl implements StoreSession {
     }
 
     @Override
-    public Storage getStorage(String storageID) {
-        return storageMap.get(storageID);
+    public Storage getStorage(String storageID, StorageFactory storageFactory) {
+        return storageMap.computeIfAbsent(storageID,
+                x -> storageFactory.getStorage(
+                        getArchiveAEExtension().getArchiveDeviceExtension().getStorageDescriptor(x)));
     }
 
     @Override

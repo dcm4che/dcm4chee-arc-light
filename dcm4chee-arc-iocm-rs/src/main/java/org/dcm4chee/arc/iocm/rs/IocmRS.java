@@ -639,11 +639,11 @@ public class IocmRS {
             throws Exception {
         logRequest();
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
-        String rejectionNoteObjectStorageID = rjNote != null ? rejectionNoteObjectStorageID() : null;
         ArchiveAEExtension arcAE = getArchiveAE();
         Attributes instanceRefs = parseSOPInstanceReferences(in);
         Attributes forwardOriginal = new Attributes(instanceRefs);
-        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), rejectionNoteObjectStorageID);
+        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(),
+                rjNote != null ? rejectionNoteObjectStorageID() : null);
         restoreInstances(session, instanceRefs);
         Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID);
         if (instances.isEmpty())
