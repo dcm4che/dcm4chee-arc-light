@@ -226,7 +226,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmAuditSoftwareConfigurationVerbose", arcDev.isAuditSoftwareConfigurationVerbose(), false);
         writer.writeNotDef("hl7UseNullValue", arcDev.isHl7UseNullValue(), false);
         writer.writeNotDef("dcmQueueTasksFetchSize", arcDev.getQueueTasksFetchSize(), 100);
+        writer.writeNotNullOrDef("dcmRejectionNoteStorageAET", arcDev.getRejectionNoteStorageAET(), null);
         writer.writeNotEmpty("dcmXRoadProperty", descriptorProperties(arcDev.getXRoadProperties()));
+        writer.writeNotNullOrDef("dcmUIConfigurationDeviceName", arcDev.getUiConfigurationDeviceName(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -489,7 +491,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("cn", rule.getCommonName(), null);
             writer.writeNotEmpty("hl7FwdApplicationName", rule.getDestinations());
-            writer.writeNotEmpty("dcmProperty", toStrings(rule.getConditions().getMap()));
+            writer.writeNotEmpty("dcmProperty", rule.getConditions().getProperties());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -502,7 +504,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("cn", station.getCommonName(), null);
             writer.writeNotNullOrDef("hl7OrderScheduledStationDeviceName", deviceNameOf(station.getDevice()), null);
             writer.writeNotDef("dcmRulePriority", station.getPriority(), 0);
-            writer.writeNotEmpty("dcmProperty", toStrings(station.getConditions().getMap()));
+            writer.writeNotEmpty("dcmProperty", station.getConditions().getProperties());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1004,8 +1006,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmQueueTasksFetchSize":
                     arcDev.setQueueTasksFetchSize(reader.intValue());
                     break;
+                case "dcmRejectionNoteStorageAET":
+                    arcDev.setRejectionNoteStorageAET(reader.stringValue());
+                    break;
                 case "dcmXRoadProperty":
                     arcDev.setXRoadProperties(reader.stringArray());
+                    break;
+                case "dcmUIConfigurationDeviceName":
+                    arcDev.setUiConfigurationDeviceName(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

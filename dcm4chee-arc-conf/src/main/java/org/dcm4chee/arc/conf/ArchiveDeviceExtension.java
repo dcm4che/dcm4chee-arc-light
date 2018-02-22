@@ -184,6 +184,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private String auditUnknownStudyInstanceUID = AUDIT_UNKNOWN_STUDY_INSTANCE_UID;
     private String auditUnknownPatientID = AUDIT_UNKNOWN_PATIENT_ID;
+    private String rejectionNoteStorageAET;
+    private String uiConfigurationDeviceName;
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1662,6 +1664,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.queueTasksFetchSize = queueTasksFetchSize;
     }
 
+    public String getRejectionNoteStorageAET() {
+        return rejectionNoteStorageAET;
+    }
+
+    public void setRejectionNoteStorageAET(String rejectionNoteStorageAET) {
+        this.rejectionNoteStorageAET = rejectionNoteStorageAET;
+    }
+
+    public String getUiConfigurationDeviceName() {
+        return uiConfigurationDeviceName;
+    }
+
+    public void setUiConfigurationDeviceName(String uiConfigurationDeviceName) {
+        this.uiConfigurationDeviceName = uiConfigurationDeviceName;
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -1787,6 +1805,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         auditSoftwareConfigurationVerbose = arcdev.auditSoftwareConfigurationVerbose;
         hl7UseNullValue = arcdev.hl7UseNullValue;
         queueTasksFetchSize = arcdev.queueTasksFetchSize;
+        rejectionNoteStorageAET = arcdev.rejectionNoteStorageAET;
+        uiConfigurationDeviceName = arcdev.uiConfigurationDeviceName;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

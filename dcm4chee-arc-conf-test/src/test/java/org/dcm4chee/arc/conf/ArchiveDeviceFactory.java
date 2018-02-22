@@ -996,6 +996,7 @@ class ArchiveDeviceFactory {
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
     static final Duration IAN_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.parse("PT1H");
+    static final String REJECTION_NOTE_STORAGE_AET = "DCM4CHEE";
     static final String DICOM_EXPORTER_ID = "STORESCP";
     static final String DICOM_EXPORTER_DESC = "Export to STORESCP";
     static final URI DICOM_EXPORT_URI = URI.create("dicom:STORESCP");
@@ -1441,6 +1442,7 @@ class ArchiveDeviceFactory {
                 REVOKE_REJECTION, RejectionNote.AcceptPreviousRejectedInstance.REJECT,
                 REJECTION_CODES));
         ext.setHideSPSWithStatusFrom(HIDE_SPS_WITH_STATUS_FROM_MWL);
+        ext.setRejectionNoteStorageAET(REJECTION_NOTE_STORAGE_AET);
 
         if (configType == configType.SAMPLE) {
             StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);
@@ -1782,8 +1784,8 @@ class ArchiveDeviceFactory {
             addTC(ae, null, SCU, UID.InstanceAvailabilityNotificationSOPClass, UID.ImplicitVRLittleEndian);
             if (configType == configType.SAMPLE)
                 aeExt.setMetadataStorageIDs(METADATA_STORAGE_ID);
+            aeExt.setObjectStorageIDs(STORAGE_ID);
         }
-        aeExt.setObjectStorageIDs(STORAGE_ID);
         aeExt.setQueryRetrieveViewID(qrView.getViewID());
         aeExt.setAcceptedUserRoles(acceptedUserRoles);
         return ae;

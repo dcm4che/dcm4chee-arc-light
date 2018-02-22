@@ -76,6 +76,7 @@ dcmKeyStorePin: secret
 dicomInstalled: TRUE
 dicomSoftwareVersion: 5.13.0
 dcmPurgeStoragePollingInterval: PT5M
+dcmRejectionNoteStorageAET: DCM4CHEE
 dcmRejectExpiredSeriesFetchSize: 10
 dcmRejectExpiredStudiesPollingInterval: P1D
 dcmDeleteRejectedPollingInterval: PT5M
@@ -630,7 +631,6 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dcmQueryRetrieveViewID: regularUse
 dicomDescription: Show instances rejected for Quality Reasons
 dicomAssociationInitiator: TRUE
-dcmObjectStorageID: fs1
 dicomAssociationAcceptor: TRUE
 dicomAETitle: DCM4CHEE_ADMIN
 objectClass: dicomNetworkAE
@@ -643,7 +643,6 @@ dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Device
 dcmQueryRetrieveViewID: trashView
 dicomDescription: Show rejected instances only
 dicomAssociationInitiator: TRUE
-dcmObjectStorageID: fs1
 dicomAssociationAcceptor: TRUE
 dicomAETitle: DCM4CHEE_TRASH
 objectClass: dicomNetworkAE

@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.conf.rs;
 
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -46,14 +47,18 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.StreamingOutput;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Jun 2016
  */
 @Path("devicename")
@@ -70,11 +75,20 @@ public class QueryDeviceName {
     @GET
     @NoCache
     @Produces("application/json")
-    public String devicename() {
+    public StreamingOutput devicename() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return "{\"dicomDeviceName\":\"" + device.getDeviceName()
-                + (device.getDeviceExtension(ArchiveDeviceExtension.class).hasXRoadProperties()
-                ? "\",\"xRoad\":true}"
-                : "\"}");
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        return out -> {
+            JsonGenerator gen = Json.createGenerator(out);
+            JsonWriter writer = new JsonWriter(gen);
+            gen.writeStartObject();
+            writer.writeNotNullOrDef("dicomDeviceName", device.getDeviceName(), null);
+            if (arcDev != null) {
+                writer.writeNotNullOrDef("xRoad", arcDev.hasXRoadProperties(), false);
+                writer.writeNotNullOrDef("UIConfigurationDeviceName", arcDev.getUiConfigurationDeviceName(), null);
+            }
+            gen.writeEnd();
+            gen.flush();
+        };
     }
 }

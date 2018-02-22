@@ -5,3 +5,16 @@ changetype: modify
 replace: dicomSoftwareVersion
 dicomSoftwareVersion: 5.13.0
 -
+add: dcmRejectionNoteStorageAET
+dcmRejectionNoteStorageAET: DCM4CHEE
+-
+
+dn: dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: dcmObjectStorageID
+-
+
+dn: dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: dcmObjectStorageID
+-

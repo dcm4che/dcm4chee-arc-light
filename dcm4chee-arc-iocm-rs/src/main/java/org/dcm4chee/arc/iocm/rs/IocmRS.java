@@ -498,8 +498,9 @@ public class IocmRS {
                                               @PathParam("codingSchemeDesignator") String designator,
                                               InputStream in) throws Exception {
         logRequest();
+        RejectionNote rjNote = toRejectionNote(codeValue, designator);
+        String rejectionNoteObjectStorageID = rjNote != null ? rejectionNoteObjectStorageID() : null;
         ArchiveAEExtension arcAE = getArchiveAE();
-        RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
         Attributes instanceRefs = parseSOPInstanceReferences(in);
         Attributes forwardOriginal = new Attributes(instanceRefs);
 
@@ -517,7 +518,7 @@ public class IocmRS {
         ctx.setSourceInstanceRefs(instanceRefs);
 
 
-        StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
+        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), rejectionNoteObjectStorageID);
         restoreInstances(session, instanceRefs);
         Collection<InstanceLocations> instanceLocations = storeService.queryInstances(session, instanceRefs, studyUID);
         if (instanceLocations.isEmpty())
@@ -591,6 +592,10 @@ public class IocmRS {
     }
 
     private ArchiveAEExtension getArchiveAE() {
+        return toArchiveAE(aet);
+    }
+
+    private ArchiveAEExtension toArchiveAE(String aet) {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(errResponse(
@@ -604,8 +609,8 @@ public class IocmRS {
         logRequest();
         try {
             ArchiveAEExtension arcAE = getArchiveAE();
-            RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
-            StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
+            RejectionNote rjNote = toRejectionNote(codeValue, designator);
+            StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), rejectionNoteObjectStorageID());
             storeService.restoreInstances(session, studyUID, seriesUID);
 
             Attributes attrs = queryService.createRejectionNote(
@@ -622,8 +627,10 @@ public class IocmRS {
         } catch (DicomServiceException e) {
             Response response = errResponse(e.getMessage(), Response.Status.CONFLICT);
             throw new WebApplicationException(response);
+        } catch(WebApplicationException e) {
+            throw e;
         } catch (Exception e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR));
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -631,11 +638,12 @@ public class IocmRS {
             RSOperation op, String studyUID, InputStream in, String codeValue, String designator)
             throws Exception {
         logRequest();
+        RejectionNote rjNote = toRejectionNote(codeValue, designator);
         ArchiveAEExtension arcAE = getArchiveAE();
-        RejectionNote rjNote = toRejectionNote(arcAE, codeValue, designator);
         Attributes instanceRefs = parseSOPInstanceReferences(in);
         Attributes forwardOriginal = new Attributes(instanceRefs);
-        StoreSession session = storeService.newStoreSession(request, aet, arcAE.getApplicationEntity());
+        StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(),
+                rjNote != null ? rejectionNoteObjectStorageID() : null);
         restoreInstances(session, instanceRefs);
         Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID);
         if (instances.isEmpty())
@@ -663,11 +671,11 @@ public class IocmRS {
             storeService.restoreInstances(session, studyUID, item.getString(Tag.SeriesInstanceUID));
     }
 
-    private RejectionNote toRejectionNote(ArchiveAEExtension arcAE, String codeValue, String designator) {
+    private RejectionNote toRejectionNote(String codeValue, String designator) {
         if (codeValue == null)
             return null;
 
-        RejectionNote rjNote = arcAE.getArchiveDeviceExtension().getRejectionNote(
+        RejectionNote rjNote = device.getDeviceExtension(ArchiveDeviceExtension.class).getRejectionNote(
                 new Code(codeValue, designator, null, ""));
 
         if (rjNote == null)
@@ -907,6 +915,20 @@ public class IocmRS {
             throw new WebApplicationException(errResponse("Missing ReferencedSOPInstanceUID", Response.Status.BAD_REQUEST));
 
         return attrs;
+    }
+
+    private String rejectionNoteObjectStorageID() {
+        String rjNoteStorageAET = device.getDeviceExtension(ArchiveDeviceExtension.class).getRejectionNoteStorageAET();
+        if (rjNoteStorageAET == null)
+            return null;
+
+        ArchiveAEExtension arcAE = toArchiveAE(rjNoteStorageAET);
+        String[] objectStorageIDs = arcAE.getObjectStorageIDs();
+        if (objectStorageIDs.length == 0)
+            throw new WebApplicationException(
+                    errResponse("Object storage not configured for Rejection Note Storage AE." + rjNoteStorageAET,
+                            Response.Status.NOT_FOUND));
+        return objectStorageIDs[0];
     }
 
     private Response errResponse(String errorMessage, Response.Status status) {

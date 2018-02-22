@@ -45,7 +45,6 @@ import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.data.*;
-import org.dcm4che3.hl7.HL7Segment;
 import org.dcm4che3.imageio.codec.ImageDescriptor;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.imageio.codec.TransferSyntaxType;
@@ -134,18 +133,20 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public StoreSession newStoreSession(HttpServletRequest httpRequest, String aet, ApplicationEntity ae) {
+    public StoreSession newStoreSession(HttpServletRequest httpRequest, ApplicationEntity ae, String rejectionNoteObjectStorageID) {
         StoreSessionImpl session = new StoreSessionImpl(this);
         session.setHttpRequest(httpRequest);
         session.setApplicationEntity(ae);
-        session.setCalledAET(aet);
+        session.setCalledAET(ae.getAETitle());
+        session.setObjectStorageID(rejectionNoteObjectStorageID);
         return session;
     }
 
     @Override
-    public StoreSession newStoreSession(ApplicationEntity ae) {
+    public StoreSession newStoreSession(ApplicationEntity ae, String rejectionNoteObjectStorageID) {
         StoreSessionImpl session = new StoreSessionImpl(this);
         session.setApplicationEntity(ae);
+        session.setObjectStorageID(rejectionNoteObjectStorageID);
         return session;
     }
 
@@ -544,15 +545,6 @@ class StoreServiceImpl implements StoreService {
         attrs.update(Attributes.UpdatePolicy.OVERWRITE, seriesAttrs, modified);
     }
 
-    private Storage getStorage(StoreSession session, StorageDescriptor descriptor) {
-        Storage storage = session.getStorage(descriptor.getStorageID());
-        if (storage == null) {
-            storage = storageFactory.getStorage(descriptor);
-            session.putStorage(descriptor.getStorageID(), storage);
-        }
-        return storage;
-    }
-
     private final class TranscoderHandler implements Transcoder.Handler {
         private final StoreContext storeContext;
 
@@ -591,7 +583,7 @@ class StoreServiceImpl implements StoreService {
 
     private Storage selectObjectStorage(StoreSession session) throws IOException {
         if (session.getObjectStorageID() != null)
-            return session.getStorage(session.getObjectStorageID());
+            return session.getStorage(session.getObjectStorageID(), storageFactory);
 
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
@@ -631,7 +623,7 @@ class StoreServiceImpl implements StoreService {
 
     private Storage selectMetadataStorage(StoreSession session) throws IOException {
         if (session.getMetadataStorageID() != null)
-            return session.getStorage(session.getMetadataStorageID());
+            return session.getStorage(session.getMetadataStorageID(), storageFactory);
 
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
@@ -654,8 +646,7 @@ class StoreServiceImpl implements StoreService {
     public ZipInputStream openZipInputStream(
             StoreSession session, String storageID, String storagePath, String studyUID)
             throws IOException {
-        ArchiveDeviceExtension arcDev = session.getArchiveAEExtension().getArchiveDeviceExtension();
-        Storage storage = getStorage(session,  arcDev.getStorageDescriptor(storageID));
+        Storage storage = session.getStorage(storageID, storageFactory);
         ReadContext readContext = storage.createReadContext();
         readContext.setStoragePath(storagePath);
         readContext.setStudyInstanceUID(studyUID);

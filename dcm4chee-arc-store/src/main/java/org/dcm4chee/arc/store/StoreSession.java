@@ -52,6 +52,7 @@ import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.entity.UIDMap;
 import org.dcm4chee.arc.storage.Storage;
+import org.dcm4chee.arc.storage.StorageFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Closeable;
@@ -82,7 +83,7 @@ public interface StoreSession extends Closeable {
 
     StoreService getStoreService();
 
-    Storage getStorage(String storageID);
+    Storage getStorage(String storageID, StorageFactory storageFactory);
 
     void putStorage(String storageID, Storage storage);
 
