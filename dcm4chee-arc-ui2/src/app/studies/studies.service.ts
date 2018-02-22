@@ -7,6 +7,9 @@ import {WindowRefService} from "../helpers/window-ref.service";
 import {AppService} from "../app.service";
 import {J4careHttpService} from "../helpers/j4care-http.service";
 import {j4care} from "../helpers/j4care.service";
+import {ScalarObservable} from "rxjs/observable/ScalarObservable";
+import 'rxjs/add/operator/switchMap';
+import {Globalvar} from "../constants/globalvar";
 declare var DCM4CHE: any;
 declare var window: any;
 
@@ -667,5 +670,20 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
     queryNationalPationtRegister(patientID){
        return this.$http.get(`../xroad/RR441/${patientID}`)
             .map(res => j4care.redirectOnAuthResponse(res));
+    }
+    getPermission(url){
+        return this.$http.get('../devicename')
+            .map(res => j4care.redirectOnAuthResponse(res))
+            .switchMap(res => this.$http.get('../devices/' + res.dicomDeviceName))
+            .map(res => res.json())
+            .map((res)=>{
+                let checkObject = res.dcmDevice.dcmuiConfig["0"].dcmuiPermission.filter(element=>{
+                    return element.dcmuiAction === Globalvar.LINK_PERMISSION[url].permissionsAction;
+                });
+                console.log("user",this.mainservice.user.roles);
+                console.log("dcmAcceptedUserRole",checkObject[0].dcmAcceptedUserRole);
+                console.log("dcmuiActionParam",checkObject[0].dcmuiActionParam);
+                return true;
+            });
     }
 }

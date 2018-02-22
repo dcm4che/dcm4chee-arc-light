@@ -289,7 +289,7 @@ export class QueuesComponent implements OnInit{
     cancel(match) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.cancel(this.queueName, match.properties.id)
+        this.service.cancel(this.queueName, match.properties.JMSMessageID)
             .subscribe(function (res) {
                 match.properties.status = 'CANCELED';
                 $this.cfpLoadingBar.complete();
@@ -301,7 +301,7 @@ export class QueuesComponent implements OnInit{
     reschedule(match) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.reschedule(this.queueName, match.properties.id)
+        this.service.reschedule(this.queueName, match.properties.JMSMessageID)
             .subscribe((res) => {
                 $this.search(0);
                 $this.cfpLoadingBar.complete();
@@ -324,7 +324,7 @@ export class QueuesComponent implements OnInit{
             if (result){
                 $this.cfpLoadingBar.start();
 
-                this.service.delete(this.queueName, match.properties.id)
+                this.service.delete(this.queueName, match.properties.JMSMessageID)
                 .subscribe((res) => {
                     $this.search($this.matches[0].offset);
                     $this.cfpLoadingBar.complete();
@@ -346,7 +346,7 @@ export class QueuesComponent implements OnInit{
                 this.cfpLoadingBar.start();
                 this.matches.forEach((match)=>{
                     if(match.checked){
-                        this.service[mode](this.queueName, match.properties.id)
+                        this.service[mode](this.queueName, match.properties.JMSMessageID)
                             .subscribe((res) => {
                             },(err)=>{
                                 this.httpErrorHandler.handleError(err);
