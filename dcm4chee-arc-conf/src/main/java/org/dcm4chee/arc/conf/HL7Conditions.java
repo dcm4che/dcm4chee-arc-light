@@ -51,12 +51,14 @@ import java.util.regex.Pattern;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>>
  * @since Jul 2016
  */
 public class HL7Conditions {
     public static final String SENDING_HOSTNAME = "SendingHostname";
 
     private final Map<String, Pattern> map = new TreeMap<>();
+    private String[] properties;
 
     public HL7Conditions(String... props) {
         for (String s : props) {
@@ -65,6 +67,7 @@ public class HL7Conditions {
                 throw new IllegalArgumentException("Condition in incorrect format : " + s);
             setCondition(s.substring(0, index), s.substring(index+1));
         }
+        properties = props;
     }
 
     public void setSendingHostname(String value) {
@@ -81,8 +84,8 @@ public class HL7Conditions {
         map.put(tagPath, pattern);
     }
 
-    public Map<String,Pattern> getMap() {
-        return map;
+    public String[] getProperties() {
+        return properties;
     }
 
     public boolean match(String hostName, HL7Segment msh, Attributes attrs) {

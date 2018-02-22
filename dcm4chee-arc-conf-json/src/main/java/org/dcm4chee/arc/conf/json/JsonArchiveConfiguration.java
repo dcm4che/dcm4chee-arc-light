@@ -491,7 +491,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("cn", rule.getCommonName(), null);
             writer.writeNotEmpty("hl7FwdApplicationName", rule.getDestinations());
-            writer.writeNotEmpty("dcmProperty", toStrings(rule.getConditions().getMap()));
+            writer.writeNotEmpty("dcmProperty", rule.getConditions().getProperties());
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -504,7 +504,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("cn", station.getCommonName(), null);
             writer.writeNotNullOrDef("hl7OrderScheduledStationDeviceName", deviceNameOf(station.getDevice()), null);
             writer.writeNotDef("dcmRulePriority", station.getPriority(), 0);
-            writer.writeNotEmpty("dcmProperty", toStrings(station.getConditions().getMap()));
+            writer.writeNotEmpty("dcmProperty", station.getConditions().getProperties());
             writer.writeEnd();
         }
         writer.writeEnd();
