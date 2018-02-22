@@ -93,10 +93,10 @@ class DecompressSupport implements Closeable {
         if (dis.tag() != Tag.PixelData || dis.length() != -1)
             throw new IOException("No or incorrect encapsulated compressed pixel data in requested object");
 
-        encapsulatedPixelData = new EncapsulatedPixelDataImageInputStream(dis, attrs.getInt(Tag.NumberOfFrames, 1));
+        ImageDescriptor imageDescriptor = new ImageDescriptor(attrs);
+        encapsulatedPixelData = new EncapsulatedPixelDataImageInputStream(dis, imageDescriptor);
         String tsuid = dis.getTransferSyntax();
         TransferSyntaxType tsType = TransferSyntaxType.forUID(tsuid);
-        ImageDescriptor imageDescriptor = new ImageDescriptor(attrs);
         initDecompressor(tsuid, tsType, imageDescriptor);
         if (tsType == TransferSyntaxType.RLE)
             initBufferedImage(imageDescriptor);
