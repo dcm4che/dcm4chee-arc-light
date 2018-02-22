@@ -3989,6 +3989,80 @@
         }
       }
     },
+    "/aets/{aet}/dimse/{externalAET}/studies/csv:{field}/export/dicom:{destinationAET}": {
+      "post": {
+        "tags": [
+          "DIMSE-RS",
+          "RETRIEVE-RS"
+        ],
+        "summary": "Retrieve Studies specified in CSV from external C-MOVE SCP",
+        "operationId": "RetrieveStudiesCSV",
+        "consumes": [
+          "text/csv"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for connecting external C-FIND and C-MOVE SCP",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of C-MOVE SCP from which Studies are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "field",
+            "in": "path",
+            "description": "field which contains the Study Instance UID",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "destinationAET",
+            "in": "path",
+            "description": "AE Title of STORE-SCP to which Studies are retrieved",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled retrieve of Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "AE Title of Archive, C-FIND SCP or C-MOVE SCP not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/dimse/{externalAET}/studies/query:{queryAET}/export/dicom:{destinationAET}": {
       "post": {
         "tags": [
