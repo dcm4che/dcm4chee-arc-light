@@ -1162,6 +1162,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.195 NAME 'dcmXRoadProperty'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.196 NAME 'dcmUIConfigurationDeviceName'
+  DESC 'Specifies the device name containing the Archive UI Configuration.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1283,6 +1289,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmQueueTasksFetchSize $
     dcmRejectionNoteStorageAET $
     dcmXRoadProperty $
+    dcmUIConfigurationDeviceName $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $

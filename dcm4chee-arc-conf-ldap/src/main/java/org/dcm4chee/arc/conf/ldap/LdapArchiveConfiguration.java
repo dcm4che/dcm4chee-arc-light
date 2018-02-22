@@ -228,6 +228,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectionNoteStorageAET",
                 ext.getRejectionNoteStorageAET(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmXRoadProperty", toStrings(ext.getXRoadProperties()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUIConfigurationDeviceName",
+                ext.getUiConfigurationDeviceName(), null);
     }
 
     @Override
@@ -382,6 +384,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setRejectionNoteStorageAET(LdapUtils.stringValue(
                 attrs.get("dcmRejectionNoteStorageAET"), null));
         ext.setXRoadProperties(LdapUtils.stringArray(attrs.get("dcmXRoadProperty")));
+        ext.setUiConfigurationDeviceName(LdapUtils.stringValue(
+                attrs.get("dcmUIConfigurationDeviceName"), null));
     }
 
     @Override
@@ -647,6 +651,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getRejectionNoteStorageAET(), bb.getRejectionNoteStorageAET(),
                 null);
         storeDiffProperties(ldapObj, mods, "dcmXRoadProperty", aa.getXRoadProperties(), bb.getXRoadProperties());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUIConfigurationDeviceName",
+                aa.getUiConfigurationDeviceName(), bb.getUiConfigurationDeviceName(),
+                null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

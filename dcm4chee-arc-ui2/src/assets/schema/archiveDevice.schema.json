@@ -890,6 +890,12 @@
       "type": "string",
       "format": "dcmArchiveAETitle"
     },
+    "dcmUIConfigurationDeviceName": {
+      "title": "UI Configuration Device Name",
+      "description": "Specifies the device name containing the Archive UI Configuration.",
+      "type": "string",
+      "format": "dicomDeviceName"
+    },
     "dcmStorage": {
       "title": "Storage Descriptor",
       "description": "Specifies Storage System",
