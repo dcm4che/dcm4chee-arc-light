@@ -2283,6 +2283,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7OrderScheduledStationDeviceReference",
                 scheduledStationDeviceRef(prev, config),
                 scheduledStationDeviceRef(station, config), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmProperty", prev.getConditions().getProperties(), station.getConditions().getProperties());
         LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), station.getPriority(), 0);
         return mods;
     }
