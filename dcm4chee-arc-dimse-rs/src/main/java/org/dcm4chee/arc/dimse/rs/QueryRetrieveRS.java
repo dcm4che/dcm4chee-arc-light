@@ -166,9 +166,13 @@ public class QueryRetrieveRS {
         logRequest();
         checkAE(aet, device.getApplicationEntity(aet, true));
         checkAE(externalAET, aeCache.get(externalAET));
+        Response.Status errorStatus = Response.Status.BAD_REQUEST;
+        if (field < 1)
+            return Response.status(errorStatus)
+                    .entity("CSV field for Study Instance UID should be greater than or equal to 1").build();
+
         int count = 0;
         String warning = null;
-        Response.Status errorStatus = Response.Status.BAD_REQUEST;
         List<String> lines = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             String line;
@@ -178,7 +182,7 @@ public class QueryRetrieveRS {
             if (lines.isEmpty())
                 return Response.status(Response.Status.NOT_FOUND).entity("Empty file").build();
 
-            String firstStudyIUID = lines.get(0).split(",")[field].replaceAll("\"", "");
+            String firstStudyIUID = lines.get(0).split(",")[field-1].replaceAll("\"", "");
             if (UIDUtils.isValid(firstStudyIUID)) {
                 retrieveManager.scheduleRetrieveTask(priority(), toInstanceRetrieved(destAET, firstStudyIUID), batchID);
                 count++;
@@ -186,7 +190,7 @@ public class QueryRetrieveRS {
             for (int i = 1; i < lines.size(); i++) {
                 retrieveManager.scheduleRetrieveTask(
                         priority(),
-                        toInstanceRetrieved(destAET, lines.get(i).split(",")[field].replaceAll("\"", "")),
+                        toInstanceRetrieved(destAET, lines.get(i).split(",")[field-1].replaceAll("\"", "")),
                         batchID);
                 count++;
             }
