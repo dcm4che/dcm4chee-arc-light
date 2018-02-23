@@ -450,6 +450,7 @@ class QueryServiceImpl implements QueryService {
             coercion = new CFindSCUAttributeCoercion(ctx.getLocalApplicationEntity(), leadingCFindSCP,
                     rule.getAttributeUpdatePolicy(), cfindscu, leadingCFindSCPQueryCache, coercion);
         }
+        LOG.info("Coerce Attributes from rule: {}", rule);
         return coercion;
     }
 

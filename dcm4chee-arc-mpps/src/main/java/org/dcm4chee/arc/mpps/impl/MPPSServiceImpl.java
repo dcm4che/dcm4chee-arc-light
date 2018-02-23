@@ -121,6 +121,7 @@ public class MPPSServiceImpl implements MPPSService {
         if (xsltStylesheetURI != null)
             try {
                 Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
+                LOG.info("Coerce Attributes from rule: {}", rule);
                 return new XSLTAttributesCoercion(tpls, null).includeKeyword(!rule.isNoKeywords());
             } catch (TransformerConfigurationException e) {
                 LOG.error("{}: Failed to compile XSL: {}", ctx, xsltStylesheetURI, e);
