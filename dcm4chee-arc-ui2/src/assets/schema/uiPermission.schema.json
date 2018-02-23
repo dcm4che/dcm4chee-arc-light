@@ -15,14 +15,66 @@
     "dcmuiAction": {
       "title": "UI Action",
       "description": "UI Action",
-      "type": "string"
+      "type": "string",
+      "enum": [
+        "menu|dashboard",
+        "menu|monitoring",
+        "menu|studies",
+        "menu|correct_data",
+        "menu|lifecycle_management",
+        "menu|move_data",
+        "menu|statistics",
+        "menu|audit_record_repository",
+        "menu|configuration",
+        "tab|monitoring->queues",
+        "tab|monitoring->export",
+        "tab|monitoring->external_retrieve",
+        "tab|monitoring->control",
+        "tab|monitoring->associations",
+        "tab|monitoring->storage_commitments",
+        "tab|monitoring->storage_systems",
+        "tab|move_data->retrieve",
+        "tab|move_data->export",
+        "tab|statistics->statistics",
+        "tab|configuration->devices",
+        "tab|configuration->ae_list",
+        "tab|configuration->hl7_applications",
+        "action|studies|patient",
+        "action|studies|mwl",
+        "action|studies|studie",
+        "action|studies|serie",
+        "action|studies|instance",
+        "action|studies|copy_merge_move",
+        "action|studies|more_function",
+        "action|studies|diff",
+        "action|studies|count",
+        "action|studies|size",
+        "action|monitoring->queues|all_action",
+        "action|monitoring->export|all_action",
+        "action|monitoring->external_retrieve|all_action",
+        "action|monitoring->queues|single_action",
+        "action|monitoring->export|single_action",
+        "action|monitoring->external_retrieve|single_action"
+      ]
     },
     "dcmuiActionParam": {
       "title": "UI Action Parameter",
       "description": "UI Action Parameter",
       "type": "array",
       "items" : {
-        "type": "string"
+        "type": "string",
+        "enum":[
+          "edit",
+          "create",
+          "delete",
+          "accessible",
+          "visible",
+          "hidden",
+          "merge",
+          "upload",
+          "reject",
+          "open-viewer"
+        ]
       }
     },
     "dcmAcceptedUserRole": {

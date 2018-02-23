@@ -671,19 +671,5 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
        return this.$http.get(`../xroad/RR441/${patientID}`)
             .map(res => j4care.redirectOnAuthResponse(res));
     }
-    getPermission(url){
-        return this.$http.get('../devicename')
-            .map(res => j4care.redirectOnAuthResponse(res))
-            .switchMap(res => this.$http.get('../devices/' + res.dicomDeviceName))
-            .map(res => res.json())
-            .map((res)=>{
-                let checkObject = res.dcmDevice.dcmuiConfig["0"].dcmuiPermission.filter(element=>{
-                    return element.dcmuiAction === Globalvar.LINK_PERMISSION[url].permissionsAction;
-                });
-                console.log("user",this.mainservice.user.roles);
-                console.log("dcmAcceptedUserRole",checkObject[0].dcmAcceptedUserRole);
-                console.log("dcmuiActionParam",checkObject[0].dcmuiActionParam);
-                return true;
-            });
-    }
+
 }
