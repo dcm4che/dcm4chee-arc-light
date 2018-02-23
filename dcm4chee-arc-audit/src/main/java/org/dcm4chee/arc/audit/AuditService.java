@@ -218,10 +218,20 @@ public class AuditService {
         Attributes attrs = ctx.getAttributes();
         HashMap<String, HashSet<String>> sopClassMap = buildRejectionSOPClassMap(attrs);
         LinkedHashSet<Object> deleteObjs = getDeletionObjsForSpooling(sopClassMap, new AuditInfo(getAIStoreCtx(ctx)));
+        StoreSession storeSession = ctx.getStoreSession();
+        boolean isSchedulerDeletedExpiredStudies = isSchedulerDeletedExpiredStudies(storeSession);
         AuditServiceUtils.EventType eventType = ctx.getStoredInstance().getSeries().getStudy().getRejectionState() == RejectionState.COMPLETE
-                                                    ? AuditServiceUtils.EventType.RJ_COMPLET
-                                                    : AuditServiceUtils.EventType.RJ_PARTIAL;
+                                                    ? isSchedulerDeletedExpiredStudies
+                                                        ? AuditServiceUtils.EventType.PRMDLT_SCH
+                                                        : AuditServiceUtils.EventType.RJ_COMPLET
+                                                    : isSchedulerDeletedExpiredStudies
+                                                        ? AuditServiceUtils.EventType.RJ_SCH_FEW
+                                                        : AuditServiceUtils.EventType.RJ_PARTIAL;
         writeSpoolFile(eventType, deleteObjs);
+    }
+
+    private boolean isSchedulerDeletedExpiredStudies(StoreSession storeSession) {
+        return storeSession.getAssociation() == null && storeSession.getHttpRequest() == null;
     }
 
     private HashMap<String, HashSet<String>> buildRejectionSOPClassMap(Attributes attrs) {
@@ -1595,16 +1605,25 @@ public class AuditService {
         HttpServletRequest req = ss.getHttpRequest();
         Attributes attr = ctx.getAttributes();
         String callingHost = ss.getRemoteHostName();
-        String callingAET = req != null ? KeycloakContext.valueOf(req).getUserName() : ss.getCallingAET();
-        if (callingAET == null && callingHost == null)
-            callingAET = ss.toString();
+        String callingUserID = req != null ? KeycloakContext.valueOf(req).getUserName() : ss.getCallingAET();
+        if (callingUserID == null && callingHost == null)
+            callingUserID = ss.toString();
         String outcome = null != ctx.getException() ? null != ctx.getRejectionNote()
                 ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
                 : getOD(ctx.getException()) : null;
         String warning = ctx.getException() == null && null != ctx.getRejectionNote()
                 ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null;
+
+        if (isSchedulerDeletedExpiredStudies(ss))
+            return new AuditInfoBuilder.Builder()
+                    .studyUIDAccNumDate(attr)
+                    .pIDAndName(attr, getArchiveDevice())
+                    .outcome(outcome)
+                    .warning(warning)
+                    .build();
+
         return new AuditInfoBuilder.Builder().callingHost(callingHost)
-                .callingUserID(callingAET)
+                .callingUserID(callingUserID)
                 .calledUserID(req != null ? req.getRequestURI() : ss.getCalledAET())
                 .studyUIDAccNumDate(attr)
                 .pIDAndName(attr, getArchiveDevice())
