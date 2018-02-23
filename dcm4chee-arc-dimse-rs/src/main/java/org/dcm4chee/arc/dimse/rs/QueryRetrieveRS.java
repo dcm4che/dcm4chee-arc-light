@@ -46,6 +46,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryAttributes;
@@ -63,8 +64,13 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -149,6 +155,58 @@ public class QueryRetrieveRS {
         return retrieveMatching(QueryRetrieveLevel2.IMAGE, studyInstanceUID, seriesInstanceUID, queryAET, destAET);
     }
 
+    @POST
+    @Path("/studies/csv:{field}/export/dicom:{destinationAET}")
+    @Consumes("text/csv")
+    @Produces("application/json")
+    public Response retrieveMatchingStudiesFromCSV(
+            @PathParam("field") int field,
+            @PathParam("destinationAET") String destAET,
+            InputStream in) throws Exception {
+        logRequest();
+        checkAE(aet, device.getApplicationEntity(aet, true));
+        checkAE(externalAET, aeCache.get(externalAET));
+        int count = 0;
+        String warning = null;
+        Response.Status errorStatus = Response.Status.BAD_REQUEST;
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+            String line;
+            while ((line = reader.readLine()) != null)
+                lines.add(line);
+
+            if (lines.isEmpty())
+                return Response.status(Response.Status.NOT_FOUND).entity("Empty file").build();
+
+            String firstStudyIUID = lines.get(0).split(",")[field].replaceAll("\"", "");
+            if (UIDUtils.isValid(firstStudyIUID)) {
+                retrieveManager.scheduleRetrieveTask(priority(), toInstanceRetrieved(destAET, firstStudyIUID), batchID);
+                count++;
+            }
+            for (int i = 1; i < lines.size(); i++) {
+                retrieveManager.scheduleRetrieveTask(
+                        priority(),
+                        toInstanceRetrieved(destAET, lines.get(i).split(",")[field].replaceAll("\"", "")),
+                        batchID);
+                count++;
+            }
+        } catch (QueueSizeLimitExceededException e) {
+            errorStatus = Response.Status.SERVICE_UNAVAILABLE;
+            warning = e.getMessage();
+        } catch (Exception e) {
+            warning = e.getMessage();
+        }
+
+        if (warning == null)
+            return Response.accepted(count(count)).build();
+
+        Response.ResponseBuilder builder = Response.status(errorStatus)
+                .header("Warning", warning);
+        if (count > 0)
+            builder.entity(count(count));
+        return builder.build();
+    }
+
     private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(errResponse(
@@ -171,7 +229,7 @@ public class QueryRetrieveRS {
 
     private Response retrieveMatching(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,
                                       String queryAET, String destAET) throws Exception {
-        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        logRequest();
         ApplicationEntity localAE = checkAE(aet, device.getApplicationEntity(aet, true));
         checkAE(externalAET, aeCache.get(externalAET));
         checkAE(queryAET, aeCache.get(queryAET));
@@ -226,9 +284,25 @@ public class QueryRetrieveRS {
         return builder.build();
     }
 
+    private void logRequest() {
+        LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+    }
+
     private ExternalRetrieveContext toInstancesRetrieved(String destAET, DimseRSP dimseRSP) {
         Attributes keys = new Attributes(dimseRSP.getDataset(),
                 Tag.QueryRetrieveLevel, Tag.StudyInstanceUID, Tag.SeriesInstanceUID, Tag.SOPInstanceUID);
+        return new ExternalRetrieveContext()
+                .setLocalAET(aet)
+                .setRemoteAET(externalAET)
+                .setDestinationAET(destAET)
+                .setRequestInfo(request)
+                .setKeys(keys);
+    }
+
+    private ExternalRetrieveContext toInstanceRetrieved(String destAET, String studyIUID) {
+        Attributes keys = new Attributes(2);
+        keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.STUDY.name());
+        keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
         return new ExternalRetrieveContext()
                 .setLocalAET(aet)
                 .setRemoteAET(externalAET)
