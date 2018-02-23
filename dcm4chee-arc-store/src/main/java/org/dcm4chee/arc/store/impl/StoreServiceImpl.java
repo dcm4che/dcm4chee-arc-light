@@ -474,6 +474,7 @@ class StoreServiceImpl implements StoreService {
         if (xsltStylesheetURI != null)
             try {
                 Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
+                LOG.info("Coerce Attributes from rule: {}", rule);
                 return new XSLTAttributesCoercion(tpls, null).includeKeyword(!rule.isNoKeywords());
             } catch (TransformerConfigurationException e) {
                 LOG.error("{}: Failed to compile XSL: {}", ctx.getStoreSession(), xsltStylesheetURI, e);
@@ -487,7 +488,7 @@ class StoreServiceImpl implements StoreService {
         if (requestAttrs == null)
             return next;
 
-        LOG.info("{}: Coerce Request Attributes from matching MWL item(s)", ctx.getStoreSession());
+        LOG.info("{}: Coerce Request Attributes from matching MWL item(s) using rule: {}", ctx.getStoreSession(), rule);
         return new MergeAttributesCoercion(requestAttrs, next);
     }
 
