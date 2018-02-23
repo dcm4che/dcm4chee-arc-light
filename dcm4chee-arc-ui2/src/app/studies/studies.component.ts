@@ -2696,7 +2696,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 this.config.viewContainerRef = this.viewContainerRef;
                 this.dialogRef = this.dialog.open(ViewerComponent, {
                     height: 'auto',
-                    width: 'auto'
+                    width: 'auto',
+                    panelClass:"viewer_dialog"
                 });
                 this.dialogRef.componentInstance.views = inst.views;
                 this.dialogRef.componentInstance.view = inst.view;

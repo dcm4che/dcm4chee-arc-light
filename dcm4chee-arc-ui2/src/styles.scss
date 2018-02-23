@@ -445,15 +445,27 @@ mat-grid-list{
   top: 50%;
   left:50%;
 }
+.viewer_dialog{
+  &:hover .arrow{
+    display: block;
+  }
+}
 .viewer{
   min-width:150px;
   min-height:90px;
+  position: relative;
   .content{
     min-height:40%;
     min-width:30%;
   }
   .arrow{
     display: none;
+    &.left{
+      left: -25px;
+    }
+    &.right{
+      right:-25px;
+    }
   }
   &:hover .arrow{
     display: block;
