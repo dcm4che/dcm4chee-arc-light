@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import {WindowRefService} from "./helpers/window-ref.service";
 import {DatePipe} from "@angular/common";
 import {J4careHttpService} from "./helpers/j4care-http.service";
+import {HttpClient} from "@angular/common/http";
 
 @Injectable()
 export class AppService implements OnInit, OnDestroy{
@@ -155,4 +156,5 @@ export class AppService implements OnInit, OnDestroy{
 /*        return this.http.get('../monitor/serverTime')
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     */}
+
 }

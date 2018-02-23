@@ -514,4 +514,11 @@ export class Globalvar {
     public static get HL7_LIST_LINK(): string{
         return "../hl7apps";
     }
+    public static get LINK_PERMISSION():any{
+        return {
+            "/studies":{
+                permissionsAction:"menu|studies"
+            }
+        };
+    }
 }

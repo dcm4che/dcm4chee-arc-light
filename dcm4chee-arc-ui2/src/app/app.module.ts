@@ -74,6 +74,8 @@ import { FilterGeneratorComponent } from './helpers/filter-generator/filter-gene
 import {CalendarModule} from "primeng/components/calendar/calendar";
 import { ClickOutsideDirective } from './helpers/click-outside.directive';
 import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service";
+import {AuthGuard} from "./helpers/auth.guard";
+import {HttpClientModule} from "@angular/common/http";
 
 @NgModule({
     declarations: [
@@ -124,6 +126,7 @@ import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service
         BrowserModule,
         FormsModule,
         HttpModule,
+        HttpClientModule,
         MatDialogModule,
         MatIconModule,
         MatSelectModule,
@@ -148,7 +151,7 @@ import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service
                 redirectTo: '/monitoring/queues',
                 pathMatch: 'full'
             },
-            { path: 'studies', component: StudiesComponent },
+            { path: 'studies', component: StudiesComponent , canActivate: [AuthGuard]},
             { path: 'monitoring/control', component: ControlComponent },
             { path: 'monitoring/export', component: ExportComponent },
             { path: 'monitoring/external', component: ExternalRetrieveComponent },
@@ -193,6 +196,7 @@ import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service
         j4care,
         ExternalRetrieveService,
         DynamicFieldService,
+        AuthGuard,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent]
