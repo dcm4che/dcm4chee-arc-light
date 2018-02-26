@@ -3,11 +3,12 @@ import {j4care} from "./j4care.service";
 import {Globalvar} from "../constants/globalvar";
 import {J4careHttpService} from "./j4care-http.service";
 import {AppService} from "../app.service";
+import {Route, Router} from "@angular/router";
 
 @Injectable()
 export class PermissionService {
 
-    constructor(private $http:J4careHttpService, private mainservice:AppService) { }
+    constructor(private $http:J4careHttpService, private mainservice:AppService, private router: Router) { }
     uiConfig;
 
     getPermission(url){
@@ -38,6 +39,9 @@ export class PermissionService {
           });
           if(check && checkObject[0].dcmuiActionParam.indexOf('accessible') > -1)
             return true;
+          else
+              if(urlAtion.nextCheck)
+                  this.router.navigate([urlAtion.nextCheck]);
           return false;
         }
         return false;

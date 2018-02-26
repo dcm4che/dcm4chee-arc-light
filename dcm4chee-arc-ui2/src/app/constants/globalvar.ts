@@ -521,38 +521,46 @@ export class Globalvar {
             "/studies":{
                 permissionsAction:"menu|studies"
             },
-            "/device/devicelist":{
-                permissionsAction:"tab|configuration->devices"
-            },
             "/device/edit/*":{
-                permissionsAction:"menu|configuration"
+                permissionsAction:"action|devicelist|device_configuration"
+            },
+            "/device/devicelist":{
+                permissionsAction:"tab|configuration->devices",
+                nextCheck:"/device/aelist"
             },
             "/device/aelist":{
-                permissionsAction:"tab|configuration->ae_list"
+                permissionsAction:"tab|configuration->ae_list",
+                nextCheck:"/device/hl7applications"
             },
             "/device/hl7applications":{
                 permissionsAction:"tab|configuration->hl7_applications"
             },
             "/monitoring/queues":{
-                permissionsAction:"menu|monitoring"
-            },
-            "/monitoring/associations":{
-                permissionsAction:"tab|monitoring->associations"
-            },
-            "/monitoring/external":{
-                permissionsAction:"tab|monitoring->external_retrieve"
+                permissionsAction:"tab|monitoring->queues",
+                nextCheck:"/monitoring/export"
             },
             "/monitoring/export":{
-                permissionsAction:"tab|monitoring->export"
+                permissionsAction:"tab|monitoring->export",
+                nextCheck:"/monitoring/external"
+            },
+            "/monitoring/external":{
+                permissionsAction:"tab|monitoring->external_retrieve",
+                nextCheck:"/monitoring/control"
+            },
+            "/monitoring/control":{
+                permissionsAction:"tab|monitoring->control",
+                nextCheck:"/monitoring/associations"
+            },
+            "/monitoring/associations":{
+                permissionsAction:"tab|monitoring->associations",
+                nextCheck:"/monitoring/storage-commitment"
             },
             "/monitoring/storage-commitment":{
-                permissionsAction:"tab|monitoring->storage_commitments"
+                permissionsAction:"tab|monitoring->storage_commitments",
+                nextCheck:"/monitoring/storage-systems"
             },
             "/monitoring/storage-systems":{
                 permissionsAction:"tab|monitoring->storage_systems"
-            },
-            "/monitoring/control":{
-                permissionsAction:"tab|monitoring->control"
             }
         };
         if(urlPermissions[url])
