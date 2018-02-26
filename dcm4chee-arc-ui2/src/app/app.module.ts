@@ -77,6 +77,7 @@ import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service
 import {AuthGuard} from "./helpers/auth.guard";
 import {HttpClientModule} from "@angular/common/http";
 import {PermissionService} from "./helpers/permission.service";
+import { PermissionDirective } from './helpers/permission.directive';
 
 @NgModule({
     declarations: [
@@ -122,6 +123,7 @@ import {PermissionService} from "./helpers/permission.service";
         ExternalRetrieveComponent,
         FilterGeneratorComponent,
         ClickOutsideDirective,
+        PermissionDirective,
     ],
     imports: [
         BrowserModule,

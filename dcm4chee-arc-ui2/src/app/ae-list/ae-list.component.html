@@ -1,9 +1,9 @@
 <div class="main_content devicelist aes">
     <div class="devicelist_block">
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" routerLinkActive="active"><a aria-controls="device_modus" routerLink="/device/devicelist" role="tab" routerLinkActive="active">Devices</a></li>
-        <li role="presentation" routerLinkActive="active"><a aria-controls="aet_modus" routerLink="/device/aelist" role="tab" routerLinkActive="active">AE list</a></li>
-        <li role="presentation" routerLinkActive="active"><a aria-controls="aet_modus" routerLink="/device/hl7applications" role="tab"  routerLinkActive="active">Hl7 Applications</a></li>
+        <li [permission]="'tab|configuration->devices'"  role="presentation" routerLinkActive="active"><a aria-controls="device_modus" routerLink="/device/devicelist" role="tab" routerLinkActive="active">Devices</a></li>
+        <li [permission]="'tab|configuration->ae_list'"  role="presentation" routerLinkActive="active"><a aria-controls="aet_modus" routerLink="/device/aelist" role="tab" routerLinkActive="active">AE list</a></li>
+        <li [permission]="'tab|configuration->hl7_applications'"  role="presentation" routerLinkActive="active"><a aria-controls="aet_modus" routerLink="/device/hl7applications" role="tab"  routerLinkActive="active">Hl7 Applications</a></li>
     </ul>
     <div role="tabpanel" class="aet_modus" id="aet_modus">
         <h2>Application Entities list</h2>

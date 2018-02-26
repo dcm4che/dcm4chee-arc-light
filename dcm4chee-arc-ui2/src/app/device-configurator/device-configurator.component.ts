@@ -448,7 +448,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             allArray:[...prefixSuffix.prefix,...prefixSuffix.suffix],
             devicereff: params['devicereff'],
             materialIconName:this.service.getMaterialIconNameForBreadcrumbs(params['devicereff']),
-            childObjectTitle:newSchema.title || ''
+            childObjectTitle: (newSchema && newSchema.title) ? newSchema.title : ''
         };
         let newPaginationIndex = _.findIndex($this.service.pagination, (p) => {
             return this.service.isSameSiblingUrl(p.url,newPaginationObject.url);
