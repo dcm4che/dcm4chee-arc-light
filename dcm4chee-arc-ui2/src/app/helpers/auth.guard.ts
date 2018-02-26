@@ -3,18 +3,28 @@ import {ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot} from '@angular
 import {Globalvar} from "../constants/globalvar";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/of";
-import {StudiesService} from "../studies/studies.service";
 import {Subscription} from "rxjs/Subscription";
+import {PermissionService} from "./permission.service";
+import {AppService} from "../app.service";
 
 
 @Injectable()
 export class AuthGuard implements CanActivate {
 
-    constructor(private studiesService:StudiesService) {}
+    constructor(private permissionService:PermissionService,private appservice:AppService) {}
 
     canActivate(route : ActivatedRouteSnapshot, state : RouterStateSnapshot){
-
-        // return this.studiesService.getPermission(state.url);
-        return true;
+        if(this.appservice.global && this.appservice.global.notSecure){
+            return true;
+        }else{
+            let check = this.permissionService.getPermission(state.url);
+            if(!check)
+                this.appservice.setMessage({
+                    'title': 'Permission denied',
+                    'text': 'You don\'t have permission to access this page!',
+                    'status': 'error'
+                });
+            return check;
+        }
     }
 }

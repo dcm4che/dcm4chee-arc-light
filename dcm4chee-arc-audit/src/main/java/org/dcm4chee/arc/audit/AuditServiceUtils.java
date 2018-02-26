@@ -82,6 +82,8 @@ class AuditServiceUtils {
         RJ_COMPLET(EventClass.USER_DELETED, AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete,
                 null, null, null),
 
+        RJ_SCH_FEW(EventClass.SCHEDULER_DELETED, AuditMessages.EventID.DICOMInstancesAccessed, AuditMessages.EventActionCode.Delete,
+                null, null, null),
         PRMDLT_SCH(EventClass.SCHEDULER_DELETED, AuditMessages.EventID.DICOMStudyDeleted, AuditMessages.EventActionCode.Delete,
                 null, null, null),
 

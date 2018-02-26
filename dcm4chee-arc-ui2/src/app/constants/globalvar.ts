@@ -514,11 +514,56 @@ export class Globalvar {
     public static get HL7_LIST_LINK(): string{
         return "../hl7apps";
     }
-    public static get LINK_PERMISSION():any{
-        return {
+    public static LINK_PERMISSION(url):any{
+        const regex = /^(\/[\S\/]*)\*$/m;
+        let m;
+        let urlPermissions = {
             "/studies":{
                 permissionsAction:"menu|studies"
+            },
+            "/device/devicelist":{
+                permissionsAction:"tab|configuration->devices"
+            },
+            "/device/edit/*":{
+                permissionsAction:"menu|configuration"
+            },
+            "/device/aelist":{
+                permissionsAction:"tab|configuration->ae_list"
+            },
+            "/device/hl7applications":{
+                permissionsAction:"tab|configuration->hl7_applications"
+            },
+            "/monitoring/queues":{
+                permissionsAction:"menu|monitoring"
+            },
+            "/monitoring/associations":{
+                permissionsAction:"tab|monitoring->associations"
+            },
+            "/monitoring/external":{
+                permissionsAction:"tab|monitoring->external_retrieve"
+            },
+            "/monitoring/export":{
+                permissionsAction:"tab|monitoring->export"
+            },
+            "/monitoring/storage-commitment":{
+                permissionsAction:"tab|monitoring->storage_commitments"
+            },
+            "/monitoring/storage-systems":{
+                permissionsAction:"tab|monitoring->storage_systems"
+            },
+            "/monitoring/control":{
+                permissionsAction:"tab|monitoring->control"
             }
         };
+        if(urlPermissions[url])
+            return urlPermissions[url];
+        else{
+            let actionObject;
+            Object.keys(urlPermissions).forEach(keys=>{
+                if ((m = regex.exec(keys)) !== null && url.indexOf(m[1]) > -1)
+                    actionObject = urlPermissions[keys];
+            });
+            return actionObject;
+        }
     }
 }

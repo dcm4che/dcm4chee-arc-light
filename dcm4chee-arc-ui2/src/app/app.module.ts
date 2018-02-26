@@ -76,6 +76,7 @@ import { ClickOutsideDirective } from './helpers/click-outside.directive';
 import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service";
 import {AuthGuard} from "./helpers/auth.guard";
 import {HttpClientModule} from "@angular/common/http";
+import {PermissionService} from "./helpers/permission.service";
 
 @NgModule({
     declarations: [
@@ -149,23 +150,24 @@ import {HttpClientModule} from "@angular/common/http";
             {
                 path: 'monitoring',
                 redirectTo: '/monitoring/queues',
-                pathMatch: 'full'
+                pathMatch: 'full',
+                canActivate: [AuthGuard]
             },
             { path: 'studies', component: StudiesComponent , canActivate: [AuthGuard]},
-            { path: 'monitoring/control', component: ControlComponent },
-            { path: 'monitoring/export', component: ExportComponent },
-            { path: 'monitoring/external', component: ExternalRetrieveComponent },
-            { path: 'monitoring/queues', component: QueuesComponent },
-            { path: 'monitoring/associations', component: AssociationsComponent },
-            { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent },
-            { path: 'monitoring/storage-systems', component: StorageSystemsComponent },
-            { path: 'device/devicelist', component: DevicesComponent },
-            { path: 'device/aelist', component: AeListComponent },
-            { path: 'device/hl7applications', component: Hl7ApplicationsComponent },
-            { path: 'device/edit/:device', component: DeviceConfiguratorComponent },
-            { path: 'device/edit/:device/:devicereff', component: DeviceConfiguratorComponent },
-            { path: 'device/edit/:device/:devicereff/:schema', component: DeviceConfiguratorComponent },
-            { path: 'device/edit/:device/:devicereff/:schema/:clone', component: DeviceConfiguratorComponent },
+            { path: 'monitoring/control', component: ControlComponent,  canActivate: [AuthGuard] },
+            { path: 'monitoring/export', component: ExportComponent,  canActivate: [AuthGuard] },
+            { path: 'monitoring/external', component: ExternalRetrieveComponent,  canActivate: [AuthGuard] },
+            { path: 'monitoring/queues', component: QueuesComponent,  canActivate: [AuthGuard] },
+            { path: 'monitoring/associations', component: AssociationsComponent,  canActivate: [AuthGuard] },
+            { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent,  canActivate: [AuthGuard] },
+            { path: 'monitoring/storage-systems', component: StorageSystemsComponent,  canActivate: [AuthGuard] },
+            { path: 'device/devicelist', component: DevicesComponent,  canActivate: [AuthGuard] },
+            { path: 'device/aelist', component: AeListComponent,  canActivate: [AuthGuard] },
+            { path: 'device/hl7applications', component: Hl7ApplicationsComponent,  canActivate: [AuthGuard] },
+            { path: 'device/edit/:device', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
+            { path: 'device/edit/:device/:devicereff', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
+            { path: 'device/edit/:device/:devicereff/:schema', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
+            { path: 'device/edit/:device/:devicereff/:schema/:clone', component: DeviceConfiguratorComponent,  canActivate: [AuthGuard] },
             { path: '**', component: PageNotFoundComponent }
       ],
             { useHash: true })
@@ -197,6 +199,7 @@ import {HttpClientModule} from "@angular/common/http";
         ExternalRetrieveService,
         DynamicFieldService,
         AuthGuard,
+        PermissionService,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent]

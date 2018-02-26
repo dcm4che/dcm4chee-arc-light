@@ -328,7 +328,7 @@ mat-grid-list{
   -khtml-user-drag: element;
 }*/
 .w45percent{
-  width: 45%;
+  width: 45% !important;
 }
 .group_input{
   border: 1px solid #ccc;
@@ -1387,6 +1387,11 @@ mat-dialog-container{
   &.checkbox label{
     font-weight:600;
   }
+  .dropdown_parent{
+    select.dropdown{
+      position: static !important;
+    }
+  }
 }
 .dynamicform:not(.hiddencontent){
   float: left;
@@ -2108,4 +2113,7 @@ mat-dialog-container{
   border: none;
   top: -31px;
   left: 1px;
+}
+.dropdown {
+  position: static;
 }

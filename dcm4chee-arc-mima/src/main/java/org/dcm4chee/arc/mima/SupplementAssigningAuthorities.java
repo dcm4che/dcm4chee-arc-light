@@ -113,7 +113,7 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
     private void supplementMPPS(Attributes attrs) {
         supplementIssuers(attrs);
         supplementRequestIssuers(attrs.getSequence(Tag.ScheduledStepAttributesSequence));
-        LOG.info("Supplement composite object from device: {}", device.getDeviceName());
+        LOG.info("Supplement MPPS from device: {}", device.getDeviceName());
     }
 
     private void supplementValue(Attributes attrs, int tag, VR vr, String... values) {
