@@ -13,6 +13,7 @@ import {WindowRefService} from "./helpers/window-ref.service";
 import * as _ from 'lodash';
 import {J4careHttpService} from "./helpers/j4care-http.service";
 import {j4care} from "./helpers/j4care.service";
+import {PermissionService} from "./helpers/permission.service";
 // import {DCM4CHE} from "./constants/dcm4-che";
 // declare var $:JQueryStatic;
 // import * as vex from "vex-js";
@@ -50,7 +51,8 @@ export class AppComponent implements OnInit {
         public dialog: MatDialog,
         public config: MatDialogConfig,
         public mainservice: AppService,
-        public $http:J4careHttpService
+        public $http:J4careHttpService,
+        private permissionService:PermissionService
     ){}
 
     ngOnInit(){
@@ -58,12 +60,11 @@ export class AppComponent implements OnInit {
             return `${this.getFullYear()}${j4care.getSingleDateTimeValueFromInt(this.getMonth()+1)}${j4care.getSingleDateTimeValueFromInt(this.getDate())}${j4care.getSingleDateTimeValueFromInt(this.getHours())}${j4care.getSingleDateTimeValueFromInt(this.getMinutes())}${j4care.getSingleDateTimeValueFromInt(this.getSeconds())}`;
         };
         let $this = this;
-        if (!this.mainservice.user){
+/*        if (!this.mainservice.user){
             this.mainservice.user = this.mainservice.getUserInfo().share();
             this.mainservice.user
                 .subscribe(
                     (response) => {
-
                         if(_.hasIn(response,"token") && response.token === null){
                             if ($this.mainservice.global && !$this.mainservice.global.notSecure){
                                 let global = _.cloneDeep($this.mainservice.global);
@@ -141,7 +142,8 @@ export class AppComponent implements OnInit {
                         $this.initGetDevicename(2);
                     }
                 );
-        }
+        }*/
+        this.initGetDevicename(2);
         let currentBrowserTime = new Date().getTime();
         this.$http.get('../monitor/serverTime')
             .map(res => j4care.redirectOnAuthResponse(res))

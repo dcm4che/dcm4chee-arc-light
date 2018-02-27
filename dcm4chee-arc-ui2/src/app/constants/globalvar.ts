@@ -456,6 +456,9 @@ export class Globalvar {
         ]
 
     }
+    public static get SUPER_ROOT(): string{
+        return "root";
+    }
     public static get DYNAMIC_FORMATER(): any{
         return {
 /*            dcmAETitle:{

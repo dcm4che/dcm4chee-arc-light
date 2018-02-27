@@ -8,23 +8,27 @@ import {Route, Router} from "@angular/router";
 @Injectable()
 export class PermissionService {
 
-    constructor(private $http:J4careHttpService, private mainservice:AppService, private router: Router) { }
+    user;
     uiConfig;
+    constructor(private $http:J4careHttpService, private mainservice:AppService, private router: Router) { }
 
     getPermission(url){
-      // if(!this.uiConfig)
-          return this.getConfig(()=>{return this.checkMenuTabAccess(url)});
-/*        return this.$http.get('../devicename')
-            .map(res => j4care.redirectOnAuthResponse(res))
-            .switchMap(res => this.$http.get('../devices/' + res.dicomDeviceName))
-            .map(res => res.json())
-            .map((res)=>{
-                this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
-                return this.checkMenuTabAccess(url);
-            });*/
-      // else{
-      //     return this.checkMenuTabAccess(url);
-      // }
+        // console.log("permission user",this.mainservice.user.roles);
+        if(this.mainservice.user && this.mainservice.user.roles){
+            return this.checkSuperAdmin(url);
+        }else
+            return this.getConfigWithUser(()=>{
+                if(this.mainservice.user.roles.indexOf(Globalvar.SUPER_ROOT) > -1)
+                    return true;
+                else
+                    return this.checkMenuTabAccess(url)
+            });
+    }
+    checkSuperAdmin(url){
+        if(this.mainservice.user.roles.indexOf(Globalvar.SUPER_ROOT) > -1)
+            return true;
+        else
+            return this.getConfig(()=>{return this.checkMenuTabAccess(url)});
     }
     getConfig(response){
         if(!this.uiConfig)
@@ -40,35 +44,54 @@ export class PermissionService {
         else
             return response.apply(this,[]);
     }
+    getConfigWithUser(response){
+        if(!this.uiConfig)
+            return this.mainservice.getUserInfo()
+                .map(user=>{
+                    this.mainservice.user = user;
+                    this.user = user;
+                })
+                .switchMap(res => this.$http.get('../devicename'))
+                .map(res => j4care.redirectOnAuthResponse(res))
+                .switchMap(res => this.$http.get('../devices/' + res.dicomDeviceName))
+                .map(res => j4care.redirectOnAuthResponse(res))
+                .map((res)=>{
+                    this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
+                    // return this.checkMenuTabAccess(url);
+                    return response.apply(this,[]);
+                });
+        else
+            return response.apply(this,[]);
+    }
 
     checkMenuTabAccess(url){
-        let urlAtion = Globalvar.LINK_PERMISSION(url);
+        let urlAction = Globalvar.LINK_PERMISSION(url);
         let checkObject = this.uiConfig.dcmuiPermission.filter(element=>{
-            return urlAtion && element.dcmuiAction === urlAtion.permissionsAction && element.dcmuiActionParam.indexOf('accessible') > -1;
+            return urlAction && element.dcmuiAction === urlAction.permissionsAction && element.dcmuiActionParam.indexOf('accessible') > -1;
         });
         if(checkObject && checkObject[0]){
-          let check = this.comparePermissionObectWithRoles(checkObject);
+          let check = this.comparePermissionObjectWithRoles(checkObject);
           if(check && checkObject[0].dcmuiActionParam.indexOf('accessible') > -1)
             return true;
           else
-              if(urlAtion.nextCheck)
-                  this.router.navigate([urlAtion.nextCheck]);
+              if(urlAction.nextCheck)
+                  this.router.navigate([urlAction.nextCheck]);
           return false;
         }
         return false;
     }
-    checkMenuTabVisibility(actionId){
-        return this.getConfig(()=>{
-            let checkObject = this.uiConfig.dcmuiPermission.filter(element=>{
-                return element.dcmuiAction === actionId && element.dcmuiActionParam.indexOf('visible') > -1;
-            });
-            return this.comparePermissionObectWithRoles(checkObject);
-/*            console.log("test",this.uiConfig);
-            console.log("actionId",actionId);*/
-
-        })
+    checkVisibility(permissionObject){
+        if(this.mainservice.user && this.mainservice.user.roles && this.mainservice.user.roles.length > 0 && this.mainservice.user.roles.indexOf(Globalvar.SUPER_ROOT) > -1)
+            return true;
+        else
+            return this.getConfig(()=>{
+                let checkObject = this.uiConfig.dcmuiPermission.filter(element=>{
+                    return element.dcmuiAction === permissionObject.id && element.dcmuiActionParam.indexOf(permissionObject.param) > -1;
+                });
+                return this.comparePermissionObjectWithRoles(checkObject);
+            })
     }
-    comparePermissionObectWithRoles(object){
+    comparePermissionObjectWithRoles(object){
         try{
             let check = false;
             if(object[0])

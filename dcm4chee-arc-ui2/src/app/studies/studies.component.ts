@@ -29,6 +29,7 @@ import {HttpErrorHandler} from "../helpers/http-error-handler";
 import {J4careHttpService} from "../helpers/j4care-http.service";
 import {j4care} from "../helpers/j4care.service";
 import {ViewerComponent} from "../widgets/dialogs/viewer/viewer.component";
+import {PermissionService} from "../helpers/permission.service";
 declare var Keycloak: any;
 declare var $: any;
 
@@ -187,7 +188,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
         modus: 'patient',
         showmwls: true
     };
-    isRole: any;
+    isRole(rule){
+        return true;
+    };
     study =  {
         modus: 'study',
         selected: false
@@ -265,11 +268,13 @@ export class StudiesComponent implements OnDestroy,OnInit{
         public dialog: MatDialog,
         public config: MatDialogConfig,
         public httpErrorHandler:HttpErrorHandler,
-        public j4care:j4care
+        public j4care:j4care,
+        public permissionService:PermissionService
     ) {}
     ngOnInit(){
         this.initCheck(10);
         console.log("deviceName,",this.mainservice["deviceName"]);
+
     }
     initCheck(retries){
         let $this = this;
@@ -329,7 +334,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.initExporters(2);
         this.initRjNotes(2);
         // this.user = this.mainservice.user;
-        if (!this.mainservice.user){
+/*        if (!this.mainservice.user){
             // console.log("in if studies ajax");
             this.mainservice.user = this.mainservice.getUserInfo().share();
             this.mainservice.user
@@ -371,7 +376,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
             // console.log("isroletest",this.user.applyisRole("admin"));
-        }
+        }*/
         this.hoverdic.forEach((m, i) => {
             $(document.body).on('mouseover mouseleave', m, function(e){
                 if (e.type === 'mouseover' && $this.visibleHeaderIndex != i){
@@ -396,7 +401,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
             console.log('$this.keysdown', this.keysdown);
             console.log('e.keyCode', e.keyCode);
-            console.log('isrole admin=', $this.isRole('admin'));
+            // console.log('isrole admin=', $this.isRole('admin'));
             // console.log("isrole admin=",this.mainservice.isRole);
             // Remember it's down
             let validKeys = [16, 17, 67, 77, 86, 88, 91, 93, 224];

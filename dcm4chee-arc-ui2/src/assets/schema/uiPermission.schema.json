@@ -50,6 +50,9 @@
         "action|studies|diff",
         "action|studies|count",
         "action|studies|size",
+        "action|studies|viewer",
+        "action|studies|verify_storage_commitment",
+        "action|studies|download",
         "action|monitoring->queues|all_action",
         "action|monitoring->export|all_action",
         "action|monitoring->external_retrieve|all_action",
@@ -68,12 +71,13 @@
           "edit",
           "create",
           "delete",
+          "export",
           "accessible",
           "visible",
           "merge",
           "upload",
           "reject",
-          "open-viewer"
+          "restore"
         ]
       }
     },

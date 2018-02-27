@@ -11,7 +11,7 @@ export class PermissionDirective implements OnInit{
   constructor(private el: ElementRef, private permisssionService:PermissionService) { }
 
   ngOnInit(){
-      if(!this.permisssionService.checkMenuTabVisibility(this.permission))
+      if(!this.permisssionService.checkVisibility(this.permission))
         this.el.nativeElement.parentNode.removeChild(this.el.nativeElement);
   }
 
