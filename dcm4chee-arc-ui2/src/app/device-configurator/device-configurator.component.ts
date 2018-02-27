@@ -113,7 +113,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                             suffixArray:[],
                                             allArray:[],
                                             devicereff: undefined,
-                                            childObjectTitle:''
+                                            childObjectTitle:'',
+                                            clone:this.inClone
                                         }
                                     ];
                                 }catch (e){
@@ -335,7 +336,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         suffixArray:[],
                         allArray:[],
                         devicereff: '',
-                        childObjectTitle:''
+                        childObjectTitle:'',
+                        clone:this.inClone
                     };
                     let newPaginationIndex = _.findIndex($this.service.pagination, (p) => {
                         return p.url === newPaginationObject.url;
@@ -436,8 +438,12 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         }else{
             this.isNew = false;
         }
+        let prefixSuffix;
         let newUrl = '/device/edit/' + params['device'] + '/' + params['devicereff'] + '/' + params['schema'];
-        let prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['schema']]);
+        if(this.inClone)
+            prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['clone']]);
+        else
+            prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['schema']]);
 
         let newPaginationObject = {
             url: newUrl,
@@ -448,7 +454,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             allArray:[...prefixSuffix.prefix,...prefixSuffix.suffix],
             devicereff: params['devicereff'],
             materialIconName:this.service.getMaterialIconNameForBreadcrumbs(params['devicereff']),
-            childObjectTitle: (newSchema && newSchema.title) ? newSchema.title : ''
+            childObjectTitle: (newSchema && newSchema.title) ? newSchema.title : '',
+            clone:this.inClone
         };
         let newPaginationIndex = _.findIndex($this.service.pagination, (p) => {
             return this.service.isSameSiblingUrl(p.url,newPaginationObject.url);
@@ -554,7 +561,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                          suffixArray:[],
                          allArray:[],
                          devicereff: undefined,
-                         childObjectTitle:''
+                         childObjectTitle:'',
+                         clone:this.inClone
                      }
                  ];
             }

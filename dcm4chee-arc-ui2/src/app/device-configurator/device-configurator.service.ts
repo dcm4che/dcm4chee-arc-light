@@ -176,10 +176,16 @@ export class DeviceConfiguratorService{
                         };
                     }
                 }else{
-                    return {
-                        prefix:allArray.slice(0,currentSiblingIndex),
-                        suffix:allArray.slice(currentSiblingIndex+1,allArray.length),
-                    };
+                    if(currentSiblingIndex > -1)
+                        return {
+                            prefix:allArray.slice(0,currentSiblingIndex),
+                            suffix:allArray.slice(currentSiblingIndex+1,allArray.length),
+                        };
+                    else
+                        return {
+                            prefix:allArray,
+                            suffix:[]
+                        }
                 }
             }
         }catch(e){

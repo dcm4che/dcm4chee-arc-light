@@ -357,7 +357,7 @@ export class DynamicFormElementComponent{
         }
     }
 
-    clone(formelement,selected){
+    clone(formelement,selected, options){
 /*        console.log("formelement",formelement);
         let value = (<FormArray>this.form.controls[formelement.key]).getRawValue();
         (<FormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new FormControl(value));*/
@@ -376,7 +376,8 @@ export class DynamicFormElementComponent{
             //
             //         }
                     let cloneUrl = formelement.addUrl + '/' + selected.currentElementUrl;
-                    this.router.navigateByUrl(cloneUrl);
+                    this.navigateTo(cloneUrl,options);
+                    // this.router.navigateByUrl(cloneUrl);
             //     }
             // });
         }
