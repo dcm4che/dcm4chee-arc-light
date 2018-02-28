@@ -57,7 +57,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
     trashaktive = false;
     clipboard: any = {};
     showCheckboxes = false;
-    disabled = {};
+    disabled = {
+        IssuerOfPatientID:false,
+        LocalNamespaceEntityID:false
+    };
     patientmode = false;
     withoutstudies = false;
     ExternalRetrieveAETchecked = false;
@@ -73,8 +76,12 @@ export class StudiesComponent implements OnDestroy,OnInit{
         'ScheduledProcedureStepSequence.ScheduledProcedureStepStatus': '',
         returnempty: false,
         PatientSex: '',
+        PatientName:'',
         PatientBirthDate: '',
+        PatientID:'',
         StudyDate:'',
+        IssuerOfPatientID:'',
+        fuzzymatching:'',
         StudyTime:''
     };
     queryMode = 'queryStudies';
