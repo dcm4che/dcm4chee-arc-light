@@ -83,10 +83,10 @@
                 <div class="morefunctionblock">
                     <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
                     <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
-                    <div class="more functions" (clickOutside)="moreFunctionsButtons = false">
+                    <div class="more functions" (clickOutside)="moreFunctionsButtons = false" [clickOutsideExceptionClass]="['mainbutton','mainbutton_more_icon','glyphicon']" [permission]="{id:'action|devicelist|device_configuration',param:'visible'}">
                         <div class="mainbutton" (click)="moreFunctionsButtons = !moreFunctionsButtons">
-                            <span *ngIf="!moreFunctionsButtons" >More functions<i class="glyphicon glyphicon-triangle-bottom"></i></span>
-                            <span *ngIf="moreFunctionsButtons">Close more functions<i class="glyphicon glyphicon-triangle-top"></i></span>
+                            <span class="mainbutton_more_icon" *ngIf="!moreFunctionsButtons" >More functions<i class="glyphicon glyphicon-triangle-bottom"></i></span>
+                            <span class="mainbutton_more_icon" *ngIf="moreFunctionsButtons">Close more functions<i class="glyphicon glyphicon-triangle-top"></i></span>
                         </div>
                         <ul *ngIf="moreFunctionsButtons">
                             <li (click)="moreFunctionsButtons = false;createExporter()" title="Create new exporter">Create exporter</li>
@@ -112,13 +112,13 @@
                     <tr *ngFor="let device of devices | search:devicefilter | slice:moreDevices.start:moreDevices.limit; let i = index">
                         <td class="buttons_td">
                             <span class="numbers">{{i+1}}.</span>
-                            <a class="table_btn" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
+                            <a [permission]="{id:'action|devicelist|device_configuration',param:'visible'}" class="table_btn" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
                                 <span class="glyphicon glyphicon-pencil"></span>
                             </a>
-                            <a class="table_btn" title="Delete device" href="" (click)="$event.preventDefault();deleteDevice(device)">
+                            <a [permission]="{id:'action|devicelist|device_configuration',param:'visible'}" class="table_btn" title="Delete device" href="" (click)="$event.preventDefault();deleteDevice(device)">
                                 <span class="glyphicon glyphicon-remove"></span>
                             </a>
-                            <a class="table_btn" title="Clone device" href="" (click)="$event.preventDefault();cloneDevice(device)">
+                            <a [permission]="{id:'action|devicelist|device_configuration',param:'visible'}" class="table_btn" title="Clone device" href="" (click)="$event.preventDefault();cloneDevice(device)">
                                 <span class="glyphicon glyphicon-duplicate"></span>
                             </a>
                         </td>

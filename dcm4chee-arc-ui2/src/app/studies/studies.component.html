@@ -277,12 +277,12 @@
                         <mat-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</mat-option>
                     </mat-select>
                 </div>
-                <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" >
+                <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" [permission]="{id:'action|studies|size',param:'visible'}">
                    <span class="count_text" title="Total size of filtered studies found">Size: <b>{{size}}</b></span>
                     <span *ngIf="!showGetSizeLoader" (click)="getSize()" title="Get total size of filtered studies" class="glyphicon glyphicon-refresh"></span>
                     <span *ngIf="showGetSizeLoader" class="fa fa-circle-o-notch fa-spin dashboard_loader"></span>
                 </div>
-                <div class="count_block_total" *ngIf="filterMode != 'diff'" [ngClass]="{single:externalInternalAetMode === 'external' || filterMode!='study'}">
+                <div class="count_block_total" *ngIf="filterMode != 'diff'" [ngClass]="{single:externalInternalAetMode === 'external' || filterMode!='study'}" [permission]="{id:'action|studies|count',param:'visible'}">
                    <span class="count_text" title="Total count of filtered studies found">Total count: <b>{{count}}</b></span>
                         <span *ngIf="!showGetCountLoader" (click)="getCount()" title="Get total count of filtered studies" class="glyphicon glyphicon-refresh"></span>
                         <span *ngIf="showGetCountLoader" class="fa fa-circle-o-notch fa-spin"></span>
@@ -572,7 +572,7 @@
                     </div>
                       <div class="exeq_buttons">
                           <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,3)"></div>
-                          <div class="checkbox_content hiddenbuttons">
+                          <div class="checkbox_content hiddenbuttons" [permission]="{id:'action|studies|copy_merge_move',param:'visible'}">
                               <input type="checkbox" [ngModel]="patient._VALUE.selected" name="select" (change)='select(patient._VALUE,"patient",{"patientkey":patient._KEY},"fromcheckbox")'>
                           </div>
                           <a class="table_btn hiddenbuttons" [permission]="{id:'action|studies|patient',param:'edit'}" (click)="$event.preventDefault();editPatient(patient._VALUE, patient._KEY);" href="" title="Edit Patient">
@@ -637,7 +637,7 @@
                                 <div class="colcell" [innerHtml]="study._VALUE.offset+1+'.'"> </div>
                                 <div class="exeq_buttons">
                                     <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event, 5)"></div>
-                                    <div *ngIf="externalInternalAetMode === 'internal'" class="checkbox_content hiddenbuttons">
+                                    <div *ngIf="externalInternalAetMode === 'internal'" class="checkbox_content hiddenbuttons" [permission]="{id:'action|studies|copy_merge_move',param:'visible'}">
                                         <input type="checkbox" [ngModel]="study._VALUE.selected" (change)='select(study._VALUE,"study", {"patientkey":patient._KEY,"studykey":study._KEY},"fromcheckbox")'>
                                     </div>
                                     <a  class="hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" (click)="$event.preventDefault();editStudy(patients[patient._KEY], patient._KEY, study._KEY, study._VALUE)" href="" title="Edit study" [permission]="{id:'action|studies|studie',param:'edit'}">
@@ -753,7 +753,7 @@
                                                 <div class="td_cell colcell" [innerHtml]="series._VALUE.offset+1+'.'"> </div>
                                                 <div class="exeq_buttons" >
                                                     <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,6)"></div>
-                                                    <div *ngIf="externalInternalAetMode === 'internal'" class="checkbox_content hiddenbuttons">
+                                                    <div *ngIf="externalInternalAetMode === 'internal'" class="checkbox_content hiddenbuttons" [permission]="{id:'action|studies|copy_merge_move',param:'visible'}">
                                                         <input type="checkbox" [ngModel]="series._VALUE.selected" (change)='select(series._VALUE,"series", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY},"fromcheckbox")'>
                                                     </div>
                                                     <a class="hiddenbuttons" (click)="$event.preventDefault();exportSeries(series._VALUE)" [permission]="{id:'action|studies|serie',param:'export'}" href="" title="Export Series">
@@ -800,7 +800,7 @@
                                                     <div class="td_cell colcell" [innerHtml]="instance._VALUE.offset+1+'.'"> </div>
                                                     <div class="exeq_buttons">
                                                         <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,7)"></div>
-                                                        <div *ngIf="externalInternalAetMode === 'internal'" class="checkbox_content hiddenbuttons">
+                                                        <div *ngIf="externalInternalAetMode === 'internal'" class="checkbox_content hiddenbuttons" [permission]="{id:'action|studies|copy_merge_move',param:'visible'}">
                                                             <input type="checkbox" [ngModel]="instance._VALUE.selected" (change)='select(instance._VALUE,"instance", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY},"fromcheckbox")'>
                                                         </div>
                                                         <a class="hiddenbuttons" (click)="$event.preventDefault();exportInstance(instance._VALUE)" [permission]="{id:'action|studies|instance',param:'export'}" href="" title="Export instance">
@@ -915,7 +915,7 @@
                         <div class="subblock">
                             <div class="td_row thead repeat4_hover" [ngClass]="{selected: mwl._VALUE.selected}" >
                                 <div class="td_cell table_btn" style="width:7%">
-                                    <div class="checkbox_content hiddenbuttons">
+                                    <div class="checkbox_content hiddenbuttons" [permission]="{id:'action|studies|copy_merge_move',param:'visible'}">
                                         <input type="checkbox" [ngModel]="mwl.selected" (change)='select(mwl._VALUE,"mwl", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY},"fromcheckbox")'>
                                     </div>
                                     <a (click)="$event.preventDefault();mwl._VALUE.showAttributes = !mwl._VALUE.showAttributes" href="" title="Show Attributes">

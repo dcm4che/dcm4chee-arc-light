@@ -8,7 +8,7 @@
     <div role="tabpanel" class="aet_modus" id="aet_modus">
         <h2>Application Entities list</h2>
         <input autocomplete="off" id="aesfilter" class="aesfilter" [(ngModel)]="aesfilter" placeholder="Search AEs"/>
-        <button class="adddevice" (click)="createAe()" title="Register new application entity"><span class="glyphicon glyphicon-plus"></span></button>
+        <button [permission]="{id:'action|devicelist|device_configuration',param:'visible'}" class="adddevice" (click)="createAe()" title="Register new application entity"><span class="glyphicon glyphicon-plus"></span></button>
         <!--     <button class="adddevice" (click)="createDevice()" title="Extended filters"><span class="glyphicon glyphicon-cog"></span></button> -->
         <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more">Extended search<i class="glyphicon glyphicon-triangle-bottom"></i></a>
         <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide">Close extended search<i class="glyphicon glyphicon-triangle-top"></i></a>
@@ -100,7 +100,7 @@
                     <!--                            <a class="table_btn" title="Edit AE" href="" (click)="$event.preventDefault();editAe(ae.dicomDeviceName, ae.dicomAETitle)">
                                                     <span class="glyphicon glyphicon-pencil"></span>
                                                 </a>-->
-                    <a class="table_btn" title="Delete from device the AE" href="" (click)="$event.preventDefault();deleteAE(ae.dicomDeviceName, ae.dicomAETitle)">
+                    <a [permission]="{id:'action|devicelist|device_configuration',param:'visible'}" class="table_btn" title="Delete from device the AE" href="" (click)="$event.preventDefault();deleteAE(ae.dicomDeviceName, ae.dicomAETitle)">
                         <span class="glyphicon glyphicon-remove"></span>
                     </a>
                 </td>
