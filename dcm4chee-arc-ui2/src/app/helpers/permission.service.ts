@@ -29,7 +29,7 @@ export class PermissionService {
             });
     }
     checkSuperAdmin(url){
-        if(this.mainservice.user.roles.indexOf(Globalvar.SUPER_ROOT) > - 1 || this.mainservice.user.roles.length === 0)
+        if(this.mainservice.user.roles.indexOf(Globalvar.SUPER_ROOT) > - 1 || (!this.mainservice.user.user && this.mainservice.user.roles.length === 0))
             return true;
         else
             return this.getConfig(()=>{return this.checkMenuTabAccess(url)});
