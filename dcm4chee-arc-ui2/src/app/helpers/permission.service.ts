@@ -18,10 +18,13 @@ export class PermissionService {
             return this.checkSuperAdmin(url);
         }else
             return this.getConfigWithUser(()=>{
-                if(this.mainservice.user.roles.indexOf(Globalvar.SUPER_ROOT) > -1)
-                    return true;
+                if(this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0)
+                    return true; //not secured
                 else
-                    return this.checkMenuTabAccess(url)
+                    if(this.mainservice.user.roles.indexOf(Globalvar.SUPER_ROOT) > -1)
+                        return true;
+                    else
+                        return this.checkMenuTabAccess(url)
             });
     }
     checkSuperAdmin(url){
