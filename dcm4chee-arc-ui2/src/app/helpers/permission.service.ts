@@ -18,9 +18,10 @@ export class PermissionService {
             return this.checkSuperAdmin(url);
         }else
             return this.getConfigWithUser(()=>{
-                if(this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0)
+                if(this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0){
+                    this.mainservice.global.notSecure = true;
                     return true; //not secured
-                else
+                }else
                     if(this.mainservice.user.roles.indexOf(Globalvar.SUPER_ROOT) > -1)
                         return true;
                     else
@@ -87,12 +88,15 @@ export class PermissionService {
         if(this.mainservice.user && this.mainservice.user.roles && this.mainservice.user.roles.length > 0 && this.mainservice.user.roles.indexOf(Globalvar.SUPER_ROOT) > -1)
             return true;
         else
-            return this.getConfig(()=>{
-                let checkObject = this.uiConfig.dcmuiPermission.filter(element=>{
-                    return element.dcmuiAction === permissionObject.id && element.dcmuiActionParam.indexOf(permissionObject.param) > -1;
-                });
-                return this.comparePermissionObjectWithRoles(checkObject);
-            })
+            if(this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0)
+                return true; //not secured
+            else
+                return this.getConfig(()=>{
+                    let checkObject = this.uiConfig.dcmuiPermission.filter(element=>{
+                        return element.dcmuiAction === permissionObject.id && element.dcmuiActionParam.indexOf(permissionObject.param) > -1;
+                    });
+                    return this.comparePermissionObjectWithRoles(checkObject);
+                })
     }
     comparePermissionObjectWithRoles(object){
         try{
