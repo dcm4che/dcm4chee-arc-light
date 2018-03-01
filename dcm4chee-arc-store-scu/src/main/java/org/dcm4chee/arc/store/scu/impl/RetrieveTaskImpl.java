@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.store.scu.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.imageio.codec.Transcoder;
@@ -154,8 +155,11 @@ final class RetrieveTaskImpl implements RetrieveTask {
             RetrieveService service = ctx.getRetrieveService();
             try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, false)) {
                 String tsuid = transcoder.getDestinationTransferSyntax();
-                DataWriter data = new TranscoderDataWriter(transcoder,
-                        service.getAttributesCoercion(ctx, inst));
+                AttributesCoercion coerce = service.getAttributesCoercion(ctx, inst);
+                if (coerce != null)
+                    iuid = coerce.remapUID(iuid);
+
+                DataWriter data = new TranscoderDataWriter(transcoder, coerce);
                 outstandingRSP.add(inst);
                 if (ctx.getMoveOriginatorAETitle() != null) {
                     storeas.cstore(cuid, iuid, priority,
