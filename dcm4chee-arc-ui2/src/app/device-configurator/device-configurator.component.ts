@@ -540,34 +540,34 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             // this._changeDetectionRef.detectChanges();
 
         }
+    }
+    deleteForm(){
+        this.model = {};
+        this.formObj = [];
+    }
+    clearSearch(){
+        this.searchBreadcrum.forEach((m,i) =>{
+            this.searchBreadcrum[i] = '';
+        });
+    }
+    fireBreadcrumb(breadcrumb){
+        this.clearSearch();
+        if (breadcrumb.url ===  '/device/devicelist'){ // for some reason when the user visited the device configurator and than comes back while trying to create new device, the old device is still in the pagination
+            this.params = this.service.pagination = [
+                 {
+                     url: '/device/devicelist',
+                     title: 'devicelist',
+                     prefixArray:[],
+                     suffixArray:[],
+                     allArray:[],
+                     devicereff: undefined,
+                     childObjectTitle:'',
+                     clone:this.inClone
+                 }
+             ];
         }
-        deleteForm(){
-            this.model = {};
-            this.formObj = [];
-        }
-        clearSearch(){
-            this.searchBreadcrum.forEach((m,i) =>{
-                this.searchBreadcrum[i] = '';
-            });
-        }
-        fireBreadcrumb(breadcrumb){
-            this.clearSearch();
-            if (breadcrumb.url ===  '/device/devicelist'){ // for some reason when the user visited the device configurator and than comes back while trying to create new device, the old device is still in the pagination
-                this.params = this.service.pagination = [
-                     {
-                         url: '/device/devicelist',
-                         title: 'devicelist',
-                         prefixArray:[],
-                         suffixArray:[],
-                         allArray:[],
-                         devicereff: undefined,
-                         childObjectTitle:'',
-                         clone:this.inClone
-                     }
-                 ];
-            }
-            this.router.navigateByUrl(breadcrumb.url);
-        }
+        this.router.navigateByUrl(breadcrumb.url);
+    }
     hoveredElement(element){
             console.log("element",element);
             console.log("device",this.service.device);
