@@ -154,7 +154,16 @@ export class AppComponent implements OnInit {
                     this.startClock(new Date(serverTimeObject.time).getTime()+((new Date().getTime()-currentBrowserTime)/2));
                     // this.startClock(new Date(serverTimeObject.time));
                 }
+                this.setLogutUrl();
             });
+    }
+    setLogutUrl(){
+        this.user = this.mainservice.user;
+        this.realm = this.mainservice.user.realm;
+        this.authServerUrl = this.mainservice.user['auth-server-url'];
+        let host    = location.protocol + '//' + location.host;
+        this.logoutUrl = this.mainservice.user['auth-server-url'] + `/realms/${this.mainservice.user.realm}/protocol/openid-connect/logout?redirect_uri=`
+            + encodeURIComponent(host + location.pathname);
     }
     closeFromOutside(){
         if(this.showMenu)
