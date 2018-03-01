@@ -2697,7 +2697,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     contentType = inst.attrs['00420012'].Value[0];
                 }
             }
-            if(contentType === 'application/pdf' || contentType === 'video/mpeg'){
+            if(!contentType || contentType === 'application/pdf' || contentType === 'video/mpeg'){
                 // this.j4care.download(url);
                 if(!this.mainservice.global.notSecure){
                     WindowRefService.nativeWindow.open(this.renderURL(inst) + `&access_token=${token}`);
