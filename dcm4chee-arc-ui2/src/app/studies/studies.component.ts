@@ -121,14 +121,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
     aet2;
     count;
     size;
-    loader = 40000;
-    testLoader(){
-        this.loadingBar.start();
-        setTimeout(()=>{
-            console.log("loader finished");
-            this.loadingBar.complete();
-        },this.loader)
-    }
     studyDateChanged(){
         console.log('on studydate changed', this.studyDate);
         if (this.studyDate.from === '' && this.studyDate.to === ''){
