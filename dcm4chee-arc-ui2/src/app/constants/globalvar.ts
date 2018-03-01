@@ -522,49 +522,75 @@ export class Globalvar {
         let m;
         let urlPermissions = {
             "/studies":{
-                permissionsAction:"menu|studies"
+                permissionsAction:"menu-studies"
             },
             "/device/edit/*":{
-                permissionsAction:"action|devicelist|device_configuration"
+                permissionsAction:"action-devicelist-device_configuration"
+            },
+            "/monitoring/dashboard/*":{
+                permissionsAction:"menu-dashboard"
+            },
+            "/lifecycle-management":{
+                permissionsAction:"menu-lifecycle_management"
+            },
+            "/migration/retrieve":{
+                permissionsAction:"tab-move_data->retrieve",
+                nextCheck:"/migration/export"
+            },
+            "/migration/export":{
+                permissionsAction:"tab-move_data->export"
+            },
+            "/audit-record-repository":{
+                permissionsAction:"menu-audit_record_repository"
             },
             "/device/devicelist":{
-                permissionsAction:"tab|configuration->devices",
+                permissionsAction:"tab-configuration->devices",
                 nextCheck:"/device/aelist"
             },
             "/device/aelist":{
-                permissionsAction:"tab|configuration->ae_list",
+                permissionsAction:"tab-configuration->ae_list",
                 nextCheck:"/device/hl7applications"
             },
             "/device/hl7applications":{
-                permissionsAction:"tab|configuration->hl7_applications"
+                permissionsAction:"tab-configuration->hl7_applications"
             },
             "/monitoring/queues":{
-                permissionsAction:"tab|monitoring->queues",
+                permissionsAction:"tab-monitoring->queues",
                 nextCheck:"/monitoring/export"
             },
             "/monitoring/export":{
-                permissionsAction:"tab|monitoring->export",
+                permissionsAction:"tab-monitoring->export",
                 nextCheck:"/monitoring/external"
             },
             "/monitoring/external":{
-                permissionsAction:"tab|monitoring->external_retrieve",
+                permissionsAction:"tab-monitoring->external_retrieve",
                 nextCheck:"/monitoring/control"
             },
             "/monitoring/control":{
-                permissionsAction:"tab|monitoring->control",
+                permissionsAction:"tab-monitoring->control",
                 nextCheck:"/monitoring/associations"
             },
             "/monitoring/associations":{
-                permissionsAction:"tab|monitoring->associations",
+                permissionsAction:"tab-monitoring->associations",
                 nextCheck:"/monitoring/storage-commitment"
             },
             "/monitoring/storage-commitment":{
-                permissionsAction:"tab|monitoring->storage_commitments",
+                permissionsAction:"tab-monitoring->storage_commitments",
                 nextCheck:"/monitoring/storage-systems"
             },
             "/monitoring/storage-systems":{
-                permissionsAction:"tab|monitoring->storage_systems"
-            }
+                permissionsAction:"tab-monitoring->storage_systems"
+            },
+            "/statistics/all":{
+                permissionsAction:"tab-statistics->statistics",
+                nextCheck:"/statistics/studies-stored"
+            },
+            "/statistics/studies-stored":{
+                permissionsAction:"tab-statistics->studies-stored"
+            },
+            "/correct_data/diff":{
+                permissionsAction:"tab-correct_data->diff"
+            },
         };
         if(urlPermissions[url])
             return urlPermissions[url];

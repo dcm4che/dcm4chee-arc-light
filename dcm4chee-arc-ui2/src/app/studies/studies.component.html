@@ -277,12 +277,12 @@
                         <mat-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</mat-option>
                     </mat-select>
                 </div>
-                <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" [permission]="{id:'action|studies|size',param:'visible'}">
+                <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-size',param:'visible'}">
                    <span class="count_text" title="Total size of filtered studies found">Size: <b>{{size}}</b></span>
                     <span *ngIf="!showGetSizeLoader" (click)="getSize()" title="Get total size of filtered studies" class="glyphicon glyphicon-refresh"></span>
                     <span *ngIf="showGetSizeLoader" class="fa fa-circle-o-notch fa-spin dashboard_loader"></span>
                 </div>
-                <div class="count_block_total" *ngIf="filterMode != 'diff'" [ngClass]="{single:externalInternalAetMode === 'external' || filterMode!='study'}" [permission]="{id:'action|studies|count',param:'visible'}">
+                <div class="count_block_total" *ngIf="filterMode != 'diff'" [ngClass]="{single:externalInternalAetMode === 'external' || filterMode!='study'}" [permission]="{id:'action-studies-count',param:'visible'}">
                    <span class="count_text" title="Total count of filtered studies found">Total count: <b>{{count}}</b></span>
                         <span *ngIf="!showGetCountLoader" (click)="getCount()" title="Get total count of filtered studies" class="glyphicon glyphicon-refresh"></span>
                         <span *ngIf="showGetCountLoader" class="fa fa-circle-o-notch fa-spin"></span>
@@ -428,7 +428,7 @@
         <div class="morefunctionblock">
             <a href="" (click)="extendedFilter(true, $event)" *ngIf="!advancedConfig" class="more">More filters<i class="glyphicon glyphicon-triangle-bottom"></i></a>
             <a href="" (click)="extendedFilter(false, $event)" *ngIf="advancedConfig" class="more [hidden]">Close more filters<i class="glyphicon glyphicon-triangle-top"></i></a>
-            <div class="more functions" [permission]="{id:'action|studies|more_function',param:'visible'}" (clickOutside)="moreFunctionsButtons = false" [clickOutsideExceptionClass]="['mainbutton','mainbutton_more_icon','glyphicon']">
+            <div class="more functions" [permission]="{id:'action-studies-more_function',param:'visible'}" (clickOutside)="moreFunctionsButtons = false" [clickOutsideExceptionClass]="['mainbutton','mainbutton_more_icon','glyphicon']">
                 <div class="mainbutton" (click)="moreFunctionsButtons = !moreFunctionsButtons" >
                    <span class="mainbutton_more_icon" *ngIf="!moreFunctionsButtons" >More functions<i class="glyphicon glyphicon-triangle-bottom"></i></span>
                     <span class="mainbutton_more_icon" *ngIf="moreFunctionsButtons">Close more functions<i class="glyphicon glyphicon-triangle-top"></i></span>
@@ -552,7 +552,7 @@
                     <div style="width:6%" class="th" title="Scheduled Station AE Title">SS AE Title</div>
                 </div>
             </div>
-            <div class="headerbuttons" *ngIf="filterMode != 'diff'" [permission]="{id:'action|studies|copy_merge_move',param:'visible'}">
+            <div class="headerbuttons" *ngIf="filterMode != 'diff'" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
                 <button title="Toggle checkboxes for selection" class="activate_checkboxes" (click)="showCheckBoxes()"><i class="material-icons">playlist_add_check</i></button>
                 <div class="movegroup">
                     <button *ngIf="externalInternalAetMode === 'internal'" [ngClass]="{'disabled':selected.hasPatient===true}" title="Copy selected studies/series/instances to clipboard" class="copyselected" (click)="ctrlC()"><i class="material-icons">content_copy</i></button>
@@ -572,19 +572,19 @@
                     </div>
                       <div class="exeq_buttons">
                           <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,3)"></div>
-                          <div class="checkbox_content hiddenbuttons" [permission]="{id:'action|studies|copy_merge_move',param:'visible'}">
+                          <div class="checkbox_content hiddenbuttons" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
                               <input type="checkbox" [ngModel]="patient._VALUE.selected" name="select" (change)='select(patient._VALUE,"patient",{"patientkey":patient._KEY},"fromcheckbox")'>
                           </div>
-                          <a class="table_btn hiddenbuttons" [permission]="{id:'action|studies|patient',param:'edit'}" (click)="$event.preventDefault();editPatient(patient._VALUE, patient._KEY);" href="" title="Edit Patient">
+                          <a class="table_btn hiddenbuttons" [permission]="{id:'action-studies-patient',param:'edit'}" (click)="$event.preventDefault();editPatient(patient._VALUE, patient._KEY);" href="" title="Edit Patient">
                               <span class="glyphicon glyphicon-pencil"></span>
                           </a>
-                          <a class="table_btn hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" [permission]="{id:'action|studies|mwl',param:'create'}" (click)="$event.preventDefault();patient._VALUE.createButtons = false;createMWL(patient._VALUE)" href="" title="Create MWL">
+                          <a class="table_btn hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-mwl',param:'create'}" (click)="$event.preventDefault();patient._VALUE.createButtons = false;createMWL(patient._VALUE)" href="" title="Create MWL">
                               <span class="glyphicon glyphicon-plus" ></span>
                           </a>
-                          <a class="table_btn hiddenbuttons"  *ngIf="externalInternalAetMode === 'internal' && _.hasIn(patient._VALUE,'attrs.00201200.Value[0]') && _.isEqual(patient._VALUE.attrs['00201200'].Value[0], 0)" (click)="$event.preventDefault();deletePatient(patient._VALUE, patients, patient._KEY)" href="" title="Delete Patient" [permission]="{id:'action|studies|patient',param:'delete'}">
+                          <a class="table_btn hiddenbuttons"  *ngIf="externalInternalAetMode === 'internal' && _.hasIn(patient._VALUE,'attrs.00201200.Value[0]') && _.isEqual(patient._VALUE.attrs['00201200'].Value[0], 0)" (click)="$event.preventDefault();deletePatient(patient._VALUE, patients, patient._KEY)" href="" title="Delete Patient" [permission]="{id:'action-studies-patient',param:'delete'}">
                               <span class="glyphicon glyphicon-remove"></span>
                           </a>
-                          <a class="table_btn hiddenbuttons"  *ngIf="externalInternalAetMode === 'internal' && aetmodel.dcmInvokeImageDisplayPatientURL"  (click)="$event.preventDefault();openViewer(patient._VALUE.attrs,'patient')" href="" title="Open patient in the viewer" [permission]="{id:'action|studies|viewer',param:'visible'}">
+                          <a class="table_btn hiddenbuttons"  *ngIf="externalInternalAetMode === 'internal' && aetmodel.dcmInvokeImageDisplayPatientURL"  (click)="$event.preventDefault();openViewer(patient._VALUE.attrs,'patient')" href="" title="Open patient in the viewer" [permission]="{id:'action-studies-viewer',param:'visible'}">
                               <span class="glyphicon glyphicon-eye-open"></span>
                           </a>
                       </div>
@@ -637,34 +637,34 @@
                                 <div class="colcell" [innerHtml]="study._VALUE.offset+1+'.'"> </div>
                                 <div class="exeq_buttons">
                                     <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event, 5)"></div>
-                                    <div *ngIf="externalInternalAetMode === 'internal'" class="checkbox_content hiddenbuttons" [permission]="{id:'action|studies|copy_merge_move',param:'visible'}">
+                                    <div *ngIf="externalInternalAetMode === 'internal'" class="checkbox_content hiddenbuttons" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
                                         <input type="checkbox" [ngModel]="study._VALUE.selected" (change)='select(study._VALUE,"study", {"patientkey":patient._KEY,"studykey":study._KEY},"fromcheckbox")'>
                                     </div>
-                                    <a  class="hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" (click)="$event.preventDefault();editStudy(patients[patient._KEY], patient._KEY, study._KEY, study._VALUE)" href="" title="Edit study" [permission]="{id:'action|studies|study',param:'edit'}">
+                                    <a  class="hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" (click)="$event.preventDefault();editStudy(patients[patient._KEY], patient._KEY, study._KEY, study._VALUE)" href="" title="Edit study" [permission]="{id:'action-studies-study',param:'edit'}">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </a>
-                                    <a class="hiddenbuttons" (click)="$event.preventDefault();exportStudy(study._VALUE)" [permission]="{id:'action|studies|study',param:'export'}" href="" title="Export study">
+                                    <a class="hiddenbuttons" (click)="$event.preventDefault();exportStudy(study._VALUE)" [permission]="{id:'action-studies-study',param:'export'}" href="" title="Export study">
                                         <span class="glyphicon glyphicon-export"></span>
                                     </a>
-                                    <a class="hiddenbuttons" (click)="$event.preventDefault();setExpiredDate(study._VALUE)" [permission]="{id:'action|studies|study',param:'edit'}" *ngIf="externalInternalAetMode === 'internal'" href="" title="Set/Change expired date">
+                                    <a class="hiddenbuttons" (click)="$event.preventDefault();setExpiredDate(study._VALUE)" [permission]="{id:'action-studies-study',param:'edit'}" *ngIf="externalInternalAetMode === 'internal'" href="" title="Set/Change expired date">
                                         <i class="material-icons">history</i>
                                     </a>
-                                    <a class="hiddenbuttons" (click)="$event.preventDefault();upload(study._VALUE,'study')" [permission]="{id:'action|studies|study',param:'upload'}" href="" title="Upload file">
+                                    <a class="hiddenbuttons" (click)="$event.preventDefault();upload(study._VALUE,'study')" [permission]="{id:'action-studies-study',param:'upload'}" href="" title="Upload file">
                                         <i class="material-icons">file_upload</i>
                                     </a>
-                                    <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('study', study._VALUE)" *ngIf="externalInternalAetMode === 'internal'"  [permission]="{id:'action|studies|verify_storage_commitment',param:'visible'}" href="" title="Verify storage commitment">
+                                    <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('study', study._VALUE)" *ngIf="externalInternalAetMode === 'internal'"  [permission]="{id:'action-studies-verify_storage_commitment',param:'visible'}" href="" title="Verify storage commitment">
                                         <span class="glyphicon glyphicon-ok"></span>
                                     </a>
-                                    <a class="hiddenbuttons" *ngIf="(!trashaktive && _.hasIn(study._VALUE,'attrs.00201206.Value[0]') && !_.isEqual(study._VALUE.attrs['00201206'].Value[0], 0))" [permission]="{id:'action|studies|study',param:'reject'}" (click)="$event.preventDefault();rejectStudy(study._VALUE)" href="" title="Reject study">
+                                    <a class="hiddenbuttons" *ngIf="(!trashaktive && _.hasIn(study._VALUE,'attrs.00201206.Value[0]') && !_.isEqual(study._VALUE.attrs['00201206'].Value[0], 0))" [permission]="{id:'action-studies-study',param:'reject'}" (click)="$event.preventDefault();rejectStudy(study._VALUE)" href="" title="Reject study">
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </a>
-                                    <a class="hiddenbuttons" *ngIf="trashaktive && externalInternalAetMode === 'internal'" [permission]="{id:'action|studies|study',param:'delete'}" (click)="$event.preventDefault();deleteStudy(study._VALUE)" href="" title="Delete study permanently">
+                                    <a class="hiddenbuttons" *ngIf="trashaktive && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-study',param:'delete'}" (click)="$event.preventDefault();deleteStudy(study._VALUE)" href="" title="Delete study permanently">
                                         <span class="glyphicon glyphicon-remove"></span>
                                     </a>
-                                    <a class="hiddenbuttons"  *ngIf="trashaktive && externalInternalAetMode === 'internal'" [permission]="{id:'action|studies|study',param:'restore'}" (click)="$event.preventDefault();rejectStudy(study._VALUE)" href="" title="Restore study">
+                                    <a class="hiddenbuttons"  *ngIf="trashaktive && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-study',param:'restore'}" (click)="$event.preventDefault();rejectStudy(study._VALUE)" href="" title="Restore study">
                                         <span class="glyphicon glyphicon-repeat"></span>
                                     </a>
-                                    <a class="hiddenbuttons" *ngIf="aetmodel.dcmInvokeImageDisplayStudyURL && externalInternalAetMode === 'internal'" [permission]="{id:'action|studies|viewer',param:'visible'}" (click)="$event.preventDefault();openViewer(study._VALUE.attrs,'study')" href="" title="Open study in the viewer">
+                                    <a class="hiddenbuttons" *ngIf="aetmodel.dcmInvokeImageDisplayStudyURL && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-viewer',param:'visible'}" (click)="$event.preventDefault();openViewer(study._VALUE.attrs,'study')" href="" title="Open study in the viewer">
                                         <span class="glyphicon glyphicon-eye-open"></span>
                                     </a>
                                 </div>
@@ -677,8 +677,8 @@
                                         <span class="glyphicon glyphicon-th-list"></span>
                                     </a>
                                     <ng-container *ngIf="filterMode != 'diff'">
-                                        <a *ngIf="!(study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && !(study._VALUE.series)" (click)="$event.preventDefault();querySeries(study._VALUE,0)" href="" title="Show Series" [permission]="{id:'action|studies|serie',param:'visible'}">&#9658;</a>
-                                        <a *ngIf="!(study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && study._VALUE.series" (click)="$event.preventDefault();study._VALUE.series = null" href="" title="Hide Series" [permission]="{id:'action|studies|serie',param:'visible'}">&#9660;</a>
+                                        <a *ngIf="!(study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && !(study._VALUE.series)" (click)="$event.preventDefault();querySeries(study._VALUE,0)" href="" title="Show Series" [permission]="{id:'action-studies-serie',param:'visible'}">&#9658;</a>
+                                        <a *ngIf="!(study._VALUE.attrs['00201208'] && study._VALUE.attrs['00201208'].Value && study._VALUE.attrs['00201208'].Value[0] && study._VALUE.attrs['00201208'].Value[0] === 0) && study._VALUE.series" (click)="$event.preventDefault();study._VALUE.series = null" href="" title="Hide Series" [permission]="{id:'action-studies-serie',param:'visible'}">&#9660;</a>
                                     </ng-container>
                                 </div>
                                 <ng-container *ngIf="filterMode != 'diff'">
@@ -753,19 +753,19 @@
                                                 <div class="td_cell colcell" [innerHtml]="series._VALUE.offset+1+'.'"> </div>
                                                 <div class="exeq_buttons" >
                                                     <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,6)"></div>
-                                                    <div *ngIf="externalInternalAetMode === 'internal'" class="checkbox_content hiddenbuttons" [permission]="{id:'action|studies|copy_merge_move',param:'visible'}">
+                                                    <div *ngIf="externalInternalAetMode === 'internal'" class="checkbox_content hiddenbuttons" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
                                                         <input type="checkbox" [ngModel]="series._VALUE.selected" (change)='select(series._VALUE,"series", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY},"fromcheckbox")'>
                                                     </div>
-                                                    <a class="hiddenbuttons" (click)="$event.preventDefault();exportSeries(series._VALUE)" [permission]="{id:'action|studies|serie',param:'export'}" href="" title="Export Series">
+                                                    <a class="hiddenbuttons" (click)="$event.preventDefault();exportSeries(series._VALUE)" [permission]="{id:'action-studies-serie',param:'export'}" href="" title="Export Series">
                                                         <span class="glyphicon glyphicon-export"></span>
                                                     </a>
-                                                    <a class="hiddenbuttons" *ngIf="(!trashaktive && _.hasIn(series._VALUE,'attrs.00201208.Value[0]') && !_.isEqual(series._VALUE.attrs['00201208'].Value[0], 0))" (click)="$event.preventDefault();rejectSeries(series._VALUE)" href="" title="Reject Series" [permission]="{id:'action|studies|serie',param:'reject'}">
+                                                    <a class="hiddenbuttons" *ngIf="(!trashaktive && _.hasIn(series._VALUE,'attrs.00201208.Value[0]') && !_.isEqual(series._VALUE.attrs['00201208'].Value[0], 0))" (click)="$event.preventDefault();rejectSeries(series._VALUE)" href="" title="Reject Series" [permission]="{id:'action-studies-serie',param:'reject'}">
                                                         <span  class="glyphicon glyphicon-trash"></span>
                                                     </a>
-                                                    <a class="hiddenbuttons" *ngIf="trashaktive && externalInternalAetMode === 'internal'" (click)="$event.preventDefault();rejectSeries(series._VALUE)" href="" title="Restore Series" [permission]="{id:'action|studies|serie',param:'restore'}">
+                                                    <a class="hiddenbuttons" *ngIf="trashaktive && externalInternalAetMode === 'internal'" (click)="$event.preventDefault();rejectSeries(series._VALUE)" href="" title="Restore Series" [permission]="{id:'action-studies-serie',param:'restore'}">
                                                         <span class="glyphicon glyphicon-repeat"></span>
                                                     </a>
-                                                    <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('series', series._VALUE)" *ngIf="externalInternalAetMode === 'internal'" href="" title="Verify storage commitment" [permission]="{id:'action|studies|verify_storage_commitment',param:'visible'}">
+                                                    <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('series', series._VALUE)" *ngIf="externalInternalAetMode === 'internal'" href="" title="Verify storage commitment" [permission]="{id:'action-studies-verify_storage_commitment',param:'visible'}">
                                                         <span class="glyphicon glyphicon-ok"></span>
                                                     </a>
                                                 </div>
@@ -800,28 +800,28 @@
                                                     <div class="td_cell colcell" [innerHtml]="instance._VALUE.offset+1+'.'"> </div>
                                                     <div class="exeq_buttons">
                                                         <div class="morefunction" title="Show more functions" (click)="showMoreFunction($event,7)"></div>
-                                                        <div *ngIf="externalInternalAetMode === 'internal'" class="checkbox_content hiddenbuttons" [permission]="{id:'action|studies|copy_merge_move',param:'visible'}">
+                                                        <div *ngIf="externalInternalAetMode === 'internal'" class="checkbox_content hiddenbuttons" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
                                                             <input type="checkbox" [ngModel]="instance._VALUE.selected" (change)='select(instance._VALUE,"instance", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY},"fromcheckbox")'>
                                                         </div>
-                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();exportInstance(instance._VALUE)" [permission]="{id:'action|studies|instance',param:'export'}" href="" title="Export instance">
+                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();exportInstance(instance._VALUE)" [permission]="{id:'action-studies-instance',param:'export'}" href="" title="Export instance">
                                                             <span class="glyphicon glyphicon-export"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" *ngIf="!trashaktive" (click)="$event.preventDefault();rejectInstance(instance._VALUE)" [permission]="{id:'action|studies|instance',param:'reject'}" href="" title="Reject instance">
+                                                        <a class="hiddenbuttons" *ngIf="!trashaktive" (click)="$event.preventDefault();rejectInstance(instance._VALUE)" [permission]="{id:'action-studies-instance',param:'reject'}" href="" title="Reject instance">
                                                             <span  class="glyphicon glyphicon-trash"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" *ngIf="trashaktive" (click)="$event.preventDefault();rejectInstance(instance._VALUE) && externalInternalAetMode === 'internal'" href="" title="Restore instance" [permission]="{id:'action|studies|instance',param:'restore'}">
+                                                        <a class="hiddenbuttons" *ngIf="trashaktive" (click)="$event.preventDefault();rejectInstance(instance._VALUE) && externalInternalAetMode === 'internal'" href="" title="Restore instance" [permission]="{id:'action-studies-instance',param:'restore'}">
                                                             <span class="glyphicon glyphicon-repeat"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('instance', instance._VALUE)" *ngIf="externalInternalAetMode === 'internal'" [permission]="{id:'action|studies|verify_storage_commitment',param:'visible'}" href="" title="Verify storage commitment">
+                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('instance', instance._VALUE)" *ngIf="externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-verify_storage_commitment',param:'visible'}" href="" title="Verify storage commitment">
                                                             <span class="glyphicon glyphicon-ok"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" *ngIf="!instance._VALUE.video && externalInternalAetMode === 'internal'" [permission]="{id:'action|studies|download',param:'visible'}" (click)="$event.preventDefault();downloadURL(instance._VALUE)" title="Download Uncompressed DICOM Object">
+                                                        <a class="hiddenbuttons" *ngIf="!instance._VALUE.video && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-download',param:'visible'}" (click)="$event.preventDefault();downloadURL(instance._VALUE)" title="Download Uncompressed DICOM Object">
                                                             <span class="glyphicon glyphicon-save"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();downloadURL(instance._VALUE, '*')" *ngIf="externalInternalAetMode === 'internal'" [permission]="{id:'action|studies|download',param:'visible'}" title="Download DICOM Object">
+                                                        <a class="hiddenbuttons" (click)="$event.preventDefault();downloadURL(instance._VALUE, '*')" *ngIf="externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-download',param:'visible'}" title="Download DICOM Object">
                                                             <span class="glyphicon glyphicon-download-alt"></span>
                                                         </a>
-                                                        <a class="hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" (click)="$event.preventDefault();viewInstance(instance._VALUE)" href="#" [permission]="{id:'action|studies|download',param:'visible'}" title="View DICOM Object">
+                                                        <a class="hiddenbuttons" *ngIf="externalInternalAetMode === 'internal'" (click)="$event.preventDefault();viewInstance(instance._VALUE)" href="#" [permission]="{id:'action-studies-download',param:'visible'}" title="View DICOM Object">
                                                             <span class="glyphicon glyphicon-picture"></span>
                                                         </a>
 <!--                                                        <span class="selecta hiddenbuttons" *ngIf="instance._VALUE.views.length > 1 && externalInternalAetMode === 'internal'" title="View DICOM Object">
@@ -915,19 +915,19 @@
                         <div class="subblock">
                             <div class="td_row thead repeat4_hover" [ngClass]="{selected: mwl._VALUE.selected}" >
                                 <div class="td_cell table_btn" style="width:7%">
-                                    <div class="checkbox_content hiddenbuttons" [permission]="{id:'action|studies|copy_merge_move',param:'visible'}">
+                                    <div class="checkbox_content hiddenbuttons" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
                                         <input type="checkbox" [ngModel]="mwl.selected" (change)='select(mwl._VALUE,"mwl", {"patientkey":patient._KEY,"studykey":study._KEY, "serieskey":series._KEY, "instancekey":instance._KEY},"fromcheckbox")'>
                                     </div>
                                     <a (click)="$event.preventDefault();mwl._VALUE.showAttributes = !mwl._VALUE.showAttributes" href="" title="Show Attributes">
                                         <span class="glyphicon glyphicon-th-list"></span>
                                     </a>
-                                    <a [permission]="{id:'action|studies|mwl',param:'edit'}" (click)="$event.preventDefault();editMWL(patients[patient._KEY], patient._KEY, mwl._KEY, mwl._VALUE)" href="" title="Edit mwl">
+                                    <a [permission]="{id:'action-studies-mwl',param:'edit'}" (click)="$event.preventDefault();editMWL(patients[patient._KEY], patient._KEY, mwl._KEY, mwl._VALUE)" href="" title="Edit mwl">
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </a>
-                                    <a [permission]="{id:'action|studies|mwl',param:'delete'}" (click)="$event.preventDefault();deleteMWL(mwl._VALUE)" href="" title="Delete mwl">
+                                    <a [permission]="{id:'action-studies-mwl',param:'delete'}" (click)="$event.preventDefault();deleteMWL(mwl._VALUE)" href="" title="Delete mwl">
                                         <span class="glyphicon glyphicon-remove"></span>
                                     </a>
-                                    <a (click)="$event.preventDefault();upload(mwl._VALUE,'mwl')" [permission]="{id:'action|studies|mwl',param:'upload'}" href="" title="Upload file">
+                                    <a (click)="$event.preventDefault();upload(mwl._VALUE,'mwl')" [permission]="{id:'action-studies-mwl',param:'upload'}" href="" title="Upload file">
                                         <i class="material-icons">file_upload</i>
                                     </a>
                                 </div>

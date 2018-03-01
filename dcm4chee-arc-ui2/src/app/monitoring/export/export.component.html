@@ -83,7 +83,7 @@
                 </div>
             </div>
         </div>
-        <div class="main_filter_block" [permission]="{id:'action|monitoring->export|all_action',param:'visible'}">
+        <div class="main_filter_block" [permission]="{id:'action-monitoring->export-all_action',param:'visible'}">
 <!--            <div class="morefunctionblock">
                 <div class="w45percent">
                     <mat-select [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
@@ -125,13 +125,13 @@
                 <th>
                     <div class="action_block">
                         <input type="checkbox" (change)="checkAll($event)">
-                        <a [permission]="{id:'action|monitoring->export|single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" title="Cancel selected">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" title="Cancel selected">
                             <span class="glyphicon glyphicon-ban-circle"></span>
                         </a>
-                        <a [permission]="{id:'action|monitoring->export|single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href="" title="Reschedule selected">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('reschedule')" href="" title="Reschedule selected">
                             <span class="glyphicon glyphicon-repeat"></span>
                         </a>
-                        <a [permission]="{id:'action|monitoring->export|single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('delete')" href="" title="Delete selected">
+                        <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('delete')" href="" title="Delete selected">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </div>
