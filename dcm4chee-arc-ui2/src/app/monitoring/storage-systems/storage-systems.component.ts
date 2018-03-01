@@ -2,7 +2,6 @@ import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
 import {MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
 import {Http} from '@angular/http';
-import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {AppService} from '../../app.service';
 import * as _ from 'lodash';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
@@ -11,6 +10,7 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
+import {LoadingBarService} from "@ngx-loading-bar/core";
 
 @Component({
   selector: 'app-storage-systems',
@@ -37,7 +37,7 @@ export class StorageSystemsComponent implements OnInit {
 
     constructor(
         public $http:J4careHttpService,
-        public cfpLoadingBar: SlimLoadingBarService,
+        public cfpLoadingBar: LoadingBarService,
         public mainservice: AppService,
         public  service: StorageSystemsService,
         public viewContainerRef: ViewContainerRef,

@@ -1,6 +1,5 @@
 import {Component, ViewContainerRef, HostListener, OnInit} from '@angular/core';
 import {Http, Headers} from '@angular/http';
-import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import * as _ from 'lodash';
 import {ConfirmComponent} from '../widgets/dialogs/confirm/confirm.component';
 import {AppService} from '../app.service';
@@ -11,6 +10,7 @@ import {AeListService} from "./ae-list.service";
 import {HttpErrorHandler} from "../helpers/http-error-handler";
 import {J4careHttpService} from "../helpers/j4care-http.service";
 import {MatDialog, MatDialogRef, MatDialogConfig} from "@angular/material";
+import {LoadingBarService} from "@ngx-loading-bar/core";
 
 @Component({
   selector: 'app-ae-list',
@@ -40,7 +40,7 @@ export class AeListComponent implements OnInit{
 
     constructor(
       public $http:J4careHttpService,
-      public cfpLoadingBar: SlimLoadingBarService,
+      public cfpLoadingBar: LoadingBarService,
       public mainservice: AppService,
       public viewContainerRef: ViewContainerRef ,
       public dialog: MatDialog,

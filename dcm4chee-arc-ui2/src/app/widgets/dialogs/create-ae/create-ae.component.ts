@@ -3,10 +3,10 @@ import {MatDialogRef} from '@angular/material';
 import * as _ from 'lodash';
 import {AppService} from '../../../app.service';
 import {Http} from '@angular/http';
-import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {WindowRefService} from "../../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {LoadingBarService} from '@ngx-loading-bar/core';
 
 @Component({
   selector: 'app-create-ae',
@@ -31,7 +31,7 @@ export class CreateAeComponent {
         public $http:J4careHttpService,
         public dialogRef: MatDialogRef<CreateAeComponent>,
         public mainservice: AppService,
-        public cfpLoadingBar: SlimLoadingBarService,
+        public cfpLoadingBar: LoadingBarService,
         public httpErrorHandler:HttpErrorHandler
     ) {
         this.cfpLoadingBar.complete();
@@ -92,7 +92,7 @@ export class CreateAeComponent {
                         // $scope.selctedDeviceObject.dicomNetworkConnection.push($scope.netConnModelDevice);
                         console.log('this.selctedDeviceObject', $this.selctedDeviceObject);
                         $this.setReferencesFromDevice();
-                        $this.cfpLoadingBar.stop();
+                        $this.cfpLoadingBar.complete();
                     }, (err) => {
                         $this.httpErrorHandler.handleError(err);
                         $this.cfpLoadingBar.complete();

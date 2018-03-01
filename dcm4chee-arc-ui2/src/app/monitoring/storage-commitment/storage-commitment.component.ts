@@ -1,5 +1,4 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
-import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {User} from '../../models/user';
 import {Http} from '@angular/http';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
@@ -10,6 +9,7 @@ import {StorageCommitmentService} from './storage-commitment.service';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {LoadingBarService} from "@ngx-loading-bar/core";
 
 @Component({
   selector: 'app-storage-commitment',
@@ -36,7 +36,7 @@ export class StorageCommitmentComponent implements OnInit {
 
     constructor(
         public $http:J4careHttpService,
-        public cfpLoadingBar: SlimLoadingBarService,
+        public cfpLoadingBar: LoadingBarService,
         public mainservice: AppService,
         public  service: StorageCommitmentService,
         public viewContainerRef: ViewContainerRef,

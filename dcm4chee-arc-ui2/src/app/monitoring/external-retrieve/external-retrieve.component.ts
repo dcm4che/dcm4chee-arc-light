@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import {AppService} from "../../app.service";
-import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 import * as _ from 'lodash';
 import {AeListService} from "../../ae-list/ae-list.service";
 import {Observable} from "rxjs/Observable";
@@ -15,6 +14,7 @@ import * as FileSaver from 'file-saver';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import "rxjs/add/observable/forkJoin";
+import {LoadingBarService} from '@ngx-loading-bar/core';
 
 @Component({
   selector: 'external-retrieve',
@@ -52,7 +52,7 @@ export class ExternalRetrieveComponent implements OnInit {
     ];
     allAction;
     constructor(
-      public cfpLoadingBar: SlimLoadingBarService,
+      public cfpLoadingBar: LoadingBarService,
       public mainservice: AppService,
       public aeListService:AeListService,
       public service:ExternalRetrieveService,

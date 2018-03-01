@@ -12,7 +12,6 @@ import { StudiesComponent } from './studies/studies.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { ControlComponent } from './control/control.component';
 import { QueuesComponent } from './monitoring/queues/queues.component';
-import {SlimLoadingBarModule} from 'ng2-slim-loading-bar';
 import { OrderByPipe } from './pipes/order-by.pipe';
 import { GetKeyPipe } from './pipes/get-key.pipe';
 import {WidgetsModule, WidgetsComponents} from './widgets/widgets.module';
@@ -78,6 +77,7 @@ import {AuthGuard} from "./helpers/auth.guard";
 import {HttpClientModule} from "@angular/common/http";
 import {PermissionService} from "./helpers/permission.service";
 import { PermissionDirective } from './helpers/permission.directive';
+import {LoadingBarModule} from "@ngx-loading-bar/core";
 
 @NgModule({
     declarations: [
@@ -135,7 +135,6 @@ import { PermissionDirective } from './helpers/permission.directive';
         MatSelectModule,
         MatProgressBarModule,
         MatProgressSpinnerModule,
-        SlimLoadingBarModule.forRoot(),
         WidgetsModule,
         CommonModule,
         CalendarModule,
@@ -143,6 +142,7 @@ import { PermissionDirective } from './helpers/permission.directive';
         ReactiveFormsModule,
         BrowserAnimationsModule,
         FileUploadModule,
+        LoadingBarModule.forRoot(),
         RouterModule.forRoot([
             {
               path: '',

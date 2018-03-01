@@ -7,13 +7,13 @@ import * as _ from 'lodash';
 import {Observable} from 'rxjs';
 import {AppService} from '../app.service';
 import {ControlService} from '../control/control.service';
-import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {WindowRefService} from "../helpers/window-ref.service";
 import {HttpErrorHandler} from "../helpers/http-error-handler";
 import {AeListService} from "../ae-list/ae-list.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
 import {DevicesService} from "../devices/devices.service";
 import {J4careHttpService} from "../helpers/j4care-http.service";
+import {LoadingBarService} from "@ngx-loading-bar/core";
 
 @Component({
   selector: 'app-device-configurator',
@@ -39,7 +39,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         private $http:J4careHttpService,
         private mainservice: AppService,
         private controlService: ControlService,
-        private cfpLoadingBar: SlimLoadingBarService,
+        private cfpLoadingBar: LoadingBarService,
         private httpErrorHandler:HttpErrorHandler,
         private aeService:AeListService,
         private hl7Service:Hl7ApplicationsService,
