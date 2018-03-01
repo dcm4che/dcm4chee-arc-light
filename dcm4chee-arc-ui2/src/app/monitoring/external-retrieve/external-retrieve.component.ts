@@ -215,7 +215,7 @@ export class ExternalRetrieveComponent implements OnInit {
                             this.service.cancelAll(this.filterObject).subscribe((res)=>{
                                 this.mainservice.setMessage({
                                     'title': 'Info',
-                                    'text': res.count + ' queues deleted successfully!',
+                                    'text': res.count + ' tasks deleted successfully!',
                                     'status': 'info'
                                 });
                                 this.cfpLoadingBar.complete();
@@ -242,7 +242,7 @@ export class ExternalRetrieveComponent implements OnInit {
                         this.service.deleteAll(this.filterObject).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.deleted + ' queues deleted successfully!',
+                                'text': res.deleted + ' tasks deleted successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();
