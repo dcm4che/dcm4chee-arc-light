@@ -25,6 +25,7 @@ export class DeviceConfiguratorService{
     schema;
     pagination = [];
     allOptions = {};
+    defaultOpenBlock:string = "ext"; //possible values'attr'|'child'|'ext'
     constructor(
         private $http:J4careHttpService,
         private mainservice:AppService,
@@ -361,7 +362,8 @@ export class DeviceConfiguratorService{
             return this.getFormaterValue[format](device);
         return Observable.of([]);
     }
-    convertSchemaToForm(device, schema, params){
+    convertSchemaToForm(device, schema, params, defaultOpenBlock){
+        this.defaultOpenBlock = defaultOpenBlock || this.defaultOpenBlock;
         let form = [];
         if (_.hasIn(schema, 'type')){
             if ((schema.type === 'object' && _.hasIn(schema, 'properties')) || (schema.type === 'array' && _.hasIn(schema, 'items.properties'))){
@@ -521,7 +523,7 @@ export class DeviceConfiguratorService{
                         description: m.description,
                         order: (5 + newOrderSuffix),
                         value: value,
-                        show: true
+                        show: (this.defaultOpenBlock === 'attr')
                     });
                 }else{
                     if (_.hasIn(m, 'enum') || (_.hasIn(m,'formatValue') && m.formatValue )){
@@ -552,7 +554,7 @@ export class DeviceConfiguratorService{
                                 description: m.description,
                                 msg:m.formatValue.msg,
                                 order: (5 + newOrderSuffix),
-                                show: true
+                                show: (this.defaultOpenBlock === 'attr')
                             })
                         }else{
                             form.push(
@@ -563,7 +565,8 @@ export class DeviceConfiguratorService{
                                     options: new OrderByPipe().transform(options,'label'),
                                     order: (5 + newOrderSuffix),
                                     validation: validation,
-                                    value: value
+                                    value: value,
+                                    show: (this.defaultOpenBlock === 'attr')
                                 }),
                             );
                         }
@@ -579,7 +582,7 @@ export class DeviceConfiguratorService{
                                 order: (5 + newOrderSuffix),
                                 validation: validation,
                                 format: m.format,
-                                show: true
+                                show: (this.defaultOpenBlock === 'attr')
                             });
                         }else{
                             form.push(
@@ -591,7 +594,8 @@ export class DeviceConfiguratorService{
                                     value: value,
                                     order: (5 + newOrderSuffix),
                                     validation: validation,
-                                    format: m.format
+                                    format: m.format,
+                                    show: (this.defaultOpenBlock === 'attr')
                                 })
                             );
                         }
@@ -610,7 +614,7 @@ export class DeviceConfiguratorService{
                                 description: m.description,
                                 order: (5 + newOrderSuffix),
                                 downloadUrl: `../devices/${device.dicomDeviceName}/vendordata`,
-                                show: true
+                                show: (this.defaultOpenBlock === 'attr')
                             });
                         }else{
                             //If the vendor data is missing or false than show the upload button
@@ -622,7 +626,7 @@ export class DeviceConfiguratorService{
                                 deviceName: device.dicomDeviceName,
                                 description: m.description,
                                 order: (5 + newOrderSuffix),
-                                show: true
+                                show: (this.defaultOpenBlock === 'attr')
                             });
                         }
                     }
@@ -684,7 +688,8 @@ export class DeviceConfiguratorService{
                             options: options,
                             order: (5 + newOrderSuffix),
                             validation: validation,
-                            value:value
+                            value:value,
+                            show: (this.defaultOpenBlock === 'attr')
                         })
                     );
                     /*                                form.push(
@@ -750,7 +755,7 @@ export class DeviceConfiguratorService{
                                 description: m.description,
                                 msg:m.formatValue.msg,
                                 order: (5 + newOrderSuffix),
-                                show: true
+                                show: (this.defaultOpenBlock === 'attr')
                             })
                         }else{
                             form.push(
@@ -762,7 +767,8 @@ export class DeviceConfiguratorService{
                                     options: new OrderByPipe().transform(options,'key'),
                                     order: (5 + newOrderSuffix),
                                     validation: validation,
-                                    search:''
+                                    search:'',
+                                    show: (this.defaultOpenBlock === 'attr')
                                 })
                             );
                         }
@@ -786,7 +792,8 @@ export class DeviceConfiguratorService{
                                 options: new OrderByPipe().transform(options,'key'),
                                 order: (5 + newOrderSuffix),
                                 validation: validation,
-                                search:''
+                                search:'',
+                                show: (this.defaultOpenBlock === 'attr')
                             })
                         );
                     }else{
@@ -804,7 +811,8 @@ export class DeviceConfiguratorService{
                                         label: m.title,
                                         description: m.description,
                                         addUrl: url,
-                                        order: (3 + newOrderSuffix)
+                                        order: (3 + newOrderSuffix),
+                                        show: (this.defaultOpenBlock === 'child')
                                     });
                                 }else{
                                     options = [];
@@ -840,7 +848,8 @@ export class DeviceConfiguratorService{
                                         description: m.description,
                                         options: new OrderByPipe().transform(options,'title'),
                                         addUrl: addUrl,
-                                        order: (3 + newOrderSuffix)
+                                        order: (3 + newOrderSuffix),
+                                        show: (this.defaultOpenBlock === 'child')
                                     });
                                 }
                             }else{
@@ -854,7 +863,8 @@ export class DeviceConfiguratorService{
                                     description: m.description,
                                     options: [],
                                     addUrl: addUrl,
-                                    order: (3 + newOrderSuffix)
+                                    order: (3 + newOrderSuffix),
+                                    show: (this.defaultOpenBlock === 'child')
                                 });
                             }
                         }else{
@@ -879,7 +889,8 @@ export class DeviceConfiguratorService{
                                         key: i,
                                         url: url,
                                         currentElementUrl: ((params.devicereff) ? params.devicereff + '.' + i + '[' + vali + ']' : i + '[' + vali + ']'),
-                                        order: (3 + newOrderSuffix)
+                                        order: (3 + newOrderSuffix),
+                                        show: (this.defaultOpenBlock === 'child')
                                     });
                                 });
                                 let addUrl = '/device/edit/' + params.device;
@@ -907,7 +918,8 @@ export class DeviceConfiguratorService{
                                         description: m.description,
                                         options: [],
                                         addUrl: addUrl,
-                                        order: (3 + newOrderSuffix)
+                                        order: (3 + newOrderSuffix),
+                                        show: (this.defaultOpenBlock === 'child')
                                     });
                                 }else{
                                     let type = (_.hasIn(m, 'items.type')) ? m.items.type : 'text';
@@ -922,7 +934,7 @@ export class DeviceConfiguratorService{
                                             order: (5 + newOrderSuffix),
                                             validation: validation,
                                             format: m.format,
-                                            show: true
+                                            show: (this.defaultOpenBlock === 'attr')
                                         });
                                     }else{
                                         form.push(
@@ -934,7 +946,8 @@ export class DeviceConfiguratorService{
                                                 value: (value) ? value : [''],
                                                 order: (5 + newOrderSuffix),
                                                 validation: validation,
-                                                format: m.format
+                                                format: m.format,
+                                                show: (this.defaultOpenBlock === 'attr')
                                             })
                                         );
                                     }
@@ -953,7 +966,8 @@ export class DeviceConfiguratorService{
                         value: parseFloat(value),
                         type: 'number',
                         order: (5 + newOrderSuffix),
-                        validation: validation
+                        validation: validation,
+                        show: (this.defaultOpenBlock === 'attr')
                     })
                 );
                 break;
@@ -975,6 +989,7 @@ export class DeviceConfiguratorService{
                     devicereff: (params.devicereff) ? params.devicereff + '.' + i : i,
                     order: (1 + newOrderSuffix),
                     value: value,
+                    show: (this.defaultOpenBlock === 'ext')
                 });
         }
 
