@@ -10,6 +10,7 @@ export class PermissionService {
 
     user;
     uiConfig;
+    configChecked = false;
     constructor(private $http:J4careHttpService, private mainservice:AppService, private router: Router) { }
 
     getPermission(url){
@@ -35,16 +36,21 @@ export class PermissionService {
             return this.getConfig(()=>{return this.checkMenuTabAccess(url)});
     }
     getConfig(response){
-        if(!this.uiConfig)
+        if(!this.uiConfig && !this.configChecked)
             return this.$http.get('../devicename')
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .switchMap(res => this.$http.get('../devices/' + res.dicomDeviceName))
                 .map(res => res.json())
                 .map((res)=>{
                     try{
+                        this.configChecked = true;
                         this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
                     }catch(e){
                         console.warn("Permission not found!",e);
+                        this.mainservice.setMessage({
+                            'text': "Permission not found!",
+                            'status': 'error'
+                        })
                     }
                     // return this.checkMenuTabAccess(url);
                     return response.apply(this,[]);
@@ -53,7 +59,7 @@ export class PermissionService {
             return response.apply(this,[]);
     }
     getConfigWithUser(response){
-        if(!this.uiConfig)
+        if(!this.uiConfig && !this.configChecked)
             return this.mainservice.getUserInfo()
                 .map(user=>{
                     this.mainservice.user = user;
@@ -65,9 +71,14 @@ export class PermissionService {
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .map((res)=>{
                     try{
+                        this.configChecked = true;
                         this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
                     }catch(e){
                         console.warn("Permission not found!",e);
+                        this.mainservice.setMessage({
+                            'text': "Permission not found!",
+                            'status': 'error'
+                        })
                     }
                     // return this.checkMenuTabAccess(url);
                     return response.apply(this,[]);
@@ -93,7 +104,11 @@ export class PermissionService {
             }
             return false;
         }catch (e){
-            console.error('Are you sure you configured the permissions? ',e);
+            console.warn('Are you sure you configured the permissions? ',e);
+            this.mainservice.setMessage({
+                'text': "Are you sure you configured the permissions?",
+                'status': 'error'
+            })
         }
     }
     checkVisibility(permissionObject){
@@ -104,10 +119,16 @@ export class PermissionService {
                 return true; //not secured
             else
                 return this.getConfig(()=>{
-                    let checkObject = this.uiConfig.dcmuiPermission.filter(element=>{
-                        return element.dcmuiAction === permissionObject.id && element.dcmuiActionParam.indexOf(permissionObject.param) > -1;
-                    });
-                    return this.comparePermissionObjectWithRoles(checkObject);
+                    try{
+
+                        let checkObject = this.uiConfig.dcmuiPermission.filter(element=>{
+                            return element.dcmuiAction === permissionObject.id && element.dcmuiActionParam.indexOf(permissionObject.param) > -1;
+                        });
+                        return this.comparePermissionObjectWithRoles(checkObject);
+                    }catch (e){
+                        console.warn("Error on permission check",e);
+                        return false;
+                    }
                 })
     }
     comparePermissionObjectWithRoles(object){
@@ -120,7 +141,7 @@ export class PermissionService {
                 });
             return check;
         }catch (err){
-            console.error("Error comparing permissions object with the roles",err);
+            console.warn("Error comparing permissions object with the roles",err);
             return false;
         }
     }

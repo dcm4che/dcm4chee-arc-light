@@ -11,8 +11,17 @@ export class PermissionDirective implements OnInit{
   constructor(private el: ElementRef, private permisssionService:PermissionService) { }
 
   ngOnInit(){
-      if(!this.permisssionService.checkVisibility(this.permission))
-        this.el.nativeElement.parentNode.removeChild(this.el.nativeElement);
+      let check = this.permisssionService.checkVisibility(this.permission);
+      if(typeof check === 'object' && check.source){
+        check.subscribe((res)=>{
+            if(!res)
+                this.el.nativeElement.parentNode.removeChild(this.el.nativeElement);
+        },(err)=>{
+          console.log("Error on checking directives",err);
+        });
+      }else
+        if(!check)
+          this.el.nativeElement.parentNode.removeChild(this.el.nativeElement);
   }
 
 }
