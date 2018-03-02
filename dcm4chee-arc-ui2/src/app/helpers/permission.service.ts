@@ -41,7 +41,11 @@ export class PermissionService {
                 .switchMap(res => this.$http.get('../devices/' + res.dicomDeviceName))
                 .map(res => res.json())
                 .map((res)=>{
-                    this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
+                    try{
+                        this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
+                    }catch(e){
+                        console.warn("Permission not found!",e);
+                    }
                     // return this.checkMenuTabAccess(url);
                     return response.apply(this,[]);
                 });
@@ -60,7 +64,11 @@ export class PermissionService {
                 .switchMap(res => this.$http.get('../devices/' + res.dicomDeviceName))
                 .map(res => j4care.redirectOnAuthResponse(res))
                 .map((res)=>{
-                    this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
+                    try{
+                        this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
+                    }catch(e){
+                        console.warn("Permission not found!",e);
+                    }
                     // return this.checkMenuTabAccess(url);
                     return response.apply(this,[]);
                 });
