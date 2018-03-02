@@ -7950,6 +7950,11 @@
           "items": {
             "type": "string"
           }
+        },
+        "su": {
+          "title": "super user",
+          "description": "logged in user is a super user",
+          "type": "boolean"
         }
       }
     },
