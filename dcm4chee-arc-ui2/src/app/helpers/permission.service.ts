@@ -77,20 +77,24 @@ export class PermissionService {
     }
 
     checkMenuTabAccess(url){
-        let urlAction = Globalvar.LINK_PERMISSION(url);
-        let checkObject = this.uiConfig.dcmuiPermission.filter(element=>{
-            return urlAction && element.dcmuiAction === urlAction.permissionsAction && element.dcmuiActionParam.indexOf('accessible') > -1;
-        });
-        if(checkObject && checkObject[0]){
-          let check = this.comparePermissionObjectWithRoles(checkObject);
-          if(check && checkObject[0].dcmuiActionParam.indexOf('accessible') > -1)
-            return true;
-          else
-              if(urlAction.nextCheck)
-                  this.router.navigate([urlAction.nextCheck]);
-          return false;
+        try{
+            let urlAction = Globalvar.LINK_PERMISSION(url);
+            let checkObject = this.uiConfig.dcmuiPermission.filter(element=>{
+                return urlAction && element.dcmuiAction === urlAction.permissionsAction && element.dcmuiActionParam.indexOf('accessible') > -1;
+            });
+            if(checkObject && checkObject[0]){
+                let check = this.comparePermissionObjectWithRoles(checkObject);
+                if(check && checkObject[0].dcmuiActionParam.indexOf('accessible') > -1)
+                    return true;
+                else
+                if(urlAction.nextCheck)
+                    this.router.navigate([urlAction.nextCheck]);
+                return false;
+            }
+            return false;
+        }catch (e){
+            console.error('Are you sure you configured the permissions? ',e);
         }
-        return false;
     }
     checkVisibility(permissionObject){
         if(this.mainservice.user && this.mainservice.user.roles && this.mainservice.user.roles.length > 0 && this.mainservice.user.roles.indexOf(Globalvar.SUPER_ROOT) > -1)

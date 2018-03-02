@@ -10,15 +10,15 @@
         <!--<div class="progress"></div>-->
     <!--</li>-->
 <!--</div>-->
-<div class="user" *ngIf="user.user && user.user != 'anonymous'" (clickOutside)="showUserMenu=false">
+<div class="user" *ngIf="user && user.user && user.user != 'anonymous'" (clickOutside)="showUserMenu=false">
     <span (click)="showUserMenu = !showUserMenu" id="usermenu">
-        <div class="username" *ngIf="user.user && user.user != 'anonymous'"><i  class="glyphicon glyphicon-user"></i> {{user.user}}</div>
+        <div class="username" *ngIf="user && user.user && user.user != 'anonymous'"><i  class="glyphicon glyphicon-user"></i> {{user.user}}</div>
         <i class="config glyphicon glyphicon-cog"></i>
     </span>
     <ul *ngIf="showUserMenu">
-        <li *ngIf="user.user && user.user != 'anonymous'"><a href="{{authServerUrl}}/realms/{{realm}}/account" target="_blank">Edit Account</a></li>
-        <li *ngIf="user.user && user.user != 'anonymous'"><a href="{{authServerUrl}}/admin/{{realm}}/console" target="_blank">Admin Realm</a></li>
-        <li *ngIf="user.user && user.user != 'anonymous'"><a href="{{logoutUrl}}">Logout</a></li>
+        <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="{{authServerUrl}}/realms/{{realm}}/account" target="_blank">Edit Account</a></li>
+        <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="{{authServerUrl}}/admin/{{realm}}/console" target="_blank">Admin Realm</a></li>
+        <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="{{logoutUrl}}">Logout</a></li>
         <li><a (click)="$event.preventDefault();productLabelling()">About</a></li>
     </ul>
 </div>
