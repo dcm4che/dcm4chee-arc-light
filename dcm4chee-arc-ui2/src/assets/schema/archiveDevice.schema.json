@@ -47,6 +47,7 @@
     "hl7PSUTaskFetchSize",
     "hl7TrackChangedPatientID",
     "dcmAuditSoftwareConfigurationVerbose",
+    "dcmSuperUserRole",
     "hl7UseNullValue"
   ],
   "properties": {
@@ -895,6 +896,15 @@
       "description": "Specifies the device name containing the Archive UI Configuration.",
       "type": "string",
       "format": "dicomDeviceName"
+    },
+    "dcmSuperUserRole": {
+      "title": "Super User Role",
+      "description": "Specifies roles to identify a super user.",
+      "type": "array",
+      "items" : {
+        "type": "string"
+      },
+      "default": "admin"
     },
     "dcmStorage": {
       "title": "Storage Descriptor",

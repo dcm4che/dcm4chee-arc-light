@@ -1173,6 +1173,11 @@ attributetype ( 1.2.40.0.13.1.15.110.3.197 NAME 'dcmDeIdentification'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.198 NAME 'dcmSuperUserRole'
+  DESC 'Specifies roles to identify a super user. 'admin' if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1295,6 +1300,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRejectionNoteStorageAET $
     dcmXRoadProperty $
     dcmUIConfigurationDeviceName $
+    dcmSuperUserRole $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $

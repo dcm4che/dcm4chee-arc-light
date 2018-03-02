@@ -41,9 +41,12 @@
 package org.dcm4chee.arc.realm.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
@@ -54,6 +57,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Arrays;
 
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.slf4j.Logger;
@@ -69,6 +73,9 @@ import org.slf4j.LoggerFactory;
 public class RealmRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(RealmRS.class);
+
+    @Inject
+    private Device device;
 
     @Context
     private HttpServletRequest request;
@@ -91,6 +98,7 @@ public class RealmRS {
                     writer.write("expiration", ctx.getExpiration());
                     writer.write("systemCurrentTime", (int) (System.currentTimeMillis()/1000L));
                     writer.writeNotEmpty("roles", ctx.getUserRoles());
+                    writer.writeNotNullOrDef("su", isSuperUser(ctx.getUserRoles()), false);
                     gen.writeEnd();
                     gen.flush();
                 } else {
@@ -99,5 +107,11 @@ public class RealmRS {
                     w.flush();
                 }
         };
+    }
+
+    private boolean isSuperUser(String[] userRoles) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        return Arrays.stream(userRoles)
+                .anyMatch(x -> Arrays.asList(arcDev.getSuperUserRoles()).contains(x));
     }
 }

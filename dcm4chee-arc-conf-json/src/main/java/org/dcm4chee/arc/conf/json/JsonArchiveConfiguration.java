@@ -230,6 +230,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmRejectionNoteStorageAET", arcDev.getRejectionNoteStorageAET(), null);
         writer.writeNotEmpty("dcmXRoadProperty", descriptorProperties(arcDev.getXRoadProperties()));
         writer.writeNotNullOrDef("dcmUIConfigurationDeviceName", arcDev.getUiConfigurationDeviceName(), null);
+        writer.writeNotEmpty("dcmSuperUserRole", arcDev.getSuperUserRoles());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -1016,6 +1017,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUIConfigurationDeviceName":
                     arcDev.setUiConfigurationDeviceName(reader.stringValue());
+                    break;
+                case "dcmSuperUserRole":
+                    arcDev.setSuperUserRoles(reader.stringArray());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);
