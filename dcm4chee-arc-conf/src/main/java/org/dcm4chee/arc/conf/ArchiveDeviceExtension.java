@@ -186,7 +186,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String auditUnknownPatientID = AUDIT_UNKNOWN_PATIENT_ID;
     private String rejectionNoteStorageAET;
     private String uiConfigurationDeviceName;
-    private String[] superUserRoles = {"admin"};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1681,14 +1680,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.uiConfigurationDeviceName = uiConfigurationDeviceName;
     }
 
-    public String[] getSuperUserRoles() {
-        return superUserRoles;
-    }
-
-    public void setSuperUserRoles(String[] superUserRoles) {
-        this.superUserRoles = superUserRoles;
-    }
-
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -1816,7 +1807,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         queueTasksFetchSize = arcdev.queueTasksFetchSize;
         rejectionNoteStorageAET = arcdev.rejectionNoteStorageAET;
         uiConfigurationDeviceName = arcdev.uiConfigurationDeviceName;
-        superUserRoles = arcdev.superUserRoles;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

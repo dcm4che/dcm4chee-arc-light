@@ -231,7 +231,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmXRoadProperty", toStrings(ext.getXRoadProperties()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUIConfigurationDeviceName",
                 ext.getUiConfigurationDeviceName(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmSuperUserRole", ext.getSuperUserRoles());
     }
 
     @Override
@@ -388,7 +387,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setXRoadProperties(LdapUtils.stringArray(attrs.get("dcmXRoadProperty")));
         ext.setUiConfigurationDeviceName(LdapUtils.stringValue(
                 attrs.get("dcmUIConfigurationDeviceName"), null));
-        ext.setSuperUserRoles(LdapUtils.stringArray(attrs.get("dcmSuperUserRole")));
     }
 
     @Override
@@ -657,9 +655,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUIConfigurationDeviceName",
                 aa.getUiConfigurationDeviceName(), bb.getUiConfigurationDeviceName(),
                 null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmSuperUserRole",
-                aa.getSuperUserRoles(),
-                bb.getSuperUserRoles());
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));
