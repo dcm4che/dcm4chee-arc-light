@@ -73,11 +73,12 @@ import { FilterGeneratorComponent } from './helpers/filter-generator/filter-gene
 import {CalendarModule} from "primeng/components/calendar/calendar";
 import { ClickOutsideDirective } from './helpers/click-outside.directive';
 import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service";
-import {AuthGuard} from "./helpers/auth.guard";
+import {AuthGuard} from "./helpers/permissions/auth.guard";
 import {HttpClientModule} from "@angular/common/http";
-import {PermissionService} from "./helpers/permission.service";
-import { PermissionDirective } from './helpers/permission.directive';
+import {PermissionService} from "./helpers/permissions/permission.service";
+import { PermissionDirective } from './helpers/permissions/permission.directive';
 import {LoadingBarModule} from "@ngx-loading-bar/core";
+import {PermissionDeniedComponent} from "./helpers/permissions/permission-denied.component";
 
 @NgModule({
     declarations: [
@@ -124,6 +125,7 @@ import {LoadingBarModule} from "@ngx-loading-bar/core";
         FilterGeneratorComponent,
         ClickOutsideDirective,
         PermissionDirective,
+        PermissionDeniedComponent,
     ],
     imports: [
         BrowserModule,
@@ -156,6 +158,7 @@ import {LoadingBarModule} from "@ngx-loading-bar/core";
                 canActivate: [AuthGuard]
             },
             { path: 'studies', component: StudiesComponent , canActivate: [AuthGuard]},
+            { path: 'permission-denied', component: PermissionDeniedComponent},
             { path: 'monitoring/control', component: ControlComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/export', component: ExportComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/external', component: ExternalRetrieveComponent,  canActivate: [AuthGuard] },

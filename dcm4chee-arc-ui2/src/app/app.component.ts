@@ -13,7 +13,7 @@ import {WindowRefService} from "./helpers/window-ref.service";
 import * as _ from 'lodash';
 import {J4careHttpService} from "./helpers/j4care-http.service";
 import {j4care} from "./helpers/j4care.service";
-import {PermissionService} from "./helpers/permission.service";
+import {PermissionService} from "./helpers/permissions/permission.service";
 // import {DCM4CHE} from "./constants/dcm4-che";
 // declare var $:JQueryStatic;
 // import * as vex from "vex-js";

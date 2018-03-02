@@ -28,7 +28,7 @@ import {HttpErrorHandler} from "../helpers/http-error-handler";
 import {J4careHttpService} from "../helpers/j4care-http.service";
 import {j4care} from "../helpers/j4care.service";
 import {ViewerComponent} from "../widgets/dialogs/viewer/viewer.component";
-import {PermissionService} from "../helpers/permission.service";
+import {PermissionService} from "../helpers/permissions/permission.service";
 import {LoadingBarModule, LoadingBarService} from "@ngx-loading-bar/core";
 declare var Keycloak: any;
 declare var $: any;

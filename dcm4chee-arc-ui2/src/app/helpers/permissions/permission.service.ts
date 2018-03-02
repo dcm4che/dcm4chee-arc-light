@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import {j4care} from "./j4care.service";
-import {Globalvar} from "../constants/globalvar";
-import {J4careHttpService} from "./j4care-http.service";
-import {AppService} from "../app.service";
+import {j4care} from "../j4care.service";
+import {Globalvar} from "../../constants/globalvar";
+import {J4careHttpService} from "../j4care-http.service";
+import {AppService} from "../../app.service";
 import {Route, Router} from "@angular/router";
 
 @Injectable()
@@ -51,6 +51,7 @@ export class PermissionService {
                             'text': "Permission not found!",
                             'status': 'error'
                         })
+                        return response.apply(this,[]);
                     }
                     // return this.checkMenuTabAccess(url);
                     return response.apply(this,[]);
@@ -79,6 +80,7 @@ export class PermissionService {
                             'text': "Permission not found!",
                             'status': 'error'
                         })
+                        return response.apply(this,[]);
                     }
                     // return this.checkMenuTabAccess(url);
                     return response.apply(this,[]);
