@@ -302,7 +302,6 @@ public class QueueMessage {
         JsonGenerator gen = Json.createGenerator(out);
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         gen.writeStartObject();
-        gen.write("queue", queueName);
         gen.write("priority", priority);
         gen.write("createdTime", df.format(createdTime));
         gen.write("updatedTime", df.format(updatedTime));
@@ -315,6 +314,7 @@ public class QueueMessage {
     }
 
     public void writeStatusAsJSONTo(JsonGenerator gen, DateFormat df) {
+        gen.write("queue", queueName);
         gen.write("JMSMessageID", messageID);
         gen.write("dicomDeviceName", deviceName);
         gen.write("status", status.toString());
@@ -333,6 +333,8 @@ public class QueueMessage {
 
     public void writeStatusAsCSVTo(Writer writer, DateFormat df) throws IOException {
         writer.write(messageID);
+        writer.write(',');
+        writer.write(queueName);
         writer.write(',');
         writer.write(deviceName);
         writer.write(',');
