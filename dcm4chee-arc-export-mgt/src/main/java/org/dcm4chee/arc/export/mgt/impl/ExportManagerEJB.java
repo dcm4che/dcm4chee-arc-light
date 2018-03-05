@@ -247,7 +247,7 @@ public class ExportManagerEJB implements ExportManager {
             throws QueueSizeLimitExceededException {
         QueueMessage queueMessage = queueManager.scheduleMessage(
                 exporter.getQueueName(),
-                createMessage(exportTask, exporter.getAETitle(), httpServletRequestInfo),
+                createMessage(exportTask, httpServletRequestInfo),
                 exporter.getPriority());
         exportTask.setQueueMessage(queueMessage);
         try {
@@ -269,7 +269,7 @@ public class ExportManagerEJB implements ExportManager {
         }
     }
 
-    private ObjectMessage createMessage(ExportTask exportTask, String aeTitle, HttpServletRequestInfo httpServletRequestInfo) {
+    private ObjectMessage createMessage(ExportTask exportTask, HttpServletRequestInfo httpServletRequestInfo) {
         ObjectMessage msg = queueManager.createObjectMessage(exportTask.getPk());
         try {
             msg.setStringProperty("StudyInstanceUID", exportTask.getStudyInstanceUID());
@@ -280,7 +280,6 @@ public class ExportManagerEJB implements ExportManager {
                 }
             }
             msg.setStringProperty("ExporterID", exportTask.getExporterID());
-            msg.setStringProperty("AETitle", aeTitle);
             if (httpServletRequestInfo != null)
                 httpServletRequestInfo.copyTo(msg);
         } catch (JMSException e) {
