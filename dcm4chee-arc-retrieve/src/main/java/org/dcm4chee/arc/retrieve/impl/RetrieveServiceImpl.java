@@ -47,6 +47,8 @@ import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
+import org.dcm4che3.deident.DeIdentificationAttributesCoercion;
+import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.BulkDataCreator;
@@ -858,17 +860,17 @@ public class RetrieveServiceImpl implements RetrieveService {
 
         ArchiveAEExtension aeExt = ctx.getArchiveAEExtension();
         ArchiveAttributeCoercion rule = aeExt.findAttributeCoercion(
-                ctx.getRequestorHostName(), ctx.getRequestorAET(), TransferCapability.Role.SCP, Dimse.C_STORE_RQ,
+                ctx.getRequestorHostName(), ctx.getDestinationAETitle(), TransferCapability.Role.SCP, Dimse.C_STORE_RQ,
                 inst.getSopClassUID());
         if (rule == null)
             return null;
 
-        AttributesCoercion coercion = null;
+        AttributesCoercion coercion = DeIdentificationAttributesCoercion.valueOf(rule.getDeIdentification(), null);
         String xsltStylesheetURI = rule.getXSLTStylesheetURI();
         if (xsltStylesheetURI != null)
         try {
             Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
-            coercion = new XSLTAttributesCoercion(tpls, null).includeKeyword(!rule.isNoKeywords());
+            coercion = new XSLTAttributesCoercion(tpls, coercion).includeKeyword(!rule.isNoKeywords());
         } catch (TransformerConfigurationException e) {
             LOG.error("{}: Failed to compile XSL: {}", ctx.getLocalAETitle(), xsltStylesheetURI, e);
         }

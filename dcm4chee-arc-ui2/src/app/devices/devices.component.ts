@@ -1,6 +1,5 @@
 import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {Http, Headers} from '@angular/http';
-import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import * as _ from 'lodash';
 import {ConfirmComponent} from '../widgets/dialogs/confirm/confirm.component';
 import {AppService} from '../app.service';
@@ -14,6 +13,7 @@ import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.servi
 import {HttpErrorHandler} from "../helpers/http-error-handler";
 import {J4careHttpService} from "../helpers/j4care-http.service";
 import {DeviceConfiguratorService} from "../device-configurator/device-configurator.service";
+import {LoadingBarService} from "@ngx-loading-bar/core";
 
 @Component({
   selector: 'app-devices',
@@ -49,7 +49,7 @@ export class DevicesComponent implements OnInit{
 
     constructor(
         public $http:J4careHttpService,
-        public cfpLoadingBar: SlimLoadingBarService,
+        public cfpLoadingBar: LoadingBarService,
         public mainservice: AppService,
         public viewContainerRef: ViewContainerRef ,
         public dialog: MatDialog,

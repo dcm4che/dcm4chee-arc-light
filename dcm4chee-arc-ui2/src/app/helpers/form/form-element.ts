@@ -30,7 +30,7 @@ export class FormElement<T>{
         this.order = options.order === undefined ? 1 : options.order;
         this.description = options.description || '';
         this.controlType = options.controlType || '';
-        this.show = options.show || true;
+        this.show = options.show || false;
         this.format = options.format || undefined;
     }
 }

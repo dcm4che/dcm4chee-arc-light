@@ -4,12 +4,12 @@ import {Http} from '@angular/http';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import * as FileSaver from 'file-saver';
-import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {MessagingComponent} from '../../widgets/messaging/messaging.component';
 import {AppService} from '../../app.service';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
+import {LoadingBarService} from "@ngx-loading-bar/core";
 
 @Component({
   selector: 'app-associations',
@@ -25,8 +25,7 @@ export class AssociationsComponent implements OnDestroy{
     associationStatus;
     pause = false;
     // myValue = 10;
-    constructor(public $http:J4careHttpService, public appservices: AppService, private cfpLoadingBar: SlimLoadingBarService, public messaging: MessagingComponent, public httpErrorHandler:HttpErrorHandler) {
-        this.cfpLoadingBar.interval = 200;
+    constructor(public $http:J4careHttpService, public appservices: AppService, private cfpLoadingBar: LoadingBarService, public messaging: MessagingComponent, public httpErrorHandler:HttpErrorHandler) {
     }
 
 
@@ -164,7 +163,6 @@ export class AssociationsComponent implements OnDestroy{
                 }else{
                     this.associationStatus = null;
                 }
-                this.cfpLoadingBar.progress = this.cfpLoadingBar.progress + 10;
                 this.cfpLoadingBar.complete();
                 // },1000);
             }, (err) => {

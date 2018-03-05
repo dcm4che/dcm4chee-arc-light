@@ -54,6 +54,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.stream.Stream;
 
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.slf4j.Logger;
@@ -91,6 +92,9 @@ public class RealmRS {
                     writer.write("expiration", ctx.getExpiration());
                     writer.write("systemCurrentTime", (int) (System.currentTimeMillis()/1000L));
                     writer.writeNotEmpty("roles", ctx.getUserRoles());
+                    writer.writeNotNullOrDef("su",
+                            Stream.of(ctx.getUserRoles()).anyMatch(x -> x.equals(System.getProperty("super-user-role"))),
+                            false);
                     gen.writeEnd();
                     gen.flush();
                 } else {

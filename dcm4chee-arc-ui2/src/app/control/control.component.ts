@@ -2,11 +2,11 @@ import {Component, OnInit} from '@angular/core';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import {AppService} from '../app.service';
-import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {ControlService} from './control.service';
 import {WindowRefService} from "../helpers/window-ref.service";
 import {J4careHttpService} from "../helpers/j4care-http.service";
 import * as _ from 'lodash';
+import {LoadingBarService} from "@ngx-loading-bar/core";
 
 @Component({
     selector: 'app-control',
@@ -19,7 +19,7 @@ export class ControlComponent implements OnInit{
     constructor(
         public $http:J4careHttpService,
         public appservices: AppService,
-        private cfpLoadingBar: SlimLoadingBarService,
+        private cfpLoadingBar: LoadingBarService,
         private service: ControlService
     ) {}
     ngOnInit(){
@@ -41,7 +41,6 @@ export class ControlComponent implements OnInit{
     }
     init(){
         this.fetchStatus();
-        this.cfpLoadingBar.interval = 200;
     }
     // reverse = false;
     fetchStatus() {

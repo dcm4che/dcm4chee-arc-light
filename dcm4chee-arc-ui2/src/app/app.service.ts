@@ -100,12 +100,10 @@ export class AppService implements OnInit, OnDestroy{
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;});
     }
     get user(): any {
-        console.log('ingetuser');
         return this._user;
     }
 
     set user(value: any) {
-        console.log('user set', value);
         this._user = value;
     }
 
@@ -118,7 +116,6 @@ export class AppService implements OnInit, OnDestroy{
     }
 
     ngOnInit(): void {
-        console.log('in appservice on init before hhtp');
     }
     // getUserObservable():Observable<User>{
     //     return Observable.create(()=>{

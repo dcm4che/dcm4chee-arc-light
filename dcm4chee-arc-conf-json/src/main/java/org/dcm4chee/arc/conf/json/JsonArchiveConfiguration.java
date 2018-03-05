@@ -48,6 +48,7 @@ import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.data.ValueSelector;
+import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.Property;
 import org.dcm4che3.util.TagUtils;
@@ -436,6 +437,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmAETitle", aac.getAETitles());
             writer.writeNotEmpty("dcmHostname", aac.getHostNames());
             writer.writeNotEmpty("dcmSOPClass", aac.getSOPClasses());
+            writer.writeNotEmpty("dcmDeIdentification", aac.getDeIdentification());
             writer.writeNotDef("dcmNoKeywords", aac.isNoKeywords(), false);
             writer.writeNotNullOrDef("dcmURI", aac.getXSLTStylesheetURI(), null);
             writer.writeNotNullOrDef("dcmLeadingCFindSCP", aac.getLeadingCFindSCP(), null);
@@ -1470,6 +1472,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmSOPClass":
                         aac.setSOPClasses(reader.stringArray());
+                        break;
+                    case "dcmDeIdentification":
+                        aac.setDeIdentification(enumArray(DeIdentifier.Option.class, reader.stringArray()));
                         break;
                     case "dcmURI":
                         aac.setXSLTStylesheetURI(reader.stringValue());

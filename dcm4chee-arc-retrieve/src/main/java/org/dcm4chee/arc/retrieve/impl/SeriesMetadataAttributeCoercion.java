@@ -66,6 +66,11 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
     }
 
     @Override
+    public String remapUID(String uid) {
+        return uid;
+    }
+
+    @Override
     public void coerce(Attributes attrs, Attributes modified) {
         attrs.setString(Tag.RetrieveAETitle, VR.AE, inst.getRetrieveAETs());
         attrs.setString(Tag.InstanceAvailability, VR.CS, inst.getAvailability().toString());

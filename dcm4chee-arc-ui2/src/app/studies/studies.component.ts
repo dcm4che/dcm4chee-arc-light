@@ -4,7 +4,6 @@ import {StudiesService} from './studies.service';
 import {AppService} from '../app.service';
 import {User} from '../models/user';
 import {Globalvar} from '../constants/globalvar';
-import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import * as _ from 'lodash';
 import {MessagingComponent} from '../widgets/messaging/messaging.component';
 import {SelectItem} from 'primeng/components/common/api';
@@ -29,6 +28,8 @@ import {HttpErrorHandler} from "../helpers/http-error-handler";
 import {J4careHttpService} from "../helpers/j4care-http.service";
 import {j4care} from "../helpers/j4care.service";
 import {ViewerComponent} from "../widgets/dialogs/viewer/viewer.component";
+import {PermissionService} from "../helpers/permissions/permission.service";
+import {LoadingBarModule, LoadingBarService} from "@ngx-loading-bar/core";
 declare var Keycloak: any;
 declare var $: any;
 
@@ -56,7 +57,10 @@ export class StudiesComponent implements OnDestroy,OnInit{
     trashaktive = false;
     clipboard: any = {};
     showCheckboxes = false;
-    disabled = {};
+    disabled = {
+        IssuerOfPatientID:false,
+        LocalNamespaceEntityID:false
+    };
     patientmode = false;
     withoutstudies = false;
     ExternalRetrieveAETchecked = false;
@@ -72,8 +76,12 @@ export class StudiesComponent implements OnDestroy,OnInit{
         'ScheduledProcedureStepSequence.ScheduledProcedureStepStatus': '',
         returnempty: false,
         PatientSex: '',
+        PatientName:'',
         PatientBirthDate: '',
+        PatientID:'',
         StudyDate:'',
+        IssuerOfPatientID:'',
+        fuzzymatching:'',
         StudyTime:''
     };
     queryMode = 'queryStudies';
@@ -187,7 +195,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
         modus: 'patient',
         showmwls: true
     };
-    isRole: any;
+    isRole(rule){
+        return true;
+    };
     study =  {
         modus: 'study',
         selected: false
@@ -260,16 +270,19 @@ export class StudiesComponent implements OnDestroy,OnInit{
         public $http: J4careHttpService,
         public service: StudiesService,
         public mainservice: AppService,
-        public cfpLoadingBar: SlimLoadingBarService,
+        public cfpLoadingBar: LoadingBarService,
+        private loadingBar:LoadingBarService,
         public viewContainerRef: ViewContainerRef ,
         public dialog: MatDialog,
         public config: MatDialogConfig,
         public httpErrorHandler:HttpErrorHandler,
-        public j4care:j4care
+        public j4care:j4care,
+        public permissionService:PermissionService
     ) {}
     ngOnInit(){
         this.initCheck(10);
         console.log("deviceName,",this.mainservice["deviceName"]);
+
     }
     initCheck(retries){
         let $this = this;
@@ -320,7 +333,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
         // if(_.hasIn(this.mainservice.global,"patients")){
         //     this.patients = this.mainservice.global.patients;
         // }
-        this.cfpLoadingBar.interval = 200;
         this.modalities = Globalvar.MODALITIES;
 
         this.initAETs(2);
@@ -329,7 +341,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.initExporters(2);
         this.initRjNotes(2);
         // this.user = this.mainservice.user;
-        if (!this.mainservice.user){
+/*        if (!this.mainservice.user){
             // console.log("in if studies ajax");
             this.mainservice.user = this.mainservice.getUserInfo().share();
             this.mainservice.user
@@ -371,7 +383,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
             // console.log("isroletest",this.user.applyisRole("admin"));
-        }
+        }*/
         this.hoverdic.forEach((m, i) => {
             $(document.body).on('mouseover mouseleave', m, function(e){
                 if (e.type === 'mouseover' && $this.visibleHeaderIndex != i){
@@ -396,7 +408,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
             console.log('$this.keysdown', this.keysdown);
             console.log('e.keyCode', e.keyCode);
-            console.log('isrole admin=', $this.isRole('admin'));
+            // console.log('isrole admin=', $this.isRole('admin'));
             // console.log("isrole admin=",this.mainservice.isRole);
             // Remember it's down
             let validKeys = [16, 17, 67, 77, 86, 88, 91, 93, 224];
@@ -2685,7 +2697,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     contentType = inst.attrs['00420012'].Value[0];
                 }
             }
-            if(contentType === 'application/pdf' || contentType === 'video/mpeg'){
+            if(!contentType || contentType === 'application/pdf' || contentType === 'video/mpeg'){
                 // this.j4care.download(url);
                 if(!this.mainservice.global.notSecure){
                     WindowRefService.nativeWindow.open(this.renderURL(inst) + `&access_token=${token}`);
@@ -3343,7 +3355,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     this.dialogRef.componentInstance.reject = this.reject;
                     this.dialogRef.componentInstance.saveLabel = action;
                     this.dialogRef.componentInstance.title = title;
-                    this.cfpLoadingBar.stop();
+                    this.cfpLoadingBar.complete();
                     this.dialogRef.afterClosed().subscribe(result => {
                         $this.cfpLoadingBar.start();
                         if (result) {
@@ -3395,9 +3407,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                         $this.selected = {};
                                         $this.clipboard = {};
                                         $this.fireRightQuery();
-                                        $this.cfpLoadingBar.stop();
+                                        $this.cfpLoadingBar.complete();
                                     }, (response) => {
-                                        $this.cfpLoadingBar.stop();
+                                        $this.cfpLoadingBar.complete();
                                         $this.httpErrorHandler.handleError(response);
                                     });
                             }
@@ -3461,12 +3473,12 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                              'text': 'Object with the Study Instance UID ' + m.StudyInstanceUID + ' copied successfully!',
                                                              'status': 'info'
                                                              });
-                                                            $this.cfpLoadingBar.stop();
+                                                            $this.cfpLoadingBar.complete();
                                                             // $this.callBackFree = true;
                                                         }, (response) => {
                                                             console.log('resin err', response);
                                                             $this.clipboard = {};
-                                                            $this.cfpLoadingBar.stop();
+                                                            $this.cfpLoadingBar.complete();
                                                             $this.httpErrorHandler.handleError(response);
                                                             // $this.callBackFree = true;
                                                         });
@@ -3474,7 +3486,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                 $this.fireRightQuery();
                                             },
                                             (response) => {
-                                                $this.cfpLoadingBar.stop();
+                                                $this.cfpLoadingBar.complete();
                                                 $this.httpErrorHandler.handleError(response);
                                                 console.log('response', response);
                                             }
@@ -3503,7 +3515,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                             })
                                             .subscribe((response) => {
                                                 console.log('in then function');
-                                                $this.cfpLoadingBar.stop();
+                                                $this.cfpLoadingBar.complete();
                                                 $this.mainservice.setMessage({
                                                     'title': 'Info',
                                                     'text': 'Object with the Study Instance UID ' + $this.target.attrs['0020000D'].Value[0] + ' copied successfully!',
@@ -3514,7 +3526,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                 $this.fireRightQuery();
                                                 // $this.callBackFree = true;
                                             }, (response) => {
-                                                $this.cfpLoadingBar.stop();
+                                                $this.cfpLoadingBar.complete();
                                                 $this.httpErrorHandler.handleError(response);
                                                 // $this.callBackFree = true;
                                             });
@@ -3573,7 +3585,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                             console.log('in then function');
                                                             $this.clipboard = {};
                                                             $this.selected = {};
-                                                            $this.cfpLoadingBar.stop();
+                                                            $this.cfpLoadingBar.complete();
                                                             $this.mainservice.setMessage({
                                                                 'title': 'Info',
                                                                 'text': 'Object with the Study Instance UID ' + m.StudyInstanceUID + ' moved successfully!',
@@ -3581,13 +3593,13 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                             });
                                                             $this.fireRightQuery();
                                                         }, (response) => {
-                                                            $this.cfpLoadingBar.stop();
+                                                            $this.cfpLoadingBar.complete();
                                                             $this.httpErrorHandler.handleError(response);
                                                         });
                                                 });
                                             },
                                             (response) => {
-                                                $this.cfpLoadingBar.stop();
+                                                $this.cfpLoadingBar.complete();
                                                 $this.httpErrorHandler.handleError(response);
                                                 console.log('response', response);
                                             }
@@ -3625,7 +3637,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                             })
                                             .subscribe((response) => {
                                                 console.log('in then function');
-                                                $this.cfpLoadingBar.stop();
+                                                $this.cfpLoadingBar.complete();
                                                 $this.mainservice.setMessage({
                                                     'title': 'Info',
                                                     'text': 'Object with the Study Instance UID ' + $this.target.attrs['0020000D'].Value[0] + ' moved successfully!',
@@ -3637,7 +3649,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                                 }
                                                 $this.fireRightQuery();
                                             }, (response) => {
-                                                $this.cfpLoadingBar.stop();
+                                                $this.cfpLoadingBar.complete();
                                                 $this.httpErrorHandler.handleError(response);
                                                 if(index == Object.keys($this.clipboard.otherObjects).length){
                                                     $this.clipboard = {};
@@ -3654,7 +3666,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                             $this.selected = {};
                             $this.clipboard = {};
                         }
-                        $this.cfpLoadingBar.stop();
+                        $this.cfpLoadingBar.complete();
                         this.dialogRef = null;
                     });
             }else {

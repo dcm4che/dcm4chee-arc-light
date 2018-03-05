@@ -107,7 +107,7 @@
                     <dcm-select [options]="formelement.options" [placeholder]="(formelement.options && formelement.options.length && formelement.options.length > 0 ? 'Select a ' + formelement.label:'No childe found')">
                         <ng-template let-select="select">
                             <div class="title_select_block" (click)="navigateTo(select.url, formelement.options)">{{select.title}}</div>
-                            <a [ngClass]="{'disabled':!form.valid}" class="clone_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement, select)" title="Clone this {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
+                            <a [ngClass]="{'disabled':!form.valid}" class="clone_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();clone(formelement, select, formelement.options)" title="Clone this {{formelement.label}} part"><i class="material-icons">content_copy</i></a>
                             <a [ngClass]="{'disabled':!form.valid}" class="remove_button" *ngIf="formelement.options && formelement.options.length > 0" (click)="$event.preventDefault();removePart(formelement, select)" title="Delete this {{formelement.label}} part"><i class="material-icons">clear</i></a>
                         </ng-template>
                     </dcm-select>

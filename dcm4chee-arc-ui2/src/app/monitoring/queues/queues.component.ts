@@ -4,7 +4,6 @@ import {QueuesService} from './queues.service';
 import {AppService} from '../../app.service';
 import {User} from '../../models/user';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
-import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {MatDialogRef, MatDialog, MatDialogConfig} from '@angular/material';
 import {DatePipe} from '@angular/common';
 import * as _ from 'lodash';
@@ -12,6 +11,7 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {errorHandler} from "@angular/platform-browser/src/browser";
+import {LoadingBarService} from "@ngx-loading-bar/core";
 
 @Component({
   selector: 'app-queues',
@@ -51,7 +51,7 @@ export class QueuesComponent implements OnInit{
         public $http:J4careHttpService,
         public service: QueuesService,
         public mainservice: AppService,
-        public cfpLoadingBar: SlimLoadingBarService,
+        public cfpLoadingBar: LoadingBarService,
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
         public config: MatDialogConfig,

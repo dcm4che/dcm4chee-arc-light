@@ -2,11 +2,11 @@ import { Component } from '@angular/core';
 import {Http} from '@angular/http';
 import {MatDialogRef} from '@angular/material';
 import {AppService} from '../../../app.service';
-import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import * as _ from 'lodash';
 import {CreateExporterService} from './create-exporter.service';
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {LoadingBarService} from "@ngx-loading-bar/core";
 
 @Component({
   selector: 'app-create-exporter',
@@ -39,7 +39,7 @@ export class CreateExporterComponent {
         public $http:J4careHttpService,
         public dialogRef: MatDialogRef<CreateExporterComponent>,
         public mainservice: AppService,
-        public cfpLoadingBar: SlimLoadingBarService,
+        public cfpLoadingBar: LoadingBarService,
         private service: CreateExporterService,
         private httpErrorHandler:HttpErrorHandler
     ) {
@@ -90,7 +90,7 @@ export class CreateExporterComponent {
             $this.showselectdevice = false;
             if ($this.externalAe && $this.selectedDeviceObject)
                 $this.showexporter = true;
-            $this.cfpLoadingBar.stop();
+            $this.cfpLoadingBar.complete();
         }, (err) => {
             $this.httpErrorHandler.handleError(err);
             $this.cfpLoadingBar.complete();

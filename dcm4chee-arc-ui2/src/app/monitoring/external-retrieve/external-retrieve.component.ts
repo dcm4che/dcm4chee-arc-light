@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import {AppService} from "../../app.service";
-import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 import * as _ from 'lodash';
 import {AeListService} from "../../ae-list/ae-list.service";
 import {Observable} from "rxjs/Observable";
@@ -15,6 +14,7 @@ import * as FileSaver from 'file-saver';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import "rxjs/add/observable/forkJoin";
+import {LoadingBarService} from '@ngx-loading-bar/core';
 
 @Component({
   selector: 'external-retrieve',
@@ -52,7 +52,7 @@ export class ExternalRetrieveComponent implements OnInit {
     ];
     allAction;
     constructor(
-      public cfpLoadingBar: SlimLoadingBarService,
+      public cfpLoadingBar: LoadingBarService,
       public mainservice: AppService,
       public aeListService:AeListService,
       public service:ExternalRetrieveService,
@@ -215,7 +215,7 @@ export class ExternalRetrieveComponent implements OnInit {
                             this.service.cancelAll(this.filterObject).subscribe((res)=>{
                                 this.mainservice.setMessage({
                                     'title': 'Info',
-                                    'text': res.count + ' queues deleted successfully!',
+                                    'text': res.count + ' tasks deleted successfully!',
                                     'status': 'info'
                                 });
                                 this.cfpLoadingBar.complete();
@@ -242,7 +242,7 @@ export class ExternalRetrieveComponent implements OnInit {
                         this.service.deleteAll(this.filterObject).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.deleted + ' queues deleted successfully!',
+                                'text': res.deleted + ' tasks deleted successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();
@@ -394,6 +394,7 @@ export class ExternalRetrieveComponent implements OnInit {
         this.service.getExternalRetrieveEntries(this.filterObject,offset).subscribe(
             res =>  {
                 $this.cfpLoadingBar.complete();
+                res = [{"pk":1,"createdTime":"2018-02-20T11:39:20.826+0100","updatedTime":"2018-02-20T12:44:52.724+0100","LocalAET":"DCM4CHEE","RemoteAET":"ARCHIVEACT","DestinationAET":"DCM4CHEE","StudyInstanceUID":"1.2.40.1.12.15535044","statusCode":"A801","errorComment":"Unknown AE: DCM4CHEE","dicomDeviceName":"dcm4chee-arc","status":"FAILED","failures":11,"scheduledTime":"2018-02-20T12:44:52.623+0100","processingStartTime":"2018-02-20T12:44:52.628+0100","processingEndTime":"2018-02-20T12:44:59.734+0100","outcomeMessage":"Export STUDY[suid:1.2.40.1.12.15535044] from ARCHIVEACT to DCM4CHEE failed - status:A801H, error:Unknown AE: DCM4CHEE"},{"pk":3,"createdTime":"2018-02-20T11:39:20.963+0100","updatedTime":"2018-02-20T12:44:52.717+0100","LocalAET":"DCM4CHEE","RemoteAET":"ARCHIVEACT","DestinationAET":"DCM4CHEE","StudyInstanceUID":"1.2.4.0.13.1.432252867.1552278.1","statusCode":"A801","errorComment":"Unknown AE: DCM4CHEE","dicomDeviceName":"dcm4chee-arc","status":"FAILED","failures":11,"scheduledTime":"2018-02-20T12:44:52.606+0100","processingStartTime":"2018-02-20T12:44:52.614+0100","processingEndTime":"2018-02-20T12:44:52.724+0100","outcomeMessage":"Export STUDY[suid:1.2.4.0.13.1.432252867.1552278.1] from ARCHIVEACT to DCM4CHEE failed - status:A801H, error:Unknown AE: DCM4CHEE"},{"pk":2,"createdTime":"2018-02-20T11:39:20.826+0100","updatedTime":"2018-02-20T12:44:52.711+0100","LocalAET":"DCM4CHEE","RemoteAET":"ARCHIVEACT","DestinationAET":"DCM4CHEE","StudyInstanceUID":"1.2.40.1.12.13589053","statusCode":"A801","errorComment":"Unknown AE: DCM4CHEE","dicomDeviceName":"dcm4chee-arc","status":"FAILED","failures":11,"scheduledTime":"2018-02-20T12:44:52.616+0100","processingStartTime":"2018-02-20T12:44:52.620+0100","processingEndTime":"2018-02-20T12:44:52.718+0100","outcomeMessage":"Export STUDY[suid:1.2.40.1.12.13589053] from ARCHIVEACT to DCM4CHEE failed - status:A801H, error:Unknown AE: DCM4CHEE"}]
                 if (res && res.length > 0){
                     this.externalRetrieveEntries =  res.map((properties, index) => {
                         if (_.hasIn(properties, 'Modality')){
@@ -401,6 +402,7 @@ export class ExternalRetrieveComponent implements OnInit {
                         }
                         properties.taskState = (properties.completed ? properties.completed*1:0) + ' / ' + (properties.remaining ? properties.remaining*1:0) + ' / '+ (properties.failed ? properties.failed*1:0);
                         try{
+                            properties.NumberOfInstances = properties.NumberOfInstances || ((properties.completed ? properties.completed*1:0) + (properties.remaining ? properties.remaining*1:0) + (properties.failed ? properties.failed*1:0));
                             properties.InstancePerSec = (Math.round((((new Date(properties.processingEndTime).getTime()/1000) - (new Date(properties.processingStartTime).getTime()/1000)) / properties.NumberOfInstances)*1000)/1000) || 0;
                         }catch (e){
                             properties.InstancePerSec = '';

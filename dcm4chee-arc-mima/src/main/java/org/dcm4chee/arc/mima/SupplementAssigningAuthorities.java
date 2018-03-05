@@ -71,6 +71,11 @@ public class SupplementAssigningAuthorities implements AttributesCoercion {
     }
 
     @Override
+    public String remapUID(String uid) {
+        return next != null ? next.remapUID(uid) : uid;
+    }
+
+    @Override
     public void coerce(Attributes attrs, Attributes modified) {
         entity.supplement(this, attrs);
         if (next != null)

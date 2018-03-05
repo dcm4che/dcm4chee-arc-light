@@ -1,4 +1,4 @@
-<ng2-slim-loading-bar [color]="'#2FA6C1'"></ng2-slim-loading-bar>
+<ngx-loading-bar [color]="'#2d404f'"></ngx-loading-bar>
 <!--<button (click)="onClick()">Alert</button>-->
 <!--<button (click)="msgcomp.setMessage('SetnewMessagetest')">setmessage</button>-->
 <app-messaging></app-messaging>
@@ -10,15 +10,15 @@
         <!--<div class="progress"></div>-->
     <!--</li>-->
 <!--</div>-->
-<div class="user" *ngIf="user.user && user.user != 'anonymous'" (clickOutside)="showUserMenu=false">
+<div class="user" *ngIf="user && user.user && user.user != 'anonymous'" (clickOutside)="showUserMenu=false">
     <span (click)="showUserMenu = !showUserMenu" id="usermenu">
-        <div class="username" *ngIf="user.user && user.user != 'anonymous'"><i  class="glyphicon glyphicon-user"></i> {{user.user}}</div>
+        <div class="username" *ngIf="user && user.user && user.user != 'anonymous'"><i  class="glyphicon glyphicon-user"></i> {{user.user}}</div>
         <i class="config glyphicon glyphicon-cog"></i>
     </span>
     <ul *ngIf="showUserMenu">
-        <li *ngIf="user.user && user.user != 'anonymous'"><a href="{{authServerUrl}}/realms/{{realm}}/account" target="_blank">Edit Account</a></li>
-        <li *ngIf="user.user && user.user != 'anonymous' && isRole('admin')"><a href="{{authServerUrl}}/admin/{{realm}}/console" target="_blank">Admin Realm</a></li>
-        <li *ngIf="user.user && user.user != 'anonymous'"><a href="{{logoutUrl}}">Logout</a></li>
+        <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="{{authServerUrl}}/realms/{{realm}}/account" target="_blank">Edit Account</a></li>
+        <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="{{authServerUrl}}/admin/{{realm}}/console" target="_blank">Admin Realm</a></li>
+        <li *ngIf="user && user.user && user.user != 'anonymous'"><a href="{{logoutUrl}}">Logout</a></li>
         <li><a (click)="$event.preventDefault();productLabelling()">About</a></li>
     </ul>
 </div>
@@ -34,10 +34,10 @@
 <ul id="mainmenu" class="nav slideInLeft animated" *ngIf="showMenu" (clickOutside)="closeFromOutside()" [clickOutsideExceptionClass]="'menu_button'">
     <div (click)="showMenu = false;" class="glyphicon glyphicon-align-justify toggle-button "></div>
     <!--<li (click)="showMenu = false;"><a routerLink="queues" routerLinkActive="active">Queues</a></li>-->
-    <li (click)="showMenu = false;"><a routerLink="monitoring/queues" routerLinkActive="active">Monitoring</a></li>
-    <li (click)="showMenu = false;"><a routerLink="studies" routerLinkActive="active">Studies</a></li>
+    <li (click)="showMenu = false;" [permission]="{id:'menu-monitoring',param:'visible'}"><a routerLink="monitoring/queues" routerLinkActive="active">Monitoring</a></li>
+    <li (click)="showMenu = false;" [permission]="{id:'menu-studies',param:'visible'}"><a routerLink="studies" routerLinkActive="active">Studies</a></li>
     <!--<li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="control" routerLinkActive="active">Control</a></li>-->
-    <li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="device/devicelist" routerLinkActive="active">Configuration</a></li>
+    <li (click)="showMenu = false;" [permission]="{id:'menu-configuration',param:'visible'}"><a routerLink="device/devicelist" routerLinkActive="active">Configuration</a></li>
 </ul>
 <img src="assets/img/logo.png" class="logo" title="Product labelling" (click)="productLabelling()" >
 <router-outlet ></router-outlet>

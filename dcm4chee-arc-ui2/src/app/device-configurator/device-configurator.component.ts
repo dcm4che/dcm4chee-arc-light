@@ -7,13 +7,13 @@ import * as _ from 'lodash';
 import {Observable} from 'rxjs';
 import {AppService} from '../app.service';
 import {ControlService} from '../control/control.service';
-import {SlimLoadingBarService} from 'ng2-slim-loading-bar';
 import {WindowRefService} from "../helpers/window-ref.service";
 import {HttpErrorHandler} from "../helpers/http-error-handler";
 import {AeListService} from "../ae-list/ae-list.service";
 import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
 import {DevicesService} from "../devices/devices.service";
 import {J4careHttpService} from "../helpers/j4care-http.service";
+import {LoadingBarService} from "@ngx-loading-bar/core";
 
 @Component({
   selector: 'app-device-configurator',
@@ -39,7 +39,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         private $http:J4careHttpService,
         private mainservice: AppService,
         private controlService: ControlService,
-        private cfpLoadingBar: SlimLoadingBarService,
+        private cfpLoadingBar: LoadingBarService,
         private httpErrorHandler:HttpErrorHandler,
         private aeService:AeListService,
         private hl7Service:Hl7ApplicationsService,
@@ -113,7 +113,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                             suffixArray:[],
                                             allArray:[],
                                             devicereff: undefined,
-                                            childObjectTitle:''
+                                            childObjectTitle:'',
+                                            clone:this.inClone
                                         }
                                     ];
                                 }catch (e){
@@ -335,7 +336,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         suffixArray:[],
                         allArray:[],
                         devicereff: '',
-                        childObjectTitle:''
+                        childObjectTitle:'',
+                        clone:this.inClone
                     };
                     let newPaginationIndex = _.findIndex($this.service.pagination, (p) => {
                         return p.url === newPaginationObject.url;
@@ -354,7 +356,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                 $this.service.device = {};
                                 $this.schema = schema;
                                 $this.service.schema = schema;
-                                let formObject = $this.service.convertSchemaToForm($this.device, $this.schema, params);
+                                let formObject = $this.service.convertSchemaToForm($this.device, $this.schema, params, this.inClone||this.isNew?'attr':'ext');
                                 $this.formObj = formObject;
                                 $this.model = {};
                                 setTimeout(() => {
@@ -377,7 +379,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                     console.log('deviceschema', deviceschema);
                                     $this.device = deviceschema[0];
                                     $this.schema = deviceschema[1];
-                                    let formObject = $this.service.convertSchemaToForm($this.device, $this.schema, params);
+                                    let formObject = $this.service.convertSchemaToForm($this.device, $this.schema, params, this.inClone||this.isNew?'attr':'ext');
                                     $this.formObj = formObject;
                                     $this.model = {};
                                     setTimeout(() => {
@@ -436,8 +438,12 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         }else{
             this.isNew = false;
         }
+        let prefixSuffix;
         let newUrl = '/device/edit/' + params['device'] + '/' + params['devicereff'] + '/' + params['schema'];
-        let prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['schema']]);
+        if(this.inClone)
+            prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['clone']]);
+        else
+            prefixSuffix = this.service.getPrefixAndSuffixArray(newUrl,this.service.allOptions[params['schema']]);
 
         let newPaginationObject = {
             url: newUrl,
@@ -448,7 +454,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             allArray:[...prefixSuffix.prefix,...prefixSuffix.suffix],
             devicereff: params['devicereff'],
             materialIconName:this.service.getMaterialIconNameForBreadcrumbs(params['devicereff']),
-            childObjectTitle:newSchema.title || ''
+            childObjectTitle: (newSchema && newSchema.title) ? newSchema.title : '',
+            clone:this.inClone
         };
         let newPaginationIndex = _.findIndex($this.service.pagination, (p) => {
             return this.service.isSameSiblingUrl(p.url,newPaginationObject.url);
@@ -511,7 +518,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     //TODO
                 }
                 _.set($this.service.schema, params['schema'], newSchema);
-                form = $this.service.convertSchemaToForm($this.model, newSchema, params);
+                form = $this.service.convertSchemaToForm($this.model, newSchema, params, this.inClone||this.isNew?'attr':'ext');
                 $this.formObj = form;
                 setTimeout(() => {
                     $this.showform = true;
@@ -523,7 +530,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             );
         } else {
             // let newSchema = $this.service.getSchemaFromPath($this.service.schema,schemaparam);
-            form = $this.service.convertSchemaToForm(newModel, newSchema, params);
+            form = $this.service.convertSchemaToForm(newModel, newSchema, params, this.inClone||this.isNew?'attr':'ext');
             _.set($this.service.schema, params['schema'], newSchema);
             $this.formObj = form;
             setTimeout(() => {
@@ -533,33 +540,34 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             // this._changeDetectionRef.detectChanges();
 
         }
+    }
+    deleteForm(){
+        this.model = {};
+        this.formObj = [];
+    }
+    clearSearch(){
+        this.searchBreadcrum.forEach((m,i) =>{
+            this.searchBreadcrum[i] = '';
+        });
+    }
+    fireBreadcrumb(breadcrumb){
+        this.clearSearch();
+        if (breadcrumb.url ===  '/device/devicelist'){ // for some reason when the user visited the device configurator and than comes back while trying to create new device, the old device is still in the pagination
+            this.params = this.service.pagination = [
+                 {
+                     url: '/device/devicelist',
+                     title: 'devicelist',
+                     prefixArray:[],
+                     suffixArray:[],
+                     allArray:[],
+                     devicereff: undefined,
+                     childObjectTitle:'',
+                     clone:this.inClone
+                 }
+             ];
         }
-        deleteForm(){
-            this.model = {};
-            this.formObj = [];
-        }
-        clearSearch(){
-            this.searchBreadcrum.forEach((m,i) =>{
-                this.searchBreadcrum[i] = '';
-            });
-        }
-        fireBreadcrumb(breadcrumb){
-            this.clearSearch();
-            if (breadcrumb.url ===  '/device/devicelist'){ // for some reason when the user visited the device configurator and than comes back while trying to create new device, the old device is still in the pagination
-                this.params = this.service.pagination = [
-                     {
-                         url: '/device/devicelist',
-                         title: 'devicelist',
-                         prefixArray:[],
-                         suffixArray:[],
-                         allArray:[],
-                         devicereff: undefined,
-                         childObjectTitle:''
-                     }
-                 ];
-            }
-            this.router.navigateByUrl(breadcrumb.url);
-        }
+        this.router.navigateByUrl(breadcrumb.url);
+    }
     hoveredElement(element){
             console.log("element",element);
             console.log("device",this.service.device);
@@ -579,7 +587,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 device:'dcm4chee-arc',
                 devicereff:objects.devicereff,
                 schema:objects.schema
-            });
+            },this.inClone||this.isNew?'attr':'ext');
             this.toCompareObject = objects.model;
             this.showCompare = true;
         },1)

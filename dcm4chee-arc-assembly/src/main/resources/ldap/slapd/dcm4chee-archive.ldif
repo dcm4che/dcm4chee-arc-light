@@ -969,6 +969,15 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.195 NAME 'dcmXRoadProperty'
   DESC 'Property in format <name>=<value>'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.196 NAME 'dcmUIConfigurationDeviceName'
+  DESC 'Specifies the device name containing the Archive UI Configuration.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.197 NAME 'dcmDeIdentification'
+  DESC 'De-identify objects according the Basic Application Level Confidentiality Profile specified in DICOM PS3.15. Selecting any Option implicitly includes the Basic Application Level Confidentiality Profile. Enumerated values: BasicApplicationConfidentialityProfile, RetainLongitudinalTemporalInformationFullDatesOption, RetainDeviceIdentityOption, RetainUIDsOption, RetainInstitutionIdentityOption.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1090,6 +1099,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmQueueTasksFetchSize $
     dcmRejectionNoteStorageAET $
     dcmXRoadProperty $
+    dcmUIConfigurationDeviceName $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
     hl7PSUReceivingApplication $
@@ -1282,6 +1292,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmAETitle $
     dcmHostname $
     dcmSOPClass $
+    dcmDeIdentification $
     dcmURI $
     dcmNoKeywords $
     dcmMergeMWLMatchingKey $

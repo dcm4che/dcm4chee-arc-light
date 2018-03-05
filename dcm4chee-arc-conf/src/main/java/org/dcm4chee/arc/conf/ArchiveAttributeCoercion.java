@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
 import org.dcm4che3.net.TransferCapability;
@@ -60,6 +61,7 @@ public class ArchiveAttributeCoercion {
     private String[] sopClasses = {};
     private String[] aeTitles = {};
     private String[] hostNames = {};
+    private DeIdentifier.Option[] deIdentification = {};
     private String xsltStylesheetURI;
     private boolean noKeywords;
     private String leadingCFindSCP;
@@ -137,6 +139,14 @@ public class ArchiveAttributeCoercion {
     public ArchiveAttributeCoercion setHostNames(String... hostNames) {
         this.hostNames = hostNames;
         return this;
+    }
+
+    public DeIdentifier.Option[] getDeIdentification() {
+        return deIdentification;
+    }
+
+    public void setDeIdentification(DeIdentifier.Option[] deIdentification) {
+        this.deIdentification = deIdentification;
     }
 
     public String getXSLTStylesheetURI() {
@@ -243,6 +253,7 @@ public class ArchiveAttributeCoercion {
                 + ", aets=" + Arrays.toString(aeTitles)
                 + ", hostNames=" + Arrays.toString(hostNames)
                 + ", cuids=" + Arrays.toString(sopClasses)
+                + ", deIdentification=" + Arrays.toString(deIdentification)
                 + ", xslturi=" + xsltStylesheetURI
                 + ", noKeywords=" + noKeywords
                 + ", leadingCFindSCP=" + leadingCFindSCP

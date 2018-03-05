@@ -89,7 +89,7 @@
     <repository>
       <id>www.dcm4che.org</id>
       <name>dcm4che Repository</name>
-      <url>http://www.dcm4che.org/maven2</url>
+      <url>http://maven.dcm4che.org</url>
     </repository>
     <repository>
       <id>jboss-ga-repository</id>
@@ -213,6 +213,12 @@
     <dependency>
       <groupId>org.dcm4che</groupId>
       <artifactId>dcm4che-dcmr</artifactId>
+      <version>${dcm4che.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che</groupId>
+      <artifactId>dcm4che-deident</artifactId>
       <version>${dcm4che.version}</version>
       <scope>provided</scope>
     </dependency>

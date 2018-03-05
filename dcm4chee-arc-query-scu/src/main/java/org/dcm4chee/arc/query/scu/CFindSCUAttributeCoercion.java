@@ -83,6 +83,11 @@ public class CFindSCUAttributeCoercion implements AttributesCoercion {
     }
 
     @Override
+    public String remapUID(String uid) {
+        return uid;
+    }
+
+    @Override
     public void coerce(Attributes attrs, Attributes modified) {
         String studyIUID = attrs.getString(Tag.StudyInstanceUID);
         Attributes newAttrs = queryStudy(studyIUID);

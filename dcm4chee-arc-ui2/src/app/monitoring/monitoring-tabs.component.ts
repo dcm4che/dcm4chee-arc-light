@@ -4,14 +4,16 @@ import { Component, OnInit } from '@angular/core';
     selector: 'monitoring-tabs',
     template: `
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/queues" routerLinkActive="active">Queues</a></li>
-        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/export" routerLinkActive="active">Export</a></li>
-        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/external" routerLinkActive="active">External Retrieve</a></li>
-        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/control" routerLinkActive="active">Control</a></li>
-        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/associations" routerLinkActive="active">Associations</a></li>
-
-        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-commitment" routerLinkActive="active">Storage commitments</a></li>
-        <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-systems" routerLinkActive="active">Storage systems</a></li>
+        <li [permission]="{id:'tab-monitoring->queues',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/queues" routerLinkActive="active">Queues</a></li>
+        <li [permission]="{id:'tab-monitoring->export',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/export" routerLinkActive="active">Export</a></li>
+        <li [permission]="{id:'tab-monitoring->external_retrieve',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/external" routerLinkActive="active">External Retrieve</a></li>
+        <li [permission]="{id:'tab-monitoring->control',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/control" routerLinkActive="active">Control</a></li>
+        <li [permission]="{id:'tab-monitoring->associations',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/associations" routerLinkActive="active">Associations</a></li>
+        
+        <!--<li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/statistics" routerLinkActive="active">Statistics</a></li>-->
+        <!--// <li role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/lifecycle-management" routerLinkActive="active">Lifecycle managements</a></li>-->
+        <li [permission]="{id:'tab-monitoring->storage_commitments',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-commitment" routerLinkActive="active">Storage commitments</a></li>
+        <li [permission]="{id:'tab-monitoring->storage_systems',param:'visible'}" role="presentation" routerLinkActive="active"><a role="tab" routerLink="/monitoring/storage-systems" routerLinkActive="active">Storage systems</a></li>
     </ul>
   `
 })

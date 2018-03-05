@@ -68,6 +68,21 @@
       },
       "format": "dcmSOPClass"
     },
+    "dcmDeIdentification": {
+      "title": "De-identification",
+      "description": "De-identify objects according the Basic Application Level Confidentiality Profile specified in DICOM PS3.15. Selecting any Option implicitly includes the Basic Application Level Confidentiality Profile.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "BasicApplicationConfidentialityProfile",
+          "RetainLongitudinalTemporalInformationFullDatesOption",
+          "RetainDeviceIdentityOption",
+          "RetainInstitutionIdentityOption",
+          "RetainUIDsOption"
+        ]
+      }
+    },
     "dcmURI": {
       "title": "XSL Stylesheet URI",
       "description": "Specifies URI of the XSL style sheet for Attribute Coercion",

@@ -12,7 +12,6 @@ import { StudiesComponent } from './studies/studies.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { ControlComponent } from './control/control.component';
 import { QueuesComponent } from './monitoring/queues/queues.component';
-import {SlimLoadingBarModule} from 'ng2-slim-loading-bar';
 import { OrderByPipe } from './pipes/order-by.pipe';
 import { GetKeyPipe } from './pipes/get-key.pipe';
 import {WidgetsModule, WidgetsComponents} from './widgets/widgets.module';
@@ -74,9 +73,12 @@ import { FilterGeneratorComponent } from './helpers/filter-generator/filter-gene
 import {CalendarModule} from "primeng/components/calendar/calendar";
 import { ClickOutsideDirective } from './helpers/click-outside.directive';
 import {DynamicFieldService} from "./widgets/dynamic-field/dynamic-field.service";
-import {AuthGuard} from "./helpers/auth.guard";
+import {AuthGuard} from "./helpers/permissions/auth.guard";
 import {HttpClientModule} from "@angular/common/http";
-import {PermissionService} from "./helpers/permission.service";
+import {PermissionService} from "./helpers/permissions/permission.service";
+import { PermissionDirective } from './helpers/permissions/permission.directive';
+import {LoadingBarModule} from "@ngx-loading-bar/core";
+import {PermissionDeniedComponent} from "./helpers/permissions/permission-denied.component";
 
 @NgModule({
     declarations: [
@@ -122,6 +124,8 @@ import {PermissionService} from "./helpers/permission.service";
         ExternalRetrieveComponent,
         FilterGeneratorComponent,
         ClickOutsideDirective,
+        PermissionDirective,
+        PermissionDeniedComponent,
     ],
     imports: [
         BrowserModule,
@@ -133,7 +137,6 @@ import {PermissionService} from "./helpers/permission.service";
         MatSelectModule,
         MatProgressBarModule,
         MatProgressSpinnerModule,
-        SlimLoadingBarModule.forRoot(),
         WidgetsModule,
         CommonModule,
         CalendarModule,
@@ -141,6 +144,7 @@ import {PermissionService} from "./helpers/permission.service";
         ReactiveFormsModule,
         BrowserAnimationsModule,
         FileUploadModule,
+        LoadingBarModule.forRoot(),
         RouterModule.forRoot([
             {
               path: '',
@@ -154,6 +158,7 @@ import {PermissionService} from "./helpers/permission.service";
                 canActivate: [AuthGuard]
             },
             { path: 'studies', component: StudiesComponent , canActivate: [AuthGuard]},
+            { path: 'permission-denied', component: PermissionDeniedComponent},
             { path: 'monitoring/control', component: ControlComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/export', component: ExportComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/external', component: ExternalRetrieveComponent,  canActivate: [AuthGuard] },
