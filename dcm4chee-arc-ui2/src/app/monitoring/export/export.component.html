@@ -1,4 +1,4 @@
-<div class="main_content monitoring">
+<div class="main_content monitoring export">
     <monitoring-tabs></monitoring-tabs>
     <div class="tab-content">
         <div class="row filter"  (keyup)="filterKeyUp($event)">
@@ -21,13 +21,7 @@
                         <div class="col-md-6">
                             <select id="status" [(ngModel)]="filters.status" (change)="statusChange()" class="col-md-12">
                                 <option>*</option>
-                                <option>TO SCHEDULE</option>
-                                <option>SCHEDULED</option>
-                                <option>IN PROCESS</option>
-                                <option>COMPLETED</option>
-                                <option>WARNING</option>
-                                <option>FAILED</option>
-                                <option>CANCELED</option>
+                                <option *ngFor="let sta of status">{{sta}}</option>
                             </select>
                         </div>
                     </div>
@@ -77,6 +71,32 @@
                             <button class="btn btn-default submit col-md-12" (click)="search(0)" title="Refresh">
                                 <span class="glyphicon glyphicon-refresh"></span>
                                 SUBMIT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter">
+                    <div class="filter_block auto_reloader">
+                        <table>
+                            <tr *ngFor="let status of Object.keys(statusValues)">
+                                <td>{{status}}:</td>
+                                <td *ngIf="!statusValues[status]?.loader">{{statusValues[status]?.count}}</td>
+                                <td *ngIf="statusValues[status]?.loader"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
+                            </tr>
+                        </table>
+                        <div class="option_block">
+                            <div class="interval_block">
+                                <label>Interval:</label>
+                                <input type="text" placeholder="Interval" [(ngModel)]="interval">
+                                <span>s</span>
+                            </div>
+                            <button class="btn-default submit" (click)="toggleAutoRefresh()">
+                                <div class="spinnter_container">
+                                    <span *ngIf="!timer.started" class="glyphicon glyphicon-refresh"></span>
+                                    <mat-progress-spinner *ngIf="timer.started" mode="indeterminate" [diameter]="20" ></mat-progress-spinner>
+                                </div>
+                                <span *ngIf="!timer.started">{{timer.startText}}</span>
+                                <span *ngIf="timer.started">{{timer.stopText}}</span>
                             </button>
                         </div>
                     </div>

@@ -316,7 +316,6 @@ public class QueueMessage {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         JsonWriter writer = new JsonWriter(gen);
         gen.writeStartObject();
-        writer.writeNotNullOrDef("queue", queueName, null);
         writer.writeNotNullOrDef("priority", priority, 0);
         writer.writeNotNullOrDef("createdTime", df.format(createdTime), null);
         writer.writeNotNullOrDef("updatedTime", df.format(updatedTime), null);
@@ -329,6 +328,7 @@ public class QueueMessage {
     }
 
     public void writeStatusAsJSONTo(JsonWriter writer, DateFormat df) {
+        writer.writeNotNullOrDef("queue", queueName, null);
         writer.writeNotNullOrDef("JMSMessageID", messageID, null);
         writer.writeNotNullOrDef("dicomDeviceName", deviceName, null);
         writer.writeNotNullOrDef("status", status.toString(), null);
@@ -343,6 +343,8 @@ public class QueueMessage {
 
     public void writeStatusAsCSVTo(Writer writer, DateFormat df) throws IOException {
         writer.write(messageID);
+        writer.write(',');
+        writer.write(queueName);
         writer.write(',');
         writer.write(deviceName);
         writer.write(',');

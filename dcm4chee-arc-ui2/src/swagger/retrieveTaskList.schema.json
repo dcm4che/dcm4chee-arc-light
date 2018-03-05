@@ -26,6 +26,11 @@
         "description": "id of JMS message",
         "type": "string"
       },
+      "queue": {
+        "title": "Queue Name",
+        "description": "Queue Name of Exporter",
+        "type": "string"
+      },
       "status": {
         "title": "Task Status",
         "description": "status of task",

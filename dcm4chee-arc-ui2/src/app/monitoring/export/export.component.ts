@@ -38,7 +38,24 @@ export class ExportComponent implements OnInit {
         createdTime: undefined
         // createdTimeObject: undefined
     };
-
+    timer = {
+        started:false,
+        startText:"Start Auto Refresh",
+        stopText:"Stop Auto Refresh"
+    };
+    statusValues = {};
+    refreshInterval;
+    interval = 15;
+    Object = Object;
+    status = [
+        "TO SCHEDULE",
+        "SCHEDULED",
+        "IN PROCESS",
+        "COMPLETED",
+        "WARNING",
+        "FAILED",
+        "CANCELED"
+    ];
     isRole: any = (user)=>{return false;};
     dialogRef: MatDialogRef<any>;
     _ = _;
@@ -88,6 +105,12 @@ export class ExportComponent implements OnInit {
     init(){
         this.initExporters(1);
         // this.init();
+        this.status.forEach(status =>{
+            this.statusValues[status] = {
+                count: 0,
+                loader: false
+            };
+        });
         let $this = this;
         if (!this.mainservice.user){
             // console.log("in if studies ajax");
@@ -153,6 +176,34 @@ export class ExportComponent implements OnInit {
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
+    toggleAutoRefresh(){
+        this.timer.started = !this.timer.started;
+        if(this.timer.started){
+            this.getCounts();
+            this.refreshInterval = setInterval(()=>{
+                this.getCounts();
+            },this.interval*1000);
+        }else
+            clearInterval(this.refreshInterval);
+    }
+    getCounts(){
+        let filters = Object.assign({},this.filters);
+        Object.keys(this.statusValues).forEach(status=>{
+            filters.status = status;
+            this.statusValues[status].loader = true;
+            this.service.getCount(filters).subscribe((count)=>{
+                this.statusValues[status].loader = false;
+                try{
+                    this.statusValues[status].count = count.count;
+                }catch (e){
+                    this.statusValues[status].count = "";
+                }
+            },(err)=>{
+                this.statusValues[status].loader = false;
+                this.statusValues[status].count = "!";
+            });
+        });
+    }
     downloadCsv(){
         let token;
         this.$http.refreshToken().subscribe((response)=>{

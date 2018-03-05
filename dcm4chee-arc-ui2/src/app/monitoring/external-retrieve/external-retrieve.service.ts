@@ -68,6 +68,34 @@ export class ExternalRetrieveService {
         let header = new Headers({ 'Accept': 'text/csv' });
         return this.$http.get(`/dcm4chee-arc/monitor/retrieve${urlParam}`, header)
     }
+    statusValues(){
+        return [
+            {
+                value:"SCHEDULED",
+                text:"SCHEDULED"
+            },
+            {
+                value:"IN PROCESS",
+                text:"IN PROCESS"
+            },
+            {
+                value:"COMPLETED",
+                text:"COMPLETED"
+            },
+            {
+                value:"WARNING",
+                text:"WARNING"
+            },
+            {
+                value:"FAILED",
+                text:"FAILED"
+            },
+            {
+                value:"CANCELED",
+                text:"CANCELED"
+            }
+        ];
+    }
     getFilterSchema(localAET,destinationAET,remoteAET,devices, countText){
     return [
         [
@@ -141,32 +169,7 @@ export class ExternalRetrieveService {
                     },
                     {
                         tag:"select",
-                        options:[
-                            {
-                                value:"SCHEDULED",
-                                text:"SCHEDULED"
-                            },
-                            {
-                                value:"IN PROCESS",
-                                text:"IN PROCESS"
-                            },
-                            {
-                                value:"COMPLETED",
-                                text:"COMPLETED"
-                            },
-                            {
-                                value:"WARNING",
-                                text:"WARNING"
-                            },
-                            {
-                                value:"FAILED",
-                                text:"FAILED"
-                            },
-                            {
-                                value:"CANCELED",
-                                text:"CANCELED"
-                            }
-                        ],
+                        options:this.statusValues(),
                         filterKey:"status",
                         showStar:true,
                         description:"Status of tasks to filter by"

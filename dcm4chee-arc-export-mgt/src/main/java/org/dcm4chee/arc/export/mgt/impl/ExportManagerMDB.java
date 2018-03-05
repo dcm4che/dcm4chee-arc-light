@@ -102,13 +102,14 @@ public class ExportManagerMDB implements MessageListener {
         Outcome outcome;
         try {
             ejb.updateExportTask(exportTaskPk);
-            Exporter exporter = exporterFactory.getExporter(getExporterDescriptor(msg.getStringProperty("ExporterID")));
+            ExporterDescriptor exporterDesc = getExporterDescriptor(msg.getStringProperty("ExporterID"));
+            Exporter exporter = exporterFactory.getExporter(exporterDesc);
             ExportContext exportContext = exporter.createExportContext();
             exportContext.setMessageID(msgID);
             exportContext.setStudyInstanceUID(msg.getStringProperty("StudyInstanceUID"));
             exportContext.setSeriesInstanceUID(msg.getStringProperty("SeriesInstanceUID"));
             exportContext.setSopInstanceUID(msg.getStringProperty("SopInstanceUID"));
-            exportContext.setAETitle(msg.getStringProperty("AETitle"));
+            exportContext.setAETitle(exporterDesc.getAETitle());
             exportContext.setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(msg));
             outcome = exporter.export(exportContext);
             exportContext.setOutcome(outcome);

@@ -37,6 +37,11 @@ export class ExternalRetrieveComponent implements OnInit {
     datePipe = new DatePipe('us-US');
     devices;
     count;
+    timer = {
+        started:false,
+        startText:"Start Auto Refresh",
+        stopText:"Stop Auto Refresh"
+    };
     allActionsActive = [];
     allActionsOptions = [
         {
@@ -51,6 +56,10 @@ export class ExternalRetrieveComponent implements OnInit {
         }
     ];
     allAction;
+    statusValues = {};
+    refreshInterval;
+    interval = 15;
+    Object = Object;
     constructor(
       public cfpLoadingBar: LoadingBarService,
       public mainservice: AppService,
@@ -82,8 +91,14 @@ export class ExternalRetrieveComponent implements OnInit {
     }
     init(){
         let $this = this;
+        // console.log("in if studies ajax"); epx
+        this.service.statusValues().forEach(val =>{
+            this.statusValues[val.value] = {
+                count: 0,
+                loader: false
+            };
+        });
         if (!this.mainservice.user){
-            // console.log("in if studies ajax");
             this.mainservice.user = this.mainservice.getUserInfo().share();
             this.mainservice.user
                 .subscribe(
@@ -154,6 +169,34 @@ export class ExternalRetrieveComponent implements OnInit {
         });
         this.initExporters(2);
         this.onFormChange(this.filterObject);
+    }
+    toggleAutoRefresh(){
+        this.timer.started = !this.timer.started;
+        if(this.timer.started){
+            this.getCounts();
+            this.refreshInterval = setInterval(()=>{
+                this.getCounts();
+            },this.interval*1000);
+        }else
+            clearInterval(this.refreshInterval);
+    }
+    getCounts(){
+        let filters = Object.assign({},this.filterObject);
+        Object.keys(this.statusValues).forEach(status=>{
+            filters.status = status;
+            this.statusValues[status].loader = true;
+            this.service.getCount(filters).subscribe((count)=>{
+            this.statusValues[status].loader = false;
+                try{
+                    this.statusValues[status].count = count.count;
+                }catch (e){
+                    this.statusValues[status].count = "";
+                }
+            },(err)=>{
+                this.statusValues[status].loader = false;
+                this.statusValues[status].count = "!";
+            });
+        });
     }
     hasOlder(objs) {
         return objs && (objs.length == this.filterObject.limit);

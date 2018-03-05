@@ -92,6 +92,7 @@ public class ExportTaskRS {
             "NumberOfInstances," +
             "Modality," +
             "JMSMessageID," +
+            "queue," +
             "dicomDeviceName," +
             "status," +
             "scheduledTime," +
