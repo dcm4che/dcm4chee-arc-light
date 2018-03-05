@@ -430,6 +430,15 @@ mat-grid-list{
         width: 50%;
         border-right: 1px solid #ccc;
         float: left;
+        tr{
+          color: #2d404f;
+        }
+        tr.gray{
+          color:#777777;
+        }
+        tr.red{
+          color:#b12b2b;
+        }
         td:first-child{
           text-align: right;
           padding-right: 8px;
