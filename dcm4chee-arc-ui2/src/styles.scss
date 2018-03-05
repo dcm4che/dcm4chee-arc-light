@@ -380,7 +380,15 @@ mat-grid-list{
 .icon-20{
     font-size:20px;
 }
-
+.monitoring.export{
+  .filter{
+    .filter_block.auto_reloader{
+      table{
+        font-size: 12px;
+      }
+    }
+  }
+}
 .filter{
   .filter_block{
     float: left;

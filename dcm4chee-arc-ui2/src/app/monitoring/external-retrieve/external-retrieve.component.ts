@@ -91,7 +91,7 @@ export class ExternalRetrieveComponent implements OnInit {
     }
     init(){
         let $this = this;
-        // console.log("in if studies ajax");
+        // console.log("in if studies ajax"); epx
         this.service.statusValues().forEach(val =>{
             this.statusValues[val.value] = {
                 count: 0,
