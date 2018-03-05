@@ -414,6 +414,85 @@ mat-grid-list{
       }
 
     }
+    &.auto_reloader{
+      padding: 10px 20px;
+      height: 143px;
+      table{
+        margin: 0;
+        width: 50%;
+        border-right: 1px solid #ccc;
+        float: left;
+        td:first-child{
+          text-align: right;
+          padding-right: 8px;
+        }
+        td:last-child{
+          width: 35%;
+        }
+      }
+      .option_block{
+          float: right;
+          width: 50%;
+          padding: 0px 0 0 15px;
+          &>*{
+            width:100%;
+            height: 30px;
+            margin: 7% 0;
+          }
+          .interval_block{
+            label{
+              width: 35%;
+              float: left;
+              height: 30px;
+              margin: 0;
+              vertical-align: middle;
+              line-height: 30px;
+            }
+            input{
+              float: left;
+              width: 55%;
+              height: 30px;
+              border: none;
+              border-bottom: 1px solid #ccc;
+              text-align: right;
+            }
+            span{
+              float: left;
+              width: 10%;
+              vertical-align: middle;
+              height: 30px;
+              line-height: 30px;
+              text-align: center;
+            }
+          }
+        button{
+          border: none;
+          .spinnter_container{
+            display: inline-block;
+            width: 20px;
+            .glyphicon.glyphicon-refresh{
+              line-height: 30px;
+              font-size: 16px;
+              margin-right: 3px;
+            }
+          }
+          .mat-progress-spinner.mat-progress-spinner-indeterminate-animation[mode=indeterminate]{
+            display: inline-block;
+            position: relative;
+            top: 3px;
+            left: -3px;
+            circle{
+              stroke: white;
+            }
+          }
+          span{
+            display: inline-block;
+            height: 30px;
+            vertical-align: bottom;
+          }
+        }
+      }
+    }
   }
 }
 .arrow{
