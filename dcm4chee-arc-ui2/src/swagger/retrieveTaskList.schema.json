@@ -26,7 +26,7 @@
         "description": "id of JMS message",
         "type": "string"
       },
-      "QueueName": {
+      "queue": {
         "title": "Queue Name",
         "description": "Queue Name of Exporter",
         "type": "string"

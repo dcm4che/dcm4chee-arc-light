@@ -99,7 +99,7 @@ public class RetrieveTaskRS {
             "statusCode," +
             "errorComment," +
             "JMSMessageID," +
-            "QueueName," +
+            "queue," +
             "dicomDeviceName," +
             "status,scheduledTime," +
             "failures," +
