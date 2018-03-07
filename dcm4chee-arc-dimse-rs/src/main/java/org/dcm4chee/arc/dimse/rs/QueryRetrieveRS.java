@@ -178,14 +178,8 @@ public class QueryRetrieveRS {
             String line;
             while ((line = reader.readLine()) != null) {
                 String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
-                if (count == 0 && UIDUtils.isValid(studyUID)) {
+                if (count > 0 || UIDUtils.isValid(studyUID)) {
                     retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, studyUID), batchID);
-                    count++;
-                } else {
-                    retrieveManager.scheduleRetrieveTask(
-                            priority(),
-                            createExtRetrieveCtx(destAET, StringUtils.split(line, ',')[field - 1].replaceAll("\"", "")),
-                            batchID);
                     count++;
                 }
             }
