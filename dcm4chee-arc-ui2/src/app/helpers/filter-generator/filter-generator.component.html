@@ -18,7 +18,7 @@
               <mat-option *ngIf="line[index].showStar" value="">*</mat-option>
               <mat-option *ngFor="let option of line[index].options" value="{{option.value}}">{{option.text}}</mat-option>
             </mat-select>
-            <p-calendar [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'p-calendar'"  dataType="date" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line[index].description || line[index].placeholder}}" title="{{line[index]?.description}}"></p-calendar>
+            <p-calendar [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'p-calendar'"  dataType="string" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line[index].description || line[index].placeholder}}" title="{{line[index]?.description}}"></p-calendar>
             <range-picker [ngStyle]="line[index].style" *ngSwitchCase="'range-picker'"  [model]="model[line[index]?.filterKey]" (modelChange)="model[line[index]?.filterKey] = $event;filterChange($event)" mode="range" placeholder="{{line[index]?.description || line[index]?.placeholder}}" dateFormat="yymmdd" title="{{line[index]?.description}}"></range-picker>
           </ng-container>
           <div *ngSwitchCase="'dummy'"></div>
