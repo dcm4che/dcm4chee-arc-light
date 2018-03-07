@@ -266,7 +266,10 @@ public class RetrieveManagerEJB {
         if (offset > 0)
             retrieveTaskQuery.offset(offset);
 
-        List<Tuple> batches = retrieveTaskQuery.select(SELECT).groupBy(QQueueMessage.queueMessage.batchID).fetch();
+        List<Tuple> batches = retrieveTaskQuery.select(SELECT)
+                                .groupBy(QQueueMessage.queueMessage.batchID)
+                                .orderBy(QRetrieveTask.retrieveTask.updatedTime.max().desc())
+                                .fetch();
         
         List<RetrieveBatch> retrieveBatches = new ArrayList<>();
         for (Tuple batch : batches) {

@@ -418,7 +418,10 @@ public class ExportManagerEJB implements ExportManager {
         if (offset > 0)
             exportTaskQuery.offset(offset);
 
-        List<Tuple> batches = exportTaskQuery.select(SELECT).groupBy(QQueueMessage.queueMessage.batchID).fetch();
+        List<Tuple> batches = exportTaskQuery.select(SELECT)
+                                .groupBy(QQueueMessage.queueMessage.batchID)
+                                .orderBy(QExportTask.exportTask.updatedTime.max().desc())
+                                .fetch();
 
         List<ExportBatch> exportBatches = new ArrayList<>();
         for (Tuple batch : batches) {
