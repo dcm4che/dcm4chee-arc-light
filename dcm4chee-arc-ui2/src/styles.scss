@@ -1212,13 +1212,38 @@ mat-dialog-container{
     }
   }
   .filter{
-    select,input, button{
+    select,input, button, .filter_checkbox{
       height:26px;
       line-height:26px;
       padding: 0px 7px;
       -webkit-border-radius:0;
       -moz-border-radius:0;
       border-radius:0;
+    }
+    .filter_checkbox{
+      color: #777777;
+      font-style: italic;
+      &.active{
+        color:black;
+      }
+      input{
+        margin: 0;
+        float: left;
+        margin-right: 5px;
+      }
+      span{
+        height: 26px;
+        line-height: 26px;
+        display: inline-block;
+        vertical-align: middle;
+      }
+    }
+    .mat-select-trigger{
+      padding-left: 7px;
+      font-style: italic;
+    }
+    .mat-select-placeholder {
+      color: #777;
     }
     select{
       background-color: white;

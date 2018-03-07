@@ -7,7 +7,7 @@
           <modality *ngSwitchCase="'modality'" [model]="model[line[index].filterKey]" [ngStyle]="line[index].style" (modelChange)="model[line[index].filterKey] = $event;filterChange($event)"></modality>
           <ng-container *ngIf="line[index].filterKey">
             <input (ngModelChange)="filterChange($event)" [(ngModel)]="model[line[index].filterKey]" type="{{line[index].type}}" [ngStyle]="line[index].style" title="{{line[index]?.description}}" placeholder="{{line[index]?.placeholder}}" *ngSwitchCase="'input'">
-            <div class="filter_checkbox" *ngSwitchCase="'checkbox'" title="{{line[index]?.description}}">
+            <div class="filter_checkbox" *ngSwitchCase="'checkbox'" title="{{line[index]?.description}}" [ngClass]="{'active':model[line[index].filterKey]}">
               <input type="checkbox" (ngModelChange)="filterChange($event)" [(ngModel)]="model[line[index].filterKey]"> <span [ngStyle]="line[index].style" >{{line[index].text}}</span>
             </div>
             <span *ngIf="line[index].type === 'checkbox'">{{line[index].text}}</span>
