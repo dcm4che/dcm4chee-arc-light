@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewContainerRef} from '@angular/core';
 import {AppService} from "../../app.service";
 import * as _ from 'lodash';
 import {AeListService} from "../../ae-list/ae-list.service";
@@ -15,12 +15,13 @@ import {WindowRefService} from "../../helpers/window-ref.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import "rxjs/add/observable/forkJoin";
 import {LoadingBarService} from '@ngx-loading-bar/core';
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'external-retrieve',
   templateUrl: './external-retrieve.component.html'
 })
-export class ExternalRetrieveComponent implements OnInit {
+export class ExternalRetrieveComponent implements OnInit,OnDestroy {
     before;
     localAET;
     remoteAET;
@@ -59,6 +60,7 @@ export class ExternalRetrieveComponent implements OnInit {
     statusValues = {};
     refreshInterval;
     interval = 15;
+    tableHovered = false;
     Object = Object;
     constructor(
       public cfpLoadingBar: LoadingBarService,
@@ -89,6 +91,7 @@ export class ExternalRetrieveComponent implements OnInit {
             }
         }
     }
+
     init(){
         let $this = this;
         // console.log("in if studies ajax"); epx
@@ -137,9 +140,15 @@ export class ExternalRetrieveComponent implements OnInit {
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
         }
-        this.filterObject = {
-            limit:20
-        };
+/*        console.log("localStorage",localStorage.getItem('externalRetrieveFilters'));
+        console.log("localStorageTES",localStorage.getItem('externalRetrieveFiltersTESG'));
+        let savedFilters = localStorage.getItem('externalRetrieveFilters');
+        if(savedFilters)
+            this.filterObject = JSON.parse(savedFilters);
+        else*/
+            this.filterObject = {
+                limit:20
+            };
         Observable.forkJoin(
             this.aeListService.getAes(),
             this.aeListService.getAets(),
@@ -180,8 +189,16 @@ export class ExternalRetrieveComponent implements OnInit {
         }else
             clearInterval(this.refreshInterval);
     }
+    tableMousEnter(){
+        this.tableHovered = true;
+    }
+    tableMousLeave(){
+        this.tableHovered = false;
+    }
     getCounts(){
         let filters = Object.assign({},this.filterObject);
+        if(!this.tableHovered)
+            this.getTasks(0);
         Object.keys(this.statusValues).forEach(status=>{
             filters.status = status;
             this.statusValues[status].loader = true;
@@ -437,15 +454,21 @@ export class ExternalRetrieveComponent implements OnInit {
         this.service.getExternalRetrieveEntries(this.filterObject,offset).subscribe(
             res =>  {
                 $this.cfpLoadingBar.complete();
+                if(!environment.production){
+                    res = [{"pk":4893785,"createdTime":"2018-02-27T11:58:02.760+0200","updatedTime":"2018-03-07T12:12:28.635+0200","LocalAET":"ARCHIVE1TRT","RemoteAET":"ARCPAS1TRT_MIGR","DestinationAET":"EEVNATRT","StudyInstanceUID":"1.2.124.113532.80.22199.5762.20161222.101001.49162699","remaining":68,"completed":3042,"failed":3,"statusCode":"FF00","queue":"CMoveSCU","JMSMessageID":"ID:b31033e4-1ba4-11e8-9859-0242ac110003","dicomDeviceName":"archive1trt","status":"IN PROCESS","scheduledTime":"2018-02-27T11:58:02.757+0200","processingStartTime":"2018-03-07T12:01:00.200+0200"},{"pk":4892465,"createdTime":"2018-02-27T11:57:12.080+0200","updatedTime":"2018-03-07T12:12:27.185+0200","LocalAET":"ARCHIVE1TRT","RemoteAET":"ARCPAS1TRT_MIGR","DestinationAET":"EEVNATRT","StudyInstanceUID":"1.2.124.113532.80.22199.5762.20170201.182548.342912969","remaining":374,"completed":468,"statusCode":"FF00","queue":"CMoveSCU","JMSMessageID":"ID:94dae4f7-1ba4-11e8-9859-0242ac110003","dicomDeviceName":"archive1trt","status":"IN PROCESS","scheduledTime":"2018-02-27T11:57:12.077+0200","processingStartTime":"2018-03-07T12:10:45.965+0200"},{"pk":4894309,"createdTime":"2018-02-27T11:58:19.820+0200","updatedTime":"2018-03-07T12:12:27.135+0200","LocalAET":"ARCHIVE1TRT","RemoteAET":"ARCPAS1TRT_MIGR","DestinationAET":"EEVNATRT","StudyInstanceUID":"1.2.124.113532.80.22199.5762.20170131.101440.313107820","remaining":244,"completed":1064,"statusCode":"FF00","queue":"CMoveSCU","JMSMessageID":"ID:bd3b8143-1ba4-11e8-9859-0242ac110003","dicomDeviceName":"archive1trt","status":"IN PROCESS","scheduledTime":"2018-02-27T11:58:19.818+0200","processingStartTime":"2018-03-07T12:08:21.305+0200"},{"pk":4891892,"createdTime":"2018-02-27T11:56:53.285+0200","updatedTime":"2018-03-07T12:12:26.440+0200","LocalAET":"ARCHIVE1TRT","RemoteAET":"ARCPAS1TRT_MIGR","DestinationAET":"EEVNATRT","StudyInstanceUID":"1.3.46.670589.33.1.63621562306829624900001.5271717421314862736","remaining":911,"completed":850,"statusCode":"FF00","queue":"CMoveSCU","JMSMessageID":"ID:89a74f3c-1ba4-11e8-9859-0242ac110003","dicomDeviceName":"archive1trt","status":"IN PROCESS","scheduledTime":"2018-02-27T11:56:53.284+0200","processingStartTime":"2018-03-07T12:08:49.655+0200"},{"pk":4894972,"createdTime":"2018-02-27T11:58:42.109+0200","updatedTime":"2018-03-07T12:12:24.674+0200","LocalAET":"ARCHIVE1TRT","RemoteAET":"ARCPAS1TRT_MIGR","DestinationAET":"EEVNATRT","StudyInstanceUID":"1.2.840.113619.2.55.3.2831156993.992.1485429329.708","remaining":165,"completed":871,"statusCode":"FF00","queue":"CMoveSCU","JMSMessageID":"ID:ca848996-1ba4-11e8-9859-0242ac110003","dicomDeviceName":"archive1trt","status":"IN PROCESS","scheduledTime":"2018-02-27T11:58:42.107+0200","processingStartTime":"2018-03-07T12:09:13.674+0200"}];
+                }
                 if (res && res.length > 0){
                     this.externalRetrieveEntries =  res.map((properties, index) => {
                         if (_.hasIn(properties, 'Modality')){
                             properties.Modality = properties.Modality.join(',');
                         }
                         properties.taskState = (properties.completed ? properties.completed*1:0) + ' / ' + (properties.remaining ? properties.remaining*1:0) + ' / '+ (properties.failed ? properties.failed*1:0);
+                        let endTime = properties.processingEndTime || this.mainservice.serverTime;
                         try{
                             properties.NumberOfInstances = properties.NumberOfInstances || ((properties.completed ? properties.completed*1:0) + (properties.remaining ? properties.remaining*1:0) + (properties.failed ? properties.failed*1:0));
-                            properties.InstancePerSec = (Math.round((((new Date(properties.processingEndTime).getTime()/1000) - (new Date(properties.processingStartTime).getTime()/1000)) / properties.NumberOfInstances)*1000)/1000) || 0;
+                            properties.InstancePerSec = (Math.round(((properties.completed ? properties.completed*1:0)/((new Date(endTime).getTime()/1000) - (new Date(properties.processingStartTime).getTime()/1000)))*1000)/1000) || '-';
+                            if(!properties.processingEndTime)
+                                properties.approximatelyEndTime = `in ~ ${Math.round((properties.remaining / properties.InstancePerSec)*100)/100} s`;
                         }catch (e){
                             properties.InstancePerSec = '';
                         }
@@ -513,5 +536,9 @@ export class ExternalRetrieveComponent implements OnInit {
             this.cfpLoadingBar.complete();
             console.error("Could not get devices",err);
         });
+    }
+    ngOnDestroy(){
+        clearInterval(this.refreshInterval);
+        // localStorage.setItem('externalRetrieveFilters',JSON.stringify(this.filterObject));
     }
 }

@@ -57,7 +57,7 @@
             </button>
           </div>
         </th>
-          <th>
+          <th  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
           <div class="action_block">
             <input type="checkbox" (change)="checkAll($event)">
             <a [permission]="{id:'action-monitoring->external_retrieve-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" title="Cancel selected">
@@ -86,7 +86,7 @@
       <ng-container *ngFor="let match of externalRetrieveEntries">
         <tr>
           <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
-          <td>
+          <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
               <input type="checkbox" [(ngModel)]="match.checked">
               <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
               <span class="glyphicon glyphicon-list"></span>
@@ -107,8 +107,9 @@
           <td [innerHtml]="match.properties.DestinationAET" class="hideOn1100px"></td>
           <td class="hideMobile hideOn800px" [innerHtml]="match.properties.scheduledTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
           <td class="hideMobile hideOn1400px" [innerHtml]="match.properties.processingStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-          <td class="hideMobile" [innerHtml]="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-          <td [innerHtml]="match.properties.taskState" class="hideOn1200px"></td>
+          <td class="hideMobile" *ngIf="match.properties.processingEndTime" [innerHtml]="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+          <td class="hideMobile" *ngIf="!match.properties.processingEndTime" [innerHtml]="match.properties.approximatelyEndTime"></td>
+          <td [innerHtml]="match.properties.taskState" class="hideOn1200px" [ngClass]="{'failed':match.properties.failed > 0}"></td>
           <td [innerHtml]="match.properties.InstancePerSec" class="hideOn1200px"></td>
         </tr>
         <tr *ngIf="match.showProperties">
