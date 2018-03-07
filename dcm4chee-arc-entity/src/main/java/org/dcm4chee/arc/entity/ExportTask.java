@@ -269,36 +269,36 @@ public class ExportTask {
         gen.flush();
     }
 
-    public void writeAsCSVTo(Writer writer) throws IOException {
+    public void writeAsCSVTo(Writer writer, char delimiter) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         writer.write(String.valueOf(pk));
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(df.format(createdTime));
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(df.format(updatedTime));
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(exporterID);
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(studyInstanceUID);
-        writer.write(',');
+        writer.write(delimiter);
         if (!seriesInstanceUID.equals("*"))
             writer.write(seriesInstanceUID);
-        writer.write(',');
+        writer.write(delimiter);
         if (!sopInstanceUID.equals("*"))
             writer.write(sopInstanceUID);
-        writer.write(',');
+        writer.write(delimiter);
         if (numberOfInstances != null)
             writer.write(numberOfInstances.toString());
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(modalities);
-        writer.write(',');
+        writer.write(delimiter);
         if (queueMessage == null) {
-            writer.write(deviceName);
-            writer.write(",TO SCHEDULE,");
-            writer.write(df.format(scheduledTime));
-            writer.append(',').append(',').append(',');
+            writer.append(delimiter).append(delimiter).write(deviceName);
+            writer.append(delimiter).write("TO SCHEDULE");
+            writer.append(delimiter).write(df.format(scheduledTime));
+            writer.append(delimiter).append(delimiter).append(delimiter).append(delimiter).append(delimiter).append(delimiter);
         } else {
-            queueMessage.writeStatusAsCSVTo(writer, df);
+            queueMessage.writeStatusAsCSVTo(writer, df, delimiter);
         }
         writer.write('\r');
         writer.write('\n');

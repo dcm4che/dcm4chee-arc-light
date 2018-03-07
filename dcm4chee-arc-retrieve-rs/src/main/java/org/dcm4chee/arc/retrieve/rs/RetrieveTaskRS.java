@@ -82,32 +82,6 @@ import java.util.stream.Stream;
 public class RetrieveTaskRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(RetrieveTaskRS.class);
-    private static final String CSV_HEADER =
-            "pk," +
-            "createdTime," +
-            "updatedTime," +
-            "LocalAET," +
-            "RemoteAET," +
-            "DestinationAET," +
-            "StudyInstanceUID," +
-            "SeriesInstanceUID," +
-            "SOPInstanceUID," +
-            "remaining," +
-            "completed," +
-            "failed," +
-            "warning," +
-            "statusCode," +
-            "errorComment," +
-            "JMSMessageID," +
-            "queue," +
-            "dicomDeviceName," +
-            "status,scheduledTime," +
-            "failures," +
-            "batchID," +
-            "processingStartTime," +
-            "processingEndTime," +
-            "errorMessage," +
-            "outcomeMessage\r\n";
 
     @Inject
     private RetrieveManager mgr;
@@ -375,15 +349,15 @@ public class RetrieveTaskRS {
             Object entity(final List<RetrieveTask> tasks) {
                 return (StreamingOutput) out -> {
                         Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                        writer.write(CSV_HEADER);
-                        for (RetrieveTask task : tasks) {
-                            task.writeAsCSVTo(writer);
-                        }
+                        writer.write(CSVHeader(delimiter));
+                        for (RetrieveTask task : tasks)
+                            task.writeAsCSVTo(writer, delimiter);
                         writer.flush();
                 };
             }
         };
 
+        private static char delimiter;
         final MediaType type;
 
         Output(MediaType type) {
@@ -392,8 +366,45 @@ public class RetrieveTaskRS {
 
         static Output valueOf(MediaType type) {
             return MediaType.APPLICATION_JSON_TYPE.isCompatible(type) ? Output.JSON
-                    : MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(type) ? Output.CSV
+                    : isCSV(type) ? Output.CSV
                     : null;
+        }
+
+        private static boolean isCSV(MediaType type) {
+            boolean csvCompatible = MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(type);
+            delimiter = csvCompatible
+                            && type.getParameters().keySet().contains("delimiter")
+                            && type.getParameters().get("delimiter").equals("semicolon")
+                        ? ';' : ',';
+            return csvCompatible;
+        }
+
+        private static String CSVHeader(char delimiter) {
+            return "pk" + delimiter +
+                    "createdTime" + delimiter +
+                    "updatedTime" + delimiter +
+                    "LocalAET" + delimiter +
+                    "RemoteAET" + delimiter +
+                    "DestinationAET" + delimiter +
+                    "StudyInstanceUID" + delimiter +
+                    "SeriesInstanceUID" + delimiter +
+                    "SOPInstanceUID" + delimiter +
+                    "remaining" + delimiter +
+                    "completed" + delimiter +
+                    "failed" + delimiter +
+                    "warning" + delimiter +
+                    "statusCode" + delimiter +
+                    "errorComment" + delimiter +
+                    "JMSMessageID" + delimiter +
+                    "queue" + delimiter +
+                    "dicomDeviceName" + delimiter +
+                    "status,scheduledTime" + delimiter +
+                    "failures" + delimiter +
+                    "batchID" + delimiter +
+                    "processingStartTime" + delimiter +
+                    "processingEndTime" + delimiter +
+                    "errorMessage" + delimiter +
+                    "outcomeMessage\r\n";
         }
 
         abstract Object entity(final List<RetrieveTask> tasks);

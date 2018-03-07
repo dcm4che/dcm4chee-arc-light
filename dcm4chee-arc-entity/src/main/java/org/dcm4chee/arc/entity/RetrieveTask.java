@@ -51,6 +51,7 @@ import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2017
  */
 @Entity
@@ -299,46 +300,46 @@ public class RetrieveTask {
         gen.flush();
     }
 
-    public void writeAsCSVTo(Writer writer) throws IOException {
+    public void writeAsCSVTo(Writer writer, char delimiter) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         writer.write(String.valueOf(pk));
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(df.format(createdTime));
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(df.format(updatedTime));
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(localAET);
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(remoteAET);
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(destinationAET);
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(studyInstanceUID);
-        writer.write(',');
+        writer.write(delimiter);
         if (seriesInstanceUID != null)
             writer.write(seriesInstanceUID);
-        writer.write(',');
+        writer.write(delimiter);
         if (sopInstanceUID != null)
             writer.write(sopInstanceUID);
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(String.valueOf(remaining));
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(String.valueOf(completed));
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(String.valueOf(failed));
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(String.valueOf(warning));
-        writer.write(',');
+        writer.write(delimiter);
         if (statusCode != -1)
             writer.write(TagUtils.shortToHexString(statusCode));
-        writer.write(',');
+        writer.write(delimiter);
         if (errorComment != null) {
             writer.write('"');
             writer.write(errorComment.replace("\"", "\"\""));
             writer.write('"');
         }
-        writer.write(',');
-        queueMessage.writeStatusAsCSVTo(writer, df);
+        writer.write(delimiter);
+        queueMessage.writeStatusAsCSVTo(writer, df, delimiter);
         writer.write('\r');
         writer.write('\n');
     }

@@ -80,28 +80,7 @@ import java.util.stream.Stream;
 @RequestScoped
 @Path("monitor/export")
 public class ExportTaskRS {
-    private static final Logger LOG = LoggerFactory.getLogger(ExportTaskRS.class);
-    private static final String CSV_HEADER =
-            "pk," +
-            "createdTime," +
-            "updatedTime," +
-            "ExporterID," +
-            "StudyInstanceUID," +
-            "SeriesInstanceUID," +
-            "SOPInstanceUID," +
-            "NumberOfInstances," +
-            "Modality," +
-            "JMSMessageID," +
-            "queue," +
-            "dicomDeviceName," +
-            "status," +
-            "scheduledTime," +
-            "failures," +
-            "batchID," +
-            "processingStartTime," +
-            "processingEndTime," +
-            "errorMessage," +
-            "outcomeMessage\r\n";
+    private static final Logger LOG = LoggerFactory.getLogger(ExportTaskRS.class);            
 
     @Inject
     private ExportManager mgr;
@@ -388,15 +367,15 @@ public class ExportTaskRS {
             Object entity(final List<ExportTask> tasks) {
                 return (StreamingOutput) out -> {
                         Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                        writer.write(CSV_HEADER);
-                        for (ExportTask task : tasks) {
-                            task.writeAsCSVTo(writer);
-                        }
+                        writer.write(CSVHeader(delimiter));
+                        for (ExportTask task : tasks)
+                            task.writeAsCSVTo(writer, delimiter);
                         writer.flush();
                 };
             }
         };
 
+        private static char delimiter;
         final MediaType type;
 
         Output(MediaType type) {
@@ -405,8 +384,40 @@ public class ExportTaskRS {
 
         static Output valueOf(MediaType type) {
             return MediaType.APPLICATION_JSON_TYPE.isCompatible(type) ? Output.JSON
-                    : MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(type) ? Output.CSV
+                    : isCSV(type) ? Output.CSV
                     : null;
+        }
+
+        private static boolean isCSV(MediaType type) {
+            boolean csvCompatible = MediaTypes.TEXT_CSV_UTF8_TYPE.isCompatible(type);
+            delimiter = csvCompatible
+                            && type.getParameters().keySet().contains("delimiter")
+                            && type.getParameters().get("delimiter").equals("semicolon")
+                        ? ';' : ',';
+            return csvCompatible;
+        }
+        
+        private static String CSVHeader(char delimiter) {
+            return "pk" + delimiter +
+                    "createdTime" + delimiter +
+                    "updatedTime" + delimiter +
+                    "ExporterID" + delimiter +
+                    "StudyInstanceUID" + delimiter +
+                    "SeriesInstanceUID" + delimiter +
+                    "SOPInstanceUID" + delimiter +
+                    "NumberOfInstances" + delimiter +
+                    "Modality" + delimiter +
+                    "JMSMessageID" + delimiter +
+                    "queue" + delimiter +
+                    "dicomDeviceName" + delimiter +
+                    "status" + delimiter +
+                    "scheduledTime" + delimiter +
+                    "failures" + delimiter +
+                    "batchID" + delimiter +
+                    "processingStartTime" + delimiter +
+                    "processingEndTime" + delimiter +
+                    "errorMessage" + delimiter +
+                    "outcomeMessage\r\n";
         }
 
         abstract Object entity(final List<ExportTask> tasks);

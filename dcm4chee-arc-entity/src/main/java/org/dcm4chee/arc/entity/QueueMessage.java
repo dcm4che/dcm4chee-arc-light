@@ -57,6 +57,7 @@ import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2015
  */
 @Entity
@@ -335,41 +336,43 @@ public class QueueMessage {
         writer.writeNotNullOrDef("batchID", batchID, null);
         writer.writeNotNullOrDef("failures", numberOfFailures, 0);
         writer.writeNotNullOrDef("scheduledTime", df.format(scheduledTime), null);
-        writer.writeNotNullOrDef("processingStartTime", df.format(processingStartTime), null);
-        writer.writeNotNullOrDef("processingEndTime", df.format(processingEndTime), null);
+        if (processingStartTime != null)
+            writer.writeNotNullOrDef("processingStartTime", df.format(processingStartTime), null);
+        if (processingEndTime != null)
+            writer.writeNotNullOrDef("processingEndTime", df.format(processingEndTime), null);
         writer.writeNotNullOrDef("errorMessage", errorMessage, null);
         writer.writeNotNullOrDef("outcomeMessage", outcomeMessage, null);
     }
 
-    public void writeStatusAsCSVTo(Writer writer, DateFormat df) throws IOException {
+    public void writeStatusAsCSVTo(Writer writer, DateFormat df, char delimiter) throws IOException {
         writer.write(messageID);
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(queueName);
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(deviceName);
-        writer.write(',');
+        writer.write(delimiter);
         writer.write(status.toString());
-        writer.append(',');
+        writer.append(delimiter);
         writer.write(df.format(scheduledTime));
-        writer.append(',');
+        writer.append(delimiter);
         if (numberOfFailures > 0)
             writer.write(String.valueOf(numberOfFailures));
-        writer.append(',');
+        writer.append(delimiter);
         if (batchID != null)
             writer.write(batchID);
-        writer.append(',');
+        writer.append(delimiter);
         if (processingStartTime != null)
             writer.write(df.format(processingStartTime));
-        writer.append(',');
+        writer.append(delimiter);
         if (processingEndTime != null)
             writer.write(df.format(processingEndTime));
-        writer.append(',');
+        writer.append(delimiter);
         if (errorMessage != null) {
             writer.write('"');
             writer.write(errorMessage.replace("\"", "\"\""));
             writer.write('"');
         }
-        writer.append(',');
+        writer.append(delimiter);
         if (outcomeMessage != null) {
             writer.write('"');
             writer.write(outcomeMessage.replace("\"", "\"\""));
