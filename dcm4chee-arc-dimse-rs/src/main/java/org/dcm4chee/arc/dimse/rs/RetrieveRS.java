@@ -164,7 +164,7 @@ public class RetrieveRS {
 
     private Response queueExport(String destAET, Attributes keys) {
         try {
-            retrieveManager.scheduleRetrieveTask(priority(), toInstancesRetrieved(destAET, keys), batchID);
+            retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, keys), batchID);
         } catch (QueueSizeLimitExceededException e) {
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
@@ -179,7 +179,7 @@ public class RetrieveRS {
             while (rsp.next());
             Attributes cmd = rsp.getCommand();
             instancesRetrievedEvent.fire(
-                    toInstancesRetrieved(destAET, keys)
+                    createExtRetrieveCtx(destAET, keys)
                     .setRemoteHostName(as.getSocket().getInetAddress().getHostName())
                     .setResponse(cmd));
             return status(cmd).entity(entity(cmd)).build();
@@ -213,7 +213,7 @@ public class RetrieveRS {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 
-    private ExternalRetrieveContext toInstancesRetrieved(String destAET, Attributes keys) {
+    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, Attributes keys) {
         return new ExternalRetrieveContext()
                 .setLocalAET(aet)
                 .setRemoteAET(externalAET)
