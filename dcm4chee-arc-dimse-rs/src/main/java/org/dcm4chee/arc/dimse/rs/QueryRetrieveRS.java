@@ -45,6 +45,7 @@ import org.dcm4che3.data.UID;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -173,24 +174,17 @@ public class QueryRetrieveRS {
 
         int count = 0;
         String warning = null;
-        List<String> lines = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             String line;
-            while ((line = reader.readLine()) != null)
-                lines.add(line);
-
-            if (lines.isEmpty())
-                return Response.status(Response.Status.NOT_FOUND).entity("Empty file").build();
-
-            String firstStudyIUID = lines.get(0).split(",")[field-1].replaceAll("\"", "");
-            if (UIDUtils.isValid(firstStudyIUID)) {
-                retrieveManager.scheduleRetrieveTask(priority(), toInstanceRetrieved(destAET, firstStudyIUID), batchID);
-                count++;
-            }
-            for (int i = 1; i < lines.size(); i++) {
+            while ((line = reader.readLine()) != null) {
+                String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
+                if (count == 0 && UIDUtils.isValid(studyUID)) {
+                    retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, studyUID), batchID);
+                    count++;
+                }
                 retrieveManager.scheduleRetrieveTask(
                         priority(),
-                        toInstanceRetrieved(destAET, lines.get(i).split(",")[field-1].replaceAll("\"", "")),
+                        createExtRetrieveCtx(destAET, StringUtils.split(line, ',')[field - 1].replaceAll("\"", "")),
                         batchID);
                 count++;
             }
@@ -202,7 +196,9 @@ public class QueryRetrieveRS {
         }
 
         if (warning == null)
-            return Response.accepted(count(count)).build();
+            return count > 0
+                    ? Response.accepted(count(count)).build()
+                    : Response.noContent().header("Warning", "Empty file").build();
 
         Response.ResponseBuilder builder = Response.status(errorStatus)
                 .header("Warning", warning);
@@ -260,7 +256,7 @@ public class QueryRetrieveRS {
             do {
                 status = dimseRSP.getCommand().getInt(Tag.Status, -1);
                 if (Status.isPending(status)) {
-                    retrieveManager.scheduleRetrieveTask(priority(), toInstancesRetrieved(destAET, dimseRSP), batchID);
+                    retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, dimseRSP), batchID);
                     count++;
                 }
             } while (dimseRSP.next()) ;
@@ -292,7 +288,7 @@ public class QueryRetrieveRS {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
     }
 
-    private ExternalRetrieveContext toInstancesRetrieved(String destAET, DimseRSP dimseRSP) {
+    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, DimseRSP dimseRSP) {
         Attributes keys = new Attributes(dimseRSP.getDataset(),
                 Tag.QueryRetrieveLevel, Tag.StudyInstanceUID, Tag.SeriesInstanceUID, Tag.SOPInstanceUID);
         return new ExternalRetrieveContext()
@@ -303,7 +299,7 @@ public class QueryRetrieveRS {
                 .setKeys(keys);
     }
 
-    private ExternalRetrieveContext toInstanceRetrieved(String destAET, String studyIUID) {
+    private ExternalRetrieveContext createExtRetrieveCtx(String destAET, String studyIUID) {
         Attributes keys = new Attributes(2);
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, QueryRetrieveLevel2.STUDY.name());
         keys.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
