@@ -84,6 +84,7 @@ public class CMoveSCUImpl implements CMoveSCU {
         try {
             Association fwdas = openAssociation(ctx, pc, otherCMoveSCP);
             if (otherMoveDest == null) {
+                ctx.setForwardAssociation(fwdas);
                 return new ForwardRetrieveTask.BackwardCMoveRSP(ctx, pc, rq, keys, fwdas);
             }
             ctx.setFallbackAssociation(fwdas);
