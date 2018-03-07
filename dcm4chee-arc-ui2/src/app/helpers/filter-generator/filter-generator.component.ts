@@ -1,20 +1,26 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {j4care} from "../j4care.service";
 
 @Component({
   selector: 'filter-generator',
   templateUrl: './filter-generator.component.html'
 })
-export class FilterGeneratorComponent implements OnInit {
+export class FilterGeneratorComponent implements OnInit, OnDestroy {
 
     @Input() schema;
     @Input() model;
     @Output() submit  = new EventEmitter();
     @Output() onChange  = new EventEmitter();
     filterForm;
-    constructor() { }
-
+    constructor(
+        private inj:Injector
+    ) { }
+    parentId;
     ngOnInit() {
+       this.parentId = `${location.hostname}-${this.inj['view'].parentNodeDef.renderParent.element.name}`;
+       let savedFilters = localStorage.getItem(this.parentId);
+       if(savedFilters)
+           this.model = JSON.parse(savedFilters);
     }
     submitEmit(id){
         this.model = j4care.clearEmptyObject(this.model);
@@ -25,8 +31,12 @@ export class FilterGeneratorComponent implements OnInit {
       }
     }
     filterChange(test){
-        console.log("change teest",test);
-        console.log("change",this.model);
         this.onChange.emit(this.model);
+    }
+    clear(){
+        this.model = {};
+    }
+    ngOnDestroy(){
+        localStorage.setItem(this.parentId, JSON.stringify(this.model));
     }
 }

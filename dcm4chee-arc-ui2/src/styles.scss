@@ -390,6 +390,11 @@ mat-grid-list{
   }
 }
 .filter{
+  position: relative;
+  float: left;
+  .clearform_button{
+    right:10px;
+  }
   .filter_block{
     float: left;
     border:1px solid #cccccc;
@@ -2216,7 +2221,14 @@ mat-dialog-container{
       color: white;
     }
   }
+  .table{
+    .failed{
+      background:rgb(142, 0, 0);
+      color: white;
+    }
+  }
 }
+
 .more_menu_content.activemenu{
   overflow: visible;
 }

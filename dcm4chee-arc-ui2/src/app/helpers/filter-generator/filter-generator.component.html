@@ -1,5 +1,8 @@
 <div class="filter">
-  <div class="filter_block" *ngFor="let filter of schema">
+    <a class="clearform_button" title="Clear all filters" href="" (click)="$event.preventDefault();clear()">
+        Clear <span class="glyphicon glyphicon-remove"></span>
+    </a>
+    <div class="filter_block" *ngFor="let filter of schema">
     <div *ngFor="let line of filter" class="line" [ngSwitch]="filter.type">
       <ng-container *ngFor="let index of [0,1]">
         <ng-container *ngIf="line[index]" [ngSwitch]="line[index].tag">
