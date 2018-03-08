@@ -300,6 +300,35 @@ public class RetrieveTask {
         gen.flush();
     }
 
+    public static void writeCSVHeader(Writer writer, char delimiter) throws IOException {
+        writer.write("pk" + delimiter +
+                "createdTime" + delimiter +
+                "updatedTime" + delimiter +
+                "LocalAET" + delimiter +
+                "RemoteAET" + delimiter +
+                "DestinationAET" + delimiter +
+                "StudyInstanceUID" + delimiter +
+                "SeriesInstanceUID" + delimiter +
+                "SOPInstanceUID" + delimiter +
+                "remaining" + delimiter +
+                "completed" + delimiter +
+                "failed" + delimiter +
+                "warning" + delimiter +
+                "statusCode" + delimiter +
+                "errorComment" + delimiter +
+                "JMSMessageID" + delimiter +
+                "queue" + delimiter +
+                "dicomDeviceName" + delimiter +
+                "status" + delimiter +
+                "scheduledTime" + delimiter +
+                "failures" + delimiter +
+                "batchID" + delimiter +
+                "processingStartTime" + delimiter +
+                "processingEndTime" + delimiter +
+                "errorMessage" + delimiter +
+                "outcomeMessage\r\n");
+    }
+
     public void writeAsCSVTo(Writer writer, char delimiter) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         writer.write(String.valueOf(pk));

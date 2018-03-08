@@ -368,7 +368,7 @@ public class ExportTaskRS {
             Object entity(final List<ExportTask> tasks) {
                 return (StreamingOutput) out -> {
                         Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                        writer.write(CSVHeader(delimiter));
+                        ExportTask.writeCSVHeader(writer, delimiter);
                         for (ExportTask task : tasks)
                             task.writeAsCSVTo(writer, delimiter);
                         writer.flush();
@@ -396,29 +396,6 @@ public class ExportTaskRS {
                             && type.getParameters().get("delimiter").equals("semicolon")
                         ? ';' : ',';
             return csvCompatible;
-        }
-        
-        private static String CSVHeader(char delimiter) {
-            return "pk" + delimiter +
-                    "createdTime" + delimiter +
-                    "updatedTime" + delimiter +
-                    "ExporterID" + delimiter +
-                    "StudyInstanceUID" + delimiter +
-                    "SeriesInstanceUID" + delimiter +
-                    "SOPInstanceUID" + delimiter +
-                    "NumberOfInstances" + delimiter +
-                    "Modality" + delimiter +
-                    "JMSMessageID" + delimiter +
-                    "queue" + delimiter +
-                    "dicomDeviceName" + delimiter +
-                    "status" + delimiter +
-                    "scheduledTime" + delimiter +
-                    "failures" + delimiter +
-                    "batchID" + delimiter +
-                    "processingStartTime" + delimiter +
-                    "processingEndTime" + delimiter +
-                    "errorMessage" + delimiter +
-                    "outcomeMessage\r\n";
         }
 
         abstract Object entity(final List<ExportTask> tasks);
