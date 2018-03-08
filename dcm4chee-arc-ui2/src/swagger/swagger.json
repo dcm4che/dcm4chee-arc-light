@@ -2383,6 +2383,12 @@
             "type": "string"
           },
           {
+            "name": "JMSMessageID",
+            "in": "query",
+            "description": "JMS Message ID to filter by",
+            "type": "string"
+          },
+          {
             "name": "offset",
             "in": "query",
             "description": "number of skipped tasks before first task in returned list",
