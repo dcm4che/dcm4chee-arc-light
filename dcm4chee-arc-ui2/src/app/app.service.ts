@@ -16,16 +16,14 @@ export class AppService implements OnInit, OnDestroy{
 
     constructor(public ngHttp:Http) {
         this.subscription = this.globalSet$.subscribe(obj => {
-            console.log('globalset subscribe ', obj);
             this._global = obj;
-            console.log('globalafterset', this._global);
         });
     }
 
     get global() {
         return this._global;
     }
-
+    serverTime:Date;
     set global(value) {
         this._global = value;
     }

@@ -180,6 +180,7 @@ export class AppComponent implements OnInit {
             // this.currentClockTime = new Date(this.currentServerTime);
             // this.currentServerTime += 1000;
             this.currentServerTime.setMilliseconds(this.currentServerTime.getMilliseconds()+1000);
+            this.mainservice.serverTime = this.currentServerTime;
         }, 1000);
         this.hideExtendedClock();
     }

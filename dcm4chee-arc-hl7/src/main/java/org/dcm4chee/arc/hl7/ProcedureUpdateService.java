@@ -67,6 +67,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -108,7 +109,7 @@ public class ProcedureUpdateService extends AbstractHL7Service {
                 });
         boolean result = adjust(attrs, arcHL7App, msh, s);
         if (!result) {
-            LOG.info("MWL item not created/updated for HL7 message : " + msh.getMessageType()
+            LOG.warn("MWL item not created/updated for HL7 message : " + msh.getMessageType()
                     + " as no mapping to a Scheduled Procedure Step Status is configured with ORC-1_ORC-5 : "
                     + attrs.getNestedDataset(Tag.ScheduledProcedureStepSequence).getString(Tag.ScheduledProcedureStepStatus));
             return;
@@ -123,35 +124,29 @@ public class ProcedureUpdateService extends AbstractHL7Service {
         if (!attrs.containsValue(Tag.StudyInstanceUID))
             attrs.setString(Tag.StudyInstanceUID, VR.UI, UIDUtils.createUID());
         Sequence spsItems = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
-        boolean result = false;
         for (Attributes sps : spsItems) {
-            String orderControlStatus = sps.getString(Tag.ScheduledProcedureStepStatus);
-            List<String> ordercontrolStatusCodes = new ArrayList<>();
-            for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses()) {
-                result = false;
-                ordercontrolStatusCodes.addAll(Arrays.asList(hl7OrderSPSStatus.getOrderControlStatusCodes()));
-                if (ordercontrolStatusCodes.contains(orderControlStatus)) {
-                    sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, hl7OrderSPSStatus.getSPSStatus().toString());
-                    result = true;
-                }
-                if (result)
-                    break;
-            }
             if (sps.getString(Tag.ScheduledStationAETitle) == null) {
                 List<String> ssAETs = new ArrayList<>();
-                List<String> ssNames = new ArrayList<>();
                 Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(socket.getLocalAddress().getHostName(), msh, attrs);
-                for (Device device : devices) {
-                    if (device.getStationName() != null)
-                        ssNames.add(device.getStationName());
+                for (Device device : devices)
                     ssAETs.addAll(device.getApplicationAETitles());
-                }
+
                 if (!ssAETs.isEmpty())
                     sps.setString(Tag.ScheduledStationAETitle, VR.AE, ssAETs.toArray(new String[ssAETs.size()]));
-                if (!ssNames.isEmpty())
-                    sps.setString(Tag.ScheduledStationName, VR.SH, ssNames.toArray(new String[ssNames.size()]));
+
+                String[] ssNames = devices.stream().filter(x -> x.getStationName() != null).map(Device::getStationName).toArray(String[]::new);
+                if (ssNames.length > 0)
+                    sps.setString(Tag.ScheduledStationName, VR.SH, ssNames);
+            }
+
+            for (HL7OrderSPSStatus hl7OrderSPSStatus : arcHL7App.hl7OrderSPSStatuses()) {
+                if (Stream.of(hl7OrderSPSStatus.getOrderControlStatusCodes())
+                        .anyMatch(x -> x.equals(sps.getString(Tag.ScheduledProcedureStepStatus)))) {
+                    sps.setString(Tag.ScheduledProcedureStepStatus, VR.CS, hl7OrderSPSStatus.getSPSStatus().name());
+                    return true;
+                }
             }
         }
-        return result;
+        return false;
     }
 }

@@ -2013,13 +2013,13 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private static Device loadScheduledStation(String scheduledStationDeviceRef, LdapDicomConfiguration config) {
+    private static Device loadScheduledStation(String scheduledStationDeviceRef, LdapDicomConfiguration config)
+            throws ConfigurationException {
         try {
             return config.loadDevice(scheduledStationDeviceRef);
         } catch (ConfigurationException e) {
-            LOG.info("Failed to load Scheduled Station device "
+            throw new ConfigurationException("Failed to load Scheduled Station device "
                     + scheduledStationDeviceRef + " referenced by HL7 Order Scheduled Station", e);
-            return null;
         }
     }
 
@@ -2510,15 +2510,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private Device loadSupplementFromDevice(String supplementDeviceRef) {
+    private Device loadSupplementFromDevice(String supplementDeviceRef) throws ConfigurationException {
         try {
             return supplementDeviceRef != null
                     ? config.loadDevice(supplementDeviceRef)
                     : null;
         } catch (ConfigurationException e) {
-            LOG.info("Failed to load Supplement Device Reference "
+            throw new ConfigurationException("Failed to load Supplement Device Reference "
                     + supplementDeviceRef + " referenced by Attribute Coercion", e);
-            return null;
         }
     }
 
