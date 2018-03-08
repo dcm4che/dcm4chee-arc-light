@@ -43,12 +43,17 @@
       },
       "dicomDeviceName": {
         "title": "Device Name",
-        "description": "Name of Device performing the Task ",
+        "description": "Name of Device performing the Task",
         "type": "string"
       },
       "ExporterID": {
         "title": "Exporter ID",
-        "description": "ID of exporter performing the Task ",
+        "description": "ID of exporter performing the Task",
+        "type": "string"
+      },
+      "LocalAET": {
+        "title": "Local AET",
+        "description": "AET configured in Exporter",
         "type": "string"
       },
       "StudyInstanceUID": {

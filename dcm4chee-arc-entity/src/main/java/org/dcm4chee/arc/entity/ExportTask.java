@@ -246,7 +246,7 @@ public class ExportTask {
         this.queueMessage = queueMessage;
     }
 
-    public void writeAsJSONTo(JsonGenerator gen) throws IOException {
+    public void writeAsJSONTo(JsonGenerator gen, String localAET) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         JsonWriter writer = new JsonWriter(gen);
         gen.writeStartObject();
@@ -254,6 +254,7 @@ public class ExportTask {
         writer.writeNotNullOrDef("createdTime", df.format(createdTime), null);
         writer.writeNotNullOrDef("updatedTime", df.format(updatedTime), null);
         writer.writeNotNullOrDef("ExporterID", exporterID, null);
+        writer.writeNotNullOrDef("LocalAET", localAET, null);
         writer.writeNotNullOrDef("StudyInstanceUID", studyInstanceUID, null);
         writer.writeNotNullOrDef("SeriesInstanceUID", seriesInstanceUID, "*");
         writer.writeNotNullOrDef("SOPInstanceUID", sopInstanceUID, "*");
@@ -274,6 +275,7 @@ public class ExportTask {
                 "createdTime" + delimiter +
                 "updatedTime" + delimiter +
                 "ExporterID" + delimiter +
+                "LocalAET" + delimiter +
                 "StudyInstanceUID" + delimiter +
                 "SeriesInstanceUID" + delimiter +
                 "SOPInstanceUID" + delimiter +
@@ -292,7 +294,7 @@ public class ExportTask {
                 "outcomeMessage\r\n");
     }
 
-    public void writeAsCSVTo(Writer writer, char delimiter) throws IOException {
+    public void writeAsCSVTo(Writer writer, char delimiter, String localAET) throws IOException {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         writer.write(String.valueOf(pk));
         writer.write(delimiter);
@@ -301,6 +303,8 @@ public class ExportTask {
         writer.write(df.format(updatedTime));
         writer.write(delimiter);
         writer.write(exporterID);
+        writer.write(delimiter);
+        writer.write(localAET);
         writer.write(delimiter);
         writer.write(studyInstanceUID);
         writer.write(delimiter);

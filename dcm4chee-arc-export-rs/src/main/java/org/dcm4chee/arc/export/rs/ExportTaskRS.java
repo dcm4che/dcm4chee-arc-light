@@ -147,7 +147,7 @@ public class ExportTaskRS {
                         exporterID, deviceName, studyUID, createdTime, updatedTime),
                 parseInt(offset),
                 parseInt(limit));
-        return Response.ok(output.entity(tasks), output.type).build();
+        return Response.ok(output.entity(tasks, device.getDeviceExtension(ArchiveDeviceExtension.class)), output.type).build();
     }
 
     @GET
@@ -352,12 +352,12 @@ public class ExportTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final List<ExportTask> tasks) {
+            Object entity(final List<ExportTask> tasks, ArchiveDeviceExtension arcDev) {
                 return (StreamingOutput) out -> {
                         JsonGenerator gen = Json.createGenerator(out);
                         gen.writeStartArray();
                         for (ExportTask task : tasks)
-                            task.writeAsJSONTo(gen);
+                            task.writeAsJSONTo(gen, arcDev.getExporterDescriptor(task.getExporterID()).getAETitle());
                         gen.writeEnd();
                         gen.flush();
                 };
@@ -365,12 +365,13 @@ public class ExportTaskRS {
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final List<ExportTask> tasks) {
+            Object entity(final List<ExportTask> tasks, ArchiveDeviceExtension arcDev) {
                 return (StreamingOutput) out -> {
                         Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
                         ExportTask.writeCSVHeader(writer, delimiter);
                         for (ExportTask task : tasks)
-                            task.writeAsCSVTo(writer, delimiter);
+                            task.writeAsCSVTo(
+                                    writer, delimiter, arcDev.getExporterDescriptor(task.getExporterID()).getAETitle());
                         writer.flush();
                 };
             }
@@ -398,7 +399,7 @@ public class ExportTaskRS {
             return csvCompatible;
         }
 
-        abstract Object entity(final List<ExportTask> tasks);
+        abstract Object entity(final List<ExportTask> tasks, ArchiveDeviceExtension arcDev);
     }
 
     private String[] filters() {
