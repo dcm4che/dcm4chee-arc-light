@@ -398,7 +398,8 @@ public class RetrieveTaskRS {
                     "JMSMessageID" + delimiter +
                     "queue" + delimiter +
                     "dicomDeviceName" + delimiter +
-                    "status,scheduledTime" + delimiter +
+                    "status" + delimiter +
+                    "scheduledTime" + delimiter +
                     "failures" + delimiter +
                     "batchID" + delimiter +
                     "processingStartTime" + delimiter +
