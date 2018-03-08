@@ -142,7 +142,7 @@
                         </button>
                     </div>
                 </th>
-                <th>
+                <th (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                     <div class="action_block">
                         <input type="checkbox" (change)="checkAll($event)">
                         <a [permission]="{id:'action-monitoring->export-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" title="Cancel selected">
@@ -171,7 +171,7 @@
             <ng-container *ngFor="let match of matches">
                 <tr>
                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
-                    <td>
+                    <td (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                         <input type="checkbox" [(ngModel)]="match.checked">
                         <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
@@ -193,7 +193,7 @@
                     <td [innerHtml]="match.properties.status" title="{{match.properties.outcomeMessage}}"></td>
                     <td [innerHtml]="match.properties.failures" title="{{match.properties.errorMessage}}"></td>
                     <td class="text-right" [innerHtml]="getDifferenceTime(match.properties.scheduledTime,match.properties.processingStartTime)"></td>
-                    <td class="text-right" [innerHtml]="getDifferenceTime(match.properties.processingStartTime,match.properties.processingEndTime)"></td>
+                    <td class="text-right" [innerHtml]="getDifferenceTime(match.properties.processingStartTime,match.properties.processingEndTime,'sec')"></td>
                     <td [innerHtml]="match.properties.dicomDeviceName"></td>
                 </tr>
                 <tr *ngIf="match.showProperties">

@@ -75,6 +75,7 @@ export class ExportComponent implements OnInit {
         }
     ];
     allActionsActive = [];
+    tableHovered = false;
     constructor(
         public $http:J4careHttpService,
         public cfpLoadingBar: LoadingBarService,
@@ -186,8 +187,16 @@ export class ExportComponent implements OnInit {
         }else
             clearInterval(this.refreshInterval);
     }
+    tableMousEnter(){
+        this.tableHovered = true;
+    }
+    tableMousLeave(){
+        this.tableHovered = false;
+    }
     getCounts(){
         let filters = Object.assign({},this.filters);
+        if(!this.tableHovered)
+            this.search(0);
         Object.keys(this.statusValues).forEach(status=>{
             filters.status = status;
             this.statusValues[status].loader = true;
@@ -387,13 +396,13 @@ export class ExportComponent implements OnInit {
                 break;
         }
     }
-    getDifferenceTime(starttime, endtime){
+    getDifferenceTime(starttime, endtime,mode?){
         let start = new Date(starttime).getTime();
         let end = new Date(endtime).getTime();
         if (!start || !end || end < start){
             return null;
         }else{
-            return this.msToTime(new Date(endtime).getTime() - new Date(starttime).getTime());
+            return this.msToTime(new Date(endtime).getTime() - new Date(starttime).getTime(),mode);
         }
     };
     checkAll(event){
@@ -501,8 +510,12 @@ export class ExportComponent implements OnInit {
             }
         });
     }
-    msToTime(duration) {
-        return ((duration / 60000).toFixed(4)).toString() + ' min';
+    msToTime(duration,mode?) {
+        if(mode)
+            if(mode === "sec")
+                return ((duration*6 / 6000).toFixed(4)).toString() + ' s';
+        else
+            return ((duration / 60000).toFixed(4)).toString() + ' min';
   /*      if (duration > 999){
 
             let milliseconds: any = parseInt((((duration % 1000))).toString())
