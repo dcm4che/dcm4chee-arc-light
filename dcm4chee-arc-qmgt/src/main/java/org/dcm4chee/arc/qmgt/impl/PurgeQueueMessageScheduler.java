@@ -100,7 +100,7 @@ public class PurgeQueueMessageScheduler extends Scheduler {
         int count = ejb.deleteTasks(
                         queueName,
                         MatchTask.matchQueueMessage(
-                                queueName, null, status, null,null, null, before));
+                                queueName, null, status, null, null,null, null, before));
         if (count > 0)
             LOG.info("Deleted " + count + " messages from queue: " + queueName);
     }

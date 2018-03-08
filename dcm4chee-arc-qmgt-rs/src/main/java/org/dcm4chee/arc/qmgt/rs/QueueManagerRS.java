@@ -122,13 +122,16 @@ public class QueueManagerRS {
     @QueryParam("batchID")
     private String batchID;
 
+    @QueryParam("JMSMessageID")
+    private String jmsMessageID;
+
     @GET
     @NoCache
     @Produces("application/json")
     public Response search() {
         logRequest();
         return Response.ok(toEntity(mgr.search(
-                MatchTask.matchQueueMessage(queueName, deviceName, status(), batchID, createdTime, updatedTime, null),
+                MatchTask.matchQueueMessage(queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null),
                 parseInt(offset),
                 parseInt(limit))))
                 .build();
@@ -141,7 +144,7 @@ public class QueueManagerRS {
     public Response countTasks() {
         logRequest();
         return count(mgr.countTasks(MatchTask.matchQueueMessage(
-                        queueName, deviceName, status(), batchID, createdTime, updatedTime, null)));
+                        queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null)));
     }
 
     @POST
@@ -176,7 +179,7 @@ public class QueueManagerRS {
         queueEvent.setFilters(filters());
         try {
             LOG.info("Cancel processing of Tasks with Status {} at Queue {}", this.status, queueName);
-            Predicate matchQueueMessage = MatchTask.matchQueueMessage(queueName, deviceName, status, batchID,
+            Predicate matchQueueMessage = MatchTask.matchQueueMessage(queueName, deviceName, status, batchID, jmsMessageID,
                     createdTime, updatedTime, null);
             long count = mgr.cancelTasks(matchQueueMessage, status);
             queueEvent.setCount(count);
@@ -227,7 +230,7 @@ public class QueueManagerRS {
         queueEvent.setFilters(filters());
         try {
             Predicate matchQueueMessage = MatchTask.matchQueueMessage(
-                    queueName, deviceName, status, batchID, createdTime, updatedTime, new Date());
+                    queueName, deviceName, status, batchID, jmsMessageID, createdTime, updatedTime, new Date());
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
@@ -268,7 +271,7 @@ public class QueueManagerRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         queueEvent.setFilters(filters());
         int deleted = mgr.deleteTasks(queueName, MatchTask.matchQueueMessage(
-                queueName, deviceName, status(), batchID, createdTime, updatedTime, null));
+                queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
@@ -302,6 +305,7 @@ public class QueueManagerRS {
                 "archiveDevice:" + deviceName,
                 "status:" + status,
                 "batchID:" + batchID,
+                "JMSMessageID:" + jmsMessageID,
                 "createdTime:" + createdTime,
                 "updatedTime:" + updatedTime)
                 .toArray(String[]::new);
