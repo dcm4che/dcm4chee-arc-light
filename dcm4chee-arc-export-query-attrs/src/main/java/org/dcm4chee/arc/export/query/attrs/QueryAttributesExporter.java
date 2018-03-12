@@ -44,12 +44,16 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.query.impl.QueryAttributesEJB;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Mar 2018
  */
 public class QueryAttributesExporter extends AbstractExporter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(QueryAttributesExporter.class);
 
     private final QueryAttributesEJB queryAttributesEJB;
 
@@ -60,14 +64,28 @@ public class QueryAttributesExporter extends AbstractExporter {
 
     @Override
     public Outcome export(ExportContext exportContext) {
-        if (exportContext.getSopInstanceUID() != null)
-            return new Outcome(QueueMessage.Status.COMPLETED, "No operation for Instance level Export.");
+        if (exportContext.getSopInstanceUID() != null) {
+            String warning = "No operation for Instance level Export.";
+            LOG.warn(warning);
+            return new Outcome(QueueMessage.Status.COMPLETED, warning);
+        }
 
         if (exportContext.getSeriesInstanceUID() != null)
             queryAttributesEJB.calculateSeriesQueryAttributes(exportContext.getSeriesInstanceUID());
         else
             queryAttributesEJB.calculateStudyQueryAttributes(exportContext.getStudyInstanceUID());
 
-        return new Outcome(QueueMessage.Status.COMPLETED, "Query attributes calculated.");
+        return new Outcome(QueueMessage.Status.COMPLETED, outcomeMessage(exportContext));
     }
+
+    private String outcomeMessage(ExportContext exportContext) {
+        StringBuilder sb = new StringBuilder(256);
+        sb.append("Query attributes calculated for ");
+        String seriesInstanceUID = exportContext.getSeriesInstanceUID();
+        if (seriesInstanceUID != null)
+            sb.append("Series[uid=").append(seriesInstanceUID).append("] of ");
+        sb.append("Study[uid=").append(exportContext.getStudyInstanceUID()).append("]");
+        return sb.toString();
+    }
+
 }

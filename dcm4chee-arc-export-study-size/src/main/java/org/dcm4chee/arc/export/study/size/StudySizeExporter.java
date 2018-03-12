@@ -45,12 +45,16 @@ import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.query.impl.QuerySizeEJB;
 import org.dcm4chee.arc.qmgt.Outcome;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Mar 2018
  */
 public class StudySizeExporter extends AbstractExporter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(StudySizeExporter.class);
 
     private final QuerySizeEJB querySizeEJB;
 
@@ -61,14 +65,17 @@ public class StudySizeExporter extends AbstractExporter {
 
     @Override
     public Outcome export(ExportContext exportContext) {
-        long size = exportContext.getSeriesInstanceUID() != null
-                    ? exportContext.getSopInstanceUID() != null
-                        ? 0L
-                        : querySizeEJB.calculateSeriesSize(exportContext.getSeriesInstanceUID())
-                    : querySizeEJB.calculateStudySize(exportContext.getStudyInstanceUID());
-        return new Outcome(
-                QueueMessage.Status.COMPLETED,
-                size == 0L ? "No operation for Instance level Export." : outcomeMessage(exportContext));
+        if (exportContext.getSopInstanceUID() != null) {
+            String warning = "No operation for Instance level Export.";
+            LOG.warn(warning);
+            return new Outcome(QueueMessage.Status.COMPLETED, warning);
+        }
+        if (exportContext.getSeriesInstanceUID() != null)
+            querySizeEJB.calculateSeriesSize(exportContext.getSeriesInstanceUID());
+        else
+            querySizeEJB.calculateStudySize(exportContext.getStudyInstanceUID());
+
+        return new Outcome(QueueMessage.Status.COMPLETED, outcomeMessage(exportContext));
     }
 
     private String outcomeMessage(ExportContext exportContext) {
