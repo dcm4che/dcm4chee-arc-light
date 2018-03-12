@@ -174,7 +174,7 @@ class SeriesQuery extends AbstractQuery {
             availability = results.get(QSeriesQueryAttributes.seriesQueryAttributes.availability);
         } else {
             SeriesQueryAttributes seriesView = context.getQueryService()
-                    .calculateSeriesQueryAttributesIfNotExists(seriesPk, queryParam);
+                    .calculateSeriesQueryAttributesIfNotExists(seriesPk, queryParam.getQueryRetrieveView());
             numberOfSeriesRelatedInstances = seriesView.getNumberOfInstances();
             if (numberOfSeriesRelatedInstances == 0 && !queryParam.isReturnEmpty()) {
                 return null;
@@ -252,7 +252,7 @@ class SeriesQuery extends AbstractQuery {
             sopClassesInStudy = results.get(QStudyQueryAttributes.studyQueryAttributes.sopClassesInStudy);
         } else {
             StudyQueryAttributes studyView = context.getQueryService()
-                    .calculateStudyQueryAttributes(studyPk, context.getQueryParam());
+                    .calculateStudyQueryAttributes(studyPk, context.getQueryParam().getQueryRetrieveView());
             numberOfStudyRelatedInstances = studyView.getNumberOfInstances();
             numberOfStudyRelatedSeries = studyView.getNumberOfSeries();
             modalitiesInStudy = studyView.getModalitiesInStudy();

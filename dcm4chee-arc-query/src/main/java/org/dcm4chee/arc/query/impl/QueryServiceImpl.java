@@ -189,8 +189,8 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Attributes getSeriesAttributes(Long seriesPk, QueryParam queryParam) {
-        return ejb.getSeriesAttributes(seriesPk, queryParam);
+    public Attributes getSeriesAttributes(Long seriesPk, QueryRetrieveView qrView) {
+        return ejb.getSeriesAttributes(seriesPk, qrView);
     }
 
     @Override
@@ -199,20 +199,18 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryParam queryParam) {
-        return queryAttributesEJB.calculateStudyQueryAttributes(studyPk, queryParam);
+    public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView) {
+        return queryAttributesEJB.calculateStudyQueryAttributes(studyPk, qrView);
     }
 
     @Override
-    public SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryParam queryParam) {
-        return ejb.calculateSeriesQueryAttributesIfNotExists(seriesPk, queryParam);
+    public SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryRetrieveView qrView) {
+        return ejb.calculateSeriesQueryAttributesIfNotExists(seriesPk, qrView);
     }
 
     @Override
     public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
-        return queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView,
-                codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()),
-                codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()));
+        return queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
     }
 
     @Override
@@ -265,10 +263,11 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public Attributes queryExportTaskInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae) {
+        QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
         if (seriesIUID == null || seriesIUID.equals("*"))
-            return ejb.queryStudyExportTaskInfo(studyIUID, initCodeEntities(new QueryParam(ae)));
+            return ejb.queryStudyExportTaskInfo(studyIUID, qrView);
         if (sopIUID == null || sopIUID.equals("*"))
-            return ejb.querySeriesExportTaskInfo(studyIUID, seriesIUID, initCodeEntities(new QueryParam(ae)));
+            return ejb.querySeriesExportTaskInfo(studyIUID, seriesIUID, qrView);
         return ejb.queryObjectExportTaskInfo(studyIUID, seriesIUID, sopIUID);
     }
 

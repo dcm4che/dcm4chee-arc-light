@@ -86,13 +86,13 @@ public interface QueryService {
 
     Query createMWLQuery(QueryContext ctx);
 
-    Attributes getSeriesAttributes(Long seriesPk, QueryParam queryParam);
+    Attributes getSeriesAttributes(Long seriesPk, QueryRetrieveView qrView);
 
     long calculateStudySize(Long studyPk);
 
-    StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryParam queryParam);
+    StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView);
 
-    SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryParam queryParam);
+    SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryRetrieveView qrView);
 
     SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView);
 

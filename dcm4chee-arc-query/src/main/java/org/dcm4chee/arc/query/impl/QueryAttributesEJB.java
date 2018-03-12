@@ -43,17 +43,20 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.hibernate.HibernateQuery;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.code.CodeCache;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.QueryBuilder;
-import org.dcm4chee.arc.query.util.QueryParam;
 import org.hibernate.Session;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.HashSet;
@@ -61,6 +64,7 @@ import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Oct 2017
  */
 @Stateless
@@ -82,45 +86,44 @@ public class QueryAttributesEJB {
             QInstance.instance.availability
     };
 
+    @Inject
+    private CodeCache codeCache;
+
+    @Inject
+    private Device device;
+
     @PersistenceContext(unitName = "dcm4chee-arc")
     EntityManager em;
 
-    public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryParam queryParam) {
+    public StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView) {
         StudyQueryAttributesBuilder builder = new StudyQueryAttributesBuilder();
         for (Tuple tuple : new HibernateQuery<Void>(em.unwrap(Session.class))
                 .select(CALC_STUDY_QUERY_ATTRS)
                 .from(QSeries.series)
                 .leftJoin(QSeries.series.queryAttributes, QSeriesQueryAttributes.seriesQueryAttributes)
-                .on(QSeriesQueryAttributes.seriesQueryAttributes.viewID.eq(queryParam.getViewID()))
+                .on(QSeriesQueryAttributes.seriesQueryAttributes.viewID.eq(qrView.getViewID()))
                 .where(QSeries.series.study.pk.eq(studyPk))
                 .fetch()) {
             Integer numberOfInstancesI = tuple.get(QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances);
-            if (numberOfInstancesI == null) {
-                builder.add(tuple, calculateSeriesQueryAttributes(
-                        tuple.get(QSeries.series.pk),
-                        queryParam.getQueryRetrieveView(),
-                        queryParam.getHideRejectionNotesWithCode(),
-                        queryParam.getShowInstancesRejectedByCode()));
-            } else {
+            if (numberOfInstancesI == null)
+                builder.add(tuple, calculateSeriesQueryAttributes(tuple.get(QSeries.series.pk), qrView));
+            else
                 builder.add(tuple);
-            }
         }
         StudyQueryAttributes queryAttrs = builder.build();
-        queryAttrs.setViewID(queryParam.getViewID());
+        queryAttrs.setViewID(qrView.getViewID());
         queryAttrs.setStudy(em.getReference(Study.class, studyPk));
         em.persist(queryAttrs);
         return queryAttrs;
     }
 
-    public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView,
-                                                                CodeEntity[] hideRejectionNotesWithCode,
-                                                                CodeEntity[] showInstancesRejectedByCode) {
+    public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
         SeriesQueryAttributesBuilder builder = new SeriesQueryAttributesBuilder();
         BooleanBuilder predicate = new BooleanBuilder(QInstance.instance.series.pk.eq(seriesPk));
         predicate.and(QueryBuilder.hideRejectedInstance(
-                showInstancesRejectedByCode,
+                codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()),
                 qrView.isHideNotRejectedInstances()));
-        predicate.and(QueryBuilder.hideRejectionNote(hideRejectionNotesWithCode));
+        predicate.and(QueryBuilder.hideRejectionNote(codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes())));
         try (
                 CloseableIterator<Tuple> results = new HibernateQuery<Void>(em.unwrap(Session.class))
                         .select(CALC_SERIES_QUERY_ATTRS)
@@ -137,6 +140,34 @@ public class QueryAttributesEJB {
         queryAttrs.setSeries(em.getReference(Series.class, seriesPk));
         em.persist(queryAttrs);
         return queryAttrs;
+    }
+
+    public void calculateStudyQueryAttributes(String studyUID) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        long studyPk = (long) em.createNamedQuery(Study.FIND_PK_BY_STUDY_UID)
+                .setParameter(1, studyUID)
+                .getSingleResult();
+        Set<String> viewIDs = new HashSet<>(arcDev.getQueryRetrieveViewIDs());
+        viewIDs.removeAll(em.createNamedQuery(StudyQueryAttributes.VIEW_IDS_FOR_STUDY_PK, String.class)
+                .setParameter(1, studyPk)
+                .getResultList());
+
+        for (String viewID : viewIDs)
+            calculateStudyQueryAttributes(studyPk, arcDev.getQueryRetrieveView(viewID));
+    }
+
+    public void calculateSeriesQueryAttributes(String seriesUID) {
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        long seriesPk = (long) em.createNamedQuery(Series.FIND_PK_BY_SERIES_UID)
+                .setParameter(1, seriesUID)
+                .getSingleResult();
+        Set<String> viewIDs = new HashSet<>(arcDev.getQueryRetrieveViewIDs());
+        viewIDs.removeAll(em.createNamedQuery(SeriesQueryAttributes.VIEW_IDS_FOR_SERIES_PK, String.class)
+                .setParameter(1, seriesPk)
+                .getResultList());
+
+        for (String viewID : viewIDs)
+            calculateSeriesQueryAttributes(seriesPk, arcDev.getQueryRetrieveView(viewID));
     }
 
     private static class SeriesQueryAttributesBuilder {

@@ -48,16 +48,22 @@ import javax.persistence.*;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  *
  */
+@NamedQueries({
 @NamedQuery(
-    name = StudyQueryAttributes.DELETE_FOR_STUDY,
-    query = "delete from StudyQueryAttributes a where a.study = ?1"
-)
+        name = StudyQueryAttributes.DELETE_FOR_STUDY,
+        query = "delete from StudyQueryAttributes a where a.study = ?1"
+),
+@NamedQuery(
+        name = StudyQueryAttributes.VIEW_IDS_FOR_STUDY_PK,
+        query = "select a.viewID from StudyQueryAttributes a where a.study.pk = ?1")
+})
 @Entity
 @Table(name = "study_query_attrs", uniqueConstraints =
     @UniqueConstraint(columnNames = { "view_id", "study_fk" }))
 public class StudyQueryAttributes {
 
     public static final String DELETE_FOR_STUDY = "StudyQueryAttributes.deleteForStudy";
+    public static final String VIEW_IDS_FOR_STUDY_PK = "StudyQueryAttributes.viewIDsForStudyPk";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

@@ -199,7 +199,7 @@ class InstanceQuery extends AbstractQuery {
         Availability availability = results.get(QInstance.instance.availability);
         if (!seriesPk.equals(this.seriesPk)) {
             this.seriesAttrs = context.getQueryService()
-                    .getSeriesAttributes(seriesPk, context.getQueryParam());
+                    .getSeriesAttributes(seriesPk, context.getQueryParam().getQueryRetrieveView());
             this.seriesPk = seriesPk;
         }
         Attributes instAtts = AttributesBlob.decodeAttributes(
@@ -284,7 +284,7 @@ class InstanceQuery extends AbstractQuery {
 
         Tuple tuple = seriesMetadataStoragePaths.remove(0);
         this.seriesAttrs = context.getQueryService()
-                .getSeriesAttributes(tuple.get(QSeries.series.pk), context.getQueryParam());
+                .getSeriesAttributes(tuple.get(QSeries.series.pk), context.getQueryParam().getQueryRetrieveView());
         seriesMetadataStream = context.getQueryService().openZipInputStream(context,
                 tuple.get(QMetadata.metadata.storageID), tuple.get(QMetadata.metadata.storagePath));
         return true;

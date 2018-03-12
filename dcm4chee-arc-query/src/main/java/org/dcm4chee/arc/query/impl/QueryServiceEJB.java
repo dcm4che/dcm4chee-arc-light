@@ -53,6 +53,7 @@ import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.Availability;
+import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
@@ -148,8 +149,8 @@ public class QueryServiceEJB {
     @Inject
     QueryAttributesEJB queryAttributesEJB;
 
-    public Attributes getSeriesAttributes(Long seriesPk, QueryParam queryParam) {
-        String viewID = queryParam.getViewID();
+    public Attributes getSeriesAttributes(Long seriesPk, QueryRetrieveView qrView) {
+        String viewID = qrView.getViewID();
         Tuple result = new HibernateQuery<Void>(em.unwrap(Session.class))
                 .select(PATIENT_STUDY_SERIES_ATTRS)
                 .from(QSeries.series)
@@ -173,11 +174,7 @@ public class QueryServiceEJB {
                 result.get(QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances);
         if (numberOfSeriesRelatedInstances == null) {
             SeriesQueryAttributes seriesQueryAttributes =
-                    queryAttributesEJB.calculateSeriesQueryAttributes(
-                            seriesPk,
-                            queryParam.getQueryRetrieveView(),
-                            queryParam.getHideRejectionNotesWithCode(),
-                            queryParam.getShowInstancesRejectedByCode());
+                    queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
             numberOfSeriesRelatedInstances = seriesQueryAttributes.getNumberOfInstances();
         }
 
@@ -188,7 +185,7 @@ public class QueryServiceEJB {
                 result.get(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances);
         if (numberOfStudyRelatedInstances == null) {
             StudyQueryAttributes studyQueryAttributes =
-                    queryAttributesEJB.calculateStudyQueryAttributes(result.get(QStudy.study.pk), queryParam);
+                    queryAttributesEJB.calculateStudyQueryAttributes(result.get(QStudy.study.pk), qrView);
             numberOfStudyRelatedInstances = studyQueryAttributes.getNumberOfInstances();
             numberOfStudyRelatedSeries = studyQueryAttributes.getNumberOfSeries();
             modalitiesInStudy = studyQueryAttributes.getModalitiesInStudy();
@@ -283,8 +280,8 @@ public class QueryServiceEJB {
         return attrs;
     }
 
-    public Attributes queryStudyExportTaskInfo(String studyIUID, QueryParam queryParam) {
-        String viewID = queryParam.getViewID();
+    public Attributes queryStudyExportTaskInfo(String studyIUID, QueryRetrieveView qrView) {
+        String viewID = qrView.getViewID();
         Tuple result = new HibernateQuery<Void>(em.unwrap(Session.class))
                 .select(EXPORT_STUDY_INFO)
                 .from(QStudy.study)
@@ -297,7 +294,7 @@ public class QueryServiceEJB {
                 result.get(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances);
         if (numberOfStudyRelatedInstances == null) {
             StudyQueryAttributes studyQueryAttributes =
-                    queryAttributesEJB.calculateStudyQueryAttributes(result.get(QStudy.study.pk), queryParam);
+                    queryAttributesEJB.calculateStudyQueryAttributes(result.get(QStudy.study.pk), qrView);
             numberOfStudyRelatedInstances = studyQueryAttributes.getNumberOfInstances();
             modalitiesInStudy = studyQueryAttributes.getModalitiesInStudy();
         } else {
@@ -310,8 +307,8 @@ public class QueryServiceEJB {
         return attrs;
     }
 
-    public Attributes querySeriesExportTaskInfo(String studyIUID, String seriesIUID, QueryParam queryParam) {
-        String viewID = queryParam.getViewID();
+    public Attributes querySeriesExportTaskInfo(String studyIUID, String seriesIUID, QueryRetrieveView qrView) {
+        String viewID = qrView.getViewID();
         Tuple result = new HibernateQuery<Void>(em.unwrap(Session.class))
                 .select(EXPORT_SERIES_INFO)
                 .from(QSeries.series)
@@ -328,11 +325,7 @@ public class QueryServiceEJB {
         if (numberOfSeriesRelatedInstances == null) {
             Long seriesPk = result.get(QSeries.series.pk);
             SeriesQueryAttributes seriesQueryAttributes =
-                    queryAttributesEJB.calculateSeriesQueryAttributes(
-                            seriesPk,
-                            queryParam.getQueryRetrieveView(),
-                            queryParam.getHideRejectionNotesWithCode(),
-                            queryParam.getShowInstancesRejectedByCode());
+                    queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
             numberOfSeriesRelatedInstances = seriesQueryAttributes.getNumberOfInstances();
         }
         Attributes attrs = new Attributes(2);
@@ -476,19 +469,15 @@ public class QueryServiceEJB {
                 .fetchOne(), null);
     }
 
-    public SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryParam queryParam) {
+    public SeriesQueryAttributes calculateSeriesQueryAttributesIfNotExists(Long seriesPk, QueryRetrieveView qrView) {
         try {
             return em.createNamedQuery(
                     SeriesQueryAttributes.FIND_BY_VIEW_ID_AND_SERIES_PK, SeriesQueryAttributes.class)
-                    .setParameter(1, queryParam.getViewID())
+                    .setParameter(1, qrView.getViewID())
                     .setParameter(2, seriesPk)
                     .getSingleResult();
         } catch (NoResultException e) {
-            return queryAttributesEJB.calculateSeriesQueryAttributes(
-                    seriesPk,
-                    queryParam.getQueryRetrieveView(),
-                    queryParam.getHideRejectionNotesWithCode(),
-                    queryParam.getShowInstancesRejectedByCode());
+            return queryAttributesEJB.calculateSeriesQueryAttributes(seriesPk, qrView);
         }
     }
 

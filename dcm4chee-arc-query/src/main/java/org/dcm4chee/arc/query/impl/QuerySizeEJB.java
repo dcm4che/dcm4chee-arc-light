@@ -51,6 +51,7 @@ import javax.persistence.PersistenceContext;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Nov 2017
  */
 @Stateless
@@ -92,5 +93,19 @@ public class QuerySizeEJB {
                 .setParameter(2, size)
                 .executeUpdate();
         return size;
+    }
+
+    public long calculateStudySize(String studyUID) {
+        return calculateStudySize(
+                (long) em.createNamedQuery(Study.FIND_PK_BY_STUDY_UID)
+                        .setParameter(1, studyUID)
+                        .getSingleResult());
+    }
+
+    public long calculateSeriesSize(String seriesUID) {
+        return calculateSeriesSize(
+                (long) em.createNamedQuery(Series.FIND_PK_BY_SERIES_UID)
+                        .setParameter(1, seriesUID)
+                        .getSingleResult());
     }
 }
