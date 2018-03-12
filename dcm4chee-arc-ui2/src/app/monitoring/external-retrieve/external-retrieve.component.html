@@ -77,9 +77,9 @@
         <th class="hideOn1100px">Destination AET</th>
         <th class="hideMobile hideOn800px">Scheduled</th>
         <th class="hideMobile hideOn1400px">Started</th>
-        <th class="hideMobile">Finished</th>
-        <th class="hideMobile hideOn1200px" title="Completed / Remainning / Failed">Completed / Remaining / Failed</th>
-        <th class="hideMobile hideOn1200px">Instance / sec</th>
+        <th class="hideMobile">Finished / Approx.</th>
+        <th class="hideMobile hideOn1200px" title="Completed / Remainning / Failed">Comp. / Rem. / Failed</th>
+        <th class="hideMobile hideOn1200px">Inst. / sec</th>
       </tr>
       </thead>
       <tbody>
@@ -107,10 +107,10 @@
           <td [innerHtml]="match.properties.DestinationAET" class="hideOn1100px"></td>
           <td class="hideMobile hideOn800px" [innerHtml]="match.properties.scheduledTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
           <td class="hideMobile hideOn1400px" [innerHtml]="match.properties.processingStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-          <td class="hideMobile" *ngIf="match.properties.processingEndTime" [innerHtml]="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-          <td class="hideMobile" *ngIf="!match.properties.processingEndTime" [innerHtml]="match.properties.approximatelyEndTime"></td>
-          <td [innerHtml]="match.properties.taskState" class="hideOn1200px" [ngClass]="{'failed':match.properties.failed > 0}"></td>
-          <td [innerHtml]="match.properties.InstancePerSec" class="hideOn1200px"></td>
+          <td class="text-right hideMobile" *ngIf="match.properties.processingEndTime" [innerHtml]="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+          <td class="text-right hideMobile" *ngIf="!match.properties.processingEndTime" [innerHtml]="match.properties.approximatelyEndTime"></td>
+          <td [innerHtml]="match.properties.taskState" class="text-right hideOn1200px" [ngClass]="{'failed':match.properties.failed > 0}"></td>
+          <td [innerHtml]="match.properties.InstancePerSec" class="text-right hideOn1200px"></td>
         </tr>
         <tr *ngIf="match.showProperties">
           <td colspan="10">

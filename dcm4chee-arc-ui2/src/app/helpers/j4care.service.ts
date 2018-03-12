@@ -286,6 +286,11 @@ export class j4care {
                 timeZone:`${m[2]||''}${m[3]||''}`
             }
         }
+        if(string)
+            return {
+                time:string,
+                timeZone:""
+            };
         return string;
     }
     static redirectOnAuthResponse(res){
