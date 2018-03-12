@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {j4care} from "../j4care.service";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'filter-generator',
@@ -20,7 +21,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy {
        this.parentId = `${location.hostname}-${this.inj['view'].parentNodeDef.renderParent.element.name}`;
        let savedFilters = localStorage.getItem(this.parentId);
        if(savedFilters)
-           this.model = JSON.parse(savedFilters);
+           this.model = _.merge(this.model,JSON.parse(savedFilters));
     }
     submitEmit(id){
         this.model = j4care.clearEmptyObject(this.model);

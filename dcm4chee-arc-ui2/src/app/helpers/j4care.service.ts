@@ -5,6 +5,7 @@ import {Http, ResponseContentType, Headers} from "@angular/http";
 import {Subscriber} from "rxjs/Subscriber";
 import {Observable} from "rxjs/Observable";
 declare var fetch;
+declare var DCM4CHE: any;
 import * as _ from 'lodash';
 import {DatePipe} from "@angular/common";
 import {WindowRefService} from "./window-ref.service";
@@ -300,6 +301,33 @@ export class j4care {
         }
         return resjson;
     }
+    static     attrs2rows(level, attrs, rows) {
+        console.log('in attrs2rows');
+        function privateCreator(tag) {
+            if ('02468ACE'.indexOf(tag.charAt(3)) < 0) {
+                let block = tag.slice(4, 6);
+                if (block !== '00') {
+                    let el = attrs[tag.slice(0, 4) + '00' + block];
+                    return el && el.Value && el.Value[0];
+                }
+            }
+            return undefined;
+        }
+        let $this = this;
+        Object.keys(attrs).sort().forEach(function (tag) {
+            let el = attrs[tag];
+            rows.push({ level: level, tag: tag, name: DCM4CHE.elementName.forTag(tag, privateCreator(tag)), el: el });
+            if (el.vr === 'SQ') {
+                let itemLevel = level + '>';
+                _.forEach(el.Value, function (item, index) {
+                    rows.push({ level: itemLevel, item: index });
+                    $this.attrs2rows(itemLevel, item, rows);
+                });
+            }
+        });
+        console.log('attrs ende', attrs);
+
+    };
     static dateToString(date:Date){
         return `${date.getFullYear()}${this.getSingleDateTimeValueFromInt(date.getMonth()+1)}${this.getSingleDateTimeValueFromInt(date.getDate())}`;
     }
@@ -467,7 +495,7 @@ export class j4care {
     }
     static clearEmptyObject(obj){
         _.forEach(obj,(m,i)=>{
-            if(!m || m === "" || m === undefined){
+            if((!m || m === "" || m === undefined) && m != 0){
                 delete obj[i];
             }
         });
