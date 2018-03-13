@@ -814,6 +814,9 @@ table{
             top:-25px;
 	    	padding-top:100px;
 	    }
+		.visible_filters{
+			width:100%;
+		}
 	    & > .header_block {
         box-shadow: 0 11px 20px -10px #111;
         background: #666;
@@ -856,7 +859,7 @@ table{
 				    color: white;
 				    padding-left: 7px;
 				    width: 10%;
-          overflow:hidden;
+					overflow:hidden;
 				    // border-bottom: 1px solid rgb(221, 221, 221);
 				    border-right: 1px solid rgb(221, 221, 221);
 			    }
