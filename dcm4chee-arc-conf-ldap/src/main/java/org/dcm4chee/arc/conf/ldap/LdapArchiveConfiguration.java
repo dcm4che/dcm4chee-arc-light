@@ -1895,7 +1895,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("objectclass", "hl7ForwardRule");
         attrs.put("cn", rule.getCommonName());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7FwdApplicationName", rule.getDestinations());
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", rule.getConditions().getProperties());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(rule.getConditions().getMap()));
         return attrs;
     }
 
@@ -1905,7 +1905,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OrderScheduledStationDeviceReference",
                 scheduledStationDeviceRef(station, config), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", station.getPriority(), 0);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", station.getConditions().getProperties());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(station.getConditions().getMap()));
         return attrs;
     }
 
@@ -2281,7 +2281,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private static List<ModificationItem> storeDiffs(
             ConfigurationChanges.ModifiedObject ldapObj, HL7ForwardRule prev, HL7ForwardRule rule, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiff(ldapObj, mods, "dcmProperty", prev.getConditions().getProperties(), rule.getConditions().getProperties());
+        storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getConditions().getMap(), rule.getConditions().getMap());
         LdapUtils.storeDiff(ldapObj, mods, "hl7FwdApplicationName", prev.getDestinations(), rule.getDestinations());
         return mods;
     }
