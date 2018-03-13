@@ -70,6 +70,7 @@ import java.io.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -402,7 +403,7 @@ public class ExportTaskRS {
         abstract Object entity(final List<ExportTask> tasks, ArchiveDeviceExtension arcDev);
     }
 
-    private String[] filters() {
+    private String filters() {
         return Stream.of("exporterID:" + exporterID,
                 "archiveDevice:" + deviceName,
                 "status:" + status,
@@ -410,7 +411,7 @@ public class ExportTaskRS {
                 "batchID:" + batchID,
                 "createdTime:" + createdTime,
                 "updatedTime:" + updatedTime)
-                .toArray(String[]::new);
+                .collect(Collectors.joining(";"));
     }
 
     private QueueMessage.Status status() {

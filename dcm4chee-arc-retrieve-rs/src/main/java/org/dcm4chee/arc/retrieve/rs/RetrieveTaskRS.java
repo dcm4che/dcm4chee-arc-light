@@ -70,6 +70,7 @@ import java.io.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -382,7 +383,7 @@ public class RetrieveTaskRS {
         abstract Object entity(final List<RetrieveTask> tasks);
     }
 
-    private String[] filters() {
+    private String filters() {
         return Stream.of("localAET:" + localAET,
                 "remoteAET:" + remoteAET,
                 "destinationAET:" + destinationAET,
@@ -392,7 +393,7 @@ public class RetrieveTaskRS {
                 "batchID:" + batchID,
                 "createdTime:" + createdTime,
                 "updatedTime:" + updatedTime)
-                .toArray(String[]::new);
+                .collect(Collectors.joining(";"));
     }
 
     private QueueMessage.Status status() {
