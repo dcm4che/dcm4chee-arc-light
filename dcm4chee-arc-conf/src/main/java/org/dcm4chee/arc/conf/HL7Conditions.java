@@ -76,9 +76,7 @@ public class HL7Conditions {
     }
 
     public void setCondition(String tagPath, String value) {
-        Pattern pattern = tagPath.startsWith("MSH-8") && value.contains("^")
-                ? Pattern.compile(value.replace("^", "\\^")) : Pattern.compile(value);
-        map.put(tagPath, pattern);
+        map.put(tagPath, Pattern.compile(value));
     }
 
     public Map<String,Pattern> getMap() {
