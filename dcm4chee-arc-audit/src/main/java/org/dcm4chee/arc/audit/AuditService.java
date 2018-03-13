@@ -91,6 +91,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -882,15 +884,8 @@ public class AuditService {
                                 .roleIDCode(eventType.destination)
                                 .build();
 
-        SOPClass[] sopC = new SOPClass[sopClassMap.size()];
-        int i = 0;
-        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
-            sopC[i] = AuditMessages.createSOPClass(null, entry.getKey(), entry.getValue().size());
-            i++;
-        }
-
         ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
-                                                .sopC(sopC)
+                                                .sopC(toSOPClasses(sopClassMap, false))
                                                 .acc(accessions(auditInfo.getField(AuditInfo.ACC_NUM)))
                                                 .mpps(mppsUIDs.toArray(new String[mppsUIDs.size()]))
                                                 .build();
@@ -948,15 +943,8 @@ public class AuditService {
         }
         List<ParticipantObjectIdentificationBuilder> pois = new ArrayList<>();
         for (Map.Entry<String, AccessionNumSopClassInfo> entry : study_accNumSOPClassInfo.entrySet()) {
-            HashSet<SOPClass> sopC = new HashSet<>();
-            for (Map.Entry<String, HashSet<String>> sopClassMap : entry.getValue().getSopClassMap().entrySet())
-                if (ri.getField(AuditInfo.FAILED_IUID_SHOW) != null)
-                    sopC.add(getSOPC(sopClassMap.getValue(), sopClassMap.getKey(), sopClassMap.getValue().size()));
-                else
-                    sopC.add(getSOPC(null, sopClassMap.getKey(), sopClassMap.getValue().size()));
-
             ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
-                                                        .sopC(sopC.toArray(new SOPClass[sopC.size()]))
+                                                        .sopC(toSOPClasses(entry.getValue().getSopClassMap(), ri.getField(AuditInfo.FAILED_IUID_SHOW) != null))
                                                         .acc(accessions(entry.getValue().getAccNum()))
                                                         .build();
             ParticipantObjectIdentificationBuilder poi = new ParticipantObjectIdentificationBuilder.Builder(
@@ -1473,55 +1461,62 @@ public class AuditService {
 
     void spoolStgCmt(StgCmtEventInfo stgCmtEventInfo) {
         Attributes eventInfo = stgCmtEventInfo.getExtendedEventInfo();
-        Sequence failed = eventInfo.getSequence(Tag.FailedSOPSequence);
-        Sequence success = eventInfo.getSequence(Tag.ReferencedSOPSequence);
         String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
-                ? buildStrings(eventInfo.getStrings(Tag.StudyInstanceUID)) : getArchiveDevice().auditUnknownStudyInstanceUID();
-        if (failed != null && !failed.isEmpty()) {
-            Set<String> failureReasons = new HashSet<>();
-            Set<AuditInfo> aiSet = new HashSet<>();
-            LinkedHashSet<Object> objs = new LinkedHashSet<>();
-            for (Attributes item : failed) {
-                AuditInfoBuilder ii = new AuditInfoBuilder.Builder()
-                        .sopCUID(item.getString(Tag.ReferencedSOPClassUID))
-                        .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID)).build();
-                String outcome = item.getInt(Tag.FailureReason, 0) == Status.NoSuchObjectInstance
-                        ? "NoSuchObjectInstance" : item.getInt(Tag.FailureReason, 0) == Status.ClassInstanceConflict
-                        ? "ClassInstanceConflict" : "ProcessingFailure";
-                failureReasons.add(outcome);
-                aiSet.add(new AuditInfo(ii));
-            }
-            AuditInfoBuilder i = new AuditInfoBuilder.Builder()
-                                .callingUserID(storageCmtCallingAET(stgCmtEventInfo))
-                                .callingHost(storageCmtCallingHost(stgCmtEventInfo))
-                                .calledUserID(storageCmtCalledAET(stgCmtEventInfo))
-                                .pIDAndName(eventInfo, getArchiveDevice())
-                                .studyUID(studyUID)
-                                .outcome(buildStrings(failureReasons.toArray(new String[failureReasons.size()])))
-                                .build();
-            objs.add(new AuditInfo(i));
-            objs.addAll(aiSet);
-            writeSpoolFile(AuditServiceUtils.EventType.STG_COMMIT, objs);
-        }
+                ? Stream.of(eventInfo.getStrings(Tag.StudyInstanceUID)).collect(Collectors.joining(";"))
+                : getArchiveDevice().auditUnknownStudyInstanceUID();
+
+        spoolFailedStgcmt(stgCmtEventInfo, studyUID);
+        spoolSuccessStgcmt(stgCmtEventInfo, studyUID);
+    }
+
+    private void spoolSuccessStgcmt(StgCmtEventInfo stgCmtEventInfo, String studyUID) {
+        Sequence success = stgCmtEventInfo.getExtendedEventInfo().getSequence(Tag.ReferencedSOPSequence);
         if (success != null && !success.isEmpty()) {
             AuditInfoBuilder[] auditInfoBuilder = new AuditInfoBuilder[success.size()+1];
             auditInfoBuilder[0] = new AuditInfoBuilder.Builder()
                                 .callingUserID(storageCmtCallingAET(stgCmtEventInfo))
                                 .callingHost(storageCmtCallingHost(stgCmtEventInfo))
                                 .calledUserID(storageCmtCalledAET(stgCmtEventInfo))
-                                .pIDAndName(eventInfo, getArchiveDevice())
+                                .pIDAndName(stgCmtEventInfo.getExtendedEventInfo(), getArchiveDevice())
                                 .studyUID(studyUID)
                                 .build();
-            int i = 0;
-            for (Attributes item : success) {
-                auditInfoBuilder[i+1] = new AuditInfoBuilder.Builder()
-                                    .sopCUID(item.getString(Tag.ReferencedSOPClassUID))
-                                    .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID))
-                                    .build();
-                i++;
-            }
+            for (int i = 1; i <= success.size(); i++)
+                auditInfoBuilder[i] = buildRefSopAuditInfo(success.get(i-1));
+
             writeSpoolFile(AuditServiceUtils.EventType.STG_COMMIT, auditInfoBuilder);
         }
+    }
+
+    private void spoolFailedStgcmt(StgCmtEventInfo stgCmtEventInfo, String studyUID) {
+        Sequence failed = stgCmtEventInfo.getExtendedEventInfo().getSequence(Tag.FailedSOPSequence);
+        if (failed != null && !failed.isEmpty()) {
+            AuditInfoBuilder[] auditInfoBuilder = new AuditInfoBuilder[failed.size()+1];
+            Set<String> failureReasons = new HashSet<>();
+            for (int i = 1; i <= failed.size(); i++) {
+                Attributes item = failed.get(i-1);
+                auditInfoBuilder[i] = buildRefSopAuditInfo(item);
+                failureReasons.add(
+                        item.getInt(Tag.FailureReason, 0) == Status.NoSuchObjectInstance
+                        ? "NoSuchObjectInstance"
+                        : item.getInt(Tag.FailureReason, 0) == Status.ClassInstanceConflict
+                            ? "ClassInstanceConflict" : "ProcessingFailure");
+            }
+            auditInfoBuilder[0] = new AuditInfoBuilder.Builder()
+                                .callingUserID(storageCmtCallingAET(stgCmtEventInfo))
+                                .callingHost(storageCmtCallingHost(stgCmtEventInfo))
+                                .calledUserID(storageCmtCalledAET(stgCmtEventInfo))
+                                .pIDAndName(stgCmtEventInfo.getExtendedEventInfo(), getArchiveDevice())
+                                .studyUID(studyUID)
+                                .outcome(failureReasons.stream().collect(Collectors.joining(";")))
+                                .build();
+            writeSpoolFile(AuditServiceUtils.EventType.STG_COMMIT, auditInfoBuilder);
+        }
+    }
+
+    private AuditInfoBuilder buildRefSopAuditInfo(Attributes item) {
+        return new AuditInfoBuilder.Builder()
+                .sopCUID(item.getString(Tag.ReferencedSOPClassUID))
+                .sopIUID(item.getString(Tag.ReferencedSOPInstanceUID)).build();
     }
 
     private String storageCmtCallingHost(StgCmtEventInfo stgCmtEventInfo) {
@@ -1570,16 +1565,9 @@ public class AuditService {
             AuditInfo ii = new AuditInfo(line);
             buildSOPClassMap(sopClassMap, ii.getField(AuditInfo.SOP_CUID), ii.getField(AuditInfo.SOP_IUID));
         }
-        HashSet<SOPClass> sopC = new HashSet<>();
-        if (studyUIDs.length > 1 || auditInfo.getField(AuditInfo.OUTCOME) != null)
-            for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet())
-                sopC.add(getSOPC(entry.getValue(), entry.getKey(), entry.getValue().size()));
-        else
-            for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet())
-                sopC.add(getSOPC(null, entry.getKey(), entry.getValue().size()));
 
         ParticipantObjectDescriptionBuilder poDesc = new ParticipantObjectDescriptionBuilder.Builder()
-                .sopC(sopC.toArray(new SOPClass[sopC.size()]))
+                .sopC(toSOPClasses(sopClassMap, studyUIDs.length > 1 || auditInfo.getField(AuditInfo.OUTCOME) != null))
                 .pocsStudyUIDs(studyUIDs).build();
         
         ParticipantObjectIdentificationBuilder poiStudy = new ParticipantObjectIdentificationBuilder.Builder(studyUIDs[0],
@@ -1589,15 +1577,17 @@ public class AuditService {
         emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poiStudy, patientPOI(auditInfo));
     }
 
-    private String buildStrings(String[] strings) {
-        if (strings.length == 0)
-            return null;
-
-        StringBuilder b = new StringBuilder();
-        b.append(strings[0]);
-        for (int i = 1; i < strings.length; i++)
-            b.append(';').append(strings[i]);
-        return b.toString();
+    private SOPClass[] toSOPClasses(HashMap<String, HashSet<String>> sopClassMap, boolean showIUID) {
+        SOPClass[] sopClasses = new SOPClass[sopClassMap.size()];
+        int count = 0;
+        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
+            sopClasses[count] = AuditMessages.createSOPClass(
+                    showIUID ? entry.getValue() : null,
+                    entry.getKey(),
+                    entry.getValue().size());
+            count++;
+        }
+        return sopClasses;
     }
 
     private AuditInfoBuilder getAIStoreCtx(StoreContext ctx) {
@@ -1661,10 +1651,6 @@ public class AuditService {
             accessions[0] = accession;
         }
         return accessions;
-    }
-
-    private SOPClass getSOPC(HashSet<String> instances, String uid, Integer numI) {
-        return AuditMessages.createSOPClass(instances, uid, numI);
     }
 
     private Calendar getEventTime(Path path, AuditLogger auditLogger){
