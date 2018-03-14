@@ -130,18 +130,17 @@ public class DeletionServiceImpl implements DeletionService {
                 boolean studyDeleted = studyDeleted(ctx, study, allowDeleteStudy);
                 if (!studyDeleted)
                     throw new StudyNotEmptyException("Study is not empty. - ");
-                studyDeletedEvent.fire(ctx);
                 LOG.info("Successfully delete {} from database", ctx.getStudy());
             }
         } catch (NoResultException e) {
             throw new StudyNotFoundException(e.getMessage());
         } catch (StudyNotEmptyException e) {
             ctx.setException(e);
-            studyDeletedEvent.fire(ctx);
             throw e;
         } catch (Exception e) {
             LOG.warn("Failed to delete {} on {}", ctx.getStudy(), e);
             ctx.setException(e);
+        } finally {
             studyDeletedEvent.fire(ctx);
         }
     }
