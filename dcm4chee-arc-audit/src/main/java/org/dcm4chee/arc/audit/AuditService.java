@@ -309,23 +309,14 @@ public class AuditService {
                 .callingUserID(KeycloakContext.valueOf(req).getUserName())
                 .callingHost(req.getRemoteHost())
                 .calledUserID(req.getRequestURI())
-                .calledHost(toHost(rejectionNoteSent.getRemoteAE()))
+                .calledHost(!rejectionNoteSent.getRemoteAE().getConnections().isEmpty()
+                        ? rejectionNoteSent.getRemoteAE().getConnections().stream().map(Connection::getHostname).collect(Collectors.joining(";"))
+                        : null)
                 .outcome(rejectionNoteSent.failed() ? rejectionNoteSent.getErrorComment() : null)
                 .warning(codeItem.getString(Tag.CodeMeaning))
                 .studyUIDAccNumDate(attrs)
                 .pIDAndName(attrs, getArchiveDevice())
                 .build();
-    }
-
-    private String toHost(ApplicationEntity ae) {
-        StringBuilder b = new StringBuilder();
-        List<Connection> connections = ae.getConnections();
-        if (!connections.isEmpty()) {
-            b.append(connections.get(0).getHostname());
-            for (int i = 1; i < connections.size(); i++)
-                b.append(';').append(connections.get(i).getHostname());
-        }
-        return b.toString();
     }
 
     void spoolQueueMessageEvent(QueueMessageEvent queueMsgEvent) {
@@ -450,7 +441,11 @@ public class AuditService {
         ParticipantObjectIdentificationBuilder poiLDAPDiff = new ParticipantObjectIdentificationBuilder.Builder(calledUserID,
                                                     AuditMessages.ParticipantObjectIDTypeCode.DeviceName,
                                                     AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                                                    null).detail(getPod("Alert Description", getData(reader)))
+                                                    null)
+                                                    .detail(getPod("Alert Description",
+                                                            !reader.getInstanceLines().isEmpty()
+                                                                    ? reader.getInstanceLines().stream().collect(Collectors.joining("\n"))
+                                                                    : null))
                                                     .build();
         emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poiLDAPDiff);
     }
@@ -509,7 +504,7 @@ public class AuditService {
         
         ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
                 .sopC(toSOPClasses(buildSOPClassMap(reader), outcome != null))
-                .acc(accessions(auditInfo.getField(AuditInfo.ACC_NUM))).build();
+                .acc(auditInfo.getField(AuditInfo.ACC_NUM)).build();
         
         ParticipantObjectIdentificationBuilder poiStudy = new ParticipantObjectIdentificationBuilder.Builder(
                 auditInfo.getField(AuditInfo.STUDY_UID), 
@@ -896,7 +891,7 @@ public class AuditService {
 
         ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
                                                 .sopC(toSOPClasses(buildSOPClassMap(reader), outcome != null))
-                                                .acc(accessions(auditInfo.getField(AuditInfo.ACC_NUM)))
+                                                .acc(auditInfo.getField(AuditInfo.ACC_NUM))
                                                 .mpps(reader.getInstanceLines().stream()
                                                         .filter(x -> new AuditInfo(x).getField(AuditInfo.MPPS_UID) != null)
                                                         .map(x -> x = new AuditInfo(x).getField(AuditInfo.MPPS_UID))
@@ -958,7 +953,7 @@ public class AuditService {
         for (Map.Entry<String, AccessionNumSopClassInfo> entry : study_accNumSOPClassInfo.entrySet()) {
             ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
                                                         .sopC(toSOPClasses(entry.getValue().getSopClassMap(), ri.getField(AuditInfo.FAILED_IUID_SHOW) != null))
-                                                        .acc(accessions(entry.getValue().getAccNum()))
+                                                        .acc(entry.getValue().getAccNum())
                                                         .build();
             ParticipantObjectIdentificationBuilder poi = new ParticipantObjectIdentificationBuilder.Builder(
                                                         entry.getKey(),
@@ -1378,7 +1373,7 @@ public class AuditService {
         ActiveParticipantBuilder[] activeParticipantBuilder = buildProcedureRecordActiveParticipants(auditLogger, prI);
         
         ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
-                .acc(accessions(prI.getField(AuditInfo.ACC_NUM))).build();
+                .acc(prI.getField(AuditInfo.ACC_NUM)).build();
 
         ParticipantObjectIdentificationBuilder poiStudy = new ParticipantObjectIdentificationBuilder.Builder(
                                                         prI.getField(AuditInfo.STUDY_UID),
@@ -1628,15 +1623,6 @@ public class AuditService {
         return AuditMessages.createParticipantObjectDetail(type, value);
     }
 
-    private String[] accessions(String accession) {
-        String[] accessions = {};
-        if (accession != null) {
-            accessions = new String[1];
-            accessions[0] = accession;
-        }
-        return accessions;
-    }
-
     private Calendar getEventTime(Path path, AuditLogger auditLogger){
         Calendar eventTime = auditLogger.timeStamp();
         try {
@@ -1649,17 +1635,6 @@ public class AuditService {
 
     private String getLocalHostName(AuditLogger log) {
         return log.getConnections().get(0).getHostname();
-    }
-
-    private String getData(SpoolFileReader reader) {
-        List<String> data = reader.getInstanceLines();
-        if (data.isEmpty())
-            return null;
-        StringBuilder sb = new StringBuilder();
-        sb.append(data.get(0));
-        for (int i = 1; i < data.size(); i++)
-            sb.append('\n').append(data.get(i));
-        return sb.toString();
     }
 
     private Path toDirPath(AuditLogger auditLogger) {
