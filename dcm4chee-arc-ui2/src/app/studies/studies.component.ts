@@ -3863,8 +3863,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
                 .subscribe(
                     function (res) {
-                        console.log('before call getAes', res, 'this user=', $this.user);
-                        $this.aes = j4care.extendAetObjectWithAlias($this.service.getAes($this.user, res));
+                        $this.aes = j4care.extendAetObjectWithAlias($this.service.getAes($this.mainservice.user, res));
                         console.log('aes', $this.aes);
                         // $this.aesdropdown = $this.aes;
 /*                        $this.aes.map((ae, i) => {
@@ -3900,7 +3899,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
             .subscribe(
                 function (res) {
-                    console.log('before call getAes', res, 'this user=', $this.user);
                     $this.allAes = j4care.extendAetObjectWithAlias(res.map((res)=>{
                         res['title'] = res['dicomAETitle'];
                         res['description'] = res['dicomDescription'];
