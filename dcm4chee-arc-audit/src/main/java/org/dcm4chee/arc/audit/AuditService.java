@@ -1550,16 +1550,6 @@ public class AuditService {
                             .sopIUID(sopRef.getString(Tag.ReferencedSOPInstanceUID)).build());
     }
 
-    private void buildSopAuditInfo(AuditInfoBuilder[] auditInfoBuilder, HashMap<String, HashSet<String>> sopClassMap) {
-        int i = 1;
-        for (Map.Entry<String, HashSet<String>> entry : sopClassMap.entrySet()) {
-            auditInfoBuilder[i] = new AuditInfoBuilder.Builder()
-                    .sopCUID(entry.getKey())
-                    .sopIUID(String.valueOf(entry.getValue().size())).build();
-            i++;
-        }
-    }
-
     private String storageCmtCallingHost(StgCmtEventInfo stgCmtEventInfo) {
         return stgCmtEventInfo.getRequest() != null
                 ? stgCmtEventInfo.getRequest().getRemoteHost()
