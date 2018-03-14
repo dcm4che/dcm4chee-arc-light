@@ -310,7 +310,8 @@ public class AuditService {
                 .callingHost(req.getRemoteHost())
                 .calledUserID(req.getRequestURI())
                 .calledHost(toHost(rejectionNoteSent.getRemoteAE()))
-                .outcome(codeItem.getString(Tag.CodeMeaning))
+                .outcome(rejectionNoteSent.failed() ? rejectionNoteSent.getErrorComment() : null)
+                .warning(codeItem.getString(Tag.CodeMeaning))
                 .studyUIDAccNumDate(attrs)
                 .pIDAndName(attrs, getArchiveDevice())
                 .build();
