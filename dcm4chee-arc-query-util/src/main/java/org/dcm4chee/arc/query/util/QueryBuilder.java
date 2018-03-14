@@ -58,6 +58,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -361,7 +362,7 @@ public class QueryBuilder {
         String[] a = new String[accessControlIDs.length + 1];
         a[0] = "*";
         System.arraycopy(accessControlIDs, 0, a, 1, accessControlIDs.length);
-        return QStudy.study.accessControlID.in(accessControlIDs);
+        return QStudy.study.accessControlID.in(a);
     }
 
     public static <T> HibernateQuery<T> applySeriesLevelJoins(
