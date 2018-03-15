@@ -901,6 +901,14 @@ class ArchiveDeviceFactory {
             UID.JPEGLSLossless,
             "maxPixelValueError=0"
     );
+    static final ArchiveCompressionRule JPEG_LS_LOSSY = createCompressionRule(
+            "JPEG LS Lossy",
+            new Conditions(
+                    "SendingApplicationEntityTitle=JPEG_LS_LOSSY"
+            ),
+            UID.JPEGLSLossyNearLossless,
+            "maxPixelValueError=2"
+    );
     static final ArchiveCompressionRule JPEG_2000 = createCompressionRule(
             "JPEG 2000 Lossless",
             new Conditions(
@@ -1541,6 +1549,7 @@ class ArchiveDeviceFactory {
             ext.addCompressionRule(JPEG_EXTENDED);
             ext.addCompressionRule(JPEG_LOSSLESS);
             ext.addCompressionRule(JPEG_LS);
+            ext.addCompressionRule(JPEG_LS_LOSSY);
             ext.addCompressionRule(JPEG_2000);
 
             ext.addStudyRetentionPolicy(THICK_SLICE);
