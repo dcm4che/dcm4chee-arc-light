@@ -176,6 +176,9 @@ import java.util.Date;
         query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
                 "where se.pk = ?1 "),
 @NamedQuery(
+        name = Series.FIND_DISTINCT_MODALITIES,
+        query = "select distinct se.modality from Series se"),
+@NamedQuery(
         name=Series.UPDATE_INSTANCE_PURGE_STATE,
         query = "update Series se set se.instancePurgeState = ?3 " +
                 "where se.pk = ?1 and se.instancePurgeState = ?2")
@@ -231,6 +234,7 @@ public class Series {
     public static final String SCHEDULE_METADATA_UPDATE_FOR_STUDY = "Series.scheduleMetadataUpdateForStudy";
     public static final String SCHEDULE_METADATA_UPDATE_FOR_SERIES = "Series.scheduleMetadataUpdateForSeries";
     public static final String UPDATE_INSTANCE_PURGE_STATE = "Series.updateInstancePurgeState";
+    public static final String FIND_DISTINCT_MODALITIES = "Series.findDistinctModalities";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 

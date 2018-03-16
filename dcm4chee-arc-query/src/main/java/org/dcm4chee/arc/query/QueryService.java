@@ -127,4 +127,6 @@ public interface QueryService {
     AttributesCoercion getAttributesCoercion(QueryContext ctx);
 
     CFindSCU cfindSCU();
+
+    List<String> getDistinctModalities();
 }

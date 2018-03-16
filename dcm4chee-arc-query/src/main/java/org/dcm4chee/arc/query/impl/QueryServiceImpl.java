@@ -451,4 +451,10 @@ class QueryServiceImpl implements QueryService {
     public CFindSCU cfindSCU() {
         return cfindscu;
     }
+
+    @Override
+    public List<String> getDistinctModalities() {
+        return em.createNamedQuery(Series.FIND_DISTINCT_MODALITIES, String.class)
+                .getResultList();
+    }
 }
