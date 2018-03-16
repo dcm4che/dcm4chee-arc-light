@@ -53,6 +53,7 @@ import org.dcm4che3.net.audit.AuditLoggerDeviceExtension;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.ArchiveServiceEvent;
 import org.dcm4chee.arc.ConnectionEvent;
@@ -800,6 +801,7 @@ public class AuditService {
                 .sopCUID(ctx.getSopClassUID()).sopIUID(ctx.getSopInstanceUID())
                 .mppsUID(ctx.getMppsInstanceUID())
                 .outcome(outcome)
+                .errorCode(ctx.getException() instanceof DicomServiceException ? ((DicomServiceException) ctx.getException()).getStatus() : 0)
                 .build();
 
         ArchiveDeviceExtension arcDev = getArchiveDevice();
@@ -855,58 +857,89 @@ public class AuditService {
         return sopClassMap;
     }
 
-    private void auditStoreOrWADORetrieve(AuditLogger auditLogger, Path path,
-                                          AuditServiceUtils.EventType eventType) throws IOException {
+    private void auditStoreError(AuditLogger auditLogger, Path path,
+                                 AuditServiceUtils.EventType eventType) throws IOException {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        String outcome = auditInfo.getField(AuditInfo.OUTCOME);
+        EventIdentificationBuilder ei = toBuildEventIdentification(
+                eventType,
+                auditInfo.getField(AuditInfo.OUTCOME),
+                getEventTime(path, auditLogger));
+
+        emitAuditMessage(auditLogger, ei,
+                storeWadoURIActiveParticipants(auditLogger, auditInfo, eventType),
+                storeWadoURIStudyParticipantObject(reader, eventType),
+                patientPOI(auditInfo));
+    }
+
+    private void auditStoreOrWADORetrieve(AuditLogger auditLogger, Path path,
+                                          AuditServiceUtils.EventType eventType) throws IOException {
+        if (path.endsWith("_ERROR")) {
+            auditStoreError(auditLogger, path, eventType);
+            return;
+        }
+
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
         EventIdentificationBuilder ei = toCustomBuildEventIdentification(
                                             eventType,
-                                            outcome,
+                                            auditInfo.getField(AuditInfo.OUTCOME),
                                             auditInfo.getField(AuditInfo.WARNING),
                                             getEventTime(path, auditLogger));
 
+        emitAuditMessage(auditLogger, ei,
+                storeWadoURIActiveParticipants(auditLogger, auditInfo, eventType),
+                storeWadoURIStudyParticipantObject(reader, eventType),
+                patientPOI(auditInfo));
+    }
+
+    private ParticipantObjectIdentificationBuilder storeWadoURIStudyParticipantObject(
+            SpoolFileReader reader, AuditServiceUtils.EventType eventType) {
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+        ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
+                .sopC(toSOPClasses(buildSOPClassMap(reader), auditInfo.getField(AuditInfo.OUTCOME) != null))
+                .acc(auditInfo.getField(AuditInfo.ACC_NUM))
+                .mpps(reader.getInstanceLines().stream()
+                        .filter(x -> new AuditInfo(x).getField(AuditInfo.MPPS_UID) != null)
+                        .map(x -> x = new AuditInfo(x).getField(AuditInfo.MPPS_UID))
+                        .toArray(String[]::new))
+                .build();
+
+        String lifecycle = (eventType == AuditServiceUtils.EventType.STORE_CREA
+                || eventType == AuditServiceUtils.EventType.STORE_UPDT)
+                ? AuditMessages.ParticipantObjectDataLifeCycle.OriginationCreation : null;
+        return new ParticipantObjectIdentificationBuilder.Builder(
+                auditInfo.getField(AuditInfo.STUDY_UID),
+                AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
+                AuditMessages.ParticipantObjectTypeCode.SystemObject,
+                AuditMessages.ParticipantObjectTypeCodeRole.Report)
+                .desc(desc)
+                .detail(getPod(studyDate, auditInfo.getField(AuditInfo.STUDY_DATE)))
+                .lifeCycle(lifecycle)
+                .build();
+    }
+
+    private ActiveParticipantBuilder[] storeWadoURIActiveParticipants(
+            AuditLogger auditLogger, AuditInfo auditInfo, AuditServiceUtils.EventType eventType) {
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[2];
         String callingUserID = auditInfo.getField(AuditInfo.CALLING_USERID);
         String archiveUserID = auditInfo.getField(AuditInfo.CALLED_USERID);
         AuditMessages.UserIDTypeCode archiveUserIDTypeCode = archiveUserIDTypeCode(archiveUserID);
         activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
-                                callingUserID,
-                                auditInfo.getField(AuditInfo.CALLING_HOST))
-                                .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
-                                .requester(true)
-                                .roleIDCode(eventType.source)
-                                .build();
+                callingUserID,
+                auditInfo.getField(AuditInfo.CALLING_HOST))
+                .userIDTypeCode(callingUserIDTypeCode(archiveUserIDTypeCode, callingUserID))
+                .requester(true)
+                .roleIDCode(eventType.source)
+                .build();
         activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
-                                archiveUserID,
-                                getLocalHostName(auditLogger))
-                                .userIDTypeCode(archiveUserIDTypeCode)
-                                .altUserID(AuditLogger.processID())
-                                .roleIDCode(eventType.destination)
-                                .build();
-
-        ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
-                                                .sopC(toSOPClasses(buildSOPClassMap(reader), outcome != null))
-                                                .acc(auditInfo.getField(AuditInfo.ACC_NUM))
-                                                .mpps(reader.getInstanceLines().stream()
-                                                        .filter(x -> new AuditInfo(x).getField(AuditInfo.MPPS_UID) != null)
-                                                        .map(x -> x = new AuditInfo(x).getField(AuditInfo.MPPS_UID))
-                                                        .toArray(String[]::new))
-                                                .build();
-
-        String lifecycle = (eventType == AuditServiceUtils.EventType.STORE_CREA
-                || eventType == AuditServiceUtils.EventType.STORE_UPDT)
-                ? AuditMessages.ParticipantObjectDataLifeCycle.OriginationCreation : null;
-        ParticipantObjectIdentificationBuilder poiStudy = new ParticipantObjectIdentificationBuilder.Builder(
-                                                        auditInfo.getField(AuditInfo.STUDY_UID),
-                                                        AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
-                                                        AuditMessages.ParticipantObjectTypeCode.SystemObject,
-                                                        AuditMessages.ParticipantObjectTypeCodeRole.Report)
-                                                        .desc(desc)
-                                                        .detail(getPod(studyDate, auditInfo.getField(AuditInfo.STUDY_DATE)))
-                                                        .lifeCycle(lifecycle)
-                                                        .build();
-        emitAuditMessage(auditLogger, ei, activeParticipantBuilder, poiStudy, patientPOI(auditInfo));
+                archiveUserID,
+                getLocalHostName(auditLogger))
+                .userIDTypeCode(archiveUserIDTypeCode)
+                .altUserID(AuditLogger.processID())
+                .roleIDCode(eventType.destination)
+                .build();
+        return activeParticipantBuilder;
     }
 
     void spoolRetrieve(AuditServiceUtils.EventType eventType, RetrieveContext ctx) {

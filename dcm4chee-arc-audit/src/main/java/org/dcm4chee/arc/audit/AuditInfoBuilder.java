@@ -81,6 +81,7 @@ class AuditInfoBuilder {
     final int count;
     final String queueMsg;
     final String taskPOID;
+    final int errorCode;
 
     static class Builder {
         private String callingHost;
@@ -112,6 +113,7 @@ class AuditInfoBuilder {
         private int count;
         private String queueMsg;
         private String taskPOID;
+        private int errorCode;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -225,6 +227,10 @@ class AuditInfoBuilder {
             taskPOID = val;
             return this;
         }
+        Builder errorCode(int val) {
+            errorCode = val;
+            return this;
+        }
         AuditInfoBuilder build() {
             return new AuditInfoBuilder(this);
         }
@@ -260,6 +266,7 @@ class AuditInfoBuilder {
         count = builder.count;
         queueMsg = builder.queueMsg;
         taskPOID = builder.taskPOID;
+        errorCode = builder.errorCode;
     }
 
     private static String[] toPIDAndName(Attributes attr, ArchiveDeviceExtension arcDev) {
