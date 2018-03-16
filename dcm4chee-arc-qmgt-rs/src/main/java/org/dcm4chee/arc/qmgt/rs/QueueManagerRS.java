@@ -68,6 +68,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -300,7 +301,7 @@ public class QueueManagerRS {
         };
     }
 
-    private String[] filters() {
+    private String filters() {
         return Stream.of("queue:" + queueName,
                 "archiveDevice:" + deviceName,
                 "status:" + status,
@@ -308,7 +309,7 @@ public class QueueManagerRS {
                 "JMSMessageID:" + jmsMessageID,
                 "createdTime:" + createdTime,
                 "updatedTime:" + updatedTime)
-                .toArray(String[]::new);
+                .collect(Collectors.joining(";"));
     }
 
     private QueueMessage.Status status() {

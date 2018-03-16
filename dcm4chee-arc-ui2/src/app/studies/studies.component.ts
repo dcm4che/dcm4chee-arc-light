@@ -2400,7 +2400,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     series.instances = res.map(function(attrs, index) {
                         let numberOfFrames = $this.valueOf(attrs['00280008']),
                             gspsQueryParams = $this.createGSPSQueryParams(attrs),
-                            video = $this.isVideo(attrs);
+                            video = $this.isVideo(attrs),
+                            image = $this.isImage(attrs);
                         $this.cfpLoadingBar.complete();
                         return {
                             series: series,
@@ -2414,6 +2415,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                                 objectUID: attrs['00080018'].Value[0]
                             },
                             video: video,
+                            image: image,
                             numberOfFrames: numberOfFrames,
                             gspsQueryParams: gspsQueryParams,
                             views: $this.createArray(video || numberOfFrames || gspsQueryParams.length || 1),
@@ -2677,11 +2679,11 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 }
             }
             this.select_show = false;
-            if(inst.video || inst.numberOfFrames || inst.gspsQueryParams.length){
+            if(inst.video || inst.image || inst.numberOfFrames || inst.gspsQueryParams.length){
                 if (inst.gspsQueryParams.length){
                     url =  this.wadoURL(inst.gspsQueryParams[inst.view - 1]);
                 }
-                if (inst.numberOfFrames){
+                if (inst.numberOfFrames || inst.image){
                     contentType = 'image/jpeg';
                     url =  this.wadoURL(inst.wadoQueryParams, { contentType: 'image/jpeg'});
                 }
@@ -3831,6 +3833,11 @@ export class StudiesComponent implements OnDestroy,OnInit{
             '1.2.840.10008.5.1.4.1.1.77.1.4.1']
             .indexOf(sopClass) != -1 ? 1 : 0;
     }
+    isImage(attrs){
+        let sopClass = this.valueOf(attrs['00080016']);
+        let bitsAllocated = this.valueOf(attrs['00280100']);
+        return ((bitsAllocated && bitsAllocated != "") && (sopClass != '1.2.840.10008.5.1.4.1.1.481.2'));
+    }
     valuesOf(attr) {
         return attr && attr.Value;
     }
@@ -3856,8 +3863,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
                 .subscribe(
                     function (res) {
-                        console.log('before call getAes', res, 'this user=', $this.user);
-                        $this.aes = j4care.extendAetObjectWithAlias($this.service.getAes($this.user, res));
+                        $this.aes = j4care.extendAetObjectWithAlias($this.service.getAes($this.mainservice.user, res));
                         console.log('aes', $this.aes);
                         // $this.aesdropdown = $this.aes;
 /*                        $this.aes.map((ae, i) => {
@@ -3893,7 +3899,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
             .subscribe(
                 function (res) {
-                    console.log('before call getAes', res, 'this user=', $this.user);
                     $this.allAes = j4care.extendAetObjectWithAlias(res.map((res)=>{
                         res['title'] = res['dicomAETitle'];
                         res['description'] = res['dicomDescription'];

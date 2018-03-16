@@ -772,6 +772,13 @@ objectClass: dcmArchiveCompressionRule
 dcmImageWriteParam: maxPixelValueError=0.0
 cn: JPEG Lossless
 
+dn: cn=JPEG LS Lossy,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomTransferSyntax: 1.2.840.10008.1.2.4.81
+dcmProperty: SendingApplicationEntityTitle=JPEG_LS_LOSSY
+objectClass: dcmArchiveCompressionRule
+dcmImageWriteParam: maxPixelValueError=2.0
+cn: JPEG LS Lossy
+
 dn: dcmEntity=Series,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmTag: 00080005
 dcmTag: 00080021
@@ -1252,30 +1259,30 @@ hl7OrderControlStatus: DC_CA
 objectClass: hl7OrderSPSStatus
 
 dn: dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmQueryRetrieveViewID: regularUse
-dicomDescription: Show instances rejected for Quality Reasons
 dicomAssociationInitiator: TRUE
-dicomAssociationAcceptor: TRUE
-dicomAETitle: DCM4CHEE_ADMIN
+dicomDescription: Show instances rejected for Quality Reasons
+dcmAcceptedUserRole: admin
+dcmQueryRetrieveViewID: regularUse
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
-dcmAcceptedUserRole: admin
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: DCM4CHEE_ADMIN
+dicomAssociationAcceptor: TRUE
 
 dn: dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmQueryRetrieveViewID: trashView
-dicomDescription: Show rejected instances only
 dicomAssociationInitiator: TRUE
-dicomAssociationAcceptor: TRUE
-dicomAETitle: DCM4CHEE_TRASH
+dicomDescription: Show rejected instances only
+dcmAcceptedUserRole: admin
+dcmQueryRetrieveViewID: trashView
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
-dcmAcceptedUserRole: admin
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomNetworkConnectionReference: cn=dicom-tls,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: DCM4CHEE_TRASH
+dicomAssociationAcceptor: TRUE
 
 dn: cn=Default Scheduled Station,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 hl7OrderScheduledStationDeviceReference: dicomDeviceName=scheduledstation,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -6860,50 +6867,50 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dcmImageReader
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.50,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmIIOFormatName: jpeg
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.50
 objectClass: dcmImageReader
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.51,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmJavaClassName: com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageReader
-dcmIIOFormatName: jpeg
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.51
 objectClass: dcmImageReader
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.57,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmJavaClassName: com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageReader
-dcmIIOFormatName: jpeg
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.57
 objectClass: dcmImageReader
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.70,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmJavaClassName: com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageReader
-dcmIIOFormatName: jpeg
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.70
 objectClass: dcmImageReader
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.80,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmPatchJPEGLS: ISO2JAI_IF_APP_OR_COM
-dcmJavaClassName: com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageReader
-dcmIIOFormatName: jpeg
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-ls-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 objectClass: dcmImageReader
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.81,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmJavaClassName: com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageReader
-dcmIIOFormatName: jpeg
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-ls-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 objectClass: dcmImageReader
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.90,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmJavaClassName: com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderCodecLib
-dcmIIOFormatName: jpeg2000
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg2000-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 objectClass: dcmImageReader
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.91,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmJavaClassName: com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageReaderCodecLib
-dcmIIOFormatName: jpeg2000
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg2000-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 objectClass: dcmImageReader
 
@@ -6933,12 +6940,17 @@ objectClass: dcmImageWriter
 dcmImageWriteParam: compressionType=JPEG-LOSSLESS
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.80,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmPatchJPEGLS: JAI2ISO
-dcmJavaClassName: com.sun.media.imageioimpl.plugins.jpeg.CLibJPEGImageWriter
-dcmIIOFormatName: jpeg
+dcmJavaClassName: org.dcm4che3.opencv.NativeJLSImageWriter
+dcmIIOFormatName: jpeg-ls-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 objectClass: dcmImageWriter
-dcmImageWriteParam: compressionType=JPEG-LS
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.81,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeJLSImageWriter
+dcmIIOFormatName: jpeg-ls-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.81
+objectClass: dcmImageWriter
+dcmImageWriteParam: nearLossless=2.0
 
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.90,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: com.sun.media.imageioimpl.plugins.jpeg2000.J2KImageWriterCodecLib
