@@ -912,6 +912,7 @@
         "responses": {
           "200": {
             "schema": {
+              "description": "list of distinct values for Modality (0008,0060)",
               "type": "array",
               "items": {
                 "type": "string"
