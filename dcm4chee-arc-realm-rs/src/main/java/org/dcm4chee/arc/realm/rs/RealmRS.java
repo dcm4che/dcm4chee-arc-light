@@ -92,7 +92,7 @@ public class RealmRS {
                     writer.write("expiration", ctx.getExpiration());
                     writer.write("systemCurrentTime", (int) (System.currentTimeMillis()/1000L));
                     writer.writeNotEmpty("roles", ctx.getUserRoles());
-                    writer.writeNotNullOrDef("su",
+                    writer.writeNotDef("su",
                             Stream.of(ctx.getUserRoles()).anyMatch(x -> x.equals(System.getProperty("super-user-role"))),
                             false);
                     gen.writeEnd();
