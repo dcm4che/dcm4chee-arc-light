@@ -916,6 +916,7 @@
               "items": {
                 "type": "string"
               }
+            }
           },
           "default": {
             "description": "unexpected error"
