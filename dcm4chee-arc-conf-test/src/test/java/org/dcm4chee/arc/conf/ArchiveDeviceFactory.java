@@ -604,18 +604,7 @@ class ArchiveDeviceFactory {
             UID.PrivatePMODMultiframeImageStorage,
             UID.PrivateToshibaUSImageStorage
     };
-    static final String[] IMAGE_TSUIDS_WITHOUT_JPEG200 = {
-            UID.ImplicitVRLittleEndian,
-            UID.ExplicitVRLittleEndian,
-            UID.JPEGBaseline1,
-            UID.JPEGExtended24,
-            UID.JPEGLossless,
-            UID.JPEGLosslessNonHierarchical14,
-            UID.JPEGLSLossless,
-            UID.JPEGLSLossyNearLossless,
-            UID.RLELossless
-    };
-    static final String[] IMAGE_TSUIDS_WITH_JPEG200 = {
+    static final String[] IMAGE_TSUIDS = {
             UID.ImplicitVRLittleEndian,
             UID.ExplicitVRLittleEndian,
             UID.JPEGBaseline1,
@@ -1772,21 +1761,17 @@ class ArchiveDeviceFactory {
         if (mwlSCP) {
             addTCs(ae, EnumSet.allOf(QueryOption.class), SCP, MWL_CUID, UID.ImplicitVRLittleEndian);
         }
-        String[][] CUIDS_TSUIDS = {
-                IMAGE_CUIDS, configType == ConfigType.SAMPLE ? IMAGE_TSUIDS_WITH_JPEG200 : IMAGE_TSUIDS_WITHOUT_JPEG200,
-                VIDEO_CUIDS, VIDEO_TSUIDS,
-                SR_CUIDS, SR_TSUIDS,
-                OTHER_CUIDS, OTHER_TSUIDS
-        };
+        String[][] CUIDS = { IMAGE_CUIDS, VIDEO_CUIDS, SR_CUIDS, OTHER_CUIDS };
+        String[][] TSUIDS = { IMAGE_TSUIDS, VIDEO_TSUIDS, SR_TSUIDS, OTHER_TSUIDS };
         if (storeSCU) {
             addTCs(ae, EnumSet.of(QueryOption.RELATIONAL), SCP, RETRIEVE_CUIDS, UID.ImplicitVRLittleEndian);
-            for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
-                addTCs(ae, null, SCU, CUIDS_TSUIDS[i], CUIDS_TSUIDS[i + 1]);
+            for (int i = 0; i < CUIDS.length; i++)
+                addTCs(ae, null, SCU, CUIDS[i], TSUIDS[i]);
             addTC(ae, null, SCU, UID.StorageCommitmentPushModelSOPClass, UID.ImplicitVRLittleEndian);
         }
         if (storeSCP) {
-            for (int i = 0; i < CUIDS_TSUIDS.length; i++, i++)
-                addTCs(ae, null, SCP, CUIDS_TSUIDS[i], CUIDS_TSUIDS[i+1]);
+            for (int i = 0; i < CUIDS.length; i++)
+                addTCs(ae, null, SCP, CUIDS[i], TSUIDS[i]);
             addTC(ae, null, SCP, UID.StorageCommitmentPushModelSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCP, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
             addTC(ae, null, SCU, UID.ModalityPerformedProcedureStepSOPClass, UID.ImplicitVRLittleEndian);
