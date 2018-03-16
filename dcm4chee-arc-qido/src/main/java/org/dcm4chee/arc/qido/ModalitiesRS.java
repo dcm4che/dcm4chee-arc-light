@@ -80,8 +80,9 @@ public class ModalitiesRS {
         return out -> {
             JsonGenerator gen = Json.createGenerator(out);
             JsonWriter writer = new JsonWriter(gen);
-            gen.writeStartObject();
-            writer.writeNotEmpty("Modalities", queryService.getDistinctModalities().stream().sorted().toArray(String[]::new));
+            gen.writeStartArray();
+            for (String modality : queryService.getDistinctModalities().stream().sorted().toArray(String[]::new))
+                writer.write(modality);
             gen.writeEnd();
             gen.flush();
         };
