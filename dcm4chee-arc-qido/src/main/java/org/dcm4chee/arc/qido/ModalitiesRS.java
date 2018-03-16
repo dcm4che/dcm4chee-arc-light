@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.qido;
 
-import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4chee.arc.query.QueryService;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -48,17 +47,16 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.StreamingOutput;
+import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Mar 2018
  */
 @RequestScoped
@@ -75,17 +73,10 @@ public class ModalitiesRS {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput listModalities() {
+    public String listModalities() {
         logRequest();
-        return out -> {
-            JsonGenerator gen = Json.createGenerator(out);
-            JsonWriter writer = new JsonWriter(gen);
-            gen.writeStartArray();
-            for (String modality : queryService.getDistinctModalities().stream().sorted().toArray(String[]::new))
-                writer.write(modality);
-            gen.writeEnd();
-            gen.flush();
-        };
+        return queryService.getDistinctModalities().stream().filter(modality -> !modality.equals("*")).sorted()
+                .collect(Collectors.joining("\",\"", "[\"", "\"]"));
     }
 
     private void logRequest() {
