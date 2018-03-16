@@ -898,6 +898,31 @@
         }
       }
     },
+    "/modalities": {
+      "get": {
+        "tags": [
+          "MONITOR-RS"
+        ],
+        "summary": "List distinct Modalities",
+        "operationId": "listDistinctModalities",
+        "description": "List distinct values for Modality (0008,0060) of received Series",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/monitor/associations": {
       "get": {
         "tags": [
