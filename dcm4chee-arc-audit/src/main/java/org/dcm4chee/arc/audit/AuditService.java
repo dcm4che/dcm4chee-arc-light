@@ -223,7 +223,7 @@ public class AuditService {
         String outcome = null != ctx.getException()
                 ? null != ctx.getRejectionNote()
                 ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() + " - " + ctx.getException().getMessage()
-                : getOD(ctx.getException())
+                : outcome(ctx.getException())
                 : null;
         String warning = ctx.getException() == null && null != ctx.getRejectionNote()
                 ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null;
@@ -329,7 +329,7 @@ public class AuditService {
                 .callingUserID(KeycloakContext.valueOf(req).getUserName())
                 .callingHost(req.getRemoteHost())
                 .calledUserID(req.getRequestURI())
-                .outcome(getOD(queueMsgEvent.getException()))
+                .outcome(outcome(queueMsgEvent.getException()))
                 .queueMsg(toString(queueMsg))
                 .taskPOID(queueMsg.getMessageID())
                 .build();
@@ -342,7 +342,7 @@ public class AuditService {
                 .callingUserID(KeycloakContext.valueOf(req).getUserName())
                 .callingHost(req.getRemoteHost())
                 .calledUserID(req.getRequestURI())
-                .outcome(getOD(bulkQueueMsgEvent.getException()))
+                .outcome(outcome(bulkQueueMsgEvent.getException()))
                 .filters(bulkQueueMsgEvent.getFilters())
                 .count(bulkQueueMsgEvent.getCount())
                 .taskPOID(bulkQueueMsgEvent.getOperation().name())
@@ -458,7 +458,7 @@ public class AuditService {
                 .calledUserID(httpServletRequestInfo.requestURI)
                 .studyUIDAccNumDate(ctx.getStudy().getAttributes())
                 .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
-                .outcome(getOD(ctx.getException()))
+                .outcome(outcome(ctx.getException()))
                 .build();
     }
 
@@ -466,7 +466,7 @@ public class AuditService {
         return new AuditInfoBuilder.Builder()
                 .studyUIDAccNumDate(ctx.getStudy().getAttributes())
                 .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
-                .outcome(getOD(ctx.getException()))
+                .outcome(outcome(ctx.getException()))
                 .build();
     }
 
@@ -799,6 +799,7 @@ public class AuditService {
         AuditInfoBuilder instanceInfo = new AuditInfoBuilder.Builder()
                 .sopCUID(ctx.getSopClassUID()).sopIUID(ctx.getSopInstanceUID())
                 .mppsUID(ctx.getMppsInstanceUID())
+                .outcome(outcome)
                 .build();
 
         ArchiveDeviceExtension arcDev = getArchiveDevice();
@@ -808,19 +809,14 @@ public class AuditService {
                 .calledUserID(req != null ? req.getRequestURI() : ss.getCalledAET())
                 .studyUIDAccNumDate(attr)
                 .pIDAndName(attr, arcDev)
-                .outcome(outcome)
                 .warning(ctx.getRejectionNote() != null
                             ? ctx.getRejectionNote().getRejectionNoteCode().getCodeMeaning() : null)
                 .build();
 
-        if (ctx.getException() != null)
-            writeSpoolFile(eventType, info, instanceInfo);
-        else {
-            String fileName = getFileName(
-                    eventType, callingUserID.replace('|', '-'),
-                    ctx.getStoreSession().getCalledAET(), ctx.getStudyInstanceUID());
-            writeSpoolFileStoreOrWadoRetrieve(fileName, info, instanceInfo);
-        }
+        String fileName = getFileName(eventType, callingUserID.replace('|', '-'),
+                ctx.getStoreSession().getCalledAET(), ctx.getStudyInstanceUID());
+        fileName = outcome != null ? fileName.concat("_ERROR") : fileName;
+        writeSpoolFileStoreOrWadoRetrieve(fileName, info, instanceInfo);
     }
 
     private boolean isDuplicateReceivedInstance(StoreContext ctx) {
@@ -1100,7 +1096,7 @@ public class AuditService {
                                 .callingUserID(callingCalledUserIDs[0])
                                 .calledUserID(callingCalledUserIDs[1])
                                 .pIDAndName(ctx.getPreviousAttributes(), getArchiveDevice())
-                                .outcome(getOD(ctx.getException()))
+                                .outcome(outcome(ctx.getException()))
                                 .build();
     }
 
@@ -1110,7 +1106,7 @@ public class AuditService {
                             .callingUserID(callingCalledUserIDs[0])
                             .calledUserID(callingCalledUserIDs[1])
                             .pIDAndName(ctx.getAttributes(), getArchiveDevice())
-                            .outcome(getOD(ctx.getException()))
+                            .outcome(outcome(ctx.getException()))
                             .build();
     }
 
@@ -1124,7 +1120,7 @@ public class AuditService {
                 .callingUserID(callingCalledUserIDs[0])
                 .calledUserID(callingCalledUserIDs[1])
                 .pIDAndName(attrs, getArchiveDevice())
-                .outcome(getOD(ctx.getException()))
+                .outcome(outcome(ctx.getException()))
                 .isExternalHL7()
                 .hl7SenderExternal(msh.getSendingApplicationWithFacility())
                 .hl7ReceiverExternal(msh.getReceivingApplicationWithFacility())
@@ -1141,7 +1137,7 @@ public class AuditService {
                 .callingUserID(callingCalledUserIDs[0])
                 .calledUserID(callingCalledUserIDs[1])
                 .pIDAndName(attrs, getArchiveDevice())
-                .outcome(getOD(ctx.getException()))
+                .outcome(outcome(ctx.getException()))
                 .isExternalHL7()
                 .hl7SenderExternal(msh.getSendingApplicationWithFacility())
                 .hl7ReceiverExternal(msh.getReceivingApplicationWithFacility())
@@ -1323,7 +1319,7 @@ public class AuditService {
                 .calledUserID(as.getCalledAET())
                 .studyUIDAccNumDate(ctx.getAttributes())
                 .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
-                .outcome(getOD(ctx.getException()))
+                .outcome(outcome(ctx.getException()))
                 .build();
     }
 
@@ -1335,7 +1331,7 @@ public class AuditService {
                 .calledUserID(req.getRequestURI())
                 .studyUIDAccNumDate(ctx.getAttributes())
                 .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
-                .outcome(getOD(ctx.getException()))
+                .outcome(outcome(ctx.getException()))
                 .build();
     }
 
@@ -1346,7 +1342,7 @@ public class AuditService {
                 .calledUserID(msh.getReceivingApplicationWithFacility())
                 .studyUIDAccNumDate(ctx.getAttributes())
                 .pIDAndName(ctx.getPatient().getAttributes(), getArchiveDevice())
-                .outcome(getOD(ctx.getException()))
+                .outcome(outcome(ctx.getException()))
                 .build();
     }
 
@@ -1359,7 +1355,7 @@ public class AuditService {
                                 .calledUserID(ctx.getHttpRequest().getRequestURI())
                                 .studyUIDAccNumDate(ctx.getAttributes())
                                 .pIDAndName(pAttr, getArchiveDevice())
-                                .outcome(getOD(ctx.getException()))
+                                .outcome(outcome(ctx.getException()))
                                 .build();
         writeSpoolFile(AuditServiceUtils.EventType.forProcedure(ctx.getEventActionCode()), info);
     }
@@ -1615,7 +1611,7 @@ public class AuditService {
         return String.valueOf(et) + '-' + callingAET + '-' + calledAET + '-' + studyIUID;
     }
 
-    private String getOD(Exception e) {
+    private String outcome(Exception e) {
         return e != null ? e.getMessage() : null;
     }
 
