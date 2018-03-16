@@ -123,7 +123,8 @@ public class QueryAttributesEJB {
         predicate.and(QueryBuilder.hideRejectedInstance(
                 codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()),
                 qrView.isHideNotRejectedInstances()));
-        predicate.and(QueryBuilder.hideRejectionNote(codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes())));
+        predicate.and(QueryBuilder.hideRejectionNote(
+                codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes())));
         try (
                 CloseableIterator<Tuple> results = new HibernateQuery<Void>(em.unwrap(Session.class))
                         .select(CALC_SERIES_QUERY_ATTRS)
@@ -143,10 +144,10 @@ public class QueryAttributesEJB {
     }
 
     public void calculateStudyQueryAttributes(String studyUID) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        long studyPk = (long) em.createNamedQuery(Study.FIND_PK_BY_STUDY_UID)
+        Long studyPk = em.createNamedQuery(Study.FIND_PK_BY_STUDY_UID, Long.class)
                 .setParameter(1, studyUID)
                 .getSingleResult();
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         Set<String> viewIDs = new HashSet<>(arcDev.getQueryRetrieveViewIDs());
         viewIDs.removeAll(em.createNamedQuery(StudyQueryAttributes.VIEW_IDS_FOR_STUDY_PK, String.class)
                 .setParameter(1, studyPk)
@@ -154,20 +155,6 @@ public class QueryAttributesEJB {
 
         for (String viewID : viewIDs)
             calculateStudyQueryAttributes(studyPk, arcDev.getQueryRetrieveView(viewID));
-    }
-
-    public void calculateSeriesQueryAttributes(String seriesUID) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        long seriesPk = (long) em.createNamedQuery(Series.FIND_PK_BY_SERIES_UID)
-                .setParameter(1, seriesUID)
-                .getSingleResult();
-        Set<String> viewIDs = new HashSet<>(arcDev.getQueryRetrieveViewIDs());
-        viewIDs.removeAll(em.createNamedQuery(SeriesQueryAttributes.VIEW_IDS_FOR_SERIES_PK, String.class)
-                .setParameter(1, seriesPk)
-                .getResultList());
-
-        for (String viewID : viewIDs)
-            calculateSeriesQueryAttributes(seriesPk, arcDev.getQueryRetrieveView(viewID));
     }
 
     private static class SeriesQueryAttributesBuilder {

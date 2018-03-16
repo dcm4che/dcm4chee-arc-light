@@ -58,7 +58,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -436,7 +435,9 @@ public class QueryBuilder {
         return query;
     }
 
-    public static void addInstanceLevelPredicates(BooleanBuilder builder, Attributes keys, QueryParam queryParam) {
+    public static void addInstanceLevelPredicates(BooleanBuilder builder, Attributes keys, QueryParam queryParam,
+                                                  CodeEntity[] showInstancesRejectedByCodes,
+                                                  CodeEntity[] hideRejectionNoteWithCodes) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
         builder.and(uidsPredicate(QInstance.instance.sopInstanceUID, keys.getStrings(Tag.SOPInstanceUID)));
         builder.and(uidsPredicate(QInstance.instance.sopClassUID, keys.getStrings(Tag.SOPClassUID)));
@@ -473,8 +474,8 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys,
                         attrFilter.getCustomAttribute3(), "*"),
                 true));
-        builder.and(hideRejectedInstance(queryParam));
-        builder.and(hideRejectionNote(queryParam));
+        builder.and(hideRejectedInstance(showInstancesRejectedByCodes, queryParam.isHideNotRejectedInstances()));
+        builder.and(hideRejectionNote(hideRejectionNoteWithCodes));
     }
 
     public static <T> HibernateQuery<T> applyMWLJoins(
@@ -548,12 +549,6 @@ public class QueryBuilder {
         }
     }
 
-    public static Predicate hideRejectedInstance(QueryParam queryParam) {
-        return hideRejectedInstance(
-                queryParam.getShowInstancesRejectedByCode(),
-                queryParam.isHideNotRejectedInstances());
-    }
-
     public static Predicate hideRejectedInstance(CodeEntity[] codes, boolean hideNotRejectedInstances) {
         if (codes.length == 0)
             return hideNotRejectedInstances
@@ -564,10 +559,6 @@ public class QueryBuilder {
         return hideNotRejectedInstances
                 ? showRejected
                 : QInstance.instance.rejectionNoteCode.isNull().or(showRejected);
-    }
-
-    public static Predicate hideRejectionNote(QueryParam queryParam) {
-        return hideRejectionNote(queryParam.getHideRejectionNotesWithCode());
     }
 
     public static Predicate hideRejectionNote(CodeEntity[] codes) {

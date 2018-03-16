@@ -40,11 +40,11 @@
 
 package org.dcm4chee.arc.query.util;
 
+import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4chee.arc.conf.*;
-import org.dcm4chee.arc.entity.CodeEntity;
 
 
 /**
@@ -63,8 +63,6 @@ public class QueryParam {
     private boolean withoutStudies = true;
     private boolean incomplete;
     private boolean retrieveFailed;
-    private CodeEntity[] showInstancesRejectedByCode = {};
-    private CodeEntity[] hideRejectionNotesWithCode = {};
     private String sendingApplicationEntityTitleOfSeries;
     private String studyReceiveDateTime;
     private String externalRetrieveAET;
@@ -94,22 +92,6 @@ public class QueryParam {
 
     public boolean isPersonNameComponentOrderInsensitiveMatching() {
         return arcAE.personNameComponentOrderInsensitiveMatching();
-    }
-
-    public CodeEntity[] getShowInstancesRejectedByCode() {
-        return showInstancesRejectedByCode;
-    }
-
-    public void setShowInstancesRejectedByCode(CodeEntity[] showInstancesRejectedByCode) {
-        this.showInstancesRejectedByCode = showInstancesRejectedByCode;
-    }
-
-    public CodeEntity[] getHideRejectionNotesWithCode() {
-        return hideRejectionNotesWithCode;
-    }
-
-    public void setHideRejectionNotesWithCode(CodeEntity[] hideRejectionNotesWithCode) {
-        this.hideRejectionNotesWithCode = hideRejectionNotesWithCode;
     }
 
     public boolean isHideNotRejectedInstances() {

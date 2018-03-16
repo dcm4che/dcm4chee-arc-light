@@ -44,10 +44,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.hibernate.HibernateQuery;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.Status;
@@ -55,12 +52,14 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
+import org.dcm4chee.arc.query.util.QueryParam;
 import org.hibernate.StatelessSession;
 
 import javax.json.Json;
@@ -113,7 +112,7 @@ class InstanceQuery extends AbstractQuery {
             ArchiveTag.StorageObjectSize | 0x1000,
             ArchiveTag.StorageObjectDigest | 0x1000
     };
-
+    private final CodeCache codeCache;
     private Long seriesPk;
     private Attributes seriesAttrs;
     private List<Tuple> seriesMetadataStoragePaths;
@@ -123,8 +122,9 @@ class InstanceQuery extends AbstractQuery {
     private int[] instTags;
     private Attributes instQueryKeys;
 
-    public InstanceQuery(QueryContext context, StatelessSession session) {
+    public InstanceQuery(QueryContext context, StatelessSession session, CodeCache codeCache) {
         super(context, session);
+        this.codeCache = codeCache;
     }
 
     @Override
@@ -140,40 +140,23 @@ class InstanceQuery extends AbstractQuery {
     }
 
     private <T> HibernateQuery<T> newHibernateQuery(HibernateQuery<T> q, boolean forCount) {
-        q = QueryBuilder.applyInstanceLevelJoins(q,
-                context.getQueryKeys(),
-                context.getQueryParam(),
-                forCount);
+        Attributes keys = context.getQueryKeys();
+        IDWithIssuer[] pids = context.getPatientIDs();
+        QueryParam queryParam = context.getQueryParam();
+        QueryRetrieveView qrView = queryParam.getQueryRetrieveView();
+        q = QueryBuilder.applyInstanceLevelJoins(q, keys, queryParam, forCount);
         q = q.leftJoin(QInstance.instance.locations, QLocation.location)
                 .on(QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
-        q = QueryBuilder.applySeriesLevelJoins(q,
-                context.getQueryKeys(),
-                context.getQueryParam(),
-                forCount);
-        q = QueryBuilder.applyStudyLevelJoins(q,
-                context.getQueryKeys(),
-                context.getQueryParam(),
-                forCount, true);
-        q = QueryBuilder.applyPatientLevelJoins(q,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam(),
-                context.isOrderByPatientName(),
-                forCount);
+        q = QueryBuilder.applySeriesLevelJoins(q, keys, queryParam, forCount);
+        q = QueryBuilder.applyStudyLevelJoins(q, keys, queryParam, forCount, true);
+        q = QueryBuilder.applyPatientLevelJoins(q, pids, keys, queryParam, context.isOrderByPatientName(), forCount);
         BooleanBuilder predicates = new BooleanBuilder();
-        QueryBuilder.addPatientLevelPredicates(predicates,
-                context.getPatientIDs(),
-                context.getQueryKeys(),
-                context.getQueryParam());
-        QueryBuilder.addStudyLevelPredicates(predicates,
-                context.getQueryKeys(),
-                context.getQueryParam(), QueryRetrieveLevel2.IMAGE);
-        QueryBuilder.addSeriesLevelPredicates(predicates,
-                context.getQueryKeys(),
-                context.getQueryParam(), QueryRetrieveLevel2.IMAGE);
-        QueryBuilder.addInstanceLevelPredicates(predicates,
-                context.getQueryKeys(),
-                context.getQueryParam());
+        QueryBuilder.addPatientLevelPredicates(predicates, pids, keys, queryParam);
+        QueryBuilder.addStudyLevelPredicates(predicates, keys, queryParam, QueryRetrieveLevel2.IMAGE);
+        QueryBuilder.addSeriesLevelPredicates(predicates, keys, queryParam, QueryRetrieveLevel2.IMAGE);
+        QueryBuilder.addInstanceLevelPredicates(predicates, keys, queryParam,
+                codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()),
+                codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()));
         return q.where(predicates);
     }
 

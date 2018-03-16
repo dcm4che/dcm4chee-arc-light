@@ -99,8 +99,6 @@ public interface RetrieveContext extends Closeable {
 
     QueryRetrieveView getQueryRetrieveView();
 
-    boolean isHideNotRejectedInstances();
-
     int getPriority();
 
     void setPriority(int priority);
@@ -202,14 +200,6 @@ public interface RetrieveContext extends Closeable {
     Storage getStorage(String storageID);
 
     void putStorage(String storageID, Storage storage);
-
-    CodeEntity[] getShowInstancesRejectedByCode();
-
-    void setShowInstancesRejectedByCode(CodeEntity[] showInstancesRejectedByCode);
-
-    CodeEntity[] getHideRejectionNotesWithCode();
-
-    void setHideRejectionNotesWithCode(CodeEntity[] hideRejectionNotesWithCode);
 
     void incrementPendingCStoreForward();
 

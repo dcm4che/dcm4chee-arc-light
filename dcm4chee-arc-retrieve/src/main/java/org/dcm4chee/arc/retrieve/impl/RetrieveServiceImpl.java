@@ -245,7 +245,6 @@ public class RetrieveServiceImpl implements RetrieveService {
             List<String> studyUIDs, List<String> seriesUIDs, List<String> objectUIDs) {
         ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
         RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, arcAE.getQueryRetrieveView());
-        initCodes(ctx);
         ctx.setHttpRequest(request);
         int numStudies = studyUIDs.size();
         ctx.setStudyInstanceUIDs(studyUIDs.toArray(new String[numStudies]));
@@ -263,7 +262,6 @@ public class RetrieveServiceImpl implements RetrieveService {
     private RetrieveContext newRetrieveContext(String localAET, String studyUID, String seriesUID, String objectUID) {
         ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
         RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, arcAE.getQueryRetrieveView());
-        initCodes(ctx);
         if (studyUID != null)
             ctx.setStudyInstanceUIDs(studyUID);
         if (seriesUID != null)
@@ -277,7 +275,6 @@ public class RetrieveServiceImpl implements RetrieveService {
         RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, as.getLocalAET(), arcAE.getQueryRetrieveView());
         ctx.setRequestAssociation(as);
         ctx.setQueryRetrieveLevel(qrLevel);
-        initCodes(ctx);
         IDWithIssuer pid = IDWithIssuer.pidOf(keys);
         if (pid != null)
             ctx.setPatientIDs(pid);
@@ -299,14 +296,6 @@ public class RetrieveServiceImpl implements RetrieveService {
         ctx.setSeriesMetadataUpdate(metadataUpdate);
         ctx.setObjectType(null);
         return ctx;
-    }
-
-    private void initCodes(RetrieveContext ctx) {
-        QueryRetrieveView qrView = ctx.getQueryRetrieveView();
-        ctx.setHideRejectionNotesWithCode(
-                codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()));
-        ctx.setShowInstancesRejectedByCode(
-                codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()));
     }
 
     @Override
@@ -632,10 +621,13 @@ public class RetrieveServiceImpl implements RetrieveService {
         predicate.and(QueryBuilder.uidsPredicate(QStudy.study.studyInstanceUID, ctx.getStudyInstanceUIDs()));
         predicate.and(QueryBuilder.uidsPredicate(QSeries.series.seriesInstanceUID, ctx.getSeriesInstanceUIDs()));
         predicate.and(QueryBuilder.uidsPredicate(QInstance.instance.sopInstanceUID, ctx.getSopInstanceUIDs()));
-        if (ctx.getQueryRetrieveView() != null) {
-            predicate.and(QueryBuilder.hideRejectedInstance(ctx.getShowInstancesRejectedByCode(),
-                    ctx.isHideNotRejectedInstances()));
-            predicate.and(QueryBuilder.hideRejectionNote(ctx.getHideRejectionNotesWithCode()));
+        QueryRetrieveView qrView = ctx.getQueryRetrieveView();
+        if (qrView != null) {
+            predicate.and(QueryBuilder.hideRejectedInstance(
+                    codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()),
+                    qrView.isHideNotRejectedInstances()));
+            predicate.and(QueryBuilder.hideRejectionNote(
+                    codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes())));
         }
         return query.where(predicate);
     }

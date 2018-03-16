@@ -97,15 +97,8 @@ public class QuerySizeEJB {
 
     public long calculateStudySize(String studyUID) {
         return calculateStudySize(
-                (long) em.createNamedQuery(Study.FIND_PK_BY_STUDY_UID)
+                em.createNamedQuery(Study.FIND_PK_BY_STUDY_UID, Long.class)
                         .setParameter(1, studyUID)
-                        .getSingleResult());
-    }
-
-    public long calculateSeriesSize(String seriesUID) {
-        return calculateSeriesSize(
-                (long) em.createNamedQuery(Series.FIND_PK_BY_SERIES_UID)
-                        .setParameter(1, seriesUID)
                         .getSingleResult());
     }
 }

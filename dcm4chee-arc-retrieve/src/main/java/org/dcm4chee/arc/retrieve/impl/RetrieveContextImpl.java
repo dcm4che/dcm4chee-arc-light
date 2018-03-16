@@ -51,7 +51,6 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
-import org.dcm4chee.arc.entity.CodeEntity;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.*;
@@ -105,8 +104,6 @@ class RetrieveContextImpl implements RetrieveContext {
     private final Collection<String> failedSOPInstanceUIDs =
             Collections.synchronizedCollection(new ArrayList<String>());
     private final HashMap<String, Storage> storageMap = new HashMap<>();
-    private CodeEntity[] showInstancesRejectedByCode = {};
-    private CodeEntity[] hideRejectionNotesWithCode = {};
     private ScheduledFuture<?> writePendingRSP;
     private volatile int fallbackMoveRSPNumberOfMatches;
     private volatile int fallbackMoveRSPFailed;
@@ -207,11 +204,6 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public QueryRetrieveView getQueryRetrieveView() {
         return qrView;
-    }
-
-    @Override
-    public boolean isHideNotRejectedInstances() {
-        return qrView.isHideNotRejectedInstances();
     }
 
     @Override
@@ -488,26 +480,6 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void putStorage(String storageID, Storage storage) {
         storageMap.put(storageID, storage);
-    }
-
-    @Override
-    public CodeEntity[] getShowInstancesRejectedByCode() {
-        return showInstancesRejectedByCode;
-    }
-
-    @Override
-    public void setShowInstancesRejectedByCode(CodeEntity[] showInstancesRejectedByCode) {
-        this.showInstancesRejectedByCode = showInstancesRejectedByCode;
-    }
-
-    @Override
-    public CodeEntity[] getHideRejectionNotesWithCode() {
-        return hideRejectionNotesWithCode;
-    }
-
-    @Override
-    public void setHideRejectionNotesWithCode(CodeEntity[] hideRejectionNotesWithCode) {
-        this.hideRejectionNotesWithCode = hideRejectionNotesWithCode;
     }
 
     @Override

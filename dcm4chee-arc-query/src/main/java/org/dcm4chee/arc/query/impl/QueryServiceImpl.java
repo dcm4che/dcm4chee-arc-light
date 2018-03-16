@@ -129,22 +129,13 @@ class QueryServiceImpl implements QueryService {
         QueryParam queryParam = new QueryParam(ae);
         queryParam.setCombinedDatetimeMatching(queryOpts.contains(QueryOption.DATETIME));
         queryParam.setFuzzySemanticMatching(queryOpts.contains(QueryOption.FUZZY));
-        return new QueryContextImpl(as, sopClassUID, ae, initCodeEntities(queryParam), this);
+        return new QueryContextImpl(as, sopClassUID, ae, queryParam, this);
     }
 
     @Override
     public QueryContext newQueryContextQIDO(
             HttpServletRequest httpRequest, String searchMethod, ApplicationEntity ae, QueryParam queryParam) {
-        return new QueryContextImpl(httpRequest, searchMethod, ae, initCodeEntities(queryParam), this);
-    }
-
-    private QueryParam initCodeEntities(QueryParam param) {
-        QueryRetrieveView qrView = param.getQueryRetrieveView();
-        param.setHideRejectionNotesWithCode(
-                codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes()));
-        param.setShowInstancesRejectedByCode(
-                codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()));
-        return param;
+        return new QueryContextImpl(httpRequest, searchMethod, ae, queryParam, this);
     }
 
     @Override
@@ -179,7 +170,7 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public Query createInstanceQuery(QueryContext ctx) {
-        return new InstanceQuery(ctx, openStatelessSession());
+        return new InstanceQuery(ctx, openStatelessSession(), codeCache);
     }
 
     @Override
@@ -419,9 +410,12 @@ class QueryServiceImpl implements QueryService {
         }
 
         public BooleanBuilder build(ApplicationEntity ae) {
-            QueryParam queryParam = initCodeEntities(new QueryParam(ae));
-            predicate.and(QueryBuilder.hideRejectedInstance(queryParam));
-            predicate.and(QueryBuilder.hideRejectionNote(queryParam));
+            QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
+            predicate.and(QueryBuilder.hideRejectedInstance(
+                    codeCache.findOrCreateEntities(qrView.getShowInstancesRejectedByCodes()),
+                    qrView.isHideNotRejectedInstances()));
+            predicate.and(QueryBuilder.hideRejectionNote(
+                    codeCache.findOrCreateEntities(qrView.getHideRejectionNotesWithCodes())));
             return predicate;
         }
     }
