@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
@@ -69,6 +70,8 @@ public class ArchiveAttributeCoercion {
     private String mergeMWLTemplateURI;
     private Attributes.UpdatePolicy attributeUpdatePolicy = Attributes.UpdatePolicy.MERGE;
     private int[] nullifyTags = {};
+    private NullifyIssuer nullifyIssuerOfPatientID;
+    private Issuer[] issuerOfPatientIDs = {};
     private Device supplementFromDevice;
 
     public ArchiveAttributeCoercion() {
@@ -209,6 +212,22 @@ public class ArchiveAttributeCoercion {
 
     public void setNullifyTags(int[] nullifyTags) {
         this.nullifyTags = nullifyTags;
+    }
+
+    public NullifyIssuer getNullifyIssuerOfPatientID() {
+        return nullifyIssuerOfPatientID;
+    }
+
+    public void setNullifyIssuerOfPatientID(NullifyIssuer nullifyIssuerOfPatientID) {
+        this.nullifyIssuerOfPatientID = nullifyIssuerOfPatientID;
+    }
+
+    public Issuer[] getIssuerOfPatientIDs() {
+        return issuerOfPatientIDs;
+    }
+
+    public void setIssuerOfPatientIDs(Issuer... issuerOfPatientIDs) {
+        this.issuerOfPatientIDs = issuerOfPatientIDs;
     }
 
     public final Device getSupplementFromDevice() {

@@ -133,6 +133,24 @@
       "items" : { "type": "string" },
       "format": "dcmTag"
     },
+    "dcmNullifyIssuerOfPatientID": {
+      "title": "Nullify Issuer of Patient ID",
+      "description": "Conditionally nullify Issuer of Patient ID (0010,0021) and Issuer of Patient ID Qualifiers Sequence (0010,0024) from received objects",
+      "type": "string",
+      "enum": [
+        "ALWAYS",
+        "MATCHING",
+        "NOT_MATCHING"
+      ]
+    },
+    "dcmIssuerOfPatientID": {
+      "title": "Issuer of Patient ID",
+      "description": "Issuer of Patient ID (0010,0021), and optionally also values for the Universal Entity ID (0040,0032) and the Universal Entity ID Type (0040,0033) of the Item of the Issuer of Patient ID Qualifiers Sequence (0010,0024) against values in received objects are matched, if Nullify Issuer of Patient ID is set to MATCHING or NOT_MATCHING. Format: <Issuer of Patient ID> [& <Universal Entity ID> & <Universal Entity ID Type>].",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "dcmSupplementFromDeviceName": {
       "title": "Supplement from Device",
       "description": "Name of Device from which Assigning Authorities and other information is taken to supplement received Composite Objects and MPPS.",

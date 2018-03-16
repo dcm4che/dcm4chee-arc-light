@@ -978,6 +978,15 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.197 NAME 'dcmDeIdentification'
   DESC 'De-identify objects according the Basic Application Level Confidentiality Profile specified in DICOM PS3.15. Selecting any Option implicitly includes the Basic Application Level Confidentiality Profile. Enumerated values: BasicApplicationConfidentialityProfile, RetainLongitudinalTemporalInformationFullDatesOption, RetainDeviceIdentityOption, RetainUIDsOption, RetainInstitutionIdentityOption.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.198 NAME 'dcmNullifyIssuerOfPatientID'
+  DESC 'Conditionally nullify Issuer of Patient ID (0010,0021) and Issuer of Patient ID Qualifiers Sequence (0010,0024) from received objects. Enumerated values: ALWAYS, MATCHING, NOT_MATCHING.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.199 NAME 'dcmIssuerOfPatientID'
+  DESC 'Issuer of Patient ID (0010,0021), and optionally also values for the Universal Entity ID (0040,0032) and the Universal Entity ID Type (0040,0033) of the Item of the Issuer of Patient ID Qualifiers Sequence (0010,0024) against values in received objects are matched, if dcmNullifyIssuerOfPatientID is MATCHING or NOT_MATCHING. Format: <Issuer of Patient ID> [& <Universal Entity ID> & <Universal Entity ID Type>].'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1301,6 +1310,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.18 NAME 'dcmArchiveAttributeCoercion'
     dcmTag $
     dcmAttributeUpdatePolicy $
     dcmNullifyTag $
+    dcmNullifyIssuerOfPatientID $
+    dcmIssuerOfPatientID $
     dcmSupplementFromDeviceReference ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.19 NAME 'dcmRejectionNote'
   DESC 'Specifies behavior on Rejection Note Stored'
