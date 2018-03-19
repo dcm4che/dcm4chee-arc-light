@@ -40,8 +40,8 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Issuer;
+import org.dcm4che3.conf.api.AttributeCoercion;
+import org.dcm4che3.data.*;
 import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Dimse;
@@ -263,6 +263,56 @@ public class ArchiveAttributeCoercion {
         return false;
     }
 
+    public AttributesCoercion nullifyIssuerOfPatientID(Attributes attrs, final AttributesCoercion next) {
+        if (!nullifyIssuerOfPatientID(attrs))
+            return next;
+
+        return new AttributesCoercion() {
+            @Override
+            public void coerce(Attributes attrs, Attributes modified) {
+                String issuerOfPatientID = attrs.getString(Tag.IssuerOfPatientID);
+                if (issuerOfPatientID != null && !issuerOfPatientID.isEmpty()) {
+                    attrs.setNull(Tag.IssuerOfPatientID, VR.LO);
+                    if (modified != null)
+                        modified.setString(Tag.IssuerOfPatientID, VR.LO, issuerOfPatientID);
+                }
+                Attributes item = attrs.getNestedDataset(Tag.IssuerOfPatientIDQualifiersSequence);
+                if (item != null) {
+                    attrs.setNull(Tag.IssuerOfPatientIDQualifiersSequence, VR.SQ);
+                    if (modified != null)
+                        modified.newSequence(Tag.IssuerOfPatientIDQualifiersSequence, 1).add(item);
+                }
+                if (next != null)
+                    next.coerce(attrs, modified);
+            }
+
+            @Override
+            public String remapUID(String uid) {
+                return next != null ? next.remapUID(uid) : uid;
+            }
+        };
+    }
+
+    private boolean nullifyIssuerOfPatientID(Attributes attrs) {
+        Issuer issuer;
+        if (nullifyIssuerOfPatientID == null
+                || (issuer = Issuer.fromIssuerOfPatientID(attrs)) == null)
+            return false;
+
+        return nullifyIssuerOfPatientID == NullifyIssuer.ALWAYS ||
+                (matchIssuerOfPatientID(issuer)
+                    ? nullifyIssuerOfPatientID == NullifyIssuer.MATCHING
+                    : nullifyIssuerOfPatientID == NullifyIssuer.NOT_MATCHING);
+    }
+
+    private boolean matchIssuerOfPatientID(Issuer other) {
+        for (Issuer issuer : issuerOfPatientIDs) {
+            if (issuer.matches(other))
+                return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return "ArchiveAttributeCoercion[cn=" + commonName
@@ -279,6 +329,8 @@ public class ArchiveAttributeCoercion {
                 + ", mergeMWLMatchingKey=" + mergeMWLMatchingKey
                 + ", mergeMWLTemplateURI=" + mergeMWLTemplateURI
                 + ", attributeUpdatePolicy=" + attributeUpdatePolicy
+                + ", nullifyIssuerOfPatientID=" + nullifyIssuerOfPatientID
+                + ", issuerOfPatientIDs=" + Arrays.toString(issuerOfPatientIDs)
                 + ", supplementFromDeviceName="
                 + (supplementFromDevice != null ? supplementFromDevice.getDeviceName() : null)
                 + "]";
