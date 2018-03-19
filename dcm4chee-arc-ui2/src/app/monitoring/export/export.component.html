@@ -17,18 +17,20 @@
                         </div>
                     </div>
                     <div class="row">
-                        <label for="status" class="col-md-6 text-right control-label">Status:</label>
-                        <div class="col-md-6">
-                            <select id="status" [(ngModel)]="filters.status" (change)="statusChange()" class="col-md-12">
-                                <option>*</option>
-                                <option *ngFor="let sta of status">{{sta}}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
                         <label for="limit" class="col-md-6 text-right control-label">Page Size:</label>
                         <div class="col-md-6">
                             <input id="limit" type="number" min="1" [(ngModel)]="filters.limit" class="col-md-12" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input id="batchID" placeholder="Batch ID" type="text" [(ngModel)]="filters.batchID" class="col-md-12" />
+                        </div>
+                        <div class="col-md-6">
+                            <mat-select id="status" [(ngModel)]="filters.status" (change)="statusChange()" class="col-md-12" placeholder="Status">
+                                <mat-option>*</mat-option>
+                                <mat-option *ngFor="let sta of status">{{sta}}</mat-option>
+                            </mat-select>
                         </div>
                     </div>
                 </div>

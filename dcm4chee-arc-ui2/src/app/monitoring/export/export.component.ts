@@ -35,7 +35,8 @@ export class ExportComponent implements OnInit {
         StudyInstanceUID: undefined,
         updatedTime: undefined,
         // updatedTimeObject: undefined,
-        createdTime: undefined
+        createdTime: undefined,
+        batchID: undefined,
         // createdTimeObject: undefined
     };
     timer = {
@@ -45,7 +46,7 @@ export class ExportComponent implements OnInit {
     };
     statusValues = {};
     refreshInterval;
-    interval = 15;
+    interval = 10;
     Object = Object;
     status = [
         "TO SCHEDULE",

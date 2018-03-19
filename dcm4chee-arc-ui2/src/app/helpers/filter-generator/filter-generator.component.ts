@@ -35,7 +35,10 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy {
         this.onChange.emit(this.model);
     }
     clear(){
-        this.model = {};
+        // this.model = {};
+        Object.keys(this.model).forEach(filter=>{
+           this.model[filter] = '';
+        });
     }
     ngOnDestroy(){
         localStorage.setItem(this.parentId, JSON.stringify(this.model));

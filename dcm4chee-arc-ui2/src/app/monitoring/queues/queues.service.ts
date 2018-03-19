@@ -11,13 +11,13 @@ export class QueuesService {
     header = new Headers({ 'Content-Type': 'application/json' });
     constructor(public $http:J4careHttpService, public mainservice: AppService, private deviceService:DevicesService) { }
 
-    search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime) {
-        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime)))
+    search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID) {
+        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID)))
             .map(res => j4care.redirectOnAuthResponse(res));
     };
 
-    getCount(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime) {
-        return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime)))
+    getCount(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID) {
+        return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID)))
             .map(res => j4care.redirectOnAuthResponse(res));
     };
 
@@ -66,14 +66,15 @@ export class QueuesService {
         return header;
     }
 
-    queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime) {
+    queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID) {
         let params = {
             offset: offset,
             limit: limit,
             dicomDeviceName: dicomDeviceName,
             status: undefined,
             createdTime:createdTime,
-            updatedTime:updatedTime
+            updatedTime:updatedTime,
+            batchID:batchID
         };
         if (status != '*')
             params.status = status;

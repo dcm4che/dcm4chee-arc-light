@@ -164,15 +164,19 @@ export class ExternalRetrieveService {
                 ],
                 [
                     {
-                        tag:"label",
-                        text:"Status"
+                        tag:"input",
+                        type:"text",
+                        filterKey:"batchID",
+                        description:"Batch ID",
+                        placeholder:"Batch ID"
                     },
                     {
                         tag:"select",
                         options:this.statusValues(),
                         filterKey:"status",
                         showStar:true,
-                        description:"Status of tasks to filter by"
+                        description:"Status of tasks to filter by",
+                        placeholder:"Status"
                     }
                 ]
             ],[

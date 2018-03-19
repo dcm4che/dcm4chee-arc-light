@@ -206,7 +206,7 @@ export class AppComponent implements OnInit {
         };
     };
     @HostListener('window:scroll', ['$event'])
-    onScroll(event) {
+    onScroll(event){
         if (window.pageYOffset > 150 && !this.showScrollButton){
             this.showScrollButton = true;
         }

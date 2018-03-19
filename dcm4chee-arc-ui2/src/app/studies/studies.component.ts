@@ -2143,18 +2143,21 @@ export class StudiesComponent implements OnDestroy,OnInit{
         }
         this.dialogRef.afterClosed().subscribe(result => {
             if (result){
+                let batchID;
+                if(result.batchID)
+                    batchID = `batchID=${result.batchID}&`;
                 $this.cfpLoadingBar.start();
                 if(mode === "multiple"){
-                    urlRest = `../aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}?${ this.mainservice.param(this.createStudyFilterParams())}` ;
+                    urlRest = `../aets/${result.selectedAet}/dimse/${result.externalAET}/studies/query:${result.queryAET}/export/dicom:${result.destinationAET}?${batchID}${ this.mainservice.param(this.createStudyFilterParams())}` ;
                 }else{
                     if(mode === 'multipleExport'){
                         let checkbox = `${(result.checkboxes['only-stgcmt'] && result.checkboxes['only-stgcmt'] === true)? 'only-stgcmt=true':''}${(result.checkboxes['only-ian'] && result.checkboxes['only-ian'] === true)? 'only-ian=true':''}`;
                         if(checkbox != '' && this.mainservice.param(this.createStudyFilterParams()) != '')
                             checkbox = '&' + checkbox;
-                        urlRest = `../aets/${this.aet}/export/${result.selectedExporter}/studies?${this.mainservice.param(this.createStudyFilterParams())}${checkbox}`;
+                        urlRest = `../aets/${this.aet}/export/${result.selectedExporter}/studies?${batchID}${this.mainservice.param(this.createStudyFilterParams())}${checkbox}`;
                     }else{
                         if($this.externalInternalAetMode === 'external'){
-                            let param = result.queue ? `?queue=true` : ''
+                            let param = result.queue ? `?${batchID}queue=true` : '';
                             urlRest = `../aets/${this.aet}/dimse/${result.externalAET}/studies/${objectAttr['0020000D'].Value[0]}/export/dicom:${result.selectedAet}${param}`;
     /*                        switch (dicomMode){
                                 case 'study':
@@ -2176,7 +2179,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                             }else{
                                 id = result.selectedExporter;
                             }
-                            urlRest = url  + '/export/' + id + '?' + this.mainservice.param(result.checkboxes);
+                            urlRest = url  + '/export/' + id + '?'+ batchID + this.mainservice.param(result.checkboxes);
                         }
                     }
                 }

@@ -111,6 +111,10 @@
                 </mat-select>
             </div>
         </div>
+        <div class="content">
+            <p>Batch ID</p>
+            <input type="text" [(ngModel)]="result.batchID">
+        </div>
         <div class="dialogbuttons">
             <button *ngIf="!okButtonLabel" class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()">EXPORT</button>
             <button *ngIf="okButtonLabel" class="save" type="button" (click)="dialogRef.close(result)" [disabled]="!validForm()">{{okButtonLabel}}</button>

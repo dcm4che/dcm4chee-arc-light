@@ -34,6 +34,7 @@ export class QueuesComponent implements OnInit{
     devices;
     count;
     allAction;
+    batchID;
     allActionsOptions = [
         {
             value:"cancel",
@@ -221,7 +222,7 @@ export class QueuesComponent implements OnInit{
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.search(this.queueName, this.status, offset, this.limit, this.dicomDeviceName, this.createdTime,this.updatedTime)
+        this.service.search(this.queueName, this.status, offset, this.limit, this.dicomDeviceName, this.createdTime,this.updatedTime, this.batchID)
             .subscribe((res) => {
                 if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
@@ -248,7 +249,7 @@ export class QueuesComponent implements OnInit{
     }
     getCount(){
         this.cfpLoadingBar.start();
-        this.service.getCount(this.queueName, this.status, undefined, undefined, this.dicomDeviceName, this.createdTime,this.updatedTime).subscribe((count)=>{
+        this.service.getCount(this.queueName, this.status, undefined, undefined, this.dicomDeviceName, this.createdTime,this.updatedTime, this.batchID).subscribe((count)=>{
             try{
                 this.count = count.count;
             }catch (e){

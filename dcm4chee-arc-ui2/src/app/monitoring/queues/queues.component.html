@@ -36,12 +36,18 @@
                 </div>
                 <div class="col-md-3 block-2-1">
                     <div class="row">
-                        <label class="col-md-6 text-right control-label">Device Name:</label>
+                        <div class="col-md-6">
+                            <input type="text" [(ngModel)]="batchID" class="col-md-12" placeholder="Batch ID"/>
+                        </div>
                         <div class="col-md-6" *ngIf="devices">
-                            <select [(ngModel)]="dicomDeviceName" class="col-md-12">
+<!--                            <select [(ngModel)]="dicomDeviceName" class="col-md-12">
                                 <option value="">*</option>
                                 <option *ngFor="let device of devices" value="{{device.dicomDeviceName}}">{{device.dicomDeviceName}}</option>
-                            </select>
+                            </select >-->
+                            <mat-select [(ngModel)]="dicomDeviceName" class="col-md-12" placeholder="Device Name">
+                                <mat-option value="">*</mat-option>
+                                <mat-option *ngFor="let device of devices" value="{{device.dicomDeviceName}}">{{device.dicomDeviceName}}</mat-option>
+                            </mat-select>
                         </div>
                         <div class="col-md-6" *ngIf="!devices">
                             <input type="text" [(ngModel)]="dicomDeviceName" class="col-md-12"/>
