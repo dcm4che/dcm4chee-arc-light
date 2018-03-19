@@ -23,14 +23,14 @@ export class PermissionService {
                     this.mainservice.global.notSecure = true;
                     return true; //not secured
                 }else
-                    if(this.mainservice.user.roles.indexOf(Globalvar.SUPER_ROOT) > -1)
+                    if(this.mainservice.user && this.mainservice.user.su)
                         return true;
                     else
                         return this.checkMenuTabAccess(url)
             });
     }
     checkSuperAdmin(url){
-        if(this.mainservice.user.roles.indexOf(Globalvar.SUPER_ROOT) > - 1 || (!this.mainservice.user.user && this.mainservice.user.roles.length === 0))
+        if((this.mainservice.user && this.mainservice.user.su) || (!this.mainservice.user.user && this.mainservice.user.roles.length === 0))
             return true;
         else
             return this.getConfig(()=>{return this.checkMenuTabAccess(url)});
@@ -114,7 +114,7 @@ export class PermissionService {
         }
     }
     checkVisibility(permissionObject){
-        if(this.mainservice.user && this.mainservice.user.roles && this.mainservice.user.roles.length > 0 && this.mainservice.user.roles.indexOf(Globalvar.SUPER_ROOT) > -1)
+        if(this.mainservice.user && this.mainservice.user.roles && this.mainservice.user.roles.length > 0 && this.mainservice.user.su)
             return true;
         else
             if(this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0)
