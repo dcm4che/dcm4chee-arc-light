@@ -239,26 +239,39 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
+    test(){
+        console.log("model",this.filterObject);
+    }
     downloadCsv(){
-        let token;
-        this.$http.refreshToken().subscribe((response)=>{
-            if(!this.mainservice.global.notSecure){
-                if(response && response.length != 0){
-                    this.$http.resetAuthenticationInfo(response);
-                    token = response['token'];
-                }else{
-                    token = this.mainservice.global.authentication.token;
+        this.confirm({
+            content:"Do you want to use semicolon as delimiter?",
+            cancelButton:"No",
+            saveButton:"Yes",
+            result:"yes"
+        }).subscribe((ok)=>{
+            let semicolon = false;
+            if(ok)
+                semicolon = true;
+            let token;
+            this.$http.refreshToken().subscribe((response)=>{
+                if(!this.mainservice.global.notSecure){
+                    if(response && response.length != 0){
+                        this.$http.resetAuthenticationInfo(response);
+                        token = response['token'];
+                    }else{
+                        token = this.mainservice.global.authentication.token;
+                    }
                 }
-            }
-            let filterClone = _.cloneDeep(this.filterObject);
-            delete filterClone.offset;
-            delete filterClone.limit;
-            if(!this.mainservice.global.notSecure){
-                WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv&access_token=${token}&${this.mainservice.param(filterClone)}`);
-            }else{
-                WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv&${this.mainservice.param(filterClone)}`);
-            }
-        });
+                let filterClone = _.cloneDeep(this.filterObject);
+                delete filterClone.offset;
+                delete filterClone.limit;
+                if(!this.mainservice.global.notSecure){
+                    WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv&access_token=${token}&${this.mainservice.param(filterClone)}${(semicolon?'delimiter=semicolon':'')}`);
+                }else{
+                    WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv&${this.mainservice.param(filterClone)}${(semicolon?'delimiter=semicolon':'')}`);
+                }
+            });
+        })
     }
     allActionChanged(e){
         let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;

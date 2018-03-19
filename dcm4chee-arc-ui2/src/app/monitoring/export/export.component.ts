@@ -214,21 +214,31 @@ export class ExportComponent implements OnInit {
         });
     }
     downloadCsv(){
-        let token;
-        this.$http.refreshToken().subscribe((response)=>{
-            if(!this.mainservice.global.notSecure){
-                if(response && response.length != 0){
-                    this.$http.resetAuthenticationInfo(response);
-                    token = response['token'];
-                }else{
-                    token = this.mainservice.global.authentication.token;
+        this.confirm({
+            content:"Do you want to use semicolon as delimiter?",
+            cancelButton:"No",
+            saveButton:"Yes",
+            result:"yes"
+        }).subscribe((ok)=>{
+            let semicolon = false;
+            if(ok)
+                semicolon = true;
+            let token;
+            this.$http.refreshToken().subscribe((response)=>{
+                if(!this.mainservice.global.notSecure){
+                    if(response && response.length != 0){
+                        this.$http.resetAuthenticationInfo(response);
+                        token = response['token'];
+                    }else{
+                        token = this.mainservice.global.authentication.token;
+                    }
                 }
-            }
-            if(!this.mainservice.global.notSecure){
-                WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv&access_token=${token}&${this.mainservice.param(this.service.paramWithoutLimit(this.filters))}`);
-            }else{
-                WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv&${this.mainservice.param(this.service.paramWithoutLimit(this.filters))}`);
-            }
+                if(!this.mainservice.global.notSecure){
+                    WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv&access_token=${token}&${this.mainservice.param(this.service.paramWithoutLimit(this.filters))}${(semicolon?'&delimiter=semicolon':'')}`);
+                }else{
+                    WindowRefService.nativeWindow.open(`../monitor/export?accept=text/csv&${this.mainservice.param(this.service.paramWithoutLimit(this.filters))}${(semicolon?'&delimiter=semicolon':'')}`);
+                }
+            });
         });
 /*        this.service.downloadCsv(this.filters).subscribe((csv)=>{
             let file = new File([csv._body], `export_${new Date().toDateString()}.csv`, {type: 'text/csv;charset=utf-8'});
