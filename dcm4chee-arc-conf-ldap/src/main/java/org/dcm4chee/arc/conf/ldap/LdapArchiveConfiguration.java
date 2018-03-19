@@ -2468,6 +2468,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeNotEmptyTags(ldapObj, attrs, "dcmNullifyTag", coercion.getNullifyTags());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmSupplementFromDeviceReference",
                supplementDeviceRef(coercion), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmNullifyIssuerOfPatientID", coercion.getNullifyIssuerOfPatientID(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmIssuerOfPatientID", coercion.getIssuerOfPatientIDs());
         return attrs;
     }
 
@@ -2503,11 +2505,20 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 coercion.setSupplementFromDevice(parentDN.equals(supplementDeviceDN)
                         ? device
                         : loadSupplementFromDevice(supplementDeviceDN));
+                coercion.setNullifyIssuerOfPatientID(LdapUtils.enumValue(NullifyIssuer.class, attrs.get("dcmNullifyIssuerOfPatientID"), null));
+                coercion.setIssuerOfPatientIDs(toIssuers(LdapUtils.stringArray(attrs.get("dcmIssuerOfPatientID"))));
                 coercions.add(coercion);
             }
         } finally {
             LdapUtils.safeClose(ne);
         }
+    }
+
+    private Issuer[] toIssuers(String[] issuerOfPatientIds) {
+        Issuer[] issuers = new Issuer[issuerOfPatientIds.length];
+        for (int i = 0; i < issuerOfPatientIds.length; i++)
+            issuers[i] = new Issuer(issuerOfPatientIds[i]);
+        return issuers;
     }
 
     private Device loadSupplementFromDevice(String supplementDeviceRef) throws ConfigurationException {
@@ -2547,6 +2558,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmSupplementFromDeviceReference",
                 supplementDeviceRef(prev),
                 supplementDeviceRef(coercion), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmNullifyIssuerOfPatientID",
+                prev.getNullifyIssuerOfPatientID(), coercion.getNullifyIssuerOfPatientID(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmIssuerOfPatientID", prev.getIssuerOfPatientIDs(), coercion.getIssuerOfPatientIDs());
         return mods;
     }
 

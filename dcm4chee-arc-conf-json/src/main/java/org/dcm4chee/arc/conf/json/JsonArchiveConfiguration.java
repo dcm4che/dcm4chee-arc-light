@@ -47,6 +47,7 @@ import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Code;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.ValueSelector;
 import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.net.*;
@@ -443,6 +444,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmLeadingCFindSCP", aac.getLeadingCFindSCP(), null);
             writer.writeNotNullOrDef("dcmMergeMWLMatchingKey", aac.getMergeMWLMatchingKey(), null);
             writer.writeNotNullOrDef("dcmMergeMWLTemplateURI", aac.getMergeMWLTemplateURI(), null);
+            writer.writeNotNullOrDef("dcmNullifyIssuerOfPatientID", aac.getNullifyIssuerOfPatientID(), null);
+            writer.writeNotEmpty("dcmIssuerOfPatientID", aac.getIssuerOfPatientIDs());
             writer.writeNotNullOrDef("dcmAttributeUpdatePolicy", aac.getAttributeUpdatePolicy(), null);
             writer.writeNotEmpty("dcmNullifyTag", TagUtils.toHexStrings(aac.getNullifyTags()));
             writer.writeNotNullOrDef("dcmSupplementFromDeviceName", deviceNameOf(aac.getSupplementFromDevice()), null);
@@ -1500,6 +1503,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmSupplementFromDeviceName":
                         aac.setSupplementFromDevice(loadSupplementFromDevice(config, reader.stringValue()));
                         break;
+                    case "dcmNullifyIssuerOfPatientID":
+                        aac.setNullifyIssuerOfPatientID(NullifyIssuer.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmIssuerOfPatientID":
+                        aac.setIssuerOfPatientIDs(toIssuers(reader.stringArray()));
+                        break;
                     default:
                         reader.skipUnknownProperty();
                 }
@@ -1508,6 +1517,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             coercions.add(aac);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private Issuer[] toIssuers(String[] issuerOfPatientIds) {
+        Issuer[] issuers = new Issuer[issuerOfPatientIds.length];
+        for (int i = 0; i < issuerOfPatientIds.length; i++)
+            issuers[i] = new Issuer(issuerOfPatientIds[i]);
+        return issuers;
     }
 
     private Device loadSupplementFromDevice(ConfigurationDelegate config, String supplementDeviceRef) throws ConfigurationException {
