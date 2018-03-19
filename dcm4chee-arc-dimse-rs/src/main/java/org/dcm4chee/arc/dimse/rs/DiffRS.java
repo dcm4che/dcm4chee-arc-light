@@ -312,7 +312,7 @@ public class DiffRS {
                                     break;
                             }
                     } catch (Exception e) {
-                        writer.write(toAttributes(e));
+                        writer.write(null);
                         LOG.info("Failure on query for matching studies:\\n", e);
                     }
                     gen.writeEnd();
@@ -320,12 +320,25 @@ public class DiffRS {
         };
     }
 
-    private Attributes toAttributes(Exception e) {
-        return null;
+    private void isErrorResponse(DimseRSP dimseRSP, DimseRSP dimseRSP2) {
+        Attributes command1 = dimseRSP.getCommand();
+        if (command1.getInt(Tag.Status, 0) != 0)
+            throw new WebApplicationException(errResponse(command1, externalAET));
+
+        Attributes command2 = dimseRSP2.getCommand();
+        if (command2.getInt(Tag.Status, 0) != 0)
+            throw new WebApplicationException(errResponse(command2, originalAET));
+    }
+
+    private Response errResponse(Attributes command, String calledAET) {
+        return errResponse(aet + "->" + calledAET + " >> C-FIND-RSP[status=" +
+                Integer.toHexString(command.getInt(Tag.Status, 0)) + ", errorComment=" + command.getString(Tag.ErrorComment) + "]",
+                Response.Status.BAD_GATEWAY);
     }
 
     private boolean diff(DimseRSP dimseRSP, DimseRSP dimseRSP2, int[] compareKeys, int[] returnKeys, int[] counts)
             throws Exception {
+        isErrorResponse(dimseRSP, dimseRSP2);
         Attributes match = dimseRSP.getDataset();
         if (match == null)
             return false;
