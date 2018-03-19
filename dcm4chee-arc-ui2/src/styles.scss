@@ -330,6 +330,9 @@ mat-grid-list{
 .w45percent{
   width: 45% !important;
 }
+.w50percent{
+  width: 50% !important;
+}
 .group_input{
   border: 1px solid #ccc;
   margin-left: 0;
@@ -402,6 +405,7 @@ mat-grid-list{
     box-sizing: border-box;
     padding: 15px 20px;
     margin-bottom:10px;
+    min-height: 69px;
     .line{
       float: left;
       width: 100%;
