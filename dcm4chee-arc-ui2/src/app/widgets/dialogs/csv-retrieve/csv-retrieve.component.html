@@ -1,0 +1,44 @@
+<div class="modal_form">
+  <h5>Upload csv file with Studie Instance UIDs</h5>
+  <div class="content">
+    <form [formGroup]="form" >
+    <div class="form_control">
+      <label>Calling AET:</label>
+      <mat-select formControlName="aet" placeholder="Calling AET" class="form-control" >
+        <mat-option *ngFor="let ae of aes" value="{{ae.value}}">{{ae.text}}</mat-option>
+      </mat-select>
+    </div>
+    <div class="form_control">
+      <label>External AET:</label>
+      <mat-select formControlName="externalAET" placeholder="External AET" class="form-control" >
+        <mat-option *ngFor="let ae of aes" value="{{ae.value}}">{{ae.text}}</mat-option>
+      </mat-select>
+    </div>
+    <div class="form_control">
+      <label>Field:</label>
+      <input formControlName="field" type="number" placeholder="Field" class="form-control" >
+    </div>
+    <div class="form_control">
+      <label>Destination AET:</label>
+      <mat-select formControlName="destinationAET" placeholder="Destination AET" class="form-control" >
+        <mat-option *ngFor="let ae of aes" value="{{ae.value}}">{{ae.text}}</mat-option>
+      </mat-select>
+    </div>
+    <div class="form_control">
+      <label>Priority:</label>
+      <input formControlName="priority" type="number" placeholder="Priority" class="form-control" >
+    </div>
+    <div class="form_control">
+      <label>Batch ID:</label>
+      <input formControlName="batchID" type="text" placeholder="Batch ID" class="form-control" >
+    </div>
+      <div class="form_control">
+        <label>Select CSV-File:</label>
+        <input type="file" (change)="onFileChange($event)" class="form-control" >
+      </div>
+      <div class="dialogbuttons">
+        <button class="save" (click)="submit()" [disabled]="!form.valid || !csvFile">Upload</button>
+      </div>
+    </form>
+  </div>
+</div>

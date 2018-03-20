@@ -1,0 +1,35 @@
+.modal_form{
+  h5{
+    font-size: 22px;
+    font-weight: bold;
+    color: rgba(6, 29, 47, 0.84);
+  }
+  .form_control{
+    padding: 5px 0px;
+    margin-bottom: 10px;
+    float: left;
+    width: 100%;
+    label{
+      width: 40%;
+      float: left;
+      text-align: right;
+      padding-right: 10px;
+    }
+    .mat-select,input{
+      width: 60%;
+      float: right;
+    }
+    .mat-select{
+      border:none;
+      border-radius: 0px;
+      padding:0;
+    }
+    & > input{
+      border:none;
+      border-bottom:1px solid #cccccc;
+    }
+    .mat-select-placeholder{
+      padding-left:7px;
+    }
+  }
+}

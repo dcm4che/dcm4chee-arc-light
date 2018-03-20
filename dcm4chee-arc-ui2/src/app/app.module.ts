@@ -5,7 +5,8 @@ import { HttpModule } from '@angular/http';
 import { RouterModule }   from '@angular/router';
 import {AppComponent} from './app.component';
 import {
-    MatDialogConfig, MatDialogModule, MatIconModule, MatProgressBarModule, MatProgressSpinnerModule,
+    MatDialogConfig, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule,
+    MatProgressSpinnerModule,
     MatSelectModule
 } from '@angular/material';
 import { StudiesComponent } from './studies/studies.component';
@@ -79,6 +80,7 @@ import {PermissionService} from "./helpers/permissions/permission.service";
 import { PermissionDirective } from './helpers/permissions/permission.directive';
 import {LoadingBarModule} from "@ngx-loading-bar/core";
 import {PermissionDeniedComponent} from "./helpers/permissions/permission-denied.component";
+import {CsvRetrieveService} from "./widgets/dialogs/csv-retrieve/csv-retrieve.service";
 
 @NgModule({
     declarations: [
@@ -136,6 +138,8 @@ import {PermissionDeniedComponent} from "./helpers/permissions/permission-denied
         MatIconModule,
         MatSelectModule,
         MatProgressBarModule,
+        MatInputModule,
+        MatFormFieldModule,
         MatProgressSpinnerModule,
         WidgetsModule,
         CommonModule,
@@ -205,6 +209,7 @@ import {PermissionDeniedComponent} from "./helpers/permissions/permission-denied
         DynamicFieldService,
         AuthGuard,
         PermissionService,
+        CsvRetrieveService,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent]

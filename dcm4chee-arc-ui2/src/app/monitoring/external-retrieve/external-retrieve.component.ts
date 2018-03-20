@@ -16,6 +16,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import "rxjs/add/observable/forkJoin";
 import {LoadingBarService} from '@ngx-loading-bar/core';
 import {environment} from "../../../environments/environment";
+import {CsvRetrieveComponent} from "../../widgets/dialogs/csv-retrieve/csv-retrieve.component";
 
 @Component({
   selector: 'external-retrieve',
@@ -239,9 +240,6 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
-    test(){
-        console.log("model",this.filterObject);
-    }
     downloadCsv(){
         this.confirm({
             content:"Do you want to use semicolon as delimiter?",
@@ -274,7 +272,17 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
         })
     }
     uploadCsv(){
-        //TODO
+        this.dialogRef = this.dialog.open(CsvRetrieveComponent, {
+            height: 'auto',
+            width: '500px'
+        });
+        this.dialogRef.componentInstance.aes = this.remoteAET ;
+        this.dialogRef.afterClosed().subscribe((ok)=>{
+            if(ok){
+                console.log("ok",ok);
+                //TODO
+            }
+        });
     }
     allActionChanged(e){
         let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
