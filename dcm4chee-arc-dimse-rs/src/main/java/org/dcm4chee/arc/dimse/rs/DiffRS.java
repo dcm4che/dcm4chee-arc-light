@@ -42,6 +42,7 @@ import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -193,36 +194,67 @@ public class DiffRS {
                 keys.newSequence(Tag.SortingOperationsSequence, 1).add(item);
                 dimseRSP2 = findSCU.query(as2, priority(), keys, 0);
                 dimseRSP2.next();
+                checkRSP(dimseRSP2);
             }
             DimseRSP dimseRSP = findSCU.query(as1, priority(), keys, 0);
+            dimseRSP.next();
+            checkRSP(dimseRSP);
             if (count) {
                 int[] counts = new int[2];
-                while (dimseRSP.next()) {
+                do {
                     diff(dimseRSP, dimseRSP2, compareKeys, returnKeys, counts);
-                }
+                } while (dimseRSP.next());
                 ar.resume(Response.ok("{\"missing\":" + counts[0] + ",\"different\":" + counts[1] + "}").build());
                 return;
             }
             includeMissing = missing != null && Boolean.parseBoolean(missing);
             includeDifferent = different == null || Boolean.parseBoolean(different);
             int skip = offset();
-            while (dimseRSP.next()) {
+            do {
                 if (diff(dimseRSP, dimseRSP2, compareKeys, returnKeys, null) && skip-- == 0) {
                     ar.resume(Response.ok(entity(dimseRSP, dimseRSP2, compareKeys, returnKeys)).build());
                     return;
                 }
-            }
+            } while (dimseRSP.next());
             ar.resume(Response.noContent().build());
-        } catch (ConnectException e) {
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Exception e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
         }
+    }
+
+    private static void checkRSP(DimseRSP rsp) {
+        Attributes cmd = rsp.getCommand();
+        int status = cmd.getInt(Tag.Status, -1);
+        if (!Status.isPending(status) && status != Status.Success)
+            throw new WebApplicationException(errResponse(
+                    errorMessage(status, cmd.getString(Tag.ErrorComment)), Response.Status.BAD_GATEWAY));
+    }
+
+    private static String errorMessage(int status, String errorComment) {
+        String statusAsString = statusAsString(status);
+        return errorComment == null ? statusAsString : statusAsString + " - " + errorComment;
+    }
+
+    private static String statusAsString(int status) {
+        switch (status) {
+            case Status.OutOfResources:
+                return "A700: Refused: Out of Resources";
+            case Status.IdentifierDoesNotMatchSOPClass:
+                return "A900: Identifier does not match SOP Class";
+        }
+        return TagUtils.shortToHexString(status)
+                + ((status & 0xF000) == Status.UnableToProcess
+                ? ": Unable to Process"
+                : ": Unexpected status code");
     }
 
     private static boolean hasArchiveAEExtension(ApplicationEntity ae) {
         return ae.getAEExtension(ArchiveAEExtension.class) != null;
     }
 
-    private ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
+    private static ApplicationEntity checkAE(String aet, ApplicationEntity ae) {
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(errResponse(
                     "No such Application Entity: " + aet,
@@ -230,7 +262,7 @@ public class DiffRS {
         return ae;
     }
 
-    private Response errResponse(String errorMessage, Response.Status status) {
+    private static Response errResponse(String errorMessage, Response.Status status) {
         return Response.status(status).entity("{\"errorMessage\":\"" + errorMessage + "\"}").build();
     }
 

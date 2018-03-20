@@ -320,7 +320,7 @@ public class QueryRS {
                 return "A900: Identifier does not match SOP Class";
         }
         return TagUtils.shortToHexString(status)
-                + ((status & Status.UnableToProcess) == Status.UnableToProcess
+                + ((status & 0xF000) == Status.UnableToProcess
                 ? ": Unable to Process"
                 : ": Unexpected status code");
     }
