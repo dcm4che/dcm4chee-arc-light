@@ -104,8 +104,13 @@ public class ConfigurationRS {
 
     private ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
         @Override
-        public Device findDevice(String name) throws ConfigurationException {
-            return conf.findDevice(name);
+        public Device findDevice(String name) {
+            try {
+                return conf.findDevice(name);
+            } catch (ConfigurationException e) {
+                LOG.info("Failed to load device with name " + name, e);
+            }
+            return null;
         }
     };
 
