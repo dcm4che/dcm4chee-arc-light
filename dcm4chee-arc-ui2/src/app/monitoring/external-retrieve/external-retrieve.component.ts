@@ -273,6 +273,9 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
             });
         })
     }
+    uploadCsv(){
+        //TODO
+    }
     allActionChanged(e){
         let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
         let filter = Object.assign(this.filterObject);
