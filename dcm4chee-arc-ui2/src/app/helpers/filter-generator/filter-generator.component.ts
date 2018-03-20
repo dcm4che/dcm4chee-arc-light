@@ -43,4 +43,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy {
     ngOnDestroy(){
         localStorage.setItem(this.parentId, JSON.stringify(this.model));
     }
+    trackByFn(index, item) {
+        return index; // or item.id
+    }
 }
