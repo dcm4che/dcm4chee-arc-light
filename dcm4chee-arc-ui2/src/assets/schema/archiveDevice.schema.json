@@ -638,8 +638,8 @@
       "minimum": 0
     },
     "dcmStoreUpdateDBMaxRetryDelay": {
-      "title": "Store Update DB Maximum Delay of Retry",
-      "description": "Maximum delay in ms of retry to update the database on storage.",
+      "title": "Store Update DB Delay of Retry",
+      "description": "Delay in ms of retry to update the database on storage.",
       "type": "integer",
       "default": 1000,
       "minimum": 0
