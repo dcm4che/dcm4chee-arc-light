@@ -277,6 +277,12 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
             width: '500px'
         });
         this.dialogRef.componentInstance.aes = this.remoteAET ;
+        this.dialogRef.componentInstance.params = {
+            aet:this.filterObject['LocalAET']||'',
+            externalAET:this.filterObject['RemoteAET']||'',
+            destinationAET:this.filterObject['DestinationAET']||'',
+            batchID:this.filterObject['batchID']||'',
+        };
         this.dialogRef.afterClosed().subscribe((ok)=>{
             if(ok){
                 console.log("ok",ok);
