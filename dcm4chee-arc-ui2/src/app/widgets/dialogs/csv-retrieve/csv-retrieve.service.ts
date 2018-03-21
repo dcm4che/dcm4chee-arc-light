@@ -11,16 +11,13 @@ export class CsvRetrieveService {
       public mainservice:AppService
   ) { }
 
-  uploadCSV(filters, file){
+  uploadCSV(filters, file, onloadend, onerror){
     let clonedFilters = {};
     if(filters['priority']) clonedFilters['priority'] = filters['priority'];
     if(filters['batchID']) clonedFilters['batchID'] = filters['batchID'];
     let url = `../aets/${filters.aet}/dimse/${filters.externalAET}/studies/csv:${filters.field}/export/dicom:${filters.destinationAET}${j4care.getUrlParams(clonedFilters)}`;
     let xmlHttpRequest = new XMLHttpRequest();
-    let boundary = Math.random().toString().substr(2);
     xmlHttpRequest.open('POST', url, true);
-    let dashes = '--';
-    let crlf = '\r\n';
     let token;
     this.$http.refreshToken().subscribe((response) => {
         if(!this.mainservice.global.notSecure){
@@ -32,17 +29,16 @@ export class CsvRetrieveService {
             }
         }
         xmlHttpRequest.setRequestHeader("Content-Type","text/csv");
-        xmlHttpRequest.upload.onprogress = (e)=>{
-            if (e.lengthComputable) {
-                console.log("e",e);
-            }
-        };
         if(!this.mainservice.global.notSecure) {
             xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
         }
-        xmlHttpRequest.upload.onloadend = (e)=>{
-            // dialogRef.close('ok');
-            console.log("load end");
+        xmlHttpRequest.onreadystatechange = function() {
+            if (xmlHttpRequest.readyState == XMLHttpRequest.DONE) {
+                onloadend.call(this, xmlHttpRequest);
+            }
+        }
+        xmlHttpRequest.onerror = (e)=>{
+            onerror.call(this, e);
         };
         xmlHttpRequest.send(file);
     });

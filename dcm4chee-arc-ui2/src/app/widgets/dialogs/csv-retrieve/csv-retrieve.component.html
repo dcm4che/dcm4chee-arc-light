@@ -37,7 +37,10 @@
         <input type="file" (change)="onFileChange($event)" class="form-control" >
       </div>
       <div class="dialogbuttons">
-        <button class="save" (click)="submit()" [disabled]="!form.valid || !csvFile">Upload</button>
+        <button class="save" (click)="submit()" [disabled]="!form.valid || !csvFile">
+          <span *ngIf="showLoader" class="fa fa-circle-o-notch fa-spin csv_upload_loader"></span>
+          Upload
+        </button>
       </div>
     </form>
   </div>
