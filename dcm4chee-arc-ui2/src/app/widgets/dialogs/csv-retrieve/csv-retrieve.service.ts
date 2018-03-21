@@ -31,7 +31,7 @@ export class CsvRetrieveService {
                 token = this.mainservice.global.authentication.token;
             }
         }
-        xmlHttpRequest.setRequestHeader("Content-Type","application/zip");
+        xmlHttpRequest.setRequestHeader("Content-Type","text/csv");
         xmlHttpRequest.upload.onprogress = (e)=>{
             if (e.lengthComputable) {
                 console.log("e",e);
