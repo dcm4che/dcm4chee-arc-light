@@ -64,7 +64,10 @@ public class QueryAttributes {
     private final ArrayList<OrderByTag> orderByTags = new ArrayList<>();
 
     public QueryAttributes(UriInfo info) {
-        MultivaluedMap<String, String> map = info.getQueryParameters();
+        this(info.getQueryParameters());
+    }
+
+    public QueryAttributes(MultivaluedMap<String, String> map) {
         for (Map.Entry<String, List<String>> entry : map.entrySet()) {
             String key = entry.getKey();
             switch (key) {

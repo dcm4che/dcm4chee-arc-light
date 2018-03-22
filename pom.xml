@@ -428,6 +428,7 @@
     <module>dcm4chee-arc-conf-ui</module>
     <module>dcm4chee-arc-ctrl</module>
     <module>dcm4chee-arc-delete</module>
+    <module>dcm4chee-arc-diff</module>
     <module>dcm4chee-arc-dimse-rs</module>
     <module>dcm4chee-arc-entity</module>
     <module>dcm4chee-arc-event</module>
