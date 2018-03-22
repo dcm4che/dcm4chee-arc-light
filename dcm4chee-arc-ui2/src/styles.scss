@@ -2233,7 +2233,17 @@ mat-dialog-container{
     }
   }
 }
-
+mat-dialog-container{
+  .table_content{
+    max-height: 74vh;
+    overflow: auto;
+    .table.table-condensed.subtable{
+      max-height: 45vh;
+      overflow: auto;
+      display: block;
+    }
+  }
+}
 .more_menu_content.activemenu{
   overflow: visible;
 }
