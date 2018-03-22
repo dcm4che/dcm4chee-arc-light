@@ -59,10 +59,19 @@ export class CsvRetrieveComponent implements OnInit {
                 })
                 this.dialogRef.close('ok');
             }else{
+                let msg = 'Upload failed, please try again later!';
+                try{
+                    if(end.response){
+                        let countObject = JSON.parse(end.response);
+                        msg = countObject.errorMessage;
+                    }
+                }catch (e){
+                    console.log("Count could not be extracted",e)
+                }
                 this.appService.setMessage({
-                    "text":'Upload failed, please try again later!',
+                    "text":msg,
                     "status":"error"
-                })
+                });
                 this.dialogRef.close(null);
             }
         },(err)=>{
