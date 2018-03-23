@@ -364,7 +364,13 @@ class ArchiveDeviceFactory {
             Tag.IdenticalDocumentsSequence,
             Tag.CurrentRequestedProcedureEvidenceSequence,
             Tag.ConcatenationUID,
-            Tag.SOPInstanceUIDOfConcatenationSource
+            Tag.SOPInstanceUIDOfConcatenationSource,
+            Tag.ContainerIdentifier,
+            Tag.AlternateContainerIdentifierSequence,
+            Tag.IssuerOfTheContainerIdentifierSequence,
+            Tag.SpecimenUID,
+            Tag.SpecimenIdentifier,
+            Tag.IssuerOfTheSpecimenIdentifierSequence
     };
     static final int[] LEADING_CFIND_SCP_ATTRS = {
             Tag.StudyDate,

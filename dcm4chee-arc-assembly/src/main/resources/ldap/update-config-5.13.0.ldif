@@ -119,6 +119,12 @@ changetype: modify
 add: dcmTag
 dcmTag: 00200242
 dcmTag: 00209161
+dcmTag: 00400512
+dcmTag: 00400513
+dcmTag: 00400515
+dcmTag: 00400551
+dcmTag: 00400554
+dcmTag: 00400562
 --
 
 dn: dcmAttributeSetID=AttributeFilters+dcmAttributeSetType=WADO_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -126,4 +132,10 @@ changetype: modify
 add: dcmTag
 dcmTag: 00200242
 dcmTag: 00209161
+dcmTag: 00400512
+dcmTag: 00400513
+dcmTag: 00400515
+dcmTag: 00400551
+dcmTag: 00400554
+dcmTag: 00400562
 --

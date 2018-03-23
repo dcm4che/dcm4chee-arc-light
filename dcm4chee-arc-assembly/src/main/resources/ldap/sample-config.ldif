@@ -910,6 +910,12 @@ dcmTag: 00280008
 dcmTag: 00280010
 dcmTag: 00280011
 dcmTag: 00280100
+dcmTag: 00400512
+dcmTag: 00400513
+dcmTag: 00400515
+dcmTag: 00400551
+dcmTag: 00400554
+dcmTag: 00400562
 dcmTag: 0040A032
 dcmTag: 0040A043
 dcmTag: 0040A073
@@ -1602,6 +1608,12 @@ dcmTag: 00380502
 dcmTag: 00400244
 dcmTag: 00400245
 dcmTag: 00400275
+dcmTag: 00400512
+dcmTag: 00400513
+dcmTag: 00400515
+dcmTag: 00400551
+dcmTag: 00400554
+dcmTag: 00400562
 dcmTag: 00403001
 dcmTag: 0040A032
 dcmTag: 0040A043
