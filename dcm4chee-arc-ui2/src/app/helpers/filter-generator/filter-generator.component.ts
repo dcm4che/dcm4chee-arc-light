@@ -18,7 +18,11 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy {
     ) { }
     parentId;
     ngOnInit() {
-       this.parentId = `${location.hostname}-${this.inj['view'].parentNodeDef.renderParent.element.name}`;
+        try{
+            this.parentId = `${location.hostname}-${this.inj['view'].parentNodeDef.renderParent.element.name}`;
+        }catch (e){
+            this.parentId = `${location.hostname}-${location.hash.replace(/#/g,'').replace(/\//g,'-')}`;
+        }
        let savedFilters = localStorage.getItem(this.parentId);
        if(savedFilters)
            this.model = _.merge(this.model,JSON.parse(savedFilters));
