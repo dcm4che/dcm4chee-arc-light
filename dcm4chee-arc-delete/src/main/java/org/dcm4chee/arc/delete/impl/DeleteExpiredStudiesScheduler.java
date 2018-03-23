@@ -66,6 +66,7 @@ import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -184,7 +185,9 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
         List<Study> studies;
         do {
             studies = em.createNamedQuery(Study.GET_EXPIRED_STUDIES, Study.class)
-                    .setParameter(1, LocalDate.now().toString()).setMaxResults(studyFetchSize).getResultList();
+                    .setParameter(1, DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now()))
+                    .setMaxResults(studyFetchSize)
+                    .getResultList();
             for (Study study : studies) {
                 try {
                     reject(ae, study.getStudyInstanceUID(), null, rn, rejectionNoteObjectStorageID);
