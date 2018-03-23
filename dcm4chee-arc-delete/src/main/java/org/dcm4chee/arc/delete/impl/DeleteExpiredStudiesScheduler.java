@@ -169,7 +169,9 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
         List<Series> seriesList;
         do {
             seriesList = em.createNamedQuery(Series.GET_EXPIRED_SERIES, Series.class)
-                    .setParameter(1, LocalDate.now().toString()).setMaxResults(seriesFetchSize).getResultList();
+                    .setParameter(1, DateTimeFormatter.BASIC_ISO_DATE.format(LocalDate.now()))
+                    .setMaxResults(seriesFetchSize)
+                    .getResultList();
             for (Series series : seriesList) {
                 try {
                     reject(ae, series.getStudy().getStudyInstanceUID(), series.getSeriesInstanceUID(), rn, rejectionNoteObjectStorageID);
