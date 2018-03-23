@@ -113,3 +113,17 @@ dcmIIOFormatName: jpeg-ls-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 objectClass: dcmImageWriter
 dcmImageWriteParam: nearLossless=2.0
+
+dn: dcmEntity=Instance,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmTag
+dcmTag: 00200242
+dcmTag: 00209161
+--
+
+dn: dcmAttributeSetID=AttributeFilters+dcmAttributeSetType=WADO_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dcmTag
+dcmTag: 00200242
+dcmTag: 00209161
+--

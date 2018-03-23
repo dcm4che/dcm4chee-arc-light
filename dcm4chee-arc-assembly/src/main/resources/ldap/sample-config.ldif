@@ -904,6 +904,8 @@ dcmTag: 00080201
 dcmTag: 00081115
 dcmTag: 00082218
 dcmTag: 00200013
+dcmTag: 00200242
+dcmTag: 00209161
 dcmTag: 00280008
 dcmTag: 00280010
 dcmTag: 00280011
@@ -1587,6 +1589,8 @@ dcmTag: 00200010
 dcmTag: 00200011
 dcmTag: 00200013
 dcmTag: 00200060
+dcmTag: 00200242
+dcmTag: 00209161
 dcmTag: 00280008
 dcmTag: 00280010
 dcmTag: 00280011
