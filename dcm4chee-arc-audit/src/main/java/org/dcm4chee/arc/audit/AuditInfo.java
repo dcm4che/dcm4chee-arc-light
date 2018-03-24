@@ -77,6 +77,7 @@ class AuditInfo {
     static final int COUNT = 26;
     static final int QUEUE_MSG = 27;
     static final int TASK_POID = 28;
+    static final int ERROR_CODE = 29;
 
     private final String[] fields;
 
@@ -110,7 +111,8 @@ class AuditInfo {
                 i.filters,
                 String.valueOf(i.count),
                 i.queueMsg,
-                i.taskPOID
+                i.taskPOID,
+                i.errorCode
         };
     }
 

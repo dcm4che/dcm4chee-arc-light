@@ -81,7 +81,7 @@ class AuditInfoBuilder {
     final int count;
     final String queueMsg;
     final String taskPOID;
-    final int errorCode;
+    final String errorCode;
 
     static class Builder {
         private String callingHost;
@@ -113,7 +113,7 @@ class AuditInfoBuilder {
         private int count;
         private String queueMsg;
         private String taskPOID;
-        private int errorCode;
+        private String errorCode;
 
         Builder callingHost(String val) {
             callingHost = val;
@@ -228,7 +228,7 @@ class AuditInfoBuilder {
             return this;
         }
         Builder errorCode(int val) {
-            errorCode = val;
+            errorCode = errorCodeAsString(val);
             return this;
         }
         AuditInfoBuilder build() {
@@ -286,5 +286,10 @@ class AuditInfoBuilder {
                     : pName;
         }
         return pInfo;
+    }
+
+    private static String errorCodeAsString(int errorCode) {
+        String errorCodeAsString = Integer.toHexString(errorCode).toUpperCase();
+        return errorCodeAsString.length() == 3 ? "x0" + errorCodeAsString : errorCodeAsString;
     }
 }

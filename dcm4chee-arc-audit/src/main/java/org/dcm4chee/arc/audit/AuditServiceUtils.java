@@ -41,10 +41,12 @@ package org.dcm4chee.arc.audit;
 
 import org.dcm4che3.audit.*;
 import org.dcm4chee.arc.ArchiveServiceEvent;
-import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.store.StoreContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.file.Path;
 
 /**
@@ -53,6 +55,8 @@ import java.nio.file.Path;
  */
 
 class AuditServiceUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(AuditServiceUtils.class);
+
     enum EventClass {
         QUERY, USER_DELETED, SCHEDULER_DELETED, STORE_WADOR, CONN_REJECT, RETRIEVE, APPLN_ACTIVITY, HL7, PROC_STUDY, PROV_REGISTER,
         STGCMT, INST_RETRIEVED, LDAP_CHANGES, QUEUE_EVENT
@@ -187,6 +191,70 @@ class AuditServiceUtils {
                     : operation == QueueMessageOperation.RescheduleTasks
                         ? EventType.RESCHD_TSK : EventType.DELETE_TSK;
         }
+    }
+
+    static AuditMessages.EventTypeCode errorEventTypeCode(String errorCode) {
+        AuditMessages.EventTypeCode errorEventTypeCode = null;
+        switch (errorCode) {
+            case "x0110":
+                errorEventTypeCode = AuditMessages.EventTypeCode.x0110;
+                break;
+            case "x0118":
+                errorEventTypeCode = AuditMessages.EventTypeCode.x0118;
+                break;
+            case "x0122":
+                errorEventTypeCode = AuditMessages.EventTypeCode.x0122;
+                break;
+            case "x0124":
+                errorEventTypeCode = AuditMessages.EventTypeCode.x0124;
+                break;
+            case "x0211":
+                errorEventTypeCode = AuditMessages.EventTypeCode.x0211;
+                break;
+            case "x0212":
+                errorEventTypeCode = AuditMessages.EventTypeCode.x0212;
+                break;
+            case "A700":
+                errorEventTypeCode = AuditMessages.EventTypeCode.A700;
+                break;
+            case "A770":
+                errorEventTypeCode = AuditMessages.EventTypeCode.A770;
+                break;
+            case "A771":
+                errorEventTypeCode = AuditMessages.EventTypeCode.A771;
+                break;
+            case "A772":
+                errorEventTypeCode = AuditMessages.EventTypeCode.A772;
+                break;
+            case "A773":
+                errorEventTypeCode = AuditMessages.EventTypeCode.A773;
+                break;
+            case "A774":
+                errorEventTypeCode = AuditMessages.EventTypeCode.A774;
+                break;
+            case "A775":
+                errorEventTypeCode = AuditMessages.EventTypeCode.A775;
+                break;
+            case "A776":
+                errorEventTypeCode = AuditMessages.EventTypeCode.A776;
+                break;
+            case "A777":
+                errorEventTypeCode = AuditMessages.EventTypeCode.A777;
+                break;
+            case "A778":
+                errorEventTypeCode = AuditMessages.EventTypeCode.A778;
+                break;
+            case "A900":
+                errorEventTypeCode = AuditMessages.EventTypeCode.A900;
+                break;
+            case "C409":
+                errorEventTypeCode = AuditMessages.EventTypeCode.C409;
+                break;
+            default:
+                LOG.warn("Unknown DICOM error code");
+        }
+
+        return errorEventTypeCode;
     }
 
 }

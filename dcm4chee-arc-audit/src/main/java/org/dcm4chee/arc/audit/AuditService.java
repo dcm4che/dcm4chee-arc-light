@@ -861,21 +861,56 @@ public class AuditService {
                                  AuditServiceUtils.EventType eventType) throws IOException {
         SpoolFileReader reader = new SpoolFileReader(path);
         AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        EventIdentificationBuilder ei = toBuildEventIdentification(
-                eventType,
-                auditInfo.getField(AuditInfo.OUTCOME),
-                getEventTime(path, auditLogger));
+
+        HashSet<String> mpps = new HashSet<>();
+        HashSet<String> outcome = new HashSet<>();
+        HashSet<AuditMessages.EventTypeCode> errorCode = new HashSet<>();
+        HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
+
+        for (String line : reader.getInstanceLines()) {
+            AuditInfo instanceInfo = new AuditInfo(line);
+            outcome.add(instanceInfo.getField(AuditInfo.OUTCOME));
+            AuditMessages.EventTypeCode errorEventTypeCode = AuditServiceUtils.errorEventTypeCode(instanceInfo.getField(AuditInfo.ERROR_CODE));
+            if (errorEventTypeCode != null)
+                errorCode.add(errorEventTypeCode);
+            String mppsUID = instanceInfo.getField(AuditInfo.MPPS_UID);
+            if (mppsUID != null)
+                mpps.add(mppsUID);
+            sopClassMap.computeIfAbsent(
+                    instanceInfo.getField(AuditInfo.SOP_CUID),
+                    k -> new HashSet<>()).add(instanceInfo.getField(AuditInfo.SOP_IUID));
+        }
+
+        EventIdentificationBuilder ei = new EventIdentificationBuilder.Builder(
+                eventType.eventID,
+                eventType.eventActionCode,
+                getEventTime(path, auditLogger),
+                AuditMessages.EventOutcomeIndicator.MinorFailure)
+                .outcomeDesc(outcome.stream().collect(Collectors.joining("\n")))
+                .eventTypeCode(errorCode.toArray(new AuditMessages.EventTypeCode[errorCode.size()]))
+                .build();
+
+        ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
+                .sopC(toSOPClasses(sopClassMap, true))
+                .acc(auditInfo.getField(AuditInfo.ACC_NUM))
+                .mpps(mpps.toArray(new String[mpps.size()]))
+                .build();
 
         emitAuditMessage(auditLogger, ei,
                 storeWadoURIActiveParticipants(auditLogger, auditInfo, eventType),
-                storeWadoURIStudyParticipantObject(reader, eventType),
+                storeStudyPOI(auditInfo, desc),
                 patientPOI(auditInfo));
     }
 
     private void auditStoreOrWADORetrieve(AuditLogger auditLogger, Path path,
                                           AuditServiceUtils.EventType eventType) throws IOException {
-        if (path.endsWith("_ERROR")) {
+        if (path.toFile().getName().endsWith("_ERROR")) {
             auditStoreError(auditLogger, path, eventType);
+            return;
+        }
+
+        if (eventType.name().startsWith("WADO")) {
+            auditWADORetrieve(auditLogger, path, eventType);
             return;
         }
 
@@ -887,27 +922,32 @@ public class AuditService {
                                             auditInfo.getField(AuditInfo.WARNING),
                                             getEventTime(path, auditLogger));
 
+        HashSet<String> mpps = new HashSet<>();
+        HashMap<String, HashSet<String>> sopClassMap = new HashMap<>();
+
+        for (String line : reader.getInstanceLines()) {
+            AuditInfo instanceInfo = new AuditInfo(line);
+            sopClassMap.computeIfAbsent(
+                    instanceInfo.getField(AuditInfo.SOP_CUID),
+                    k -> new HashSet<>()).add(instanceInfo.getField(AuditInfo.SOP_IUID));
+            String mppsUID = instanceInfo.getField(AuditInfo.MPPS_UID);
+            if (mppsUID != null)
+                mpps.add(mppsUID);
+        }
+
+        ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
+                .sopC(toSOPClasses(sopClassMap, false))
+                .acc(auditInfo.getField(AuditInfo.ACC_NUM))
+                .mpps(mpps.toArray(new String[mpps.size()]))
+                .build();
+
         emitAuditMessage(auditLogger, ei,
                 storeWadoURIActiveParticipants(auditLogger, auditInfo, eventType),
-                storeWadoURIStudyParticipantObject(reader, eventType),
+                storeStudyPOI(auditInfo, desc),
                 patientPOI(auditInfo));
     }
 
-    private ParticipantObjectIdentificationBuilder storeWadoURIStudyParticipantObject(
-            SpoolFileReader reader, AuditServiceUtils.EventType eventType) {
-        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
-        ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
-                .sopC(toSOPClasses(buildSOPClassMap(reader), auditInfo.getField(AuditInfo.OUTCOME) != null))
-                .acc(auditInfo.getField(AuditInfo.ACC_NUM))
-                .mpps(reader.getInstanceLines().stream()
-                        .filter(x -> new AuditInfo(x).getField(AuditInfo.MPPS_UID) != null)
-                        .map(x -> x = new AuditInfo(x).getField(AuditInfo.MPPS_UID))
-                        .toArray(String[]::new))
-                .build();
-
-        String lifecycle = (eventType == AuditServiceUtils.EventType.STORE_CREA
-                || eventType == AuditServiceUtils.EventType.STORE_UPDT)
-                ? AuditMessages.ParticipantObjectDataLifeCycle.OriginationCreation : null;
+    private ParticipantObjectIdentificationBuilder storeStudyPOI(AuditInfo auditInfo, ParticipantObjectDescriptionBuilder desc) {
         return new ParticipantObjectIdentificationBuilder.Builder(
                 auditInfo.getField(AuditInfo.STUDY_UID),
                 AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
@@ -915,8 +955,36 @@ public class AuditService {
                 AuditMessages.ParticipantObjectTypeCodeRole.Report)
                 .desc(desc)
                 .detail(getPod(studyDate, auditInfo.getField(AuditInfo.STUDY_DATE)))
-                .lifeCycle(lifecycle)
+                .lifeCycle(AuditMessages.ParticipantObjectDataLifeCycle.OriginationCreation)
                 .build();
+    }
+
+    private void auditWADORetrieve(AuditLogger auditLogger, Path path,
+                                   AuditServiceUtils.EventType eventType) throws IOException {
+        SpoolFileReader reader = new SpoolFileReader(path);
+        AuditInfo auditInfo = new AuditInfo(reader.getMainInfo());
+        EventIdentificationBuilder ei = toBuildEventIdentification(
+                eventType,
+                auditInfo.getField(AuditInfo.OUTCOME),
+                getEventTime(path, auditLogger));
+
+        ParticipantObjectDescriptionBuilder desc = new ParticipantObjectDescriptionBuilder.Builder()
+                .sopC(toSOPClasses(buildSOPClassMap(reader), auditInfo.getField(AuditInfo.OUTCOME) != null))
+                .acc(auditInfo.getField(AuditInfo.ACC_NUM))
+                .build();
+
+        ParticipantObjectIdentificationBuilder studyPOI =  new ParticipantObjectIdentificationBuilder.Builder(
+                auditInfo.getField(AuditInfo.STUDY_UID),
+                AuditMessages.ParticipantObjectIDTypeCode.StudyInstanceUID,
+                AuditMessages.ParticipantObjectTypeCode.SystemObject,
+                AuditMessages.ParticipantObjectTypeCodeRole.Report)
+                .desc(desc)
+                .detail(getPod(studyDate, auditInfo.getField(AuditInfo.STUDY_DATE)))
+                .build();
+        emitAuditMessage(auditLogger, ei,
+                storeWadoURIActiveParticipants(auditLogger, auditInfo, eventType),
+                studyPOI,
+                patientPOI(auditInfo));
     }
 
     private ActiveParticipantBuilder[] storeWadoURIActiveParticipants(
