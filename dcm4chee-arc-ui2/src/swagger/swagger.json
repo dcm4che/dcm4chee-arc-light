@@ -1006,8 +1006,8 @@
           "MONITOR-RS",
           "DIFF-RS"
         ],
-        "summary": "List Compare Study Tasks",
-        "operationId": "listCompareStudyTasks",
+        "summary": "List Compare Studies Tasks",
+        "operationId": "listCompareStudiesTasks",
         "produces": [
           "application/json",
           "text/csv"
@@ -1083,13 +1083,13 @@
           {
             "name": "createdTime",
             "in": "query",
-            "description": "list compare Study Tasks which were created between <datetime1>-<datetime2>",
+            "description": "list Compare Studies Tasks which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "list compare Study Tasks which were updated between <datetime1>-<datetime2>",
+            "description": "list Compare Studies Tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -1141,8 +1141,8 @@
           "MONITOR-RS",
           "DIFF-RS"
         ],
-        "summary": "Delete Compare Study Tasks",
-        "operationId": "deleteCompareStudyTasks",
+        "summary": "Delete Compare Studies Tasks",
+        "operationId": "deleteCompareStudiesTasks",
         "produces": [
           "application/json"
         ],
@@ -1206,13 +1206,13 @@
           {
             "name": "createdTime",
             "in": "query",
-            "description": "delete compare Study Tasks which were created between <datetime1>-<datetime2>",
+            "description": "delete compare Studies Tasks which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "delete compare Study Tasks which were updated between <datetime1>-<datetime2>",
+            "description": "delete compare Studies Tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -1286,7 +1286,7 @@
           {
             "name": "comparefield",
             "in": "query",
-            "description": "list batches with at least one compare Study Tasks which compares the specified set of attributes",
+            "description": "list batches with at least one compare Studies Tasks which compares the specified set of attributes",
             "type": "string"
           },
           {
@@ -1312,7 +1312,7 @@
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "list batches with at least one compare Study Tasks which were updated between <datetime1>-<datetime2>",
+            "description": "list batches with at least one compare Studies Tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -1397,8 +1397,8 @@
           "MONITOR-RS",
           "DIFF-RS"
         ],
-        "summary": "Count Compare Study Tasks",
-        "operationId": "countCompareStudyTasks",
+        "summary": "Count Compare Studies Tasks",
+        "operationId": "countCompareStudiesTasks",
         "produces": [
           "application/json"
         ],
@@ -1430,19 +1430,19 @@
           {
             "name": "checkMissing",
             "in": "query",
-            "description": "count compare Study Tasks which do/don't check for studies only available at the primary C-FIND SCP",
+            "description": "count compare Studies Tasks which do/don't check for studies only available at the primary C-FIND SCP",
             "type": "boolean"
           },
           {
             "name": "checkDifferent",
             "in": "query",
-            "description": "count compare Study Tasks which do/don't check for different attributes of studies available at the primary and the secondary C-FIND SCP",
+            "description": "count compare Studies Tasks which do/don't check for different attributes of studies available at the primary and the secondary C-FIND SCP",
             "type": "boolean"
           },
           {
             "name": "comparefield",
             "in": "query",
-            "description": "count compare Study Tasks which compares the specified set of attributes",
+            "description": "count compare Studies Tasks which compares the specified set of attributes",
             "type": "string"
           },
           {
@@ -1462,13 +1462,13 @@
           {
             "name": "createdTime",
             "in": "query",
-            "description": "count compare Study Tasks which were created between <datetime1>-<datetime2>",
+            "description": "count compare Studies Tasks which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "count compare Study Tasks which were updated between <datetime1>-<datetime2>",
+            "description": "count compare Studies Tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -1497,8 +1497,8 @@
           "MONITOR-RS",
           "DIFF-RS"
         ],
-        "summary": "Cancel Compare Study Tasks",
-        "operationId": "cancelCompareStudyTasks",
+        "summary": "Cancel Compare Studies Tasks",
+        "operationId": "cancelCompareStudiesTasks",
         "produces": [
           "application/json"
         ],
@@ -1530,19 +1530,19 @@
           {
             "name": "checkMissing",
             "in": "query",
-            "description": "cancel compare Study Tasks which do/don't check for studies only available at the primary C-FIND SCP",
+            "description": "cancel compare Studies Tasks which do/don't check for studies only available at the primary C-FIND SCP",
             "type": "boolean"
           },
           {
             "name": "checkDifferent",
             "in": "query",
-            "description": "cancel compare Study Tasks which do/don't check for different attributes of studies available at the primary and the secondary C-FIND SCP",
+            "description": "cancel compare Studies Tasks which do/don't check for different attributes of studies available at the primary and the secondary C-FIND SCP",
             "type": "boolean"
           },
           {
             "name": "comparefield",
             "in": "query",
-            "description": "cancel compare Study Tasks which compares the specified set of attributes",
+            "description": "cancel compare Studies Tasks which compares the specified set of attributes",
             "type": "string"
           },
           {
@@ -1559,13 +1559,13 @@
           {
             "name": "createdTime",
             "in": "query",
-            "description": "cancel compare Study Tasks which were created between <datetime1>-<datetime2>",
+            "description": "cancel compare Studies Tasks which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "cancel compare Study Tasks which were updated between <datetime1>-<datetime2>",
+            "description": "cancel compare Studies Tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -1583,7 +1583,7 @@
             }
           },
           "400": {
-            "description": "Invalid status for Cancel of Compare Study Tasks"
+            "description": "Invalid status for Cancel of Compare Studies Tasks"
           },
           "default": {
             "description": "unexpected error"
@@ -1597,8 +1597,8 @@
           "MONITOR-RS",
           "DIFF-RS"
         ],
-        "summary": "Reschedule Compare Study Tasks",
-        "operationId": "rescheduleCompareStudyTasks",
+        "summary": "Reschedule Compare Studies Tasks",
+        "operationId": "rescheduleCompareStudiesTasks",
         "produces": [
           "application/json"
         ],
@@ -1631,19 +1631,19 @@
           {
             "name": "checkMissing",
             "in": "query",
-            "description": "reschedule compare Study Tasks which do/don't check for studies only available at the primary C-FIND SCP",
+            "description": "reschedule compare Studies Tasks which do/don't check for studies only available at the primary C-FIND SCP",
             "type": "boolean"
           },
           {
             "name": "checkDifferent",
             "in": "query",
-            "description": "reschedule compare Study Tasks which do/don't check for different attributes of studies available at the primary and the secondary C-FIND SCP",
+            "description": "reschedule compare Studies Tasks which do/don't check for different attributes of studies available at the primary and the secondary C-FIND SCP",
             "type": "boolean"
           },
           {
             "name": "comparefield",
             "in": "query",
-            "description": "reschedule compare Study Tasks which compares the specified set of attributes",
+            "description": "reschedule compare Studies Tasks which compares the specified set of attributes",
             "type": "string"
           },
           {
@@ -1662,13 +1662,13 @@
           {
             "name": "createdTime",
             "in": "query",
-            "description": "reschedule compare Study Tasks which were created between <datetime1>-<datetime2>",
+            "description": "reschedule compare Studies Tasks which were created between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
             "name": "updatedTime",
             "in": "query",
-            "description": "reschedule compare Study Tasks which were updated between <datetime1>-<datetime2>",
+            "description": "reschedule compare Studies Tasks which were updated between <datetime1>-<datetime2>",
             "type": "string"
           },
           {
@@ -1686,7 +1686,7 @@
             }
           },
           "400": {
-            "description": "Compare Study Tasks status is null or invalid or device name is null"
+            "description": "Compare Studies Tasks status is null or invalid or device name is null"
           },
           "409": {
             "description": "Archive Device Name does not match device name of archive instance"
