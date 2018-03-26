@@ -1,5 +1,5 @@
 {
-  "title": "RetrieveTaskList",
+  "title": "DiffTaskList",
   "type": "array",
   "items": {
     "required": [
@@ -8,17 +8,18 @@
       "status",
       "dicomDeviceName",
       "LocalAET",
-      "RemoteAET",
-      "DestinationAET",
-      "StudyInstanceUID",
+      "PrimaryAET",
+      "SecondaryAET",
+      "checkMissing",
+      "checkDifferent",
       "createdTime",
       "updatedTime",
       "scheduledTime"
     ],
     "properties": {
       "pk": {
-        "title": "Retrieve Task PK",
-        "description": "Retrieve Task PK",
+        "title": "Diff Task PK",
+        "description": "Diff Task PK",
         "type": "integer"
       },
       "JMSMessageID": {
@@ -54,54 +55,49 @@
         "description": "Archive AE Title which was used as Calling AET",
         "type": "string"
       },
-      "RemoteAET": {
-        "title": "Remote AET",
-        "description": "AE Title of the C-MOVE SCP",
+      "PrimaryAET": {
+        "title": "Primary AET",
+        "description": "AE Title of the primary C-FIND SCP",
         "type": "string"
       },
-      "DestinationAET": {
-        "title": "Destination AET",
-        "description": "Move Destination AE Title",
+      "SecondaryAET": {
+        "title": "Secondary AET",
+        "description": "AE Title of the secondary C-FIND SCP",
         "type": "string"
       },
-      "StudyInstanceUID": {
-        "title": "Study Instance UID",
-        "description": "Unique Identifier of the Study",
+      "QueryString": {
+        "title": "Query String",
+        "description": "Query Parameters of DIFF request",
         "type": "string"
       },
-      "SeriesInstanceUID": {
-        "title": "Series Instance UID",
-        "description": "Unique Identifier of the Series",
+      "checkMissing": {
+        "title": "Check Missing",
+        "description": "Indicates if the task checks for studies only available at the primary C-FIND SCP",
+        "type": "boolean"
+      },
+      "checkDifferent": {
+        "title": "Check Different",
+        "description": "Indicates if the task checks for different attributes of studies available at the primary and the secondary C-FIND SCP",
+        "type": "boolean"
+      },
+      "comparefield": {
+        "title": "Compare Field",
+        "description": "Refers set of attributes which are compared by this task",
         "type": "string"
       },
-      "SOPInstanceUID": {
-        "title": "SOP Instance UID",
-        "description": "Unique Identifier of the Object",
-        "type": "string"
-      },
-      "statusCode": {
-        "title": "DICOM Status Code",
-        "description": "DICOM Status Code in hex",
-        "type": "string"
-      },
-      "errorComment": {
-        "title": "DICOM Error Comment",
-        "type": "string"
-      },
-      "remaining": {
-        "title": "Number of Remaining Sub-Operations",
+      "matches": {
+        "title": "matches",
+        "description": "number of studies compared by this task",
         "type": "integer"
       },
-      "completed": {
-        "title": "Number of Completed Sub-Operations",
+      "missing": {
+        "title": "missing",
+        "description": "number of studies only available at the primary C-FIND SCP",
         "type": "integer"
       },
-      "failed": {
-        "title": "Number of Failed Sub-Operations",
-        "type": "integer"
-      },
-      "warning": {
-        "title": "Number of Warning Sub-Operations",
+      "different": {
+        "title": "different",
+        "description": "number of studies which differs in the compared attributes between the primary and the secondary C-FIND SCP",
         "type": "integer"
       },
       "failures": {

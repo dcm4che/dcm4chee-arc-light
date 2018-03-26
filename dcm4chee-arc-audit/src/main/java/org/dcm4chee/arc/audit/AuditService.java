@@ -530,8 +530,8 @@ public class AuditService {
                                 .callingHost(ctx.getRequesterHostName())
                                 .calledHost(ctx.getRemoteHostName())
                                 .calledUserID(ctx.getRemoteAET())
-                                .moveAET(ctx.getRequestURI())
-                                .destAET(ctx.getDestinationAET())
+                                .moveUserID(ctx.getRequestURI())
+                                .destUserID(ctx.getDestinationAET())
                                 .warning(warning)
                                 .studyUIDAccNumDate(ctx.getKeys())
                                 .outcome(outcome)
@@ -555,7 +555,7 @@ public class AuditService {
                                 .requester(true)
                                 .build();
         activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
-                                i.getField(AuditInfo.MOVEAET),
+                                i.getField(AuditInfo.MOVE_USER_ID),
                                 getLocalHostName(auditLogger))
                                 .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
                                 .altUserID(AuditLogger.processID())
@@ -567,7 +567,7 @@ public class AuditService {
                                 .roleIDCode(eventType.source)
                                 .build();
         activeParticipantBuilder[3] = new ActiveParticipantBuilder.Builder(
-                                i.getField(AuditInfo.DEST_AET),
+                                i.getField(AuditInfo.DEST_USER_ID),
                                 i.getField(AuditInfo.DEST_NAP_ID))
                                 .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
                                 .roleIDCode(eventType.destination)
@@ -1076,7 +1076,7 @@ public class AuditService {
     }
 
     private ActiveParticipantBuilder[] getApsForRetrieve(AuditServiceUtils.EventType eventType, AuditInfo ri, AuditLogger auditLogger) {
-        return ri.getField(AuditInfo.MOVEAET) != null
+        return ri.getField(AuditInfo.MOVE_USER_ID) != null
                 ? getApsForMove(eventType, ri, auditLogger)
                 : ri.getField(AuditInfo.IS_EXPORT) != null
                     ? getApsForExport(eventType, ri, auditLogger)
@@ -1093,13 +1093,13 @@ public class AuditService {
                                 .roleIDCode(eventType.source)
                                 .build();
         activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
-                                ri.getField(AuditInfo.DEST_AET),
+                                ri.getField(AuditInfo.DEST_USER_ID),
                                 ri.getField(AuditInfo.DEST_NAP_ID))
                                 .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
                                 .roleIDCode(eventType.destination)
                                 .build();
         activeParticipantBuilder[2] = new ActiveParticipantBuilder.Builder(
-                                ri.getField(AuditInfo.MOVEAET),
+                                ri.getField(AuditInfo.MOVE_USER_ID),
                                 ri.getField(AuditInfo.CALLING_HOST))
                                 .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
                                 .requester(true)
@@ -1110,7 +1110,7 @@ public class AuditService {
     private ActiveParticipantBuilder[] getApsForExport(AuditServiceUtils.EventType eventType, AuditInfo ri, AuditLogger auditLogger) {
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
         activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
-                ri.getField(AuditInfo.DEST_AET),
+                ri.getField(AuditInfo.DEST_USER_ID),
                 ri.getField(AuditInfo.DEST_NAP_ID))
                 .userIDTypeCode(AuditMessages.UserIDTypeCode.StationAETitle)
                 .roleIDCode(eventType.destination).build();
@@ -1156,7 +1156,7 @@ public class AuditService {
                                 .altUserID(AuditLogger.processID())
                                 .roleIDCode(eventType.source)
                                 .build();
-        String callingUserID = ri.getField(AuditInfo.DEST_AET);
+        String callingUserID = ri.getField(AuditInfo.DEST_USER_ID);
         activeParticipantBuilder[1] = new ActiveParticipantBuilder.Builder(
                                 callingUserID,
                                 ri.getField(AuditInfo.DEST_NAP_ID))
@@ -1528,7 +1528,7 @@ public class AuditService {
             AuditLogger auditLogger, AuditServiceUtils.EventType et, AuditInfo ai) {
         ActiveParticipantBuilder[] activeParticipantBuilder = new ActiveParticipantBuilder[3];
         activeParticipantBuilder[0] = new ActiveParticipantBuilder.Builder(
-                                ai.getField(AuditInfo.DEST_AET),
+                                ai.getField(AuditInfo.DEST_USER_ID),
                                 ai.getField(AuditInfo.DEST_NAP_ID))
                                 .userIDTypeCode(AuditMessages.UserIDTypeCode.URI)
                                 .roleIDCode(et.destination)

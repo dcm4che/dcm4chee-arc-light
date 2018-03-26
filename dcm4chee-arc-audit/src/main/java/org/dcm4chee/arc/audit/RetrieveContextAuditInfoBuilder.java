@@ -141,11 +141,11 @@ class RetrieveContextAuditInfoBuilder {
     private AuditInfoBuilder cMoveCGet(boolean failedIUIDShow, String outcome) {
         return new AuditInfoBuilder.Builder()
             .calledUserID(ctx.getLocalAETitle())
-            .destAET(ctx.getDestinationAETitle())
+            .destUserID(ctx.getDestinationAETitle())
             .destNapID(ctx.getDestinationHostName())
             .warning(buildWarning())
             .callingHost(ctx.getRequestorHostName())
-            .moveAET(ctx.getMoveOriginatorAETitle())
+            .moveUserID(ctx.getMoveOriginatorAETitle())
             .outcome(outcome)
             .failedIUIDShow(failedIUIDShow)
             .build();
@@ -154,7 +154,7 @@ class RetrieveContextAuditInfoBuilder {
     private AuditInfoBuilder rad69(boolean failedIUIDShow, String outcome) {
         return new AuditInfoBuilder.Builder()
                 .calledUserID(httpServletRequest.getRequestURI())
-                .destAET(KeycloakContext.valueOf(httpServletRequest).getUserName())
+                .destUserID(KeycloakContext.valueOf(httpServletRequest).getUserName())
                 .destNapID(httpServletRequest.getRemoteAddr())
                 .warning(buildWarning())
                 .callingHost(ctx.getRequestorHostName())
@@ -166,7 +166,7 @@ class RetrieveContextAuditInfoBuilder {
     private AuditInfoBuilder wadoRS(boolean failedIUIDShow, String outcome) {
         return new AuditInfoBuilder.Builder()
             .calledUserID(httpServletRequestInfo.requestURI)
-            .destAET(httpServletRequestInfo.requesterUserID)
+            .destUserID(httpServletRequestInfo.requesterUserID)
             .destNapID(ctx.getDestinationHostName())
             .warning(buildWarning())
             .callingHost(ctx.getRequestorHostName())
@@ -178,7 +178,7 @@ class RetrieveContextAuditInfoBuilder {
     private AuditInfoBuilder schedulerTriggeredExport(boolean failedIUIDShow, String outcome) {
         return new AuditInfoBuilder.Builder()
             .calledUserID(ctx.getLocalAETitle())
-            .destAET(ctx.getDestinationAETitle())
+            .destUserID(ctx.getDestinationAETitle())
             .destNapID(ctx.getDestinationHostName())
             .warning(buildWarning())
             .callingHost(ctx.getRequestorHostName())
@@ -193,7 +193,7 @@ class RetrieveContextAuditInfoBuilder {
             .callingUserID(httpServletRequestInfo.requesterUserID)
             .callingHost(ctx.getRequestorHostName())
             .calledUserID(httpServletRequestInfo.requestURI)
-            .destAET(ctx.getDestinationAETitle())
+            .destUserID(ctx.getDestinationAETitle())
             .destNapID(ctx.getDestinationHostName())
             .warning(buildWarning())
             .outcome(outcome)

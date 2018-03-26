@@ -1000,6 +1000,836 @@
         }
       }
     },
+    "/monitor/diff": {
+      "get": {
+        "tags": [
+          "MONITOR-RS",
+          "DIFF-RS"
+        ],
+        "summary": "List Compare Studies Tasks",
+        "operationId": "listCompareStudiesTasks",
+        "produces": [
+          "application/json",
+          "text/csv"
+        ],
+        "parameters": [
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Response Content Type",
+            "type": "string",
+            "enum": [
+              "application/json",
+              "text/csv"
+            ]
+          },
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "PrimaryAET",
+            "in": "query",
+            "description": "AE Title of the primary C-FIND SCP to filter by",
+            "type": "string"
+          },
+          {
+            "name": "SecondaryAET",
+            "in": "query",
+            "description": "AE Title of the secondary C-FIND SCP to filter by",
+            "type": "string"
+          },
+          {
+            "name": "checkMissing",
+            "in": "query",
+            "description": "include/exclude tasks which check for studies only available at the primary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "checkDifferent",
+            "in": "query",
+            "description": "include/exclude tasks which check for different attributes of studies available at the primary and the secondary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "comparefield",
+            "in": "query",
+            "description": "compare attribute set id to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "TO SCHEDULE",
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "list Compare Studies Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "list Compare Studies Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped tasks before first task in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of tasks in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "specifies sort direction and field of tasks in returned list",
+            "type": "string",
+            "enum": [
+              "createdTime",
+              "-createdTime",
+              "updatedTime",
+              "-updatedTime"
+            ],
+            "default": "-updatedTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "diffTaskList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "MONITOR-RS",
+          "DIFF-RS"
+        ],
+        "summary": "Delete Compare Studies Tasks",
+        "operationId": "deleteCompareStudiesTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "PrimaryAET",
+            "in": "query",
+            "description": "AE Title of the primary C-FIND SCP to filter by",
+            "type": "string"
+          },
+          {
+            "name": "SecondaryAET",
+            "in": "query",
+            "description": "AE Title of the secondary C-FIND SCP to filter by",
+            "type": "string"
+          },
+          {
+            "name": "checkMissing",
+            "in": "query",
+            "description": "do/don't delete tasks which check for studies only available at the primary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "checkDifferent",
+            "in": "query",
+            "description": "do/don't delete tasks which check for different attributes of studies available at the primary and the secondary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "comparefield",
+            "in": "query",
+            "description": "compare attribute set id to filter by",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "delete compare Studies Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "delete compare Studies Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Deleted"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/batch": {
+      "get": {
+        "tags": [
+          "MONITOR-RS",
+          "DIFF-RS"
+        ],
+        "summary": "List Compare Studies Batches",
+        "operationId": "listCompareStudiesBatches",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "list batches with at least one diff task with the specified Device Name",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "list batches with at least one diff task with the specified Archive AE Title",
+            "type": "string"
+          },
+          {
+            "name": "PrimaryAET",
+            "in": "query",
+            "description": "list batches with at least one diff task with the specified AE Title of the primary C-FIND SCP",
+            "type": "string"
+          },
+          {
+            "name": "SecondaryAET",
+            "in": "query",
+            "description": "list batches with at least one diff task with the specified AE Title of the secondary C-FIND SCP",
+            "type": "string"
+          },
+          {
+            "name": "checkMissing",
+            "in": "query",
+            "description": "list batches with at least one diff task which do/don't check for studies only available at the primary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "checkDifferent",
+            "in": "query",
+            "description": "list batches with at least one diff task which do/don't check for different attributes of studies available at the primary and the secondary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "comparefield",
+            "in": "query",
+            "description": "list batches with at least one compare Studies Tasks which compares the specified set of attributes",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "list batches with at least one diff task with the specified status",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "list batches with at least one diff task were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "list batches with at least one compare Studies Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped batches before first task in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of batches in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "specifies sort direction and field of tasks in returned list",
+            "type": "string",
+            "enum": [
+              "createdTime",
+              "-createdTime",
+              "updatedTime",
+              "-updatedTime"
+            ],
+            "default": "-updatedTime"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "diffBatchList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/batch/{batchID}/studies": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "DIFF-RS"
+        ],
+        "summary": "Get Compare Studies Batch Result",
+        "operationId": "getCompareStudiesBatchResult",
+        "produces": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "batchID",
+            "in": "path",
+            "description": "Batch ID",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "204": {
+            "description": "no different study found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/count": {
+      "get": {
+        "tags": [
+          "MONITOR-RS",
+          "DIFF-RS"
+        ],
+        "summary": "Count Compare Studies Tasks",
+        "operationId": "countCompareStudiesTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "PrimaryAET",
+            "in": "query",
+            "description": "AE Title of the primary C-FIND SCP to filter by",
+            "type": "string"
+          },
+          {
+            "name": "SecondaryAET",
+            "in": "query",
+            "description": "AE Title of the secondary C-FIND SCP to filter by",
+            "type": "string"
+          },
+          {
+            "name": "checkMissing",
+            "in": "query",
+            "description": "count compare Studies Tasks which do/don't check for studies only available at the primary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "checkDifferent",
+            "in": "query",
+            "description": "count compare Studies Tasks which do/don't check for different attributes of studies available at the primary and the secondary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "comparefield",
+            "in": "query",
+            "description": "count compare Studies Tasks which compares the specified set of attributes",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS",
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "count compare Studies Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "count compare Studies Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of matching Tasks",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "DIFF-RS"
+        ],
+        "summary": "Cancel Compare Studies Tasks",
+        "operationId": "cancelCompareStudiesTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name to filter by",
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "PrimaryAET",
+            "in": "query",
+            "description": "AE Title of the primary C-FIND SCP to filter by",
+            "type": "string"
+          },
+          {
+            "name": "SecondaryAET",
+            "in": "query",
+            "description": "AE Title of the secondary C-FIND SCP to filter by",
+            "type": "string"
+          },
+          {
+            "name": "checkMissing",
+            "in": "query",
+            "description": "cancel compare Studies Tasks which do/don't check for studies only available at the primary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "checkDifferent",
+            "in": "query",
+            "description": "cancel compare Studies Tasks which do/don't check for different attributes of studies available at the primary and the secondary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "comparefield",
+            "in": "query",
+            "description": "cancel compare Studies Tasks which compares the specified set of attributes",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "SCHEDULED",
+              "IN PROCESS"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "cancel compare Studies Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "cancel compare Studies Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of canceled Tasks",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "400": {
+            "description": "Invalid status for Cancel of Compare Studies Tasks"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "DIFF-RS"
+        ],
+        "summary": "Reschedule Compare Studies Tasks",
+        "operationId": "rescheduleCompareStudiesTasks",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Archive Device Name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "LocalAET",
+            "in": "query",
+            "description": "Archive AE Title to filter by",
+            "type": "string"
+          },
+          {
+            "name": "PrimaryAET",
+            "in": "query",
+            "description": "AE Title of the primary C-FIND SCP to filter by",
+            "type": "string"
+          },
+          {
+            "name": "SecondaryAET",
+            "in": "query",
+            "description": "AE Title of the secondary C-FIND SCP to filter by",
+            "type": "string"
+          },
+          {
+            "name": "checkMissing",
+            "in": "query",
+            "description": "reschedule compare Studies Tasks which do/don't check for studies only available at the primary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "checkDifferent",
+            "in": "query",
+            "description": "reschedule compare Studies Tasks which do/don't check for different attributes of studies available at the primary and the secondary C-FIND SCP",
+            "type": "boolean"
+          },
+          {
+            "name": "comparefield",
+            "in": "query",
+            "description": "reschedule compare Studies Tasks which compares the specified set of attributes",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "status of tasks to filter by",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "COMPLETED",
+              "WARNING",
+              "FAILED",
+              "CANCELED"
+            ]
+          },
+          {
+            "name": "createdTime",
+            "in": "query",
+            "description": "reschedule compare Studies Tasks which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "updatedTime",
+            "in": "query",
+            "description": "reschedule compare Studies Tasks which were updated between <datetime1>-<datetime2>",
+            "type": "string"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID to filter by",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of rescheduled Tasks",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "400": {
+            "description": "Compare Studies Tasks status is null or invalid or device name is null"
+          },
+          "409": {
+            "description": "Archive Device Name does not match device name of archive instance"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/{taskPK}": {
+      "delete": {
+        "tags": [
+          "MONITOR-RS",
+          "DIFF-RS"
+        ],
+        "summary": "Delete Compare Studies Task",
+        "operationId": "deleteCompareStudiesTask",
+        "parameters": [
+          {
+            "name": "taskPK",
+            "in": "path",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/{taskPK}/cancel": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "DIFF-RS"
+        ],
+        "summary": "Cancel Compare Studies Task",
+        "operationId": "cancelCompareStudiesTask",
+        "parameters": [
+          {
+            "name": "taskPK",
+            "in": "path",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "409": {
+            "description": "tasks with status TO SCHEDULE, CANCELED, COMPLETED, WARNING or FAILED cannot be canceled"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/{taskPK}/reschedule": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "DIFF-RS"
+        ],
+        "summary": "Reschedule Compare Studies Task",
+        "operationId": "rescheduleCompareStudiesTask",
+        "parameters": [
+          {
+            "name": "taskPK",
+            "in": "path",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "404": {
+            "description": "task not found"
+          },
+          "409": {
+            "description": "tasks with status SCHEDULED or IN PROCESS cannot be rescheduled"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/monitor/diff/{taskPK}/studies": {
+      "post": {
+        "tags": [
+          "MONITOR-RS",
+          "DIFF-RS"
+        ],
+        "summary": "Get Compare Studies Task Result",
+        "operationId": "getCompareStudiesTaskResult",
+        "produces": [
+          "application/dicom+json",
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "taskPK",
+            "in": "path",
+            "description": "pk of task",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "204": {
+            "description": "no different study found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/monitor/export": {
       "get": {
         "tags": [

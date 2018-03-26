@@ -60,9 +60,9 @@ class AuditInfo {
     static final int STUDY_DATE = 9;
     static final int Q_POID = 10;
     static final int Q_STRING = 11;
-    static final int DEST_AET = 12;
+    static final int DEST_USER_ID = 12;
     static final int DEST_NAP_ID = 13;
-    static final int MOVEAET = 14;
+    static final int MOVE_USER_ID = 14;
     static final int WARNING = 15;
     static final int FAILED_IUID_SHOW = 16;
     static final int SOP_CUID = 17;
@@ -95,9 +95,9 @@ class AuditInfo {
                 i.studyDate,
                 i.queryPOID,
                 i.queryString,
-                i.destAET,
+                i.destUserID,
                 i.destNapID,
-                i.moveAET,
+                i.moveUserID,
                 i.warning,
                 i.failedIUIDShow ? String.valueOf(true) : null,
                 i.sopCUID,

@@ -68,9 +68,9 @@ class AuditInfoBuilder {
     final String mppsUID;
     final String queryPOID;
     final String queryString;
-    final String destAET;
+    final String destUserID;
     final String destNapID;
-    final String moveAET;
+    final String moveUserID;
     final String warning;
     final boolean failedIUIDShow;
     final String submissionSetUID;
@@ -100,9 +100,9 @@ class AuditInfoBuilder {
         private String mppsUID;
         private String queryPOID;
         private String queryString;
-        private String destAET;
+        private String destUserID;
         private String destNapID;
-        private String moveAET;
+        private String moveUserID;
         private String warning;
         private boolean failedIUIDShow;
         private String submissionSetUID;
@@ -172,16 +172,16 @@ class AuditInfoBuilder {
             queryString = val;
             return this;
         }
-        Builder destAET(String val) {
-            destAET = val;
+        Builder destUserID(String val) {
+            destUserID = val;
             return this;
         }
         Builder destNapID(String val) {
             destNapID = val;
             return this;
         }
-        Builder moveAET(String val) {
-            moveAET = val;
+        Builder moveUserID(String val) {
+            moveUserID = val;
             return this;
         }
         Builder warning(String val) {
@@ -253,9 +253,9 @@ class AuditInfoBuilder {
         mppsUID = builder.mppsUID;
         queryPOID = builder.queryPOID;
         queryString = builder.queryString;
-        destAET = builder.destAET;
+        destUserID = builder.destUserID;
         destNapID = builder.destNapID;
-        moveAET = builder.moveAET;
+        moveUserID = builder.moveUserID;
         warning = builder.warning;
         failedIUIDShow = builder.failedIUIDShow;
         submissionSetUID = builder.submissionSetUID;
