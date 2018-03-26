@@ -145,8 +145,8 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask, int offset, int limit) {
-        return ejb.search(matchQueueMessage, matchRetrieveTask, offset, limit);
+    public List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask, int offset, int limit, String orderby) {
+        return ejb.search(matchQueueMessage, matchRetrieveTask, offset, limit, orderby);
     }
 
     @Override
@@ -187,7 +187,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch, int offset, int limit) {
-        return ejb.listRetrieveBatches(matchQueueBatch, matchRetrieveBatch, offset, limit);
+    public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch, int offset, int limit, String orderby) {
+        return ejb.listRetrieveBatches(matchQueueBatch, matchRetrieveBatch, offset, limit, orderby);
     }
 }

@@ -109,6 +109,10 @@ public class RetrieveBatchRS {
     @Pattern(regexp = "[1-9]\\d{0,4}")
     private String limit;
 
+    @QueryParam("orderby")
+    @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
+    private String orderby;
+
     @Context
     private HttpServletRequest request;
 
@@ -119,7 +123,7 @@ public class RetrieveBatchRS {
         List<RetrieveBatch> retrieveBatches =  mgr.listRetrieveBatches(
                 MatchBatch.matchQueueBatch(deviceName, status()),
                 MatchBatch.matchRetrieveBatch(localAET, remoteAET, destinationAET, createdTime, updatedTime),
-                parseInt(offset), parseInt(limit));
+                parseInt(offset), parseInt(limit), orderby);
         return Response.ok().entity(Output.JSON.entity(retrieveBatches)).build();
     }
 

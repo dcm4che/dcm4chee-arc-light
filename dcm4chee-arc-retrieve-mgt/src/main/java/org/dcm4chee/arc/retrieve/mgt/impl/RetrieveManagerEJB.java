@@ -40,6 +40,7 @@ package org.dcm4chee.arc.retrieve.mgt.impl;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -67,6 +68,7 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -155,13 +157,20 @@ public class RetrieveManagerEJB {
                 .executeUpdate();
     }
 
-    public List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask, int offset, int limit) {
+    public List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask, int offset, int limit, String orderby) {
         HibernateQuery<RetrieveTask> extRetrieveQuery = createQuery(matchQueueMessage, matchRetrieveTask);
         if (limit > 0)
             extRetrieveQuery.limit(limit);
         if (offset > 0)
             extRetrieveQuery.offset(offset);
-        extRetrieveQuery.orderBy(QRetrieveTask.retrieveTask.updatedTime.desc());
+        OrderSpecifier<Date> orderSpecifier = orderby == null || orderby.equals("-updatedTime")
+                                            ? QRetrieveTask.retrieveTask.updatedTime.desc()
+                                            : orderby.equals("updatedTime")
+                                                ? QRetrieveTask.retrieveTask.updatedTime.asc()
+                                                : orderby.equals("createdTime")
+                                                    ? QRetrieveTask.retrieveTask.createdTime.asc()
+                                                    : QRetrieveTask.retrieveTask.createdTime.desc();
+        extRetrieveQuery.orderBy(orderSpecifier);
         return extRetrieveQuery.fetch();
     }
 
@@ -257,16 +266,23 @@ public class RetrieveManagerEJB {
         return count;
     }
 
-    public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch, int offset, int limit) {
+    public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch, int offset, int limit, String orderby) {
         HibernateQuery<RetrieveTask> retrieveTaskQuery = createQuery(matchQueueBatch, matchRetrieveBatch);
         if (limit > 0)
             retrieveTaskQuery.limit(limit);
         if (offset > 0)
             retrieveTaskQuery.offset(offset);
 
+        OrderSpecifier<Date> orderSpecifier = orderby == null || orderby.equals("-updatedTime")
+                                            ? QRetrieveTask.retrieveTask.updatedTime.max().desc()
+                                            : orderby.equals("updatedTime")
+                                                ? QRetrieveTask.retrieveTask.updatedTime.min().asc()
+                                                : orderby.equals("createdTime")
+                                                    ? QRetrieveTask.retrieveTask.createdTime.min().asc()
+                                                    : QRetrieveTask.retrieveTask.createdTime.max().desc();
         List<Tuple> batches = retrieveTaskQuery.select(SELECT)
                                 .groupBy(QQueueMessage.queueMessage.batchID)
-                                .orderBy(QRetrieveTask.retrieveTask.updatedTime.max().desc())
+                                .orderBy(orderSpecifier)
                                 .fetch();
         
         List<RetrieveBatch> retrieveBatches = new ArrayList<>();

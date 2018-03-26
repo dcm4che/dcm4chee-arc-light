@@ -42,6 +42,7 @@ package org.dcm4chee.arc.export.mgt.impl;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -309,13 +310,20 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public List<ExportTask> search(Predicate matchQueueMessage, Predicate matchExportTask, int offset, int limit) {
+    public List<ExportTask> search(Predicate matchQueueMessage, Predicate matchExportTask, int offset, int limit, String orderby) {
         HibernateQuery<ExportTask> exportQuery = createQuery(matchQueueMessage, matchExportTask);
         if (limit > 0)
             exportQuery.limit(limit);
         if (offset > 0)
             exportQuery.offset(offset);
-        exportQuery.orderBy(QExportTask.exportTask.updatedTime.desc());
+        OrderSpecifier<Date> orderSpecifier = orderby == null || orderby.equals("-updatedTime")
+                                                ? QExportTask.exportTask.updatedTime.desc()
+                                                : orderby.equals("updatedTime")
+                                                    ? QExportTask.exportTask.updatedTime.asc()
+                                                    : orderby.equals("createdTime")
+                                                        ? QExportTask.exportTask.createdTime.asc()
+                                                        : QExportTask.exportTask.createdTime.desc();
+        exportQuery.orderBy(orderSpecifier);
         return exportQuery.fetch();
     }
 
@@ -411,16 +419,23 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch, int offset, int limit) {
+    public List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch, int offset, int limit, String orderby) {
         HibernateQuery<ExportTask> exportTaskQuery = createQuery(matchQueueBatch, matchExportBatch);
         if (limit > 0)
             exportTaskQuery.limit(limit);
         if (offset > 0)
             exportTaskQuery.offset(offset);
 
+        OrderSpecifier<Date> orderSpecifier = orderby == null || orderby.equals("-updatedTime")
+                                            ? QExportTask.exportTask.updatedTime.max().desc()
+                                            : orderby.equals("updatedTime")
+                                                ? QExportTask.exportTask.updatedTime.min().asc()
+                                                : orderby.equals("createdTime")
+                                                    ? QExportTask.exportTask.createdTime.min().asc()
+                                                    : QExportTask.exportTask.createdTime.max().desc();
         List<Tuple> batches = exportTaskQuery.select(SELECT)
                                 .groupBy(QQueueMessage.queueMessage.batchID)
-                                .orderBy(QExportTask.exportTask.updatedTime.max().desc())
+                                .orderBy(orderSpecifier)
                                 .fetch();
 
         List<ExportBatch> exportBatches = new ArrayList<>();

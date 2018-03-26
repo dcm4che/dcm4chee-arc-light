@@ -103,6 +103,10 @@ public class ExportBatchRS {
     @Pattern(regexp = "[1-9]\\d{0,4}")
     private String limit;
 
+    @QueryParam("orderby")
+    @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
+    private String orderby;
+
     @Context
     private HttpServletRequest request;
 
@@ -113,7 +117,7 @@ public class ExportBatchRS {
         List<ExportBatch> exportBatches = mgr.listExportBatches(
                 MatchBatch.matchQueueBatch(deviceName, status()),
                 MatchBatch.matchExportBatch(exporterID, deviceName, createdTime, updatedTime),
-                parseInt(offset), parseInt(limit));
+                parseInt(offset), parseInt(limit), orderby);
         return Response.ok().entity(Output.JSON.entity(exportBatches)).build();
     }
 

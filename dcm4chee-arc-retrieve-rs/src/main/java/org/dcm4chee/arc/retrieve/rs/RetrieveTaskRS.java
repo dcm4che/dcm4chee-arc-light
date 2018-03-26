@@ -138,6 +138,10 @@ public class RetrieveTaskRS {
     @Pattern(regexp = "[1-9]\\d{0,4}")
     private String limit;
 
+    @QueryParam("orderby")
+    @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
+    private String orderby;
+
     @GET
     @NoCache
     public Response listRetrieveTasks(@QueryParam("accept") String accept) {
@@ -153,7 +157,7 @@ public class RetrieveTaskRS {
                         null, deviceName, status(), batchID, null, null, null, null),
                 MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime),
-                parseInt(offset), parseInt(limit));
+                parseInt(offset), parseInt(limit), orderby);
         return Response.ok(output.entity(tasks), output.type).build();
     }
 

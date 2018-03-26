@@ -60,7 +60,7 @@ public interface RetrieveManager {
 
     void scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID) throws QueueSizeLimitExceededException;
 
-    List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask, int offset, int limit);
+    List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask, int offset, int limit, String orderby);
 
     long countRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 
@@ -77,5 +77,5 @@ public interface RetrieveManager {
 
     List<Long> getRetrieveTaskPks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit);
 
-    List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch, int offset, int limit);
+    List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch, int offset, int limit, String orderby);
 }

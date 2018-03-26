@@ -66,7 +66,7 @@ public interface ExportManager {
 
     void updateExportTask(Long pk);
 
-    List<ExportTask> search(Predicate matchQueueMessage, Predicate matchExportTask, int offset, int limit);
+    List<ExportTask> search(Predicate matchQueueMessage, Predicate matchExportTask, int offset, int limit, String orderby);
 
     long countExportTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 
@@ -82,5 +82,5 @@ public interface ExportManager {
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 
-    List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch, int offset, int limit);
+    List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch, int offset, int limit, String orderby);
 }

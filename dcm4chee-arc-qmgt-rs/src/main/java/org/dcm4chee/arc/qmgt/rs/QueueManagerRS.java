@@ -126,6 +126,10 @@ public class QueueManagerRS {
     @QueryParam("JMSMessageID")
     private String jmsMessageID;
 
+    @QueryParam("orderby")
+    @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
+    private String orderby;
+
     @GET
     @NoCache
     @Produces("application/json")
@@ -134,7 +138,8 @@ public class QueueManagerRS {
         return Response.ok(toEntity(mgr.search(
                 MatchTask.matchQueueMessage(queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null),
                 parseInt(offset),
-                parseInt(limit))))
+                parseInt(limit),
+                orderby)))
                 .build();
     }
 

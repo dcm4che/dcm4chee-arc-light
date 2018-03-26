@@ -128,6 +128,10 @@ public class ExportTaskRS {
     @Pattern(regexp = "[1-9]\\d{0,4}")
     private String limit;
 
+    @QueryParam("orderby")
+    @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
+    private String orderby;
+
     @Context
     private HttpServletRequest request;
 
@@ -147,7 +151,8 @@ public class ExportTaskRS {
                 MatchTask.matchExportTask(
                         exporterID, deviceName, studyUID, createdTime, updatedTime),
                 parseInt(offset),
-                parseInt(limit));
+                parseInt(limit),
+                orderby);
         return Response.ok(output.entity(tasks, device.getDeviceExtension(ArchiveDeviceExtension.class)), output.type).build();
     }
 
@@ -281,7 +286,7 @@ public class ExportTaskRS {
             int count = 0;
             List<ExportTask> exportTasks;
             do {
-                exportTasks = mgr.search(matchQueueMessage, matchExportTask, 0, fetchSize);
+                exportTasks = mgr.search(matchQueueMessage, matchExportTask, 0, fetchSize, null);
                 for (ExportTask task : exportTasks)
                     mgr.rescheduleExportTask(
                             task.getPk(),

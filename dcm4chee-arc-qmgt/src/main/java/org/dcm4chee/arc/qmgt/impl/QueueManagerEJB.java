@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.qmgt.impl;
 
 import com.mysema.commons.lang.CloseableIterator;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -378,13 +379,21 @@ public class QueueManagerEJB {
         return n;
     }
 
-    public List<QueueMessage> search(Predicate matchQueueMessage, int offset, int limit) {
+    public List<QueueMessage> search(Predicate matchQueueMessage, int offset, int limit, String orderby) {
         HibernateQuery<QueueMessage> queueMsgQuery = createQuery(matchQueueMessage);
         if (limit > 0)
             queueMsgQuery.limit(limit);
         if (offset > 0)
             queueMsgQuery.offset(offset);
-        queueMsgQuery.orderBy(QQueueMessage.queueMessage.updatedTime.desc());
+
+        OrderSpecifier<Date> orderSpecifier = orderby == null || orderby.equals("-updatedTime")
+                                            ? QQueueMessage.queueMessage.updatedTime.desc()
+                                            : orderby.equals("updatedTime")
+                                                ? QQueueMessage.queueMessage.updatedTime.asc()
+                                                : orderby.equals("createdTime")
+                                                    ? QQueueMessage.queueMessage.createdTime.asc()
+                                                    : QQueueMessage.queueMessage.createdTime.desc();
+        queueMsgQuery.orderBy(orderSpecifier);
         return queueMsgQuery.fetch();
     }
 

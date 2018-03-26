@@ -180,8 +180,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public List<QueueMessage> search(Predicate matchQueueMessage, int offset, int limit) {
-        return ejb.search(matchQueueMessage, offset, limit);
+    public List<QueueMessage> search(Predicate matchQueueMessage, int offset, int limit, String orderby) {
+        return ejb.search(matchQueueMessage, offset, limit, orderby);
     }
 
     @Override
