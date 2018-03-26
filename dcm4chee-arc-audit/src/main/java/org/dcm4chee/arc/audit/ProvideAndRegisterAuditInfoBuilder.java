@@ -88,7 +88,7 @@ class ProvideAndRegisterAuditInfoBuilder {
                 .callingUserID(httpServletRequestInfo.requesterUserID)
                 .callingHost(httpServletRequestInfo.requesterHost)
                 .calledUserID(httpServletRequestInfo.requestURI)
-                .destAET(dest.toString())
+                .destUserID(dest.toString())
                 .destNapID(destHost)
                 .outcome(outcome)
                 .pIDAndName(xdsiManifest, arcDev)
