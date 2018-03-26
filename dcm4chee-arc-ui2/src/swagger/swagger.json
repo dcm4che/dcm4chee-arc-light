@@ -1085,6 +1085,19 @@
             "in": "query",
             "description": "maximal number of tasks in returned list",
             "type": "integer"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "specifies sort direction and field of tasks in returned list",
+            "type": "string",
+            "enum": [
+              "createdTime",
+              "-createdTime",
+              "updatedTime",
+              "-updatedTime"
+            ],
+            "default": "-updatedTime"
           }
         ],
         "responses": {
@@ -1236,6 +1249,19 @@
             "in": "query",
             "description": "maximal number of batches in returned list",
             "type": "integer"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "specifies sort direction and field of tasks in returned list",
+            "type": "string",
+            "enum": [
+              "createdTime",
+              "-createdTime",
+              "updatedTime",
+              "-updatedTime"
+            ],
+            "default": "-updatedTime"
           }
         ],
         "responses": {
@@ -1775,6 +1801,19 @@
             "in": "query",
             "description": "maximal number of tasks in returned list",
             "type": "integer"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "specifies sort direction and field of tasks in returned list",
+            "type": "string",
+            "enum": [
+              "createdTime",
+              "-createdTime",
+              "updatedTime",
+              "-updatedTime"
+            ],
+            "default": "-updatedTime"
           }
         ],
         "responses": {
@@ -1949,6 +1988,19 @@
             "in": "query",
             "description": "maximal number of batches in returned list",
             "type": "integer"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "specifies sort direction and field of tasks in returned list",
+            "type": "string",
+            "enum": [
+              "createdTime",
+              "-createdTime",
+              "updatedTime",
+              "-updatedTime"
+            ],
+            "default": "-updatedTime"
           }
         ],
         "responses": {
@@ -2426,6 +2478,19 @@
             "in": "query",
             "description": "maximal number of tasks in returned list",
             "type": "integer"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "description": "specifies sort direction and field of tasks in returned list",
+            "type": "string",
+            "enum": [
+              "createdTime",
+              "-createdTime",
+              "updatedTime",
+              "-updatedTime"
+            ],
+            "default": "-updatedTime"
           }
         ],
         "responses": {
