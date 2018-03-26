@@ -49,7 +49,7 @@ import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.diff.DiffContext;
-import org.dcm4chee.arc.diff.DiffTask;
+import org.dcm4chee.arc.diff.DiffSCU;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +63,9 @@ import java.util.List;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Mar 2018
  */
-public class DiffTaskImpl implements DiffTask {
+public class DiffSCUImpl implements DiffSCU {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DiffTaskImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DiffSCUImpl.class);
 
     private final DiffContext ctx;
     private final CFindSCU findSCU;
@@ -76,8 +76,9 @@ public class DiffTaskImpl implements DiffTask {
     private DimseRSP dimseRSP2;
     private int missing;
     private int different;
+    private int matches;
 
-    public DiffTaskImpl(DiffContext ctx, CFindSCU findSCU) {
+    public DiffSCUImpl(DiffContext ctx, CFindSCU findSCU) {
         this.ctx = ctx;
         this.findSCU = findSCU;
     }
@@ -85,11 +86,11 @@ public class DiffTaskImpl implements DiffTask {
     @Override
     public void init() throws Exception {
         EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
-        if (ctx.fuzzymatching())
+        if (ctx.isFuzzymatching())
             queryOptions.add(QueryOption.FUZZY);
-        as1 = findSCU.openAssociation(ctx.getLocalAE(), ctx.getExternalAE().getAETitle(),
+        as1 = findSCU.openAssociation(ctx.getLocalAE(), ctx.getPrimaryAE().getAETitle(),
                 UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
-        as2 = findSCU.openAssociation(ctx.getLocalAE(), ctx.getOriginalAE().getAETitle(),
+        as2 = findSCU.openAssociation(ctx.getLocalAE(), ctx.getSecondaryAE().getAETitle(),
                 UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
         if (ctx.supportSorting()) {
             dimseRSP2 = findSCU.query(as2, ctx.priority(), ctx.getQueryKeys(), 0);
@@ -106,6 +107,7 @@ public class DiffTaskImpl implements DiffTask {
         do {
             Attributes match = dimseRSP.getDataset();
             if (match != null) {
+                matches++;
                 Attributes other = findOther(match.getString(Tag.StudyInstanceUID));
                 if (other == null)
                     missing++;
@@ -122,14 +124,19 @@ public class DiffTaskImpl implements DiffTask {
             Attributes match = dimseRSP.getDataset();
             next = dimseRSP.next();
             if (match != null) {
+                matches++;
                 Attributes other = findOther(match.getString(Tag.StudyInstanceUID));
                 if (other == null) {
-                    if (ctx.includeMissing())
+                    if (ctx.isCheckMissing()) {
+                        missing++;
                         return addOriginalAttributesSequence(match, modifiedAttributesForMissing());
-                } else if (ctx.includeDifferent()) {
+                    }
+                } else if (ctx.isCheckDifferent()) {
                     Attributes modified = new Attributes(match.size());
-                    if (other.diff(match, ctx.getCompareKeys(), modified) > 0)
+                    if (other.diff(match, ctx.getCompareKeys(), modified) > 0) {
+                        different++;
                         return addOriginalAttributesSequence(match, modified);
+                    }
                 }
             }
         } while (next);
@@ -144,6 +151,11 @@ public class DiffTaskImpl implements DiffTask {
     @Override
     public int different() {
         return different;
+    }
+
+    @Override
+    public int matches() {
+        return matches;
     }
 
     @Override
@@ -164,9 +176,9 @@ public class DiffTaskImpl implements DiffTask {
         Attributes item = new Attributes();
         sq.add(item);
         item.newSequence(Tag.ModifiedAttributesSequence, 1).add(modified);
-        item.setString(Tag.SourceOfPreviousValues, VR.LO, ctx.getOriginalAE().getAETitle());
+        item.setString(Tag.SourceOfPreviousValues, VR.LO, ctx.getSecondaryAE().getAETitle());
         item.setDate(Tag.AttributeModificationDateTime, VR.DT, new Date());
-        item.setString(Tag.ModifyingSystem, VR.LO, ctx.getExternalAE().getAETitle());
+        item.setString(Tag.ModifyingSystem, VR.LO, ctx.getPrimaryAE().getAETitle());
         item.setString(Tag.ReasonForTheAttributeModification, VR.CS, "DIFFS");
         return match;
     }

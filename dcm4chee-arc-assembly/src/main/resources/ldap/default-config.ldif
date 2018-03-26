@@ -582,6 +582,17 @@ objectClass: dcmArchiveNetworkAE
 dcmAcceptedUserRole: user
 dcmAcceptedUserRole: admin
 
+dn: dcmQueueName=DiffTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Diff Tasks
+dcmQueueName: DiffTasks
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/DiffTasks
+
 dn: dcmQueueName=StgCmtSCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Storage Commitment SCP Tasks
 dcmQueueName: StgCmtSCP

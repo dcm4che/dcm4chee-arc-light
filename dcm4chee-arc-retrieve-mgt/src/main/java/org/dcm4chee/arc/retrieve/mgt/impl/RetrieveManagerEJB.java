@@ -110,9 +110,7 @@ public class RetrieveManagerEJB {
             msg.setIntProperty("Priority", priority);
             msg.setStringProperty("DestinationAET", ctx.getDestinationAET());
             msg.setStringProperty("StudyInstanceUID", ctx.getKeys().getString(Tag.StudyInstanceUID));
-            msg.setStringProperty("RequesterUserID", ctx.getRequesterUserID());
-            msg.setStringProperty("RequesterHostName", ctx.getRequesterHostName());
-            msg.setStringProperty("RequestURI", ctx.getRequestURI());
+            ctx.getHttpServletRequestInfo().copyTo(msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(RetrieveManager.QUEUE_NAME, msg,
                     Message.DEFAULT_PRIORITY, batchID);
             createRetrieveTask(device, ctx, queueMessage);

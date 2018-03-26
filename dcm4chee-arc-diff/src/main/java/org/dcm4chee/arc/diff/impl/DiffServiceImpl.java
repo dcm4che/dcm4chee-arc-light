@@ -41,9 +41,18 @@
 
 package org.dcm4chee.arc.diff.impl;
 
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.IApplicationEntityCache;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffService;
-import org.dcm4chee.arc.diff.DiffTask;
+import org.dcm4chee.arc.diff.DiffSCU;
+import org.dcm4chee.arc.entity.DiffTask;
+import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -55,12 +64,67 @@ import javax.inject.Inject;
  */
 @ApplicationScoped
 public class DiffServiceImpl implements DiffService {
+    @Inject
+    private Device device;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
 
     @Inject
     private CFindSCU findSCU;
 
+    @Inject
+    private DiffServiceEJB ejb;
+
     @Override
-    public DiffTask createDiffTask(DiffContext ctx) {
-        return new DiffTaskImpl(ctx, findSCU);
+    public DiffSCU createDiffSCU(DiffContext ctx) {
+        return new DiffSCUImpl(ctx, findSCU);
+    }
+
+    @Override
+    public void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException {
+        ejb.scheduleDiffTask(ctx);
+    }
+
+    @Override
+    public Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo)
+            throws Exception {
+        ejb.resetDiffTask(diffTask);
+        try (DiffSCU diffSCU = createDiffSCU(toDiffContext(diffTask, httpServletRequestInfo))) {
+            diffSCU.init();
+            Attributes diff;
+            while ((diff = diffSCU.nextDiff()) != null)
+                ejb.addDiffTaskAttributes(diffTask, diff);
+            ejb.updateDiffTask(diffTask, diffSCU);
+            return toOutcome(diffSCU);
+        }
+    }
+
+    private Outcome toOutcome(DiffSCU diffSCU) {
+        QueueMessage.Status status = QueueMessage.Status.COMPLETED;
+        StringBuilder sb = new StringBuilder();
+        sb.append(diffSCU.matches()).append(" studies compared");
+        status = check(", missing: ", diffSCU.missing(), status, sb);
+        status = check(", different: ", diffSCU.different(), status, sb);
+        return new Outcome(status, sb.toString());
+    }
+
+    private QueueMessage.Status check(String prompt, int failures, QueueMessage.Status status, StringBuilder sb) {
+        if (failures == 0)
+            return status;
+
+        sb.append(prompt).append(failures);
+        return QueueMessage.Status.WARNING;
+    }
+
+    private DiffContext toDiffContext(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo)
+            throws ConfigurationException {
+        DiffContext ctx = new DiffContext()
+                .setLocalAE(device.getApplicationEntity(diffTask.getLocalAET(), true))
+                .setPrimaryAE(aeCache.get(diffTask.getPrimaryAET()))
+                .setSecondaryAE(aeCache.get(diffTask.getSecondaryAET()))
+                .setQueryString(diffTask.getQueryString())
+                .setHttpServletRequestInfo(httpServletRequestInfo);
+        return ctx;
     }
 }

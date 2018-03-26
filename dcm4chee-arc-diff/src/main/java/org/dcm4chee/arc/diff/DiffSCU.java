@@ -41,22 +41,24 @@
 
 package org.dcm4chee.arc.diff;
 
-import org.dcm4chee.arc.entity.DiffTask;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4che3.data.Attributes;
+
+import java.io.Closeable;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Feb 2018
+ * @since Mar 2018
  */
-public interface DiffService {
-    String QUEUE_NAME = "DiffTasks";
-    String JNDI_NAME = "jms/queue/DiffTasks";
+public interface DiffSCU extends Closeable {
+    void init() throws Exception;
 
-    DiffSCU createDiffSCU(DiffContext ctx);
+    void countDiffs() throws Exception;
 
-    void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException;
+    Attributes nextDiff() throws Exception;
 
-    Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo) throws Exception;
+    int missing();
+
+    int different();
+
+    int matches();
 }

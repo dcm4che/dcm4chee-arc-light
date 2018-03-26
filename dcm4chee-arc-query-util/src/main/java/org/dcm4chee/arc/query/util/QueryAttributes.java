@@ -98,6 +98,7 @@ public class QueryAttributes {
                 case "only-stgcmt":
                 case "only-ian":
                 case "batchID":
+                case "queue":
                     break;
                 default:
                     addQueryKey(key, entry.getValue());

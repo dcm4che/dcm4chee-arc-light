@@ -1,59 +1,58 @@
 /*
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- *  The contents of this file are subject to the Mozilla Public License Version
- *  1.1 (the "License"); you may not use this file except in compliance with
- *  the License. You may obtain a copy of the License at
- *  http://www.mozilla.org/MPL/
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
  *
- *  Software distributed under the License is distributed on an "AS IS" basis,
- *  WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- *  for the specific language governing rights and limitations under the
- *  License.
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
- *  The Original Code is part of dcm4che, an implementation of DICOM(TM) in
- *  Java(TM), hosted at https://github.com/dcm4che.
+ * The Original Code is part of dcm4che, an implementation of DICOM(TM) in
+ * Java(TM), hosted at https://github.com/dcm4che.
  *
- *  The Initial Developer of the Original Code is
- *  J4Care.
- *  Portions created by the Initial Developer are Copyright (C) 2015-2017
- *  the Initial Developer. All Rights Reserved.
+ * The Initial Developer of the Original Code is
+ * J4Care.
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
+ * the Initial Developer. All Rights Reserved.
  *
- *  Contributor(s):
- *  See @authors listed below
+ * Contributor(s):
+ * See @authors listed below
  *
- *  Alternatively, the contents of this file may be used under the terms of
- *  either the GNU General Public License Version 2 or later (the "GPL"), or
- *  the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- *  in which case the provisions of the GPL or the LGPL are applicable instead
- *  of those above. If you wish to allow use of your version of this file only
- *  under the terms of either the GPL or the LGPL, and not to allow others to
- *  use your version of this file under the terms of the MPL, indicate your
- *  decision by deleting the provisions above and replace them with the notice
- *  and other provisions required by the GPL or the LGPL. If you do not delete
- *  the provisions above, a recipient may use your version of this file under
- *  the terms of any one of the MPL, the GPL or the LGPL.
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * **** END LICENSE BLOCK *****
  *
  */
 
-package org.dcm4chee.arc.dimse.rs;
+package org.dcm4chee.arc.diff.rs;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
-import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.AttributeSet;
-import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffService;
-import org.dcm4chee.arc.diff.DiffTask;
-import org.dcm4chee.arc.query.util.QIDO;
+import org.dcm4chee.arc.diff.DiffSCU;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -74,12 +73,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -116,7 +109,7 @@ public class DiffRS {
     @PathParam("OriginalAET")
     private String originalAET;
 
-    @QueryParam("fuzzymatching")
+    @QueryParam("isFuzzymatching")
     @Pattern(regexp = "true|false")
     private String fuzzymatching;
 
@@ -140,6 +133,9 @@ public class DiffRS {
     @Pattern(regexp = "0|1|2")
     private String priority;
 
+    @QueryParam("queue")
+    private boolean queue;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
@@ -149,16 +145,26 @@ public class DiffRS {
     @NoCache
     @Path("/studies")
     @Produces("application/dicom+json,application/json")
-    public void searchForStudiesJSON(@Suspended AsyncResponse ar) throws Exception {
+    public void compareStudies(@Suspended AsyncResponse ar) throws Exception {
         try {
-            DiffTask diffTask = initDiffTask(ar);
+            DiffContext ctx = createDiffContext();
+            if (queue) {
+                diffService.scheduleDiffTask(ctx);
+                ar.resume(Response.accepted().build());
+                return;
+            }
+            DiffSCU diffSCU = diffService.createDiffSCU(ctx);
+            ar.register((CompletionCallback) throwable -> {
+                SafeClose.close(diffSCU);
+            });
+            diffSCU.init();
             int skip = offset();
             Attributes diff1;
-            while ((diff1 = diffTask.nextDiff()) != null && skip-- > 0);
+            while ((diff1 = diffSCU.nextDiff()) != null && skip-- > 0);
             if (diff1 == null)
                 ar.resume(Response.noContent().build());
             else
-                ar.resume(Response.ok(entity(diff1, diffTask)).build());
+                ar.resume(Response.ok(entity(diff1, diffSCU)).build());
         } catch (IllegalArgumentException e) {
             throw new WebApplicationException(e.getMessage(),
                     Response.status(Response.Status.BAD_REQUEST).encoding(e.getMessage()).build());
@@ -176,10 +182,18 @@ public class DiffRS {
     @Produces("application/json")
     public void countDiffs(@Suspended AsyncResponse ar) {
         try {
-            DiffTask diffTask = initDiffTask(ar);
-            diffTask.countDiffs();
+            DiffContext ctx = createDiffContext();
+            DiffSCU diffSCU = diffService.createDiffSCU(ctx);
+            ar.register((CompletionCallback) throwable -> {
+                SafeClose.close(diffSCU);
+            });
+            diffSCU.init();
+            diffSCU.countDiffs();
             ar.resume(Response.ok(
-                    "{\"missing\":" + diffTask.missing() + ",\"different\":" + diffTask.different() + "}")
+                    "{\"count\":" + diffSCU.matches() +
+                            ",\"missing\":" + diffSCU.missing() +
+                            ",\"different\":" + diffSCU.different() +
+                            "}")
                     .build());
         } catch (IllegalArgumentException e) {
             throw new WebApplicationException(e.getMessage(),
@@ -192,20 +206,16 @@ public class DiffRS {
         }
     }
 
-    private DiffTask initDiffTask(AsyncResponse ar) throws Exception {
-        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        DiffContext ctx = new DiffContext()
+    private DiffContext createDiffContext() throws ConfigurationException {
+        LOG.info("Process GET {} from {}@{}",
+                request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+        return new DiffContext()
+                .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
                 .setLocalAE(checkAE(aet, device.getApplicationEntity(aet, true)))
-                .setExternalAE(checkAE(externalAET, aeCache.get(externalAET)))
-                .setOriginalAE(checkAE(originalAET, aeCache.get(originalAET)))
+                .setPrimaryAE(checkAE(externalAET, aeCache.get(externalAET)))
+                .setSecondaryAE(checkAE(originalAET, aeCache.get(originalAET)))
                 .setQueryString(request.getQueryString(), uriInfo.getQueryParameters());
-        DiffTask diffTask = diffService.createDiffTask(ctx);
-        ar.register((CompletionCallback) throwable -> {
-            SafeClose.close(diffTask);
-        });
-        diffTask.init();
-        return diffTask;
-     }
+    }
 
     private static String errorMessage(int status, String errorComment) {
         String statusAsString = statusAsString(status);
@@ -249,7 +259,7 @@ public class DiffRS {
         return s != null ? Integer.parseInt(s) : defval;
     }
 
-    private StreamingOutput entity(final Attributes diff1, final DiffTask diffTask) {
+    private StreamingOutput entity(final Attributes diff1, final DiffSCU diffSCU) {
         return output -> {
             try (JsonGenerator gen = Json.createGenerator(output)) {
                 JSONWriter writer = new JSONWriter(gen);
@@ -259,7 +269,7 @@ public class DiffRS {
                 while (diff != null) {
                     writer.write(diff);
                     try {
-                        diff = --remaining > 0 ? diffTask.nextDiff() : null;
+                        diff = --remaining > 0 ? diffSCU.nextDiff() : null;
                     } catch (Exception e) {
                         LOG.info("Failure on query for matching studies:\\n", e);
                         writer.write(new Attributes());

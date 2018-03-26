@@ -48,6 +48,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryAttributes;
@@ -290,7 +291,7 @@ public class QueryRetrieveRS {
                 .setLocalAET(aet)
                 .setRemoteAET(externalAET)
                 .setDestinationAET(destAET)
-                .setRequestInfo(request)
+                .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
                 .setKeys(keys);
     }
 
@@ -302,7 +303,7 @@ public class QueryRetrieveRS {
                 .setLocalAET(aet)
                 .setRemoteAET(externalAET)
                 .setDestinationAET(destAET)
-                .setRequestInfo(request)
+                .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
                 .setKeys(keys);
     }
 

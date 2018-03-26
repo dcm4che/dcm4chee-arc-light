@@ -536,7 +536,7 @@ objectclass: metaTop
 objectclass: top
 m-oid: 1.2.40.0.13.1.15.110.3.42
 m-name: dcmPurgeStorageFetchSize
-m-description: Maximal number of objects to delete in one task; 100 if absent
+m-description: Maximal number of objects to delete in one diffTask; 100 if absent
 m-equality: integerMatch
 m-syntax: 1.3.6.1.4.1.1466.115.121.1.27
 m-singleValue: TRUE
@@ -667,7 +667,7 @@ objectclass: top
 m-oid: 1.2.40.0.13.1.15.110.3.52
 m-name: dcmDeleteRejectedFetchSize
 m-description: Maximal number of rejected instances to delete from the DB in one
-  task; 100 if absent
+  diffTask; 100 if absent
 m-equality: integerMatch
 m-syntax: 1.3.6.1.4.1.1466.115.121.1.27
 m-singleValue: TRUE

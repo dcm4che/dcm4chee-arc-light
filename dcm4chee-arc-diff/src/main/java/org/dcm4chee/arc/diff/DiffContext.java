@@ -50,6 +50,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 
@@ -67,16 +68,19 @@ import java.util.Map;
 public class DiffContext {
 
     private ApplicationEntity localAE;
-    private ApplicationEntity externalAE;
-    private ApplicationEntity originalAE;
+    private ApplicationEntity primaryAE;
+    private ApplicationEntity secondaryAE;
     private String queryString;
     private QueryAttributes queryAttributes;
     private int priority;
     private boolean fuzzymatching;
-    private boolean includeMissing;
-    private boolean includeDifferent;
+    private boolean checkMissing;
+    private boolean checkDifferent;
     private int[] compareKeys;
     private int[] returnKeys;
+    private String compareFields;
+    private String batchID;
+    private HttpServletRequestInfo httpServletRequestInfo;
 
     public ApplicationEntity getLocalAE() {
         return localAE;
@@ -87,21 +91,30 @@ public class DiffContext {
         return this;
     }
 
-    public ApplicationEntity getExternalAE() {
-        return externalAE;
+    public ApplicationEntity getPrimaryAE() {
+        return primaryAE;
     }
 
-    public DiffContext setExternalAE(ApplicationEntity externalAE) {
-        this.externalAE = externalAE;
+    public DiffContext setPrimaryAE(ApplicationEntity primaryAE) {
+        this.primaryAE = primaryAE;
         return this;
     }
 
-    public ApplicationEntity getOriginalAE() {
-        return originalAE;
+    public ApplicationEntity getSecondaryAE() {
+        return secondaryAE;
     }
 
-    public DiffContext setOriginalAE(ApplicationEntity originalAE) {
-        this.originalAE = originalAE;
+    public DiffContext setSecondaryAE(ApplicationEntity secondaryAE) {
+        this.secondaryAE = secondaryAE;
+        return this;
+    }
+
+    public HttpServletRequestInfo getHttpServletRequestInfo() {
+        return httpServletRequestInfo;
+    }
+
+    public DiffContext setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
+        this.httpServletRequestInfo = httpServletRequestInfo;
         return this;
     }
 
@@ -118,9 +131,10 @@ public class DiffContext {
         this.queryAttributes = new QueryAttributes(queryParameters);
         this.compareKeys = parseComparefields(queryParameters.get("comparefields"));
         this.priority = parseInt(queryParameters.getFirst("priority"), 0);
-        this.fuzzymatching = parseBoolean(queryParameters.getFirst("fuzzymatching"), false);
-        this.includeDifferent = parseBoolean(queryParameters.getFirst("different"), true);
-        this.includeMissing = parseBoolean(queryParameters.getFirst("missing"), false);
+        this.fuzzymatching = parseBoolean(queryParameters.getFirst("isFuzzymatching"), false);
+        this.checkDifferent = parseBoolean(queryParameters.getFirst("different"), true);
+        this.checkMissing = parseBoolean(queryParameters.getFirst("missing"), false);
+        this.batchID = queryParameters.getFirst("batchID");
         return this;
     }
 
@@ -136,7 +150,7 @@ public class DiffContext {
         return returnKeys;
     }
 
-    public boolean fuzzymatching() {
+    public boolean isFuzzymatching() {
         return fuzzymatching;
     }
 
@@ -144,12 +158,20 @@ public class DiffContext {
         return priority;
     }
 
-    public boolean includeDifferent() {
-        return includeDifferent;
+    public boolean isCheckDifferent() {
+        return checkDifferent;
     }
 
-    public boolean includeMissing() {
-        return includeMissing;
+    public boolean isCheckMissing() {
+        return checkMissing;
+    }
+
+    public String getCompareFields() {
+        return compareFields;
+    }
+
+    public String getBatchID() {
+        return batchID;
     }
 
     public boolean supportSorting() {
@@ -167,7 +189,7 @@ public class DiffContext {
         Attributes keys = queryAttributes.getQueryKeys();
         returnKeys = keys.tags();
         keys.setString(Tag.QueryRetrieveLevel, VR.CS, "STUDY");
-        if (hasArchiveAEExtension(externalAE) && hasArchiveAEExtension(originalAE)) {
+        if (hasArchiveAEExtension(primaryAE) && hasArchiveAEExtension(secondaryAE)) {
             Attributes item = new Attributes(1);
             item.setInt(Tag.SelectorAttribute,  VR.AT, Tag.StudyInstanceUID);
             keys.newSequence(Tag.SortingOperationsSequence, 1).add(item);
@@ -197,6 +219,7 @@ public class DiffContext {
             Map<String, AttributeSet> attributeSetMap = arcdev().getAttributeSet(AttributeSet.Type.DIFF_RS);
             AttributeSet attributeSet = attributeSetMap.get(comparefields.get(0));
             if (attributeSet != null) {
+                compareFields = attributeSet.getID();
                 return attributeSet.getSelection();
             }
         }
@@ -238,4 +261,5 @@ public class DiffContext {
         }
         return queryParameters;
     }
+
 }

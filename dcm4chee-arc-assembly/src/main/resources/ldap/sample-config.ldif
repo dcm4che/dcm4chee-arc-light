@@ -1,5 +1,21 @@
 version: 1
 
+dn: cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomConfigurationRoot
+cn: DICOM Configuration
+
+dn: cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomDevicesRoot
+cn: Devices
+
+dn: cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dicomUniqueAETitlesRegistryRoot
+cn: Unique AE Titles Registry
+
+dn: cn=Unique HL7 Application Names Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: hl7UniqueApplicationNamesRegistryRoot
+cn: Unique HL7 Application Names Registry
+
 dn: dicomDeviceName=getscu,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomInstalled: TRUE
 dicomIssuerOfPatientID: Site A&1.2.40.0.13.1.1.999.111.1111&ISO
@@ -1171,6 +1187,17 @@ dcmQueueName: Export1
 objectClass: dcmExporter
 dicomAETitle: DCM4CHEE
 dcmURI: dicom:STORESCP
+
+dn: dcmQueueName=DiffTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Diff Tasks
+dcmQueueName: DiffTasks
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/DiffTasks
 
 dn: dcmQueueName=StgCmtSCP,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Storage Commitment SCP Tasks

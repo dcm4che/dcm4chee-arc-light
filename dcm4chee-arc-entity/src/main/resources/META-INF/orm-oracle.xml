@@ -111,6 +111,16 @@
     </attributes>
   </entity>
 
+  <entity class="org.dcm4chee.arc.entity.DiffTask">
+    <sequence-generator name="diff_task_pk_seq" sequence-name="diff_task_pk_seq" allocation-size="1"/>
+    <attributes>
+      <id name="pk">
+        <column name="pk"/>
+        <generated-value strategy="SEQUENCE" generator="diff_task_pk_seq"/>
+      </id>
+    </attributes>
+  </entity>
+
   <entity class="org.dcm4chee.arc.entity.IanTask">
     <sequence-generator name="ian_task_pk_seq" sequence-name="ian_task_pk_seq" allocation-size="1"/>
     <attributes>

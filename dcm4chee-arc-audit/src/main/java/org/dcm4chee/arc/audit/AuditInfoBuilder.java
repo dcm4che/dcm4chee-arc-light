@@ -45,6 +45,7 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ShowPatientInfo;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>

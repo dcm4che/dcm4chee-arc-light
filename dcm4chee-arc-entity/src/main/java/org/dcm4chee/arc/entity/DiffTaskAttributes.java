@@ -39,24 +39,45 @@
  *
  */
 
-package org.dcm4chee.arc.diff;
+package org.dcm4chee.arc.entity;
 
 import org.dcm4che3.data.Attributes;
 
-import java.io.Closeable;
+import javax.persistence.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Mar 2018
  */
-public interface DiffTask extends Closeable {
-    void init() throws Exception;
+@Entity
+@Table(name = "diff_task_attrs")
+public class DiffTaskAttributes {
+    @Id
+    @Column(name="dicomattrs_fk")
+    private Long pk;
 
-    void countDiffs() throws Exception;
+    @MapsId
+    @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true, optional = false)
+    @JoinColumn(name = "dicomattrs_fk")
+    private AttributesBlob attributesBlob;
 
-    Attributes nextDiff() throws Exception;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "diff_task_fk")
+    private DiffTask diffTask;
 
-    int missing();
+    public Attributes getAttributes() throws BlobCorruptedException {
+        return attributesBlob.getAttributes();
+    }
 
-    int different();
+    public void setAttributes(Attributes attrs) {
+        attributesBlob = new AttributesBlob(attrs);
+    }
+
+    public DiffTask getDiffTask() {
+        return diffTask;
+    }
+
+    public void setDiffTask(DiffTask diffTask) {
+        this.diffTask = diffTask;
+    }
 }

@@ -4609,17 +4609,27 @@
             "type": "integer",
             "enum": [ 0, 1, 2 ],
             "default": 0
+          },
+          {
+            "name": "queue",
+            "in": "query",
+            "description": "queue request",
+            "type": "boolean",
+            "default": false
           }
         ],
         "responses": {
-          "204": {
-            "description": "no different study found"
-          },
           "200": {
             "description": "different/missing studies found",
             "schema": {
               "type": "file"
             }
+          },
+          "202": {
+            "description": "request successfully queued for processing"
+          },
+          "204": {
+            "description": "no different study found"
           },
          "404": {
             "description": "External AE Title not found"
@@ -4705,11 +4715,16 @@
             "description": "successful operation",
             "schema": {
               "required": [
+                "count",
                 "different",
                 "missing"
               ],
               "properties": {
                 "count": {
+                  "title": "Number of compared studies",
+                  "type": "integer"
+                },
+                "different": {
                   "title": "Number of different studies",
                   "type": "integer"
                 },

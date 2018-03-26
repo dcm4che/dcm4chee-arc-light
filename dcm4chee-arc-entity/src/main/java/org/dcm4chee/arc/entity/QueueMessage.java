@@ -173,6 +173,9 @@ public class QueueMessage {
     @OneToOne(mappedBy = "queueMessage")
     private RetrieveTask retrieveTask;
 
+    @OneToOne(mappedBy = "queueMessage")
+    private DiffTask diffTask;
+
     public QueueMessage() {
     }
 
@@ -292,6 +295,14 @@ public class QueueMessage {
 
     public void setRetrieveTask(RetrieveTask retrieveTask) {
         this.retrieveTask = retrieveTask;
+    }
+
+    public DiffTask getDiffTask() {
+        return diffTask;
+    }
+
+    public void setDiffTask(DiffTask diffTask) {
+        this.diffTask = diffTask;
     }
 
     public String getBatchID() {

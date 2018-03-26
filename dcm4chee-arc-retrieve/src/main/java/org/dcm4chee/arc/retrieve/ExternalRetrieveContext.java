@@ -42,6 +42,8 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -51,9 +53,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class ExternalRetrieveContext {
 
-    private String requesterUserID;
-    private String requesterHostName;
-    private String requestURI;
+    private HttpServletRequestInfo httpServletRequestInfo;
     private String localAET;
     private String remoteHostName;
     private String remoteAET;
@@ -65,11 +65,11 @@ public class ExternalRetrieveContext {
     }
 
     public String getRequesterUserID() {
-        return requesterUserID;
+        return httpServletRequestInfo != null ? httpServletRequestInfo.requesterUserID : null;
     }
 
     public String getRequesterHostName() {
-        return requesterHostName;
+        return httpServletRequestInfo != null ? httpServletRequestInfo.requesterHost : null;
     }
 
     public String getLocalAET() {
@@ -77,7 +77,7 @@ public class ExternalRetrieveContext {
     }
 
     public String getRequestURI() {
-        return requestURI;
+        return httpServletRequestInfo != null ? httpServletRequestInfo.requestURI : null;
     }
 
     public String getRemoteAET() {
@@ -100,25 +100,12 @@ public class ExternalRetrieveContext {
         return response;
     }
 
-    public ExternalRetrieveContext setRequesterUserID(String requesterUserID) {
-        this.requesterUserID = requesterUserID;
-        return this;
+    public HttpServletRequestInfo getHttpServletRequestInfo() {
+        return httpServletRequestInfo;
     }
 
-    public ExternalRetrieveContext setRequesterHostName(String requesterHostName) {
-        this.requesterHostName = requesterHostName;
-        return this;
-    }
-
-    public ExternalRetrieveContext setRequestURI(String requestURI) {
-        this.requestURI = requestURI;
-        return this;
-    }
-
-    public ExternalRetrieveContext setRequestInfo(HttpServletRequest request) {
-        this.requesterUserID = KeycloakContext.valueOf(request).getUserName();
-        this.requesterHostName = request.getRemoteHost();
-        this.requestURI = request.getRequestURI();
+    public ExternalRetrieveContext setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
+        this.httpServletRequestInfo = httpServletRequestInfo;
         return this;
     }
 
@@ -186,7 +173,7 @@ public class ExternalRetrieveContext {
 
     @Override
     public String toString() {
-        return "InstancesRetrieved[" + requesterUserID + '@' + requesterHostName
+        return "InstancesRetrieved[" + getRequesterUserID() + '@' + getRequesterHostName()
                 + ", localAET=" + localAET
                 + ", remoteAET=" + remoteAET
                 + ", destinationAET=" + destinationAET

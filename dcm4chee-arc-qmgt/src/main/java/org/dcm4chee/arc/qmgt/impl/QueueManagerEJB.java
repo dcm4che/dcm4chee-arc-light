@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -47,10 +48,7 @@ import com.querydsl.jpa.hibernate.HibernateUpdateClause;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
-import org.dcm4chee.arc.entity.QExportTask;
-import org.dcm4chee.arc.entity.QQueueMessage;
-import org.dcm4chee.arc.entity.QRetrieveTask;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
@@ -152,23 +150,20 @@ public class QueueManagerEJB {
         String queueName = entity.getQueueName();
         entity.setProcessingEndTime(new Date());
         entity.setOutcomeMessage(outcome.getDescription());
-        if (status == QueueMessage.Status.COMPLETED) {
-            LOG.info("Finished processing of Task[id={}] at Queue {}", msgId, queueName);
-            entity.setStatus(status);
+        entity.setStatus(status);
+        if (status == QueueMessage.Status.COMPLETED
+                || status == QueueMessage.Status.WARNING && !descriptorOf(queueName).isRetryOnWarning()) {
+            LOG.info("Finished processing of Task[id={}] at Queue {} with Status {}", msgId, queueName, status);
             return entity;
         }
-        if (status == QueueMessage.Status.FAILED || status == QueueMessage.Status.WARNING) {
-            QueueDescriptor descriptor = descriptorOf(queueName);
-            long delay = status == QueueMessage.Status.FAILED || descriptor.isRetryOnWarning()
-                    ? descriptor.getRetryDelayInSeconds(entity.incrementNumberOfFailures())
-                    : -1L;
-            if (delay >= 0) {
-                LOG.info("Failed processing of Task[id={}] at Queue {} with Status {} - retry",
-                        msgId, queueName, status);
-                entity.setStatus(QueueMessage.Status.SCHEDULED);
-                rescheduleTask(entity, descriptor, delay * 1000L);
-                return entity;
-            }
+        QueueDescriptor descriptor = descriptorOf(queueName);
+        long delay = descriptor.getRetryDelayInSeconds(entity.incrementNumberOfFailures());
+        if (delay >= 0) {
+            LOG.info("Failed processing of Task[id={}] at Queue {} with Status {} - retry",
+                    msgId, queueName, status);
+            entity.setStatus(QueueMessage.Status.SCHEDULED);
+            rescheduleTask(entity, descriptor, delay * 1000L);
+            return entity;
         }
         LOG.warn("Failed processing of Task[id={}] at Queue {} with Status {}", msgId, queueName, status);
         entity.setStatus(status);
@@ -219,6 +214,8 @@ public class QueueManagerEJB {
             entity.getExportTask().setUpdatedTime();
         if (entity.getRetrieveTask() != null)
             entity.getRetrieveTask().setUpdatedTime();
+        if (entity.getDiffTask() != null)
+            entity.getDiffTask().setUpdatedTime();
         LOG.info("Cancel processing of Task[id={}] at Queue {}", msgId, entity.getQueueName());
         return true;
     }
@@ -343,6 +340,8 @@ public class QueueManagerEJB {
             entity.getExportTask().setUpdatedTime();
         if (entity.getRetrieveTask() != null)
             entity.getRetrieveTask().setUpdatedTime();
+        if (entity.getDiffTask() != null)
+            entity.getDiffTask().setUpdatedTime();
         LOG.info("Reschedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
     }
 
@@ -352,27 +351,31 @@ public class QueueManagerEJB {
             return false;
 
         queueEvent.setQueueMsg(entity);
+        deleteTask(entity);
+        return true;
+    }
+
+    private void deleteTask(QueueMessage entity) {
         if (entity.getExportTask() != null)
             em.remove(entity.getExportTask());
         else if (entity.getRetrieveTask() != null)
             em.remove(entity.getRetrieveTask());
+        else if (entity.getDiffTask() != null)
+            em.remove(entity.getDiffTask());
         else
             em.remove(entity);
         LOG.info("Delete Task[id={}] from Queue {}", entity.getMessageID(), entity.getQueueName());
-        return true;
     }
 
     public int deleteTasks(Predicate matchQueueMessage) {
-        HibernateQuery<QueueMessage> queueMessageQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+        int n = 0;
+        try (CloseableIterator<QueueMessage> iterate = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage);
-        new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
-                .where(QExportTask.exportTask.queueMessage.in(queueMessageQuery)).execute();
-        new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
-                .where(QRetrieveTask.retrieveTask.queueMessage.in(queueMessageQuery)).execute();
-
-        return (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                .where(matchQueueMessage).execute();
+                .where(matchQueueMessage).iterate()) {
+            iterate.forEachRemaining(this::deleteTask);
+            n++;
+        }
+        return n;
     }
 
     public List<QueueMessage> search(Predicate matchQueueMessage, int offset, int limit) {
