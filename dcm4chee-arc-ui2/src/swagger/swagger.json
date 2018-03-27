@@ -1354,7 +1354,7 @@
       }
     },
     "/monitor/diff/batch/{batchID}/studies": {
-      "post": {
+      "get": {
         "tags": [
           "MONITOR-RS",
           "DIFF-RS"
@@ -1793,7 +1793,7 @@
       }
     },
     "/monitor/diff/{taskPK}/studies": {
-      "post": {
+      "get": {
         "tags": [
           "MONITOR-RS",
           "DIFF-RS"

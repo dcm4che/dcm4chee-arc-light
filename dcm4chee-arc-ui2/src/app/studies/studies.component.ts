@@ -891,14 +891,22 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     $this.cfpLoadingBar.complete();
 
                 } else {
+                    if(res === null)
+                        $this.mainservice.setMessage({
+                            'title': 'Info',
+                            'text': 'No matching study found at primary C-FIND SCP',
+                            'status': 'info'
+                        });
+                    else
+                        $this.mainservice.setMessage({
+                            'title': 'Info',
+                            'text': 'No diffs found!',
+                            'status': 'info'
+                        });
+
                     console.log('in else setmsg');
                     $this.patients = [];
 
-                    $this.mainservice.setMessage({
-                        'title': 'Info',
-                        'text': 'No matching Studies found!',
-                        'status': 'info'
-                    });
                     $this.cfpLoadingBar.complete();
                 }
                 // setTimeout(function(){
