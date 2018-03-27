@@ -76,10 +76,13 @@ export class PermissionService {
                         this.uiConfig = res.dcmDevice.dcmuiConfig["0"];
                     }catch(e){
                         console.warn("Permission not found!",e);
-                        this.mainservice.setMessage({
-                            'text': "Permission not found!",
-                            'status': 'error'
-                        })
+                        if(this.mainservice.global.notSecure || (this.mainservice.user && !this.mainservice.user.user && this.mainservice.user.roles && this.mainservice.user.roles.length === 0)){
+                            this.mainservice.global.notSecure = true;
+                        }else
+                            this.mainservice.setMessage({
+                                'text': "Permission not found!",
+                                'status': 'error'
+                            });
                         return response.apply(this,[]);
                     }
                     // return this.checkMenuTabAccess(url);
