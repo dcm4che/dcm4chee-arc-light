@@ -84,7 +84,7 @@ public class DiffSCUImpl implements DiffSCU {
     }
 
     @Override
-    public void init() throws Exception {
+    public int init() throws Exception {
         EnumSet<QueryOption> queryOptions = EnumSet.of(QueryOption.DATETIME);
         if (ctx.isFuzzymatching())
             queryOptions.add(QueryOption.FUZZY);
@@ -99,7 +99,7 @@ public class DiffSCUImpl implements DiffSCU {
         }
         dimseRSP = findSCU.query(as1, ctx.priority(), ctx.getQueryKeys(), 0);
         dimseRSP.next();
-        checkRSP(dimseRSP);
+        return checkRSP(dimseRSP);
     }
 
     @Override
@@ -183,11 +183,12 @@ public class DiffSCUImpl implements DiffSCU {
         return match;
     }
 
-    private static void checkRSP(DimseRSP rsp) throws DicomServiceException {
+    private static int checkRSP(DimseRSP rsp) throws DicomServiceException {
         Attributes cmd = rsp.getCommand();
         int status = cmd.getInt(Tag.Status, -1);
         if (!Status.isPending(status) && status != Status.Success)
             throw new DicomServiceException(status, cmd.getString(Tag.ErrorComment));
+        return status;
     }
 
     private void safeRelease(Association as) {

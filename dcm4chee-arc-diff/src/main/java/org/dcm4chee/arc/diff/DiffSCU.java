@@ -50,7 +50,7 @@ import java.io.Closeable;
  * @since Mar 2018
  */
 public interface DiffSCU extends Closeable {
-    void init() throws Exception;
+    int init() throws Exception;
 
     void countDiffs() throws Exception;
 

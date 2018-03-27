@@ -157,12 +157,15 @@ public class DiffRS {
             ar.register((CompletionCallback) throwable -> {
                 SafeClose.close(diffSCU);
             });
-            diffSCU.init();
+            if (!Status.isPending(diffSCU.init())) {
+                ar.resume(Response.noContent().build());
+                return;
+            }
             int skip = offset();
             Attributes diff1;
             while ((diff1 = diffSCU.nextDiff()) != null && skip-- > 0);
             if (diff1 == null)
-                ar.resume(Response.noContent().build());
+                ar.resume(Response.ok("[]").build());
             else
                 ar.resume(Response.ok(entity(diff1, diffSCU)).build());
         } catch (IllegalArgumentException e) {
