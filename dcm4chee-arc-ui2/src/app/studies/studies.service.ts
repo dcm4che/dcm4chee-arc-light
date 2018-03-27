@@ -188,7 +188,7 @@ export class StudiesService {
             }).map(res => j4care.redirectOnAuthResponse(res));
     };
     queryDiffs = function(url, params) {
-        params["missing"] = params["missing"] || true;
+        // params["missing"] = params["missing"] || true;
         return this.$http.get(
             url + this._config(params),
             {
