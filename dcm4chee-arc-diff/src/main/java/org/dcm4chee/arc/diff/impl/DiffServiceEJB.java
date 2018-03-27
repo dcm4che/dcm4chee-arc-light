@@ -41,16 +41,17 @@
 
 package org.dcm4chee.arc.diff.impl;
 
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffSCU;
 import org.dcm4chee.arc.diff.DiffService;
-import org.dcm4chee.arc.entity.DiffTask;
-import org.dcm4chee.arc.entity.DiffTaskAttributes;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,9 +62,12 @@ import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Mar 2018
  */
 @Stateless
@@ -126,5 +130,37 @@ public class DiffServiceEJB {
         diffTask.setMatches(diffSCU.matches());
         diffTask.setMissing(diffSCU.missing());
         diffTask.setDifferent(diffSCU.different());
+    }
+
+    public List<DiffTask> listDiffTasks(
+            Predicate matchQueueMessage, Predicate matchDiffTask, int offset, int limit, String orderby) {
+        HibernateQuery<DiffTask> diffTaskQuery = createQuery(matchQueueMessage, matchDiffTask);
+        if (limit > 0)
+            diffTaskQuery.limit(limit);
+        if (offset > 0)
+            diffTaskQuery.offset(offset);
+        OrderSpecifier<Date> orderSpecifier = orderby == null || orderby.equals("-updatedTime")
+                                                ? QDiffTask.diffTask.updatedTime.desc()
+                                                : orderby.equals("updatedTime")
+                                                    ? QDiffTask.diffTask.updatedTime.asc()
+                                                    : orderby.equals("createdTime")
+                                                        ? QDiffTask.diffTask.createdTime.asc()
+                                                        : QDiffTask.diffTask.createdTime.desc();
+        diffTaskQuery.orderBy(orderSpecifier);
+        return diffTaskQuery.fetch();
+    }
+
+    public long countDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
+        return createQuery(matchQueueMessage, matchDiffTask).fetchCount();
+    }
+
+    private HibernateQuery<DiffTask> createQuery(
+            Predicate matchQueueMessage, Predicate matchDiffTask) {
+        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(matchQueueMessage);
+        return new HibernateQuery<DiffTask>(em.unwrap(Session.class))
+                .from(QDiffTask.diffTask)
+                .where(matchDiffTask, QDiffTask.diffTask.queueMessage.in(queueMsgQuery));
     }
 }

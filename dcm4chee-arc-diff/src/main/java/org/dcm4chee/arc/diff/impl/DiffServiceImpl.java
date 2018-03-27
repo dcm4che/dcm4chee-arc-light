@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.diff.impl;
 
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
@@ -57,9 +58,11 @@ import org.dcm4chee.arc.query.scu.CFindSCU;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Feb 2018
  */
 @ApplicationScoped
@@ -98,6 +101,16 @@ public class DiffServiceImpl implements DiffService {
             ejb.updateDiffTask(diffTask, diffSCU);
             return toOutcome(diffSCU);
         }
+    }
+
+    @Override
+    public List<DiffTask> listDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, int offset, int limit, String orderby) {
+        return ejb.listDiffTasks(matchQueueMessage, matchDiffTask, offset, limit, orderby);
+    }
+
+    @Override
+    public long countDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
+        return ejb.countDiffTasks(matchQueueMessage, matchDiffTask);
     }
 
     private Outcome toOutcome(DiffSCU diffSCU) {

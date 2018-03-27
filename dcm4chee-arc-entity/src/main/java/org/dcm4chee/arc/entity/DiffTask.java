@@ -41,12 +41,20 @@
 
 package org.dcm4chee.arc.entity;
 
+import org.dcm4che3.conf.json.JsonWriter;
+
+import javax.json.stream.JsonGenerator;
 import javax.persistence.*;
+import java.io.IOException;
+import java.io.Writer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Mar 2018
  */
 @Entity
@@ -248,6 +256,89 @@ public class DiffTask {
 
     public Collection<DiffTaskAttributes> getDiffTaskAttributes() {
         return diffTaskAttributes;
+    }
+
+    public void writeAsJSONTo(JsonGenerator gen) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        JsonWriter writer = new JsonWriter(gen);
+        gen.writeStartObject();
+        writer.writeNotNullOrDef("pk", pk, null);
+        writer.writeNotNullOrDef("LocalAET", localAET, null);
+        writer.writeNotNullOrDef("PrimaryAET", primaryAET, null);
+        writer.writeNotNullOrDef("SecondaryAET", secondaryAET, null);
+        writer.writeNotNullOrDef("QueryString", queryString, null);
+        writer.writeNotDef("checkMissing", checkMissing, false);
+        writer.writeNotDef("checkDifferent", checkDifferent, false);
+        writer.writeNotDef("matches", matches, 0);
+        writer.writeNotDef("missing", missing, 0);
+        writer.writeNotDef("different", different, 0);
+        writer.writeNotNullOrDef("comparefield", compareFields, null);
+        writer.writeNotNullOrDef("createdTime", df.format(createdTime), null);
+        writer.writeNotNullOrDef("updatedTime", df.format(updatedTime), null);
+        queueMessage.writeStatusAsJSONTo(writer, df);
+        gen.writeEnd();
+        gen.flush();
+    }
+
+    public static void writeCSVHeader(Writer writer, char delimiter) throws IOException {
+        writer.write("pk" + delimiter +
+                "LocalAET" + delimiter +
+                "PrimaryAET" + delimiter +
+                "SecondaryAET" + delimiter +
+                "QueryString" + delimiter +
+                "checkMissing" + delimiter +
+                "checkDifferent" + delimiter +
+                "matches" + delimiter +
+                "missing" + delimiter +
+                "different" + delimiter +
+                "comparefield" + delimiter +
+                "createdTime" + delimiter +
+                "updatedTime" + delimiter +
+                "JMSMessageID" + delimiter +
+                "queue" + delimiter +
+                "dicomDeviceName" + delimiter +
+                "status" + delimiter +
+                "scheduledTime" + delimiter +
+                "failures" + delimiter +
+                "batchID" + delimiter +
+                "processingStartTime" + delimiter +
+                "processingEndTime" + delimiter +
+                "errorMessage" + delimiter +
+                "outcomeMessage\r\n");
+    }
+
+    public void writeAsCSVTo(Writer writer, char delimiter) throws IOException {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        writer.write(String.valueOf(pk));
+        writer.append(delimiter);
+        writer.write(localAET);
+        writer.append(delimiter);
+        writer.write(primaryAET);
+        writer.append(delimiter);
+        writer.write(secondaryAET);
+        writer.append(delimiter);
+        writer.write(queryString);
+        writer.append(delimiter);
+        writer.write(String.valueOf(checkMissing));
+        writer.append(delimiter);
+        writer.write(String.valueOf(checkDifferent));
+        writer.append(delimiter);
+        writer.write(matches);
+        writer.append(delimiter);
+        writer.write(missing);
+        writer.append(delimiter);
+        writer.write(different);
+        writer.append(delimiter);
+        if (compareFields != null)
+            writer.write(compareFields);
+        writer.append(delimiter);
+        writer.write(df.format(createdTime));
+        writer.append(delimiter);
+        writer.write(df.format(updatedTime));
+        writer.append(delimiter);
+        queueMessage.writeStatusAsCSVTo(writer, df, delimiter);
+        writer.append('\r');
+        writer.append('\n');
     }
 
     @Override

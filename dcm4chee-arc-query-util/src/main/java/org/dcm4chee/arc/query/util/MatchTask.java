@@ -42,10 +42,7 @@ package org.dcm4chee.arc.query.util;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-import org.dcm4chee.arc.entity.QExportTask;
-import org.dcm4chee.arc.entity.QQueueMessage;
-import org.dcm4chee.arc.entity.QRetrieveTask;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.*;
 
 import java.util.Date;
 
@@ -119,6 +116,30 @@ public class MatchTask {
         if (updatedTime != null)
             predicate.and(MatchDateTimeRange.range(
                     QExportTask.exportTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
+        return predicate;
+    }
+
+    public static Predicate matchDiffTask(String localAET, String primaryAET, String secondaryAET, String checkDifferent,
+                                          String checkMissing, String comparefields, String createdTime, String updatedTime) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (localAET != null)
+            predicate.and(QDiffTask.diffTask.localAET.eq(localAET));
+        if (primaryAET != null)
+            predicate.and(QDiffTask.diffTask.primaryAET.eq(primaryAET));
+        if (secondaryAET != null)
+            predicate.and(QDiffTask.diffTask.secondaryAET.eq(secondaryAET));
+        if (checkDifferent != null)
+            predicate.and(QDiffTask.diffTask.checkDifferent.eq(Boolean.parseBoolean(checkDifferent)));
+        if (checkMissing != null)
+            predicate.and(QDiffTask.diffTask.checkMissing.eq(Boolean.parseBoolean(checkMissing)));
+        if (comparefields != null)
+            predicate.and(QDiffTask.diffTask.compareFields.eq(comparefields));
+        if (createdTime != null)
+            predicate.and(MatchDateTimeRange.range(
+                    QDiffTask.diffTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT));
+        if (updatedTime != null)
+            predicate.and(MatchDateTimeRange.range(
+                    QDiffTask.diffTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT));
         return predicate;
     }
 
