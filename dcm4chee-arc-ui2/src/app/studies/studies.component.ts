@@ -84,6 +84,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         fuzzymatching:'',
         StudyTime:''
     };
+    diffQueue = false;
     queryMode = 'queryStudies';
     // ScheduledProcedureStepSequence: any = {
     //     ScheduledProcedureStepStartTime: {
@@ -1043,8 +1044,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.queryMode = 'queryDiff';
         this.moreMWL = undefined;
         this.morePatients = undefined;
-        let $this = this;
         let queryParameters = this.createQueryParams(offset, this.limit + 1, this.createStudyFilterParams());
+        queryParameters['queue'] = this.diffQueue;
         this.queryDiff(queryParameters, offset);
     };
     setExpiredDate(study){
