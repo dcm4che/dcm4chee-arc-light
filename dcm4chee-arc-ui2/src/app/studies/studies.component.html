@@ -277,7 +277,7 @@
                         <mat-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</mat-option>
                     </mat-select>
                 </div>
-                <div class="row col-md-12" *ngIf="filterMode === 'diff'">
+                <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
                     <input type="checkbox" [(ngModel)]="diffQueue" placeholder="Queue" title="Queued diff" class="clearable" /> Queued diff
                 </div>
                 <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-size',param:'visible'}">
