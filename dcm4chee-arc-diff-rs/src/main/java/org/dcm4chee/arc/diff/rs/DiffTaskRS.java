@@ -140,7 +140,7 @@ public class DiffTaskRS {
 
     @GET
     @NoCache
-    public Response listCompareStudiesTasks(@QueryParam("accept") String accept) {
+    public Response listDiffTasks(@QueryParam("accept") String accept) {
         logRequest();
         Output output = selectMediaType(accept);
         if (output == null)
@@ -162,7 +162,7 @@ public class DiffTaskRS {
     @NoCache
     @Path("/count")
     @Produces("application/json")
-    public Response countRetrieveTasks() {
+    public Response countDiffTasks() {
         logRequest();
         return count(diffService.countDiffTasks(
                 MatchTask.matchQueueMessage(
