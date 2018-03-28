@@ -69,4 +69,6 @@ public interface DiffService {
     long countDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask);
 
     DiffTask getDiffTask(long taskPK);
+
+    List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit);
 }

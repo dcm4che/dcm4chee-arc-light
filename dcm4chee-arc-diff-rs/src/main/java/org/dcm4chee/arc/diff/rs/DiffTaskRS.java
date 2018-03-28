@@ -44,8 +44,8 @@ package org.dcm4chee.arc.diff.rs;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.diff.DiffService;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
-import org.dcm4chee.arc.entity.DiffTaskAttributes;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -63,7 +63,6 @@ import javax.ws.rs.core.*;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -174,10 +173,14 @@ public class DiffTaskRS {
     public Response getDiffTaskResult(@PathParam("taskPK") long taskPK) {
         logRequest();
         DiffTask diffTask = diffService.getDiffTask(taskPK);
-        if (diffTask.getQueueMessage().getStatus() == QueueMessage.Status.COMPLETED)
-            return diffTask.getMatches() == 0 ? Response.noContent().build() : Response.ok("[]").build();
+        if (diffTask == null)
+            return Response.status(Response.Status.NOT_FOUND).build();
 
-        return Response.ok(entity(diffTask.getDiffTaskAttributes())).build();
+        if (diffTask.getMatches() == 0)
+            return Response.noContent().build();
+
+        return Response.ok(entity(diffService.getDiffTaskAttributes(diffTask, parseInt(offset), parseInt(limit))))
+                .build();
     }
 
     private Output selectMediaType(String accept) {
@@ -248,13 +251,13 @@ public class DiffTaskRS {
         abstract Object entity(final List<DiffTask> tasks);
     }
 
-    private StreamingOutput entity(Collection<DiffTaskAttributes> diffTaskAttributes) {
+    private StreamingOutput entity(List<byte[]> diffTaskAttributes) {
         return output -> {
             try (JsonGenerator gen = Json.createGenerator(output)) {
                 JSONWriter writer = new JSONWriter(gen);
                 gen.writeStartArray();
-                for (DiffTaskAttributes diffTaskAttributes1 : diffTaskAttributes)
-                    writer.write(diffTaskAttributes1.getAttributes());
+                for (byte[] diffTaskAttributesEncoded : diffTaskAttributes)
+                    writer.write(AttributesBlob.decodeAttributes(diffTaskAttributesEncoded, null));
                 gen.writeEnd();
             }
         };

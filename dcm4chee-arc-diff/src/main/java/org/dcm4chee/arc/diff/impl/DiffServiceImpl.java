@@ -127,6 +127,11 @@ public class DiffServiceImpl implements DiffService {
         return ejb.getDiffTask(taskPK);
     }
 
+    @Override
+    public List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit) {
+        return ejb.getDiffTaskAttributes(diffTask, offset, limit);
+    }
+
     private QueueMessage.Status check(String prompt, int failures, QueueMessage.Status status, StringBuilder sb) {
         if (failures == 0)
             return status;
