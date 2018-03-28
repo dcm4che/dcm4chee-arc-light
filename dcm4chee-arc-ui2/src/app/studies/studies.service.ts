@@ -667,6 +667,10 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         }
         return url;
     }
+    getDiffAttributeSet(){
+        return this.$http.get('../attribute-set/DIFF_RS')
+            .map(res => j4care.redirectOnAuthResponse(res));
+    }
     queryNationalPationtRegister(patientID){
        return this.$http.get(`../xroad/RR441/${patientID}`)
             .map(res => j4care.redirectOnAuthResponse(res));

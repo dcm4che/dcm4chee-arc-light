@@ -145,6 +145,9 @@ $hoverBlue:#5293C1;
   -webkit-box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.53);
   -moz-box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.53);
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.53);
+  .mat-select{
+    padding: 0px 10px;
+  }
 }
 .active_breadcrumb{
   background: rgba(6, 29, 47, 0.68);
