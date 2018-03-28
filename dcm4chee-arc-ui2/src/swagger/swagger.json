@@ -1372,6 +1372,18 @@
             "description": "Batch ID",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped results before first result in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of results in returned list",
+            "type": "integer"
           }
         ],
         "responses": {
@@ -1810,6 +1822,18 @@
             "in": "path",
             "description": "pk of task",
             "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "number of skipped results before first result in returned list",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "maximal number of results in returned list",
             "type": "integer"
           }
         ],
