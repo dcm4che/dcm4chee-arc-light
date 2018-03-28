@@ -3220,7 +3220,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         'status': 'info'
                     });
                 }else{
-                    this.service.MergeRecursive(this.clipboard, this.selected);
+                    // this.service.MergeRecursive(this.clipboard, this.selected);
+                    _.merge(this.clipboard, this.selected);
                     if (this.clipboard.action && this.clipboard.action === 'copy'){
                         let $this = this;
                         this.confirm({
