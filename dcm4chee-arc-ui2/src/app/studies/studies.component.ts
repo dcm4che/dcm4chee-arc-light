@@ -68,6 +68,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         from: undefined,
         to: undefined
     };
+    diffFilter = false;
     externalInternalAetMode = "internal";
     filter = {
         orderby: '-StudyDate,-StudyTime',
@@ -84,6 +85,12 @@ export class StudiesComponent implements OnDestroy,OnInit{
         fuzzymatching:'',
         StudyTime:''
     };
+    diffQueue = false;
+    missing = true;
+    different = true;
+    diffAttributeSet;
+    batchID;
+    comparefield;
     queryMode = 'queryStudies';
     // ScheduledProcedureStepSequence: any = {
     //     ScheduledProcedureStepStartTime: {
@@ -340,6 +347,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.initAttributeFilter('Patient', 1);
         this.initExporters(2);
         this.initRjNotes(2);
+        this.getDiffAttributeSet();
         // this.user = this.mainservice.user;
 /*        if (!this.mainservice.user){
             // console.log("in if studies ajax");
@@ -1043,8 +1051,12 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.queryMode = 'queryDiff';
         this.moreMWL = undefined;
         this.morePatients = undefined;
-        let $this = this;
         let queryParameters = this.createQueryParams(offset, this.limit + 1, this.createStudyFilterParams());
+        queryParameters['queue'] = this.diffQueue;
+        queryParameters['missing'] = this.missing;
+        queryParameters['different'] = this.different;
+        if(this.batchID) queryParameters['batchID'] = this.batchID;
+        if(this.comparefield && this.different) queryParameters['comparefield'] = this.comparefield;
         this.queryDiff(queryParameters, offset);
     };
     setExpiredDate(study){
@@ -4294,6 +4306,15 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 this.cfpLoadingBar.complete();
             });
         }
+    }
+    getDiffAttributeSet(){
+        this.service.getDiffAttributeSet()
+            .retry(2)
+            .subscribe((res)=>{
+                this.diffAttributeSet = res.filter(attr => attr.type ==='DIFF_RS' && attr.id != 'all');
+            },(err)=>{
+                console.error("Error getting Diff Attribute Set",err);
+            });
     }
     ngOnDestroy() {
         // Save state of the study page in a global variable after leaving it

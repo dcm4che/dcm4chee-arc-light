@@ -188,7 +188,7 @@ export class StudiesService {
             }).map(res => j4care.redirectOnAuthResponse(res));
     };
     queryDiffs = function(url, params) {
-        params["missing"] = params["missing"] || true;
+        // params["missing"] = params["missing"] || true;
         return this.$http.get(
             url + this._config(params),
             {
@@ -666,6 +666,10 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             url = `../aets/${aet}/rs`;
         }
         return url;
+    }
+    getDiffAttributeSet(){
+        return this.$http.get('../attribute-set/DIFF_RS')
+            .map(res => j4care.redirectOnAuthResponse(res));
     }
     queryNationalPationtRegister(patientID){
        return this.$http.get(`../xroad/RR441/${patientID}`)

@@ -277,6 +277,28 @@
                         <mat-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</mat-option>
                     </mat-select>
                 </div>
+                <div class="row col-md-12 diff_input diff_toggle_button" *ngIf="filterMode === 'diff'" (click)="diffFilter = !diffFilter">
+                    <span class="click_outside_ignore">Diff Options <i *ngIf="!diffFilter" class="glyphicon glyphicon-triangle-bottom"></i><i *ngIf="diffFilter" class="glyphicon glyphicon-triangle-top"></i></span>
+                </div>
+                <div class="toggle_diff" *ngIf="diffFilter" (clickOutside)="diffFilter = false" [clickOutsideExceptionClass]="['diff_toggle_button', 'click_outside_ignore']">
+                    <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
+                        <input type="checkbox" [(ngModel)]="diffQueue" placeholder="Queue" title="Queued diff" class="clearable" /> Queued
+                    </div>
+                    <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff' && diffQueue">
+                        <input type="text" [(ngModel)]="batchID" title="Batch ID" class="clearable" placeholder="Batch ID"/>
+                    </div>
+                    <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
+                        <input type="checkbox" [(ngModel)]="missing" title="Include Studies different at Secondary AET" class="clearable" /> Missing Studies
+                    </div>
+                    <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
+                        <input type="checkbox" [(ngModel)]="different" title="Include Studies missing at Secondary AET" class="clearable" /> Different Studies
+                    </div>
+                    <mat-select *ngIf="different" [(ngModel)]="comparefield" placeholder="Attribute Set" floatPlaceholder="never">
+                        <mat-option value="">*</mat-option>
+                        <mat-option *ngFor="let attr of diffAttributeSet" [value]="attr.id" title="{{attr.description}}" >{{ attr.title }}</mat-option>
+                    </mat-select>
+
+                </div>
                 <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-size',param:'visible'}">
                    <span class="count_text" title="Total size of filtered studies found">Size: <b>{{size}}</b></span>
                     <span *ngIf="!showGetSizeLoader" (click)="getSize()" title="Get total size of filtered studies" class="glyphicon glyphicon-refresh"></span>
