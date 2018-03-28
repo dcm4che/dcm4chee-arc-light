@@ -122,6 +122,11 @@ public class DiffServiceImpl implements DiffService {
         return new Outcome(status, sb.toString());
     }
 
+    @Override
+    public DiffTask getDiffTask(long taskPK) {
+        return ejb.getDiffTask(taskPK);
+    }
+
     private QueueMessage.Status check(String prompt, int failures, QueueMessage.Status status, StringBuilder sb) {
         if (failures == 0)
             return status;
@@ -132,12 +137,11 @@ public class DiffServiceImpl implements DiffService {
 
     private DiffContext toDiffContext(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo)
             throws ConfigurationException {
-        DiffContext ctx = new DiffContext()
+        return new DiffContext()
                 .setLocalAE(device.getApplicationEntity(diffTask.getLocalAET(), true))
                 .setPrimaryAE(aeCache.get(diffTask.getPrimaryAET()))
                 .setSecondaryAE(aeCache.get(diffTask.getSecondaryAET()))
                 .setQueryString(diffTask.getQueryString())
                 .setHttpServletRequestInfo(httpServletRequestInfo);
-        return ctx;
     }
 }

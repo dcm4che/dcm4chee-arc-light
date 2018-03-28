@@ -163,4 +163,8 @@ public class DiffServiceEJB {
                 .from(QDiffTask.diffTask)
                 .where(matchDiffTask, QDiffTask.diffTask.queueMessage.in(queueMsgQuery));
     }
+
+    public DiffTask getDiffTask(long taskPK) {
+        return em.find(DiffTask.class, taskPK);
+    }
 }

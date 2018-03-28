@@ -41,10 +41,11 @@
 
 package org.dcm4chee.arc.diff.rs;
 
-import org.dcm4che3.net.Device;
+import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.DiffTask;
+import org.dcm4chee.arc.entity.DiffTaskAttributes;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -57,14 +58,12 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -77,9 +76,6 @@ import java.util.stream.Stream;
 @Path("monitor/diff")
 public class DiffTaskRS {
     private static final Logger LOG = LoggerFactory.getLogger(DiffTaskRS.class);
-
-    @Inject
-    private Device device;
 
     @Inject
     private DiffService diffService;
@@ -171,6 +167,19 @@ public class DiffTaskRS {
                         comparefields, createdTime, updatedTime)));
     }
 
+    @GET
+    @NoCache
+    @Path("/{taskPK}/studies")
+    @Produces("application/dicom+json,application/json")
+    public Response getDiffTaskResult(@PathParam("taskPK") long taskPK) {
+        logRequest();
+        DiffTask diffTask = diffService.getDiffTask(taskPK);
+        if (diffTask.getQueueMessage().getStatus() == QueueMessage.Status.COMPLETED)
+            return diffTask.getMatches() == 0 ? Response.noContent().build() : Response.ok("[]").build();
+
+        return Response.ok(entity(diffTask.getDiffTaskAttributes())).build();
+    }
+
     private Output selectMediaType(String accept) {
         Stream<MediaType> acceptableTypes = httpHeaders.getAcceptableMediaTypes().stream();
         if (accept != null) {
@@ -237,6 +246,18 @@ public class DiffTaskRS {
         }
 
         abstract Object entity(final List<DiffTask> tasks);
+    }
+
+    private StreamingOutput entity(Collection<DiffTaskAttributes> diffTaskAttributes) {
+        return output -> {
+            try (JsonGenerator gen = Json.createGenerator(output)) {
+                JSONWriter writer = new JSONWriter(gen);
+                gen.writeStartArray();
+                for (DiffTaskAttributes diffTaskAttributes1 : diffTaskAttributes)
+                    writer.write(diffTaskAttributes1.getAttributes());
+                gen.writeEnd();
+            }
+        };
     }
 
     private void logRequest() {
