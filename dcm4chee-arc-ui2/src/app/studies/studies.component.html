@@ -290,7 +290,7 @@
                     <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
                         <input type="checkbox" [(ngModel)]="different" title="Include Studies missing at Secondary AET" class="clearable" /> Different Studies
                     </div>
-                    <mat-select [(ngModel)]="comparefield" placeholder="Attribute Set" floatPlaceholder="never">
+                    <mat-select *ngIf="different" [(ngModel)]="comparefield" placeholder="Attribute Set" floatPlaceholder="never">
                         <mat-option value="">*</mat-option>
                         <mat-option *ngFor="let attr of diffAttributeSet" [value]="attr.id" title="{{attr.description}}" >{{ attr.title }}</mat-option>
                     </mat-select>
