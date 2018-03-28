@@ -1396,6 +1396,9 @@
           "204": {
             "description": "no matching study found at primary C-FIND SCP"
           },
+          "404": {
+            "description": "no task with specified batchID"
+          },
           "default": {
             "description": "unexpected error"
           }
@@ -1846,6 +1849,9 @@
           },
           "204": {
             "description": "no matching study found at primary C-FIND SCP"
+          },
+          "404": {
+            "description": "no task with specified taskPK"
           },
           "default": {
             "description": "unexpected error"
@@ -5533,6 +5539,12 @@
             "description": "queue request",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled task",
+            "type": "string"
           }
         ],
         "responses": {
@@ -5549,7 +5561,7 @@
             "description": "no matching study found at primary C-FIND SCP"
           },
           "404": {
-            "description": "External AE Title not found"
+            "description": "AE Title of Archive, primary or secondary C-FIND SCP not found"
           },
           "default": {
             "description": "unexpected error"
@@ -5580,14 +5592,14 @@
           {
             "name": "externalAET",
             "in": "path",
-            "description": "AE Title of C-FIND SCP to query for Studies",
+            "description": "AE Title of primary C-FIND SCP to query for Studies",
             "required": true,
             "type": "string"
           },
           {
             "name": "originalAET",
             "in": "path",
-            "description": "AE Title of second C-FIND SCP to query for Studies returned from externalAET",
+            "description": "AE Title of secondary C-FIND SCP to query for Studies returned from externalAET",
             "required": true,
             "type": "string"
           },
@@ -5653,7 +5665,84 @@
             }
           },
           "404": {
-            "description": "External AE Title not found"
+            "description": "AE Title of Archive, primary or secondary C-FIND SCP not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/dimse/{externalAET}/diff/{originalAET}/studies/csv:{field}": {
+      "post": {
+        "tags": [
+          "DIMSE-RS",
+          "DIFF-RS"
+        ],
+        "summary": "Compares Studies specified in CSV",
+        "operationId": "CompareStudiesCSV",
+        "consumes": [
+          "text/csv"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title used as Calling AET for querying for Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "externalAET",
+            "in": "path",
+            "description": "AE Title of primary C-FIND SCP to query for Studies",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "originalAET",
+            "in": "path",
+            "description": "AE Title of secondary C-FIND SCP to query for Studies returned from externalAET",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "comparefield",
+            "in": "query",
+            "description": "comparefield={attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
+            "type": "integer",
+            "enum": [ 0, 1, 2 ],
+            "default": 0
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully scheduled Compare of Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "AE Title of Archive, primary or secondary C-FIND SCP not found"
           },
           "default": {
             "description": "unexpected error"
