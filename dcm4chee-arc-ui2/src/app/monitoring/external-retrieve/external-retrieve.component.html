@@ -37,10 +37,11 @@
             </div>
         </div>
         <div class="filter_block">
-          <div class="w50percent">
+          <div class="line">
             <mat-select [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
               <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</mat-option>
             </mat-select>
+            <div class="checkbox_button" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped">Batch ID grouped</mat-checkbox></div>
           </div>
         </div>
     </div>

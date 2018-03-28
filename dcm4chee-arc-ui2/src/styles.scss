@@ -300,6 +300,19 @@ p-calendar{
     float: left;
   }
 }
+.checkbox_button{
+  padding-left: 1vw;
+  color: #333333;
+  border:1px solid #cccccc;
+  &.active{
+    background:rgba(6, 29, 47, 0.84);
+    border: none;
+    color: white;
+    .mat-checkbox-checked.mat-accent .mat-checkbox-background, .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background{
+      background-color: rgb(46, 65, 80);
+    }
+  }
+}
 .csv_button{
   background:rgba(6, 29, 47, 0.84);
   color: white;
