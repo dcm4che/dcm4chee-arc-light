@@ -278,11 +278,11 @@
                     </mat-select>
                 </div>
                 <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'" (click)="diffFilter = !diffFilter">
-                    <span>Diff filters <i *ngIf="!diffFilter" class="glyphicon glyphicon-triangle-bottom"></i><i *ngIf="diffFilter" class="glyphicon glyphicon-triangle-top"></i></span>
+                    <span>Diff Options <i *ngIf="!diffFilter" class="glyphicon glyphicon-triangle-bottom"></i><i *ngIf="diffFilter" class="glyphicon glyphicon-triangle-top"></i></span>
                 </div>
-                <ng-container *ngIf="diffFilter">
+                <div class="toggle_diff" *ngIf="diffFilter">
                     <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
-                        <input type="checkbox" [(ngModel)]="diffQueue" placeholder="Queue" title="Queued diff" class="clearable" /> Queued diff
+                        <input type="checkbox" [(ngModel)]="diffQueue" placeholder="Queue" title="Queued diff" class="clearable" /> Queued
                     </div>
                     <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
                         <input type="checkbox" [(ngModel)]="missing" title="Include Studies different at Secondary AET" class="clearable" /> Missing Studies
@@ -290,7 +290,7 @@
                     <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
                         <input type="checkbox" [(ngModel)]="different" title="Include Studies missing at Secondary AET" class="clearable" /> Different Studies
                     </div>
-                </ng-container>
+                </div>
                 <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-size',param:'visible'}">
                    <span class="count_text" title="Total size of filtered studies found">Size: <b>{{size}}</b></span>
                     <span *ngIf="!showGetSizeLoader" (click)="getSize()" title="Get total size of filtered studies" class="glyphicon glyphicon-refresh"></span>

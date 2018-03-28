@@ -87,7 +87,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     };
     diffQueue = false;
     missing = true;
-    different = false;
+    different = true;
     queryMode = 'queryStudies';
     // ScheduledProcedureStepSequence: any = {
     //     ScheduledProcedureStepStartTime: {
@@ -1048,9 +1048,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.moreMWL = undefined;
         this.morePatients = undefined;
         let queryParameters = this.createQueryParams(offset, this.limit + 1, this.createStudyFilterParams());
-        if(this.diffQueue) queryParameters['queue'] = this.diffQueue;
-        if(this.missing) queryParameters['missing'] = this.missing;
-        if(this.different) queryParameters['different'] = this.different;
+        queryParameters['queue'] = this.diffQueue;
+        queryParameters['missing'] = this.missing;
+        queryParameters['different'] = this.different;
         this.queryDiff(queryParameters, offset);
     };
     setExpiredDate(study){
