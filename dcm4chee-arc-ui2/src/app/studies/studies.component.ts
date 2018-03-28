@@ -89,6 +89,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     missing = true;
     different = true;
     diffAttributeSet;
+    batchID;
     comparefield;
     queryMode = 'queryStudies';
     // ScheduledProcedureStepSequence: any = {
@@ -1054,6 +1055,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         queryParameters['queue'] = this.diffQueue;
         queryParameters['missing'] = this.missing;
         queryParameters['different'] = this.different;
+        if(this.batchID) queryParameters['batchID'] = this.batchID;
         if(this.comparefield && this.different) queryParameters['comparefield'] = this.comparefield;
         this.queryDiff(queryParameters, offset);
     };

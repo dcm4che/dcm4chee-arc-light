@@ -284,6 +284,9 @@
                     <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
                         <input type="checkbox" [(ngModel)]="diffQueue" placeholder="Queue" title="Queued diff" class="clearable" /> Queued
                     </div>
+                    <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff' && diffQueue">
+                        <input type="text" [(ngModel)]="batchID" title="Batch ID" class="clearable" placeholder="Batch ID"/>
+                    </div>
                     <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
                         <input type="checkbox" [(ngModel)]="missing" title="Include Studies different at Secondary AET" class="clearable" /> Missing Studies
                     </div>
@@ -294,6 +297,7 @@
                         <mat-option value="">*</mat-option>
                         <mat-option *ngFor="let attr of diffAttributeSet" [value]="attr.id" title="{{attr.description}}" >{{ attr.title }}</mat-option>
                     </mat-select>
+
                 </div>
                 <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-size',param:'visible'}">
                    <span class="count_text" title="Total size of filtered studies found">Size: <b>{{size}}</b></span>
