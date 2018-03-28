@@ -1376,13 +1376,13 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "different/missing studies as JSON array with DICOM JSON objects - may be empty if no study differs",
             "schema": {
               "type": "file"
             }
           },
           "204": {
-            "description": "no different study found"
+            "description": "no matching study found at primary C-FIND SCP"
           },
           "default": {
             "description": "unexpected error"
@@ -1815,13 +1815,13 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation",
+            "description": "different/missing studies as JSON array with DICOM JSON objects - may be empty if no study differs",
             "schema": {
               "type": "file"
             }
           },
           "204": {
-            "description": "no different study found"
+            "description": "no matching study found at primary C-FIND SCP"
           },
           "default": {
             "description": "unexpected error"
