@@ -46,10 +46,7 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.diff.DiffContext;
-import org.dcm4chee.arc.diff.DiffService;
-import org.dcm4chee.arc.diff.DiffSCU;
-import org.dcm4chee.arc.diff.DiffTaskOrder;
+import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
@@ -132,6 +129,11 @@ public class DiffServiceImpl implements DiffService {
     @Override
     public List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit) {
         return ejb.getDiffTaskAttributes(diffTask, offset, limit);
+    }
+
+    @Override
+    public List<DiffBatch> listDiffBatches(Predicate matchQueueBatch, Predicate matchDiffBatch, DiffBatchOrder order, int offset, int limit) {
+        return ejb.listDiffBatches(matchQueueBatch, matchDiffBatch, order, offset, limit);
     }
 
     private QueueMessage.Status check(String prompt, int failures, QueueMessage.Status status, StringBuilder sb) {

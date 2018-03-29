@@ -41,14 +41,12 @@
 
 package org.dcm4chee.arc.diff.impl;
 
-import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.diff.DiffContext;
-import org.dcm4chee.arc.diff.DiffSCU;
-import org.dcm4chee.arc.diff.DiffService;
-import org.dcm4chee.arc.diff.DiffTaskOrder;
+import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -63,7 +61,7 @@ import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -81,6 +79,23 @@ public class DiffServiceEJB {
 
     @Inject
     private QueueManager queueManager;
+
+    private static final Expression<?>[] SELECT = {
+            QQueueMessage.queueMessage.processingStartTime.min(),
+            QQueueMessage.queueMessage.processingStartTime.max(),
+            QQueueMessage.queueMessage.processingEndTime.min(),
+            QQueueMessage.queueMessage.processingEndTime.max(),
+            QQueueMessage.queueMessage.scheduledTime.min(),
+            QQueueMessage.queueMessage.scheduledTime.max(),
+            QDiffTask.diffTask.createdTime.min(),
+            QDiffTask.diffTask.createdTime.max(),
+            QDiffTask.diffTask.updatedTime.min(),
+            QDiffTask.diffTask.updatedTime.max(),
+            QDiffTask.diffTask.matches.sum(),
+            QDiffTask.diffTask.missing.sum(),
+            QDiffTask.diffTask.different.sum(),
+            QQueueMessage.queueMessage.batchID
+    };
 
     public void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException {
         try {
@@ -148,8 +163,7 @@ public class DiffServiceEJB {
         return createQuery(matchQueueMessage, matchDiffTask).fetchCount();
     }
 
-    private HibernateQuery<DiffTask> createQuery(
-            Predicate matchQueueMessage, Predicate matchDiffTask) {
+    private HibernateQuery<DiffTask> createQuery(Predicate matchQueueMessage, Predicate matchDiffTask) {
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(matchQueueMessage);
@@ -168,5 +182,128 @@ public class DiffServiceEJB {
                 .setFirstResult(offset)
                 .setMaxResults(limit)
                 .getResultList();
+    }
+
+    public List<DiffBatch> listDiffBatches(Predicate matchQueueBatch, Predicate matchDiffBatch, DiffBatchOrder order, int offset, int limit) {
+        HibernateQuery<DiffTask> diffTaskQuery = createQuery(matchQueueBatch, matchDiffBatch);
+        if (limit > 0)
+            diffTaskQuery.limit(limit);
+        if (offset > 0)
+            diffTaskQuery.offset(offset);
+
+        List<Tuple> batches = diffTaskQuery.select(SELECT)
+                                .groupBy(QQueueMessage.queueMessage.batchID)
+                                .orderBy(order.specifier)
+                                .fetch();
+
+        List<DiffBatch> diffBatches = new ArrayList<>();
+        for (Tuple batch : batches) {
+            DiffBatch diffBatch = new DiffBatch();
+            String batchID = batch.get(QQueueMessage.queueMessage.batchID);
+            diffBatch.setBatchID(batchID);
+
+            diffBatch.setCreatedTimeRange(
+                    batch.get(QDiffTask.diffTask.createdTime.min()),
+                    batch.get(QDiffTask.diffTask.createdTime.max()));
+            diffBatch.setUpdatedTimeRange(
+                    batch.get(QDiffTask.diffTask.updatedTime.min()),
+                    batch.get(QDiffTask.diffTask.updatedTime.max()));
+            diffBatch.setScheduledTimeRange(
+                    batch.get(QQueueMessage.queueMessage.scheduledTime.min()),
+                    batch.get(QQueueMessage.queueMessage.scheduledTime.max()));
+            diffBatch.setProcessingStartTimeRange(
+                    batch.get(QQueueMessage.queueMessage.processingStartTime.min()),
+                    batch.get(QQueueMessage.queueMessage.processingStartTime.max()));
+            diffBatch.setProcessingEndTimeRange(
+                    batch.get(QQueueMessage.queueMessage.processingEndTime.min()),
+                    batch.get(QQueueMessage.queueMessage.processingEndTime.max()));
+            diffBatch.setMatches(batch.get(QDiffTask.diffTask.matches.sum()));
+            diffBatch.setMissing(batch.get(QDiffTask.diffTask.missing.sum()));
+            diffBatch.setDifferent(batch.get(QDiffTask.diffTask.different.sum()));
+
+            diffBatch.setDeviceNames(
+                    batchIDQuery(batchID)
+                    .select(QQueueMessage.queueMessage.deviceName)
+                    .distinct()
+                    .fetch()
+                    .stream()
+                    .sorted()
+                    .toArray(String[]::new));
+            diffBatch.setLocalAETs(
+                    batchIDQuery(batchID)
+                            .select(QDiffTask.diffTask.localAET)
+                            .distinct()
+                            .fetch()
+                            .stream()
+                            .sorted()
+                            .toArray(String[]::new));
+            diffBatch.setPrimaryAETs(
+                    batchIDQuery(batchID)
+                            .select(QDiffTask.diffTask.primaryAET)
+                            .distinct()
+                            .fetch()
+                            .stream()
+                            .sorted()
+                            .toArray(String[]::new));
+            diffBatch.setSecondaryAETs(
+                    batchIDQuery(batchID)
+                            .select(QDiffTask.diffTask.secondaryAET)
+                            .distinct()
+                            .fetch()
+                            .stream()
+                            .sorted()
+                            .toArray(String[]::new));
+            diffBatch.setComparefields(
+                    batchIDQuery(batchID)
+                            .select(QDiffTask.diffTask.compareFields)
+                            .distinct()
+                            .fetch());
+            diffBatch.setCheckMissing(
+                    batchIDQuery(batchID)
+                            .select(QDiffTask.diffTask.checkMissing)
+                            .distinct()
+                            .fetch());
+            diffBatch.setCheckDifferent(
+                    batchIDQuery(batchID)
+                            .select(QDiffTask.diffTask.checkDifferent)
+                            .distinct()
+                            .fetch());
+
+            diffBatch.setCompleted(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
+                            .fetchCount());
+            diffBatch.setCanceled(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
+                            .fetchCount());
+            diffBatch.setWarning(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
+                            .fetchCount());
+            diffBatch.setFailed(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
+                            .fetchCount());
+            diffBatch.setScheduled(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
+                            .fetchCount());
+            diffBatch.setInProcess(
+                    batchIDQuery(batchID)
+                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
+                            .fetchCount());
+
+            diffBatches.add(diffBatch);
+        }
+
+        return diffBatches;
+    }
+
+    private HibernateQuery<DiffTask> batchIDQuery(String batchID) {
+        return new HibernateQuery<DiffTask>(em.unwrap(Session.class))
+                .from(QDiffTask.diffTask)
+                .leftJoin(QDiffTask.diffTask.queueMessage, QQueueMessage.queueMessage)
+                .where(QQueueMessage.queueMessage.batchID.eq(batchID));
     }
 }
