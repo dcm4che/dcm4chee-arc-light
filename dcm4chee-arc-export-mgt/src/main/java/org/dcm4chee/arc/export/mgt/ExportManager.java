@@ -48,6 +48,8 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.store.StoreContext;
 
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.enterprise.event.Observes;
 import java.util.List;
 
@@ -67,8 +69,8 @@ public interface ExportManager {
 
     void updateExportTask(Long pk);
 
-    List<ExportTask> search(Predicate matchQueueMessage, Predicate matchExportTask,
-                            ExportTaskOrder order, int offset, int limit);
+    ExportTaskQuery listExportTasks(Predicate matchQueueMessage, Predicate matchExportTask,
+                                    ExportTaskOrder order, int offset, int limit);
 
     long countExportTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 

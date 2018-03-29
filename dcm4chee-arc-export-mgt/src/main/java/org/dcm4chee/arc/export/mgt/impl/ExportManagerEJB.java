@@ -54,19 +54,19 @@ import org.dcm4chee.arc.entity.QExportTask;
 import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.export.mgt.ExportBatch;
-import org.dcm4chee.arc.export.mgt.ExportBatchOrder;
-import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.export.mgt.ExportTaskOrder;
+import org.dcm4chee.arc.export.mgt.*;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.jms.JMSException;
@@ -311,15 +311,11 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public List<ExportTask> search(Predicate matchQueueMessage, Predicate matchExportTask,
-                                   ExportTaskOrder order, int offset, int limit) {
-        HibernateQuery<ExportTask> exportQuery = createQuery(matchQueueMessage, matchExportTask);
-        if (limit > 0)
-            exportQuery.limit(limit);
-        if (offset > 0)
-            exportQuery.offset(offset);
-        exportQuery.orderBy(order.specifier);
-        return exportQuery.fetch();
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public ExportTaskQuery listExportTasks(Predicate matchQueueMessage, Predicate matchExportTask,
+                                           ExportTaskOrder order, int offset, int limit) {
+        return new ExportTaskQueryImpl(
+                openStatelessSession(), queryFetchSize(), matchQueueMessage, matchExportTask, order, offset, limit);
     }
 
     @Override
@@ -500,5 +496,13 @@ public class ExportManagerEJB implements ExportManager {
                 .from(QExportTask.exportTask)
                 .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
                 .where(QQueueMessage.queueMessage.batchID.eq(batchID));
+    }
+
+    private StatelessSession openStatelessSession() {
+        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 }
