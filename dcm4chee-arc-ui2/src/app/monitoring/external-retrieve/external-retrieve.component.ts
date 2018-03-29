@@ -63,6 +63,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
     interval = 10;
     tableHovered = false;
     Object = Object;
+    batchGrouped = false;
     constructor(
       public cfpLoadingBar: LoadingBarService,
       public mainservice: AppService,

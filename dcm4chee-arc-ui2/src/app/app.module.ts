@@ -5,6 +5,7 @@ import { HttpModule } from '@angular/http';
 import { RouterModule }   from '@angular/router';
 import {AppComponent} from './app.component';
 import {
+    MatCheckboxModule,
     MatDialogConfig, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule, MatProgressBarModule,
     MatProgressSpinnerModule,
     MatSelectModule
@@ -141,6 +142,7 @@ import {CsvRetrieveService} from "./widgets/dialogs/csv-retrieve/csv-retrieve.se
         MatInputModule,
         MatFormFieldModule,
         MatProgressSpinnerModule,
+        MatCheckboxModule,
         WidgetsModule,
         CommonModule,
         CalendarModule,

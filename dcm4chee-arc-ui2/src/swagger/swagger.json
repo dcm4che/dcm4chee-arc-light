@@ -5710,6 +5710,30 @@
             "type": "string"
           },
           {
+            "name": "different",
+            "in": "query",
+            "description": "include Studies different at originalAET",
+            "type": "boolean",
+            "default": "yes"
+          },
+          {
+            "name": "missing",
+            "in": "query",
+            "description": "include Studies missing at originalAET",
+            "type": "boolean",
+            "default": "no"
+          },
+          {
+            "name": "includefield",
+            "in": "query",
+            "description": "includefield={attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
             "name": "comparefield",
             "in": "query",
             "description": "comparefield={attributeID}",

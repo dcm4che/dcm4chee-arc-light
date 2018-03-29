@@ -55,23 +55,23 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     <!-- Define the version of the JBoss BOMs we want to import to specify tested stacks. -->
-    <wildfly-javaee7.version>10.1.0.Final</wildfly-javaee7.version>
-    <jbossws-cxf-client.version>5.1.5.Final</jbossws-cxf-client.version>
-    <apache-cxf.version>3.1.6</apache-cxf.version>
-    <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
-    <jaxws-tools-maven-plugin.version>1.2.0.Final</jaxws-tools-maven-plugin.version>
+    <wildfly-javaee7.version>12.0.0.Final</wildfly-javaee7.version>
+    <jbossws-cxf-client.version>5.2.0.Final</jbossws-cxf-client.version>
+    <apache-cxf.version>3.2.2</apache-cxf.version>
+    <maven-war-plugin.version>3.2.0</maven-war-plugin.version>
+    <jaxws-tools-maven-plugin.version>1.2.2.Final</jaxws-tools-maven-plugin.version>
     <!-- Versions -->
     <dcm4che.version>${project.version}</dcm4che.version>
     <jai_imageio.version>1.2-pre-dr-b04</jai_imageio.version>
     <hibernate.version>5.1.10.Final</hibernate.version>
     <jboss-ejb3-ext-api.version>2.2.0.Final</jboss-ejb3-ext-api.version>
-    <resteasy.version>3.0.24.Final</resteasy.version>
+    <resteasy.version>3.5.0.Final</resteasy.version>
     <jclouds.version>2.0.2</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
     <querydsl.version>4.1.4</querydsl.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
     <glassfish-json.version>1.0.4</glassfish-json.version>
-    <junit.version>4.11</junit.version>
+    <junit.version>4.12</junit.version>
 
     <!-- JPA -->
     <ds>java:/PacsDS</ds>
