@@ -411,6 +411,9 @@ public class ExportTaskRS {
     private String filters() {
         return "exporterID:" + exporterID +
                 ";archiveDevice:" + deviceName +
+                ";status:" + status +
+                ";studyUID:" + studyUID +
+                ";batchID:" + batchID +
                 ";createdTime:" + createdTime +
                 ";updatedTime:" + updatedTime;
     }
