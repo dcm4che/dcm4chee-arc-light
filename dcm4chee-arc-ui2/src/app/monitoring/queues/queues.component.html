@@ -14,17 +14,25 @@
                         </div>
                     </div>
                     <div class="row">
-                        <label for="status" class="col-md-6 text-right control-label">Status:</label>
                         <div class="col-md-6">
-                            <select id="status" [(ngModel)]="status" (change)="statusChange()" class="col-md-12">
-                                <option>*</option>
-                                <option>SCHEDULED</option>
-                                <option>IN PROCESS</option>
-                                <option>COMPLETED</option>
-                                <option>WARNING</option>
-                                <option>FAILED</option>
-                                <option>CANCELED</option>
-                            </select>
+                            <mat-select id="sort" [(ngModel)]="orderby" class="col-md-12" placeholder="Sort">
+                                <mat-option>*</mat-option>
+                                <mat-option value="createdTime">Sort by creation time (ASC)</mat-option>
+                                <mat-option value="-createdTime">Sort by creation time (DESC)</mat-option>
+                                <mat-option value="updatedTime">Sort by updated time (ASC)</mat-option>
+                                <mat-option value="-updatedTime">Sort by updated time (DESC)</mat-option>
+                            </mat-select>
+                        </div>
+                        <div class="col-md-6">
+                            <mat-select id="sort" [(ngModel)]="status" (change)="statusChange()" class="col-md-12" placeholder="Status">
+                                <mat-option>*</mat-option>
+                                <mat-option value="SCHEDULED">SCHEDULED</mat-option>
+                                <mat-option value="IN PROCESS">IN PROCESS</mat-option>
+                                <mat-option value="COMPLETED">COMPLETED</mat-option>
+                                <mat-option value="WARNING">WARNING</mat-option>
+                                <mat-option value="FAILED">FAILED</mat-option>
+                                <mat-option value="CANCELED">CANCELED</mat-option>
+                            </mat-select>
                         </div>
                     </div>
                     <div class="row">

@@ -11,13 +11,13 @@ export class QueuesService {
     header = new Headers({ 'Content-Type': 'application/json' });
     constructor(public $http:J4careHttpService, public mainservice: AppService, private deviceService:DevicesService) { }
 
-    search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID) {
-        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID)))
+    search(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby) {
+        return this.$http.get(this.url(queueName) + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby)))
             .map(res => j4care.redirectOnAuthResponse(res));
     };
 
-    getCount(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID) {
-        return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID)))
+    getCount(queueName, status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby) {
+        return this.$http.get(this.url(queueName) + '/count' + '?' + this.mainservice.param(this.queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby)))
             .map(res => j4care.redirectOnAuthResponse(res));
     };
 
@@ -66,7 +66,7 @@ export class QueuesService {
         return header;
     }
 
-    queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID) {
+    queryParams(status, offset, limit, dicomDeviceName,createdTime,updatedTime, batchID, orderby) {
         let params = {
             offset: offset,
             limit: limit,
@@ -74,8 +74,11 @@ export class QueuesService {
             status: undefined,
             createdTime:createdTime,
             updatedTime:updatedTime,
-            batchID:batchID
+            batchID:batchID,
+            orderby:undefined
         };
+        if (orderby != '*')
+            params.orderby = orderby;
         if (status != '*')
             params.status = status;
         return params;
