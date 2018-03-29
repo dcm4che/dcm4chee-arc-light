@@ -250,7 +250,7 @@ export class QueuesComponent implements OnInit{
     }
     getCount(){
         this.cfpLoadingBar.start();
-        this.service.getCount(this.queueName, this.status, undefined, undefined, this.dicomDeviceName, this.createdTime,this.updatedTime, this.batchID, this.orderby).subscribe((count)=>{
+        this.service.getCount(this.queueName, this.status, undefined, undefined, this.dicomDeviceName, this.createdTime,this.updatedTime, this.batchID, '').subscribe((count)=>{
             try{
                 this.count = count.count;
             }catch (e){

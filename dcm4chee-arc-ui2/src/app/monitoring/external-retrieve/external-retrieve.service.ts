@@ -26,6 +26,7 @@ export class ExternalRetrieveService {
         let filterClone = _.cloneDeep(filter);
             delete filterClone.offset;
             delete filterClone.limit;
+            delete filterClone.orderby;
         return this.$http.get('../monitor/retrieve/count' + '?' + this.mainservice.param(filterClone))
             .map(res => j4care.redirectOnAuthResponse(res));
     };
