@@ -5,15 +5,29 @@
             <div class="main_filter_block">
                 <div class="col-md-3 block-1-1">
                     <div class="row">
-                        <label for="exporterID" class="col-md-6 text-right control-label">Exporter ID:</label>
+                        <div class="col-md-6">
+                            <!--                            <select id="exporterID" name="reject" class="col-md-12" (change)="filters.ExporterID = $event.target.value">
+                                                            <option>*</option>
+                                                            <option *ngFor="let s of exporters" title="{{s.description}}" value="{{ s.id }}">{{ s.id }}</option>
+                                                        </select>-->
+                            <mat-select [(ngModel)]="filters.ExporterID" (change)="filters.ExporterID = $event.target.value" class="col-md-12" placeholder="Exporter ID">
+                                <mat-option>*</mat-option>
+                                <mat-option *ngFor="let s of exporters" title="{{s.description}}" value="{{ s.id }}">{{ s.id }}</mat-option>
+                            </mat-select>
+                        </div>
+                        <!--<label for="exporterID" class="col-md-6 text-right control-label">Exporter ID:</label>-->
                         <!--<div class="col-md-6">-->
                             <!--<input id="exporterID" type="text" [(ngModel)]="filters.ExporterID" class="col-md-12"/>-->
                         <!--</div>-->
-                        <div class="col-md-6">
-                            <select id="exporterID" name="reject" class="col-md-12" (change)="filters.ExporterID = $event.target.value">
-                                <option>*</option>
-                                <option *ngFor="let s of exporters" title="{{s.description}}" value="{{ s.id }}">{{ s.id }}</option>
+                        <div class="col-md-6" *ngIf="devices">
+                            <select [(ngModel)]="filters.dicomDeviceName" class="col-md-12" placeholder="Device">
+                                <option value="" selected disabled>Device name</option>
+                                <option value="">*</option>
+                                <option *ngFor="let device of devices" value="{{device.dicomDeviceName}}">{{device.dicomDeviceName}}</option>
                             </select>
+                        </div>
+                        <div class="col-md-6" *ngIf="!devices">
+                            <input type="text" [(ngModel)]="filters.dicomDeviceName" placeholder="Device" class="col-md-12"/>
                         </div>
                     </div>
                     <div class="row">
@@ -29,7 +43,7 @@
                         <div class="col-md-6">
                             <mat-select id="status" [(ngModel)]="filters.status" (change)="statusChange()" class="col-md-12" placeholder="Status">
                                 <mat-option>*</mat-option>
-                                <mat-option *ngFor="let sta of status">{{sta}}</mat-option>
+                                <mat-option *ngFor="let sta of status" value="{{sta}}">{{sta}}</mat-option>
                             </mat-select>
                         </div>
                     </div>
@@ -37,28 +51,25 @@
                 <div class="col-md-3 block-2-1">
                     <div class="row">
                         <div class="col-md-6">
-                            <input id="StudyInstanceUID" placeholder="Study Instance UID" type="text" min="1" [(ngModel)]="filters.StudyInstanceUID" class="col-md-12" />
+                            <range-picker [model]="filters.createdTime" (modelChange)="filters.createdTime = $event" mode="range" placeholder="Created" dateFormat="yymmdd"></range-picker>
                         </div>
-                        <div class="col-md-6" *ngIf="devices">
-                            <select [(ngModel)]="filters.dicomDeviceName" class="col-md-12" placeholder="Device">
-                                <option value="" selected disabled>Device name</option>
-                                <option value="">*</option>
-                                <option *ngFor="let device of devices" value="{{device.dicomDeviceName}}">{{device.dicomDeviceName}}</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6" *ngIf="!devices">
-                            <input type="text" [(ngModel)]="filters.dicomDeviceName" placeholder="Device" class="col-md-12"/>
+                        <div class="col-md-6">
+                            <range-picker [model]="filters.updatedTime" (modelChange)="filters.updatedTime = $event" mode="range" placeholder="Updated" dateFormat="yymmdd"></range-picker>
                         </div>
                     </div>
                     <div class="row">
                         <!--<label class="col-md-6 text-right control-label">Updated before:</label>-->
                         <div class="col-md-6">
-                            <!--<p-calendar  [(ngModel)]="filters.createdTimeObject" selectionMode="range" showButtonBar="true" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Created"></p-calendar>-->
-                            <range-picker [model]="filters.createdTime" (modelChange)="filters.createdTime = $event" mode="range" placeholder="Created" dateFormat="yymmdd"></range-picker>
+                            <mat-select id="sort" [(ngModel)]="filters.orderby" class="col-md-12" placeholder="Sort">
+                                <mat-option>*</mat-option>
+                                <mat-option value="createdTime">Sort by creation time (ASC)</mat-option>
+                                <mat-option value="-createdTime">Sort by creation time (DESC)</mat-option>
+                                <mat-option value="updatedTime">Sort by updated time (ASC)</mat-option>
+                                <mat-option value="-updatedTime">Sort by updated time (DESC)</mat-option>
+                            </mat-select>
                         </div>
                         <div class="col-md-6">
-                            <range-picker [model]="filters.updatedTime" (modelChange)="filters.updatedTime = $event" mode="range" placeholder="Updated" dateFormat="yymmdd"></range-picker>
-                            <!--<p-calendar  [(ngModel)]="filters.updatedTimeObject" selectionMode="range" showButtonBar="true" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="Updated"></p-calendar>-->
+                            <input id="StudyInstanceUID" placeholder="Study Instance UID" type="text" min="1" [(ngModel)]="filters.StudyInstanceUID" class="col-md-12" />
                         </div>
                     </div>
                     <div class="row">
@@ -178,13 +189,13 @@
                         <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
                         </a>
-                        <a *ngIf="isRole('admin') && ((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))" (click)="$event.preventDefault();cancel(match)" href="" title="Cancel">
+                        <a *ngIf="((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))" (click)="$event.preventDefault();cancel(match)" href="" title="Cancel">
                             <span class="glyphicon glyphicon-ban-circle"></span>
                         </a>
-                        <a *ngIf="isRole('admin') && ((match.properties.status && match.properties.status != 'SCHEDULED') && (match.properties.status && match.properties.status != 'IN PROCESS'))"  (click)="$event.preventDefault();reschedule(match)" href="" title="Reschedule">
+                        <a *ngIf="((match.properties.status && match.properties.status != 'SCHEDULED') && (match.properties.status && match.properties.status != 'IN PROCESS'))"  (click)="$event.preventDefault();reschedule(match)" href="" title="Reschedule">
                             <span class="glyphicon glyphicon-repeat"></span>
                         </a>
-                        <a *ngIf="isRole('admin')" (click)="$event.preventDefault();delete(match)" href="" title="Delete">
+                        <a (click)="$event.preventDefault();delete(match)" href="" title="Delete">
                             <span class="glyphicon glyphicon-remove-circle"></span>
                         </a>
                     </td>

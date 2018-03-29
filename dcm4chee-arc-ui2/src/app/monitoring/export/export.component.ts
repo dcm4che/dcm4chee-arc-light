@@ -37,6 +37,7 @@ export class ExportComponent implements OnInit {
         // updatedTimeObject: undefined,
         createdTime: undefined,
         batchID: undefined,
+        orderby: undefined,
         // createdTimeObject: undefined
     };
     timer = {
