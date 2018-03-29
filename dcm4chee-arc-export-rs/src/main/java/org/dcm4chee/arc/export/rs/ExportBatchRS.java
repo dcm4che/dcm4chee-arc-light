@@ -44,6 +44,7 @@ import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportBatch;
+import org.dcm4chee.arc.export.mgt.ExportBatchOrder;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.query.util.MatchBatch;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -117,7 +118,7 @@ public class ExportBatchRS {
         List<ExportBatch> exportBatches = mgr.listExportBatches(
                 MatchBatch.matchQueueBatch(deviceName, status()),
                 MatchBatch.matchExportBatch(exporterID, deviceName, createdTime, updatedTime),
-                parseInt(offset), parseInt(limit), orderby);
+                order(orderby), parseInt(offset), parseInt(limit));
         return Response.ok().entity(Output.JSON.entity(exportBatches)).build();
     }
 
@@ -168,6 +169,12 @@ public class ExportBatchRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private static ExportBatchOrder order(String orderby) {
+        return orderby != null
+                ? ExportBatchOrder.valueOf(orderby.replace('-', '_'))
+                : ExportBatchOrder._updatedTime;
     }
 
     private void logRequest() {

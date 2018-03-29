@@ -62,11 +62,13 @@ public interface ExportManager {
     int scheduleExportTasks(int fetchSize);
 
     void scheduleExportTask(String studyUID, String seriesUID, String objectUID, ExporterDescriptor exporter,
-                            HttpServletRequestInfo httpServletRequestInfo, String batchID) throws QueueSizeLimitExceededException;
+                            HttpServletRequestInfo httpServletRequestInfo, String batchID)
+            throws QueueSizeLimitExceededException;
 
     void updateExportTask(Long pk);
 
-    List<ExportTask> search(Predicate matchQueueMessage, Predicate matchExportTask, int offset, int limit, String orderby);
+    List<ExportTask> search(Predicate matchQueueMessage, Predicate matchExportTask,
+                            ExportTaskOrder order, int offset, int limit);
 
     long countExportTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 
@@ -82,5 +84,6 @@ public interface ExportManager {
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 
-    List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch, int offset, int limit, String orderby);
+    List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
+                                        ExportBatchOrder order, int offset, int limit);
 }

@@ -51,10 +51,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
-import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
-import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.*;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -379,21 +376,13 @@ public class QueueManagerEJB {
         return n;
     }
 
-    public List<QueueMessage> search(Predicate matchQueueMessage, int offset, int limit, String orderby) {
+    public List<QueueMessage> search(Predicate matchQueueMessage, QueueMessageOrder order, int offset, int limit) {
         HibernateQuery<QueueMessage> queueMsgQuery = createQuery(matchQueueMessage);
         if (limit > 0)
             queueMsgQuery.limit(limit);
         if (offset > 0)
             queueMsgQuery.offset(offset);
-
-        OrderSpecifier<Date> orderSpecifier = orderby == null || orderby.equals("-updatedTime")
-                                            ? QQueueMessage.queueMessage.updatedTime.desc()
-                                            : orderby.equals("updatedTime")
-                                                ? QQueueMessage.queueMessage.updatedTime.asc()
-                                                : orderby.equals("createdTime")
-                                                    ? QQueueMessage.queueMessage.createdTime.asc()
-                                                    : QQueueMessage.queueMessage.createdTime.desc();
-        queueMsgQuery.orderBy(orderSpecifier);
+        queueMsgQuery.orderBy(order.specifier);
         return queueMsgQuery.fetch();
     }
 

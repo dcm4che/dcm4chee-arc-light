@@ -84,7 +84,7 @@ public interface QueueManager {
 
     int deleteTasks(String queueName, Predicate matchQueueMessage);
 
-    List<QueueMessage> search(Predicate matchQueueMessage, int offset, int limit, String orderby);
+    List<QueueMessage> search(Predicate matchQueueMessage, QueueMessageOrder order, int offset, int limit);
 
     long countTasks(Predicate matchQueueMessage);
 

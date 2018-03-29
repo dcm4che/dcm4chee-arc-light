@@ -48,6 +48,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffSCU;
 import org.dcm4chee.arc.diff.DiffService;
+import org.dcm4chee.arc.diff.DiffTaskOrder;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -133,20 +134,13 @@ public class DiffServiceEJB {
     }
 
     public List<DiffTask> listDiffTasks(
-            Predicate matchQueueMessage, Predicate matchDiffTask, int offset, int limit, String orderby) {
+            Predicate matchQueueMessage, Predicate matchDiffTask, DiffTaskOrder order, int offset, int limit) {
         HibernateQuery<DiffTask> diffTaskQuery = createQuery(matchQueueMessage, matchDiffTask);
         if (limit > 0)
             diffTaskQuery.limit(limit);
         if (offset > 0)
             diffTaskQuery.offset(offset);
-        OrderSpecifier<Date> orderSpecifier = orderby == null || orderby.equals("-updatedTime")
-                                                ? QDiffTask.diffTask.updatedTime.desc()
-                                                : orderby.equals("updatedTime")
-                                                    ? QDiffTask.diffTask.updatedTime.asc()
-                                                    : orderby.equals("createdTime")
-                                                        ? QDiffTask.diffTask.createdTime.asc()
-                                                        : QDiffTask.diffTask.createdTime.desc();
-        diffTaskQuery.orderBy(orderSpecifier);
+        diffTaskQuery.orderBy(order.specifier);
         return diffTaskQuery.fetch();
     }
 

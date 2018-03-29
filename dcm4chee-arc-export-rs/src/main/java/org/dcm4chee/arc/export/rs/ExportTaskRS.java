@@ -50,6 +50,7 @@ import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
+import org.dcm4chee.arc.export.mgt.ExportTaskOrder;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
@@ -70,7 +71,6 @@ import java.io.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -150,9 +150,9 @@ public class ExportTaskRS {
                         null, deviceName, status(), batchID, null,null, null, null),
                 MatchTask.matchExportTask(
                         exporterID, deviceName, studyUID, createdTime, updatedTime),
-                parseInt(offset),
-                parseInt(limit),
-                orderby);
+                order(orderby), parseInt(offset),
+                parseInt(limit)
+        );
         return Response.ok(output.entity(tasks, device.getDeviceExtension(ArchiveDeviceExtension.class)), output.type).build();
     }
 
@@ -286,7 +286,7 @@ public class ExportTaskRS {
             int count = 0;
             List<ExportTask> exportTasks;
             do {
-                exportTasks = mgr.search(matchQueueMessage, matchExportTask, 0, fetchSize, null);
+                exportTasks = mgr.search(matchQueueMessage, matchExportTask, null, 0, fetchSize);
                 for (ExportTask task : exportTasks)
                     mgr.rescheduleExportTask(
                             task.getPk(),
@@ -409,14 +409,10 @@ public class ExportTaskRS {
     }
 
     private String filters() {
-        return Stream.of("exporterID:" + exporterID,
-                "archiveDevice:" + deviceName,
-                "status:" + status,
-                "studyUID:" + studyUID,
-                "batchID:" + batchID,
-                "createdTime:" + createdTime,
-                "updatedTime:" + updatedTime)
-                .collect(Collectors.joining(";"));
+        return "exporterID:" + exporterID +
+                ";archiveDevice:" + deviceName +
+                ";createdTime:" + createdTime +
+                ";updatedTime:" + updatedTime;
     }
 
     private QueueMessage.Status status() {
@@ -425,6 +421,12 @@ public class ExportTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private static ExportTaskOrder order(String orderby) {
+        return orderby != null
+                ? ExportTaskOrder.valueOf(orderby.replace('-', '_'))
+                : ExportTaskOrder._updatedTime;
     }
 
     private void logRequest() {

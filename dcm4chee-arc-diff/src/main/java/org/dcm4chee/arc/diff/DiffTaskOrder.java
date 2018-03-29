@@ -41,35 +41,24 @@
 
 package org.dcm4chee.arc.diff;
 
-import com.querydsl.core.types.Predicate;
-import org.dcm4chee.arc.entity.DiffTask;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import com.querydsl.core.types.OrderSpecifier;
+import org.dcm4chee.arc.entity.QDiffTask;
 
-import java.util.List;
+import java.util.Date;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since Feb 2018
+ * @since Mar 2018
  */
-public interface DiffService {
-    String QUEUE_NAME = "DiffTasks";
-    String JNDI_NAME = "jms/queue/DiffTasks";
+public enum DiffTaskOrder {
+    createdTime(QDiffTask.diffTask.createdTime.asc()),
+    _createdTime(QDiffTask.diffTask.createdTime.desc()),
+    updatedTime(QDiffTask.diffTask.updatedTime.asc()),
+    _updatedTime(QDiffTask.diffTask.updatedTime.desc());
 
-    DiffSCU createDiffSCU(DiffContext ctx);
+    public final OrderSpecifier<Date> specifier;
 
-    void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException;
-
-    Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo) throws Exception;
-
-    List<DiffTask> listDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask,
-                                 DiffTaskOrder order, int offset, int limit);
-
-    long countDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask);
-
-    DiffTask getDiffTask(long taskPK);
-
-    List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit);
+    DiffTaskOrder(OrderSpecifier<Date> specifier) {
+        this.specifier = specifier;
+    }
 }

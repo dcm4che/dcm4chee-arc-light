@@ -50,6 +50,7 @@ import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueMessageOrder;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -68,8 +69,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -137,9 +136,7 @@ public class QueueManagerRS {
         logRequest();
         return Response.ok(toEntity(mgr.search(
                 MatchTask.matchQueueMessage(queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null),
-                parseInt(offset),
-                parseInt(limit),
-                orderby)))
+                order(orderby), parseInt(offset), parseInt(limit))))
                 .build();
     }
 
@@ -307,14 +304,13 @@ public class QueueManagerRS {
     }
 
     private String filters() {
-        return Stream.of("queue:" + queueName,
-                "archiveDevice:" + deviceName,
-                "status:" + status,
-                "batchID:" + batchID,
-                "JMSMessageID:" + jmsMessageID,
-                "createdTime:" + createdTime,
-                "updatedTime:" + updatedTime)
-                .collect(Collectors.joining(";"));
+        return "queue:" + queueName +
+                ";archiveDevice:" + deviceName +
+                ";status:" + status +
+                ";batchID:" + batchID +
+                ";JMSMessageID:" + jmsMessageID +
+                ";createdTime:" + createdTime +
+                ";updatedTime:" + updatedTime;
     }
 
     private QueueMessage.Status status() {
@@ -323,6 +319,12 @@ public class QueueManagerRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private static QueueMessageOrder order(String orderby) {
+        return orderby != null
+                ? QueueMessageOrder.valueOf(orderby.replace('-', '_'))
+                : QueueMessageOrder._updatedTime;
     }
 
     private void logRequest() {

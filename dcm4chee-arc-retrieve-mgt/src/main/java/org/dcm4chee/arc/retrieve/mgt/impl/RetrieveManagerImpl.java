@@ -49,7 +49,9 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
+import org.dcm4chee.arc.retrieve.mgt.RetrieveBatchOrder;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
+import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskOrder;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,8 +147,9 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask, int offset, int limit, String orderby) {
-        return ejb.search(matchQueueMessage, matchRetrieveTask, offset, limit, orderby);
+    public List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask,
+                                     RetrieveTaskOrder order, int offset, int limit) {
+        return ejb.search(matchQueueMessage, matchRetrieveTask, order, offset, limit);
     }
 
     @Override
@@ -187,7 +190,8 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch, int offset, int limit, String orderby) {
-        return ejb.listRetrieveBatches(matchQueueBatch, matchRetrieveBatch, offset, limit, orderby);
+    public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
+                                                   RetrieveBatchOrder order, int offset, int limit) {
+        return ejb.listRetrieveBatches(matchQueueBatch, matchRetrieveBatch, order, offset, limit);
     }
 }

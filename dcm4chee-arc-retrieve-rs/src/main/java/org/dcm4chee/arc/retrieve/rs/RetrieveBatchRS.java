@@ -45,6 +45,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.query.util.MatchBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
+import org.dcm4chee.arc.retrieve.mgt.RetrieveBatchOrder;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -123,7 +124,7 @@ public class RetrieveBatchRS {
         List<RetrieveBatch> retrieveBatches =  mgr.listRetrieveBatches(
                 MatchBatch.matchQueueBatch(deviceName, status()),
                 MatchBatch.matchRetrieveBatch(localAET, remoteAET, destinationAET, createdTime, updatedTime),
-                parseInt(offset), parseInt(limit), orderby);
+                order(orderby), parseInt(offset), parseInt(limit));
         return Response.ok().entity(Output.JSON.entity(retrieveBatches)).build();
     }
 
@@ -176,6 +177,12 @@ public class RetrieveBatchRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private static RetrieveBatchOrder order(String orderby) {
+        return orderby != null
+                ? RetrieveBatchOrder.valueOf(orderby.replace('-', '_'))
+                : RetrieveBatchOrder._updatedTime;
     }
 
     private void logRequest() {

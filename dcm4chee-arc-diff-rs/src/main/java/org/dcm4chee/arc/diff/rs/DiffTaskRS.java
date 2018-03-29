@@ -44,6 +44,7 @@ package org.dcm4chee.arc.diff.rs;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.diff.DiffService;
+import org.dcm4chee.arc.diff.DiffTaskOrder;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -148,7 +149,7 @@ public class DiffTaskRS {
                         null, deviceName, status(), batchID, null, null, null, null),
                 MatchTask.matchDiffTask(localAET, primaryAET, secondaryAET, checkDifferent, checkMissing,
                         comparefields, createdTime, updatedTime),
-                parseInt(offset), parseInt(limit), orderby);
+                order(orderby), parseInt(offset), parseInt(limit));
 
         return Response.ok(output.entity(diffTasks), output.type).build();
     }
@@ -278,6 +279,12 @@ public class DiffTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private static DiffTaskOrder order(String orderby) {
+        return orderby != null
+                ? DiffTaskOrder.valueOf(orderby.replace('-', '_'))
+                : DiffTaskOrder._updatedTime;
     }
 
     private QueueMessage.Status status() {

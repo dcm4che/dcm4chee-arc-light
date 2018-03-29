@@ -49,6 +49,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.diff.DiffSCU;
+import org.dcm4chee.arc.diff.DiffTaskOrder;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
@@ -104,8 +105,9 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public List<DiffTask> listDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, int offset, int limit, String orderby) {
-        return ejb.listDiffTasks(matchQueueMessage, matchDiffTask, offset, limit, orderby);
+    public List<DiffTask> listDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask,
+                                        DiffTaskOrder order, int offset, int limit) {
+        return ejb.listDiffTasks(matchQueueMessage, matchDiffTask, order, offset, limit);
     }
 
     @Override

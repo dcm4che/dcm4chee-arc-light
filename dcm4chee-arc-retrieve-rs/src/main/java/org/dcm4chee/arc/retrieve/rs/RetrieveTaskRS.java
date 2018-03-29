@@ -53,6 +53,7 @@ import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
+import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskOrder;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,6 @@ import java.io.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -157,7 +157,7 @@ public class RetrieveTaskRS {
                         null, deviceName, status(), batchID, null, null, null, null),
                 MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime),
-                parseInt(offset), parseInt(limit), orderby);
+                order(orderby), parseInt(offset), parseInt(limit));
         return Response.ok(output.entity(tasks), output.type).build();
     }
 
@@ -388,16 +388,15 @@ public class RetrieveTaskRS {
     }
 
     private String filters() {
-        return Stream.of("localAET:" + localAET,
-                "remoteAET:" + remoteAET,
-                "destinationAET:" + destinationAET,
-                "archiveDevice:" + deviceName,
-                "status:" + status,
-                "studyUID:" + studyIUID,
-                "batchID:" + batchID,
-                "createdTime:" + createdTime,
-                "updatedTime:" + updatedTime)
-                .collect(Collectors.joining(";"));
+        return "localAET:" + localAET +
+                ";remoteAET:" + remoteAET +
+                ";destinationAET:" + destinationAET +
+                ";archiveDevice:" + deviceName +
+                ";status:" + status +
+                ";studyUID:" + studyIUID +
+                ";batchID:" + batchID +
+                ";createdTime:" + createdTime +
+                ";updatedTime:" + updatedTime;
     }
 
     private QueueMessage.Status status() {
@@ -411,5 +410,11 @@ public class RetrieveTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private static RetrieveTaskOrder order(String orderby) {
+        return orderby != null
+                ? RetrieveTaskOrder.valueOf(orderby.replace('-', '_'))
+                : RetrieveTaskOrder._updatedTime;
     }
 }
