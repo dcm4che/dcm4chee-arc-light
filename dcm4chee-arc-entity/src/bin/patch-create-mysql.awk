@@ -30,6 +30,8 @@ BEGIN { FS = "[ )]" }
             && $6 != "(metadata_update_time" \
             && $6 != "(inst_purge_time" \
             && $6 != "(inst_purge_state" \
+            && $6 != "(check_missing" \
+            && $6 != "(check_different" \
         ) {
         print $1 " " $2 " " $3 " " $4 " " $5 " " $6 "(64));"
     } else {
