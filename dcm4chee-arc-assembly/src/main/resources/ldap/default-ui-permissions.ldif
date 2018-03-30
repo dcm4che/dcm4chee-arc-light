@@ -1,0 +1,362 @@
+version: 1
+
+dn: dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiConfigName: default
+objectClass: dcmuiConfig
+
+dn: dcmuiPermissionName=Menu - Studies,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Menu - Studies
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiAction: menu-studies
+
+dn: dcmuiPermissionName=Menu - Monitoring,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Menu - Monitoring
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiAction: menu-monitoring
+
+dn: dcmuiPermissionName=Menu - Configuration,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Menu - Configuration
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiAction: menu-configuration
+
+dn: dcmuiPermissionName=Action - Studies - Size,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Size
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiAction: action-studies-size
+
+dn: dcmuiPermissionName=Tab - Monitoring Export,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Monitoring Export
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-monitoring->export
+
+dn: dcmuiPermissionName=Tab - Monitoring Queues,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Monitoring Queues
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-monitoring->queues
+
+dn: dcmuiPermissionName=Action - Studies - Count,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Count
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-count
+
+dn: dcmuiPermissionName=Tab - Monitoring Control,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Monitoring Control
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-monitoring->control
+
+dn: dcmuiPermissionName=Action - Studies - Edit MWL,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Edit MWL
+dcmuiActionParam: upload
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-mwl
+
+dn: dcmuiPermissionName=Menu - Lifecycle Management,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Menu - Lifecycle Management
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: menu-lifecycle_management
+
+dn: dcmuiPermissionName=Tab - Configuration Ae List,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Configuration Ae List
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-configuration->ae_list
+
+dn: dcmuiPermissionName=Tab - Configuration Devices,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Configuration Devices
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-configuration->devices
+
+dn: dcmuiPermissionName=Action - Device Configuration,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Device Configuration
+dcmuiActionParam: accessible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-devicelist-device_configuration
+
+dn: dcmuiPermissionName=Action - Studies - Create MWL,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Create MWL
+dcmuiActionParam: create
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-mwl
+
+dn: dcmuiPermissionName=Action - Studies - Delete MWL,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Delete MWL
+dcmuiActionParam: delete
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-mwl
+
+dn: dcmuiPermissionName=Action - Studies - Edit study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Edit study
+dcmuiActionParam: edit
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-study
+
+dn: dcmuiPermissionName=Tab - Monitoring Associations,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Monitoring Associations
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-monitoring->associations
+
+dn: dcmuiPermissionName=Action - Device Config Actions,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Device Config Actions
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-devicelist-device_configuration
+
+dn: dcmuiPermissionName=Action - Studies - Open Viewer,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Open Viewer
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-viewer
+
+dn: dcmuiPermissionName=Action - Studies - Show Series,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Show Series
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiAction: action-studies-serie
+
+dn: dcmuiPermissionName=Menu - Audit Record Repository,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Menu - Audit Record Repository
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: menu-audit_record_repository
+
+dn: dcmuiPermissionName=Action - Studies - Delete study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Delete study
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-download
+
+dn: dcmuiPermissionName=Action - Studies - Edit Patient,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Edit Patient
+dcmuiActionParam: edit
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-patient
+
+dn: dcmuiPermissionName=Action - Studies - Export study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Export study
+dcmuiActionParam: export
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-study
+
+dn: dcmuiPermissionName=Action - Studies - Reject study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Reject study
+dcmuiActionParam: reject
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-study
+
+dn: dcmuiPermissionName=Action - Studies - Export Series,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Export Series
+dcmuiActionParam: export
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-serie
+
+dn: dcmuiPermissionName=Action - Studies - More Function,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - More Function
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-more_function
+
+dn: dcmuiPermissionName=Action - Studies - Reject Series,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Reject Series
+dcmuiActionParam: reject
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-serie
+
+dn: dcmuiPermissionName=Action - Studies - Restore Study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Restore Study
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiAction: action-studies-restore_study
+
+dn: dcmuiPermissionName=Action - Studies - Restore study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Restore study
+dcmuiActionParam: restore
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-study
+
+dn: dcmuiPermissionName=Tab - Monitoring Storage Systems,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Monitoring Storage Systems
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-monitoring->storage_systems
+
+dn: dcmuiPermissionName=Action - Studies - Delete Patient,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Delete Patient
+dcmuiActionParam: delete
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-patient
+
+dn: dcmuiPermissionName=Action - Studies - Restore Series,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Restore Series
+dcmuiActionParam: restore
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-serie
+
+dn: dcmuiPermissionName=Action - Studies - Copy Merge Move,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Copy Merge Move
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-copy_merge_move
+
+dn: dcmuiPermissionName=Action - Studies - Export Instance,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Export Instance
+dcmuiActionParam: export
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-instance
+
+dn: dcmuiPermissionName=Action - Studies - Reject Instance,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Reject Instance
+dcmuiActionParam: reject
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-serie
+
+dn: dcmuiPermissionName=Tab - Monitoring External Retrieve,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Monitoring External Retrieve
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-monitoring->external_retrieve
+
+dn: dcmuiPermissionName=Action - Studies - Restore Instance,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Restore Instance
+dcmuiActionParam: restore
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-instance
+
+dn: dcmuiPermissionName=Tab - Configuration Hl7 Applications,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Configuration Hl7 Applications
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-configuration->hl7_applications
+
+dn: dcmuiPermissionName=Tab - Monitoring Storage Commitments,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Tab - Monitoring Storage Commitments
+dcmuiActionParam: accessible
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: tab-monitoring->storage_commitments
+
+dn: dcmuiPermissionName=Action - Monitoring Export All Actions,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Monitoring Export All Actions
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-monitoring->export-all_action
+
+dn: dcmuiPermissionName=Action - Monitoring Queues All Actions,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Monitoring Queues All Actions
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-monitoring->queues-all_action
+
+dn: dcmuiPermissionName=Action - Studies - Upload File in study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Upload File in study
+dcmuiActionParam: upload
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-studies-study
+
+dn: dcmuiPermissionName=Action - Monitoring Export Single Action,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Monitoring Export Single Action
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-monitoring->export-single_action
+
+dn: dcmuiPermissionName=Action - Monitoring Queues Single Actions,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Monitoring Queues Single Actions
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-monitoring->queues-single_action
+
+dn: dcmuiPermissionName=Action - Studies - Verify Storage Commitment,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Studies - Verify Storage Commitment
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmAcceptedUserRole: user
+dcmuiAction: action-studies-verify_storage_commitment
+
+dn: dcmuiPermissionName=Action - Monitoring - External Retrieve All Actions,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Monitoring - External Retrieve All Actions
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-monitoring->external_retrieve-all_action
+
+dn: dcmuiPermissionName=Action - Monitoring - External Retrieve Single Action,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiPermissionName: Action - Monitoring - External Retrieve Single Action
+dcmuiActionParam: visible
+objectClass: dcmuiPermission
+dcmAcceptedUserRole: admin
+dcmuiAction: action-monitoring->external_retrieve-single_action
+
