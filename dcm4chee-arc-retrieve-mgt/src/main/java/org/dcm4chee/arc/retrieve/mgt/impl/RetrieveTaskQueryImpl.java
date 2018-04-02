@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.retrieve.mgt.impl;
 
 import com.mysema.commons.lang.CloseableIterator;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.util.SafeClose;
@@ -49,16 +50,14 @@ import org.dcm4chee.arc.entity.QQueueMessage;
 import org.dcm4chee.arc.entity.QRetrieveTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
-import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskOrder;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
-import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -74,7 +73,7 @@ class RetrieveTaskQueryImpl implements RetrieveTaskQuery {
     public RetrieveTaskQueryImpl(StatelessSession session, int fetchSize,
                                  Predicate matchQueueMessage,
                                  Predicate matchRetrieveTask,
-                                 RetrieveTaskOrder order,
+                                 OrderSpecifier<Date> order,
                                  int offset, int limit) {
         this.session = session;
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(session)
@@ -87,7 +86,7 @@ class RetrieveTaskQueryImpl implements RetrieveTaskQuery {
             query.limit(limit);
         if (offset > 0)
             query.offset(offset);
-        query.orderBy(order.specifier);
+        query.orderBy(order);
         query.setFetchSize(fetchSize);
     }
 

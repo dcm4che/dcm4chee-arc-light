@@ -38,6 +38,7 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -51,6 +52,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.jms.ObjectMessage;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 @ApplicationScoped
@@ -180,7 +182,7 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public List<QueueMessage> search(Predicate matchQueueMessage, QueueMessageOrder order, int offset, int limit) {
+    public List<QueueMessage> search(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit) {
         return ejb.search(matchQueueMessage, order, offset, limit);
     }
 

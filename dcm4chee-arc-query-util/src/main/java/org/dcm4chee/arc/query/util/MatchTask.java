@@ -41,10 +41,16 @@
 package org.dcm4chee.arc.query.util;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.ComparableExpressionBase;
+import com.querydsl.core.types.dsl.DateTimeExpression;
+import com.querydsl.core.types.dsl.DateTimePath;
 import org.dcm4chee.arc.entity.*;
 
 import java.util.Date;
+import java.util.function.Function;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -143,4 +149,100 @@ public class MatchTask {
         return predicate;
     }
 
+    public static OrderSpecifier<Date> queueMessageOrder(String orderby) {
+        return taskOrder(orderby, QQueueMessage.queueMessage.createdTime, QQueueMessage.queueMessage.updatedTime);
+    }
+
+    public static OrderSpecifier<Date> exportTaskOrder(String orderby) {
+        return taskOrder(orderby, QExportTask.exportTask.createdTime, QExportTask.exportTask.updatedTime);
+    }
+
+    public static OrderSpecifier<Date> exportBatchOrder(String orderby) {
+        return batchOrder(orderby, QExportTask.exportTask.createdTime, QExportTask.exportTask.updatedTime);
+    }
+
+    public static OrderSpecifier<Date> retrieveTaskOrder(String orderby) {
+        return taskOrder(orderby, QRetrieveTask.retrieveTask.createdTime, QRetrieveTask.retrieveTask.updatedTime);
+    }
+
+    public static OrderSpecifier<Date> retrieveBatchOrder(String orderby) {
+        return batchOrder(orderby, QRetrieveTask.retrieveTask.createdTime, QRetrieveTask.retrieveTask.updatedTime);
+    }
+
+    private static OrderSpecifier<Date> taskOrder(
+            String orderby, DateTimePath<Date> createdTime, DateTimePath<Date> updatedTime) {
+        return order(orderby, createdTime, updatedTime, ComparableExpressionBase::asc, ComparableExpressionBase::desc);
+    }
+
+    private static OrderSpecifier<Date> batchOrder(
+            String orderby, DateTimePath<Date> createdTime, DateTimePath<Date> updatedTime) {
+        return order(orderby, createdTime, updatedTime,
+                ((Function<DateTimeExpression<Date>, DateTimeExpression<Date>>) DateTimeExpression::min)
+                        .andThen(ComparableExpressionBase::asc),
+                ((Function<DateTimeExpression<Date>, DateTimeExpression<Date>>) DateTimeExpression::max)
+                        .andThen(ComparableExpressionBase::desc));
+    }
+
+    private static OrderSpecifier<Date> order(
+            String orderby,
+            DateTimePath<Date> createdTime,
+            DateTimePath<Date> updatedTime,
+            Function<DateTimeExpression<Date>,OrderSpecifier<Date>> asc,
+            Function<DateTimeExpression<Date>,OrderSpecifier<Date>> desc) {
+        switch (orderby) {
+            case "createdTime":
+                return asc.apply(createdTime);
+            case "updatedTime":
+                return asc.apply(updatedTime);
+            case "-createdTime":
+                return desc.apply(createdTime);
+            case "-updatedTime":
+                return desc.apply(updatedTime);
+        }
+        throw new IllegalArgumentException(orderby);
+    }
+
+    public static Predicate matchQueueBatch(String deviceName, QueueMessage.Status status) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        predicate.and(QQueueMessage.queueMessage.batchID.isNotNull());
+        if (status != null)
+            predicate.and(QQueueMessage.queueMessage.status.in(status));
+        if (deviceName != null)
+            predicate.and(QQueueMessage.queueMessage.deviceName.in(deviceName));
+        return predicate;
+    }
+
+    public static Predicate matchExportBatch(
+            String exporterID, String deviceName, String createdTime, String updatedTime) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (exporterID != null)
+            predicate.and(QExportTask.exportTask.exporterID.in(exporterID));
+        if (deviceName != null)
+            predicate.and(QExportTask.exportTask.deviceName.in(deviceName));
+        if (createdTime != null)
+            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
+                    QExportTask.exportTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT)));
+        if (updatedTime != null)
+            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
+                    QExportTask.exportTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT)));
+        return predicate;
+    }
+
+    public static Predicate matchRetrieveBatch(
+            String localAET, String remoteAET, String destinationAET, String createdTime, String updatedTime) {
+        BooleanBuilder predicate = new BooleanBuilder();
+        if (localAET != null)
+            predicate.and(QRetrieveTask.retrieveTask.localAET.eq(localAET));
+        if (remoteAET != null)
+            predicate.and(QRetrieveTask.retrieveTask.remoteAET.eq(remoteAET));
+        if (destinationAET != null)
+            predicate.and(QRetrieveTask.retrieveTask.destinationAET.eq(destinationAET));
+        if (createdTime != null)
+            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
+                    QRetrieveTask.retrieveTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT)));
+        if (updatedTime != null)
+            predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
+                    QRetrieveTask.retrieveTask.updatedTime, updatedTime, MatchDateTimeRange.FormatDate.DT)));
+        return predicate;
+    }
 }

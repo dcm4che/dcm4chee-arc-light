@@ -42,6 +42,7 @@ package org.dcm4chee.arc.export.mgt.impl;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -313,7 +314,7 @@ public class ExportManagerEJB implements ExportManager {
     @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public ExportTaskQuery listExportTasks(Predicate matchQueueMessage, Predicate matchExportTask,
-                                           ExportTaskOrder order, int offset, int limit) {
+                                           OrderSpecifier<Date> order, int offset, int limit) {
         return new ExportTaskQueryImpl(
                 openStatelessSession(), queryFetchSize(), matchQueueMessage, matchExportTask, order, offset, limit);
     }
@@ -411,7 +412,7 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
-                                               ExportBatchOrder order, int offset, int limit) {
+                                               OrderSpecifier<Date> order, int offset, int limit) {
         HibernateQuery<ExportTask> exportTaskQuery = createQuery(matchQueueBatch, matchExportBatch);
         if (limit > 0)
             exportTaskQuery.limit(limit);
@@ -420,7 +421,7 @@ public class ExportManagerEJB implements ExportManager {
 
         List<Tuple> batches = exportTaskQuery.select(SELECT)
                                 .groupBy(QQueueMessage.queueMessage.batchID)
-                                .orderBy(order.specifier)
+                                .orderBy(order)
                                 .fetch();
 
         List<ExportBatch> exportBatches = new ArrayList<>();

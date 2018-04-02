@@ -50,7 +50,6 @@ import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.QueueMessageOrder;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -126,6 +125,7 @@ public class QueueManagerRS {
     private String jmsMessageID;
 
     @QueryParam("orderby")
+    @DefaultValue("-updatedTime")
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
     private String orderby;
 
@@ -136,7 +136,7 @@ public class QueueManagerRS {
         logRequest();
         return Response.ok(toEntity(mgr.search(
                 MatchTask.matchQueueMessage(queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null),
-                order(orderby), parseInt(offset), parseInt(limit))))
+                MatchTask.queueMessageOrder(orderby), parseInt(offset), parseInt(limit))))
                 .build();
     }
 
@@ -319,12 +319,6 @@ public class QueueManagerRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
-    }
-
-    private static QueueMessageOrder order(String orderby) {
-        return orderby != null
-                ? QueueMessageOrder.valueOf(orderby.replace('-', '_'))
-                : QueueMessageOrder._updatedTime;
     }
 
     private void logRequest() {

@@ -53,7 +53,6 @@ import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
-import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskOrder;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -140,6 +139,7 @@ public class RetrieveTaskRS {
     private String limit;
 
     @QueryParam("orderby")
+    @DefaultValue("-updatedTime")
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
     private String orderby;
 
@@ -158,7 +158,7 @@ public class RetrieveTaskRS {
                         null, deviceName, status(), batchID, null, null, null, null),
                 MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime),
-                order(orderby), parseInt(offset), parseInt(limit));
+                MatchTask.retrieveTaskOrder(orderby), parseInt(offset), parseInt(limit));
         return Response.ok(output.entity(tasks), output.type).build();
     }
 
@@ -415,11 +415,5 @@ public class RetrieveTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
-    }
-
-    private static RetrieveTaskOrder order(String orderby) {
-        return orderby != null
-                ? RetrieveTaskOrder.valueOf(orderby.replace('-', '_'))
-                : RetrieveTaskOrder._updatedTime;
     }
 }

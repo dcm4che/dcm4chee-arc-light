@@ -40,6 +40,7 @@ package org.dcm4chee.arc.retrieve.mgt.impl;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -58,7 +59,6 @@ import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
-import org.dcm4chee.arc.retrieve.mgt.RetrieveBatchOrder;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -72,6 +72,7 @@ import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -253,7 +254,7 @@ public class RetrieveManagerEJB {
     }
 
     public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
-                                                   RetrieveBatchOrder order, int offset, int limit) {
+                                                   OrderSpecifier<Date> order, int offset, int limit) {
         HibernateQuery<RetrieveTask> retrieveTaskQuery = createQuery(matchQueueBatch, matchRetrieveBatch);
         if (limit > 0)
             retrieveTaskQuery.limit(limit);
@@ -262,7 +263,7 @@ public class RetrieveManagerEJB {
 
         List<Tuple> batches = retrieveTaskQuery.select(SELECT)
                                 .groupBy(QQueueMessage.queueMessage.batchID)
-                                .orderBy(order.specifier)
+                                .orderBy(order)
                                 .fetch();
         
         List<RetrieveBatch> retrieveBatches = new ArrayList<>();

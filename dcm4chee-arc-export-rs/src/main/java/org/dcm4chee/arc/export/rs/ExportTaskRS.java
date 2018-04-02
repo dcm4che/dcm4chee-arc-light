@@ -50,7 +50,6 @@ import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.export.mgt.ExportTaskOrder;
 import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
@@ -70,7 +69,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -130,6 +128,7 @@ public class ExportTaskRS {
     private String limit;
 
     @QueryParam("orderby")
+    @DefaultValue("-updatedTime")
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
     private String orderby;
 
@@ -149,10 +148,9 @@ public class ExportTaskRS {
         ExportTaskQuery tasks = mgr.listExportTasks(
                 MatchTask.matchQueueMessage(
                         null, deviceName, status(), batchID, null,null, null, null),
-                MatchTask.matchExportTask(
-                        exporterID, deviceName, studyUID, createdTime, updatedTime),
-                order(orderby), parseInt(offset),
-                parseInt(limit)
+                MatchTask.matchExportTask(exporterID, deviceName, studyUID, createdTime, updatedTime),
+                MatchTask.exportTaskOrder(orderby),
+                parseInt(offset), parseInt(limit)
         );
         return Response.ok(output.entity(tasks, device.getDeviceExtension(ArchiveDeviceExtension.class)), output.type).build();
     }
@@ -428,12 +426,6 @@ public class ExportTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
-    }
-
-    private static ExportTaskOrder order(String orderby) {
-        return orderby != null
-                ? ExportTaskOrder.valueOf(orderby.replace('-', '_'))
-                : ExportTaskOrder._updatedTime;
     }
 
     private void logRequest() {

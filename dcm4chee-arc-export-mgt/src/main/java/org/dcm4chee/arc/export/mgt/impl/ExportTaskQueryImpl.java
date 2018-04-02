@@ -42,17 +42,18 @@
 package org.dcm4chee.arc.export.mgt.impl;
 
 import com.mysema.commons.lang.CloseableIterator;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.export.mgt.ExportTaskOrder;
 import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
 import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.Iterator;
 
 /**
@@ -69,7 +70,7 @@ class ExportTaskQueryImpl implements ExportTaskQuery {
     public ExportTaskQueryImpl(StatelessSession session, int fetchSize,
                                Predicate matchQueueMessage,
                                Predicate matchExportTask,
-                               ExportTaskOrder order,
+                               OrderSpecifier<Date> order,
                                int offset, int limit) {
         this.session = session;
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(session)
@@ -85,7 +86,7 @@ class ExportTaskQueryImpl implements ExportTaskQuery {
         if (offset > 0)
             query.offset(offset);
         if (order != null)
-            query.orderBy(order.specifier);
+            query.orderBy(order);
         query.setFetchSize(fetchSize);
     }
 

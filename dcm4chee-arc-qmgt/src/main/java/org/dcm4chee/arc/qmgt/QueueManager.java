@@ -40,12 +40,14 @@
 
 package org.dcm4chee.arc.qmgt;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 
 import javax.jms.ObjectMessage;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -84,7 +86,7 @@ public interface QueueManager {
 
     int deleteTasks(String queueName, Predicate matchQueueMessage);
 
-    List<QueueMessage> search(Predicate matchQueueMessage, QueueMessageOrder order, int offset, int limit);
+    List<QueueMessage> search(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit);
 
     long countTasks(Predicate matchQueueMessage);
 
