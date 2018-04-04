@@ -125,7 +125,7 @@ dcmTag: 00400515
 dcmTag: 00400551
 dcmTag: 00400554
 dcmTag: 00400562
---
+-
 
 dn: dcmAttributeSetID=AttributeFilters+dcmAttributeSetType=WADO_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: modify
@@ -138,7 +138,7 @@ dcmTag: 00400515
 dcmTag: 00400551
 dcmTag: 00400554
 dcmTag: 00400562
---
+-
 
 dn: dcmQueueName=DiffTasks,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
