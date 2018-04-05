@@ -293,7 +293,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
     }
     allActionChanged(e){
         let text = `Are you sure, you want to ${this.allAction} all matching tasks?`;
-        let filter = Object.assign(this.filterObject);
+        let filter = Object.assign({}, this.filterObject);
         delete filter.limit;
         delete filter.offset;
         this.confirm({
@@ -344,10 +344,10 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                     break;
                 }
                 this.cfpLoadingBar.complete();
-                this.allAction = "";
-                this.allAction = undefined;
             }
         });
+        this.allAction = "";
+        this.allAction = undefined;
     }
     delete(match){
         let $this = this;
