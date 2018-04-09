@@ -10,6 +10,7 @@ import {j4care} from "../helpers/j4care.service";
 import {ScalarObservable} from "rxjs/observable/ScalarObservable";
 import 'rxjs/add/operator/switchMap';
 import {Globalvar} from "../constants/globalvar";
+import {HttpErrorResponse, HttpHeaders} from "@angular/common/http";
 declare var DCM4CHE: any;
 declare var window: any;
 
@@ -557,6 +558,43 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 return aes[i].hl7ApplicationName;
             }
         };
+    }
+    changePatientID(oldPatientID, newPatientID, patientData, aet, sendingHl7App, receivingHl7App, accesMode){
+        if(oldPatientID === newPatientID){
+            return Observable.of(null);
+        }else{
+            if(accesMode === 'internal'){
+                return this.$http.post(
+                    `../aets/${aet}/rs/patients/${oldPatientID}/changeid/${newPatientID}`,
+                    patientData,
+                    {headers: new Headers({ 'Content-Type': 'application/dicom+json' })}
+                );
+            }else{
+                return this.$http.post(
+                    `../hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients/${oldPatientID}/changeid`,
+                    patientData,
+                    {headers: new Headers({ 'Content-Type': 'application/dicom+json' })}
+                );
+            }
+        }
+    }
+
+    createPatient(patientData, aet, sendingHl7App, receivingHl7App,accesMode){
+        let url;
+        if(accesMode === 'external'){
+            if(!sendingHl7App || !receivingHl7App){
+                return Observable.throw(new Error('Hl7Applications not found!'));
+            }else{
+                url = `../hl7apps/${sendingHl7App}/hl7/${receivingHl7App}/patients`;
+            }
+        }else{
+            url = `../aets/${aet}/rs/patients/`;
+        }
+        return this.$http.post(
+            url,
+            patientData,
+            {headers: new Headers({ 'Content-Type': 'application/dicom+json' })}
+        );
     }
     modifyPatient(patient, iod, oldPatientID, aet,internalAppName, externalAppName,  modifyMode, externalInternalAetMode){
         let url;

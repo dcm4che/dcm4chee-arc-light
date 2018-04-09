@@ -53,7 +53,7 @@ import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
-import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskOrder;
+import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,6 +139,7 @@ public class RetrieveTaskRS {
     private String limit;
 
     @QueryParam("orderby")
+    @DefaultValue("-updatedTime")
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
     private String orderby;
 
@@ -152,12 +153,12 @@ public class RetrieveTaskRS {
                     Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
                     .build();
 
-        List<RetrieveTask> tasks = mgr.search(
+        RetrieveTaskQuery tasks = mgr.listRetrieveTasks(
                 MatchTask.matchQueueMessage(
                         null, deviceName, status(), batchID, null, null, null, null),
                 MatchTask.matchRetrieveTask(
                         localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime),
-                order(orderby), parseInt(offset), parseInt(limit));
+                MatchTask.retrieveTaskOrder(orderby), parseInt(offset), parseInt(limit));
         return Response.ok(output.entity(tasks), output.type).build();
     }
 
@@ -338,26 +339,30 @@ public class RetrieveTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final List<RetrieveTask> tasks) {
+            Object entity(final RetrieveTaskQuery tasks) {
                 return (StreamingOutput) out -> {
+                    try (RetrieveTaskQuery t = tasks) {
                         JsonGenerator gen = Json.createGenerator(out);
                         gen.writeStartArray();
-                        for (RetrieveTask task : tasks)
+                        for (RetrieveTask task : t)
                             task.writeAsJSONTo(gen);
                         gen.writeEnd();
                         gen.flush();
+                    }
                 };
             }
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final List<RetrieveTask> tasks) {
+            Object entity(final RetrieveTaskQuery tasks) {
                 return (StreamingOutput) out -> {
+                    try (RetrieveTaskQuery t = tasks) {
                         Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
                         RetrieveTask.writeCSVHeader(writer, delimiter);
-                        for (RetrieveTask task : tasks)
+                        for (RetrieveTask task : t)
                             task.writeAsCSVTo(writer, delimiter);
                         writer.flush();
+                    }
                 };
             }
         };
@@ -384,7 +389,7 @@ public class RetrieveTaskRS {
             return csvCompatible;
         }
 
-        abstract Object entity(final List<RetrieveTask> tasks);
+        abstract Object entity(final RetrieveTaskQuery tasks);
     }
 
     private String filters() {
@@ -410,11 +415,5 @@ public class RetrieveTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
-    }
-
-    private static RetrieveTaskOrder order(String orderby) {
-        return orderby != null
-                ? RetrieveTaskOrder.valueOf(orderby.replace('-', '_'))
-                : RetrieveTaskOrder._updatedTime;
     }
 }

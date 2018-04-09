@@ -1,7 +1,7 @@
 -- can be applied on running archive 5.11
-alter table queue_msg add device_name varchar(255);
-alter table series add sop_cuid varchar(255);
-alter table series add tsuid varchar(255);
+alter table queue_msg add device_name varchar2(255 char);
+alter table series add sop_cuid varchar2(255 char);
+alter table series add tsuid varchar2(255 char);
 
 create index UK_kvtxqtdow67hcr2wv8irtdwqy on queue_msg (device_name);
 create index UK_jfyulc3fo7cmn29sbha0l72m3 on queue_msg (created_time);

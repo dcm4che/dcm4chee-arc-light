@@ -26,7 +26,7 @@ export class HttpErrorHandler {
                     }
                 }
                 this.mainservice.setMessage({
-                    'title': 'Error ' + error.status,
+                    'title': 'Error ' + (error.status||''),
                     'text': msg,
                     'status': 'error'
                 });

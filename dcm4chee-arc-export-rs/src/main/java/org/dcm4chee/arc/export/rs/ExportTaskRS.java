@@ -50,7 +50,7 @@ import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
-import org.dcm4chee.arc.export.mgt.ExportTaskOrder;
+import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
@@ -69,7 +69,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -129,6 +128,7 @@ public class ExportTaskRS {
     private String limit;
 
     @QueryParam("orderby")
+    @DefaultValue("-updatedTime")
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
     private String orderby;
 
@@ -145,13 +145,12 @@ public class ExportTaskRS {
                     Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
                     .build();
 
-        List<ExportTask> tasks = mgr.search(
+        ExportTaskQuery tasks = mgr.listExportTasks(
                 MatchTask.matchQueueMessage(
                         null, deviceName, status(), batchID, null,null, null, null),
-                MatchTask.matchExportTask(
-                        exporterID, deviceName, studyUID, createdTime, updatedTime),
-                order(orderby), parseInt(offset),
-                parseInt(limit)
+                MatchTask.matchExportTask(exporterID, deviceName, studyUID, createdTime, updatedTime),
+                MatchTask.exportTaskOrder(orderby),
+                parseInt(offset), parseInt(limit)
         );
         return Response.ok(output.entity(tasks, device.getDeviceExtension(ArchiveDeviceExtension.class)), output.type).build();
     }
@@ -282,21 +281,20 @@ public class ExportTaskRS {
                     null, deviceName, status, batchID, null, null, null, new Date());
             Predicate matchExportTask = MatchTask.matchExportTask(
                     exporterID, deviceName, studyUID, createdTime, updatedTime);
-            int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
-            List<ExportTask> exportTasks;
-            do {
-                exportTasks = mgr.search(matchQueueMessage, matchExportTask, null, 0, fetchSize);
-                for (ExportTask task : exportTasks)
+            try (ExportTaskQuery exportTasks = mgr.listExportTasks(
+                    matchQueueMessage, matchExportTask, null, 0, 0)) {
+                for (ExportTask task : exportTasks) {
                     mgr.rescheduleExportTask(
                             task.getPk(),
                             exporter != null ? exporter : arcDev.getExporterDescriptor(task.getExporterID()),
                             null);
-                count += exportTasks.size();
-            } while (exportTasks.size() >= fetchSize);
+                    count++;
+                }
+            }
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+        } catch (IllegalTaskStateException|DifferentDeviceException|IOException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
         } finally {
@@ -358,27 +356,31 @@ public class ExportTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final List<ExportTask> tasks, ArchiveDeviceExtension arcDev) {
+            Object entity(final ExportTaskQuery tasks, ArchiveDeviceExtension arcDev) {
                 return (StreamingOutput) out -> {
+                    try (ExportTaskQuery t = tasks) {
                         JsonGenerator gen = Json.createGenerator(out);
                         gen.writeStartArray();
-                        for (ExportTask task : tasks)
+                        for (ExportTask task : t)
                             task.writeAsJSONTo(gen, arcDev.getExporterDescriptor(task.getExporterID()).getAETitle());
                         gen.writeEnd();
                         gen.flush();
+                    }
                 };
             }
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final List<ExportTask> tasks, ArchiveDeviceExtension arcDev) {
+            Object entity(final ExportTaskQuery tasks, ArchiveDeviceExtension arcDev) {
                 return (StreamingOutput) out -> {
+                    try (ExportTaskQuery t = tasks) {
                         Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
                         ExportTask.writeCSVHeader(writer, delimiter);
-                        for (ExportTask task : tasks)
+                        for (ExportTask task : t)
                             task.writeAsCSVTo(
                                     writer, delimiter, arcDev.getExporterDescriptor(task.getExporterID()).getAETitle());
                         writer.flush();
+                    }
                 };
             }
         };
@@ -405,7 +407,7 @@ public class ExportTaskRS {
             return csvCompatible;
         }
 
-        abstract Object entity(final List<ExportTask> tasks, ArchiveDeviceExtension arcDev);
+        abstract Object entity(final ExportTaskQuery tasks, ArchiveDeviceExtension arcDev);
     }
 
     private String filters() {
@@ -424,12 +426,6 @@ public class ExportTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
-    }
-
-    private static ExportTaskOrder order(String orderby) {
-        return orderby != null
-                ? ExportTaskOrder.valueOf(orderby.replace('-', '_'))
-                : ExportTaskOrder._updatedTime;
     }
 
     private void logRequest() {

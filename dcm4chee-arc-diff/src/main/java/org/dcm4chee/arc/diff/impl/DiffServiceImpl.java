@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.diff.impl;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
@@ -56,6 +57,7 @@ import org.dcm4chee.arc.query.scu.CFindSCU;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -102,8 +104,8 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public List<DiffTask> listDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask,
-                                        DiffTaskOrder order, int offset, int limit) {
+    public DiffTaskQuery listDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask,
+                                       OrderSpecifier<Date> order, int offset, int limit) {
         return ejb.listDiffTasks(matchQueueMessage, matchDiffTask, order, offset, limit);
     }
 
@@ -132,7 +134,8 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public List<DiffBatch> listDiffBatches(Predicate matchQueueBatch, Predicate matchDiffBatch, DiffBatchOrder order, int offset, int limit) {
+    public List<DiffBatch> listDiffBatches(Predicate matchQueueBatch, Predicate matchDiffBatch, OrderSpecifier<Date> order,
+                                           int offset, int limit) {
         return ejb.listDiffBatches(matchQueueBatch, matchDiffBatch, order, offset, limit);
     }
 

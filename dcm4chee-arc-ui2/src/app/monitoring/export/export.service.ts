@@ -19,7 +19,11 @@ export class ExportService {
     };
 
     getCount(filters) {
-        return this.$http.get('../monitor/export' + '/count' + '?' +  this.mainservice.param(this.paramWithoutLimit(filters)))
+        let filterClone = _.cloneDeep(filters);
+        delete filterClone.offset;
+        delete filterClone.limit;
+        delete filterClone.orderby;
+        return this.$http.get('../monitor/export' + '/count' + '?' +  this.mainservice.param(this.paramWithoutLimit(filterClone)))
             .map(res => j4care.redirectOnAuthResponse(res));
     };
     paramWithoutLimit(filters){

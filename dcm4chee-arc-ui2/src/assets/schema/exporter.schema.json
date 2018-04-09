@@ -26,7 +26,11 @@
       "title": "Queue Name",
       "description": "JMS Queue Name",
       "type": "string",
-      "format" : "dcmQueueName"
+      "enum" : [
+        "Export1",
+        "Export2",
+        "Export3"
+      ]
     },
     "dcmExportPriority": {
       "title": "Export Priority",

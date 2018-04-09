@@ -1,3 +1,4 @@
+-- can be applied on running archive 5.12
 alter table queue_msg add batchID varchar(255);
 create index UK_2rbj4jw6ffs0ytec06ebv5nld on queue_msg (batchID);
 create table diff_task (pk int8 not null, check_different boolean not null, check_missing boolean not null, compare_fields varchar(255), created_time timestamp not null, different int4 not null, local_aet varchar(255) not null, matches int4 not null, missing int4 not null, primary_aet varchar(255) not null, query_str varchar(255) not null, secondary_aet varchar(255) not null, updated_time timestamp not null, queue_msg_fk int8 not null, primary key (pk));

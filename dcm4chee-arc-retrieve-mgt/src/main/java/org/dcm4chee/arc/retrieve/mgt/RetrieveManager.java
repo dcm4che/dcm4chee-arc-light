@@ -38,13 +38,14 @@
 
 package org.dcm4chee.arc.retrieve.mgt;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -60,8 +61,8 @@ public interface RetrieveManager {
 
     void scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID) throws QueueSizeLimitExceededException;
 
-    List<RetrieveTask> search(Predicate matchQueueMessage, Predicate matchRetrieveTask,
-                              RetrieveTaskOrder order, int offset, int limit);
+    RetrieveTaskQuery listRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask,
+                                        OrderSpecifier<Date> order, int offset, int limit);
 
     long countRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 
@@ -79,5 +80,5 @@ public interface RetrieveManager {
     List<Long> getRetrieveTaskPks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit);
 
     List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
-                                            RetrieveBatchOrder order, int offset, int limit);
+                                            OrderSpecifier<Date> order, int offset, int limit);
 }

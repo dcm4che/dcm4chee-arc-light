@@ -39,26 +39,15 @@
  *
  */
 
-package org.dcm4chee.arc.export.mgt;
+package org.dcm4chee.arc.diff;
 
-import com.querydsl.core.types.OrderSpecifier;
-import org.dcm4chee.arc.entity.QExportTask;
+import org.dcm4chee.arc.entity.DiffTask;
 
-import java.util.Date;
+import java.io.Closeable;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Mar 2018
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Apr 2018
  */
-public enum ExportBatchOrder {
-    createdTime(QExportTask.exportTask.createdTime.min().asc()),
-    _createdTime(QExportTask.exportTask.createdTime.max().desc()),
-    updatedTime(QExportTask.exportTask.updatedTime.min().asc()),
-    _updatedTime(QExportTask.exportTask.updatedTime.max().desc());
-
-    public final OrderSpecifier<Date> specifier;
-
-    ExportBatchOrder(OrderSpecifier<Date> specifier) {
-        this.specifier = specifier;
-    }
+public interface DiffTaskQuery extends Closeable, Iterable<DiffTask> {
 }

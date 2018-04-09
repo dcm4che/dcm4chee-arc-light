@@ -41,24 +41,13 @@
 
 package org.dcm4chee.arc.export.mgt;
 
-import com.querydsl.core.types.OrderSpecifier;
-import org.dcm4chee.arc.entity.QExportTask;
+import org.dcm4chee.arc.entity.ExportTask;
 
-import java.util.Date;
+import java.io.Closeable;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Mar 2018
  */
-public enum ExportTaskOrder {
-    createdTime(QExportTask.exportTask.createdTime.asc()),
-    _createdTime(QExportTask.exportTask.createdTime.desc()),
-    updatedTime(QExportTask.exportTask.updatedTime.asc()),
-    _updatedTime(QExportTask.exportTask.updatedTime.desc());
-
-    public final OrderSpecifier<Date> specifier;
-
-    ExportTaskOrder(OrderSpecifier<Date> specifier) {
-        this.specifier = specifier;
-    }
+public interface ExportTaskQuery extends Closeable, Iterable<ExportTask> {
 }

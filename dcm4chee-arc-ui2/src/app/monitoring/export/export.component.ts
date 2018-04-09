@@ -37,6 +37,7 @@ export class ExportComponent implements OnInit {
         // updatedTimeObject: undefined,
         createdTime: undefined,
         batchID: undefined,
+        orderby: undefined,
         // createdTimeObject: undefined
     };
     timer = {
@@ -401,11 +402,11 @@ export class ExportComponent implements OnInit {
                             this.httpErrorHandler.handleError(err);
                         });
                     }
-                    this.allAction = "";
-                    this.allAction = undefined;
                 });
                 break;
         }
+        this.allAction = "";
+        this.allAction = undefined;
     }
     getDifferenceTime(starttime, endtime,mode?){
         let start = new Date(starttime).getTime();

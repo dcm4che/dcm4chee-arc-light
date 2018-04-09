@@ -58,7 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.json.stream.JsonParser;
-import java.lang.reflect.Array;
 import java.net.URI;
 import java.time.LocalTime;
 import java.time.Period;
@@ -687,7 +686,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setBulkDataSpoolDirectory(reader.stringValue());
                     break;
                 case "dcmHideSPSWithStatusFromMWL":
-                    arcDev.setHideSPSWithStatusFrom(enumArray(SPSStatus.class, reader.stringArray()));
+                    arcDev.setHideSPSWithStatusFrom(reader.enumArray(SPSStatus.class));
                     break;
                 case "dcmPersonNameComponentOrderInsensitiveMatching":
                     arcDev.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());
@@ -1477,7 +1476,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         aac.setSOPClasses(reader.stringArray());
                         break;
                     case "dcmDeIdentification":
-                        aac.setDeIdentification(enumArray(DeIdentifier.Option.class, reader.stringArray()));
+                        aac.setDeIdentification(reader.enumArray(DeIdentifier.Option.class));
                         break;
                     case "dcmURI":
                         aac.setXSLTStylesheetURI(reader.stringValue());
@@ -1726,7 +1725,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         rule.setBaseURI(reader.stringValue());
                         break;
                     case "dcmRSOperation":
-                        rule.setRSOperations(enumArray(RSOperation.class, reader.stringArray()));
+                        rule.setRSOperations(reader.enumArray(RSOperation.class));
                         break;
                     default:
                         reader.skipUnknownProperty();
@@ -1815,7 +1814,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcAE.setBulkDataSpoolDirectory(reader.stringValue());
                     break;
                 case "dcmHideSPSWithStatusFromMWL":
-                    arcAE.setHideSPSWithStatusFromMWL(enumArray(SPSStatus.class, reader.stringArray()));
+                    arcAE.setHideSPSWithStatusFromMWL(reader.enumArray(SPSStatus.class));
                     break;
                 case "dcmPersonNameComponentOrderInsensitiveMatching":
                     arcAE.setPersonNameComponentOrderInsensitiveMatching(reader.booleanValue());
@@ -1980,11 +1979,4 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         }
     }
 
-    private static <T extends Enum<T>> T[] enumArray(Class<T> enumType, String[] ss) {
-        T[] a = (T[]) Array.newInstance(enumType, ss.length);
-        for (int i = 0; i < a.length; i++)
-            a[i] = Enum.valueOf(enumType, ss[i]);
-
-        return a;
-    }
 }

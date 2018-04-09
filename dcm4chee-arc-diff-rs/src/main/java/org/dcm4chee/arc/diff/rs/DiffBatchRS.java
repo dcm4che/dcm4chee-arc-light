@@ -45,7 +45,7 @@ import org.dcm4chee.arc.diff.DiffBatch;
 import org.dcm4chee.arc.diff.DiffBatchOrder;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.query.util.MatchBatch;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,10 +133,11 @@ public class DiffBatchRS {
     public Response listDiffBatches() {
         logRequest();
         List<DiffBatch> diffBatches = diffService.listDiffBatches(
-                MatchBatch.matchQueueBatch(deviceName, status()),
-                MatchBatch.matchDiffBatch(localAET, primaryAET, secondaryAET, comparefields, checkMissing, checkDifferent,
+                MatchTask.matchQueueBatch(deviceName, status()),
+                MatchTask.matchDiffBatch(localAET, primaryAET, secondaryAET, comparefields, checkMissing, checkDifferent,
                         createdTime, updatedTime),
-                order(orderby), parseInt(offset), parseInt(limit));
+                MatchTask.diffBatchOrder(orderby),
+                parseInt(offset), parseInt(limit));
         return Response.ok().entity(Output.JSON.entity(diffBatches)).build();
     }
 

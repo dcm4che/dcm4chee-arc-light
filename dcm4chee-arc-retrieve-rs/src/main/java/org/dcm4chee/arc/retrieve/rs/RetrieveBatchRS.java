@@ -43,9 +43,8 @@ package org.dcm4chee.arc.retrieve.rs;
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.query.util.MatchBatch;
+import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
-import org.dcm4chee.arc.retrieve.mgt.RetrieveBatchOrder;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -57,6 +56,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
@@ -111,6 +111,7 @@ public class RetrieveBatchRS {
     private String limit;
 
     @QueryParam("orderby")
+    @DefaultValue("-updatedTime")
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
     private String orderby;
 
@@ -122,9 +123,9 @@ public class RetrieveBatchRS {
     public Response listRetrieveBatches() {
         logRequest();
         List<RetrieveBatch> retrieveBatches =  mgr.listRetrieveBatches(
-                MatchBatch.matchQueueBatch(deviceName, status()),
-                MatchBatch.matchRetrieveBatch(localAET, remoteAET, destinationAET, createdTime, updatedTime),
-                order(orderby), parseInt(offset), parseInt(limit));
+                MatchTask.matchQueueBatch(deviceName, status()),
+                MatchTask.matchRetrieveBatch(localAET, remoteAET, destinationAET, createdTime, updatedTime),
+                MatchTask.retrieveBatchOrder(orderby), parseInt(offset), parseInt(limit));
         return Response.ok().entity(Output.JSON.entity(retrieveBatches)).build();
     }
 
@@ -177,12 +178,6 @@ public class RetrieveBatchRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
-    }
-
-    private static RetrieveBatchOrder order(String orderby) {
-        return orderby != null
-                ? RetrieveBatchOrder.valueOf(orderby.replace('-', '_'))
-                : RetrieveBatchOrder._updatedTime;
     }
 
     private void logRequest() {

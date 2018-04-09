@@ -43,15 +43,20 @@ package org.dcm4chee.arc.qmgt.impl;
 import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import com.querydsl.jpa.hibernate.HibernateUpdateClause;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
-import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.entity.QExportTask;
+import org.dcm4chee.arc.entity.QQueueMessage;
+import org.dcm4chee.arc.entity.QRetrieveTask;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.*;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -376,13 +381,13 @@ public class QueueManagerEJB {
         return n;
     }
 
-    public List<QueueMessage> search(Predicate matchQueueMessage, QueueMessageOrder order, int offset, int limit) {
+    public List<QueueMessage> search(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit) {
         HibernateQuery<QueueMessage> queueMsgQuery = createQuery(matchQueueMessage);
         if (limit > 0)
             queueMsgQuery.limit(limit);
         if (offset > 0)
             queueMsgQuery.offset(offset);
-        queueMsgQuery.orderBy(order.specifier);
+        queueMsgQuery.orderBy(order);
         return queueMsgQuery.fetch();
     }
 

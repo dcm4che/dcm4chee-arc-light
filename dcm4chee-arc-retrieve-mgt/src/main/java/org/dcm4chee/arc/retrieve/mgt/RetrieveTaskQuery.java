@@ -39,26 +39,15 @@
  *
  */
 
-package org.dcm4chee.arc.qmgt;
+package org.dcm4chee.arc.retrieve.mgt;
 
-import com.querydsl.core.types.OrderSpecifier;
-import org.dcm4chee.arc.entity.QQueueMessage;
+import org.dcm4chee.arc.entity.RetrieveTask;
 
-import java.util.Date;
+import java.io.Closeable;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Mar 2018
  */
-public enum QueueMessageOrder {
-    createdTime(QQueueMessage.queueMessage.createdTime.asc()),
-    _createdTime(QQueueMessage.queueMessage.createdTime.desc()),
-    updatedTime(QQueueMessage.queueMessage.updatedTime.asc()),
-    _updatedTime(QQueueMessage.queueMessage.updatedTime.desc());
-
-    public final OrderSpecifier<Date> specifier;
-
-    QueueMessageOrder(OrderSpecifier<Date> specifier) {
-        this.specifier = specifier;
-    }
+public interface RetrieveTaskQuery extends Closeable, Iterable<RetrieveTask> {
 }

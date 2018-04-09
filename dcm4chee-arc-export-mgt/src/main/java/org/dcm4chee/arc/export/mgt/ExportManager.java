@@ -40,15 +40,16 @@
 
 package org.dcm4chee.arc.export.mgt;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.store.StoreContext;
 
 import javax.enterprise.event.Observes;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,8 +68,8 @@ public interface ExportManager {
 
     void updateExportTask(Long pk);
 
-    List<ExportTask> search(Predicate matchQueueMessage, Predicate matchExportTask,
-                            ExportTaskOrder order, int offset, int limit);
+    ExportTaskQuery listExportTasks(Predicate matchQueueMessage, Predicate matchExportTask,
+                                    OrderSpecifier<Date> order, int offset, int limit);
 
     long countExportTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 
@@ -85,5 +86,5 @@ public interface ExportManager {
     int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask);
 
     List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
-                                        ExportBatchOrder order, int offset, int limit);
+                                        OrderSpecifier<Date> order, int offset, int limit);
 }

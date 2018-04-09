@@ -26,6 +26,7 @@ export class ExternalRetrieveService {
         let filterClone = _.cloneDeep(filter);
             delete filterClone.offset;
             delete filterClone.limit;
+            delete filterClone.orderby;
         return this.$http.get('../monitor/retrieve/count' + '?' + this.mainservice.param(filterClone))
             .map(res => j4care.redirectOnAuthResponse(res));
     };
@@ -153,13 +154,13 @@ export class ExternalRetrieveService {
                 [
                     {
                         tag:"label",
-                        text:"StudyInstanceUID"
+                        text:"Limit"
                     },
                     {
                         tag:"input",
-                        type:"text",
-                        filterKey:"StudyInstanceUID",
-                        description:"Unique Identifier of the Study to filter by"
+                        type:"number",
+                        filterKey:"limit",
+                        description:"Maximal number of tasks in returned list"
                     }
                 ],
                 [
@@ -194,14 +195,35 @@ export class ExternalRetrieveService {
                 ],
                 [
                     {
-                        tag:"label",
-                        text:"Limit"
+                        tag:"select",
+                        options:[{
+                                value:'createdTime',
+                                text:'Sort by creation time (ASC)'
+                            },
+                            {
+                                value:'-createdTime',
+                                text:'Sort by creation time (DESC)'
+                            },
+                            {
+                                value:'updatedTime',
+                                text:'Sort by updated time (ASC)'
+                            },
+                            {
+                                value:'-updatedTime',
+                                text:'Sort by updated time (DESC)'
+                            }
+                        ],
+                        showStar:true,
+                        filterKey:"orderby",
+                        description:"Sort",
+                        placeholder:"Sort"
                     },
                     {
                         tag:"input",
-                        type:"number",
-                        filterKey:"limit",
-                        description:"Maximal number of tasks in returned list"
+                        type:"text",
+                        filterKey:"StudyInstanceUID",
+                        description:"Unique Identifier of the Study to filter by",
+                        placeholder:"Study Instance UID"
                     }
                 ],
                 [

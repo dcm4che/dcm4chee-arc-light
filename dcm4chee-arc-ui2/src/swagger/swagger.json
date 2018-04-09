@@ -824,6 +824,78 @@
         }
       }
     },
+    "/webapps": {
+      "get": {
+        "tags": [
+          "CONFIG-RS"
+        ],
+        "summary": "List Web Applications",
+        "operationId": "listWebApplications",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "dicomDeviceName",
+            "in": "query",
+            "description": "Device Name",
+            "type": "string"
+          },
+          {
+            "name": "dcmWebApplicationName",
+            "in": "query",
+            "description": "Web Application name",
+            "type": "string"
+          },
+          {
+            "name": "dcmWebServicePath",
+            "in": "query",
+            "description": "Web Service Path",
+            "type": "string"
+          },
+          {
+            "name": "dcmWebServiceClass",
+            "in": "query",
+            "description": "Web Service Class",
+            "type": "array",
+            "item": {
+              "type": "string",
+              "enum": [
+                "QIDO_RS",
+                "STOW_RS",
+                "UPS_RS",
+                "WADO_RS",
+                "WADO_URI"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "dicomAETitle",
+            "in": "query",
+            "description": "AE title of Network AE associated with this Web Application",
+            "type": "string"
+          },
+          {
+            "name": "dicomApplicationCluster",
+            "in": "query",
+            "description": "Application Cluster",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Web Application list",
+            "schema": {
+              "$ref": "webappList.schema.json"
+            }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/attribute-filter/{entity}": {
       "get": {
         "tags": [

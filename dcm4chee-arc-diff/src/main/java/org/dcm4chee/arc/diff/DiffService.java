@@ -41,12 +41,14 @@
 
 package org.dcm4chee.arc.diff;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -64,8 +66,8 @@ public interface DiffService {
 
     Outcome executeDiffTask(DiffTask diffTask, HttpServletRequestInfo httpServletRequestInfo) throws Exception;
 
-    List<DiffTask> listDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask,
-                                 DiffTaskOrder order, int offset, int limit);
+    DiffTaskQuery listDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask,
+                                 OrderSpecifier<Date> order, int offset, int limit);
 
     long countDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask);
 
@@ -73,5 +75,6 @@ public interface DiffService {
 
     List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit);
 
-    List<DiffBatch> listDiffBatches(Predicate matchQueueBatch, Predicate matchDiffBatch, DiffBatchOrder order, int offset, int limit);
+    List<DiffBatch> listDiffBatches(Predicate matchQueueBatch, Predicate matchDiffBatch, OrderSpecifier<Date> order,
+                                    int offset, int limit);
 }

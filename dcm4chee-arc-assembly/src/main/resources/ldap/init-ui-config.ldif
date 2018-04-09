@@ -1,0 +1,5 @@
+version: 1
+
+dn: dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmuiConfigName: default
+objectClass: dcmuiConfig
