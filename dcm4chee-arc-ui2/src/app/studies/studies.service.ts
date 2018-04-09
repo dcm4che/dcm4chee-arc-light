@@ -680,6 +680,10 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             }
         }
     }
+    getWebApps(){
+        return this.$http.get('../webapps?dcmWebServiceClass=STOW_RS')
+            .map(res => j4care.redirectOnAuthResponse(res));
+    }
     isTargetInClipboard(target, clipboard){
         let contains = false;
         _.forEach(clipboard.otherObjects, (m, i) => {

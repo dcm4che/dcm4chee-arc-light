@@ -6,6 +6,7 @@ import {UploadDicomService} from './upload-dicom.service';
 import * as _ from 'lodash';
 import {AppService} from "../../../app.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {StudiesService} from "../../../studies/studies.service";
 
 @Component({
   selector: 'app-upload-dicom',
@@ -20,6 +21,8 @@ export class UploadDicomComponent implements OnInit{
     fileList: File[];
     xmlHttpRequest;
     percentComplete: any;
+    webApps;
+    selectedWebApp;
     public vendorUpload: FileUploader = new FileUploader({
         url: ``,
         // allowedMimeType:['application/octet-stream','application/zip']
@@ -30,7 +33,8 @@ export class UploadDicomComponent implements OnInit{
         public dialogRef: MatDialogRef<UploadDicomComponent>,
         private $http:J4careHttpService,
         private service: UploadDicomService,
-        public mainservice:AppService
+        public mainservice:AppService,
+        private studieService:StudiesService
     ) {
         this.service.progress$.subscribe(
             data => {
@@ -52,6 +56,7 @@ export class UploadDicomComponent implements OnInit{
         this.vendorUpload.onBeforeUploadItem = (item) => {
             this.addFileNameHeader(item.file.name);
         };
+        this.getWebApps();
     }
     addFileNameHeader(fileName) {
         // var boundary=Math.random().toString().substr(2);
@@ -186,5 +191,16 @@ export class UploadDicomComponent implements OnInit{
 
     set aes(value) {
         this._aes = value;
+    }
+    getWebApps(){
+        this.studieService.getWebApps().subscribe((res)=>{
+            this.webApps = res;
+            this.webApps.forEach(webApp=>{
+               if(webApp.dicomAETitle === this._selectedAe)
+                 this.selectedWebApp = webApp;
+            });
+        },(err)=>{
+
+        });
     }
 }
