@@ -69,7 +69,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -205,7 +204,6 @@ public class RetrieveTaskRS {
             return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
-        queueEvent.setFilters(filters());
         try {
             LOG.info("Cancel processing of Retrieve Tasks with Status {}", status);
             long count = mgr.cancelRetrieveTasks(
@@ -259,7 +257,6 @@ public class RetrieveTaskRS {
                             + " on Device " + device.getDeviceName());
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
-        queueEvent.setFilters(filters());
         try {
             Predicate matchQueueMessage = MatchTask.matchQueueMessage(
                     null, deviceName, status, batchID, null, null, null, new Date());
@@ -302,7 +299,6 @@ public class RetrieveTaskRS {
     public String deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        queueEvent.setFilters(filters());
         int deleted = mgr.deleteTasks(
                 MatchTask.matchQueueMessage(
                         null, deviceName, status(), batchID, null, null, null, null),
@@ -391,18 +387,6 @@ public class RetrieveTaskRS {
         }
 
         abstract Object entity(final RetrieveTaskQuery tasks);
-    }
-
-    private String filters() {
-        StringBuilder filter = new StringBuilder();
-        Enumeration<String> queryParams = request.getParameterNames();
-        while (queryParams.hasMoreElements()) {
-            String queryParam = queryParams.nextElement();
-            filter.append(queryParam).append(":").append(request.getParameterValues(queryParam)[0]);
-            if (queryParams.hasMoreElements())
-                filter.append(";");
-        }
-        return filter.toString();
     }
 
     private QueueMessage.Status status() {

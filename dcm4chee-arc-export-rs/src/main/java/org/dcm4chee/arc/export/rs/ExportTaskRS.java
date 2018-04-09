@@ -69,7 +69,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -199,7 +198,6 @@ public class ExportTaskRS {
             return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
-        queueEvent.setFilters(filters());
         try {
             LOG.info("Cancel processing of Export Tasks with Status {}", status);
             long count = mgr.cancelExportTasks(
@@ -268,7 +266,6 @@ public class ExportTaskRS {
                             + " on Device " + device.getDeviceName());
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
-        queueEvent.setFilters(filters());
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = null;
         if ((exporterID != null && (exporter = arcDev.getExporterDescriptor(exporterID)) == null)
@@ -320,7 +317,6 @@ public class ExportTaskRS {
     public String deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        queueEvent.setFilters(filters());
         int deleted = mgr.deleteTasks(
                 MatchTask.matchQueueMessage(
                         null, deviceName, status(), batchID, null, null, null, null),
@@ -409,18 +405,6 @@ public class ExportTaskRS {
         }
 
         abstract Object entity(final ExportTaskQuery tasks, ArchiveDeviceExtension arcDev);
-    }
-
-    private String filters() {
-        StringBuilder filter = new StringBuilder();
-        Enumeration<String> queryParams = request.getParameterNames();
-        while (queryParams.hasMoreElements()) {
-            String queryParam = queryParams.nextElement();
-            filter.append(queryParam).append(":").append(request.getParameterValues(queryParam)[0]);
-            if (queryParams.hasMoreElements())
-                filter.append(";");
-        }
-        return filter.toString();
     }
 
     private QueueMessage.Status status() {
