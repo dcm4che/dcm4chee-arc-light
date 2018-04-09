@@ -356,7 +356,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                 $this.service.device = {};
                                 $this.schema = schema;
                                 $this.service.schema = schema;
-                                let formObject = $this.service.convertSchemaToForm($this.device, $this.schema, params, this.inClone||this.isNew?'attr':'ext');
+                                let formObject = $this.service.convertSchemaToForm($this.device, $this.schema, params, 'attr');
                                 $this.formObj = formObject;
                                 $this.model = {};
                                 setTimeout(() => {
