@@ -44,7 +44,7 @@ package org.dcm4chee.arc.diff.rs;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.diff.DiffService;
-import org.dcm4chee.arc.diff.DiffTaskOrder;
+import org.dcm4chee.arc.diff.DiffTaskQuery;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -144,12 +144,13 @@ public class DiffTaskRS {
                     Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
                     .build();
 
-        List<DiffTask> diffTasks = diffService.listDiffTasks(
+        DiffTaskQuery diffTasks = diffService.listDiffTasks(
                 MatchTask.matchQueueMessage(
                         null, deviceName, status(), batchID, null, null, null, null),
                 MatchTask.matchDiffTask(localAET, primaryAET, secondaryAET, checkDifferent, checkMissing,
                         comparefields, createdTime, updatedTime),
-                order(orderby), parseInt(offset), parseInt(limit));
+                MatchTask.diffTaskOrder(orderby),
+                parseInt(offset), parseInt(limit));
 
         return Response.ok(output.entity(diffTasks), output.type).build();
     }
@@ -203,26 +204,30 @@ public class DiffTaskRS {
     private enum Output {
         JSON(MediaType.APPLICATION_JSON_TYPE) {
             @Override
-            Object entity(final List<DiffTask> tasks) {
+            Object entity(final DiffTaskQuery tasks) {
                 return (StreamingOutput) out -> {
-                    JsonGenerator gen = Json.createGenerator(out);
-                    gen.writeStartArray();
-                    for (DiffTask task : tasks)
-                        task.writeAsJSONTo(gen);
-                    gen.writeEnd();
-                    gen.flush();
+                    try (DiffTaskQuery  t = tasks) {
+                        JsonGenerator gen = Json.createGenerator(out);
+                        gen.writeStartArray();
+                        for (DiffTask task : t)
+                            task.writeAsJSONTo(gen);
+                        gen.writeEnd();
+                        gen.flush();
+                    }
                 };
             }
         },
         CSV(MediaTypes.TEXT_CSV_UTF8_TYPE) {
             @Override
-            Object entity(final List<DiffTask> tasks) {
+            Object entity(final DiffTaskQuery tasks) {
                 return (StreamingOutput) out -> {
-                    Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                    DiffTask.writeCSVHeader(writer, delimiter);
-                    for (DiffTask task : tasks)
-                        task.writeAsCSVTo(writer, delimiter);
-                    writer.flush();
+                    try (DiffTaskQuery  t = tasks) {
+                        Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
+                        DiffTask.writeCSVHeader(writer, delimiter);
+                        for (DiffTask task : t)
+                            task.writeAsCSVTo(writer, delimiter);
+                        writer.flush();
+                    }
                 };
             }
         };
@@ -249,7 +254,7 @@ public class DiffTaskRS {
             return csvCompatible;
         }
 
-        abstract Object entity(final List<DiffTask> tasks);
+        abstract Object entity(final DiffTaskQuery tasks);
     }
 
     private StreamingOutput entity(List<byte[]> diffTaskAttributes) {
@@ -279,12 +284,6 @@ public class DiffTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
-    }
-
-    private static DiffTaskOrder order(String orderby) {
-        return orderby != null
-                ? DiffTaskOrder.valueOf(orderby.replace('-', '_'))
-                : DiffTaskOrder._updatedTime;
     }
 
     private QueueMessage.Status status() {

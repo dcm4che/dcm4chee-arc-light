@@ -45,18 +45,20 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.diff.DiffContext;
-import org.dcm4chee.arc.diff.DiffSCU;
-import org.dcm4chee.arc.diff.DiffService;
-import org.dcm4chee.arc.diff.DiffTaskOrder;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -81,6 +83,9 @@ public class DiffServiceEJB {
 
     @Inject
     private QueueManager queueManager;
+
+    @Inject
+    private Device device;
 
     public void scheduleDiffTask(DiffContext ctx) throws QueueSizeLimitExceededException {
         try {
@@ -133,15 +138,11 @@ public class DiffServiceEJB {
         diffTask.setDifferent(diffSCU.different());
     }
 
-    public List<DiffTask> listDiffTasks(
-            Predicate matchQueueMessage, Predicate matchDiffTask, DiffTaskOrder order, int offset, int limit) {
-        HibernateQuery<DiffTask> diffTaskQuery = createQuery(matchQueueMessage, matchDiffTask);
-        if (limit > 0)
-            diffTaskQuery.limit(limit);
-        if (offset > 0)
-            diffTaskQuery.offset(offset);
-        diffTaskQuery.orderBy(order.specifier);
-        return diffTaskQuery.fetch();
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public DiffTaskQuery listDiffTasks(
+            Predicate matchQueueMessage, Predicate matchDiffTask, OrderSpecifier<Date> order, int offset, int limit) {
+        return new DiffTaskQueryImpl(
+                openStatelessSession(), queryFetchSize(), matchQueueMessage, matchDiffTask, order, offset, limit);
     }
 
     public long countDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
@@ -168,5 +169,13 @@ public class DiffServiceEJB {
                 .setFirstResult(offset)
                 .setMaxResults(limit)
                 .getResultList();
+    }
+
+    private StatelessSession openStatelessSession() {
+        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 }
