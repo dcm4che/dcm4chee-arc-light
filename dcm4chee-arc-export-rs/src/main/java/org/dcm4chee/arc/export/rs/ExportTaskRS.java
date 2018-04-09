@@ -69,7 +69,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Objects;
 import java.util.stream.Stream;
 

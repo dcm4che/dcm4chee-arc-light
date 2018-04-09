@@ -67,7 +67,6 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.List;
 
 /**
