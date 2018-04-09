@@ -69,6 +69,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -393,15 +394,15 @@ public class RetrieveTaskRS {
     }
 
     private String filters() {
-        return "localAET:" + localAET +
-                ";remoteAET:" + remoteAET +
-                ";destinationAET:" + destinationAET +
-                ";archiveDevice:" + deviceName +
-                ";status:" + status +
-                ";studyUID:" + studyIUID +
-                ";batchID:" + batchID +
-                ";createdTime:" + createdTime +
-                ";updatedTime:" + updatedTime;
+        StringBuilder filter = new StringBuilder();
+        Enumeration<String> queryParams = request.getParameterNames();
+        while (queryParams.hasMoreElements()) {
+            String queryParam = queryParams.nextElement();
+            filter.append(queryParam).append(":").append(request.getParameterValues(queryParam)[0]);
+            if (queryParams.hasMoreElements())
+                filter.append(";");
+        }
+        return filter.toString();
     }
 
     private QueueMessage.Status status() {

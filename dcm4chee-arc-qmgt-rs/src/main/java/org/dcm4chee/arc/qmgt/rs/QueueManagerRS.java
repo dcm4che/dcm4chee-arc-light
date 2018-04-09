@@ -67,6 +67,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 
 /**
@@ -304,13 +305,15 @@ public class QueueManagerRS {
     }
 
     private String filters() {
-        return "queue:" + queueName +
-                ";archiveDevice:" + deviceName +
-                ";status:" + status +
-                ";batchID:" + batchID +
-                ";JMSMessageID:" + jmsMessageID +
-                ";createdTime:" + createdTime +
-                ";updatedTime:" + updatedTime;
+        StringBuilder filter = new StringBuilder();
+        Enumeration<String> queryParams = request.getParameterNames();
+        while (queryParams.hasMoreElements()) {
+            String queryParam = queryParams.nextElement();
+            filter.append(queryParam).append(":").append(request.getParameterValues(queryParam)[0]);
+            if (queryParams.hasMoreElements())
+                filter.append(";");
+        }
+        return filter.toString();
     }
 
     private QueueMessage.Status status() {
