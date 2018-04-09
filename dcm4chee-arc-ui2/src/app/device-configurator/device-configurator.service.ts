@@ -410,6 +410,8 @@ export class DeviceConfiguratorService{
                         this.processSchemaEntries(m,i, requiredArray, propertiesPath, params, device, form);
                     }
                 });
+                // console.log("form",Object.assign({},form));
+                this.showNextGroup(form);
             }else{
                 console.error('expected path object, properties, array or item.properties in schema not found: ', schema);
             }
@@ -992,6 +994,43 @@ export class DeviceConfiguratorService{
                     show: (this.defaultOpenBlock === 'ext')
                 });
         }
+
+    }
+    showNextGroup(form){
+        let check = (order,i)=>{
+                switch(i){
+                  case 1:
+                      return (order >= 1 && order < 3);
+                  case 2:
+                      return (order >= 3 && order < 5);
+                  case 3:
+                      return (order >= 5);
+              }
+            };
+            let extExist = false;
+            Object.keys(form).forEach(element=>{
+                if(check(form[element]['order'],1))
+                    extExist = true;
+            });
+            if(!extExist){
+                let childExist = false;
+                Object.keys(form).forEach(element=>{
+                    console.log("order2",check(form[element]['order'],2));
+                    console.log("order3",check(form[element]['order'],3));
+                    if(check(form[element]['order'],2)){
+                        childExist = true;
+                        form[element]['show'] = true;
+                    }else
+                        form[element]['show'] = false;
+                });
+                if(!childExist){
+                    Object.keys(form).forEach(element=>{
+                        if(check(form[element]['order'],3)){
+                            form[element]['show'] = true;
+                        }
+                    });
+                }
+            }
 
     }
 }
