@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 public class BulkQueueMessageEvent {
     private final HttpServletRequest request;
     private final QueueMessageOperation operation;
-    private String filters;
     private long count;
     private Exception exception;
 
@@ -25,14 +24,6 @@ public class BulkQueueMessageEvent {
 
     public QueueMessageOperation getOperation() {
         return operation;
-    }
-
-    public String getFilters() {
-        return filters;
-    }
-
-    public void setFilters(String filters) {
-        this.filters = filters;
     }
 
     public int getCount() {
