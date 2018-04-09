@@ -180,7 +180,6 @@ public class QueueManagerRS {
             return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
-        queueEvent.setFilters(filters());
         try {
             LOG.info("Cancel processing of Tasks with Status {} at Queue {}", this.status, queueName);
             Predicate matchQueueMessage = MatchTask.matchQueueMessage(queueName, deviceName, status, batchID, jmsMessageID,
@@ -231,7 +230,6 @@ public class QueueManagerRS {
                     + " on Device " + device.getDeviceName());
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
-        queueEvent.setFilters(filters());
         try {
             Predicate matchQueueMessage = MatchTask.matchQueueMessage(
                     queueName, deviceName, status, batchID, jmsMessageID, createdTime, updatedTime, new Date());
@@ -273,7 +271,6 @@ public class QueueManagerRS {
     public String deleteMessages() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        queueEvent.setFilters(filters());
         int deleted = mgr.deleteTasks(queueName, MatchTask.matchQueueMessage(
                 queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null));
         queueEvent.setCount(deleted);
@@ -302,18 +299,6 @@ public class QueueManagerRS {
                 w.write(']');
                 w.flush();
         };
-    }
-
-    private String filters() {
-        StringBuilder filter = new StringBuilder();
-        Enumeration<String> queryParams = request.getParameterNames();
-        while (queryParams.hasMoreElements()) {
-            String queryParam = queryParams.nextElement();
-            filter.append(queryParam).append(":").append(request.getParameterValues(queryParam)[0]);
-            if (queryParams.hasMoreElements())
-                filter.append(";");
-        }
-        return filter.toString();
     }
 
     private QueueMessage.Status status() {

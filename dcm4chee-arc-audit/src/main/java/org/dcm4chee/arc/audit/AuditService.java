@@ -344,7 +344,7 @@ public class AuditService {
                 .callingHost(req.getRemoteHost())
                 .calledUserID(req.getRequestURI())
                 .outcome(outcome(bulkQueueMsgEvent.getException()))
-                .filters(bulkQueueMsgEvent.getFilters())
+                .filters(req.getQueryString())
                 .count(bulkQueueMsgEvent.getCount())
                 .taskPOID(bulkQueueMsgEvent.getOperation().name())
                 .build();
