@@ -103,7 +103,7 @@ public class ConfigurationRS {
 
     @QueryParam("dcmWebServiceClass")
     @Pattern(regexp = "WADO_URI|WADO_RS|STOW_RS|QIDO_RS|UPS_RS")
-    private List<String> dcmWebServiceClasses;
+    private String dcmWebServiceClass;
 
     private ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
         @Override
