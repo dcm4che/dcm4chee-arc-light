@@ -41,24 +41,13 @@
 
 package org.dcm4chee.arc.diff;
 
-import com.querydsl.core.types.OrderSpecifier;
-import org.dcm4chee.arc.entity.QDiffTask;
+import org.dcm4chee.arc.entity.DiffTask;
 
-import java.util.Date;
+import java.io.Closeable;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Mar 2018
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Apr 2018
  */
-public enum DiffTaskOrder {
-    createdTime(QDiffTask.diffTask.createdTime.asc()),
-    _createdTime(QDiffTask.diffTask.createdTime.desc()),
-    updatedTime(QDiffTask.diffTask.updatedTime.asc()),
-    _updatedTime(QDiffTask.diffTask.updatedTime.desc());
-
-    public final OrderSpecifier<Date> specifier;
-
-    DiffTaskOrder(OrderSpecifier<Date> specifier) {
-        this.specifier = specifier;
-    }
+public interface DiffTaskQuery extends Closeable, Iterable<DiffTask> {
 }

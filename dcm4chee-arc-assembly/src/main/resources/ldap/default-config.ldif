@@ -137,6 +137,14 @@ dcmProtocol: HL7
 dcmClientBindAddress: 0.0.0.0
 cn: hl7
 
+dn: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomHostname: localhost
+dicomPort: 8080
+objectClass: dicomNetworkConnection
+objectClass: dcmNetworkConnection
+dcmProtocol: HTTP
+cn: http
+
 dn: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomHostname: localhost
 dcmBindAddress: 0.0.0.0
@@ -645,6 +653,26 @@ dcmSPSStatus: DISCONTINUED
 hl7OrderControlStatus: DC_CA
 objectClass: hl7OrderSPSStatus
 
+dn: dcmWebAppName=DCM4CHEE-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Hide instances rejected for Quality Reasons
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: STOW_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: DCM4CHEE
+dcmWebAppName: DCM4CHEE-RS
+dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE/rs
+
+dn: dcmWebAppName=DCM4CHEE-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Hide instances rejected for Quality Reasons
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: DCM4CHEE
+dcmWebAppName: DCM4CHEE-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE/wado
+
 dn: dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmQueryRetrieveViewID: regularUse
@@ -686,6 +714,26 @@ dcmRejectionNoteCode: (113001, DCM, "Rejected for Quality Reasons")
 dcmAcceptPreviousRejectedInstance: IGNORE
 objectClass: dcmRejectionNote
 
+dn: dcmWebAppName=DCM4CHEE_ADMIN-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Show instances rejected for Quality Reasons
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: DCM4CHEE_ADMIN
+dcmWebAppName: DCM4CHEE_ADMIN-RS
+dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE_ADMIN/rs
+
+dn: dcmWebAppName=DCM4CHEE_TRASH-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Show rejected instances only
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: DCM4CHEE_TRASH
+dcmWebAppName: DCM4CHEE_TRASH-RS
+dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE_TRASH/rs
+
 dn: dcmQueryRetrieveViewID=trashView,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmHideNotRejectedInstances: TRUE
 dcmQueryRetrieveViewID: trashView
@@ -699,6 +747,24 @@ dn: dcmQueryRetrieveViewID=regularUse,dicomDeviceName=dcm4chee-arc,cn=Devices,cn
 dcmQueryRetrieveViewID: regularUse
 objectClass: dcmQueryRetrieveView
 dcmShowInstancesRejectedByCode: (113001, DCM, "Rejected for Quality Reasons")
+
+dn: dcmWebAppName=DCM4CHEE_ADMIN-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Show instances rejected for Quality Reasons
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: DCM4CHEE_ADMIN
+dcmWebAppName: DCM4CHEE_ADMIN-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE_ADMIN/wado
+
+dn: dcmWebAppName=DCM4CHEE_TRASH-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Show rejected instances only
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: DCM4CHEE_TRASH
+dcmWebAppName: DCM4CHEE_TRASH-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE_TRASH/wado
 
 dn: dcmIDGeneratorName=AccessionNumber,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmIDGeneratorName: AccessionNumber

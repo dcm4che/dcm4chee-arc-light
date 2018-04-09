@@ -1179,7 +1179,12 @@ class ArchiveDeviceFactory {
         dicom.setMaxOpsPerformed(0);
         device.addConnection(dicom);
 
+        Connection http = new Connection("http", archiveHost, 8080);
+        http.setProtocol(Connection.Protocol.HTTP);
+        device.addConnection(http);
+
         Connection dicomTLS = null;
+        Connection https = null;
         if (configType == configType.SAMPLE) {
             dicomTLS = new Connection("dicom-tls", archiveHost, 2762);
             dicomTLS.setBindAddress("0.0.0.0");
@@ -1190,9 +1195,15 @@ class ArchiveDeviceFactory {
                     Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
                     Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
             device.addConnection(dicomTLS);
+
+            https = new Connection("https", archiveHost, 8443);
+            https.setProtocol(Connection.Protocol.HTTP);
+            https.setTlsCipherSuites(
+                    Connection.TLS_RSA_WITH_AES_128_CBC_SHA,
+                    Connection.TLS_RSA_WITH_3DES_EDE_CBC_SHA);
+            device.addConnection(https);
             addUIConfigDeviceExtension(device, configType);
         }
-
         addArchiveDeviceExtension(device, configType, storescu, mppsscu, scheduledStation);
         addHL7DeviceExtension(device, configType, archiveHost);
         addAuditLoggerDeviceExtension(device, arrDevice, archiveHost, suppressAuditQueryFromArchive());
@@ -1213,8 +1224,44 @@ class ArchiveDeviceFactory {
                 dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, configType, ONLY_ADMIN));
         device.addApplicationEntity(createAE("DCM4CHEE_TRASH", "Show rejected instances only",
                 dicom, dicomTLS, TRASH_VIEW, false, false, false, configType, ONLY_ADMIN));
+        device.addWebApplication(createWebApp("DCM4CHEE-RS", "Hide instances rejected for Quality Reasons",
+                "/dcm4chee-arc/aets/DCM4CHEE/rs", "DCM4CHEE", http, https,
+                WebApplication.ServiceClass.QIDO_RS,
+                WebApplication.ServiceClass.STOW_RS,
+                WebApplication.ServiceClass.WADO_RS));
+        device.addWebApplication(createWebApp("DCM4CHEE_ADMIN-RS", "Show instances rejected for Quality Reasons",
+                "/dcm4chee-arc/aets/DCM4CHEE_ADMIN/rs", "DCM4CHEE_ADMIN", http, https,
+                WebApplication.ServiceClass.QIDO_RS,
+                WebApplication.ServiceClass.WADO_RS));
+        device.addWebApplication(createWebApp("DCM4CHEE_TRASH-RS", "Show rejected instances only",
+                "/dcm4chee-arc/aets/DCM4CHEE_TRASH/rs", "DCM4CHEE_TRASH", http, https,
+                WebApplication.ServiceClass.QIDO_RS,
+                WebApplication.ServiceClass.WADO_RS));
+        device.addWebApplication(createWebApp("DCM4CHEE-WADO", "Hide instances rejected for Quality Reasons",
+                "/dcm4chee-arc/aets/DCM4CHEE/wado", "DCM4CHEE", http, https,
+                WebApplication.ServiceClass.WADO_URI));
+        device.addWebApplication(createWebApp("DCM4CHEE_ADMIN-WADO", "Show instances rejected for Quality Reasons",
+                "/dcm4chee-arc/aets/DCM4CHEE_ADMIN/wado", "DCM4CHEE_ADMIN", http, https,
+                WebApplication.ServiceClass.WADO_URI));
+        device.addWebApplication(createWebApp("DCM4CHEE_TRASH-WADO", "Show rejected instances only",
+                "/dcm4chee-arc/aets/DCM4CHEE_TRASH/wado", "DCM4CHEE_TRASH", http, https,
+                WebApplication.ServiceClass.WADO_URI));
 
         return device;
+    }
+
+    private static WebApplication createWebApp(
+            String name, String desc, String path, String aet, Connection http, Connection https,
+            WebApplication.ServiceClass... serviceClasses) {
+        WebApplication webapp = new WebApplication(name);
+        webapp.setDescription(desc);
+        webapp.setServicePath(path);
+        webapp.setAETitle(aet);
+        webapp.setServiceClasses(serviceClasses);
+        webapp.addConnection(http);
+        if (https != null) webapp.addConnection(https);
+
+        return webapp;
     }
 
     private static QueryRetrieveView createQueryRetrieveView(

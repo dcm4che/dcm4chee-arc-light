@@ -169,6 +169,14 @@ public class MatchTask {
         return batchOrder(orderby, QRetrieveTask.retrieveTask.createdTime, QRetrieveTask.retrieveTask.updatedTime);
     }
 
+    public static OrderSpecifier<Date> diffTaskOrder(String orderby) {
+        return taskOrder(orderby, QDiffTask.diffTask.createdTime, QDiffTask.diffTask.updatedTime);
+    }
+
+    public static OrderSpecifier<Date> diffBatchOrder(String orderby) {
+        return batchOrder(orderby, QDiffTask.diffTask.createdTime, QDiffTask.diffTask.updatedTime);
+    }
+
     private static OrderSpecifier<Date> taskOrder(
             String orderby, DateTimePath<Date> createdTime, DateTimePath<Date> updatedTime) {
         return order(orderby, createdTime, updatedTime, ComparableExpressionBase::asc, ComparableExpressionBase::desc);
@@ -187,8 +195,8 @@ public class MatchTask {
             String orderby,
             DateTimePath<Date> createdTime,
             DateTimePath<Date> updatedTime,
-            Function<DateTimeExpression<Date>,OrderSpecifier<Date>> asc,
-            Function<DateTimeExpression<Date>,OrderSpecifier<Date>> desc) {
+            Function<DateTimeExpression<Date>, OrderSpecifier<Date>> asc,
+            Function<DateTimeExpression<Date>, OrderSpecifier<Date>> desc) {
         switch (orderby) {
             case "createdTime":
                 return asc.apply(createdTime);

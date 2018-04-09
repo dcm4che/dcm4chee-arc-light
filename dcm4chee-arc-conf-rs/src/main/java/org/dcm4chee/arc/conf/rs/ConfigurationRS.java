@@ -45,11 +45,10 @@ import org.dcm4che3.conf.api.hl7.HL7ApplicationAlreadyExistsException;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.json.ConfigurationDelegate;
 import org.dcm4che3.conf.json.JsonConfiguration;
-import org.dcm4che3.net.ApplicationEntityInfo;
-import org.dcm4che3.net.Device;
-import org.dcm4che3.net.DeviceInfo;
+import org.dcm4che3.net.*;
 import org.dcm4che3.net.hl7.HL7ApplicationInfo;
 import org.dcm4che3.util.ByteUtils;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -98,9 +97,13 @@ public class ConfigurationRS {
     @Inject
     private Device device;
 
-    @QueryParam("options")
+    @QueryParam("register")
     @Pattern(regexp = "true|false")
     private String register;
+
+    @QueryParam("dcmWebServiceClass")
+    @Pattern(regexp = "WADO_URI|WADO_RS|STOW_RS|QIDO_RS|UPS_RS")
+    private List<String> dcmWebServiceClasses;
 
     private ConfigurationDelegate configDelegate = new ConfigurationDelegate() {
         @Override
@@ -142,7 +145,7 @@ public class ConfigurationRS {
     public StreamingOutput listDevices() {
         logRequest();
         try {
-            final DeviceInfo[] deviceInfos = conf.listDeviceInfos(new DeviceInfoBuilder(uriInfo).deviceInfo);
+            final DeviceInfo[] deviceInfos = conf.listDeviceInfos(toDeviceInfo(uriInfo));
             Arrays.sort(deviceInfos, Comparator.comparing(DeviceInfo::getDeviceName));
             return out -> {
                     JsonGenerator gen = Json.createGenerator(out);
@@ -164,8 +167,7 @@ public class ConfigurationRS {
     public StreamingOutput listAETs() {
         logRequest();
         try {
-            final ApplicationEntityInfo[] aeInfos =
-                    conf.listAETInfos(new ApplicationEntityInfoBuilder(uriInfo).aetInfo);
+            final ApplicationEntityInfo[] aeInfos = conf.listAETInfos(toApplicationEntityInfo(uriInfo));
             Arrays.sort(aeInfos, Comparator.comparing(ApplicationEntityInfo::getAETitle));
             return out -> {
                 JsonGenerator gen = Json.createGenerator(out);
@@ -182,14 +184,35 @@ public class ConfigurationRS {
 
     @GET
     @NoCache
+    @Path("/webapps")
+    @Produces("application/json")
+    public StreamingOutput listWebApps() {
+        logRequest();
+        try {
+            final WebApplicationInfo[] webappInfos = conf.listWebApplicationInfos(toWebApplicationInfo(uriInfo));
+            Arrays.sort(webappInfos, Comparator.comparing(WebApplicationInfo::getApplicationName));
+            return out -> {
+                JsonGenerator gen = Json.createGenerator(out);
+                gen.writeStartArray();
+                for (WebApplicationInfo webappInfo : webappInfos)
+                    jsonConf.writeTo(webappInfo, gen);
+                gen.writeEnd();
+                gen.flush();
+            };
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
+    }
+
+    @GET
+    @NoCache
     @Path("/hl7apps")
     @Produces("application/json")
     public StreamingOutput listHL7Apps() {
         logRequest();
         try {
             HL7Configuration hl7Conf = conf.getDicomConfigurationExtension(HL7Configuration.class);
-            final HL7ApplicationInfo[] hl7AppInfos =
-                    hl7Conf.listHL7AppInfos(new HL7ApplicationInfoBuilder(uriInfo).hl7AppInfo);
+            final HL7ApplicationInfo[] hl7AppInfos = hl7Conf.listHL7AppInfos(toHL7ApplicationInfo(uriInfo));
             Arrays.sort(hl7AppInfos, Comparator.comparing(HL7ApplicationInfo::getHl7ApplicationName));
             return out -> {
                     JsonGenerator gen = Json.createGenerator(out);
@@ -437,125 +460,138 @@ public class ConfigurationRS {
         return Response.ok().status(Response.Status.NO_CONTENT).build();
     }
 
-    private static class DeviceInfoBuilder {
-        final DeviceInfo deviceInfo = new DeviceInfo();
-
-        DeviceInfoBuilder(UriInfo info) {
-            MultivaluedMap<String, String> map = info.getQueryParameters();
-            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-                switch(entry.getKey()) {
-                    case "dicomDeviceName":
-                        deviceInfo.setDeviceName(toString(entry));
-                        break;
-                    case "dicomDescription":
-                        deviceInfo.setDescription(toString(entry));
-                        break;
-                    case "dicomManufacturer":
-                        deviceInfo.setManufacturer(toString(entry));
-                        break;
-                    case "dicomManufacturerModelName":
-                        deviceInfo.setManufacturerModelName(toString(entry));
-                        break;
-                    case "dicomSoftwareVersion":
-                        deviceInfo.setSoftwareVersions(toStrings(entry));
-                        break;
-                    case "dicomStationName":
-                        deviceInfo.setStationName(toString(entry));
-                        break;
-                    case "dicomInstitutionName":
-                        deviceInfo.setInstitutionNames(toStrings(entry));
-                        break;
-                    case "dicomInstitutionDepartmentName":
-                        deviceInfo.setInstitutionalDepartmentNames(toStrings(entry));
-                        break;
-                    case "dicomPrimaryDeviceType":
-                        deviceInfo.setPrimaryDeviceTypes(toStrings(entry));
-                        break;
-                    case "dicomInstalled":
-                        deviceInfo.setInstalled(Boolean.parseBoolean(toString(entry)));
-                        break;
-                    case "hasArcDevExt":
-                        deviceInfo.setArcDevExt(Boolean.parseBoolean(toString(entry)));
-                        break;
-                }
+    private static DeviceInfo toDeviceInfo(UriInfo info) {
+        DeviceInfo deviceInfo = new DeviceInfo();
+        for (Map.Entry<String, List<String>> entry : info.getQueryParameters().entrySet()) {
+            switch (entry.getKey()) {
+                case "dicomDeviceName":
+                    deviceInfo.setDeviceName(firstValueOf(entry));
+                    break;
+                case "dicomDescription":
+                    deviceInfo.setDescription(firstValueOf(entry));
+                    break;
+                case "dicomManufacturer":
+                    deviceInfo.setManufacturer(firstValueOf(entry));
+                    break;
+                case "dicomManufacturerModelName":
+                    deviceInfo.setManufacturerModelName(firstValueOf(entry));
+                    break;
+                case "dicomSoftwareVersion":
+                    deviceInfo.setSoftwareVersions(toArray(entry));
+                    break;
+                case "dicomStationName":
+                    deviceInfo.setStationName(firstValueOf(entry));
+                    break;
+                case "dicomInstitutionName":
+                    deviceInfo.setInstitutionNames(toArray(entry));
+                    break;
+                case "dicomInstitutionDepartmentName":
+                    deviceInfo.setInstitutionalDepartmentNames(toArray(entry));
+                    break;
+                case "dicomPrimaryDeviceType":
+                    deviceInfo.setPrimaryDeviceTypes(toArray(entry));
+                    break;
+                case "dicomInstalled":
+                    deviceInfo.setInstalled(Boolean.parseBoolean(firstValueOf(entry)));
+                    break;
+                case "hasArcDevExt":
+                    deviceInfo.setArcDevExt(Boolean.parseBoolean(firstValueOf(entry)));
+                    break;
             }
         }
+        return deviceInfo;
+    }
 
-        static String[] toStrings(Map.Entry<String, List<String>> entry) {
-            return entry.getValue().toArray(new String[entry.getValue().size()]);
-        }
+    private static String firstValueOf(Map.Entry<String, List<String>> entry) {
+        return entry.getValue().get(0);
+    }
 
-        static String toString(Map.Entry<String, List<String>> entry) {
-            return entry.getValue().get(0);
-        }
+    private static String[] toArray(Map.Entry<String, List<String>> entry) {
+        return entry.getValue().toArray(StringUtils.EMPTY_STRING);
     }
 
 
-    private static class ApplicationEntityInfoBuilder {
-        final ApplicationEntityInfo aetInfo = new ApplicationEntityInfo();
-
-        ApplicationEntityInfoBuilder(UriInfo info) {
-            MultivaluedMap<String, String> map = info.getQueryParameters();
-            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-                switch(entry.getKey()) {
-                    case "dicomDeviceName":
-                        aetInfo.setDeviceName(toString(entry));
-                        break;
-                    case "dicomAETitle":
-                        aetInfo.setAETitle(toString(entry));
-                        break;
-                    case "dicomAssociationInitiator":
-                        aetInfo.setAssociationInitiator(Boolean.parseBoolean(toString(entry)));
-                        break;
-                    case "dicomAssociationAcceptor":
-                        aetInfo.setAssociationAcceptor(Boolean.parseBoolean(toString(entry)));
-                        break;
-                    case "dicomDescription":
-                        aetInfo.setDescription(toString(entry));
-                        break;
-                    case "dicomApplicationCluster":
-                        aetInfo.setApplicationCluster(toStrings(entry));
-                        break;
-                }
+    private static ApplicationEntityInfo toApplicationEntityInfo(UriInfo info) {
+        ApplicationEntityInfo aetInfo = new ApplicationEntityInfo();
+        for (Map.Entry<String, List<String>> entry : info.getQueryParameters().entrySet()) {
+            switch (entry.getKey()) {
+                case "dicomDeviceName":
+                    aetInfo.setDeviceName(firstValueOf(entry));
+                    break;
+                case "dicomAETitle":
+                    aetInfo.setAETitle(firstValueOf(entry));
+                    break;
+                case "dicomAssociationInitiator":
+                    aetInfo.setAssociationInitiator(Boolean.parseBoolean(firstValueOf(entry)));
+                    break;
+                case "dicomAssociationAcceptor":
+                    aetInfo.setAssociationAcceptor(Boolean.parseBoolean(firstValueOf(entry)));
+                    break;
+                case "dicomDescription":
+                    aetInfo.setDescription(firstValueOf(entry));
+                    break;
+                case "dicomApplicationCluster":
+                    aetInfo.setApplicationClusters(toArray(entry));
+                    break;
             }
         }
-
-        static String[] toStrings(Map.Entry<String, List<String>> entry) {
-            return entry.getValue().toArray(new String[entry.getValue().size()]);
-        }
-
-        static String toString(Map.Entry<String, List<String>> entry) {
-            return entry.getValue().get(0);
-        }
+        return aetInfo;
     }
 
-    private static class HL7ApplicationInfoBuilder {
-        final HL7ApplicationInfo hl7AppInfo = new HL7ApplicationInfo();
-
-        HL7ApplicationInfoBuilder(UriInfo info) {
-            MultivaluedMap<String, String> map = info.getQueryParameters();
-            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-                switch (entry.getKey()) {
-                    case "dicomDeviceName":
-                        hl7AppInfo.setDeviceName(toString(entry));
-                        break;
-                    case "hl7ApplicationName":
-                        hl7AppInfo.setHl7ApplicationName(toString(entry));
-                        break;
-                    case "dicomApplicationCluster":
-                        hl7AppInfo.setApplicationClusters(toStrings(entry));
-                        break;
-                }
+    private static WebApplicationInfo toWebApplicationInfo(UriInfo info) {
+        WebApplicationInfo webappInfo = new WebApplicationInfo();
+        for (Map.Entry<String, List<String>> entry : info.getQueryParameters().entrySet()) {
+            switch (entry.getKey()) {
+                case "dicomDeviceName":
+                    webappInfo.setDeviceName(firstValueOf(entry));
+                    break;
+                case "dcmWebAppName":
+                    webappInfo.setApplicationName(firstValueOf(entry));
+                    break;
+                case "dicomDescription":
+                    webappInfo.setDescription(firstValueOf(entry));
+                    break;
+                case "dcmWebServicePath":
+                    webappInfo.setServicePath(firstValueOf(entry));
+                    break;
+                case "dcmWebServiceClass":
+                    webappInfo.setServiceClasses(toServiceClasses(entry.getValue()));
+                    break;
+                case "dicomAETitle":
+                    webappInfo.setAETitle(firstValueOf(entry));
+                    break;
+                case "dicomApplicationCluster":
+                    webappInfo.setApplicationClusters(toArray(entry));
+                    break;
             }
         }
+        return webappInfo;
+    }
 
-        static String[] toStrings(Map.Entry<String, List<String>> entry) {
-            return entry.getValue().toArray(new String[entry.getValue().size()]);
+    private static WebApplication.ServiceClass[] toServiceClasses(List<String> values) {
+        WebApplication.ServiceClass[] serviceClasses = new WebApplication.ServiceClass[values.size()];
+        for (int i = 0; i < serviceClasses.length; i++) {
+            serviceClasses[i] = WebApplication.ServiceClass.valueOf(values.get(i));
         }
+        return serviceClasses;
+    }
 
-        static String toString(Map.Entry<String, List<String>> entry) {
-            return entry.getValue().get(0);
+    private static HL7ApplicationInfo toHL7ApplicationInfo(UriInfo info) {
+        HL7ApplicationInfo hl7AppInfo = new HL7ApplicationInfo();
+        for (Map.Entry<String, List<String>> entry : info.getQueryParameters().entrySet()) {
+            switch (entry.getKey()) {
+                case "dicomDeviceName":
+                    hl7AppInfo.setDeviceName(firstValueOf(entry));
+                    break;
+                case "hl7ApplicationName":
+                    hl7AppInfo.setHl7ApplicationName(firstValueOf(entry));
+                    break;
+                case "dicomApplicationCluster":
+                    hl7AppInfo.setApplicationClusters(toArray(entry));
+                    break;
+            }
         }
+        return hl7AppInfo;
     }
 
     private void logRequest() {

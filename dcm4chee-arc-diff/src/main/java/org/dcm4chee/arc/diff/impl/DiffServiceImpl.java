@@ -41,15 +41,13 @@
 
 package org.dcm4chee.arc.diff.impl;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.diff.DiffContext;
-import org.dcm4chee.arc.diff.DiffService;
-import org.dcm4chee.arc.diff.DiffSCU;
-import org.dcm4chee.arc.diff.DiffTaskOrder;
+import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
@@ -59,6 +57,7 @@ import org.dcm4chee.arc.query.scu.CFindSCU;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -105,8 +104,8 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public List<DiffTask> listDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask,
-                                        DiffTaskOrder order, int offset, int limit) {
+    public DiffTaskQuery listDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask,
+                                       OrderSpecifier<Date> order, int offset, int limit) {
         return ejb.listDiffTasks(matchQueueMessage, matchDiffTask, order, offset, limit);
     }
 
