@@ -182,9 +182,21 @@ public class DiffServiceEJB {
         return em.find(DiffTask.class, taskPK);
     }
 
+    public long diffTasksOfBatch(String batchID) {
+        return batchIDQuery(batchID).fetchCount();
+    }
+
     public List<AttributesBlob> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit) {
         return em.createNamedQuery(DiffTaskAttributes.FIND_BY_DIFF_TASK, AttributesBlob.class)
                 .setParameter(1, diffTask)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    public List<AttributesBlob> getDiffTaskAttributes(String batchID, int offset, int limit) {
+        return em.createNamedQuery(DiffTaskAttributes.FIND_BY_BATCH_ID, AttributesBlob.class)
+                .setParameter(1, batchID)
                 .setFirstResult(offset)
                 .setMaxResults(limit)
                 .getResultList();

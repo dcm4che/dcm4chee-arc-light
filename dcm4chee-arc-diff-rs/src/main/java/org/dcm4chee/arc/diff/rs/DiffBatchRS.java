@@ -41,8 +41,10 @@
 package org.dcm4chee.arc.diff.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
+import org.dcm4che3.json.JSONWriter;
 import org.dcm4chee.arc.diff.DiffBatch;
 import org.dcm4chee.arc.diff.DiffService;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -139,6 +141,19 @@ public class DiffBatchRS {
         return Response.ok().entity(Output.JSON.entity(diffBatches)).build();
     }
 
+    @GET
+    @NoCache
+    @Path("/{batchID}/studies")
+    @Produces("application/dicom+json,application/json")
+    public Response getDiffBatchResult(@PathParam("batchID") String batchID) {
+        logRequest();
+        if (diffService.diffTasksOfBatch(batchID) == 0)
+            return Response.status(Response.Status.NOT_FOUND).build();
+
+        return Response.ok(entity(diffService.getDiffTaskAttributes(batchID, parseInt(offset), parseInt(limit))))
+                .build();
+    }
+
     private enum Output {
         JSON {
             @Override
@@ -186,6 +201,18 @@ public class DiffBatchRS {
         };
 
         abstract Object entity(final List<DiffBatch> diffBatches);
+    }
+
+    private StreamingOutput entity(List<AttributesBlob> diffTaskAttributesList) {
+        return output -> {
+            try (JsonGenerator gen = Json.createGenerator(output)) {
+                JSONWriter writer = new JSONWriter(gen);
+                gen.writeStartArray();
+                for (AttributesBlob diffTaskAttributes : diffTaskAttributesList)
+                    writer.write(AttributesBlob.decodeAttributes(diffTaskAttributes.getEncodedAttributes(), null));
+                gen.writeEnd();
+            }
+        };
     }
 
     private void logRequest() {

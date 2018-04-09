@@ -135,9 +135,19 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
+    public List<AttributesBlob> getDiffTaskAttributes(String batchID, int offset, int limit) {
+        return ejb.getDiffTaskAttributes(batchID, offset, limit);
+    }
+
+    @Override
     public List<DiffBatch> listDiffBatches(Predicate matchQueueBatch, Predicate matchDiffBatch, OrderSpecifier<Date> order,
                                            int offset, int limit) {
         return ejb.listDiffBatches(matchQueueBatch, matchDiffBatch, order, offset, limit);
+    }
+
+    @Override
+    public long diffTasksOfBatch(String batchID) {
+        return ejb.diffTasksOfBatch(batchID);
     }
 
     private QueueMessage.Status check(String prompt, int failures, QueueMessage.Status status, StringBuilder sb) {
