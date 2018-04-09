@@ -42,7 +42,6 @@ package org.dcm4chee.arc.diff.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4chee.arc.diff.DiffBatch;
-import org.dcm4chee.arc.diff.DiffBatchOrder;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.query.util.MatchTask;
@@ -56,9 +55,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -125,6 +122,7 @@ public class DiffBatchRS {
     private String limit;
 
     @QueryParam("orderby")
+    @DefaultValue("-updatedTime")
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
     private String orderby;
 
@@ -201,12 +199,6 @@ public class DiffBatchRS {
 
     private QueueMessage.Status status() {
         return status != null ? QueueMessage.Status.fromString(status) : null;
-    }
-
-    private static DiffBatchOrder order(String orderby) {
-        return orderby != null
-                ? DiffBatchOrder.valueOf(orderby.replace('-', '_'))
-                : DiffBatchOrder._updatedTime;
     }
 
 }

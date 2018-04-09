@@ -43,6 +43,7 @@ package org.dcm4chee.arc.diff;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -73,7 +74,7 @@ public interface DiffService {
 
     DiffTask getDiffTask(long taskPK);
 
-    List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit);
+    List<AttributesBlob> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit);
 
     List<DiffBatch> listDiffBatches(Predicate matchQueueBatch, Predicate matchDiffBatch, OrderSpecifier<Date> order,
                                     int offset, int limit);

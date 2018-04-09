@@ -131,6 +131,7 @@ public class DiffTaskRS {
     private String limit;
 
     @QueryParam("orderby")
+    @DefaultValue("-updatedTime")
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
     private String orderby;
 
@@ -257,13 +258,13 @@ public class DiffTaskRS {
         abstract Object entity(final DiffTaskQuery tasks);
     }
 
-    private StreamingOutput entity(List<byte[]> diffTaskAttributes) {
+    private StreamingOutput entity(List<AttributesBlob> diffTaskAttributesList) {
         return output -> {
             try (JsonGenerator gen = Json.createGenerator(output)) {
                 JSONWriter writer = new JSONWriter(gen);
                 gen.writeStartArray();
-                for (byte[] diffTaskAttributesEncoded : diffTaskAttributes)
-                    writer.write(AttributesBlob.decodeAttributes(diffTaskAttributesEncoded, null));
+                for (AttributesBlob diffTaskAttributes : diffTaskAttributesList)
+                    writer.write(AttributesBlob.decodeAttributes(diffTaskAttributes.getEncodedAttributes(), null));
                 gen.writeEnd();
             }
         };

@@ -182,8 +182,8 @@ public class DiffServiceEJB {
         return em.find(DiffTask.class, taskPK);
     }
 
-    public List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit) {
-        return em.createNamedQuery(DiffTaskAttributes.FIND_BY_DIFF_TASK, byte[].class)
+    public List<AttributesBlob> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit) {
+        return em.createNamedQuery(DiffTaskAttributes.FIND_BY_DIFF_TASK, AttributesBlob.class)
                 .setParameter(1, diffTask)
                 .setFirstResult(offset)
                 .setMaxResults(limit)
