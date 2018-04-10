@@ -482,7 +482,9 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
     getTasks(offset){
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.getExternalRetrieveEntries(this.filterObject,offset).subscribe(
+/*        if(this.batchGrouped)
+            //TODO*/
+        this.service.getExternalRetrieveEntries(this.filterObject,offset, this.batchGrouped).subscribe(
             res =>  {
                 $this.cfpLoadingBar.complete();
 /*                if(!environment.production){

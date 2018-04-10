@@ -2214,7 +2214,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         }
         this.dialogRef.afterClosed().subscribe(result => {
             if (result){
-                let batchID;
+                let batchID = "";
                 if(result.batchID)
                     batchID = `batchID=${result.batchID}&`;
                 $this.cfpLoadingBar.start();
