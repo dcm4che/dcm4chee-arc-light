@@ -265,9 +265,9 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                 delete filterClone.offset;
                 delete filterClone.limit;
                 if(!this.mainservice.global.notSecure){
-                    WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv&access_token=${token}&${this.mainservice.param(filterClone)}${(semicolon?'&delimiter=semicolon':'')}`);
+                    WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`);
                 }else{
-                    WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv&${this.mainservice.param(filterClone)}${(semicolon?'&delimiter=semicolon':'')}`);
+                    WindowRefService.nativeWindow.open(`../monitor/retrieve?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`);
                 }
             });
         })
