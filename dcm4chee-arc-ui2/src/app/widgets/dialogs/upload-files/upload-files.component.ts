@@ -3,6 +3,8 @@ import {MatDialogRef} from "@angular/material";
 import * as _ from 'lodash';
 import {AppService} from "../../../app.service";
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {StudiesService} from "../../../studies/studies.service";
+import {UploadDicomService} from "../upload-dicom/upload-dicom.service";
 
 @Component({
   selector: 'app-upload-files',
@@ -23,6 +25,8 @@ export class UploadFilesComponent implements OnInit {
     description;
     showFileList = false;
     isImage = false;
+    webApps;
+    selectedWebApp;
     imageType = [
         {
             title:"Screenshots",
@@ -40,13 +44,16 @@ export class UploadFilesComponent implements OnInit {
     constructor(
         public dialogRef: MatDialogRef<UploadFilesComponent>,
         public mainservice:AppService,
-        public $http:J4careHttpService
+        public $http:J4careHttpService,
+        private studieService:StudiesService,
+        private uploadDicomService:UploadDicomService
     ) {
     }
 
     ngOnInit() {
         this.percentComplete = {};
         this.selectedSopClass = this.imageType[0];
+        this.getWebApps();
     }
     fileChange(event){
         this.fileList = event.target.files;
@@ -104,7 +111,8 @@ export class UploadFilesComponent implements OnInit {
 
                         $this.xmlHttpRequest = new XMLHttpRequest();
                         //Some AJAX-y stuff - callbacks, handlers etc.
-                        $this.xmlHttpRequest.open('POST', `../aets/${$this._selectedAe}/rs/studies`, true);
+                        let url = this.uploadDicomService.getUrlFromWebApp(this.selectedWebApp);
+                        $this.xmlHttpRequest.open('POST', url, true);
                         let dashes = '--';
                         let crlf = '\r\n';
                         //Post with the correct MIME type (If the OS can identify one)
@@ -270,5 +278,16 @@ export class UploadFilesComponent implements OnInit {
 
     set aes(value) {
         this._aes = value;
+    }
+    getWebApps(){
+        this.studieService.getWebApps().subscribe((res)=>{
+            this.webApps = res;
+            this.webApps.forEach(webApp=>{
+                if(webApp.dicomAETitle === this._selectedAe)
+                    this.selectedWebApp = webApp;
+            });
+        },(err)=>{
+
+        });
     }
 }

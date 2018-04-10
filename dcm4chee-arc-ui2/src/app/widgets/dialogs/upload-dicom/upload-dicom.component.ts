@@ -111,7 +111,8 @@ export class UploadDicomComponent implements OnInit{
 
                         let xmlHttpRequest = new XMLHttpRequest();
                         //Some AJAX-y stuff - callbacks, handlers etc.
-                        xmlHttpRequest.open('POST', `../aets/${$this._selectedAe}/rs/studies`, true);
+                        let url = this.service.getUrlFromWebApp(this.selectedWebApp);
+                        xmlHttpRequest.open('POST', url, true);
                         let dashes = '--';
                         let crlf = '\r\n';
                         //Post with the correct MIME type (If the OS can identify one)
