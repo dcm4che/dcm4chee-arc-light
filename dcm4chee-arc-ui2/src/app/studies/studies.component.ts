@@ -729,20 +729,22 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 $this.count = "";
                 $this.size = "";
                 if (_.size(res) > 0) {
-
-                    //Add number of patient related studies manuelly hex(00201200) => dec(2101760)
+                    // Add Number of Patient related Studies (0020,1200),
+                    // Private Creator (7777,0010),
+                    // Patient Create Date Time (7777,1010),
+                    // Patient Update Date Time (7777,1011)
                     let index = 0;
-                    while ($this.attributeFilters.Patient.dcmTag[index] && ($this.attributeFilters.Patient.dcmTag[index] < 2101760)) {
+                    let pat, study, patAttrs, tags = $this.attributeFilters.Patient.dcmTag;
+                    while (tags && (tags[index] < '00201200')) {
                         index++;
                     }
-                    $this.attributeFilters.Patient.dcmTag.splice(index, 0, 2101760);
-
-                    let pat, study, patAttrs, tags = $this.attributeFilters.Patient.dcmTag;
+                    tags.splice(index, 0, '00201200');
+                    tags.push('77770010','77771010','77771011');
                     console.log('res', res);
                     res.forEach(function (studyAttrs, index) {
                         patAttrs = {};
                         $this.extractAttrs(studyAttrs, tags, patAttrs);
-                        if (!(pat && _.isEqual(pat.attrs, patAttrs))) { //angular.equals replaced with Rx.helpers.defaultComparer
+                        if (!(pat && $this.equalsIgnoreSpecificCharacterSet(pat.attrs, patAttrs))) { //angular.equals replaced with Rx.helpers.defaultComparer
                             pat = {
                                 attrs: patAttrs,
                                 studies: [],
@@ -846,17 +848,17 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 if (_.size(res) > 0) {
                     //Add number of patient related studies manuelly hex(00201200) => dec(2101760)
                     let index = 0;
-                    while ($this.attributeFilters.Patient.dcmTag[index] && ($this.attributeFilters.Patient.dcmTag[index] < 2101760)) {
+                    while ($this.attributeFilters.Patient.dcmTag[index] && ($this.attributeFilters.Patient.dcmTag[index] < '00201200')) {
                         index++;
                     }
-                    $this.attributeFilters.Patient.dcmTag.splice(index, 0, 2101760);
+                    $this.attributeFilters.Patient.dcmTag.splice(index, 0, '00201200');
 
                     let pat, study, patAttrs, tags = $this.attributeFilters.Patient.dcmTag;
                     console.log('res', res);
                     res.forEach(function (studyAttrs, index) {
                         patAttrs = {};
                         $this.extractAttrs(studyAttrs, tags, patAttrs);
-                        if (!(pat && _.isEqual(pat.attrs, patAttrs))) { //angular.equals replaced with Rx.helpers.defaultComparer
+                        if (!(pat && $this.equalsIgnoreSpecificCharacterSet(pat.attrs, patAttrs))) { //angular.equals replaced with Rx.helpers.defaultComparer
                             pat = {
                                 attrs: patAttrs,
                                 studies: [],
@@ -3862,6 +3864,12 @@ export class StudiesComponent implements OnDestroy,OnInit{
         //         extracted[tag] = value;
         //     }
         // });
+    }
+    equalsIgnoreSpecificCharacterSet(attrs, other) {
+        return Object.keys(attrs).filter(tag => tag != '00080005')
+                .every(tag => _.isEqual(attrs[tag],other[tag]))
+            && Object.keys(other).filter(tag => tag != '00080005')
+                .every(tag => attrs[tag]);
     }
     binarySearch(ar, el) {
         let m = 0;
