@@ -549,15 +549,30 @@ export class DeviceConfiguratorService{
                             }
                         }
                         if(_.hasIn(m.formatValue,'state')){
-                            form.push({
-                                controlType: 'message',
-                                key: i,
-                                label: m.title,
-                                description: m.description,
-                                msg:m.formatValue.msg,
-                                order: (5 + newOrderSuffix),
-                                show: (this.defaultOpenBlock === 'attr')
-                            })
+                            if(m.formatValue.state === "missing" && required)
+                                form.push({
+                                    controlType: 'message',
+                                    key: i,
+                                    label: m.title,
+                                    description: m.description,
+                                    msg:m.formatValue.msg,
+                                    order: (5 + newOrderSuffix),
+                                    show: (this.defaultOpenBlock === 'attr')
+                                })
+                            else
+                                form.push(
+                                    new InputText({
+                                        key: i,
+                                        label: m.title,
+                                        description: m.description,
+                                        type: 'string',
+                                        value: value,
+                                        order: (5 + newOrderSuffix),
+                                        validation: validation,
+                                        format: m.format,
+                                        show: (this.defaultOpenBlock === 'attr')
+                                    })
+                                );
                         }else{
                             form.push(
                                 new DropdownList({
