@@ -61,6 +61,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -176,11 +179,11 @@ public class DiffBatchRS {
                         writer.writeNotDef("matches", diffBatch.getMatches(), 0);
                         writer.writeNotDef("missing", diffBatch.getMissing(), 0);
                         writer.writeNotDef("different", diffBatch.getDifferent(), 0);
-                        writer.writeNotEmpty("createdTimeRange", diffBatch.getCreatedTimeRange());
-                        writer.writeNotEmpty("updatedTimeRange", diffBatch.getUpdatedTimeRange());
-                        writer.writeNotEmpty("scheduledTimeRange", diffBatch.getScheduledTimeRange());
-                        writer.writeNotEmpty("processingStartTimeRange", diffBatch.getProcessingStartTimeRange());
-                        writer.writeNotEmpty("processingEndTimeRange", diffBatch.getProcessingEndTimeRange());
+                        writer.writeNotEmpty("createdTimeRange", datesAsStrings(diffBatch.getCreatedTimeRange()));
+                        writer.writeNotEmpty("updatedTimeRange", datesAsStrings(diffBatch.getUpdatedTimeRange()));
+                        writer.writeNotEmpty("scheduledTimeRange", datesAsStrings(diffBatch.getScheduledTimeRange()));
+                        writer.writeNotEmpty("processingStartTimeRange", datesAsStrings(diffBatch.getProcessingStartTimeRange()));
+                        writer.writeNotEmpty("processingEndTimeRange", datesAsStrings(diffBatch.getProcessingEndTimeRange()));
                         gen.writeEnd();
                     }
                     gen.writeEnd();
@@ -197,6 +200,14 @@ public class DiffBatchRS {
                 writer.writeNotNullOrDef("canceled", diffBatch.getCanceled(), 0);
                 writer.writeNotNullOrDef("completed", diffBatch.getCompleted(), 0);
                 writer.writeEnd();
+            }
+
+            private String[] datesAsStrings(Date[] dates) {
+                String[] datesAsStrings = new String[dates.length];
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                for (int i = 0; i < dates.length; i++)
+                    datesAsStrings[i] = df.format(dates[i]);
+                return datesAsStrings;
             }
         };
 
