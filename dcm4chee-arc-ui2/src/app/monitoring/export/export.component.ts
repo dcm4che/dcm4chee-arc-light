@@ -666,7 +666,6 @@ export class ExportComponent implements OnInit {
                 }else{
                     id = result.selectedExporter;
                 }
-                $this.cfpLoadingBar.start();
                 this.service.reschedule(match.properties.pk, id)
                     .subscribe(
                         (res) => {

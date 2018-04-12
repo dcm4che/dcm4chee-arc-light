@@ -82,6 +82,7 @@ import { PermissionDirective } from './helpers/permissions/permission.directive'
 import {LoadingBarModule} from "@ngx-loading-bar/core";
 import {PermissionDeniedComponent} from "./helpers/permissions/permission-denied.component";
 import {CsvRetrieveService} from "./widgets/dialogs/csv-retrieve/csv-retrieve.service";
+import { StackedProgressComponent } from './helpers/stacked-progress/stacked-progress.component';
 
 @NgModule({
     declarations: [
@@ -129,6 +130,7 @@ import {CsvRetrieveService} from "./widgets/dialogs/csv-retrieve/csv-retrieve.se
         ClickOutsideDirective,
         PermissionDirective,
         PermissionDeniedComponent,
+        StackedProgressComponent,
     ],
     imports: [
         BrowserModule,

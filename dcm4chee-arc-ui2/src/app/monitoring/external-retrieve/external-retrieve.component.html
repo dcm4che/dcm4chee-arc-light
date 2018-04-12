@@ -47,7 +47,30 @@
     </div>
     <table class="table table-bordered table-condensed" *ngIf="_.size(externalRetrieveEntries) > 0">
       <thead>
-      <tr>
+      <tr *ngIf="batchGrouped">
+        <th>
+          <div class="arrow_block">
+            <button class="btn btn-link btn-xs"
+                    [disabled]="!hasNewer(externalRetrieveEntries)"
+                    (click)="getTasks(newerOffset(externalRetrieveEntries))"
+                    title="Newer">
+              <span class="glyphicon glyphicon-menu-left"></span>
+            </button>
+            <button class="btn btn-link btn-xs"
+                    [disabled]="!hasOlder(externalRetrieveEntries)"
+                    (click)="getTasks(olderOffset(externalRetrieveEntries))"
+                    title="Older">
+              <span class="glyphicon glyphicon-menu-right"></span>
+            </button>
+          </div>
+        </th>
+        <th></th>
+        <th>Batch ID</th>
+        <th class="hideOn1200px">Remote AET</th>
+        <th class="hideOn1100px">Destination AET</th>
+        <th class="hideOn1100px">Tasks</th>
+      </tr>
+      <tr *ngIf="!batchGrouped">
         <th>
           <div class="arrow_block">
             <button class="btn btn-link btn-xs"
@@ -91,7 +114,19 @@
       </thead>
       <tbody>
       <ng-container *ngFor="let match of externalRetrieveEntries">
-        <tr>
+        <tr *ngIf="batchGrouped">
+          <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
+          <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
+            <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
+              <span class="glyphicon glyphicon-list"></span>
+            </a>
+          </td>
+          <td [innerHtml]="match.properties.batchID" title="{{match.properties.batchID}}"></td>
+          <td [innerHtml]="match.properties.RemoteAET" class="hideOn1200px"></td>
+          <td [innerHtml]="match.properties.DestinationAET" class="hideOn1100px"></td>
+          <td class="hideOn1100px" width="30%"><stacked-progress [model]="testModel"></stacked-progress></td>
+        </tr>
+        <tr *ngIf="!batchGrouped">
           <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
           <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
               <input type="checkbox" [(ngModel)]="match.checked">
