@@ -228,8 +228,21 @@ public class PatientServiceEJB {
             updateIssuer(pat.getPatientID(), patientID.getIssuer());
         else
             throw new PatientAlreadyExistsException("Patient with Patient ID " + pat2.getPatientID() + "already exists");
-        updatePatient(pat, ctx);
+        updatePatientAttrs(ctx, pat);
         return pat;
+    }
+
+    private void updatePatientAttrs(PatientMgtContext ctx, Patient pat) {
+        IDWithIssuer patientID = ctx.getPatientID();
+        Attributes patientAttrs = pat.getAttributes();
+        if (patientID.getIssuer() == null && patientAttrs.getString(Tag.IssuerOfPatientID) != null) {
+            patientAttrs.remove(Tag.IssuerOfPatientID);
+            patientAttrs.remove(Tag.IssuerOfPatientIDQualifiersSequence);
+        }
+        pat.setAttributes(patientID.exportPatientIDWithIssuer(patientAttrs), ctx.getAttributeFilter(), ctx.getFuzzyStr());
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
+                .setParameter(1, pat)
+                .executeUpdate();
     }
 
     private void updateIssuer(PatientID patientID, Issuer issuer) {
