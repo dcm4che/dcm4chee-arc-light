@@ -76,16 +76,28 @@ public class XDSiExporter extends AbstractExporter {
     private static final ObjectFactory rimFactory = new ObjectFactory();
     private static final String DEFAULT_SOURCE_ID = "1.3.6.1.4.1.21367.13.80.110";
     private static final String DEFAULT_LANGUAGE_CODE = "en-us";
-    private static final Code DICOM_KON_TYPECODE = new Code(
-            "DICOM KON TYPECODE",
-            "1.3.6.1.4.1.21367.100.1",
+    /*
+    XDSSubmissionSet.contentType=(UNSPECIFIED-CONTENT-TYPE,1.3.6.1.4.1.21367.2017.3,"Unspecified Clinical Activity")
+    DocumentEntry.typeCode=(18748-4,2.16.840.1.113883.6.1,"Diagnostic imaging study")
+    DocumentEntry.healthCareFacilityTypeCode=(22232009,2.16.840.1.113883.6.96,"Hospital")
+    DocumentEntry.practiceSettingCode=(Practice-A,1.3.6.1.4.1.21367.2017.3,"Radiology")
+    DocumentEntry.classCode=(IMAGES,1.3.6.1.4.1.19376.1.2.6.1,"Images")
+     */
+    private static final Code DEFAULT_CONTENT_TYPE = new Code(
+            "UNSPECIFIED-CONTENT-TYPE",
+            "1.3.6.1.4.1.21367.2017.3",
             null,
-            "DICOM Key Object Note Type Code");
+            "Unspecified Clinical Activity");
+    private static final Code DEFAULT_TYPE_CODE = new Code(
+            "18748-4",
+            "2.16.840.1.113883.6.1",
+            null,
+            "Diagnostic imaging study");
     private static final Code DEFAULT_CLASS_CODE = new Code(
-            "*",
-            "1.3.6.1.4.1.21367.100.1",
+            "IMAGES",
+            "1.3.6.1.4.1.19376.1.2.6.1",
             null,
-            "*");
+            "Images");
     private static final Code DEFAULT_CONFIDENTIALITY_CODE = new Code(
             "N", 
             "2.16.840.1.113883.5.25",
@@ -97,13 +109,13 @@ public class XDSiExporter extends AbstractExporter {
             null,
             "Manifest");
     private static final Code DEFAULT_HEALTH_CARE_FACILITY_TYPE_CODE = new Code(
-            "RADDX",
-            "2.16.840.1.113883.5.11",
+            "22232009",
+            "2.16.840.1.113883.6.96",
             null,
-            "Radiology diagnostics or therapeutics unit");
+            "Hospital");
     private static final Code DEFAULT_PRACTICE_SETTING_CODE = new Code(
-            "R-3027B",
-            "SRT",
+            "Practice-A",
+            "1.3.6.1.4.1.21367.2017.3",
             null,
             "Radiology");
     private static final Code MANIFEST_FORMAT_CODE = new Code(
@@ -166,8 +178,8 @@ public class XDSiExporter extends AbstractExporter {
         this.assigningAuthorityOfPatientID = descriptor.getProperty("AssigningAuthority.patientId", null);
         this.assigningAuthorityOfAccessionNumber = descriptor.getProperty("AssigningAuthority.accessionNumber", null);
         this.sourceId = descriptor.getProperty("XDSSubmissionSet.sourceId", DEFAULT_SOURCE_ID);
-        this.manifestContentType = getCodeProperty("XDSSubmissionSet.contentType", DICOM_KON_TYPECODE);
-        this.defTypeCode = getCodeProperty("DocumentEntry.typeCode", DICOM_KON_TYPECODE);
+        this.manifestContentType = getCodeProperty("XDSSubmissionSet.contentType", DEFAULT_CONTENT_TYPE);
+        this.defTypeCode = getCodeProperty("DocumentEntry.typeCode", DEFAULT_TYPE_CODE);
         this.languageCode = descriptor.getProperty("DocumentEntry.languageCode", DEFAULT_LANGUAGE_CODE);
         this.classCode = getCodeProperty("DocumentEntry.classCode", DEFAULT_CLASS_CODE);
         this.confidentialityCode = getCodeProperty("DocumentEntry.confidentialityCode", DEFAULT_CONFIDENTIALITY_CODE);
