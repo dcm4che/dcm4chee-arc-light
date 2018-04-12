@@ -235,9 +235,14 @@ public class PatientServiceEJB {
     private void updatePatientAttrs(PatientMgtContext ctx, Patient pat) {
         IDWithIssuer patientID = ctx.getPatientID();
         Attributes patientAttrs = pat.getAttributes();
-        if (patientID.getIssuer() == null && patientAttrs.getString(Tag.IssuerOfPatientID) != null) {
-            patientAttrs.remove(Tag.IssuerOfPatientID);
-            patientAttrs.remove(Tag.IssuerOfPatientIDQualifiersSequence);
+        if (patientAttrs.getString(Tag.IssuerOfPatientID) != null) {
+            Issuer patientIDIssuer = patientID.getIssuer();
+            if (patientIDIssuer == null) {
+                patientAttrs.remove(Tag.IssuerOfPatientID);
+                patientAttrs.remove(Tag.IssuerOfPatientIDQualifiersSequence);
+            } else if (patientIDIssuer.getUniversalEntityID() == null) {
+                patientAttrs.remove(Tag.IssuerOfPatientIDQualifiersSequence);
+            }
         }
         pat.setAttributes(patientID.exportPatientIDWithIssuer(patientAttrs), ctx.getAttributeFilter(), ctx.getFuzzyStr());
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_PATIENT)
