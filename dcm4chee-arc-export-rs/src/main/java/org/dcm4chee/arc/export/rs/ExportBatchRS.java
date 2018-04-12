@@ -63,7 +63,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -137,11 +142,11 @@ public class ExportBatchRS {
                         writeTasks(exportBatch, writer);
                         writer.writeNotEmpty("dicomDeviceName", exportBatch.getDeviceNames());
                         writer.writeNotEmpty("ExporterID", exportBatch.getExporterIDs());
-                        writer.writeNotEmpty("createdTimeRange", exportBatch.getCreatedTimeRange());
-                        writer.writeNotEmpty("updatedTimeRange", exportBatch.getUpdatedTimeRange());
-                        writer.writeNotEmpty("scheduledTimeRange", exportBatch.getScheduledTimeRange());
-                        writer.writeNotEmpty("processingStartTimeRange", exportBatch.getProcessingStartTimeRange());
-                        writer.writeNotEmpty("processingEndTimeRange", exportBatch.getProcessingEndTimeRange());
+                        writer.writeNotEmpty("createdTimeRange", datesAsStrings(exportBatch.getCreatedTimeRange()));
+                        writer.writeNotEmpty("updatedTimeRange", datesAsStrings(exportBatch.getUpdatedTimeRange()));
+                        writer.writeNotEmpty("scheduledTimeRange", datesAsStrings(exportBatch.getScheduledTimeRange()));
+                        writer.writeNotEmpty("processingStartTimeRange", datesAsStrings(exportBatch.getProcessingStartTimeRange()));
+                        writer.writeNotEmpty("processingEndTimeRange", datesAsStrings(exportBatch.getProcessingEndTimeRange()));
                         gen.writeEnd();
                     }
                     gen.writeEnd();
@@ -158,6 +163,14 @@ public class ExportBatchRS {
                 writer.writeNotNullOrDef("canceled", exportBatch.getCanceled(), 0);
                 writer.writeNotNullOrDef("completed", exportBatch.getCompleted(), 0);
                 writer.writeEnd();
+            }
+
+            private String[] datesAsStrings(Date[] dates) {
+                String[] datesAsStrings = new String[dates.length];
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                for (int i = 0; i < dates.length; i++)
+                    datesAsStrings[i] = df.format(dates[i]);
+                return datesAsStrings;
             }
         };
 
