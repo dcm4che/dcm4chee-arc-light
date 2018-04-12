@@ -76,13 +76,6 @@ public class XDSiExporter extends AbstractExporter {
     private static final ObjectFactory rimFactory = new ObjectFactory();
     private static final String DEFAULT_SOURCE_ID = "1.3.6.1.4.1.21367.13.80.110";
     private static final String DEFAULT_LANGUAGE_CODE = "en-us";
-    /*
-    XDSSubmissionSet.contentType=(UNSPECIFIED-CONTENT-TYPE,1.3.6.1.4.1.21367.2017.3,"Unspecified Clinical Activity")
-    DocumentEntry.typeCode=(18748-4,2.16.840.1.113883.6.1,"Diagnostic imaging study")
-    DocumentEntry.healthCareFacilityTypeCode=(22232009,2.16.840.1.113883.6.96,"Hospital")
-    DocumentEntry.practiceSettingCode=(Practice-A,1.3.6.1.4.1.21367.2017.3,"Radiology")
-    DocumentEntry.classCode=(IMAGES,1.3.6.1.4.1.19376.1.2.6.1,"Images")
-     */
     private static final Code DEFAULT_CONTENT_TYPE = new Code(
             "UNSPECIFIED-CONTENT-TYPE",
             "1.3.6.1.4.1.21367.2017.3",
