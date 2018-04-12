@@ -1184,6 +1184,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.199 NAME 'dcmIssuerOfPatientID'
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.200 NAME 'dcmStartRetentionPeriodOnStudyDate'
+  DESC 'Indicates if retention period should be started on Study Date. Disabled if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1544,6 +1550,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.20 NAME 'dcmStudyRetentionPolicy'
   MAY (
     dcmRulePriority $
     dcmProperty $
+    dcmStartRetentionPeriodOnStudyDate $
     dcmExpireSeriesIndividually ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.21 NAME 'dcmIDGenerator'

@@ -723,6 +723,7 @@ class ArchiveDeviceFactory {
             UID.BasicStructuredDisplayStorage,
             UID.EncapsulatedPDFStorage,
             UID.EncapsulatedCDAStorage,
+            UID.EncapsulatedSTLStorage,
             UID.StandalonePETCurveStorageRetired,
             UID.TextSRStorageTrialRetired,
             UID.AudioSRStorageTrialRetired,

@@ -503,8 +503,11 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             if (_.hasIn(obj, '["00100020"].Value[0]')){
                 patientId += obj["00100020"].Value[0];
             }
-            if (_.hasIn(obj, '["00100021"].Value[0]')){
+            if (_.hasIn(obj, '["00100021"].Value[0]'))
                 patientId += '^^^' + obj["00100021"].Value[0];
+            else{
+                if(_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]') || _.hasIn(obj, '["00100024"].Value[0]["00400033"].Value[0]'))
+                    patientId += '^^^';
             }
             if (_.hasIn(obj, '["00100024"].Value[0]["00400032"].Value[0]')){
                 patientId += '&' + obj['00100024'].Value[0]['00400032'].Value[0];
@@ -679,6 +682,10 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 return null;
             }
         }
+    }
+    getWebApps(){
+        return this.$http.get('../webapps?dcmWebServiceClass=STOW_RS')
+            .map(res => j4care.redirectOnAuthResponse(res));
     }
     isTargetInClipboard(target, clipboard){
         let contains = false;

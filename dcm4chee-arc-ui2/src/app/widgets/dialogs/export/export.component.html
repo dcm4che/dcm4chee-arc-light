@@ -111,7 +111,7 @@
                 </mat-select>
             </div>
         </div>
-        <div class="content">
+        <div class="content" *ngIf="result.exportType === 'nonedicom'">
             <p>Batch ID</p>
             <input type="text" [(ngModel)]="result.batchID">
         </div>

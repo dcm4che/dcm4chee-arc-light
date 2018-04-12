@@ -399,8 +399,23 @@ mat-grid-list{
   }
 }
 
+.mat-radio-checked .mat-radio-outer-circle{
+  border-color:$blue;
+}
+.mat-radio-inner-circle{
+  background:$blue;
+}
+.mat-checkbox-checked.mat-accent .mat-checkbox-background{
+  background:$blue;
+}
 .mat-select:focus:not(.mat-select-disabled) .mat-select-trigger{
   color: $blue;
+}
+.mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar{
+  background-color: $blue !important;
+}
+.mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb{
+  background-color: $blue !important;
 }
 .mat-select:focus:not(.mat-select-disabled) .mat-select-underline,
 .mat-option.mat-selected, .mat-option.mat-selected:focus,.mat-option.mat-selected:active,

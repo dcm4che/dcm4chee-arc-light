@@ -176,6 +176,7 @@ DCM4CHE.SOPClass = (function (dictionary) {
 "1.2.840.10008.5.1.4.1.1.90.1":"Content Assessment Results Storage",
 "1.2.840.10008.5.1.4.1.1.104.1":"Encapsulated PDF Storage",
 "1.2.840.10008.5.1.4.1.1.104.2":"Encapsulated CDA Storage",
+"1.2.840.10008.5.1.4.1.1.104.3":"Encapsulated STL Storage",
 "1.2.840.10008.5.1.4.1.1.128":"Positron Emission Tomography Image Storage",
 "1.2.840.10008.5.1.4.1.1.128.1":"Legacy Converted Enhanced PET Image Storage",
 "1.2.840.10008.5.1.4.1.1.129":"Standalone PET Curve Storage (Retired)",

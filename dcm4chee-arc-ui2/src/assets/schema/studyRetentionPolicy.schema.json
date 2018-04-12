@@ -40,6 +40,12 @@
       "description": "Indicates if series should be expired individually or not.",
       "type": "boolean",
       "default": false
+    },
+    "dcmStartRetentionPeriodOnStudyDate": {
+      "title": "Start Retention Period on Study Date",
+      "description": "Indicates if retention period should be started on Study Date",
+      "type": "boolean",
+      "default": false
     }
   }
 }

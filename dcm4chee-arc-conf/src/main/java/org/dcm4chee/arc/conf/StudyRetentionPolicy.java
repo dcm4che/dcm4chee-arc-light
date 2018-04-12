@@ -10,16 +10,12 @@ import java.time.Period;
  * @since June 2016
  */
 public class StudyRetentionPolicy {
-
     private String commonName;
-
     private int priority;
-
     private Conditions conditions = new Conditions();
-
     private Period retentionPeriod;
-
     private boolean expireSeriesIndividually;
+    private boolean startRetentionPeriodOnStudyDate;
 
     public StudyRetentionPolicy() {
     }
@@ -70,6 +66,14 @@ public class StudyRetentionPolicy {
 
     public boolean match(String hostname, String sendingAET, String receivingAET, Attributes attrs) {
         return conditions.match(hostname, sendingAET, receivingAET, attrs);
+    }
+
+    public boolean isStartRetentionPeriodOnStudyDate() {
+        return startRetentionPeriodOnStudyDate;
+    }
+
+    public void setStartRetentionPeriodOnStudyDate(boolean startRetentionPeriodOnStudyDate) {
+        this.startRetentionPeriodOnStudyDate = startRetentionPeriodOnStudyDate;
     }
 
     @Override

@@ -17,9 +17,9 @@ export class ExternalRetrieveService {
       private deviceService:DevicesService
     ) { }
 
-    getExternalRetrieveEntries(filter, offset){
+    getExternalRetrieveEntries(filter, offset, batch){
         filter.offset = (offset && offset != '') ? offset : 0;
-        return this.$http.get('../monitor/retrieve' + '?' + this.mainservice.param(filter))
+        return this.$http.get(`../monitor/retrieve${(batch?'/batch':'')}?${this.mainservice.param(filter)}`)
             .map(res => j4care.redirectOnAuthResponse(res));
     };
     getCount(filter) {
