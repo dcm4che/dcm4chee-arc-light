@@ -479,20 +479,27 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
             }
         }
     }
-    testModel = {
-        "completed":60,
-        "in-process":5,
-        "warning":24,
-        "failed":12,
-        "scheduled":123,
-        "canceled":26
-    }
+    taskNames = [
+        "completed",
+        "warning",
+        "failed",
+        "in-process",
+        "scheduled",
+        "canceled"
+    ];
     getTasks(offset){
         let $this = this;
         $this.cfpLoadingBar.start();
         this.service.getExternalRetrieveEntries(this.filterObject,offset, this.batchGrouped).subscribe(
             res =>  {
-                // res = [{"batchID":"test12","tasks":{"completed":"4"},"dicomDeviceName":["dcm4chee-arc", "dcm4chee-arc2"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE", "DCM4CHEE2","DCM4CHEE3","DCM4CHEE", "DCM4CHEE2","DCM4CHEE3","DCM4CHEE", "DCM4CHEE2","DCM4CHEE3","DCM4CHEE", "DCM4CHEE2","DCM4CHEE3"],"DestinationAET":["DCM4CHEE", "DCM4CHEE3","DCM4CHEE4","DCM4CHEE5"],"createdTimeRange":["2018-04-10 18:02:06.936","2018-04-10 18:02:07.049"],"updatedTimeRange":["2018-04-10 18:02:08.300311","2018-04-10 18:02:08.553547"],"scheduledTimeRange":["2018-04-10 18:02:06.935","2018-04-10 18:02:07.049"],"processingStartTimeRange":["2018-04-10 18:02:06.989","2018-04-10 18:02:07.079"],"processingEndTimeRange":["2018-04-10 18:02:08.31","2018-04-10 18:02:08.559"]},{"batchID":"test2","tasks":{"completed":"12","failed":3},"dicomDeviceName":["dcm4chee-arc"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE"],"DestinationAET":["DCM4CHEE"],"createdTimeRange":["2018-04-10 18:02:25.71","2018-04-10 18:02:26.206"],"updatedTimeRange":["2018-04-10 18:02:25.932859","2018-04-10 18:02:27.335741"],"scheduledTimeRange":["2018-04-10 18:02:25.709","2018-04-10 18:02:26.204"],"processingStartTimeRange":["2018-04-10 18:02:25.739","2018-04-10 18:02:26.622"],"processingEndTimeRange":["2018-04-10 18:02:25.943","2018-04-10 18:02:27.344"]}];
+/*                res = [{"batchID":"test12","tasks":{
+                    "completed":60,
+                    "warning":24,
+                    "failed":12,
+                    "in-process":5,
+                    "scheduled":123,
+                    "canceled":26
+                },"dicomDeviceName":["dcm4chee-arc", "dcm4chee-arc2"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE", "DCM4CHEE2","DCM4CHEE3","DCM4CHEE", "DCM4CHEE2","DCM4CHEE3","DCM4CHEE", "DCM4CHEE2","DCM4CHEE3","DCM4CHEE", "DCM4CHEE2","DCM4CHEE3"],"DestinationAET":["DCM4CHEE", "DCM4CHEE3","DCM4CHEE4","DCM4CHEE5"],"createdTimeRange":["2018-04-10 18:02:06.936","2018-04-10 18:02:07.049"],"updatedTimeRange":["2018-04-10 18:02:08.300311","2018-04-10 18:02:08.553547"],"scheduledTimeRange":["2018-04-10 18:02:06.935","2018-04-10 18:02:07.049"],"processingStartTimeRange":["2018-04-10 18:02:06.989","2018-04-10 18:02:07.079"],"processingEndTimeRange":["2018-04-10 18:02:08.31","2018-04-10 18:02:08.559"]},{"batchID":"test2","tasks":{"completed":"12","failed":3,"warning":34},"dicomDeviceName":["dcm4chee-arc"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE"],"DestinationAET":["DCM4CHEE"],"createdTimeRange":["2018-04-10 18:02:25.71","2018-04-10 18:02:26.206"],"updatedTimeRange":["2018-04-10 18:02:25.932859","2018-04-10 18:02:27.335741"],"scheduledTimeRange":["2018-04-10 18:02:25.709","2018-04-10 18:02:26.204"],"processingStartTimeRange":["2018-04-10 18:02:25.739","2018-04-10 18:02:26.622"],"processingEndTimeRange":["2018-04-10 18:02:25.943","2018-04-10 18:02:27.344"]}];*/
 
 
                 $this.cfpLoadingBar.complete();
@@ -501,27 +508,37 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                 }*/
                 if (res && res.length > 0){
                     this.externalRetrieveEntries =  res.map((properties, index) => {
-                        if (_.hasIn(properties, 'Modality')){
-                            properties.Modality = properties.Modality.join(',');
+                        if(this.batchGrouped){
+                            if(_.hasIn(properties, 'tasks')){
+                                let taskPrepared = [];
+                                this.taskNames.forEach(task=>{
+                                 if(properties.tasks[task])
+                                     taskPrepared.push({[task]:properties.tasks[task]});
+                                });
+                                properties.tasks = taskPrepared;
+                            }
+                            this.service.stringifyArrayOrObject(properties, ['tasks']);
+                        }else{
+                            if (_.hasIn(properties, 'Modality')){
+                                properties.Modality = properties.Modality.join(', ');
+                            }
+                            properties.taskState = (properties.completed ? properties.completed*1:0) + ' / ' + (properties.remaining ? properties.remaining*1:0) + ' / '+ (properties.failed ? properties.failed*1:0);
+                            let endTime =  properties.processingEndTime ? new Date(j4care.splitTimeAndTimezone(properties.processingEndTime).time) :  this.mainservice.serverTime;
+                            /*                        if(!environment.production){
+                                                        console.log("processingEndTime1",properties.processingEndTime);
+                                                        if(properties.processingEndTime)
+                                                        console.log("processingEndTime2",new Date(j4care.splitTimeAndTimezone(properties.processingEndTime).time));
+                                                        endTime = properties.processingEndTime ? new Date(j4care.splitTimeAndTimezone(properties.processingEndTime).time) : new Date(j4care.splitTimeAndTimezone("2018-03-09T18:48:23.346+0200").time);
+                                                    }*/
+                            try{
+                                properties.NumberOfInstances = properties.NumberOfInstances || ((properties.completed ? properties.completed*1:0) + (properties.remaining ? properties.remaining*1:0) + (properties.failed ? properties.failed*1:0));
+                                properties.InstancePerSec = (Math.round(((properties.completed ? properties.completed*1:0)/((endTime.getTime()/1000) - (new Date(properties.processingStartTime).getTime()/1000)))*100)/100) || '-';
+                                if(!properties.processingEndTime)
+                                    properties.approximatelyEndTime = Math.round((properties.remaining / properties.InstancePerSec)*100)/100 ? `${this.secToMinSecString((properties.remaining / properties.InstancePerSec))}`:'-';
+                            }catch (e){
+                                properties.InstancePerSec = '';
+                            }
                         }
-                        properties.taskState = (properties.completed ? properties.completed*1:0) + ' / ' + (properties.remaining ? properties.remaining*1:0) + ' / '+ (properties.failed ? properties.failed*1:0);
-                        let endTime =  properties.processingEndTime ? new Date(j4care.splitTimeAndTimezone(properties.processingEndTime).time) :  this.mainservice.serverTime;
-/*                        if(!environment.production){
-                            console.log("processingEndTime1",properties.processingEndTime);
-                            if(properties.processingEndTime)
-                            console.log("processingEndTime2",new Date(j4care.splitTimeAndTimezone(properties.processingEndTime).time));
-                            endTime = properties.processingEndTime ? new Date(j4care.splitTimeAndTimezone(properties.processingEndTime).time) : new Date(j4care.splitTimeAndTimezone("2018-03-09T18:48:23.346+0200").time);
-                        }*/
-                        try{
-                            properties.NumberOfInstances = properties.NumberOfInstances || ((properties.completed ? properties.completed*1:0) + (properties.remaining ? properties.remaining*1:0) + (properties.failed ? properties.failed*1:0));
-                            properties.InstancePerSec = (Math.round(((properties.completed ? properties.completed*1:0)/((endTime.getTime()/1000) - (new Date(properties.processingStartTime).getTime()/1000)))*100)/100) || '-';
-                            if(!properties.processingEndTime)
-                                properties.approximatelyEndTime = Math.round((properties.remaining / properties.InstancePerSec)*100)/100 ? `${this.secToMinSecString((properties.remaining / properties.InstancePerSec))}`:'-';
-                        }catch (e){
-                            properties.InstancePerSec = '';
-                        }
-                        if(this.batchGrouped)
-                            this.service.stringifyArrayOrObject(properties);
                         return {
                             offset: offset + index,
                             properties: properties,

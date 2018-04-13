@@ -69,11 +69,11 @@ export class ExternalRetrieveService {
         let header = new Headers({ 'Accept': 'text/csv' });
         return this.$http.get(`/dcm4chee-arc/monitor/retrieve${urlParam}`, header)
     }
-    stringifyArrayOrObject(properties){
+    stringifyArrayOrObject(properties, exceptions){
         Object.keys(properties).forEach(task=>{
-            if(_.isArray(properties[task]))
+            if(_.isArray(properties[task]) && exceptions.indexOf(task) === -1)
                 properties[task] = properties[task].join(', ');
-            if(_.isObject(properties[task]))
+            if(_.isObject(properties[task]) && exceptions.indexOf(task) === -1)
                 properties[task] = Object.keys(properties[task]).map(taskKey=>`${taskKey}=${properties[task][taskKey]}`).join(', ');
         });
     }

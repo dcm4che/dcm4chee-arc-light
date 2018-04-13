@@ -14,17 +14,18 @@ export class StackedProgressComponent implements OnInit {
 
     ngOnInit() {
         this.getTotalCount();
-        this.progress = Object.keys(this.model).map(part=>{
+        this.progress = this.model.map(part=>{
+            let key = Object.keys(part)[0];
            return {
-               cssClass:part,
-               width:(parseInt(this.model[part].toString())*100)/this.totalCount,
-               title:`${part}:${this.model[part]}`
+               cssClass:key,
+               width:(parseInt(part[key].toString())*100)/this.totalCount,
+               title:`${key}:${part[key]}`
            }
         })
     }
     getTotalCount(){
-        Object.keys(this.model).forEach(part=>{
-            this.totalCount += parseInt(this.model[part].toString());
+        this.model.forEach(part=>{
+            this.totalCount += parseInt(part[Object.keys(part)[0]].toString());
         })
     }
 }

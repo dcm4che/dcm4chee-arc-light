@@ -124,7 +124,7 @@
           <td [innerHtml]="match.properties.batchID" title="{{match.properties.batchID}}"></td>
           <td [innerHtml]="match.properties.RemoteAET" class="hideOn1200px"></td>
           <td [innerHtml]="match.properties.DestinationAET" class="hideOn1100px"></td>
-          <td class="hideOn1100px" width="30%"><stacked-progress [model]="testModel"></stacked-progress></td>
+          <td class="hideOn1100px no-padding" width="30%"><stacked-progress [model]="match.properties.tasks"></stacked-progress></td>
         </tr>
         <tr *ngIf="!batchGrouped">
           <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
