@@ -17,6 +17,7 @@ import "rxjs/add/observable/forkJoin";
 import {LoadingBarService} from '@ngx-loading-bar/core';
 import {environment} from "../../../environments/environment";
 import {CsvRetrieveComponent} from "../../widgets/dialogs/csv-retrieve/csv-retrieve.component";
+import {Globalvar} from "../../constants/globalvar";
 
 @Component({
   selector: 'external-retrieve',
@@ -479,14 +480,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
             }
         }
     }
-    taskNames = [
-        "completed",
-        "warning",
-        "failed",
-        "in-process",
-        "scheduled",
-        "canceled"
-    ];
+
     getTasks(offset){
         let $this = this;
         $this.cfpLoadingBar.start();
@@ -514,14 +508,14 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                             let propertiesAttr = Object.assign({},properties);
                             if(_.hasIn(properties, 'tasks')){
                                 let taskPrepared = [];
-                                this.taskNames.forEach(task=>{
+                                Globalvar.TASK_NAMES.forEach(task=>{
                                  if(properties.tasks[task])
                                      taskPrepared.push({[task]:properties.tasks[task]});
                                 });
                                 properties.tasks = taskPrepared;
                             }
-                            this.service.stringifyArrayOrObject(properties, ['tasks']);
-                            this.service.stringifyArrayOrObject(propertiesAttr,[]);
+                            j4care.stringifyArrayOrObject(properties, ['tasks']);
+                            j4care.stringifyArrayOrObject(propertiesAttr,[]);
                             return {
                                 offset: offset + index,
                                 properties: properties,

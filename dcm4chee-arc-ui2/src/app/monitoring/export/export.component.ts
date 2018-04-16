@@ -13,6 +13,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import * as FileSaver from 'file-saver';
 import {LoadingBarService} from "@ngx-loading-bar/core";
+import {Globalvar} from "../../constants/globalvar";
 
 
 @Component({
@@ -58,6 +59,7 @@ export class ExportComponent implements OnInit {
         "FAILED",
         "CANCELED"
     ];
+    batchGrouped = false;
     isRole: any = (user)=>{return false;};
     dialogRef: MatDialogRef<any>;
     _ = _;
@@ -255,17 +257,46 @@ export class ExportComponent implements OnInit {
         this.service.search(this.filters, offset)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
-                if (res && res.length > 0){
+/*                    res = [{"batchID":"test12","tasks":{
+                        "completed":60,
+                        "warning":24,
+                        "failed":12,
+                        "in-process":5,
+                        "scheduled":123,
+                        "canceled":26
+                    },"dicomDeviceName":["dcm4chee-arc", "dcm4chee-arc2"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE"],"DestinationAET":["DCM4CHEE"],"createdTimeRange":["2018-04-10 18:02:06.936","2018-04-10 18:02:07.049"],"updatedTimeRange":["2018-04-10 18:02:08.300311","2018-04-10 18:02:08.553547"],"scheduledTimeRange":["2018-04-10 18:02:06.935","2018-04-10 18:02:07.049"],"processingStartTimeRange":["2018-04-10 18:02:06.989","2018-04-10 18:02:07.079"],"processingEndTimeRange":["2018-04-10 18:02:08.31","2018-04-10 18:02:08.559"]},{"batchID":"test2","tasks":{"completed":"12","failed":3,"warning":34},"dicomDeviceName":["dcm4chee-arc"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE"],"DestinationAET":["DCM4CHEE"],"createdTimeRange":["2018-04-10 18:02:25.71","2018-04-10 18:02:26.206"],"updatedTimeRange":["2018-04-10 18:02:25.932859","2018-04-10 18:02:27.335741"],"scheduledTimeRange":["2018-04-10 18:02:25.709","2018-04-10 18:02:26.204"],"processingStartTimeRange":["2018-04-10 18:02:25.739","2018-04-10 18:02:26.622"],"processingEndTimeRange":["2018-04-10 18:02:25.943","2018-04-10 18:02:27.344"]}];
+               */ if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
-                        $this.cfpLoadingBar.complete();
-                        if (_.hasIn(properties, 'Modality')){
-                            properties.Modality = properties.Modality.join(',');
+                        if(this.batchGrouped){
+                            let propertiesAttr = Object.assign({},properties);
+                            if(_.hasIn(properties, 'tasks')){
+                                let taskPrepared = [];
+                                Globalvar.TASK_NAMES.forEach(task=>{
+                                    if(properties.tasks[task])
+                                        taskPrepared.push({[task]:properties.tasks[task]});
+                                });
+                                properties.tasks = taskPrepared;
+                            }
+                            j4care.stringifyArrayOrObject(properties, ['tasks']);
+                            j4care.stringifyArrayOrObject(propertiesAttr,[]);
+                            $this.cfpLoadingBar.complete();
+                            return {
+                                offset: offset + index,
+                                properties: properties,
+                                propertiesAttr: propertiesAttr,
+                                showProperties: false
+                            };
+                        }else{
+                            $this.cfpLoadingBar.complete();
+                            if (_.hasIn(properties, 'Modality')){
+                                properties.Modality = properties.Modality.join(',');
+                            }
+                            return {
+                                offset: offset + index,
+                                properties: properties,
+                                showProperties: false
+                            };
                         }
-                        return {
-                            offset: offset + index,
-                            properties: properties,
-                            showProperties: false
-                        };
                     });
                 }else{
                     $this.cfpLoadingBar.complete();
