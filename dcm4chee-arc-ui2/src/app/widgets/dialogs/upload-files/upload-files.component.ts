@@ -190,11 +190,11 @@ export class UploadFilesComponent implements OnInit {
                         };
 
                         // const dataView = new DataView(e.target['result']);
-                        const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(studyObject) + crlf;
+                        const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + '[' +JSON.stringify(studyObject) + ']' + crlf;
                         const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + transfareSyntax + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
                         const postDataEnd = crlf + dashes + boundary + dashes;
 
-                        $this.xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type=application/dicom+json;boundary=' + boundary + ';');
+                        $this.xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type="application/dicom+json";boundary=' + boundary);
                         $this.xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
                         if(!this.mainservice.global.notSecure) {
                             $this.xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);

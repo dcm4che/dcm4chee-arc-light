@@ -123,7 +123,7 @@ export class UploadDicomComponent implements OnInit{
                         }
                         const postDataStart = dashes + boundary + crlf + 'Content-Disposition: form-data;' + 'name=\"file\";' + 'filename=\"' + encodeURIComponent(file.name) + '\"' + crlf + 'Content-Type: ' + filetype + crlf + crlf;
                         const postDataEnd = crlf + dashes + boundary + dashes;
-                        xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type=application/dicom;boundary=' + boundary + ';');
+                        xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type="application/dicom";boundary=' + boundary);
                         xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
                         if(!this.mainservice.global.notSecure) {
                             xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
