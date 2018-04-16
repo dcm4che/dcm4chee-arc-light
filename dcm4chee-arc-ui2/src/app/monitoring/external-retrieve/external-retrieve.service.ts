@@ -70,9 +70,14 @@ export class ExternalRetrieveService {
         return this.$http.get(`/dcm4chee-arc/monitor/retrieve${urlParam}`, header)
     }
     stringifyArrayOrObject(properties, exceptions){
+
         Object.keys(properties).forEach(task=>{
-            if(_.isArray(properties[task]) && exceptions.indexOf(task) === -1)
-                properties[task] = properties[task].join(', ');
+            if(_.isArray(properties[task]) && exceptions.indexOf(task) === -1){
+                if(properties[task].length === 2 && task.indexOf('Range') > -1)
+                    properties[task] = properties[task].join(' - ');
+                else
+                    properties[task] = properties[task].join(', ');
+            }
             if(_.isObject(properties[task]) && exceptions.indexOf(task) === -1)
                 properties[task] = Object.keys(properties[task]).map(taskKey=>`${taskKey}=${properties[task][taskKey]}`).join(', ');
         });

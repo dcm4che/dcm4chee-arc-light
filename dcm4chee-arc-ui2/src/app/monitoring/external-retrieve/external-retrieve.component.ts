@@ -492,14 +492,16 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
         $this.cfpLoadingBar.start();
         this.service.getExternalRetrieveEntries(this.filterObject,offset, this.batchGrouped).subscribe(
             res =>  {
-/*                res = [{"batchID":"test12","tasks":{
+/*
+                res = [{"batchID":"test12","tasks":{
                     "completed":60,
                     "warning":24,
                     "failed":12,
                     "in-process":5,
                     "scheduled":123,
                     "canceled":26
-                },"dicomDeviceName":["dcm4chee-arc", "dcm4chee-arc2"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE", "DCM4CHEE2","DCM4CHEE3","DCM4CHEE", "DCM4CHEE2","DCM4CHEE3","DCM4CHEE", "DCM4CHEE2","DCM4CHEE3","DCM4CHEE", "DCM4CHEE2","DCM4CHEE3"],"DestinationAET":["DCM4CHEE", "DCM4CHEE3","DCM4CHEE4","DCM4CHEE5"],"createdTimeRange":["2018-04-10 18:02:06.936","2018-04-10 18:02:07.049"],"updatedTimeRange":["2018-04-10 18:02:08.300311","2018-04-10 18:02:08.553547"],"scheduledTimeRange":["2018-04-10 18:02:06.935","2018-04-10 18:02:07.049"],"processingStartTimeRange":["2018-04-10 18:02:06.989","2018-04-10 18:02:07.079"],"processingEndTimeRange":["2018-04-10 18:02:08.31","2018-04-10 18:02:08.559"]},{"batchID":"test2","tasks":{"completed":"12","failed":3,"warning":34},"dicomDeviceName":["dcm4chee-arc"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE"],"DestinationAET":["DCM4CHEE"],"createdTimeRange":["2018-04-10 18:02:25.71","2018-04-10 18:02:26.206"],"updatedTimeRange":["2018-04-10 18:02:25.932859","2018-04-10 18:02:27.335741"],"scheduledTimeRange":["2018-04-10 18:02:25.709","2018-04-10 18:02:26.204"],"processingStartTimeRange":["2018-04-10 18:02:25.739","2018-04-10 18:02:26.622"],"processingEndTimeRange":["2018-04-10 18:02:25.943","2018-04-10 18:02:27.344"]}];*/
+                },"dicomDeviceName":["dcm4chee-arc", "dcm4chee-arc2"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE"],"DestinationAET":["DCM4CHEE"],"createdTimeRange":["2018-04-10 18:02:06.936","2018-04-10 18:02:07.049"],"updatedTimeRange":["2018-04-10 18:02:08.300311","2018-04-10 18:02:08.553547"],"scheduledTimeRange":["2018-04-10 18:02:06.935","2018-04-10 18:02:07.049"],"processingStartTimeRange":["2018-04-10 18:02:06.989","2018-04-10 18:02:07.079"],"processingEndTimeRange":["2018-04-10 18:02:08.31","2018-04-10 18:02:08.559"]},{"batchID":"test2","tasks":{"completed":"12","failed":3,"warning":34},"dicomDeviceName":["dcm4chee-arc"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE"],"DestinationAET":["DCM4CHEE"],"createdTimeRange":["2018-04-10 18:02:25.71","2018-04-10 18:02:26.206"],"updatedTimeRange":["2018-04-10 18:02:25.932859","2018-04-10 18:02:27.335741"],"scheduledTimeRange":["2018-04-10 18:02:25.709","2018-04-10 18:02:26.204"],"processingStartTimeRange":["2018-04-10 18:02:25.739","2018-04-10 18:02:26.622"],"processingEndTimeRange":["2018-04-10 18:02:25.943","2018-04-10 18:02:27.344"]}];
+*/
 
 
                 $this.cfpLoadingBar.complete();
@@ -509,6 +511,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                 if (res && res.length > 0){
                     this.externalRetrieveEntries =  res.map((properties, index) => {
                         if(this.batchGrouped){
+                            let propertiesAttr = Object.assign({},properties);
                             if(_.hasIn(properties, 'tasks')){
                                 let taskPrepared = [];
                                 this.taskNames.forEach(task=>{
@@ -518,6 +521,13 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                                 properties.tasks = taskPrepared;
                             }
                             this.service.stringifyArrayOrObject(properties, ['tasks']);
+                            this.service.stringifyArrayOrObject(propertiesAttr,[]);
+                            return {
+                                offset: offset + index,
+                                properties: properties,
+                                propertiesAttr: propertiesAttr,
+                                showProperties: false
+                            };
                         }else{
                             if (_.hasIn(properties, 'Modality')){
                                 properties.Modality = properties.Modality.join(', ');
@@ -538,12 +548,13 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                             }catch (e){
                                 properties.InstancePerSec = '';
                             }
+                            return {
+                                offset: offset + index,
+                                properties: properties,
+                                propertiesAttr: properties,
+                                showProperties: false
+                            };
                         }
-                        return {
-                            offset: offset + index,
-                            properties: properties,
-                            showProperties: false
-                        };
                     });
                     $this.count = undefined;
                 }else{
