@@ -168,6 +168,7 @@ public class XDSiExporter extends AbstractExporter {
         this.manifestTitle = getCodeProperty("Manifest.title", DEFAULT_MANIFEST_TITLE);
         this.manifestSeriesNumber = Integer.parseInt(descriptor.getProperty("Manifest.seriesNumber", "0"));
         this.manifestInstanceNumber = Integer.parseInt(descriptor.getProperty("Manifest.instanceNumber", "0"));
+        this.patientId = descriptor.getProperty("XDSSubmissionSet.patientId", null);
         this.assigningAuthorityOfPatientID = descriptor.getProperty("AssigningAuthority.patientId", null);
         this.assigningAuthorityOfAccessionNumber = descriptor.getProperty("AssigningAuthority.accessionNumber", null);
         this.sourceId = descriptor.getProperty("XDSSubmissionSet.sourceId", DEFAULT_SOURCE_ID);
@@ -198,7 +199,8 @@ public class XDSiExporter extends AbstractExporter {
         this.documentUID = manifest.getString(Tag.SOPInstanceUID);
         this.submissionSetUID = UIDUtils.createUID();
         this.sourcePatientId = adjustIssuer(IDWithIssuer.pidOf(manifest)).toString();
-        this.patientId = sourcePatientId;
+        if (patientId == null)
+            patientId = sourcePatientId;
         this.typeCode = typeCodeOf(manifest);
         initSourcePatientInfo();
         referenceIdList.add(manifest.getString(Tag.StudyInstanceUID) + "^^^^" + CXI_TYPE_STUDY_INSTANCE_UID);
@@ -213,11 +215,14 @@ public class XDSiExporter extends AbstractExporter {
                 case XDS_STATUS_SUCCESS:
                     return new Outcome(QueueMessage.Status.COMPLETED,
                             "Provide and Register Study[" + ctx.getStudyInstanceUID()
+                                    + "] in SubmissionSet[" + submissionSetUID
                                     + "] @ " + repositoryURL + " successful");
                 case XDS_STATUS_PARTIAL_SUCCESS:
                     return new Outcome(QueueMessage.Status.WARNING,
                             "Provide and Register Study[" + ctx.getStudyInstanceUID()
-                                    + "] @ " + repositoryURL + " partial successful - " + getRegistryErrorMessage(rsp));
+                                    + "] in SubmissionSet[" + submissionSetUID
+                                    + "] @ " + repositoryURL + " partial successful - "
+                                    + getRegistryErrorMessage(rsp));
             }
             throw new Exception("Provide and Register Study[" + ctx.getStudyInstanceUID()
                     + "] @ " + repositoryURL + " failed - " + getRegistryErrorMessage(rsp));
