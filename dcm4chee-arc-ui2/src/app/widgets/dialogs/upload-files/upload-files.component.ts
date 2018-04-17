@@ -190,7 +190,22 @@ export class UploadFilesComponent implements OnInit {
                         };
 
                         // const dataView = new DataView(e.target['result']);
-                        const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + '[' +JSON.stringify(studyObject) + ']' + crlf;
+                        const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(Object.keys(studyObject).filter(
+                            key=>{
+                                return ([
+                                "00080054",
+                                "00080056",
+                                "00080061",
+                                "00080062",
+                                "00081190",
+                                "00201200",
+                                "00201206",
+                                "00201208"
+                                ].indexOf(key) === -1)
+                            }
+                        ).map(key=> {
+                            return {[key]: studyObject[key]};
+                        })) + crlf;
                         const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + transfareSyntax + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
                         const postDataEnd = crlf + dashes + boundary + dashes;
 
