@@ -27,6 +27,8 @@ export class UploadFilesComponent implements OnInit {
     isImage = false;
     webApps;
     selectedWebApp;
+    seriesNumber = 0;
+    instanceNumber = 1;
     imageType = [
         {
             title:"Screenshots",
@@ -128,6 +130,30 @@ export class UploadFilesComponent implements OnInit {
                             "vr": "LO",
                             "Value": [
                                 $this.description
+                            ]
+                        };
+                        studyObject["00200013"] = {
+                            "vr": "IS",
+                            "Value": [
+                                this.instanceNumber || 1
+                            ]
+                        };
+                        studyObject["00200011"] = {
+                            "vr": "IS",
+                            "Value": [
+                                this.seriesNumber || 0
+                            ]
+                        };
+                        studyObject["0020000E"] = {
+                            "vr": "UI",
+                            "Value": [
+                                `${studyObject["0020000D"].Value[0]}.${(this.seriesNumber || 0)}`
+                            ]
+                        };
+                        studyObject["00080018"] = {
+                            "vr": "UI",
+                            "Value": [
+                                `${studyObject["0020000D"].Value[0]}.${(this.instanceNumber || 1)}`
                             ]
                         };
 
