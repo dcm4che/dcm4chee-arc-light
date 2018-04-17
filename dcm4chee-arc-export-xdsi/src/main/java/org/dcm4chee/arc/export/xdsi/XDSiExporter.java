@@ -42,6 +42,7 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.dcm4che3.data.*;
 import org.dcm4che3.dcmr.AcquisitionModality;
 import org.dcm4che3.dcmr.AnatomicRegion;
+import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
@@ -59,6 +60,7 @@ import javax.enterprise.event.Event;
 import javax.xml.bind.JAXBElement;
 import javax.xml.ws.soap.AddressingFeature;
 import javax.xml.ws.soap.MTOMFeature;
+import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.*;
@@ -74,7 +76,7 @@ public class XDSiExporter extends AbstractExporter {
     private static final String SUBMISSION_SET_ID = "SubmissionSet01";
     private static final String DOCUMENT_ID = "Document01";
     private static final ObjectFactory rimFactory = new ObjectFactory();
-    private static final String DEFAULT_SOURCE_ID = "1.3.6.1.4.1.21367.13.80.110";
+    private static final String DEFAULT_SOURCE_ID = "1.3.6.1.4.1.21367.2011.2.1.331";
     private static final String DEFAULT_LANGUAGE_CODE = "en-us";
     private static final Code DEFAULT_CONTENT_TYPE = new Code(
             "UNSPECIFIED-CONTENT-TYPE",
@@ -126,6 +128,7 @@ public class XDSiExporter extends AbstractExporter {
     private final boolean includeModalityCodes;
     private final boolean includeAnatomicRegionCodes;
     private final boolean useProcedureCodeAsTypeCode;
+    private final String manifestLogDir;
     private final String sourceId;
     private final String assigningAuthorityOfPatientID;
     private final String assigningAuthorityOfAccessionNumber;
@@ -168,6 +171,7 @@ public class XDSiExporter extends AbstractExporter {
         this.manifestTitle = getCodeProperty("Manifest.title", DEFAULT_MANIFEST_TITLE);
         this.manifestSeriesNumber = Integer.parseInt(descriptor.getProperty("Manifest.seriesNumber", "0"));
         this.manifestInstanceNumber = Integer.parseInt(descriptor.getProperty("Manifest.instanceNumber", "0"));
+        this.manifestLogDir = descriptor.getProperty("Manifest.logDir", null);
         this.patientId = descriptor.getProperty("XDSSubmissionSet.patientId", null);
         this.assigningAuthorityOfPatientID = descriptor.getProperty("AssigningAuthority.patientId", null);
         this.assigningAuthorityOfAccessionNumber = descriptor.getProperty("AssigningAuthority.accessionNumber", null);
@@ -198,9 +202,10 @@ public class XDSiExporter extends AbstractExporter {
                 manifestTitle, manifestSeriesNumber, manifestInstanceNumber, seriesAttrs);
         this.documentUID = manifest.getString(Tag.SOPInstanceUID);
         this.submissionSetUID = UIDUtils.createUID();
-        this.sourcePatientId = adjustIssuer(IDWithIssuer.pidOf(manifest)).toString();
+        IDWithIssuer sourcePID = supplementIssuer(IDWithIssuer.pidOf(manifest));
+        this.sourcePatientId = toString(sourcePID);
         if (patientId == null)
-            patientId = sourcePatientId;
+            patientId = toString(nullifyLocalNamespaceEntityID(sourcePID));
         this.typeCode = typeCodeOf(manifest);
         initSourcePatientInfo();
         referenceIdList.add(manifest.getString(Tag.StudyInstanceUID) + "^^^^" + CXI_TYPE_STUDY_INSTANCE_UID);
@@ -209,6 +214,13 @@ public class XDSiExporter extends AbstractExporter {
         ctx.setXDSiManifest(manifest);
         ctx.setSubmissionSetUID(submissionSetUID);
         try {
+            if (manifestLogDir != null) {
+                File logDir = new File(manifestLogDir);
+                logDir.mkdirs();
+                try (DicomOutputStream out = new DicomOutputStream(new File(logDir, documentUID))) {
+                    out.writeDataset(manifest.createFileMetaInformation(UID.ExplicitVRLittleEndian), manifest);
+                }
+            }
             RegistryResponseType rsp = port().documentRepositoryProvideAndRegisterDocumentSetB(createRequest());
             ctx.setXDSiRegistryResponse(rsp);
             switch (rsp.getStatus()) {
@@ -232,6 +244,10 @@ public class XDSiExporter extends AbstractExporter {
         } finally {
             exportEvent.fire(ctx);
         }
+    }
+
+    private static String toString(IDWithIssuer pid) {
+        return pid.getIssuer() != null ? pid.toString() : pid.getID() + "^^^";
     }
 
     private Code typeCodeOf(Attributes manifest) {
@@ -290,15 +306,28 @@ public class XDSiExporter extends AbstractExporter {
         return sb != null ? sb.toString() : "";
     }
 
-    private IDWithIssuer adjustIssuer(IDWithIssuer pid) {
+    private IDWithIssuer supplementIssuer(IDWithIssuer pid) {
         Issuer issuer = pid.getIssuer();
-        String uid = issuer != null && "ISO".equals(issuer.getUniversalEntityIDType())
-                ? issuer.getUniversalEntityID()
-                : assigningAuthorityOfPatientID;
-        if (uid != null) {
-            pid.setIssuer(new Issuer(null, uid, "ISO"));
-            pid.exportPatientIDWithIssuer(manifest);
-        }
+        if (assigningAuthorityOfPatientID == null
+                || issuer != null && "ISO".equals(issuer.getUniversalEntityIDType()))
+            return pid;
+
+        pid.setIssuer(new Issuer(
+                issuer != null ? issuer.getLocalNamespaceEntityID() : null,
+                assigningAuthorityOfPatientID,
+                "ISO"));
+        pid.exportPatientIDWithIssuer(manifest);
+        return pid;
+    }
+
+    private IDWithIssuer nullifyLocalNamespaceEntityID(IDWithIssuer pid) {
+        Issuer issuer = pid.getIssuer();
+        if (issuer == null || issuer.getLocalNamespaceEntityID() == null)
+            return pid;
+
+        pid.setIssuer(new Issuer( null,
+                issuer.getUniversalEntityID(),
+                issuer.getUniversalEntityIDType()));
         return pid;
     }
 
@@ -440,7 +469,7 @@ public class XDSiExporter extends AbstractExporter {
     }
 
     private void initSourcePatientInfo() {
-        sourcePatientInfo.add("PID-3|" + IDWithIssuer.pidOf(manifest).toString());
+        sourcePatientInfo.add("PID-3|" + toString(IDWithIssuer.pidOf(manifest)));
         addIfNotNullTo("PID-5|", manifest.getString(Tag.PatientName), sourcePatientInfo);
         addIfNotNullTo("PID-7|", manifest.getString(Tag.PatientBirthDate), sourcePatientInfo);
         addIfNotNullTo("PID-8|", manifest.getString(Tag.PatientSex), sourcePatientInfo);
