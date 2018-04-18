@@ -119,8 +119,6 @@ export class UploadFilesComponent implements OnInit {
                         let crlf = '\r\n';
                         //Post with the correct MIME type (If the OS can identify one)
                         let studyObject = _.pickBy($this._dicomObject.attrs, (o, i) => {
-                            console.log("o", o);
-                            console.log("i", i);
                             return (i.toString().indexOf("777") === -1);
                         })
                         if (!$this.description || $this.description === "") {
@@ -216,9 +214,10 @@ export class UploadFilesComponent implements OnInit {
                         };
 
                         // const dataView = new DataView(e.target['result']);
-                        const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(Object.keys(studyObject).filter(
-                            key=>{
-                                return ([
+
+                        let object = [{}];
+                        Object.keys(studyObject).forEach(key=>{
+                            if(([
                                 "00080054",
                                 "00080056",
                                 "00080061",
@@ -227,11 +226,11 @@ export class UploadFilesComponent implements OnInit {
                                 "00201200",
                                 "00201206",
                                 "00201208"
-                                ].indexOf(key) === -1)
-                            }
-                        ).map(key=> {
-                            return {[key]: studyObject[key]};
-                        })) + crlf;
+                            ].indexOf(key) === -1))
+                                object[0][key] = studyObject[key];
+                        });
+                        const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(object) + crlf;
+
                         const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + transfareSyntax + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
                         const postDataEnd = crlf + dashes + boundary + dashes;
 
