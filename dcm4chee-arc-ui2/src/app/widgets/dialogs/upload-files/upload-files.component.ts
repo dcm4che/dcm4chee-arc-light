@@ -151,7 +151,7 @@ export class UploadFilesComponent implements OnInit {
                         studyObject["00080018"] = {
                             "vr": "UI",
                             "Value": [
-                                `${studyObject["0020000D"].Value[0]}.${(this.instanceNumber || 1)}`
+                                `${studyObject["0020000D"].Value[0]}.${(this.seriesNumber || 0)}.${(this.instanceNumber || 1)}`
                             ]
                         };
 
