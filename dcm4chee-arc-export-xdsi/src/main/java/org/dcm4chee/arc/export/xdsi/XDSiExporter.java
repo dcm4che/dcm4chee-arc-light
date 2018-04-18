@@ -203,7 +203,7 @@ public class XDSiExporter extends AbstractExporter {
         this.documentUID = manifest.getString(Tag.SOPInstanceUID);
         this.submissionSetUID = UIDUtils.createUID();
         IDWithIssuer sourcePID = supplementIssuer(IDWithIssuer.pidOf(manifest));
-        this.sourcePatientId = toString(sourcePID);
+        this.sourcePatientId = toString(nullifyLocalNamespaceEntityID(sourcePID));
         if (patientId == null)
             patientId = toString(nullifyLocalNamespaceEntityID(sourcePID));
         this.typeCode = typeCodeOf(manifest);
@@ -469,7 +469,7 @@ public class XDSiExporter extends AbstractExporter {
     }
 
     private void initSourcePatientInfo() {
-        sourcePatientInfo.add("PID-3|" + toString(IDWithIssuer.pidOf(manifest)));
+        sourcePatientInfo.add("PID-3|" + toString(nullifyLocalNamespaceEntityID(IDWithIssuer.pidOf(manifest))));
         addIfNotNullTo("PID-5|", manifest.getString(Tag.PatientName), sourcePatientInfo);
         addIfNotNullTo("PID-7|", manifest.getString(Tag.PatientBirthDate), sourcePatientInfo);
         addIfNotNullTo("PID-8|", manifest.getString(Tag.PatientSex), sourcePatientInfo);
