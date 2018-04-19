@@ -213,6 +213,17 @@ export class UploadFilesComponent implements OnInit {
                                     "ORIGINAL",
                                     "PRIMARY"
                                 ]
+                            };
+                            if(this.selectedSopClass.value === '1.2.840.10008.5.1.4.1.1.7'){
+                                studyObject["00080064"] = {
+                                    "vr": "CS",
+                                    "Value": [
+                                        "WSD"
+                                    ]
+                                };
+                                studyObject["00200020"] = {
+                                    "vr": "CS"
+                                };
                             }
                         }
                         studyObject["00080060"] = {
