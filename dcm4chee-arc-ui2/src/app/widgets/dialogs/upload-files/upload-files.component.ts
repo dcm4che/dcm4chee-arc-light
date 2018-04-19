@@ -206,6 +206,15 @@ export class UploadFilesComponent implements OnInit {
                             }
                             transfareSyntax = ';transfer-syntax=' + transfareSyntax;
                         }
+                        if(file.type === "image/jpeg"){
+                            studyObject["00080008"] = {
+                                "vr": "CS",
+                                "Value": [
+                                    "ORIGINAL",
+                                    "PRIMARY"
+                                ]
+                            }
+                        }
                         studyObject["00080060"] = {
                             "vr": "CS",
                             "Value": [
