@@ -332,7 +332,7 @@ export class StudiesService {
         let dropdown = [];
         _.forEach(res, function(m, i){
             if (i === '00400100'){
-                _.forEach(m.items, function(l, j){
+                _.forEach(m.items || m.Value[0], function(l, j){
                     dropdown.push({
                         'code': '00400100:' + j,
                         'codeComma': '>' + j.slice(0, 4) + ',' + j.slice(4),
