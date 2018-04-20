@@ -251,6 +251,11 @@ export class ExportComponent implements OnInit {
             this.httpErrorHandler.handleError(err);
         });*/
     }
+    showTaskDetail(task){
+        this.filters.batchID = task.properties.batchID;
+        this.batchGrouped = false;
+        this.search(0);
+    }
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();

@@ -480,7 +480,11 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
             }
         }
     }
-
+    showTaskDetail(task){
+        this.filterObject.batchID = task.properties.batchID;
+        this.batchGrouped = false;
+        this.getTasks(0);
+    }
     getTasks(offset){
         let $this = this;
         $this.cfpLoadingBar.start();

@@ -160,7 +160,7 @@
                         </button>
                     </div>
                 </th>
-                <th></th>
+                <th width="3%"></th>
                 <th>Batch ID</th>
                 <th class="hideOn1200px">Remote AET</th>
                 <th class="hideOn1100px">Destination AET</th>
@@ -218,6 +218,9 @@
                     <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                         <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>
+                        </a>
+                        <a class="text-white" (click)="$event.preventDefault();showTaskDetail(match)" href="" title="Show Tasks Detail">
+                            <span class="glyphicon glyphicon-list-alt"></span>
                         </a>
                     </td>
                     <td [innerHtml]="match.properties.batchID" title="{{match.properties.batchID}}"></td>
