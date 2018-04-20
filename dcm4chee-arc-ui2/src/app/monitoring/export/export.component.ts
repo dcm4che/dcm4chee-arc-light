@@ -254,7 +254,7 @@ export class ExportComponent implements OnInit {
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.search(this.filters, offset)
+        this.service.search(this.filters, offset,this.batchGrouped)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
 /*                    res = [{"batchID":"test12","tasks":{
@@ -313,6 +313,9 @@ export class ExportComponent implements OnInit {
                 console.log('err', err);
             });
     };
+    bachChange(e){
+        this.matches = [];
+    }
     getCount(){
         this.cfpLoadingBar.start();
         this.service.getCount(this.filters).subscribe((count)=>{

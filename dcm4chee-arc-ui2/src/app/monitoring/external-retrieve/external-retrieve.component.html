@@ -41,7 +41,7 @@
             <mat-select class="pull-left" [(ngModel)]="allAction" placeholder="All actions" (click)="allActionChanged($event)" floatPlaceholder="never">
               <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</mat-option>
             </mat-select>
-            <div class="checkbox_button" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped">Batch ID grouped</mat-checkbox></div>
+            <div class="checkbox_button" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="externalRetrieveEntries = []">Batch ID grouped</mat-checkbox></div>
           </div>
         </div>
     </div>
