@@ -92,6 +92,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1745,6 +1746,7 @@ public class AuditService {
             LOG.warn("Attempt to write empty file : ", eventType);
             return;
         }
+        FileTime eventTime = FileTime.fromMillis(System.currentTimeMillis());
         boolean auditAggregate = getArchiveDevice().isAuditAggregate();
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
@@ -1757,6 +1759,7 @@ public class AuditService {
                             StandardOpenOption.APPEND))) {
                         writer.writeLine(new AuditInfo(auditInfoBuilder), data);
                     }
+                    Files.setLastModifiedTime(file, eventTime);
                     if (!auditAggregate)
                         auditAndProcessFile(auditLogger, file);
                 } catch (Exception e) {
