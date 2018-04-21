@@ -202,10 +202,9 @@ public class XDSiExporter extends AbstractExporter {
                 manifestTitle, manifestSeriesNumber, manifestInstanceNumber, seriesAttrs);
         this.documentUID = manifest.getString(Tag.SOPInstanceUID);
         this.submissionSetUID = UIDUtils.createUID();
-        IDWithIssuer sourcePID = supplementIssuer(IDWithIssuer.pidOf(manifest));
-        this.sourcePatientId = toString(nullifyLocalNamespaceEntityID(sourcePID));
+        this.sourcePatientId = adjustSourcePatientId();
         if (patientId == null)
-            patientId = toString(nullifyLocalNamespaceEntityID(sourcePID));
+            patientId = sourcePatientId;
         this.typeCode = typeCodeOf(manifest);
         initSourcePatientInfo();
         referenceIdList.add(manifest.getString(Tag.StudyInstanceUID) + "^^^^" + CXI_TYPE_STUDY_INSTANCE_UID);
@@ -306,29 +305,17 @@ public class XDSiExporter extends AbstractExporter {
         return sb != null ? sb.toString() : "";
     }
 
-    private IDWithIssuer supplementIssuer(IDWithIssuer pid) {
+    private String adjustSourcePatientId() {
+        IDWithIssuer pid = IDWithIssuer.pidOf(manifest);
         Issuer issuer = pid.getIssuer();
-        if (assigningAuthorityOfPatientID == null
-                || issuer != null && "ISO".equals(issuer.getUniversalEntityIDType()))
-            return pid;
-
-        pid.setIssuer(new Issuer(
-                issuer != null ? issuer.getLocalNamespaceEntityID() : null,
-                assigningAuthorityOfPatientID,
-                "ISO"));
-        pid.exportPatientIDWithIssuer(manifest);
-        return pid;
-    }
-
-    private IDWithIssuer nullifyLocalNamespaceEntityID(IDWithIssuer pid) {
-        Issuer issuer = pid.getIssuer();
-        if (issuer == null || issuer.getLocalNamespaceEntityID() == null)
-            return pid;
-
-        pid.setIssuer(new Issuer( null,
-                issuer.getUniversalEntityID(),
-                issuer.getUniversalEntityIDType()));
-        return pid;
+        String iuid = issuer != null && "ISO".equals(issuer.getUniversalEntityIDType())
+                ? issuer.getUniversalEntityID()
+                : assigningAuthorityOfPatientID;
+        if (iuid != null) {
+             pid.setIssuer(new Issuer(null, iuid, "ISO"));
+             pid.exportPatientIDWithIssuer(manifest);
+        }
+        return pid.toString();
     }
 
     private DocumentRepositoryPortType port() throws Exception {
@@ -469,7 +456,7 @@ public class XDSiExporter extends AbstractExporter {
     }
 
     private void initSourcePatientInfo() {
-        sourcePatientInfo.add("PID-3|" + toString(nullifyLocalNamespaceEntityID(IDWithIssuer.pidOf(manifest))));
+        sourcePatientInfo.add("PID-3|" + sourcePatientId);
         addIfNotNullTo("PID-5|", manifest.getString(Tag.PatientName), sourcePatientInfo);
         addIfNotNullTo("PID-7|", manifest.getString(Tag.PatientBirthDate), sourcePatientInfo);
         addIfNotNullTo("PID-8|", manifest.getString(Tag.PatientSex), sourcePatientInfo);
