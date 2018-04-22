@@ -47,8 +47,6 @@ import org.dcm4chee.arc.qmgt.QueueManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.MessageDriven;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
@@ -61,11 +59,6 @@ import javax.jms.ObjectMessage;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Apr 2016
  */
-@MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = IANSCU.JNDI_NAME),
-        @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
-})
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class IANMDB implements MessageListener {
 

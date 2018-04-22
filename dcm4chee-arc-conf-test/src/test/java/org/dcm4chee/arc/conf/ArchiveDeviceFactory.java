@@ -181,6 +181,7 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("Export1", "Dicom Export Tasks"),
         newQueueDescriptor("Export2", "WADO Export Tasks"),
         newQueueDescriptor("Export3", "XDS-I Export Tasks"),
+        newQueueDescriptor("Export4", "Eager Export Tasks"),
         newQueueDescriptor("HL7Send", "HL7 Forward Tasks"),
         newQueueDescriptor("RSClient", "RESTful Forward Tasks"),
         newQueueDescriptor("CMoveSCU", "Dicom Retrieve Tasks"),

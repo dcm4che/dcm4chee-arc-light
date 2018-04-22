@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/ejb-jar_3_1.xsd"
+         version="3.1">
+  <enterprise-beans>
+    <message-driven>
+      <ejb-name>MPPSMDB</ejb-name>
+      <ejb-class>org.dcm4chee.arc.mpps.scu.impl.MPPSMDB</ejb-class>
+      <activation-config>
+        <activation-config-property>
+          <activation-config-property-name>destinationType</activation-config-property-name>
+          <activation-config-property-value>javax.jms.Queue</activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>destination</activation-config-property-name>
+          <activation-config-property-value>jms/queue/MPPSSCU</activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>maxSession</activation-config-property-name>
+          <activation-config-property-value>${jms.queue.MPPSSCU.consumer-count:1}</activation-config-property-value>
+        </activation-config-property>
+      </activation-config>
+    </message-driven>
+  </enterprise-beans>
+  <assembly-descriptor>
+    <application-exception>
+      <exception-class>org.dcm4che3.net.service.DicomServiceException</exception-class>
+      <rollback>true</rollback>
+    </application-exception>
+  </assembly-descriptor>
+</ejb-jar>
