@@ -7,10 +7,9 @@
                     <div class="row">
                         <label for="queue" class="col-md-6 text-right control-label">Queue:</label>
                         <div class="col-md-6">
-                            <select id="queue" [(ngModel)]="queueName" class="col-md-12">
-                                <!-- <option ng-repeat="queue in queues" title="{{queue.description}}">{{queue.name}}</option> -->
-                                <option *ngFor="let queue of queues" title="{{queue.name}}" value="{{queue.name}}">{{queue.description}}</option>
-                            </select>
+                            <mat-select id="queue" [(ngModel)]="queueName" class="col-md-12" placeholder="Queue Name">
+                                <mat-option *ngFor="let queue of queues" title="{{queue.name}}" value="{{queue.name}}">{{queue.description}}</mat-option>
+                            </mat-select>
                         </div>
                     </div>
                     <div class="row">
