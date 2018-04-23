@@ -14,6 +14,7 @@ import {j4care} from "../../helpers/j4care.service";
 import * as FileSaver from 'file-saver';
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {Globalvar} from "../../constants/globalvar";
+import {ActivatedRoute} from "@angular/router";
 
 
 @Component({
@@ -88,7 +89,8 @@ export class ExportComponent implements OnInit {
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
         public config: MatDialogConfig,
-        private httpErrorHandler:HttpErrorHandler
+        private httpErrorHandler:HttpErrorHandler,
+        private route: ActivatedRoute
     ) {}
     ngOnInit(){
         this.initCheck(10);
@@ -96,7 +98,7 @@ export class ExportComponent implements OnInit {
     initCheck(retries){
         let $this = this;
         if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
-            this.init();
+                this.init();
         }else{
             if (retries){
                 setTimeout(()=>{
@@ -108,6 +110,12 @@ export class ExportComponent implements OnInit {
         }
     }
     init(){
+        this.route.queryParams.subscribe(params => {
+            if(params && params['dicomDeviceName']){
+                this.filters['dicomDeviceName'] = params['dicomDeviceName'];
+                this.search(0);
+            }
+        });
         this.initExporters(1);
         // this.init();
         this.status.forEach(status =>{
