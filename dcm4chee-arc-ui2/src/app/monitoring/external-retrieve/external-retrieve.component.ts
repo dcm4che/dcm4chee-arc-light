@@ -18,6 +18,7 @@ import {LoadingBarService} from '@ngx-loading-bar/core';
 import {environment} from "../../../environments/environment";
 import {CsvRetrieveComponent} from "../../widgets/dialogs/csv-retrieve/csv-retrieve.component";
 import {Globalvar} from "../../constants/globalvar";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'external-retrieve',
@@ -65,6 +66,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
     tableHovered = false;
     Object = Object;
     batchGrouped = false;
+    urlParam;
     constructor(
       public cfpLoadingBar: LoadingBarService,
       public mainservice: AppService,
@@ -74,7 +76,8 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
       public dialog: MatDialog,
       public config: MatDialogConfig,
       public viewContainerRef: ViewContainerRef,
-      private $http:J4careHttpService
+      private $http:J4careHttpService,
+      private route: ActivatedRoute
     ) { }
 
     ngOnInit(){
@@ -83,7 +86,12 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
     initCheck(retries){
         let $this = this;
         if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
-            this.init();
+
+            this.route.queryParams.subscribe(params => {
+                console.log("params",params);
+                this.urlParam = Object.assign({},params);
+                this.init();
+            });
         }else{
             if (retries){
                 setTimeout(()=>{
@@ -97,7 +105,6 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
 
     init(){
         let $this = this;
-        // console.log("in if studies ajax"); epx
         this.service.statusValues().forEach(val =>{
             this.statusValues[val.value] = {
                 count: 0,
@@ -149,9 +156,9 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
         if(savedFilters)
             this.filterObject = JSON.parse(savedFilters);
         else*/
-            this.filterObject = {
-                limit:20
-            };
+        this.filterObject = {
+            limit:20
+        };
         Observable.forkJoin(
             this.aeListService.getAes(),
             this.aeListService.getAets(),
@@ -232,6 +239,11 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
     };
     initSchema(){
         this.filterSchema = this.service.getFilterSchema(this.localAET,this.destinationAET,this.remoteAET, this.devices,`COUNT ${((this.count || this.count == 0)?this.count:'')}`);
+        if(this.urlParam){
+            this.filterObject = this.urlParam;
+            this.filterObject["limit"] = 20;
+            this.getTasks(0);
+        }
     }
     confirm(confirmparameters){
         this.config.viewContainerRef = this.viewContainerRef;
