@@ -1006,6 +1006,12 @@ class ArchiveDeviceFactory {
     static final Duration IAN_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.parse("PT1H");
     static final String REJECTION_NOTE_STORAGE_AET = "DCM4CHEE";
+    static final String STUDY_SIZE_EXPORTER_ID = "StudySizeExporter";
+    static final String STUDY_SIZE_EXPORTER_DESC = "Exporter to calculate study size";
+    static final URI STUDY_SIZE_EXPORT_URI = URI.create("study-size:dummyPath");
+    static final String STUDY_SERIES_QUERY_ATTR_EXPORTER_ID = "StudySeriesQueryAttributesExporter";
+    static final String STUDY_SERIES_QUERY_ATTR_EXPORTER_DESC = "Exporter to calculate study size";
+    static final URI STUDY_SERIES_QUERY_ATTR_EXPORT_URI = URI.create("query-attrs:hideRejected");
     static final String DICOM_EXPORTER_ID = "STORESCP";
     static final String DICOM_EXPORTER_DESC = "Export to STORESCP";
     static final URI DICOM_EXPORT_URI = URI.create("dicom:STORESCP");
@@ -1499,6 +1505,32 @@ class ArchiveDeviceFactory {
                 REJECTION_CODES));
         ext.setHideSPSWithStatusFrom(HIDE_SPS_WITH_STATUS_FROM_MWL);
         ext.setRejectionNoteStorageAET(REJECTION_NOTE_STORAGE_AET);
+
+        ExportRule studySizeExportRule = new ExportRule("Calculate Study Size");
+        studySizeExportRule.setEntity(Entity.Study);
+        studySizeExportRule.setExportDelay(Duration.parse("PT5M"));
+        studySizeExportRule.setExporterIDs(STUDY_SIZE_EXPORTER_ID);
+        ext.addExportRule(studySizeExportRule);
+
+        ExporterDescriptor studySizeExporter = new ExporterDescriptor(STUDY_SIZE_EXPORTER_ID);
+        studySizeExporter.setDescription(STUDY_SIZE_EXPORTER_DESC);
+        studySizeExporter.setExportURI(STUDY_SIZE_EXPORT_URI);
+        studySizeExporter.setQueueName("Export4");
+        studySizeExporter.setAETitle("DCM4CHEE");
+        ext.addExporterDescriptor(studySizeExporter);
+
+        ExportRule studySeriesQueryAttrExportRule = new ExportRule("Calculate Study Series Query Attributes");
+        studySeriesQueryAttrExportRule.setEntity(Entity.Study);
+        studySeriesQueryAttrExportRule.setExportDelay(Duration.parse("PT5M"));
+        studySeriesQueryAttrExportRule.setExporterIDs(STUDY_SERIES_QUERY_ATTR_EXPORTER_ID);
+        ext.addExportRule(studySeriesQueryAttrExportRule);
+
+        ExporterDescriptor studySeriesQueryAttrExporter = new ExporterDescriptor(STUDY_SERIES_QUERY_ATTR_EXPORTER_ID);
+        studySeriesQueryAttrExporter.setDescription(STUDY_SERIES_QUERY_ATTR_EXPORTER_DESC);
+        studySeriesQueryAttrExporter.setExportURI(STUDY_SERIES_QUERY_ATTR_EXPORT_URI);
+        studySeriesQueryAttrExporter.setQueueName("Export4");
+        studySeriesQueryAttrExporter.setAETitle("DCM4CHEE");
+        ext.addExporterDescriptor(studySeriesQueryAttrExporter);
 
         if (configType == configType.SAMPLE) {
             StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);
