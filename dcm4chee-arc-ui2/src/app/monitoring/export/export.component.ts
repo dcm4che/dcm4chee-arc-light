@@ -307,6 +307,7 @@ export class ExportComponent implements OnInit {
                             return {
                                 offset: offset + index,
                                 properties: properties,
+                                propertiesAttr: properties,
                                 showProperties: false
                             };
                         }
