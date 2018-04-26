@@ -233,6 +233,11 @@ public abstract class AbstractStorage implements Storage {
         };
     }
 
+    @Override
+    public void copy(InputStream in, WriteContext ctx) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
     protected abstract InputStream openInputStreamA(ReadContext ctx) throws IOException;
 
     protected void beforeInputStreamClosed(ReadContext ctx, InputStream stream)  throws IOException {}
