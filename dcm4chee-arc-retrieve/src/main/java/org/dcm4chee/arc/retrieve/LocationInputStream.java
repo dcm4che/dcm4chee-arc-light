@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,45 +35,37 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
 package org.dcm4chee.arc.retrieve;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.storage.ReadContext;
 
-import java.util.Date;
-import java.util.List;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Aug 2015
  */
-public interface InstanceLocations {
-    Long getInstancePk();
+public class LocationInputStream implements Closeable {
 
-    String getSopInstanceUID();
+    public final ReadContext ctx;
+    public final Location location;
+    public final InputStream stream;
 
-    String getSopClassUID();
+    public LocationInputStream(InputStream stream, ReadContext ctx, Location location) {
+        this.stream = stream;
+        this.ctx = ctx;
+        this.location = location;
+    }
 
-    List<Location> getLocations();
-
-    Attributes getAttributes();
-
-    String getRetrieveAETs();
-
-    String getExternalRetrieveAET();
-
-    Availability getAvailability();
-
-    Date getCreatedTime();
-
-    Date getUpdatedTime();
-
-    Attributes getRejectionCode();
-
-    boolean isContainsMetadata();
+    @Override
+    public void close() throws IOException {
+        stream.close();
+    }
 }

@@ -282,6 +282,11 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
+    public void addLocation(Long instancePk, Location location) {
+        ejb.addLocation(instancePk, location);
+    }
+
+    @Override
     public void store(StoreContext ctx, Attributes attrs) throws IOException {
         ctx.setAttributes(attrs);
         List<Location> locations = ctx.getLocations();

@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,40 +35,44 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.retrieve.impl;
+package org.dcm4che.arc.export.storage;
 
-import org.dcm4che3.io.DicomInputStream;
-import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.storage.ReadContext;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.exporter.Exporter;
+import org.dcm4chee.arc.exporter.ExporterProvider;
+import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.storage.StorageFactory;
+import org.dcm4chee.arc.store.StoreService;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Aug 2015
+ * @since April 2086
  */
-class LocationDicomInputStream {
+@ApplicationScoped
+@Named("storage")
+public class StorageExporterProvider implements ExporterProvider {
 
-    private final ReadContext ctx;
-    private final Location location;
-    private final DicomInputStream stream;
+    @Inject
+    private RetrieveService retrieveService;
 
-    public LocationDicomInputStream(DicomInputStream stream, ReadContext ctx, Location location) {
-        this.stream = stream;
-        this.ctx = ctx;
-        this.location = location;
-    }
+    @Inject
+    private StoreService storeService;
 
-    public DicomInputStream getDicomInputStream() {
-        return stream;
-    }
+    @Inject
+    private StorageFactory storageFactory;
 
-    public ReadContext getReadContext() {
-        return ctx;
-    }
-
-    public Location getLocation() {
-        return location;
+    @Override
+    public Exporter getExporter(ExporterDescriptor descriptor) {
+        return new StorageExporter(descriptor, retrieveService, storeService, storageFactory);
     }
 }

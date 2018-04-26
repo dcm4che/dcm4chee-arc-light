@@ -1185,6 +1185,11 @@ public class StoreServiceEJB {
         return newLocation;
     }
 
+    public void addLocation(Long instancePk, Location location) {
+        location.setInstance(em.find(Instance.class, instancePk));
+        em.persist(location);
+    }
+
     private UIDMap createUIDMap(Map<String, String> uidMap, UIDMap prevUIDMap, Map<Long, UIDMap> uidMapCache) {
         Long key = prevUIDMap != null ? prevUIDMap.getPk() : null;
         UIDMap result = uidMapCache.get(key);

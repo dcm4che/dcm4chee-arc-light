@@ -127,6 +127,12 @@ public class CloudStorage extends AbstractStorage {
     protected OutputStream openOutputStreamA(final WriteContext ctx) throws IOException {
         final PipedInputStream in = new PipedInputStream();
         PipedOutputStream out = new PipedOutputStream(in);
+        copy(in, ctx);
+        return out;
+    }
+
+    @Override
+    public void copy(InputStream in, WriteContext ctx) throws IOException {
         FutureTask<Void> task = new FutureTask<>(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -140,7 +146,6 @@ public class CloudStorage extends AbstractStorage {
         });
         ((CloudWriteContext) ctx).setUploadTask(task);
         device.execute(task);
-        return out;
     }
 
     @Override

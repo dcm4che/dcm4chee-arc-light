@@ -310,6 +310,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+      <version>${hibernate.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api</artifactId>
       <version>${jboss-ejb3-ext-api.version}</version>
@@ -429,6 +436,7 @@
     <module>dcm4chee-arc-ctrl</module>
     <module>dcm4chee-arc-delete</module>
     <module>dcm4chee-arc-diff</module>
+    <module>dcm4chee-arc-diff-rs</module>
     <module>dcm4chee-arc-dimse-rs</module>
     <module>dcm4chee-arc-entity</module>
     <module>dcm4chee-arc-event</module>
@@ -438,6 +446,7 @@
     <module>dcm4chee-arc-export-rs</module>
     <module>dcm4chee-arc-export-study-size</module>
     <module>dcm4chee-arc-export-query-attrs</module>
+    <module>dcm4chee-arc-export-storage</module>
     <module>dcm4chee-arc-export-wado</module>
     <module>dcm4chee-arc-export-xdsi</module>
     <module>dcm4chee-arc-hl7</module>
@@ -497,7 +506,6 @@
     <module>dcm4chee-arc-assembly</module>
     <module>dcm4chee-arr-proxy</module>
     <module>dcm4chee-arr-query</module>
-      <module>dcm4chee-arc-diff-rs</module>
   </modules>
 
   <build>

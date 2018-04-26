@@ -51,6 +51,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
+import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.*;
@@ -84,6 +85,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private String moveOriginatorAETitle;
     private String destinationAETitle;
     private ApplicationEntity destinationAE;
+    private StorageDescriptor destinationStorage;
     private Throwable exception;
     private IDWithIssuer[] patientIDs = {};
     private String[] studyInstanceUIDs = {};
@@ -254,6 +256,16 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setDestinationAE(ApplicationEntity destinationAE) {
         this.destinationAE = destinationAE;
+    }
+
+    @Override
+    public StorageDescriptor getDestinationStorage() {
+        return destinationStorage;
+    }
+
+    @Override
+    public void setDestinationStorage(StorageDescriptor destinationStorage) {
+        this.destinationStorage = destinationStorage;
     }
 
     @Override

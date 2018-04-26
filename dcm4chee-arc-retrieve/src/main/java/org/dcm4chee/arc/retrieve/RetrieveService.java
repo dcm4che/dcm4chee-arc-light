@@ -51,6 +51,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.storage.Storage;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -91,6 +92,8 @@ public interface RetrieveService {
             HttpServletRequest request, String localAET,List<String> studyUIDs,
             List<String> seriesUIDs, List<String> objectUIDs);
 
+    RetrieveContext newRetrieveContext(String localAET, String studyUID, String seriesUID, String objectUID);
+
     RetrieveContext newRetrieveContextSeriesMetadata(Series.MetadataUpdate metadataUpdate);
 
     boolean calculateMatches(RetrieveContext ctx) throws DicomServiceException;
@@ -101,6 +104,11 @@ public interface RetrieveService {
             throws IOException;
 
     DicomInputStream openDicomInputStream(RetrieveContext ctx, InstanceLocations inst) throws IOException;
+
+    LocationInputStream openLocationInputStream(RetrieveContext ctx, InstanceLocations inst)
+            throws IOException;
+
+    Storage getStorage(String storageID, RetrieveContext ctx);
 
     Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException;
 

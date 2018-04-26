@@ -112,6 +112,12 @@ public class EMCECSStorage extends AbstractStorage {
     @Override
     protected OutputStream openOutputStreamA(final WriteContext ctx) throws IOException {
         final PipedInputStream in = new PipedInputStream();
+        copy(in, ctx);
+        return new PipedOutputStream(in);
+    }
+
+    @Override
+    public void copy(InputStream in, WriteContext ctx) throws IOException {
         FutureTask<Void> task = new FutureTask<>(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -125,7 +131,6 @@ public class EMCECSStorage extends AbstractStorage {
         });
         ((EMCECSWriteContext) ctx).setUploadTask(task);
         device.execute(task);
-        return new PipedOutputStream(in);
     }
 
     @Override

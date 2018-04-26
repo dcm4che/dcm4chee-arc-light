@@ -118,6 +118,21 @@ public class FileSystemStorage extends AbstractStorage {
     }
 
     @Override
+    public void copy(InputStream in, WriteContext ctx) throws IOException {
+        Path path = Paths.get(rootURI.resolve(pathFormat.format(ctx.getAttributes())));
+        Path dir = path.getParent();
+        Files.createDirectories(dir);
+        long copy = 0L;
+        while (copy == 0L)
+            try {
+                copy = Files.copy(in, path);
+            } catch (FileAlreadyExistsException e) {
+                path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
+            }
+        ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
+    }
+
+    @Override
     protected InputStream openInputStreamA(ReadContext ctx) throws IOException {
         Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
         return Files.newInputStream(path);
