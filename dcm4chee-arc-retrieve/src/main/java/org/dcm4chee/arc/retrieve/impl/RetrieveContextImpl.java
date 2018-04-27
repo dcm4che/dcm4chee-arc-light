@@ -46,6 +46,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -293,7 +294,7 @@ class RetrieveContextImpl implements RetrieveContext {
         return httpServletRequestInfo != null
                 ? httpServletRequestInfo.requesterHost
                 : requestAssociation != null
-                    ? requestAssociation.getSocket().getInetAddress().getHostName()
+                    ? ReverseDNS.hostNameOf(requestAssociation.getSocket().getInetAddress())
                     : null;
     }
 
@@ -304,7 +305,7 @@ class RetrieveContextImpl implements RetrieveContext {
                 : httpServletRequestInfo != null
                     ? httpServletRequestInfo.requesterHost
                     : storeAssociation != null
-                        ? storeAssociation.getSocket().getInetAddress().getHostName()
+                        ? ReverseDNS.hostNameOf(storeAssociation.getSocket().getInetAddress())
                         : null;
     }
 

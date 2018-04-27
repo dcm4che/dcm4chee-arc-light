@@ -1449,7 +1449,8 @@ public class AuditService {
     }
 
     void spoolProcedureRecord(StudyMgtContext ctx) {
-        String callingAET = KeycloakContext.valueOf(ctx.getHttpRequest()).getUserName();
+        HttpServletRequest request = ctx.getHttpRequest();
+        String callingAET = KeycloakContext.valueOf(request).getUserName();
         Attributes pAttr = ctx.getStudy() != null ? ctx.getStudy().getPatient().getAttributes() : null;
         AuditInfoBuilder info = new AuditInfoBuilder.Builder().callingHost(
                                 ctx.getHttpRequest().getRemoteHost())

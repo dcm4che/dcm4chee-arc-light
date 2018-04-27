@@ -48,6 +48,7 @@ import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.slf4j.Logger;
@@ -101,7 +102,7 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
     }
 
     private void forwardHL7(ArchiveHL7ApplicationExtension arcHL7App, Socket s, UnparsedHL7Message msg) {
-        String host = s.getLocalAddress().getHostName();
+        String host = ReverseDNS.hostNameOf(s.getLocalAddress());
         HL7Segment msh = msg.msh();
         byte[] hl7msg = msg.data();
         Collection<String> destinations = arcHL7App.forwardDestinations(host, msh);
