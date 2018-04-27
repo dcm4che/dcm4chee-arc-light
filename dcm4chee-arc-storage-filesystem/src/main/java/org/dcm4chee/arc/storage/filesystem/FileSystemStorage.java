@@ -118,7 +118,7 @@ public class FileSystemStorage extends AbstractStorage {
     }
 
     @Override
-    public void copy(InputStream in, WriteContext ctx) throws IOException {
+    protected void copyA(InputStream in, WriteContext ctx) throws IOException {
         Path path = Paths.get(rootURI.resolve(pathFormat.format(ctx.getAttributes())));
         Path dir = path.getParent();
         Files.createDirectories(dir);

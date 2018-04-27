@@ -117,20 +117,8 @@ public class EMCECSStorage extends AbstractStorage {
     }
 
     @Override
-    public void copy(InputStream in, WriteContext ctx) throws IOException {
-        FutureTask<Void> task = new FutureTask<>(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                try {
-                    upload(ctx, in);
-                } finally {
-                    in.close();
-                }
-                return null;
-            }
-        });
-        ((EMCECSWriteContext) ctx).setUploadTask(task);
-        device.execute(task);
+    protected void copyA(InputStream in, WriteContext ctx) throws IOException {
+        upload(ctx, in);
     }
 
     @Override

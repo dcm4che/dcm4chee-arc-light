@@ -144,7 +144,7 @@ public class CloudStorage extends AbstractStorage {
     }
 
     @Override
-    public void copy(InputStream in, WriteContext ctx) throws IOException {
+    protected void copyA(InputStream in, WriteContext ctx) throws IOException {
         upload(ctx, in);
     }
 
