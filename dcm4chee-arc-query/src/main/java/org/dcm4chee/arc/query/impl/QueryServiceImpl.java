@@ -185,6 +185,11 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public void addLocationAttributes(Attributes attrs, Long instancePk) {
+        ejb.addLocationAttributes(attrs, instancePk);
+    }
+
+    @Override
     public long calculateStudySize(Long studyPk) {
         return querySizeEJB.calculateStudySize(studyPk);
     }

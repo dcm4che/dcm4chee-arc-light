@@ -51,7 +51,6 @@ import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.Entity;
@@ -78,6 +77,7 @@ class InstanceQuery extends AbstractQuery {
 
     private static final Expression<?>[] SELECT = {
             QSeries.series.pk,
+            QInstance.instance.pk,
             QInstance.instance.retrieveAETs,
             QInstance.instance.externalRetrieveAET,
             QInstance.instance.availability,
@@ -86,11 +86,6 @@ class InstanceQuery extends AbstractQuery {
             QCodeEntity.codeEntity.codeValue,
             QCodeEntity.codeEntity.codingSchemeDesignator,
             QCodeEntity.codeEntity.codeMeaning,
-            QLocation.location.storageID,
-            QLocation.location.storagePath,
-            QLocation.location.transferSyntaxUID,
-            QLocation.location.digest,
-            QLocation.location.size,
             QInstance.instance.attributesBlob.encodedAttributes
     };
 
@@ -145,8 +140,8 @@ class InstanceQuery extends AbstractQuery {
         QueryParam queryParam = context.getQueryParam();
         QueryRetrieveView qrView = queryParam.getQueryRetrieveView();
         q = QueryBuilder.applyInstanceLevelJoins(q, keys, queryParam, forCount);
-        q = q.leftJoin(QInstance.instance.locations, QLocation.location)
-                .on(QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
+//        q = q.leftJoin(QInstance.instance.locations, QLocation.location)
+//                .on(QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE));
         q = QueryBuilder.applySeriesLevelJoins(q, keys, queryParam, forCount);
         q = QueryBuilder.applyStudyLevelJoins(q, keys, queryParam, forCount, true);
         q = QueryBuilder.applyPatientLevelJoins(q, pids, keys, queryParam, context.isOrderByPatientName(), forCount);
@@ -194,6 +189,9 @@ class InstanceQuery extends AbstractQuery {
         String externalRetrieveAET = results.get(QInstance.instance.externalRetrieveAET);
         attrs.setString(Tag.RetrieveAETitle, VR.AE, splitAndAppend(retrieveAETs, externalRetrieveAET));
         attrs.setString(Tag.InstanceAvailability, VR.CS, availability.toString());
+        if (context.getReturnKeys() != null)
+            return attrs;
+
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceReceiveDateTime, VR.DT,
                 results.get(QInstance.instance.createdTime));
         attrs.setDate(ArchiveTag.PrivateCreator, ArchiveTag.InstanceUpdateDateTime, VR.DT,
@@ -206,19 +204,7 @@ class InstanceQuery extends AbstractQuery {
             item.setString(Tag.CodingSchemeDesignator, VR.SH, results.get(QCodeEntity.codeEntity.codingSchemeDesignator));
             rejectionCodeSeq.add(item);
         }
-        if (results.get(QLocation.location.storageID) != null) {
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID, VR.LO,
-                    results.get(QLocation.location.storageID));
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath, VR.LO,
-                    StringUtils.split(results.get(QLocation.location.storagePath), '/'));
-            attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID, VR.UI,
-                    results.get(QLocation.location.transferSyntaxUID));
-            attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, VR.UL,
-                    results.get(QLocation.location.size).intValue());
-            if (results.get(QLocation.location.digest) != null)
-                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest, VR.LO,
-                        results.get(QLocation.location.digest));
-        }
+        context.getQueryService().addLocationAttributes(attrs, results.get(QInstance.instance.pk));
         return attrs;
     }
 
