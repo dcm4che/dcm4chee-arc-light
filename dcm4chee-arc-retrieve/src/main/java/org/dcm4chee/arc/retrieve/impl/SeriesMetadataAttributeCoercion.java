@@ -101,18 +101,24 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
             attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceExternalRetrieveAETitle, VR.AE,
                     inst.getExternalRetrieveAET());
         }
+        Attributes item = null;
         for (Location location : inst.getLocations()) {
             if (location.getObjectType() == Location.ObjectType.DICOM_FILE) {
-                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID, VR.LO,
+                if (item == null)
+                    item = attrs;
+                else
+                    attrs.ensureSequence(ArchiveTag.PrivateCreator, ArchiveTag.OtherStorageSequence, 1)
+                            .add(item = new Attributes(5));
+                item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID, VR.LO,
                         location.getStorageID());
-                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath, VR.LO,
+                item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath, VR.LO,
                         StringUtils.split(location.getStoragePath(), '/'));
-                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID, VR.UI,
+                item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID, VR.UI,
                         location.getTransferSyntaxUID());
-                attrs.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, VR.UL,
+                item.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, VR.UL,
                         (int) location.getSize());
                 if (location.getDigestAsHexString() != null)
-                    attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest, VR.LO,
+                    item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest, VR.LO,
                             location.getDigestAsHexString());
             }
         }

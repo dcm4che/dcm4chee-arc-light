@@ -663,7 +663,7 @@ hl7OrderControlStatus: XO_SC
 objectClass: hl7OrderSPSStatus
 
 dn: cn=Calculate Study Size,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmExporterID: StudySizeExporter
+dcmExporterID: CalculateStudySize
 dcmDuration: PT5M
 dcmEntity: Study
 objectClass: dcmExportRule
@@ -736,20 +736,19 @@ dcmIDGeneratorName: PatientID
 dcmIDGeneratorFormat: P-%08d
 objectClass: dcmIDGenerator
 
+dn: cn=Calculate Query Attributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: CalculateQueryAttributes
+dcmDuration: PT5M
+dcmEntity: Study
+objectClass: dcmExportRule
+cn: Calculate Query Attributes
+
 dn: dcmRejectionNoteLabel=Quality,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Quality
 dcmRejectionNoteType: REJECTED_FOR_QUALITY_REASONS
 dcmRejectionNoteCode: (113001, DCM, "Rejected for Quality Reasons")
 dcmAcceptPreviousRejectedInstance: IGNORE
 objectClass: dcmRejectionNote
-
-dn: dcmExporterID=StudySizeExporter,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmExporterID: StudySizeExporter
-dicomDescription: Exporter to calculate study size
-dcmQueueName: Export4
-objectClass: dcmExporter
-dicomAETitle: DCM4CHEE
-dcmURI: study-size:dummyPath
 
 dn: dcmWebAppName=DCM4CHEE_ADMIN-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Show instances rejected for Quality Reasons
@@ -770,6 +769,14 @@ dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices
 dicomAETitle: DCM4CHEE_TRASH
 dcmWebAppName: DCM4CHEE_TRASH-RS
 dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE_TRASH/rs
+
+dn: dcmExporterID=CalculateStudySize,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: CalculateStudySize
+dicomDescription: Calculate Study Size
+dcmQueueName: Export4
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: study-size:dummyPath
 
 dn: dcmQueryRetrieveViewID=trashView,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmHideNotRejectedInstances: TRUE
@@ -820,6 +827,14 @@ dcmRejectionNoteCode: (113037, DCM, "Rejected for Patient Safety Reasons")
 objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
 
+dn: dcmExporterID=CalculateQueryAttributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: CalculateQueryAttributes
+dicomDescription: Calculate Query Attributes
+dcmQueueName: Export4
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: query-attrs:hideRejected
+
 dn: dcmRejectionNoteLabel=Revoke Rejection,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Revoke Rejection
 dcmRejectionNoteType: REVOKE_REJECTION
@@ -855,25 +870,10 @@ objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
 dcmOverwritePreviousRejection: (113037, DCM, "Rejected for Patient Safety Reasons")
 
-dn: cn=Calculate Study Series Query Attributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmExporterID: StudySeriesQueryAttributesExporter
-dcmDuration: PT5M
-dcmEntity: Study
-objectClass: dcmExportRule
-cn: Calculate Study Series Query Attributes
-
 dn: dcmIDGeneratorName=ScheduledProcedureStepID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmIDGeneratorName: ScheduledProcedureStepID
 dcmIDGeneratorFormat: SPS-%08d
 objectClass: dcmIDGenerator
-
-dn: dcmExporterID=StudySeriesQueryAttributesExporter,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmExporterID: StudySeriesQueryAttributesExporter
-dicomDescription: Exporter to calculate study size
-dcmQueueName: Export4
-objectClass: dcmExporter
-dicomAETitle: DCM4CHEE
-dcmURI: query-attrs:hideRejected
 
 dn: dcmAttributeSetID=all+dcmAttributeSetType=DIFF_RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmAttributeSetTitle: Patient and Study attributes
