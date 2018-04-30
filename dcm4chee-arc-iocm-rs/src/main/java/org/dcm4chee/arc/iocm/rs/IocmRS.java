@@ -170,7 +170,7 @@ public class IocmRS {
     @Consumes("application/json")
     @Produces("application/json")
     public Response copyInstances(@PathParam("StudyUID") String studyUID, InputStream in) throws Exception {
-        return copyOrMoveInstances(RSOperation.CopyInstances, studyUID, in, null, null);
+        return copyOrMoveInstances(studyUID, in, null, null);
     }
 
     @POST
@@ -182,7 +182,7 @@ public class IocmRS {
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator,
             InputStream in) throws Exception {
-        return copyOrMoveInstances(RSOperation.MoveInstances, studyUID, in, codeValue, designator);
+        return copyOrMoveInstances(studyUID, in, codeValue, designator);
     }
 
     @DELETE
@@ -502,7 +502,6 @@ public class IocmRS {
         String rejectionNoteObjectStorageID = rjNote != null ? rejectionNoteObjectStorageID() : null;
         ArchiveAEExtension arcAE = getArchiveAE();
         Attributes instanceRefs = parseSOPInstanceReferences(in);
-        Attributes forwardOriginal = new Attributes(instanceRefs);
 
         ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
         ctx.setStudyInstanceUID(studyUID);
@@ -539,7 +538,6 @@ public class IocmRS {
             result = storeService.copyInstances(session, instanceLocations);
             rejectInstances(instanceRefs, rjNote, session, result);
         }
-        rsForward.forward(RSOperation.LinkInstancesWithMWL, arcAE, forwardOriginal, request);
         return toResponse(result);
     }
 
@@ -634,14 +632,12 @@ public class IocmRS {
         }
     }
 
-    private Response copyOrMoveInstances(
-            RSOperation op, String studyUID, InputStream in, String codeValue, String designator)
+    private Response copyOrMoveInstances(String studyUID, InputStream in, String codeValue, String designator)
             throws Exception {
         logRequest();
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
         ArchiveAEExtension arcAE = getArchiveAE();
         Attributes instanceRefs = parseSOPInstanceReferences(in);
-        Attributes forwardOriginal = new Attributes(instanceRefs);
         StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(),
                 rjNote != null ? rejectionNoteObjectStorageID() : null);
         restoreInstances(session, instanceRefs);
@@ -658,7 +654,6 @@ public class IocmRS {
         if (rjNote != null)
             rejectInstances(instanceRefs, rjNote, session, result);
 
-        rsForward.forward(op, arcAE, forwardOriginal, request);
         return toResponse(result);
     }
 
