@@ -59,6 +59,7 @@ public class InstanceLocationsImpl implements InstanceLocations {
     private final String sopClassUID;
     private final String sopInstanceUID;
     private final Attributes attributes;
+    private Long instancePk;
     private Attributes rejectionCode;
     private String retrieveAETs;
     private String extRetrieveAET;
@@ -72,6 +73,10 @@ public class InstanceLocationsImpl implements InstanceLocations {
         this.sopClassUID = attrs.getString(Tag.SOPClassUID);
         this.sopInstanceUID = attrs.getString(Tag.SOPInstanceUID);
         this.attributes = attrs;
+    }
+
+    public void setInstancePk(Long instancePk) {
+        this.instancePk = instancePk;
     }
 
     public void setRejectionCode(Attributes rejectionCode) {
@@ -105,6 +110,11 @@ public class InstanceLocationsImpl implements InstanceLocations {
     @Override
     public String toString() {
         return "Instance[iuid=" + sopInstanceUID + ",cuid=" + sopClassUID + "]";
+    }
+
+    @Override
+    public Long getInstancePk() {
+        return instancePk;
     }
 
     @Override

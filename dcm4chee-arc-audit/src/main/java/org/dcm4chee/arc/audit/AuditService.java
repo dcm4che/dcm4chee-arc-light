@@ -92,6 +92,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -405,7 +406,7 @@ public class AuditService {
         AuditInfoBuilder info = request != null
                 ? buildSoftwareConfAuditForWeb(request, deviceName)
                 : buildSystemTriggeredSoftwareConfAudit(deviceName);
-        writeSpoolFile(AuditServiceUtils.EventType.LDAP_CHNGS, info, softwareConfiguration.getLdapDiff().toString());
+        writeSpoolFile(info, softwareConfiguration.getLdapDiff().toString());
     }
 
     private AuditInfoBuilder buildSoftwareConfAuditForWeb(HttpServletRequest request, String deviceName) {
@@ -1448,7 +1449,8 @@ public class AuditService {
     }
 
     void spoolProcedureRecord(StudyMgtContext ctx) {
-        String callingAET = KeycloakContext.valueOf(ctx.getHttpRequest()).getUserName();
+        HttpServletRequest request = ctx.getHttpRequest();
+        String callingAET = KeycloakContext.valueOf(request).getUserName();
         Attributes pAttr = ctx.getStudy() != null ? ctx.getStudy().getPatient().getAttributes() : null;
         AuditInfoBuilder info = new AuditInfoBuilder.Builder().callingHost(
                                 ctx.getHttpRequest().getRemoteHost())
@@ -1740,11 +1742,12 @@ public class AuditService {
                 auditLogger.getCommonName().replaceAll(" ", "_"));
     }
 
-    private void writeSpoolFile(AuditServiceUtils.EventType eventType, AuditInfoBuilder auditInfoBuilder, String data) {
+    private void writeSpoolFile(AuditInfoBuilder auditInfoBuilder, String data) {
         if (auditInfoBuilder == null) {
-            LOG.warn("Attempt to write empty file : ", eventType);
+            LOG.warn("Attempt to write empty file : ", AuditServiceUtils.EventType.LDAP_CHNGS);
             return;
         }
+        FileTime eventTime = null;
         boolean auditAggregate = getArchiveDevice().isAuditAggregate();
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
@@ -1752,11 +1755,15 @@ public class AuditService {
                 Path dir = toDirPath(auditLogger);
                 try {
                     Files.createDirectories(dir);
-                    Path file = Files.createTempFile(dir, String.valueOf(eventType), null);
+                    Path file = Files.createTempFile(dir, AuditServiceUtils.EventType.LDAP_CHNGS.name(), null);
                     try (SpoolFileWriter writer = new SpoolFileWriter(Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                             StandardOpenOption.APPEND))) {
                         writer.writeLine(new AuditInfo(auditInfoBuilder), data);
                     }
+                    if (eventTime == null)
+                        eventTime = Files.getLastModifiedTime(file);
+                    else
+                        Files.setLastModifiedTime(file, eventTime);
                     if (!auditAggregate)
                         auditAndProcessFile(auditLogger, file);
                 } catch (Exception e) {
@@ -1771,6 +1778,7 @@ public class AuditService {
             LOG.warn("Attempt to write empty file : ", eventType);
             return;
         }
+        FileTime eventTime = null;
         boolean auditAggregate = getArchiveDevice().isAuditAggregate();
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
@@ -1786,8 +1794,11 @@ public class AuditService {
                                 StandardOpenOption.APPEND))) {
                             writer.writeLine(new AuditInfo(auditInfoBuilder));
                         }
-                        out.close();
                     }
+                    if (eventTime == null)
+                        eventTime = Files.getLastModifiedTime(file);
+                    else
+                        Files.setLastModifiedTime(file, eventTime);
                     if (!auditAggregate)
                         auditAndProcessFile(auditLogger, file);
                 } catch (Exception e) {
@@ -1802,6 +1813,7 @@ public class AuditService {
             LOG.warn("Attempt to write empty file : ", eventType);
             return;
         }
+        FileTime eventTime = null;
         boolean auditAggregate = getArchiveDevice().isAuditAggregate();
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
@@ -1815,6 +1827,10 @@ public class AuditService {
                         for (AuditInfoBuilder auditInfoBuilder : auditInfoBuilders)
                             writer.writeLine(new AuditInfo(auditInfoBuilder));
                     }
+                    if (eventTime == null)
+                        eventTime = Files.getLastModifiedTime(file);
+                    else
+                        Files.setLastModifiedTime(file, eventTime);
                     if (!auditAggregate)
                         auditAndProcessFile(auditLogger, file);
                 } catch (Exception e) {
@@ -1829,6 +1845,7 @@ public class AuditService {
             LOG.warn("Attempt to write empty file : " + fileName);
             return;
         }
+        FileTime eventTime = null;
         boolean auditAggregate = getArchiveDevice().isAuditAggregate();
         AuditLoggerDeviceExtension ext = device.getDeviceExtension(AuditLoggerDeviceExtension.class);
         for (AuditLogger auditLogger : ext.getAuditLoggers()) {
@@ -1846,6 +1863,10 @@ public class AuditService {
                         }
                         writer.writeLine(new AuditInfo(instanceInfo));
                     }
+                    if (eventTime == null)
+                        eventTime = Files.getLastModifiedTime(file);
+                    else
+                        Files.setLastModifiedTime(file, eventTime);
                     if (!auditAggregate)
                         auditAndProcessFile(auditLogger, file);
                 } catch (Exception e) {

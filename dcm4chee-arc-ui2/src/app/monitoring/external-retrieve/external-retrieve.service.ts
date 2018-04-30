@@ -69,6 +69,7 @@ export class ExternalRetrieveService {
         let header = new Headers({ 'Accept': 'text/csv' });
         return this.$http.get(`/dcm4chee-arc/monitor/retrieve${urlParam}`, header)
     }
+
     statusValues(){
         return [
             {

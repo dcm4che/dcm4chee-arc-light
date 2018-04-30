@@ -13,6 +13,8 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import * as FileSaver from 'file-saver';
 import {LoadingBarService} from "@ngx-loading-bar/core";
+import {Globalvar} from "../../constants/globalvar";
+import {ActivatedRoute} from "@angular/router";
 
 
 @Component({
@@ -58,6 +60,7 @@ export class ExportComponent implements OnInit {
         "FAILED",
         "CANCELED"
     ];
+    batchGrouped = false;
     isRole: any = (user)=>{return false;};
     dialogRef: MatDialogRef<any>;
     _ = _;
@@ -86,7 +89,8 @@ export class ExportComponent implements OnInit {
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
         public config: MatDialogConfig,
-        private httpErrorHandler:HttpErrorHandler
+        private httpErrorHandler:HttpErrorHandler,
+        private route: ActivatedRoute
     ) {}
     ngOnInit(){
         this.initCheck(10);
@@ -94,7 +98,7 @@ export class ExportComponent implements OnInit {
     initCheck(retries){
         let $this = this;
         if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
-            this.init();
+                this.init();
         }else{
             if (retries){
                 setTimeout(()=>{
@@ -106,6 +110,12 @@ export class ExportComponent implements OnInit {
         }
     }
     init(){
+        this.route.queryParams.subscribe(params => {
+            if(params && params['dicomDeviceName']){
+                this.filters['dicomDeviceName'] = params['dicomDeviceName'];
+                this.search(0);
+            }
+        });
         this.initExporters(1);
         // this.init();
         this.status.forEach(status =>{
@@ -249,23 +259,58 @@ export class ExportComponent implements OnInit {
             this.httpErrorHandler.handleError(err);
         });*/
     }
+    showTaskDetail(task){
+        this.filters.batchID = task.properties.batchID;
+        this.batchGrouped = false;
+        this.search(0);
+    }
     search(offset) {
         let $this = this;
         $this.cfpLoadingBar.start();
-        this.service.search(this.filters, offset)
+        this.service.search(this.filters, offset,this.batchGrouped)
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe((res) => {
-                if (res && res.length > 0){
+/*                    res = [{"batchID":"test12","tasks":{
+                        "completed":60,
+                        "warning":24,
+                        "failed":12,
+                        "in-process":5,
+                        "scheduled":123,
+                        "canceled":26
+                    },"dicomDeviceName":["dcm4chee-arc", "dcm4chee-arc2"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE"],"DestinationAET":["DCM4CHEE"],"createdTimeRange":["2018-04-10 18:02:06.936","2018-04-10 18:02:07.049"],"updatedTimeRange":["2018-04-10 18:02:08.300311","2018-04-10 18:02:08.553547"],"scheduledTimeRange":["2018-04-10 18:02:06.935","2018-04-10 18:02:07.049"],"processingStartTimeRange":["2018-04-10 18:02:06.989","2018-04-10 18:02:07.079"],"processingEndTimeRange":["2018-04-10 18:02:08.31","2018-04-10 18:02:08.559"]},{"batchID":"test2","tasks":{"completed":"12","failed":3,"warning":34},"dicomDeviceName":["dcm4chee-arc"],"LocalAET":["DCM4CHEE"],"RemoteAET":["DCM4CHEE"],"DestinationAET":["DCM4CHEE"],"createdTimeRange":["2018-04-10 18:02:25.71","2018-04-10 18:02:26.206"],"updatedTimeRange":["2018-04-10 18:02:25.932859","2018-04-10 18:02:27.335741"],"scheduledTimeRange":["2018-04-10 18:02:25.709","2018-04-10 18:02:26.204"],"processingStartTimeRange":["2018-04-10 18:02:25.739","2018-04-10 18:02:26.622"],"processingEndTimeRange":["2018-04-10 18:02:25.943","2018-04-10 18:02:27.344"]}];
+               */ if (res && res.length > 0){
                     $this.matches = res.map((properties, index) => {
-                        $this.cfpLoadingBar.complete();
-                        if (_.hasIn(properties, 'Modality')){
-                            properties.Modality = properties.Modality.join(',');
+                        if(this.batchGrouped){
+                            let propertiesAttr = Object.assign({},properties);
+                            if(_.hasIn(properties, 'tasks')){
+                                let taskPrepared = [];
+                                Globalvar.TASK_NAMES.forEach(task=>{
+                                    if(properties.tasks[task])
+                                        taskPrepared.push({[task]:properties.tasks[task]});
+                                });
+                                properties.tasks = taskPrepared;
+                            }
+                            j4care.stringifyArrayOrObject(properties, ['tasks']);
+                            j4care.stringifyArrayOrObject(propertiesAttr,[]);
+                            $this.cfpLoadingBar.complete();
+                            return {
+                                offset: offset + index,
+                                properties: properties,
+                                propertiesAttr: propertiesAttr,
+                                showProperties: false
+                            };
+                        }else{
+                            $this.cfpLoadingBar.complete();
+                            if (_.hasIn(properties, 'Modality')){
+                                properties.Modality = properties.Modality.join(',');
+                            }
+                            return {
+                                offset: offset + index,
+                                properties: properties,
+                                propertiesAttr: properties,
+                                showProperties: false
+                            };
                         }
-                        return {
-                            offset: offset + index,
-                            properties: properties,
-                            showProperties: false
-                        };
                     });
                 }else{
                     $this.cfpLoadingBar.complete();
@@ -282,6 +327,9 @@ export class ExportComponent implements OnInit {
                 console.log('err', err);
             });
     };
+    bachChange(e){
+        this.matches = [];
+    }
     getCount(){
         this.cfpLoadingBar.start();
         this.service.getCount(this.filters).subscribe((count)=>{
@@ -666,7 +714,6 @@ export class ExportComponent implements OnInit {
                 }else{
                     id = result.selectedExporter;
                 }
-                $this.cfpLoadingBar.start();
                 this.service.reschedule(match.properties.pk, id)
                     .subscribe(
                         (res) => {

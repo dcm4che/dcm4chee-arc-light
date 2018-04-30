@@ -5,6 +5,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.InstanceLocations;
 
 import javax.servlet.http.HttpServletRequest;
@@ -73,4 +74,6 @@ public interface StoreService {
     void restoreInstances(StoreSession session, String studyUID, String seriesUID) throws IOException;
 
     List<String> studyIUIDsByAccessionNo(String accNo);
+
+    void addLocation(Long instancePk, Location location);
 }

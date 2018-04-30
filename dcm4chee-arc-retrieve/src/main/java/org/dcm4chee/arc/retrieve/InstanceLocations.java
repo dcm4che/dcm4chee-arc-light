@@ -53,6 +53,8 @@ import java.util.List;
  * @since Aug 2015
  */
 public interface InstanceLocations {
+    Long getInstancePk();
+
     String getSopInstanceUID();
 
     String getSopClassUID();

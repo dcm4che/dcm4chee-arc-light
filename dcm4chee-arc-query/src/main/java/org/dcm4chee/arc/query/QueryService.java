@@ -88,6 +88,8 @@ public interface QueryService {
 
     Attributes getSeriesAttributes(Long seriesPk, QueryRetrieveView qrView);
 
+    void addLocationAttributes(Attributes attrs, Long instancePk);
+
     long calculateStudySize(Long studyPk);
 
     StudyQueryAttributes calculateStudyQueryAttributes(Long studyPk, QueryRetrieveView qrView);

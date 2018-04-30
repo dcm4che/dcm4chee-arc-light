@@ -177,7 +177,7 @@ dcmPurgeStgCmtCompletedDelay: P1D
 dicomManufacturer: dcm4che.org
 dcmExternalRetrieveAEDestination: DCM4CHEE
 hl7ScheduleProcedureTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl
-dcmSeriesMetadataDelay: PT1M
+dcmSeriesMetadataDelay: PT2M
 dcmAuditRecordRepositoryURL: http://kibana:5601
 dcmXDSiImagingDocumentSourceAETitle: DCM4CHEE
 dcmWadoSR2TextTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl
@@ -1068,6 +1068,28 @@ dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/Export3
 
+dn: dcmQueueName=Export4,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Calculate Query Attributes and Study size Export Tasks
+dcmQueueName: Export4
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/Export4
+
+dn: dcmQueueName=Export5,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Nearline Storage Export Tasks
+dcmQueueName: Export5
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/Export5
+
 dn: dcmQueueName=HL7Send,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: HL7 Forward Tasks
 dcmQueueName: HL7Send
@@ -1156,6 +1178,14 @@ dcmProperty: checkMountFile=NO_MOUNT
 objectClass: dcmStorage
 dcmStorageID: metadata
 dcmURI: ${jboss.server.data.url}/metadata/
+
+dn: dcmStorageID=nearline,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmInstanceAvailability: NEARLINE
+dcmProperty: pathFormat={now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}
+dcmProperty: checkMountFile=NO_MOUNT
+objectClass: dcmStorage
+dcmStorageID: nearline
+dcmURI: ${jboss.server.data.url}/nearline/
 
 dn: dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -1254,6 +1284,13 @@ objectClass: dcmStorage
 dcmStorageID: wado-json
 dcmURI: ${jboss.server.data.url}/wado/
 
+dn: cn=Calculate Study Size,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: CalculateStudySize
+dcmDuration: PT5M
+dcmEntity: Study
+objectClass: dcmExportRule
+cn: Calculate Study Size
+
 dn: cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmImageReaderFactory
 cn: Image Reader Factory
@@ -1306,6 +1343,14 @@ dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomAETitle: DCM4CHEE
 dcmWebAppName: DCM4CHEE-RS
 dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE/rs
+
+dn: cn=Copy to NEARLINE Storage,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: CopyToNearlineStorage
+dcmDuration: PT1M
+dcmEntity: Series
+dcmProperty: SendingApplicationEntityTitle=NEARLINE
+objectClass: dcmExportRule
+cn: Copy to NEARLINE Storage
 
 dn: dcmWebAppName=DCM4CHEE-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Hide instances rejected for Quality Reasons
@@ -1366,6 +1411,13 @@ objectClass: dcmStorage
 dcmStorageID: series-metadata
 dcmURI: ${jboss.server.data.url}/series-metadata/
 
+dn: cn=Calculate Query Attributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: CalculateQueryAttributes
+dcmDuration: PT5M
+dcmEntity: Study
+objectClass: dcmExportRule
+cn: Calculate Query Attributes
+
 dn: cn=Forward to HL7RCV|DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmProperty: MSH-3=FORWARD
 objectClass: hl7ForwardRule
@@ -1400,6 +1452,14 @@ dicomNetworkConnectionReference: cn=https,dicomDeviceName=dcm4chee-arc,cn=Device
 dicomAETitle: DCM4CHEE_TRASH
 dcmWebAppName: DCM4CHEE_TRASH-RS
 dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE_TRASH/rs
+
+dn: dcmExporterID=CalculateStudySize,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: CalculateStudySize
+dicomDescription: Calculate Study Size
+dcmQueueName: Export4
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: study-size:dummyPath
 
 dn: dcmQueryRetrieveViewID=trashView,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmHideNotRejectedInstances: TRUE
@@ -1440,6 +1500,14 @@ dcmIDGeneratorName: AccessionNumber
 dcmIDGeneratorFormat: A-%08d
 objectClass: dcmIDGenerator
 
+dn: dcmExporterID=CopyToNearlineStorage,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: CopyToNearlineStorage
+dicomDescription: Copy to NEARLINE Storage
+dcmQueueName: Export5
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: storage:nearline
+
 dn: dcmQueryRetrieveViewID=hideRejected,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmHideRejectionNoteWithCode: (113039, DCM, "Data Retention Policy Expired")
 dcmQueryRetrieveViewID: hideRejected
@@ -1451,6 +1519,14 @@ dcmRejectionNoteType: REJECTED_FOR_PATIENT_SAFETY_REASONS
 dcmRejectionNoteCode: (113037, DCM, "Rejected for Patient Safety Reasons")
 objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
+
+dn: dcmExporterID=CalculateQueryAttributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: CalculateQueryAttributes
+dicomDescription: Calculate Query Attributes
+dcmQueueName: Export4
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: query-attrs:hideRejected
 
 dn: dcmRejectionNoteLabel=Revoke Rejection,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Revoke Rejection

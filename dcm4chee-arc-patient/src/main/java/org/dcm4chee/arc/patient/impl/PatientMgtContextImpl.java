@@ -47,6 +47,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
@@ -140,7 +141,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
         return httpServletRequestInfo != null
                 ? httpServletRequestInfo.requesterHost
                 : socket != null
-                    ? socket.getInetAddress().getHostName() : null;
+                    ? ReverseDNS.hostNameOf(socket.getInetAddress()) : null;
     }
 
     @Override

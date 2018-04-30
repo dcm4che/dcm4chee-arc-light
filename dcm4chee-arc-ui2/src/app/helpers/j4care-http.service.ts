@@ -97,7 +97,7 @@ export class J4careHttpService{
         }else{
             if(!this.mainservice.global.notSecure){
                 if(_.hasIn(this.mainservice, "global.authentication.token")){
-                        this.token = this.mainservice.global.authentication.token;
+                    this.token = this.mainservice.global.authentication.token;
                 }else{
                     this.setValueInGlobal('getRealmStateActive',true);
                     return this.getRealm();

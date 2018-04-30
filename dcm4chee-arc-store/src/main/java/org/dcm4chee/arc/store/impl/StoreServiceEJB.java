@@ -1089,13 +1089,19 @@ public class StoreServiceEJB {
             return;
 
         Study study = series.getStudy();
-        LocalDate expirationDate = LocalDate.now().plus(retentionPolicy.getRetentionPeriod());
+        LocalDate expirationDate = getExpirationDate(ctx.getAttributes(), retentionPolicy);
         LocalDate studyExpirationDate = study.getExpirationDate();
         if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0)
             study.setExpirationDate(expirationDate);
 
         if (retentionPolicy.isExpireSeriesIndividually())
             series.setExpirationDate(expirationDate);
+    }
+
+    private LocalDate getExpirationDate(Attributes attrs, StudyRetentionPolicy retentionPolicy) {
+        return attrs.getString(Tag.StudyDate) != null && retentionPolicy.isStartRetentionPeriodOnStudyDate()
+                ? LocalDate.parse(attrs.getString(Tag.StudyDate), DateTimeFormatter.BASIC_ISO_DATE).plus(retentionPolicy.getRetentionPeriod())
+                : LocalDate.now().plus(retentionPolicy.getRetentionPeriod());
     }
 
     private void setSeriesAttributes(StoreContext ctx, Series series) {
@@ -1177,6 +1183,11 @@ public class StoreServiceEJB {
         newLocation.setInstance(instance);
         em.persist(newLocation);
         return newLocation;
+    }
+
+    public void addLocation(Long instancePk, Location location) {
+        location.setInstance(em.find(Instance.class, instancePk));
+        em.persist(location);
     }
 
     private UIDMap createUIDMap(Map<String, String> uidMap, UIDMap prevUIDMap, Map<Long, UIDMap> uidMapCache) {

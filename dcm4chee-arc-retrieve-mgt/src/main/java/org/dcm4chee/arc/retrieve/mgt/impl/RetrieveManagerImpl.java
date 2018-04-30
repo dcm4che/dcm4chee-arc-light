@@ -43,6 +43,7 @@ import com.querydsl.core.types.Predicate;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.*;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -98,7 +99,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
     public Outcome cmove(int priority, ExternalRetrieveContext ctx, QueueMessage queueMessage) throws Exception {
         ApplicationEntity localAE = device.getApplicationEntity(ctx.getLocalAET(), true);
         Association as = moveSCU.openAssociation(localAE, ctx.getRemoteAET());
-        ctx.setRemoteHostName(as.getSocket().getInetAddress().getHostName());
+        ctx.setRemoteHostName(ReverseDNS.hostNameOf(as.getSocket().getInetAddress()));
         try {
             ejb.resetRetrieveTask(queueMessage);
             final DimseRSP rsp = moveSCU.cmove(as, priority, ctx.getDestinationAET(), ctx.getKeys());

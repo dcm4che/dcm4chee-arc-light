@@ -1,0 +1,5 @@
+<div class="stacked_progress_container">
+  <ul>
+    <li *ngFor="let part of progress" [ngClass]="part.cssClass" [ngStyle]="{'width':part.width+'%'}" title="{{part.title}}"></li>
+  </ul>
+</div>

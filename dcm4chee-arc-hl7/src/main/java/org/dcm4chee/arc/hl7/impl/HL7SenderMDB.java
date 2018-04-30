@@ -49,14 +49,12 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.patient.PatientMgtContext;
 import org.dcm4chee.arc.patient.PatientService;
+import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.MessageDriven;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.enterprise.event.Event;
@@ -70,11 +68,6 @@ import javax.jms.ObjectMessage;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2016
  */
-@MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = HL7Sender.JNDI_NAME),
-        @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
-})
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class HL7SenderMDB implements MessageListener {
 

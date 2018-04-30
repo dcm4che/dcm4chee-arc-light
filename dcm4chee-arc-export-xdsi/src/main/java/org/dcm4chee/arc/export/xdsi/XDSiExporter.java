@@ -42,6 +42,7 @@ import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.dcm4che3.data.*;
 import org.dcm4che3.dcmr.AcquisitionModality;
 import org.dcm4che3.dcmr.AnatomicRegion;
+import org.dcm4che3.io.DicomOutputStream;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
@@ -59,6 +60,7 @@ import javax.enterprise.event.Event;
 import javax.xml.bind.JAXBElement;
 import javax.xml.ws.soap.AddressingFeature;
 import javax.xml.ws.soap.MTOMFeature;
+import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.*;
@@ -74,18 +76,23 @@ public class XDSiExporter extends AbstractExporter {
     private static final String SUBMISSION_SET_ID = "SubmissionSet01";
     private static final String DOCUMENT_ID = "Document01";
     private static final ObjectFactory rimFactory = new ObjectFactory();
-    private static final String DEFAULT_SOURCE_ID = "1.3.6.1.4.1.21367.13.80.110";
+    private static final String DEFAULT_SOURCE_ID = "1.3.6.1.4.1.21367.2011.2.1.331";
     private static final String DEFAULT_LANGUAGE_CODE = "en-us";
-    private static final Code DICOM_KON_TYPECODE = new Code(
-            "DICOM KON TYPECODE",
-            "1.3.6.1.4.1.21367.100.1",
+    private static final Code DEFAULT_CONTENT_TYPE = new Code(
+            "UNSPECIFIED-CONTENT-TYPE",
+            "1.3.6.1.4.1.21367.2017.3",
             null,
-            "DICOM Key Object Note Type Code");
+            "Unspecified Clinical Activity");
+    private static final Code DEFAULT_TYPE_CODE = new Code(
+            "18748-4",
+            "2.16.840.1.113883.6.1",
+            null,
+            "Diagnostic imaging study");
     private static final Code DEFAULT_CLASS_CODE = new Code(
-            "*",
-            "1.3.6.1.4.1.21367.100.1",
+            "IMAGES",
+            "1.3.6.1.4.1.19376.1.2.6.1",
             null,
-            "*");
+            "Images");
     private static final Code DEFAULT_CONFIDENTIALITY_CODE = new Code(
             "N", 
             "2.16.840.1.113883.5.25",
@@ -97,13 +104,13 @@ public class XDSiExporter extends AbstractExporter {
             null,
             "Manifest");
     private static final Code DEFAULT_HEALTH_CARE_FACILITY_TYPE_CODE = new Code(
-            "RADDX",
-            "2.16.840.1.113883.5.11",
+            "22232009",
+            "2.16.840.1.113883.6.96",
             null,
-            "Radiology diagnostics or therapeutics unit");
+            "Hospital");
     private static final Code DEFAULT_PRACTICE_SETTING_CODE = new Code(
-            "R-3027B",
-            "SRT",
+            "Practice-A",
+            "1.3.6.1.4.1.21367.2017.3",
             null,
             "Radiology");
     private static final Code MANIFEST_FORMAT_CODE = new Code(
@@ -121,6 +128,7 @@ public class XDSiExporter extends AbstractExporter {
     private final boolean includeModalityCodes;
     private final boolean includeAnatomicRegionCodes;
     private final boolean useProcedureCodeAsTypeCode;
+    private final String manifestLogDir;
     private final String sourceId;
     private final String assigningAuthorityOfPatientID;
     private final String assigningAuthorityOfAccessionNumber;
@@ -163,11 +171,13 @@ public class XDSiExporter extends AbstractExporter {
         this.manifestTitle = getCodeProperty("Manifest.title", DEFAULT_MANIFEST_TITLE);
         this.manifestSeriesNumber = Integer.parseInt(descriptor.getProperty("Manifest.seriesNumber", "0"));
         this.manifestInstanceNumber = Integer.parseInt(descriptor.getProperty("Manifest.instanceNumber", "0"));
+        this.manifestLogDir = descriptor.getProperty("Manifest.logDir", null);
+        this.patientId = descriptor.getProperty("XDSSubmissionSet.patientId", null);
         this.assigningAuthorityOfPatientID = descriptor.getProperty("AssigningAuthority.patientId", null);
         this.assigningAuthorityOfAccessionNumber = descriptor.getProperty("AssigningAuthority.accessionNumber", null);
         this.sourceId = descriptor.getProperty("XDSSubmissionSet.sourceId", DEFAULT_SOURCE_ID);
-        this.manifestContentType = getCodeProperty("XDSSubmissionSet.contentType", DICOM_KON_TYPECODE);
-        this.defTypeCode = getCodeProperty("DocumentEntry.typeCode", DICOM_KON_TYPECODE);
+        this.manifestContentType = getCodeProperty("XDSSubmissionSet.contentType", DEFAULT_CONTENT_TYPE);
+        this.defTypeCode = getCodeProperty("DocumentEntry.typeCode", DEFAULT_TYPE_CODE);
         this.languageCode = descriptor.getProperty("DocumentEntry.languageCode", DEFAULT_LANGUAGE_CODE);
         this.classCode = getCodeProperty("DocumentEntry.classCode", DEFAULT_CLASS_CODE);
         this.confidentialityCode = getCodeProperty("DocumentEntry.confidentialityCode", DEFAULT_CONFIDENTIALITY_CODE);
@@ -192,8 +202,9 @@ public class XDSiExporter extends AbstractExporter {
                 manifestTitle, manifestSeriesNumber, manifestInstanceNumber, seriesAttrs);
         this.documentUID = manifest.getString(Tag.SOPInstanceUID);
         this.submissionSetUID = UIDUtils.createUID();
-        this.sourcePatientId = adjustIssuer(IDWithIssuer.pidOf(manifest)).toString();
-        this.patientId = sourcePatientId;
+        this.sourcePatientId = adjustSourcePatientId();
+        if (patientId == null)
+            patientId = sourcePatientId;
         this.typeCode = typeCodeOf(manifest);
         initSourcePatientInfo();
         referenceIdList.add(manifest.getString(Tag.StudyInstanceUID) + "^^^^" + CXI_TYPE_STUDY_INSTANCE_UID);
@@ -202,17 +213,27 @@ public class XDSiExporter extends AbstractExporter {
         ctx.setXDSiManifest(manifest);
         ctx.setSubmissionSetUID(submissionSetUID);
         try {
+            if (manifestLogDir != null) {
+                File logDir = new File(manifestLogDir);
+                logDir.mkdirs();
+                try (DicomOutputStream out = new DicomOutputStream(new File(logDir, documentUID))) {
+                    out.writeDataset(manifest.createFileMetaInformation(UID.ExplicitVRLittleEndian), manifest);
+                }
+            }
             RegistryResponseType rsp = port().documentRepositoryProvideAndRegisterDocumentSetB(createRequest());
             ctx.setXDSiRegistryResponse(rsp);
             switch (rsp.getStatus()) {
                 case XDS_STATUS_SUCCESS:
                     return new Outcome(QueueMessage.Status.COMPLETED,
                             "Provide and Register Study[" + ctx.getStudyInstanceUID()
+                                    + "] in SubmissionSet[" + submissionSetUID
                                     + "] @ " + repositoryURL + " successful");
                 case XDS_STATUS_PARTIAL_SUCCESS:
                     return new Outcome(QueueMessage.Status.WARNING,
                             "Provide and Register Study[" + ctx.getStudyInstanceUID()
-                                    + "] @ " + repositoryURL + " partial successful - " + getRegistryErrorMessage(rsp));
+                                    + "] in SubmissionSet[" + submissionSetUID
+                                    + "] @ " + repositoryURL + " partial successful - "
+                                    + getRegistryErrorMessage(rsp));
             }
             throw new Exception("Provide and Register Study[" + ctx.getStudyInstanceUID()
                     + "] @ " + repositoryURL + " failed - " + getRegistryErrorMessage(rsp));
@@ -222,6 +243,10 @@ public class XDSiExporter extends AbstractExporter {
         } finally {
             exportEvent.fire(ctx);
         }
+    }
+
+    private static String toString(IDWithIssuer pid) {
+        return pid.getIssuer() != null ? pid.toString() : pid.getID() + "^^^";
     }
 
     private Code typeCodeOf(Attributes manifest) {
@@ -280,16 +305,17 @@ public class XDSiExporter extends AbstractExporter {
         return sb != null ? sb.toString() : "";
     }
 
-    private IDWithIssuer adjustIssuer(IDWithIssuer pid) {
+    private String adjustSourcePatientId() {
+        IDWithIssuer pid = IDWithIssuer.pidOf(manifest);
         Issuer issuer = pid.getIssuer();
-        String uid = issuer != null && "ISO".equals(issuer.getUniversalEntityIDType())
+        String iuid = issuer != null && "ISO".equals(issuer.getUniversalEntityIDType())
                 ? issuer.getUniversalEntityID()
                 : assigningAuthorityOfPatientID;
-        if (uid != null) {
-            pid.setIssuer(new Issuer(null, uid, "ISO"));
-            pid.exportPatientIDWithIssuer(manifest);
+        if (iuid != null) {
+             pid.setIssuer(new Issuer(null, iuid, "ISO"));
+             pid.exportPatientIDWithIssuer(manifest);
         }
-        return pid;
+        return pid.toString();
     }
 
     private DocumentRepositoryPortType port() throws Exception {
@@ -430,7 +456,7 @@ public class XDSiExporter extends AbstractExporter {
     }
 
     private void initSourcePatientInfo() {
-        sourcePatientInfo.add("PID-3|" + IDWithIssuer.pidOf(manifest).toString());
+        sourcePatientInfo.add("PID-3|" + sourcePatientId);
         addIfNotNullTo("PID-5|", manifest.getString(Tag.PatientName), sourcePatientInfo);
         addIfNotNullTo("PID-7|", manifest.getString(Tag.PatientBirthDate), sourcePatientInfo);
         addIfNotNullTo("PID-8|", manifest.getString(Tag.PatientSex), sourcePatientInfo);

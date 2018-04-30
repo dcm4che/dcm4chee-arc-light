@@ -48,6 +48,7 @@ import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.RetrieveTask;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Duration;
@@ -94,7 +95,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
         this.ctx = ctx;
         this.storeas = storeas;
         this.aeExt = ctx.getArchiveAEExtension();
-        this.hostName = storeas.getSocket().getInetAddress().getHostName();
+        this.hostName = ReverseDNS.hostNameOf(storeas.getSocket().getInetAddress());
     }
 
     void setRequestAssociation(Dimse dimserq, Association rqas, PresentationContext pc, Attributes rqCmd) {

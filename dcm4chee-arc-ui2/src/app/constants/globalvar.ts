@@ -459,6 +459,16 @@ export class Globalvar {
     public static get SUPER_ROOT(): string{
         return "root";
     }
+    public static get TASK_NAMES(): any{
+        return [
+            "completed",
+            "warning",
+            "failed",
+            "in-process",
+            "scheduled",
+            "canceled"
+        ];;
+    }
     public static get DYNAMIC_FORMATER(): any{
         return {
 /*            dcmAETitle:{

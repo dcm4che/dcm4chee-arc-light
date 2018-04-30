@@ -97,9 +97,9 @@
                     <a class="table_btn" title="Echo" href="" (click)="$event.preventDefault();echoAe(ae.dicomAETitle)">
                         <span class="echo_icon"></span>
                     </a>
-                    <!--                            <a class="table_btn" title="Edit AE" href="" (click)="$event.preventDefault();editAe(ae.dicomDeviceName, ae.dicomAETitle)">
-                                                    <span class="glyphicon glyphicon-pencil"></span>
-                                                </a>-->
+<!--                    <a class="table_btn" title="Edit AE" href="" (click)="$event.preventDefault();editAe(ae.dicomDeviceName, ae.dicomAETitle)" routerLink="/device/edit/{{ae.dicomDeviceName}}/dicomNetworkAE%5B0%5D/properties.dicomNetworkAE">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </a>-->
                     <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" title="Delete from device the AE" href="" (click)="$event.preventDefault();deleteAE(ae.dicomDeviceName, ae.dicomAETitle)">
                         <span class="glyphicon glyphicon-remove"></span>
                     </a>

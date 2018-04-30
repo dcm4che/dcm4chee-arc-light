@@ -135,6 +135,12 @@ public abstract class AbstractStorage implements Storage {
         };
     }
 
+    @Override
+    public void copy(InputStream in, WriteContext ctx) throws IOException {
+        checkAccessable();
+        copyA(in, ctx);
+    }
+
     private void checkAccessable() throws IOException {
         if (!isAccessable())
             throw new IOException(descriptor + " not accessable");
@@ -151,6 +157,10 @@ public abstract class AbstractStorage implements Storage {
     }
 
     protected abstract OutputStream openOutputStreamA(WriteContext ctx) throws IOException;
+
+    protected void copyA(InputStream in, WriteContext ctx) throws IOException {
+        throw new UnsupportedOperationException();
+    }
 
     protected void beforeOutputStreamClosed(WriteContext ctx, OutputStream stream) throws IOException {}
 

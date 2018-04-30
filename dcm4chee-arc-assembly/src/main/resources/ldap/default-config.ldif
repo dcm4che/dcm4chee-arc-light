@@ -502,6 +502,28 @@ dcmMaxRetryDelay: PT10M
 dcmPurgeQueueMessageCompletedDelay: P1D
 dcmJndiName: jms/queue/Export3
 
+dn: dcmQueueName=Export4,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Calculate Query Attributes and Study size Export Tasks
+dcmQueueName: Export4
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/Export4
+
+dn: dcmQueueName=Export5,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomDescription: Nearline Storage Export Tasks
+dcmQueueName: Export5
+dcmMaxRetries: 10
+dcmRetryDelayMultiplier: 200
+dcmRetryDelay: PT30S
+objectClass: dcmQueue
+dcmMaxRetryDelay: PT10M
+dcmPurgeQueueMessageCompletedDelay: P1D
+dcmJndiName: jms/queue/Export5
+
 dn: dcmQueueName=HL7Send,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: HL7 Forward Tasks
 dcmQueueName: HL7Send
@@ -640,6 +662,13 @@ hl7OrderControlStatus: NW_IP
 hl7OrderControlStatus: XO_SC
 objectClass: hl7OrderSPSStatus
 
+dn: cn=Calculate Study Size,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: CalculateStudySize
+dcmDuration: PT5M
+dcmEntity: Study
+objectClass: dcmExportRule
+cn: Calculate Study Size
+
 dn: cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 objectClass: dcmImageReaderFactory
 cn: Image Reader Factory
@@ -674,28 +703,28 @@ dcmWebAppName: DCM4CHEE-WADO
 dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE/wado
 
 dn: dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmQueryRetrieveViewID: regularUse
-dicomDescription: Show instances rejected for Quality Reasons
 dicomAssociationInitiator: TRUE
-dicomAssociationAcceptor: TRUE
-dicomAETitle: DCM4CHEE_ADMIN
+dicomDescription: Show instances rejected for Quality Reasons
+dcmAcceptedUserRole: admin
+dcmQueryRetrieveViewID: regularUse
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
-dcmAcceptedUserRole: admin
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: DCM4CHEE_ADMIN
+dicomAssociationAcceptor: TRUE
 
 dn: dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmQueryRetrieveViewID: trashView
-dicomDescription: Show rejected instances only
 dicomAssociationInitiator: TRUE
-dicomAssociationAcceptor: TRUE
-dicomAETitle: DCM4CHEE_TRASH
+dicomDescription: Show rejected instances only
+dcmAcceptedUserRole: admin
+dcmQueryRetrieveViewID: trashView
 objectClass: dicomNetworkAE
 objectClass: dcmNetworkAE
 objectClass: dcmArchiveNetworkAE
-dcmAcceptedUserRole: admin
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: DCM4CHEE_TRASH
+dicomAssociationAcceptor: TRUE
 
 dn: cn=Default Scheduled Station,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 hl7OrderScheduledStationDeviceReference: dicomDeviceName=scheduledstation,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -706,6 +735,13 @@ dn: dcmIDGeneratorName=PatientID,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICO
 dcmIDGeneratorName: PatientID
 dcmIDGeneratorFormat: P-%08d
 objectClass: dcmIDGenerator
+
+dn: cn=Calculate Query Attributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: CalculateQueryAttributes
+dcmDuration: PT5M
+dcmEntity: Study
+objectClass: dcmExportRule
+cn: Calculate Query Attributes
 
 dn: dcmRejectionNoteLabel=Quality,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Quality
@@ -733,6 +769,14 @@ dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices
 dicomAETitle: DCM4CHEE_TRASH
 dcmWebAppName: DCM4CHEE_TRASH-RS
 dcmWebServicePath: /dcm4chee-arc/aets/DCM4CHEE_TRASH/rs
+
+dn: dcmExporterID=CalculateStudySize,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: CalculateStudySize
+dicomDescription: Calculate Study Size
+dcmQueueName: Export4
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: study-size:dummyPath
 
 dn: dcmQueryRetrieveViewID=trashView,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmHideNotRejectedInstances: TRUE
@@ -782,6 +826,14 @@ dcmRejectionNoteType: REJECTED_FOR_PATIENT_SAFETY_REASONS
 dcmRejectionNoteCode: (113037, DCM, "Rejected for Patient Safety Reasons")
 objectClass: dcmRejectionNote
 dcmOverwritePreviousRejection: (113001, DCM, "Rejected for Quality Reasons")
+
+dn: dcmExporterID=CalculateQueryAttributes,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmExporterID: CalculateQueryAttributes
+dicomDescription: Calculate Query Attributes
+dcmQueueName: Export4
+objectClass: dcmExporter
+dicomAETitle: DCM4CHEE
+dcmURI: query-attrs:hideRejected
 
 dn: dcmRejectionNoteLabel=Revoke Rejection,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRejectionNoteLabel: Revoke Rejection

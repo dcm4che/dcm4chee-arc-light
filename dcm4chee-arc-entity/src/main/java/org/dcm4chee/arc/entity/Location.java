@@ -80,11 +80,15 @@ import java.util.Date;
         @NamedQuery(name = Location.COUNT_BY_MULTI_REF,
                 query = "select count(l) from Location l where l.multiReference=?1"),
         @NamedQuery(name = Location.COUNT_BY_UIDMAP,
-                query = "select count(l) from Location l where l.uidMap=?1"),
-        @NamedQuery(name = Location.SIZE_OF_SERIES,
-                query = "select sum(l.size) from Location l " +
-                        "where l.instance.series.pk=?1 and l.objectType=?2")
+                query = "select count(l) from Location l where l.uidMap=?1")
 })
+@NamedNativeQuery(name = Location.SIZE_OF_SERIES,
+        query = "SELECT sum(x.max_object_size) " +
+                "FROM (SELECT max(object_size) max_object_size " +
+                "FROM location " +
+                "JOIN instance ON location.instance_fk = instance.pk " +
+                "WHERE series_fk = ?1 AND location.object_type = ?2 " +
+                "GROUP BY instance_fk) x")
 public class Location {
 
     public static final String FIND_BY_STORAGE_ID_AND_STATUS = "Location.FindByStorageIDAndStatus";
@@ -153,6 +157,10 @@ public class Location {
     @ManyToOne
     @JoinColumn(name = "instance_fk", updatable = true)
     private Instance instance;
+
+    public static boolean isDicomFile(Location location) {
+        return location.objectType == ObjectType.DICOM_FILE;
+    }
 
     public static final class Builder {
         private long pk;

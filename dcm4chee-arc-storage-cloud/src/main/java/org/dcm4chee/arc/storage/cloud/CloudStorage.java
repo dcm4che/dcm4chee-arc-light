@@ -144,6 +144,11 @@ public class CloudStorage extends AbstractStorage {
     }
 
     @Override
+    protected void copyA(InputStream in, WriteContext ctx) throws IOException {
+        upload(ctx, in);
+    }
+
+    @Override
     protected void afterOutputStreamClosed(WriteContext ctx) throws IOException {
         FutureTask<Void> task = ((CloudWriteContext) ctx).getUploadTask();
         try {

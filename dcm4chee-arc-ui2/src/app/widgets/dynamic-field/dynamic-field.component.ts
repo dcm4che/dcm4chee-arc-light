@@ -51,7 +51,8 @@ export class DynamicFieldComponent implements OnInit {
         if(Array.isArray(this.checked)){
             this.checked = this.checked || [];
             this.checked.forEach(element =>{
-                this.model[element] = true;
+                if(element != "")
+                    this.model[element] = true;
             });
             this.type = "array";
         }else{

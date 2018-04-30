@@ -181,6 +181,8 @@ class ArchiveDeviceFactory {
         newQueueDescriptor("Export1", "Dicom Export Tasks"),
         newQueueDescriptor("Export2", "WADO Export Tasks"),
         newQueueDescriptor("Export3", "XDS-I Export Tasks"),
+        newQueueDescriptor("Export4", "Calculate Query Attributes and Study size Export Tasks"),
+        newQueueDescriptor("Export5", "Nearline Storage Export Tasks"),
         newQueueDescriptor("HL7Send", "HL7 Forward Tasks"),
         newQueueDescriptor("RSClient", "RESTful Forward Tasks"),
         newQueueDescriptor("CMoveSCU", "Dicom Retrieve Tasks"),
@@ -984,13 +986,16 @@ class ArchiveDeviceFactory {
     static final String STORAGE_ID = "fs1";
     static final String STORAGE_URI = "${jboss.server.data.url}/fs1/";
     static final String PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
+    static final String NEARLINE_STORAGE_ID = "nearline";
+    static final String NEARLINE_STORAGE_URI = "${jboss.server.data.url}/nearline/";
+    static final String NEARLINE_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
     static final String METADATA_STORAGE_ID = "metadata";
     static final String METADATA_STORAGE_URI = "${jboss.server.data.url}/metadata/";
     static final String METADATA_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.json";
     static final String SERIES_METADATA_STORAGE_ID = "series-metadata";
     static final String SERIES_METADATA_STORAGE_URI = "${jboss.server.data.url}/series-metadata/";
     static final String SERIES_METADATA_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{now,date,HHmmss}.zip";
-    static final Duration SERIES_METADATA_DELAY = Duration.parse("PT1M");
+    static final Duration SERIES_METADATA_DELAY = Duration.parse("PT2M");
     static final Duration SERIES_METADATA_POLLING_INTERVAL = Duration.parse("PT1M");
     static final String WADO_JPEG_STORAGE_ID = "wado-jpeg";
     static final String WADO_JPEG_STORAGE_URI = "${jboss.server.data.url}/wado/";
@@ -1004,6 +1009,22 @@ class ArchiveDeviceFactory {
     static final Duration IAN_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
     static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.parse("PT1H");
     static final String REJECTION_NOTE_STORAGE_AET = "DCM4CHEE";
+
+    static final String CALC_STUDY_SIZE_EXPORTER_ID = "CalculateStudySize";
+    static final String CALC_STUDY_SIZE_EXPORTER_DESC = "Calculate Study Size";
+    static final URI CALC_STUDY_SIZE_EXPORTER_URI = URI.create("study-size:dummyPath");
+    static final Duration CALC_STUDY_SIZE_DELAY = Duration.parse("PT5M");
+
+    static final String CALC_QUERY_ATTRS_EXPORTER_ID = "CalculateQueryAttributes";
+    static final String CALC_QUERY_ATTRS_EXPORTER_DESC = "Calculate Query Attributes";
+    static final URI CALC_QUERY_ATTRS_EXPORTER_URI = URI.create("query-attrs:hideRejected");
+    static final Duration CALC_QUERY_ATTRS_DELAY = Duration.parse("PT5M");
+
+    static final String NEARLINE_STORAGE_EXPORTER_ID = "CopyToNearlineStorage";
+    static final String NEARLINE_STORAGE_EXPORTER_DESC = "Copy to NEARLINE Storage";
+    static final URI NEARLINE_STORAGE_EXPORTER_URI = URI.create("storage:nearline");
+    static final Duration NEARLINE_STORAGE_DELAY = Duration.parse("PT1M");
+
     static final String DICOM_EXPORTER_ID = "STORESCP";
     static final String DICOM_EXPORTER_DESC = "Export to STORESCP";
     static final URI DICOM_EXPORT_URI = URI.create("dicom:STORESCP");
@@ -1498,6 +1519,32 @@ class ArchiveDeviceFactory {
         ext.setHideSPSWithStatusFrom(HIDE_SPS_WITH_STATUS_FROM_MWL);
         ext.setRejectionNoteStorageAET(REJECTION_NOTE_STORAGE_AET);
 
+        ExporterDescriptor studySizeExporter = new ExporterDescriptor(CALC_STUDY_SIZE_EXPORTER_ID);
+        studySizeExporter.setDescription(CALC_STUDY_SIZE_EXPORTER_DESC);
+        studySizeExporter.setExportURI(CALC_STUDY_SIZE_EXPORTER_URI);
+        studySizeExporter.setQueueName("Export4");
+        studySizeExporter.setAETitle("DCM4CHEE");
+        ext.addExporterDescriptor(studySizeExporter);
+
+        ExportRule calcStudySizeRule = new ExportRule(CALC_STUDY_SIZE_EXPORTER_DESC);
+        calcStudySizeRule.setEntity(Entity.Study);
+        calcStudySizeRule.setExportDelay(CALC_STUDY_SIZE_DELAY);
+        calcStudySizeRule.setExporterIDs(CALC_STUDY_SIZE_EXPORTER_ID);
+        ext.addExportRule(calcStudySizeRule);
+
+        ExporterDescriptor studySeriesQueryAttrExporter = new ExporterDescriptor(CALC_QUERY_ATTRS_EXPORTER_ID);
+        studySeriesQueryAttrExporter.setDescription(CALC_QUERY_ATTRS_EXPORTER_DESC);
+        studySeriesQueryAttrExporter.setExportURI(CALC_QUERY_ATTRS_EXPORTER_URI);
+        studySeriesQueryAttrExporter.setQueueName("Export4");
+        studySeriesQueryAttrExporter.setAETitle("DCM4CHEE");
+        ext.addExporterDescriptor(studySeriesQueryAttrExporter);
+
+        ExportRule studySeriesQueryAttrExportRule = new ExportRule(CALC_QUERY_ATTRS_EXPORTER_DESC);
+        studySeriesQueryAttrExportRule.setEntity(Entity.Study);
+        studySeriesQueryAttrExportRule.setExportDelay(CALC_QUERY_ATTRS_DELAY);
+        studySeriesQueryAttrExportRule.setExporterIDs(CALC_QUERY_ATTRS_EXPORTER_ID);
+        ext.addExportRule(studySeriesQueryAttrExportRule);
+
         if (configType == configType.SAMPLE) {
             StorageDescriptor metadataStorageDescriptor = new StorageDescriptor(METADATA_STORAGE_ID);
             metadataStorageDescriptor.setStorageURIStr(METADATA_STORAGE_URI);
@@ -1525,6 +1572,27 @@ class ArchiveDeviceFactory {
             wadoJsonStorageDescriptor.setProperty("pathFormat", WADO_JSON_PATH_FORMAT);
             wadoJsonStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
             ext.addStorageDescriptor(wadoJsonStorageDescriptor);
+
+            StorageDescriptor nearlineStorageDescriptor = new StorageDescriptor(NEARLINE_STORAGE_ID);
+            nearlineStorageDescriptor.setStorageURIStr(NEARLINE_STORAGE_URI);
+            nearlineStorageDescriptor.setProperty("pathFormat", NEARLINE_PATH_FORMAT);
+            nearlineStorageDescriptor.setProperty("checkMountFile", "NO_MOUNT");
+            nearlineStorageDescriptor.setInstanceAvailability(Availability.NEARLINE);
+            ext.addStorageDescriptor(nearlineStorageDescriptor);
+
+            ExporterDescriptor nearlineExporter = new ExporterDescriptor(NEARLINE_STORAGE_EXPORTER_ID);
+            nearlineExporter.setDescription(NEARLINE_STORAGE_EXPORTER_DESC);
+            nearlineExporter.setExportURI(NEARLINE_STORAGE_EXPORTER_URI);
+            nearlineExporter.setQueueName("Export5");
+            nearlineExporter.setAETitle("DCM4CHEE");
+            ext.addExporterDescriptor(nearlineExporter);
+
+            ExportRule nearlineStorageRule = new ExportRule(NEARLINE_STORAGE_EXPORTER_DESC);
+            nearlineStorageRule.getConditions().setSendingAETitle("NEARLINE");
+            nearlineStorageRule.setEntity(Entity.Series);
+            nearlineStorageRule.setExportDelay(NEARLINE_STORAGE_DELAY);
+            nearlineStorageRule.setExporterIDs(NEARLINE_STORAGE_EXPORTER_ID);
+            ext.addExportRule(nearlineStorageRule);
 
             ExporterDescriptor dicomExporter = new ExporterDescriptor(DICOM_EXPORTER_ID);
             dicomExporter.setDescription(DICOM_EXPORTER_DESC);

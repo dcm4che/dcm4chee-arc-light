@@ -48,7 +48,6 @@ import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.deident.DeIdentificationAttributesCoercion;
-import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.BulkDataCreator;
@@ -90,6 +89,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -259,7 +259,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         return ctx;
     }
 
-    private RetrieveContext newRetrieveContext(String localAET, String studyUID, String seriesUID, String objectUID) {
+    @Override
+    public RetrieveContext newRetrieveContext(String localAET, String studyUID, String seriesUID, String objectUID) {
         ArchiveAEExtension arcAE = device.getApplicationEntity(localAET, true).getAEExtension(ArchiveAEExtension.class);
         RetrieveContext ctx = new RetrieveContextImpl(this, arcAE, localAET, arcAE.getQueryRetrieveView());
         if (studyUID != null)
@@ -411,6 +412,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     private InstanceLocations instanceLocationsFromDB(Tuple tuple, Attributes instAttrs) {
         InstanceLocationsImpl inst = new InstanceLocationsImpl(instAttrs);
+        inst.setInstancePk(tuple.get(QInstance.instance.pk));
         inst.setRetrieveAETs(tuple.get(QInstance.instance.retrieveAETs));
         inst.setExternalRetrieveAET(tuple.get(QInstance.instance.externalRetrieveAET));
         inst.setAvailability(tuple.get(QInstance.instance.availability));
@@ -656,29 +658,58 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Override
     public Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst,
                                      Collection<String> tsuids, boolean fmi) throws IOException {
-        LocationDicomInputStream locationInputStream = openLocationInputStream(ctx, inst);
-        String tsuid = locationInputStream.getLocation().getTransferSyntaxUID();
-        if (!tsuids.isEmpty() && !tsuids.contains(tsuid)) {
-            if (tsuids.contains(UID.ExplicitVRLittleEndian))
-                tsuid = UID.ExplicitVRLittleEndian;
-            else if (tsuids.contains(UID.ImplicitVRLittleEndian))
-                tsuid = UID.ImplicitVRLittleEndian;
-            else
-                throw new NoPresentationContextException(inst.getSopClassUID(), tsuid);
-        }
-        Transcoder transcoder = new Transcoder(locationInputStream.getDicomInputStream());
+        removeUnsupportedTransferSyntax(inst, tsuids);
+        LocationInputStream locationInputStream = openLocationInputStream(ctx, inst);
+        Transcoder transcoder = new Transcoder(toDicomInputStream(locationInputStream));
         transcoder.setIncludeBulkData(DicomInputStream.IncludeBulkData.URI);
         transcoder.setConcatenateBulkDataFiles(true);
         transcoder.setBulkDataDirectory(ctx.getArchiveAEExtension().getBulkDataSpoolDirectoryFile());
-        transcoder.setDestinationTransferSyntax(tsuid);
+        transcoder.setDestinationTransferSyntax(selectTransferSyntax(locationInputStream, tsuids));
         transcoder.setCloseOutputStream(false);
         transcoder.setIncludeFileMetaInformation(fmi);
         return transcoder;
     }
 
+    private static void removeUnsupportedTransferSyntax(InstanceLocations inst, Collection<String> tsuids)
+            throws NoPresentationContextException {
+        if (tsuids.isEmpty()
+                || tsuids.contains(UID.ExplicitVRLittleEndian)
+                || tsuids.contains(UID.ImplicitVRLittleEndian))
+            return;
+
+        Location prev = null;
+        List<Location> locations = inst.getLocations();
+        for (Iterator<Location> iter = locations.iterator(); iter.hasNext();) {
+            Location next = iter.next();
+            if (next.getObjectType()  != Location.ObjectType.DICOM_FILE
+                    || !tsuids.contains((prev = next).getTransferSyntaxUID()))
+                iter.remove();
+        }
+        if (locations.isEmpty())
+            throw new NoPresentationContextException(inst.getSopClassUID(), prev.getTransferSyntaxUID());
+    }
+
+    private static String selectTransferSyntax(LocationInputStream lis, Collection<String> tsuids) {
+        String tsuid = lis.location.getTransferSyntaxUID();
+        return tsuids.isEmpty() || tsuids.contains(tsuid)
+                ? tsuid
+                : tsuids.contains(UID.ExplicitVRLittleEndian)
+                ? UID.ExplicitVRLittleEndian
+                : UID.ImplicitVRLittleEndian;
+    }
+
     @Override
     public DicomInputStream openDicomInputStream(RetrieveContext ctx, InstanceLocations inst) throws IOException {
-        return openLocationInputStream(ctx, inst).getDicomInputStream();
+        return toDicomInputStream(openLocationInputStream(ctx, inst));
+    }
+
+    private static DicomInputStream toDicomInputStream(LocationInputStream lis) throws IOException {
+        try {
+            return new DicomInputStream(lis.stream);
+        } catch (IOException e) {
+            SafeClose.close(lis.stream);
+            throw e;
+        }
     }
 
     @Override
@@ -883,33 +914,40 @@ public class RetrieveServiceImpl implements RetrieveService {
         return false;
     }
 
-    private LocationDicomInputStream openLocationInputStream(RetrieveContext ctx, InstanceLocations inst)
+    @Override
+    public LocationInputStream openLocationInputStream(RetrieveContext ctx, InstanceLocations inst)
             throws IOException {
         IOException ex = null;
         String studyInstanceUID = inst.getAttributes().getString(Tag.StudyInstanceUID);
-        for (Location location : inst.getLocations()) {
-            if (location.getObjectType() == Location.ObjectType.DICOM_FILE)
-                try {
-                    return openLocationInputStream(getStorage(location.getStorageID(), ctx), location, studyInstanceUID);
-                } catch (IOException e) {
-                    ex = e;
-                }
+        ArchiveDeviceExtension arcdev = getArchiveDeviceExtension();
+        Map<Availability, List<Location>> locationsByAvailability = inst.getLocations()
+                .stream().filter(Location::isDicomFile)
+                .collect(Collectors.groupingBy(l -> arcdev
+                        .getStorageDescriptor(l.getStorageID()).getInstanceAvailability()));
+
+        List<Location> locations = locationsByAvailability.get(Availability.ONLINE);
+        if (locations == null)
+            locations = locationsByAvailability.get(Availability.NEARLINE);
+        else if (locationsByAvailability.containsKey(Availability.NEARLINE))
+            locations.addAll(locationsByAvailability.get(Availability.NEARLINE));
+
+        for (Location location : locations) {
+            try {
+                return openLocationInputStream(getStorage(location.getStorageID(), ctx), location, studyInstanceUID);
+            } catch (IOException e) {
+                ex = e;
+            }
         }
         if (ex != null) throw ex;
         return null;
     }
 
-    private LocationDicomInputStream openLocationInputStream(
+    private LocationInputStream openLocationInputStream(
             Storage storage, Location location, String studyInstanceUID)
             throws IOException {
         ReadContext readContext = createReadContext(storage, location.getStoragePath(), studyInstanceUID);
         InputStream stream = storage.openInputStream(readContext);
-        try {
-            return new LocationDicomInputStream(new DicomInputStream(stream), readContext, location);
-        } catch (IOException e) {
-            SafeClose.close(stream);
-            throw e;
-        }
+        return new LocationInputStream(stream, readContext, location);
     }
 
     private ReadContext createReadContext(Storage storage, String storagePath, String studyInstanceUID) {
@@ -919,7 +957,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         return readContext;
     }
 
-    private Storage getStorage(String storageID, RetrieveContext ctx) {
+    @Override
+    public Storage getStorage(String storageID, RetrieveContext ctx) {
         Storage storage = ctx.getStorage(storageID);
         if (storage == null) {
             ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();

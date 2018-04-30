@@ -38,7 +38,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <input id="batchID" placeholder="Batch ID" type="text" [(ngModel)]="filters.batchID" class="col-md-12" />
+                            <input id="batchID" placeholder="Batch ID" type="text" [(ngModel)]="filters.batchID" class="col-md-12"  />
                         </div>
                         <div class="col-md-6">
                             <mat-select id="status" [(ngModel)]="filters.status" (change)="statusChange()" class="col-md-12" placeholder="Status">
@@ -134,11 +134,42 @@
                         </mat-select>
                     </div>
                 </div>
+                <div class="filter_block">
+                    <div class="line">
+                        <div class="checkbox_button pull-left" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="bachChange($event)">Batch ID grouped</mat-checkbox></div>
+                    </div>
+                </div>
             </div>
         </div>
         <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
             <thead>
-            <tr>
+            <tr *ngIf="batchGrouped">
+                <th>
+                    <div class="arrow_block">
+                        <button class="btn btn-link btn-xs"
+                                [disabled]="!hasNewer(externalRetrieveEntries)"
+                                (click)="getTasks(newerOffset(externalRetrieveEntries))"
+                                title="Newer">
+                            <span class="glyphicon glyphicon-menu-left"></span>
+                        </button>
+                        <button class="btn btn-link btn-xs"
+                                [disabled]="!hasOlder(externalRetrieveEntries)"
+                                (click)="getTasks(olderOffset(externalRetrieveEntries))"
+                                title="Older">
+                            <span class="glyphicon glyphicon-menu-right"></span>
+                        </button>
+                    </div>
+                </th>
+                <th width="3%"></th>
+                <th>Batch ID</th>
+                <th class="hideOn1200px">Remote AET</th>
+                <th class="hideOn1100px">Destination AET</th>
+                <th class="hideOn1100px">Scheduled Time Range</th>
+                <th class="hideOn1100px">Processing Start Time Range</th>
+                <th class="hideOn1100px">Processing End Time Range</th>
+                <th class="hideOn1100px">Tasks</th>
+            </tr>
+            <tr *ngIf="!batchGrouped">
                 <th>
                     <div class="arrow_block">
                         <button class="btn btn-link btn-xs"
@@ -182,7 +213,25 @@
             </thead>
             <tbody>
             <ng-container *ngFor="let match of matches">
-                <tr>
+                <tr *ngIf="batchGrouped">
+                    <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
+                    <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
+                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
+                            <span class="glyphicon glyphicon-list"></span>
+                        </a>
+                        <a class="text-white" (click)="$event.preventDefault();showTaskDetail(match)" href="" title="Show Tasks Detail">
+                            <span class="glyphicon glyphicon-list-alt"></span>
+                        </a>
+                    </td>
+                    <td [innerHtml]="match.properties.batchID" title="{{match.properties.batchID}}"></td>
+                    <td [innerHtml]="match.properties.RemoteAET" class="hideOn1200px"></td>
+                    <td [innerHtml]="match.properties.DestinationAET" class="hideOn1100px"></td>
+                    <td [innerHtml]="match.properties.scheduledTimeRange" class="hideOn1100px"></td>
+                    <td [innerHtml]="match.properties.processingStartTimeRange" class="hideOn1100px"></td>
+                    <td [innerHtml]="match.properties.processingEndTimeRange" class="hideOn1100px"></td>
+                    <td class="hideOn1100px no-padding" width="30%"><stacked-progress [model]="match.properties.tasks"></stacked-progress></td>
+                </tr>
+                <tr *ngIf="!batchGrouped">
                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                     <td (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                         <input type="checkbox" [(ngModel)]="match.checked">
@@ -212,7 +261,7 @@
                 <tr *ngIf="match.showProperties">
                     <td colspan="11">
                         <table class="table table-bordered table-condensed attribute_list">
-                            <tr *ngFor="let key of match.properties | getKey">
+                            <tr *ngFor="let key of match.propertiesAttr | getKey">
                                 <th [innerHtml]="key._KEY"></th>
                                 <td [innerHtml]="key._VALUE"></td>
                             </tr>

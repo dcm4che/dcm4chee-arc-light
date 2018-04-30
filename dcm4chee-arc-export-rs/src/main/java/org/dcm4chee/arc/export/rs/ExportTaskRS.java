@@ -359,7 +359,7 @@ public class ExportTaskRS {
                         JsonGenerator gen = Json.createGenerator(out);
                         gen.writeStartArray();
                         for (ExportTask task : t)
-                            task.writeAsJSONTo(gen, arcDev.getExporterDescriptor(task.getExporterID()).getAETitle());
+                            task.writeAsJSONTo(gen, localAETitleOf(arcDev, task));
                         gen.writeEnd();
                         gen.flush();
                     }
@@ -374,8 +374,7 @@ public class ExportTaskRS {
                         Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
                         ExportTask.writeCSVHeader(writer, delimiter);
                         for (ExportTask task : t)
-                            task.writeAsCSVTo(
-                                    writer, delimiter, arcDev.getExporterDescriptor(task.getExporterID()).getAETitle());
+                            task.writeAsCSVTo(writer, delimiter, localAETitleOf(arcDev, task));
                         writer.flush();
                     }
                 };
@@ -405,6 +404,14 @@ public class ExportTaskRS {
         }
 
         abstract Object entity(final ExportTaskQuery tasks, ArchiveDeviceExtension arcDev);
+    }
+
+    private static String localAETitleOf(ArchiveDeviceExtension arcDev, ExportTask task) {
+        try {
+            return arcDev.getExporterDescriptorNotNull(task.getExporterID()).getAETitle();
+        } catch (IllegalArgumentException e) {
+            return e.getMessage();
+        }
     }
 
     private QueueMessage.Status status() {

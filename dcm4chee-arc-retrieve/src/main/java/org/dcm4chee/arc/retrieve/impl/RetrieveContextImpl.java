@@ -46,11 +46,13 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
+import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.*;
@@ -84,6 +86,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private String moveOriginatorAETitle;
     private String destinationAETitle;
     private ApplicationEntity destinationAE;
+    private StorageDescriptor destinationStorage;
     private Throwable exception;
     private IDWithIssuer[] patientIDs = {};
     private String[] studyInstanceUIDs = {};
@@ -257,6 +260,16 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public StorageDescriptor getDestinationStorage() {
+        return destinationStorage;
+    }
+
+    @Override
+    public void setDestinationStorage(StorageDescriptor destinationStorage) {
+        this.destinationStorage = destinationStorage;
+    }
+
+    @Override
     public Throwable getException() {
         return exception;
     }
@@ -281,7 +294,7 @@ class RetrieveContextImpl implements RetrieveContext {
         return httpServletRequestInfo != null
                 ? httpServletRequestInfo.requesterHost
                 : requestAssociation != null
-                    ? requestAssociation.getSocket().getInetAddress().getHostName()
+                    ? ReverseDNS.hostNameOf(requestAssociation.getSocket().getInetAddress())
                     : null;
     }
 
@@ -292,7 +305,7 @@ class RetrieveContextImpl implements RetrieveContext {
                 : httpServletRequestInfo != null
                     ? httpServletRequestInfo.requesterHost
                     : storeAssociation != null
-                        ? storeAssociation.getSocket().getInetAddress().getHostName()
+                        ? ReverseDNS.hostNameOf(storeAssociation.getSocket().getInetAddress())
                         : null;
     }
 

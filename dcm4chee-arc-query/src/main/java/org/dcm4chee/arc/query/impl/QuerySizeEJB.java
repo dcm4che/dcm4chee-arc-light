@@ -48,6 +48,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.math.BigDecimal;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -59,6 +60,7 @@ import javax.persistence.PersistenceContext;
 public class QuerySizeEJB {
 
     private static final Long ZERO = Long.valueOf(0L);
+    private static final BigDecimal ZERO_BIG = BigDecimal.valueOf(0);
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     EntityManager em;
@@ -82,12 +84,12 @@ public class QuerySizeEJB {
     }
 
     public long calculateSeriesSize(Long seriesPk) {
-        Long size = StringUtils.maskNull(
-                em.createNamedQuery(Location.SIZE_OF_SERIES, Long.class)
+        long size = StringUtils.maskNull(
+                (BigDecimal) em.createNamedQuery(Location.SIZE_OF_SERIES)
                     .setParameter(1, seriesPk)
-                    .setParameter(2, Location.ObjectType.DICOM_FILE)
+                    .setParameter(2, Location.ObjectType.DICOM_FILE.ordinal())
                     .getSingleResult(),
-                ZERO);
+                ZERO_BIG).longValue();
         em.createNamedQuery(Series.SET_SERIES_SIZE)
                 .setParameter(1, seriesPk)
                 .setParameter(2, size)
