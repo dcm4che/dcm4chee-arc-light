@@ -113,9 +113,10 @@ public class RSClientImpl implements RSClient {
             case NOT_FOUND:
             case FORBIDDEN:
             case BAD_REQUEST:
+            case UNAUTHORIZED:
             case INTERNAL_SERVER_ERROR:
                 return new Outcome(QueueMessage.Status.FAILED, st.toString());
         }
-        return new Outcome(QueueMessage.Status.WARNING, "Not yet implemented.");
+        return new Outcome(QueueMessage.Status.WARNING, "Http Response Status from other archive is : " + status.toString());
     }
 }
