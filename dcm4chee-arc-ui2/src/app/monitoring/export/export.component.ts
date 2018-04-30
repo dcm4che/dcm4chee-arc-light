@@ -411,7 +411,7 @@ export class ExportComponent implements OnInit {
                 this.dialogRef.componentInstance.title = `Are you sure, you want to reschedule all matching tasks?`;
                 this.dialogRef.componentInstance.warning = null;
                 this.dialogRef.componentInstance.mode = "reschedule";
-                this.dialogRef.componentInstance.subTitle = "Select an Exporter ID if you don't want to use the default one:";
+                this.dialogRef.componentInstance.subTitle = "Change the exporter for all rescheduled tasks. To reschedule with the original exporters associated with the tasks, leave blank:";
                 this.dialogRef.componentInstance.okButtonLabel = 'RESCHEDULE';
                 this.dialogRef.afterClosed().subscribe((ok) => {
                     if (ok) {
@@ -419,7 +419,7 @@ export class ExportComponent implements OnInit {
                         this.service.rescheduleAll(filter,ok.selectedExporter).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.count + ' queues rescheduled successfully!',
+                                'text': res.count + ' tasks rescheduled successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();
@@ -441,7 +441,7 @@ export class ExportComponent implements OnInit {
                         this.service.deleteAll(filter).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.deleted + ' queues deleted successfully!',
+                                'text': res.deleted + ' tasks deleted successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();

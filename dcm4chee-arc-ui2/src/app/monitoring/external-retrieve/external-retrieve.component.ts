@@ -333,7 +333,7 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                         this.service.rescheduleAll(this.filterObject).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.count + ' queues rescheduled successfully!',
+                                'text': res.count + ' tasks rescheduled successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();
