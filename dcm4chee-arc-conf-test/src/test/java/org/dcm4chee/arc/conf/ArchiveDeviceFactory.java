@@ -1583,7 +1583,7 @@ class ArchiveDeviceFactory {
             ExporterDescriptor nearlineExporter = new ExporterDescriptor(NEARLINE_STORAGE_EXPORTER_ID);
             nearlineExporter.setDescription(NEARLINE_STORAGE_EXPORTER_DESC);
             nearlineExporter.setExportURI(NEARLINE_STORAGE_EXPORTER_URI);
-            nearlineExporter.setQueueName("Export4");
+            nearlineExporter.setQueueName("Export5");
             nearlineExporter.setAETitle("DCM4CHEE");
             ext.addExporterDescriptor(nearlineExporter);
 

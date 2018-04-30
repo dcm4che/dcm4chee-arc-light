@@ -1503,7 +1503,7 @@ objectClass: dcmIDGenerator
 dn: dcmExporterID=CopyToNearlineStorage,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmExporterID: CopyToNearlineStorage
 dicomDescription: Copy to NEARLINE Storage
-dcmQueueName: Export4
+dcmQueueName: Export5
 objectClass: dcmExporter
 dicomAETitle: DCM4CHEE
 dcmURI: storage:nearline
