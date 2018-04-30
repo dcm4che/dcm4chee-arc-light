@@ -142,11 +142,8 @@ public class RSForward {
             case RejectStudy:
             case RejectSeries:
             case RejectInstance:
-            case CopyInstances:
-            case MoveInstances:
             case CreateMWL:
             case UpdateMWL:
-            case LinkInstancesWithMWL:
                 method = "POST";
                 break;
             case DeletePatient:
