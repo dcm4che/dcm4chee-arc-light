@@ -375,8 +375,10 @@ public class QueueManagerEJB {
         try (CloseableIterator<QueueMessage> iterate = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(matchQueueMessage).iterate()) {
-            iterate.forEachRemaining(this::deleteTask);
-            n++;
+            while (iterate.hasNext()) {
+                deleteTask(iterate.next());
+                n++;
+            }
         }
         return n;
     }
