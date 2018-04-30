@@ -161,9 +161,10 @@ public class ExportTaskRS {
     @Produces("application/json")
     public Response countExportTasks() {
         logRequest();
-        return count(mgr.countExportTasks(
+        QueueMessage.Status status = status();
+        return count(mgr.countExportTasks(status,
                 MatchTask.matchQueueMessage(
-                null, deviceName, status(), batchID, null, null, null, null),
+                null, deviceName, status, batchID, null, null, null, null),
                 MatchTask.matchExportTask(
                         exporterID, deviceName, studyUID, createdTime, updatedTime)));
     }

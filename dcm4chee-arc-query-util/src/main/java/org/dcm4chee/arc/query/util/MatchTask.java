@@ -66,10 +66,8 @@ public class MatchTask {
         BooleanBuilder predicate = new BooleanBuilder();
         if (queueName != null)
             predicate.and(QQueueMessage.queueMessage.queueName.eq(queueName));
-        if (status != null)
-            predicate.and(status == QueueMessage.Status.TO_SCHEDULE
-                    ? QExportTask.exportTask.queueMessage.isNull()
-                    : QQueueMessage.queueMessage.status.eq(status));
+        if (status != null && status != QueueMessage.Status.TO_SCHEDULE)
+            predicate.and(QQueueMessage.queueMessage.status.eq(status));
         if (deviceName != null)
             predicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
         if (batchID != null)

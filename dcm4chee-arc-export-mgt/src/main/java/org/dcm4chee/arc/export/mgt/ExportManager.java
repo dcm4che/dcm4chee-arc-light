@@ -71,7 +71,7 @@ public interface ExportManager {
     ExportTaskQuery listExportTasks(Predicate matchQueueMessage, Predicate matchExportTask,
                                     OrderSpecifier<Date> order, int offset, int limit);
 
-    long countExportTasks(Predicate matchQueueMessage, Predicate matchExportTask);
+    long countExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask);
 
     boolean deleteExportTask(Long pk, QueueMessageEvent queueEvent);
 
