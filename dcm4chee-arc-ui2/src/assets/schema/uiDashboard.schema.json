@@ -24,6 +24,12 @@
       "type": "array",
       "items" : { "type": "string" },
       "format": "dicomDeviceName"
+    },
+    "dcmuiCountAET": {
+      "title": "Count Aet",
+      "description": "Selected Aet will be used to get the count of studies in the dashboard",
+      "type": "string",
+      "format": "dcmArchiveAETitle"
     }
   }
 }

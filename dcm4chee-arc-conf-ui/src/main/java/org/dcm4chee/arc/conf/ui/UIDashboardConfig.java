@@ -47,6 +47,7 @@ public class UIDashboardConfig {
     private String name;
     private String[] queueNames = {};
     private String[] deviceNames = {};
+    private String countAet;
 
     public UIDashboardConfig() {
     }
@@ -78,4 +79,8 @@ public class UIDashboardConfig {
     public void setDeviceNames(String[] deviceNames) {
         this.deviceNames = deviceNames;
     }
+
+    public String getCountAet() { return countAet; }
+
+    public void setCountAet(String countAet) { this.countAet = countAet; }
 }
