@@ -53,10 +53,10 @@ public class KeycloakServer {
     private String clientSecret;
     private String userID;
     private String password;
-    private GrantType grantType;
+    private GrantType grantType = GrantType.client_credentials;
 
     public enum GrantType {
-        password, client_credentials
+        client_credentials, password
     }
 
     public KeycloakServer() {
