@@ -319,9 +319,10 @@ public class ExportTaskRS {
     public String deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        int deleted = mgr.deleteTasks(
+        QueueMessage.Status status = status();
+        int deleted = mgr.deleteTasks(status,
                 MatchTask.matchQueueMessage(
-                        null, deviceName, status(), batchID, null, null, null, null),
+                        null, deviceName, status, batchID, null, null, null, null),
                 MatchTask.matchExportTask(exporterID, deviceName, studyUID, createdTime, updatedTime));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);

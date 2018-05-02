@@ -394,10 +394,18 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask) {
-        int count = 0;
+    public int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int deleteTaskFetchSize = arcDev.getQueueTasksFetchSize();
+        return status == QueueMessage.Status.TO_SCHEDULE
+                ? deleteToScheduleTasks(matchExportTask, deleteTaskFetchSize)
+                : status == null
+                    ? deleteTasks(matchQueueMessage, matchExportTask, deleteTaskFetchSize) + deleteToScheduleTasks(matchExportTask, deleteTaskFetchSize)
+                    : deleteTasks(matchQueueMessage, matchExportTask, deleteTaskFetchSize);
+    }
+
+    private int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask, int deleteTaskFetchSize) {
+        int count = 0;
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(matchQueueMessage);
@@ -416,6 +424,22 @@ public class ExportManagerEJB implements ExportManager {
             count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
                     .where(QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
         } while (referencedQueueMsgs.size() >= deleteTaskFetchSize);
+        return count;
+    }
+
+    private int deleteToScheduleTasks(Predicate matchExportTask, int deleteTaskFetchSize) {
+        int count = 0;
+        List<Long> exportTasks;
+        do {
+            exportTasks = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
+                    .select(QExportTask.exportTask.pk)
+                    .from(QExportTask.exportTask)
+                    .where(matchExportTask, QExportTask.exportTask.queueMessage.isNull())
+                    .limit(deleteTaskFetchSize).fetch();
+            count += new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
+                    .where(QExportTask.exportTask.pk.in(exportTasks))
+                    .execute();
+        } while (exportTasks.size() >= deleteTaskFetchSize);
         return count;
     }
 

@@ -83,7 +83,7 @@ public interface ExportManager {
     boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent)
             throws IllegalTaskStateException, DifferentDeviceException;
 
-    int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask);
+    int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask);
 
     List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
                                         OrderSpecifier<Date> order, int offset, int limit);
