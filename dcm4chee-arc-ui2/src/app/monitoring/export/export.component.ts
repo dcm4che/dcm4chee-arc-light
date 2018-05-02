@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewContainerRef} from '@angular/core';
 import {User} from '../../models/user';
 import {Http} from '@angular/http';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
@@ -21,7 +21,7 @@ import {ActivatedRoute} from "@angular/router";
   selector: 'app-export',
   templateUrl: './export.component.html'
 })
-export class ExportComponent implements OnInit {
+export class ExportComponent implements OnInit, OnDestroy {
     matches = [];
     user: User;
     exporters;
@@ -787,5 +787,11 @@ export class ExportComponent implements OnInit {
             this.cfpLoadingBar.complete();
             console.error("Could not get devices",err);
         });
+    }
+    ngOnDestroy(){
+        if(this.timer.started){
+            this.timer.started = false;
+            clearInterval(this.refreshInterval);
+        }
     }
 }

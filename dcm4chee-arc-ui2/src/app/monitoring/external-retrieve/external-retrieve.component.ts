@@ -663,7 +663,10 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
         });
     }
     ngOnDestroy(){
-        clearInterval(this.refreshInterval);
+        if(this.timer.started){
+            this.timer.started = false;
+            clearInterval(this.refreshInterval);
+        }
         // localStorage.setItem('externalRetrieveFilters',JSON.stringify(this.filterObject));
     }
 }
