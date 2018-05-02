@@ -145,9 +145,10 @@ public class ExportTaskRS {
                     Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
                     .build();
 
-        ExportTaskQuery tasks = mgr.listExportTasks(
+        QueueMessage.Status status = status();
+        ExportTaskQuery tasks = mgr.listExportTasks(status,
                 MatchTask.matchQueueMessage(
-                        null, deviceName, status(), batchID, null,null, null, null),
+                        null, deviceName, status, batchID, null,null, null, null),
                 MatchTask.matchExportTask(exporterID, deviceName, studyUID, createdTime, updatedTime),
                 MatchTask.exportTaskOrder(orderby),
                 parseInt(offset), parseInt(limit)
@@ -281,7 +282,7 @@ public class ExportTaskRS {
             Predicate matchExportTask = MatchTask.matchExportTask(
                     exporterID, deviceName, studyUID, createdTime, updatedTime);
             int count = 0;
-            try (ExportTaskQuery exportTasks = mgr.listExportTasks(
+            try (ExportTaskQuery exportTasks = mgr.listExportTasks(status,
                     matchQueueMessage, matchExportTask, null, 0, 0)) {
                 for (ExportTask task : exportTasks) {
                     mgr.rescheduleExportTask(

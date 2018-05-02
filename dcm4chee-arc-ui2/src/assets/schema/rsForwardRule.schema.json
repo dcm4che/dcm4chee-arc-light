@@ -17,6 +17,11 @@
       "description": "Target URL without operation specific part, eg. http://<host>:<port>/dcm4chee-arc/aets/<aet>/rs/",
       "type": "string"
     },
+    "dcmKeycloakServerID": {
+      "title": "Keycloak Server ID",
+      "description": "Identifier of the Keycloak Server from which the access token shall be granted. If absent, no token will be sent.",
+      "type": "string"
+    },
     "dcmRSOperation": {
       "title": "RESTful Operation",
       "description": "Name of RESTful Operation which shall be forwarded to another archive instance.",

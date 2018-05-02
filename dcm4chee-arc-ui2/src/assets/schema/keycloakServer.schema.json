@@ -1,0 +1,59 @@
+{
+  "title": "Keycloak Server",
+  "description": "Keycloak Server",
+  "type": "object",
+  "required": [
+    "dcmKeycloakServerID",
+    "dcmURI",
+    "dcmKeycloakRealm",
+    "dcmKeycloakClientID",
+    "dcmKeycloakGrantType"
+  ],
+  "properties": {
+    "dcmKeycloakServerID": {
+      "title": "Keycloak Server ID",
+      "description": "Identifier for this Keycloak Server.",
+      "type": "string"
+    },
+    "dcmURI": {
+      "title": "Server URL",
+      "description": "The base URL of the Keycloak server.",
+      "type": "string"
+    },
+    "dcmKeycloakRealm": {
+      "title": "Keycloak Realm",
+      "description": "Name of the realm in token requests.",
+      "type": "string"
+    },
+    "dcmKeycloakClientID": {
+      "title": "OAuth 2.0 Client ID",
+      "description": "Client ID used in token requests.",
+      "type": "string"
+    },
+    "dcmKeycloakGrantType": {
+      "title": "OAuth 2.0 grant type",
+      "description": "OAuth 2.0 grant type used in token requests.",
+      "type": "string",
+      "enum": [
+        "client_credentials",
+        "password"
+      ],
+      "default": "client_credentials"
+    },
+    "dcmKeycloakClientSecret": {
+      "title": "OAuth Client secret",
+      "description": "OAuth client secret. Required if grant type = client_credentials.",
+      "type": "string"
+    },
+    "uid":  {
+      "title": "User ID",
+      "description": "User ID. Required if grant type = password.",
+      "type": "string"
+    },
+    "userPassword":  {
+      "title": "User Password",
+      "description": "User Password. Required if grant type = password.",
+      "type": "string"
+    }
+  }
+}

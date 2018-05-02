@@ -68,7 +68,7 @@ public interface ExportManager {
 
     void updateExportTask(Long pk);
 
-    ExportTaskQuery listExportTasks(Predicate matchQueueMessage, Predicate matchExportTask,
+    ExportTaskQuery listExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask,
                                     OrderSpecifier<Date> order, int offset, int limit);
 
     long countExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask);
