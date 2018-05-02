@@ -66,6 +66,7 @@
     <hibernate.version>5.1.10.Final</hibernate.version>
     <jboss-ejb3-ext-api.version>2.2.0.Final</jboss-ejb3-ext-api.version>
     <resteasy.version>3.5.0.Final</resteasy.version>
+    <keycloak.version>3.4.3.Final</keycloak.version>
     <jclouds.version>2.0.2</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
     <querydsl.version>4.1.4</querydsl.version>
@@ -153,9 +154,9 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.glassfish</groupId>
-        <artifactId>javax.json</artifactId>
-        <version>${glassfish-json.version}</version>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-admin-client</artifactId>
+        <version>${keycloak.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

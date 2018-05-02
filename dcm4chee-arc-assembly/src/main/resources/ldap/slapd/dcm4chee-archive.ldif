@@ -987,6 +987,36 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.199 NAME 'dcmIssuerOfPatientID'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.200 NAME 'dcmStartRetentionPeriodOnStudyDate'
+  DESC 'Indicates if retention period should be started on Study Date. Disabled if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.201 NAME 'dcmKeycloakServerID'
+  DESC 'Keycloak server identifier'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.202 NAME 'dcmKeycloakRealm'
+  DESC 'Name of the realm in token requests to Keycloak.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.203 NAME 'dcmKeycloakClientID'
+  DESC 'Client ID used in token requests to Keycloak.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.204 NAME 'dcmKeycloakGrantType'
+  DESC 'OAuth 2.0 grant type used in token requests to Keycloak. Enumerated values: "client_credentials", "password". "client_credentials" if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.205 NAME 'dcmKeycloakClientSecret'
+  DESC 'Client ID used in token requests to Keycloak.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1335,6 +1365,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.20 NAME 'dcmStudyRetentionPolicy'
   MAY (
     dcmRulePriority $
     dcmProperty $
+    dcmStartRetentionPeriodOnStudyDate $
     dcmExpireSeriesIndividually ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.21 NAME 'dcmIDGenerator'
   DESC 'ID Generator'
@@ -1368,6 +1399,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.25 NAME 'dcmRSForwardRule'
     cn $
     dcmURI )
   MAY (
+    dcmKeycloakServerID $
     dcmRSOperation ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.26 NAME 'dcmMetadataFilter'
   DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
@@ -1403,3 +1435,16 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.29 NAME 'dcmAttributeSet'
     dicomDescription $
     dcmProperty $
     dicomInstalled ) )
+olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.30 NAME 'dcmKeycloakServer'
+  DESC 'Specifies Keycloak Server for token request'
+  SUP top STRUCTURAL
+  MUST (
+    dcmKeycloakServerID $
+    dcmURI $
+    dcmKeycloakRealm $
+    dcmKeycloakClientID )
+  MAY (
+    dcmKeycloakGrantType $
+    dcmKeycloakClientSecret $
+    uid $
+    userPassword ) )

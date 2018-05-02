@@ -196,6 +196,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
+    private final Map<String, KeycloakServer> keycloakServerMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
@@ -1678,6 +1679,29 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setUiConfigurationDeviceName(String uiConfigurationDeviceName) {
         this.uiConfigurationDeviceName = uiConfigurationDeviceName;
+    }
+
+    public Collection<KeycloakServer> getKeycloakServers() {
+        return keycloakServerMap.values();
+    }
+
+    public KeycloakServer getKeycloakServer(String keycloakServerID) {
+        return keycloakServerMap.get(keycloakServerID);
+    }
+
+    public KeycloakServer getKeycloakServerNotNull(String keycloakServerID) {
+        KeycloakServer keycloakServer = getKeycloakServer(keycloakServerID);
+        if (keycloakServer == null)
+            throw new IllegalArgumentException("No Keycloak Server configured with ID:" + keycloakServerID);
+        return keycloakServer;
+    }
+
+    public KeycloakServer removeKeycloakServer(String keycloakServerID) {
+        return keycloakServerMap.remove(keycloakServerID);
+    }
+
+    public void addKeycloakServer(KeycloakServer keycloakServer) {
+        keycloakServerMap.put(keycloakServer.getKeycloakServerID(), keycloakServer);
     }
 
     @Override

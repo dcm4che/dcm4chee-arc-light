@@ -950,6 +950,15 @@
         "$ref": "rsForwardRule.schema.json"
       }
     },
+    "dcmKeycloakServer": {
+      "title": "Keycloak Server",
+      "description": "Keycloak Server",
+      "type": "array",
+      "titleKey":"{dcmKeycloakServerID}",
+      "items" : {
+        "$ref": "keycloakServer.schema.json"
+      }
+    },
     "dcmArchiveCompressionRule": {
       "title": "Compression rule",
       "description": "Compression rules applied to DICOM objects received by any AE. May be supplemented by configured Compression Rules for particular Archive Network AEs.",
