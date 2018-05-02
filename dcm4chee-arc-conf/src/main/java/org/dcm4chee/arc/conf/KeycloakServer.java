@@ -59,6 +59,9 @@ public class KeycloakServer {
         password, client_credentials
     }
 
+    public KeycloakServer() {
+    }
+
     public KeycloakServer(String keycloakServerID) {
         setKeycloakServerID(keycloakServerID);
     }
