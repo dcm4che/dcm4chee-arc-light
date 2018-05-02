@@ -55,6 +55,8 @@ public class RSForwardRule {
 
     private EnumSet<RSOperation> rsOperations = EnumSet.noneOf(RSOperation.class);
 
+    private String keycloakServerID;
+
     public RSForwardRule() {
     }
 
@@ -85,6 +87,14 @@ public class RSForwardRule {
     public void setRSOperations(RSOperation[] rsOperations) {
         this.rsOperations.clear();
         this.rsOperations.addAll(Arrays.asList(rsOperations));
+    }
+
+    public String getKeycloakServerID() {
+        return keycloakServerID;
+    }
+
+    public void setKeycloakServerID(String keycloakServerID) {
+        this.keycloakServerID = keycloakServerID;
     }
 
     public boolean match(RSOperation rsOperation) {

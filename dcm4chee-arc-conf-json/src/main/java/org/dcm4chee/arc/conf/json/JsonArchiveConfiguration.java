@@ -247,6 +247,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeAttributeSet(writer, arcDev);
         writeScheduledStations(writer, arcDev.getHL7OrderScheduledStations());
         writeHL7OrderSPSStatus(writer, arcDev.getHL7OrderSPSStatuses());
+        writeKeycloakServers(writer, arcDev.getKeycloakServers());
         writer.writeEnd();
     }
 
@@ -533,6 +534,24 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("cn", rule.getCommonName(), null);
             writer.writeNotNullOrDef("dcmURI", rule.getBaseURI(), null);
             writer.writeNotEmpty("dcmRSOperation", rule.getRSOperations());
+            writer.writeNotNullOrDef("dcmKeycloakServerID", rule.getKeycloakServerID(), null);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    private static void writeKeycloakServers(JsonWriter writer, Collection<KeycloakServer> keycloakServers) {
+        writer.writeStartArray("dcmKeycloakServer");
+        for (KeycloakServer keycloakServer : keycloakServers) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmKeycloakServerID", keycloakServer.getKeycloakServerID(), null);
+            writer.writeNotNullOrDef("dcmURI", keycloakServer.getServerURL(), null);
+            writer.writeNotNullOrDef("dcmKeycloakRealm", keycloakServer.getRealm(), null);
+            writer.writeNotNullOrDef("dcmKeycloakClientID", keycloakServer.getClientID(), null);
+            writer.writeNotNullOrDef("dcmKeycloakGrantType", keycloakServer.getGrantType(), null);
+            writer.writeNotNullOrDef("dcmKeycloakClientSecret", keycloakServer.getClientSecret(), null);
+            writer.writeNotNullOrDef("uid", keycloakServer.getUserID(), null);
+            writer.writeNotNullOrDef("userPassword", keycloakServer.getPassword(), null);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1070,6 +1089,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7OrderSPSStatus":
                     loadHL7OrderSPSStatus(arcDev.getHL7OrderSPSStatuses(), reader);
+                    break;
+                case "dcmKeycloakServer":
+                    loadKeycloakServers(arcDev.getKeycloakServers(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -1731,12 +1753,57 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmRSOperation":
                         rule.setRSOperations(reader.enumArray(RSOperation.class));
                         break;
+                    case "dcmKeycloakServerID":
+                        rule.setKeycloakServerID(reader.stringValue());
+                        break;
                     default:
                         reader.skipUnknownProperty();
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             rules.add(rule);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private static void loadKeycloakServers(Collection<KeycloakServer> keycloakServers, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            KeycloakServer keycloakServer = new KeycloakServer();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmKeycloakServerID":
+                        keycloakServer.setKeycloakServerID(reader.stringValue());
+                        break;
+                    case "dcmURI":
+                        keycloakServer.setServerURL(reader.stringValue());
+                        break;
+                    case "dcmKeycloakRealm":
+                        keycloakServer.setRealm(reader.stringValue());
+                        break;
+                    case "dcmKeycloakClientID":
+                        keycloakServer.setClientID(reader.stringValue());
+                        break;
+                    case "dcmKeycloakGrantType":
+                        keycloakServer.setGrantType(KeycloakServer.GrantType.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmKeycloakClientSecret":
+                        keycloakServer.setClientSecret(reader.stringValue());
+                        break;
+                    case "uid":
+                        keycloakServer.setUserID(reader.stringValue());
+                        break;
+                    case "userPassword":
+                        keycloakServer.setPassword(reader.stringValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            keycloakServers.add(keycloakServer);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

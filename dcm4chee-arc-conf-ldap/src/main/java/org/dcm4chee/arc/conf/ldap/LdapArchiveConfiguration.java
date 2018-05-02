@@ -685,6 +685,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeAttributeSet(diffs, deviceDN, arcDev);
         storeScheduledStations(diffs, arcDev.getHL7OrderScheduledStations(), deviceDN, config);
         storeHL7OrderSPSStatus(diffs, arcDev.getHL7OrderSPSStatuses(), deviceDN, config);
+        storeKeycloakServers(diffs, arcDev.getKeycloakServers(), deviceDN);
     }
 
     @Override
@@ -711,6 +712,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadAttributeSet(arcdev, deviceDN);
         loadScheduledStations(arcdev.getHL7OrderScheduledStations(), deviceDN, config, device);
         loadHL7OrderSPSStatus(arcdev.getHL7OrderSPSStatuses(), deviceDN, config);
+        loadKeycloakServers(arcdev.getKeycloakServers(), deviceDN);
     }
 
     @Override
@@ -745,6 +747,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeAttributeSet(diffs, aa, bb, deviceDN);
         mergeScheduledStations(diffs, aa.getHL7OrderScheduledStations(), bb.getHL7OrderScheduledStations(), deviceDN, config);
         mergeHL7OrderSPSStatus(diffs, aa.getHL7OrderSPSStatuses(), bb.getHL7OrderSPSStatuses(), deviceDN, config);
+        mergeKeycloakServers(diffs, aa.getKeycloakServers(), bb.getKeycloakServers(), deviceDN);
     }
 
     @Override
@@ -1862,6 +1865,16 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void storeKeycloakServers(ConfigurationChanges diffs, Collection<KeycloakServer> keycloakServers, String parentDN)
+            throws NamingException {
+        for (KeycloakServer keycloakServer : keycloakServers) {
+            String dn = LdapUtils.dnOf("dcmKeycloakServerID", keycloakServer.getKeycloakServerID(), parentDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, keycloakServer, new BasicAttributes(true)));
+        }
+    }
+
     private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, ArchiveCompressionRule rule, BasicAttributes attrs) {
         attrs.put("objectclass", "dcmArchiveCompressionRule");
         attrs.put("cn", rule.getCommonName());
@@ -1915,6 +1928,20 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("cn", rule.getCommonName());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", rule.getBaseURI(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRSOperation", rule.getRSOperations());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeycloakServerID", rule.getKeycloakServerID(), null);
+        return attrs;
+    }
+
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, KeycloakServer keycloakServer, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmKeycloakServer");
+        attrs.put("dcmKeycloakServerID", keycloakServer.getKeycloakServerID());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", keycloakServer.getServerURL(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeycloakRealm", keycloakServer.getRealm(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeycloakClientID", keycloakServer.getClientID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeycloakGrantType", keycloakServer.getGrantType(), KeycloakServer.GrantType.client_credentials);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeycloakClientSecret", keycloakServer.getClientSecret(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "uid", keycloakServer.getUserID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "userPassword", keycloakServer.getPassword(), null);
         return attrs;
     }
 
@@ -2035,7 +2062,33 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 RSForwardRule rule = new RSForwardRule(LdapUtils.stringValue(attrs.get("cn"), null));
                 rule.setBaseURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 rule.setRSOperations(LdapUtils.enumArray(RSOperation.class, attrs.get("dcmRSOperation")));
+                rule.setKeycloakServerID(LdapUtils.stringValue(attrs.get("dcmKeycloakServerID"), null));
                 rules.add(rule);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadKeycloakServers(Collection<KeycloakServer> keycloakServers, String parentDN)
+            throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmRSForwardRule)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                KeycloakServer keycloakServer = new KeycloakServer(LdapUtils.stringValue(attrs.get("dcmKeycloakServerID"), null));
+                keycloakServer.setServerURL(LdapUtils.stringValue(attrs.get("dcmURI"), null));
+                keycloakServer.setRealm(LdapUtils.stringValue(attrs.get("dcmKeycloakRealm"), null));
+                keycloakServer.setClientID(LdapUtils.stringValue(attrs.get("dcmKeycloakClientID"), null));
+                keycloakServer.setGrantType(
+                        LdapUtils.enumValue(KeycloakServer.GrantType.class,
+                        attrs.get("dcmKeycloakGrantType"),
+                        KeycloakServer.GrantType.client_credentials));
+                keycloakServer.setClientSecret(LdapUtils.stringValue(attrs.get("dcmKeycloakClientSecret"), null));
+                keycloakServer.setUserID(LdapUtils.stringValue(attrs.get("uid"), null));
+                keycloakServer.setPassword(LdapUtils.stringValue(attrs.get("userPassword"), null));
+                keycloakServers.add(keycloakServer);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -2253,6 +2306,36 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void mergeKeycloakServers(
+            ConfigurationChanges diffs, Collection<KeycloakServer> prevKeycloakServers, Collection<KeycloakServer> keycloakServers, String parentDN)
+            throws NamingException {
+        for (KeycloakServer prevKeycloakServer : prevKeycloakServers) {
+            String keycloakServerID = prevKeycloakServer.getKeycloakServerID();
+            if (findKeycloakServerByID(keycloakServers, keycloakServerID) == null) {
+                String dn = LdapUtils.dnOf("dcmKeycloakServerID", keycloakServerID, parentDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (KeycloakServer keycloakServer : keycloakServers) {
+            String keycloakServerID = keycloakServer.getKeycloakServerID();
+            String dn = LdapUtils.dnOf("dcmKeycloakServerID", keycloakServerID, parentDN);
+            KeycloakServer prevKeycloakServer = findKeycloakServerByID(prevKeycloakServers, keycloakServerID);
+            if (prevKeycloakServer == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                keycloakServer, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevKeycloakServer, keycloakServer, new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
     private List<ModificationItem> storeDiffs(
             ConfigurationChanges.ModifiedObject ldapObj, ArchiveCompressionRule prev, ArchiveCompressionRule rule, ArrayList<ModificationItem> mods) {
         storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getConditions().getMap(), rule.getConditions().getMap());
@@ -2310,6 +2393,20 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             ConfigurationChanges.ModifiedObject ldapObj, RSForwardRule prev, RSForwardRule rule, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getBaseURI(), rule.getBaseURI(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRSOperation", prev.getRSOperations(), rule.getRSOperations());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakServerID", prev.getKeycloakServerID(), rule.getKeycloakServerID(), null);
+        return mods;
+    }
+
+    private List<ModificationItem> storeDiffs(
+            ConfigurationChanges.ModifiedObject ldapObj, KeycloakServer prev, KeycloakServer keycloakServer, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getServerURL(), keycloakServer.getServerURL(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakRealm", prev.getRealm(), keycloakServer.getRealm(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakClientID", prev.getClientID(), keycloakServer.getClientID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakGrantType",
+                prev.getGrantType(), keycloakServer.getGrantType(), KeycloakServer.GrantType.client_credentials);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakClientSecret", prev.getClientSecret(), keycloakServer.getClientSecret(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "uid", prev.getUserID(), keycloakServer.getUserID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "userPassword", prev.getPassword(), keycloakServer.getPassword(), null);
         return mods;
     }
 
@@ -2354,6 +2451,14 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         for (RSForwardRule rule : rules)
             if (rule.getCommonName().equals(cn))
                 return rule;
+        return null;
+    }
+
+    private KeycloakServer findKeycloakServerByID(
+            Collection<KeycloakServer> keycloakServers, String keycloakServerID) {
+        for (KeycloakServer keycloakServer : keycloakServers)
+            if (keycloakServer.getKeycloakServerID().equals(keycloakServerID))
+                return keycloakServer;
         return null;
     }
 
