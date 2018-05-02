@@ -450,11 +450,14 @@ export class ExportComponent implements OnInit, OnDestroy {
                             this.httpErrorHandler.handleError(err);
                         });
                     }
+                    this.allAction = "";
+                    this.allAction = undefined;
                 });
                 break;
+            default:
+                this.allAction = "";
+                this.allAction = undefined;
         }
-        this.allAction = "";
-        this.allAction = undefined;
     }
     getDifferenceTime(starttime, endtime,mode?){
         let start = new Date(starttime).getTime();

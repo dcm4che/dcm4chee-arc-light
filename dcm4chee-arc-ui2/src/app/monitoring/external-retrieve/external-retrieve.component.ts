@@ -358,9 +358,9 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
                 }
                 this.cfpLoadingBar.complete();
             }
+            this.allAction = "";
+            this.allAction = undefined;
         });
-        this.allAction = "";
-        this.allAction = undefined;
     }
     delete(match){
         let $this = this;
