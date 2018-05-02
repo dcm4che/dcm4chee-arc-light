@@ -85,6 +85,7 @@ public class RSClientMDB implements MessageListener {
             Outcome outcome = rsClient.request(
                     msg.getStringProperty("Method"),
                     msg.getStringProperty("URI"),
+                    msg.getStringProperty("KeycloakServerID"),
                     content);
             queueManager.onProcessingSuccessful(msgID, outcome);
         } catch (Throwable e) {

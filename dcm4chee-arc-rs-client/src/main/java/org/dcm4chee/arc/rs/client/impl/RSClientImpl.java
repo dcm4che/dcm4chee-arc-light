@@ -40,7 +40,11 @@
 
 package org.dcm4chee.arc.rs.client.impl;
 
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.KeycloakServer;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -52,10 +56,7 @@ import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.*;
 import javax.ws.rs.core.Response;
 
 /**
@@ -69,12 +70,20 @@ public class RSClientImpl implements RSClient {
     @Inject
     private QueueManager queueManager;
 
+    @Inject
+    private Device device;
+
+    @Inject
+    private AccessTokenRequestor accessTokenRequestor;
+
     @Override
-    public void scheduleRequest(String method, String uri, byte[] content) throws QueueSizeLimitExceededException {
+    public void scheduleRequest(String method, String uri, byte[] content, String keycloakServerID)
+            throws QueueSizeLimitExceededException {
         try {
             ObjectMessage msg = queueManager.createObjectMessage(content);
             msg.setStringProperty("Method", method);
             msg.setStringProperty("URI", uri);
+            msg.setStringProperty("KeycloakServerID", keycloakServerID);
             queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
@@ -82,20 +91,25 @@ public class RSClientImpl implements RSClient {
     }
 
     @Override
-    public Outcome request(String method, String uri, byte[] content) throws Exception {
+    public Outcome request(String method, String uri, String keycloakServerID, byte[] content) throws Exception {
         Client client = ClientBuilder.newBuilder().build();
         WebTarget target = client.target(uri);
         Response response = null;
         Outcome outcome;
+        Invocation.Builder request = target.request();
+        if (keycloakServerID != null) {
+            KeycloakServer keycloakServer = device.getDeviceExtension(ArchiveDeviceExtension.class).getKeycloakServer(keycloakServerID);
+            request.header("Authorization: ", "Bearer " + accessTokenRequestor.getAccessTokenString(keycloakServer));
+        }
         switch (method) {
             case "DELETE":
-                response = target.request().delete();
+                response = request.delete();
                 break;
             case "POST":
-                response = target.request().post(Entity.json(content));
+                response = request.post(Entity.json(content));
                 break;
             case "PUT":
-                response = target.request().put(Entity.json(content));
+                response = request.put(Entity.json(content));
                 break;
         }
         outcome = buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());

@@ -51,7 +51,7 @@ public interface RSClient {
     String QUEUE_NAME = "RSClient";
     String JNDI_NAME = "jms/queue/RSClient";
 
-    void scheduleRequest(String method, String uri, byte[] content) throws QueueSizeLimitExceededException;
+    void scheduleRequest(String method, String uri, byte[] content, String keycloakServerID) throws QueueSizeLimitExceededException;
 
-    Outcome request(String method, String uri, byte[] content) throws Exception;
+    Outcome request(String method, String uri, String keycloakServerID, byte[] content) throws Exception;
 }
