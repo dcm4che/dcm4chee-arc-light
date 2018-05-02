@@ -38,27 +38,21 @@
 
 package org.dcm4chee.arc.keycloak;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.dcm4che3.util.StringUtils;
+import org.keycloak.KeycloakSecurityContext;
 
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
-import java.util.Set;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2017
  */
 
 public class KeycloakContext {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KeycloakContext.class);
     private final HttpServletRequest request;
-    private final Object refreshableKeycloakSecurityContext;
-    private String userName;
-    private String token;
-    private int expiration;
-    private String[] userRoles;
+    private final KeycloakSecurityContext ksc;
 
     public static KeycloakContext valueOf(HttpServletRequest request) {
         return new KeycloakContext(request);
@@ -66,57 +60,24 @@ public class KeycloakContext {
 
     private KeycloakContext(HttpServletRequest req) {
         request = req;
-        refreshableKeycloakSecurityContext = request.getAttribute("org.keycloak.KeycloakSecurityContext");
-        if (refreshableKeycloakSecurityContext != null)
-            initializeSecured();
-        else
-            initializeUnsecured();
-    }
-
-    private void initializeSecured() {
-        try {
-            Method getToken = refreshableKeycloakSecurityContext.getClass().getMethod("getToken");
-            Object accessToken = getToken.invoke(refreshableKeycloakSecurityContext);
-            Method getRealmAccess = accessToken.getClass().getMethod("getRealmAccess");
-            Object access = getRealmAccess.invoke(accessToken);
-            Method getRoles = access.getClass().getMethod("getRoles");
-            Set<String> roles = (Set<String>) getRoles.invoke(access);
-            userRoles = roles.toArray(new String[roles.size()]);
-
-            Method getPreferredUsername = accessToken.getClass().getMethod("getPreferredUsername");
-            userName = String.valueOf(getPreferredUsername.invoke(accessToken));
-
-            Method getTokenString = refreshableKeycloakSecurityContext.getClass().getMethod("getTokenString");
-            token = String.valueOf(getTokenString.invoke(refreshableKeycloakSecurityContext));
-
-            Method getExpiration = accessToken.getClass().getMethod("getExpiration");
-            expiration = (int) getExpiration.invoke(accessToken);
-
-        } catch (Exception e) {
-            LOG.warn("Failed to initialize from Keycloak classes : ", e);
-        }
-    }
-
-    private void initializeUnsecured() {
-        userName = request.getRemoteAddr();
-        userRoles = new String[0];
-        token = null;
-        expiration = 0;
+        ksc = (KeycloakSecurityContext) request.getAttribute("org.keycloak.KeycloakSecurityContext");
     }
 
     public String getUserName() {
-        return userName;
+        return ksc != null ? ksc.getToken().getPreferredUsername() : request.getRemoteAddr();
     }
 
     public String getToken() {
-        return token;
+        return ksc != null ? ksc.getTokenString() : null;
     }
 
     public int getExpiration() {
-        return expiration;
+        return ksc != null ? ksc.getToken().getExpiration() : 0;
     }
 
     public String[] getUserRoles() {
-        return userRoles;
+        return ksc != null
+                ? ksc.getToken().getRealmAccess().getRoles().toArray(StringUtils.EMPTY_STRING)
+                : StringUtils.EMPTY_STRING;
     }
 }
