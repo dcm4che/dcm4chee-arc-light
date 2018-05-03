@@ -1091,7 +1091,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     loadHL7OrderSPSStatus(arcDev.getHL7OrderSPSStatuses(), reader);
                     break;
                 case "dcmKeycloakServer":
-                    loadKeycloakServers(arcDev.getKeycloakServers(), reader);
+                    loadKeycloakServers(arcDev, reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -1766,7 +1766,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
-    private static void loadKeycloakServers(Collection<KeycloakServer> keycloakServers, JsonReader reader) {
+    private static void loadKeycloakServers(ArchiveDeviceExtension arcDev, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -1803,7 +1803,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
-            keycloakServers.add(keycloakServer);
+            arcDev.addKeycloakServer(keycloakServer);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

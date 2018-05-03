@@ -712,7 +712,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadAttributeSet(arcdev, deviceDN);
         loadScheduledStations(arcdev.getHL7OrderScheduledStations(), deviceDN, config, device);
         loadHL7OrderSPSStatus(arcdev.getHL7OrderSPSStatuses(), deviceDN, config);
-        loadKeycloakServers(arcdev.getKeycloakServers(), deviceDN);
+        loadKeycloakServers(arcdev, deviceDN);
     }
 
     @Override
@@ -2070,9 +2070,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
-    private void loadKeycloakServers(Collection<KeycloakServer> keycloakServers, String parentDN)
+    private void loadKeycloakServers(ArchiveDeviceExtension arcdev, String parentDN)
             throws NamingException {
-        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmRSForwardRule)");
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmKeycloakServer)");
         try {
             while (ne.hasMore()) {
                 SearchResult sr = ne.next();
@@ -2088,7 +2088,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 keycloakServer.setClientSecret(LdapUtils.stringValue(attrs.get("dcmKeycloakClientSecret"), null));
                 keycloakServer.setUserID(LdapUtils.stringValue(attrs.get("uid"), null));
                 keycloakServer.setPassword(LdapUtils.stringValue(attrs.get("userPassword"), null));
-                keycloakServers.add(keycloakServer);
+                arcdev.addKeycloakServer(keycloakServer);
             }
         } finally {
             LdapUtils.safeClose(ne);
