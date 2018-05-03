@@ -909,6 +909,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         return t -> {
             t.setParameter("ReceivingApplicationEntityTitle", ctx.getDestinationAETitle());
             t.setParameter("SendingApplicationEntityTitle", ctx.getLocalAETitle());
+            t.setParameter("RemoteHostname", ctx.getDestinationHostName());
         };
     }
 
