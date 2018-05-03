@@ -124,6 +124,27 @@ attributetype ( 1.2.40.0.13.1.15.111.3.21 NAME 'dcmuiCountAET'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.111.3.22 NAME 'dcmuiElasticsearchConfigName'
+    DESC 'Name of Elasticsearch UI Configuration'
+    EQUALITY caseExactMatch
+    SUBSTR caseExactSubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+    SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.23 NAME 'dcmuiElasticsearchURLName'
+    DESC 'Elasticsearch URL Name'
+    EQUALITY caseExactMatch
+    SUBSTR caseExactSubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+    SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.24 NAME 'dcmuiElasticsearchURL'
+    DESC 'Elasticsearch URL'
+    EQUALITY caseExactMatch
+    SUBSTR caseExactSubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+    SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
   DESC 'Archive UI Configuration'
   SUP top STRUCTURAL
@@ -176,3 +197,18 @@ objectclass ( 1.2.40.0.13.1.15.111.4.5 NAME 'dcmuiDashboardConfig'
     dcmuiQueueName $
     dcmuiCountAET $
     dicomuiDeviceName ) )
+
+objectclass ( 1.2.40.0.13.1.15.111.4.6 NAME 'dcmuiElasticsearchConfig'
+    DESC 'UI Configuration for Elasticsearch'
+    SUP top STRUCTURAL
+    MUST (
+    dcmuiElasticsearchConfigName )
+    MAY (
+    dcmuiElasticsearchURL ) )
+
+objectclass ( 1.2.40.0.13.1.15.111.4.7 NAME 'dcmuiElasticsearchURL'
+    DESC 'Elasticsearch URL'
+    SUP top STRUCTURAL
+    MUST (
+    dcmuiElasticsearchURLName $
+    dcmuiElasticsearchURL ) )

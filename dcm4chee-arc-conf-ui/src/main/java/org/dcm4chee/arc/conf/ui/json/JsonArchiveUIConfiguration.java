@@ -84,6 +84,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writeUIPermissions(writer, uiConfig.getPermissions());
         writeUIDiffConfigs(writer, uiConfig.getDiffConfigs());
         writeUIDashboardConfigs(writer, uiConfig.getDashboardConfigs());
+        writeUIElasticsearchConfigs(writer, uiConfig.getElasticsearchConfigs());
         writer.writeEnd();
     }
 
@@ -123,7 +124,33 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         }
         writer.writeEnd();
     }
+    private void writeUIElasticsearchConfigs(JsonWriter writer, Collection<UIElasticsearchConfig> uiElasticsearchConfigs) {
+        if (uiElasticsearchConfigs.isEmpty())
+            return;
 
+        writer.writeStartArray("dcmuiElasticsearchConfig");
+        for (UIElasticsearchConfig uiElasticsearchConfig : uiElasticsearchConfigs) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiElasticsearchConfigName", uiElasticsearchConfig.getName(), null);
+            writeUIElasticsearchURL(writer, uiElasticsearchConfig.getURLS());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    private void writeUIElasticsearchURL(JsonWriter writer, Collection<UIElasticsearchURL> uiElasticsearchURLS) {
+        if (uiElasticsearchURLS.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiElasticsearchURL");
+        for (UIElasticsearchURL uiElasticsearchURL : uiElasticsearchURLS) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName(), null);
+            writer.writeNotNullOrDef("dcmuiElasticsearchURL", uiElasticsearchURL.getUrl(),null);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
     private void writeUIDiffCriteria(JsonWriter writer, Collection<UIDiffCriteria> uiDiffCriterias) {
         if (uiDiffCriterias.isEmpty())
             return;
@@ -186,6 +213,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 case "dcmuiDashboardConfig":
                     loadUIDashboardConfigs(uiConfig, reader);
                     break;
+                case "dcmuiElasticsearchConfig":
+                    loadUIElasticsearchConfigs(uiConfig, reader);
+                    break;
                 default:
                     reader.skipUnknownProperty();
             }
@@ -222,6 +252,52 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         reader.expect(JsonParser.Event.END_ARRAY);
     }
 
+    private void loadUIElasticsearchConfigs(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIElasticsearchConfig uiElasticsearchConfig = new UIElasticsearchConfig();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiElasticsearchConfigName":
+                        uiElasticsearchConfig.setName(reader.stringValue());
+                        break;
+                    case "dcmuiElasticsearchURL":
+                        loadUIElasticsearchURL(uiElasticsearchConfig, reader);
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addElasticsearchConfig(uiElasticsearchConfig);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+    private void loadUIElasticsearchURL(UIElasticsearchConfig uiDiffConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIElasticsearchURL uiElasticsearchURL = new UIElasticsearchURL();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiElasticsearchURLName":
+                        uiElasticsearchURL.setUrlName(reader.stringValue());
+                        break;
+                    case "dcmuiElasticsearchURL":
+                        uiElasticsearchURL.setUrl(reader.stringValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiDiffConfig.addURL(uiElasticsearchURL);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
     private void loadUIDiffConfigs(UIConfig uiConfig, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);

@@ -88,6 +88,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             storeDiffConfig(diffs, uiDiffConfig, uiConfigDN);
         for (UIDashboardConfig uiDashboardConfig : uiConfig.getDashboardConfigs())
             storeDashboardConfig(diffs, uiDashboardConfig, uiConfigDN);
+        for (UIElasticsearchConfig uiElasticSearchConfig : uiConfig.getElasticsearchConfigs())
+            storeElasticsearchConfig(diffs, uiElasticSearchConfig, uiConfigDN);
 
     }
 
@@ -174,6 +176,37 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         return attrs;
     }
 
+    private void storeElasticsearchConfig(ConfigurationChanges diffs, UIElasticsearchConfig uiElastisearchConfig, String uiConfigDN) throws NamingException {
+            String uiElasticsearchConfigDN = LdapUtils.dnOf("dcmuiElasticsearchConfigName", uiElastisearchConfig.getName(), uiConfigDN);
+            config.createSubcontext(
+                    uiElasticsearchConfigDN,
+                    storeTo(diffs, uiElasticsearchConfigDN, uiElastisearchConfig, new BasicAttributes(true))
+            );
+            for (UIElasticsearchURL uiElasticsearchURL : uiElastisearchConfig.getURLS())
+                storeElasticsearchURL(diffs, uiElasticsearchConfigDN, uiElasticsearchURL);
+    }
+    private void storeElasticsearchURL(ConfigurationChanges diffs, String uiElasticsearchConfigDN, UIElasticsearchURL uiElasticsearchURL) throws NamingException {
+        String uiElasticsearchURLDN = LdapUtils.dnOf("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName(), uiElasticsearchConfigDN);
+        ConfigurationChanges.ModifiedObject ldapObj = ConfigurationChanges.addModifiedObjectIfVerbose(
+                diffs,
+                uiElasticsearchConfigDN,
+                ConfigurationChanges.ChangeType.C
+        );
+        config.createSubcontext(uiElasticsearchURLDN, storeTo(ldapObj, uiElasticsearchURL, new BasicAttributes(true)));
+    }
+    private Attributes storeTo(ConfigurationChanges diffs, String uiElasticsearchConfigDN, UIElasticsearchConfig uiElasticsearchConfig, Attributes attrs) {
+        ConfigurationChanges.ModifiedObject ldapObj =
+                ConfigurationChanges.addModifiedObjectIfVerbose(diffs, uiElasticsearchConfigDN, ConfigurationChanges.ChangeType.C);
+        attrs.put(new BasicAttribute("objectclass", "dcmuiElasticsearchConfig"));
+        return attrs;
+    }
+    private Attributes storeTo(ConfigurationChanges.ModifiedObject ldapObj, UIElasticsearchURL uiElasticsearchURL, Attributes attrs) {
+        attrs.put(new BasicAttribute("objectclass", "dcmuiElasticsearchURL"));
+        attrs.put(new BasicAttribute("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName()));
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiElasticsearchURL", uiElasticsearchURL.getUrl(), null);
+        return attrs;
+    }
+
     @Override
     protected void loadChilds(Device device, String deviceDN) throws NamingException {
         NamingEnumeration<SearchResult> ne = config.search(deviceDN, "(objectclass=dcmuiConfig)");
@@ -198,6 +231,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         loadPermissions(uiConfig, uiConfigDN);
         loadDiffConfigs(uiConfig, uiConfigDN);
         loadDashboardConfigs(uiConfig, uiConfigDN);
+        loadElasticsearchConfigs(uiConfig, uiConfigDN);
         return uiConfig;
     }
 
@@ -282,6 +316,36 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             LdapUtils.safeClose(ne);
         }
     }
+    private void loadElasticsearchConfigs(UIConfig uiConfig, String uiConfigDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne =
+                config.search(uiConfigDN, "(objectclass=dcmuiElasticsearchConfig)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UIElasticsearchConfig uiElasticsearchConfig = new UIElasticsearchConfig((String) attrs.get("dcmuiElasticsearchConfigName").get());
+                String uiElasticsearchConfigDN = LdapUtils.dnOf("dcmuiElasticsearchConfig" , uiElasticsearchConfig.getName(), uiConfigDN);
+                loadElasticsearchURL(uiElasticsearchConfig, uiElasticsearchConfigDN);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+    private void loadElasticsearchURL(UIElasticsearchConfig uiElasticsearchConfig, String uiElasticsearchConfigDN) throws NamingException {
+        NamingEnumeration<SearchResult> ne =
+                config.search(uiElasticsearchConfigDN, "(objectclass=dcmuiElasticsearchURL)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UIElasticsearchURL uiElasticsearchURL = new UIElasticsearchURL((String) attrs.get("dcmuiElasticsearchURLName").get());
+                uiElasticsearchURL.setUrl(LdapUtils.stringValue(attrs.get("dcmuiElasticsearchURL"), null));
+                uiElasticsearchConfig.addURL(uiElasticsearchURL);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
 
     @Override
     protected void mergeChilds(ConfigurationChanges diffs, Device prev, Device device, String deviceDN)
@@ -315,6 +379,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         mergePermissions(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDiffConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
         mergeDashboardConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
+//        mergeElasticsearchConfigs(diffs, prevUIConfig, uiConfig, uiConfigDN);
     }
 
     private void mergePermissions(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN)
@@ -390,7 +455,74 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             }
         }
     }
+    private void mergeElasticsearchConfigs(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN) throws NamingException {
+        for (UIElasticsearchConfig prevUIElasticsearchConfig : prevUIConfig.getElasticsearchConfigs()) {
+            String prevUIElasticsearchConfigName = prevUIElasticsearchConfig.getName();
+            if (uiConfig.getDiffConfig(prevUIElasticsearchConfigName) == null) {
+                String dn = LdapUtils.dnOf("dcmuiDiffConfigName", prevUIElasticsearchConfigName, uiConfigDN);
+                for (UIElasticsearchURL prevUIElasticsearchURL : prevUIElasticsearchConfig.getURLS())
+                    deleteUIElasticsearchURL(diffs, prevUIElasticsearchURL.getUrlName(), dn);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UIElasticsearchConfig uiElasticsearchConfig : uiConfig.getElasticsearchConfigs()) {
+            String uiElasticsearchConfigName = uiElasticsearchConfig.getName();
+            String uiElasticsearcConfigDN = LdapUtils.dnOf("dcmuiElasticsearchConfigName", uiElasticsearchConfigName, uiConfigDN);
+            UIElasticsearchConfig prevUIElasticsearchConfig = prevUIConfig.getElasticsearchConfig(uiElasticsearchConfigName);
+            if (prevUIElasticsearchConfig == null)
+                storeElasticsearchConfig(diffs, uiElasticsearchConfig, uiConfigDN);
+            else
+                config.modifyAttributes(uiElasticsearcConfigDN, storeUIElasticsearchConfig(diffs, uiElasticsearcConfigDN, prevUIElasticsearchConfig, uiElasticsearchConfig,
+                        new ArrayList<ModificationItem>()));
+        }
+    }
 
+
+
+
+    private void deleteUIElasticsearchURL(ConfigurationChanges diffs, String prevUIElasticsearchConfigName, String uiElasticsearcConfigDN)
+            throws NamingException {
+        String dn = LdapUtils.dnOf("dcmuiElasticsearchURLName", prevUIElasticsearchConfigName, uiElasticsearcConfigDN);
+        config.destroySubcontext(dn);
+        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+    }
+
+    private List<ModificationItem> storeUIElasticsearchConfig(ConfigurationChanges diffs, String uiElasticsearcConfigDN, UIElasticsearchConfig a, UIElasticsearchConfig b, ArrayList<ModificationItem> mods) throws NamingException {
+        ConfigurationChanges.ModifiedObject ldapObj =  ConfigurationChanges.addModifiedObject(diffs, uiElasticsearcConfigDN, ConfigurationChanges.ChangeType.U);
+        mergeUIElasticsearchURL(diffs, a, b, uiElasticsearcConfigDN);
+        ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+        return mods;
+    }
+
+    private void mergeUIElasticsearchURL(ConfigurationChanges diffs, UIElasticsearchConfig prevUIElasticsearchConfig, UIElasticsearchConfig uiElasticsearchConfig, String uiElasticsearcConfigDN) throws NamingException {
+        for (UIElasticsearchURL prevUIElasticsearchURL : prevUIElasticsearchConfig.getURLS()) {
+            String prevUIElasticsearchURLUrlName = prevUIElasticsearchURL.getUrlName();
+            if (uiElasticsearchConfig.getURL(prevUIElasticsearchURLUrlName) == null)
+                deleteUIElasticsearchURL(diffs, prevUIElasticsearchURLUrlName, uiElasticsearcConfigDN);
+        }
+        for (UIElasticsearchURL uiElasticsearchURL : uiElasticsearchConfig.getURLS()) {
+            String uiElasticserachURLName = uiElasticsearchURL.getUrlName();
+            UIElasticsearchURL prevElasticserachURL = prevUIElasticsearchConfig.getURL(uiElasticserachURLName);
+            if (prevElasticserachURL == null)
+                storeElasticsearchURL(diffs, uiElasticsearcConfigDN, uiElasticsearchURL);
+            else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, uiElasticsearcConfigDN, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(uiElasticsearcConfigDN, storeUIElasticsearchURLDiff(ldapObj, prevElasticserachURL, uiElasticsearchURL,
+                        new ArrayList<ModificationItem>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
+    private List<ModificationItem> storeUIElasticsearchURLDiff(ConfigurationChanges.ModifiedObject ldapObj, UIElasticsearchURL a,
+                                                              UIElasticsearchURL b, ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiElasticsearchURL",
+                a.getUrl(),
+                b.getUrl(), null);
+        return mods;
+    }
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIDashboardConfig a,
                                               UIDashboardConfig b, ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiQueueName",

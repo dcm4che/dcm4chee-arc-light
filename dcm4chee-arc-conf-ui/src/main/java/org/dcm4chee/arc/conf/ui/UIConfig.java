@@ -52,6 +52,7 @@ public class UIConfig {
     private Map<String, UIPermission> permissions = new HashMap<>();
     private Map<String, UIDiffConfig> diffConfigs = new HashMap<>();
     private Map<String, UIDashboardConfig> dashboardConfigs = new HashMap<>();
+    private Map<String, UIElasticsearchConfig> elasticsearchConfigs = new HashMap<>();
 
     public UIConfig() {
     }
@@ -114,5 +115,21 @@ public class UIConfig {
 
     public Collection<UIDashboardConfig> getDashboardConfigs() {
         return dashboardConfigs.values();
+    }
+
+    public UIElasticsearchConfig getElasticsearchConfig(String name) {
+        return elasticsearchConfigs.get(name);
+    }
+
+    public void addElasticsearchConfig(UIElasticsearchConfig elasticsearchConfig) {
+        elasticsearchConfigs.put(elasticsearchConfig.getName(), elasticsearchConfig);
+    }
+
+    public UIElasticsearchConfig removeElasticsearchConfig(String name) {
+        return elasticsearchConfigs.remove(name);
+    }
+
+    public Collection<UIElasticsearchConfig> getElasticsearchConfigs() {
+        return elasticsearchConfigs.values();
     }
 }

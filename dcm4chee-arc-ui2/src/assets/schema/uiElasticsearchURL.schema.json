@@ -1,0 +1,21 @@
+{
+  "title": "UI Elasticsearch URL Configuration",
+  "description": "Elasticsearch URL",
+  "type": "object",
+  "required": [
+    "dcmuiElasticsearchURLName",
+    "dcmuiElasticsearchURL"
+  ],
+  "properties": {
+    "dcmuiElasticsearchURLName": {
+      "title": "Elasticsearch URL Name",
+      "description": "UI Elasticsearch URL Name",
+      "type": "string"
+    },
+    "dcmuiElasticsearchURL": {
+      "title": "Elasticsearch URL",
+      "description": "Access URL of Elastic Search. E.g. http://elasticsearch:9200",
+      "type": "string"
+    }
+  }
+}

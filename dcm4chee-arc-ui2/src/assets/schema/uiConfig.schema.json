@@ -37,6 +37,15 @@
       "items" : {
         "$ref": "uiDashboard.schema.json"
       }
+    },
+    "dcmuiElasticsearchConfig": {
+      "title": "UI Elasticsearch Configuration",
+      "description": "Elasticsearch Configuration for the pro version",
+      "titleKey":"{dcmuiElasticsearchConfigName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiElasticsearch.schema.json"
+      }
     }
   }
 }
