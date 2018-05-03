@@ -43,6 +43,7 @@ package org.dcm4chee.arc.query.impl;
 import com.querydsl.core.BooleanBuilder;
 import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.*;
+import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.net.*;
@@ -439,7 +440,9 @@ class QueryServiceImpl implements QueryService {
         if (xsltStylesheetURI != null)
             try {
                 Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
-                coercion = new XSLTAttributesCoercion(tpls, null).includeKeyword(!rule.isNoKeywords());
+                coercion = new XSLTAttributesCoercion(tpls, null)
+                        .includeKeyword(!rule.isNoKeywords())
+                        .setupTransformer(setupTransformer(ctx));
             } catch (TransformerConfigurationException e) {
                 LOG.error("{}: Failed to compile XSL: {}", ctx.getAssociation(), xsltStylesheetURI, e);
             }
@@ -450,6 +453,16 @@ class QueryServiceImpl implements QueryService {
         }
         LOG.info("Coerce Attributes from rule: {}", rule);
         return coercion;
+    }
+
+    private SAXTransformer.SetupTransformer setupTransformer(QueryContext ctx) {
+        return t -> {
+            t.setParameter("ReceivingApplicationEntityTitle", ctx.getCalledAET());
+            if (ctx.getCallingAET() != null)
+                t.setParameter("SendingApplicationEntityTitle", ctx.getCallingAET());
+
+            t.setParameter("RemoteHostname", ctx.getRemoteHostName());
+        };
     }
 
     @Override

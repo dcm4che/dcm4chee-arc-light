@@ -481,11 +481,23 @@ class StoreServiceImpl implements StoreService {
             try {
                 Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
                 LOG.info("Coerce Attributes from rule: {}", rule);
-                return new XSLTAttributesCoercion(tpls, null).includeKeyword(!rule.isNoKeywords());
+                return new XSLTAttributesCoercion(tpls, null)
+                        .includeKeyword(!rule.isNoKeywords())
+                        .setupTransformer(setupTransformer(ctx.getStoreSession()));
             } catch (TransformerConfigurationException e) {
                 LOG.error("{}: Failed to compile XSL: {}", ctx.getStoreSession(), xsltStylesheetURI, e);
             }
         return next;
+    }
+
+    private SAXTransformer.SetupTransformer setupTransformer(StoreSession session) {
+        return t -> {
+            t.setParameter("ReceivingApplicationEntityTitle", session.getCalledAET());
+            if (session.getCallingAET() != null)
+                t.setParameter("SendingApplicationEntityTitle", session.getCallingAET());
+
+            t.setParameter("RemoteHostname", session.getRemoteHostName());
+        };
     }
 
     private AttributesCoercion mergeAttributesFromMWL(

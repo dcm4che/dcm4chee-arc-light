@@ -50,10 +50,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.deident.DeIdentificationAttributesCoercion;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.io.BulkDataCreator;
-import org.dcm4che3.io.DicomInputStream;
-import org.dcm4che3.io.TemplatesCache;
-import org.dcm4che3.io.XSLTAttributesCoercion;
+import org.dcm4che3.io.*;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
@@ -893,7 +890,9 @@ public class RetrieveServiceImpl implements RetrieveService {
         if (xsltStylesheetURI != null)
         try {
             Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
-            coercion = new XSLTAttributesCoercion(tpls, coercion).includeKeyword(!rule.isNoKeywords());
+            coercion = new XSLTAttributesCoercion(tpls, coercion)
+                    .includeKeyword(!rule.isNoKeywords())
+                    .setupTransformer(setupTransformer(ctx));
         } catch (TransformerConfigurationException e) {
             LOG.error("{}: Failed to compile XSL: {}", ctx.getLocalAETitle(), xsltStylesheetURI, e);
         }
@@ -904,6 +903,13 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
         LOG.info("Coerce Attributes from rule: {}", rule);
         return coercion;
+    }
+
+    private SAXTransformer.SetupTransformer setupTransformer(RetrieveContext ctx) {
+        return t -> {
+            t.setParameter("ReceivingApplicationEntityTitle", ctx.getDestinationAETitle());
+            t.setParameter("SendingApplicationEntityTitle", ctx.getLocalAETitle());
+        };
     }
 
     private boolean isAccessable(ArchiveDeviceExtension arcDev, InstanceLocations match) {
