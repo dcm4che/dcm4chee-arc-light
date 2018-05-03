@@ -5703,6 +5703,26 @@
             "default": false
           },
           {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "different",
+            "in": "query",
+            "description": "include Studies different at originalAET",
+            "type": "boolean",
+            "default": "yes"
+          },
+          {
+            "name": "missing",
+            "in": "query",
+            "description": "include Studies missing at originalAET",
+            "type": "boolean",
+            "default": "no"
+          },
+          {
             "name": "priority",
             "in": "query",
             "description": "requested priority: 0=NORMAL, 1=HIGH, 2=LOW",
@@ -5794,6 +5814,12 @@
             "description": "include Studies missing at originalAET",
             "type": "boolean",
             "default": "no"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           },
           {
             "name": "includefield",

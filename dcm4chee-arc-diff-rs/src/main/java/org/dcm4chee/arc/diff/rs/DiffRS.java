@@ -142,6 +142,9 @@ public class DiffRS {
     @QueryParam("queue")
     private boolean queue;
 
+    @QueryParam("batchID")
+    private String batchID;
+
     @Override
     public String toString() {
         return request.getRequestURI() + '?' + request.getQueryString();
