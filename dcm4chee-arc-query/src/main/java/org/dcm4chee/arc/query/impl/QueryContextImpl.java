@@ -46,6 +46,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -150,7 +151,7 @@ class QueryContextImpl implements QueryContext {
 
     @Override
     public String getRemoteHostName() {
-        return httpRequest != null ? httpRequest.getRemoteHost() : as.getSocket().getInetAddress().getHostName();
+        return httpRequest != null ? httpRequest.getRemoteHost() : ReverseDNS.hostNameOf(as.getSocket().getInetAddress());
     }
 
     @Override

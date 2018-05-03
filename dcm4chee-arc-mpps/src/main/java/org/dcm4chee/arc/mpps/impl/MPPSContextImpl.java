@@ -94,7 +94,7 @@ public class MPPSContextImpl implements MPPSContext {
 
     @Override
     public String getRemoteHostName() {
-        return as.getSocket().getInetAddress().getHostName();
+        return ReverseDNS.hostNameOf(as.getSocket().getInetAddress());
     }
 
     @Override
