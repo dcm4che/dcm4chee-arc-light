@@ -492,11 +492,11 @@ class StoreServiceImpl implements StoreService {
 
     private SAXTransformer.SetupTransformer setupTransformer(StoreSession session) {
         return t -> {
-            t.setParameter("ReceivingApplicationEntityTitle", session.getCalledAET());
+            t.setParameter("LocalAET", session.getCalledAET());
             if (session.getCallingAET() != null)
-                t.setParameter("SendingApplicationEntityTitle", session.getCallingAET());
+                t.setParameter("RemoteAET", session.getCallingAET());
 
-            t.setParameter("RemoteHostname", session.getRemoteHostName());
+            t.setParameter("RemoteHost", session.getRemoteHostName());
         };
     }
 

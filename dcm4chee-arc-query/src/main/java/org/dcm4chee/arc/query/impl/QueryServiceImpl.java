@@ -457,11 +457,11 @@ class QueryServiceImpl implements QueryService {
 
     private SAXTransformer.SetupTransformer setupTransformer(QueryContext ctx) {
         return t -> {
-            t.setParameter("ReceivingApplicationEntityTitle", ctx.getCalledAET());
+            t.setParameter("LocalAET", ctx.getCalledAET());
             if (ctx.getCallingAET() != null)
-                t.setParameter("SendingApplicationEntityTitle", ctx.getCallingAET());
+                t.setParameter("RemoteAET", ctx.getCallingAET());
 
-            t.setParameter("RemoteHostname", ctx.getRemoteHostName());
+            t.setParameter("RemoteHost", ctx.getRemoteHostName());
         };
     }
 

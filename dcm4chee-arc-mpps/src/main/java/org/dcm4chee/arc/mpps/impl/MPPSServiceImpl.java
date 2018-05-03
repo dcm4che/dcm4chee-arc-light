@@ -134,11 +134,11 @@ public class MPPSServiceImpl implements MPPSService {
 
     private SAXTransformer.SetupTransformer setupTransformer(MPPSContext ctx) {
         return t -> {
-            t.setParameter("ReceivingApplicationEntityTitle", ctx.getCalledAET());
+            t.setParameter("LocalAET", ctx.getCalledAET());
             if (ctx.getCallingAET() != null)
-                t.setParameter("SendingApplicationEntityTitle", ctx.getCallingAET());
+                t.setParameter("RemoteAET", ctx.getCallingAET());
 
-            t.setParameter("SendingHostname", ctx.getRemoteHostName());
+            t.setParameter("RemoteHost", ctx.getRemoteHostName());
         };
     }
 }
