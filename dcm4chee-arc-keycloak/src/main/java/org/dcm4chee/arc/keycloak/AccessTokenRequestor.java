@@ -76,7 +76,7 @@ public class AccessTokenRequestor {
         if (tmp == null || !tmp.keycloakServerID.equals(keycloakServerID)) {
             KeycloakServer server = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                     .getKeycloakServerNotNull(keycloakServerID);
-            cachedKeycloak = tmp = new CachedKeycloak(server.getKeycloakServerID(), KeycloakBuilder.builder()
+            cachedKeycloak = tmp = new CachedKeycloak(keycloakServerID, KeycloakBuilder.builder()
                     .serverUrl(server.getServerURL())
                     .realm(server.getRealm())
                     .clientId(server.getClientID())
