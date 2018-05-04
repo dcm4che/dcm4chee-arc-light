@@ -53,6 +53,7 @@ import org.dcm4che3.net.service.DicomServiceRegistry;
 import org.dcm4chee.arc.*;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Patient;
+import org.dcm4chee.arc.event.ArchiveServiceEvent;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;

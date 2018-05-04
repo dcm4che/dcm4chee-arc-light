@@ -44,11 +44,13 @@ package org.dcm4chee.arc.keycloak;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.KeycloakServer;
+import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 /**
@@ -63,6 +65,11 @@ public class AccessTokenRequestor {
     private Device device;
 
     private CachedKeycloak cachedKeycloak;
+
+    public void onArchiveServiceEvent(@Observes ArchiveServiceEvent event) {
+        if (event.getType() == ArchiveServiceEvent.Type.RELOADED)
+            cachedKeycloak = null;
+    }
 
     public String getAccessTokenString(String keycloakServerID) throws Exception {
         CachedKeycloak tmp = cachedKeycloak;
