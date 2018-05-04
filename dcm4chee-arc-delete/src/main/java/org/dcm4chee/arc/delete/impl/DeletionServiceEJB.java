@@ -58,6 +58,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -111,6 +112,14 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
+    public int instancesNotStoredOnBoth(Long studyPk, String storageID, String otherStorageID) {
+        return ((BigDecimal) em.createNamedQuery(Location.COUNT_INSTANCES_OF_STUDY_NOT_ON_BOTH_STORAGE)
+                .setParameter(1, studyPk)
+                .setParameter(2, storageID)
+                .setParameter(3, otherStorageID)
+                .getSingleResult()).intValue();
+    }
+
     public List<Long> findStudiesForDeletionOnStorageWithExternalRetrieveAET(String storageID, String aet, int limit) {
         return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_ID_AND_EXT_RETR_AET, Long.class)
                 .setParameter(1, storageID)
@@ -151,8 +160,16 @@ public class DeletionServiceEJB {
                                     .setParameter(2, storageID)
                                     .getResultList();
         Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE);
+        Set<Long> seriesPks = new HashSet<>();
+        for (Instance inst : insts) {
+            Series series = inst.getSeries();
+            if (seriesPks.add(series.getPk())
+                    && series.getMetadataScheduledUpdateTime() == null
+                    && series.getMetadata() != null)
+                scheduleMetadataUpdate(series.getPk());
+        }
         Study study = insts.iterator().next().getSeries().getStudy();
-        study.clearStorageIDs();
+        study.removeStorageID(storageID);
         return study;
     }
 

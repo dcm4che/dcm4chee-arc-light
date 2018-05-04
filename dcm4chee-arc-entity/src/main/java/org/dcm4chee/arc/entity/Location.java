@@ -82,13 +82,21 @@ import java.util.Date;
         @NamedQuery(name = Location.COUNT_BY_UIDMAP,
                 query = "select count(l) from Location l where l.uidMap=?1")
 })
-@NamedNativeQuery(name = Location.SIZE_OF_SERIES,
-        query = "SELECT sum(x.max_object_size) " +
-                "FROM (SELECT max(object_size) max_object_size " +
-                "FROM location " +
-                "JOIN instance ON location.instance_fk = instance.pk " +
-                "WHERE series_fk = ?1 AND location.object_type = ?2 " +
-                "GROUP BY instance_fk) x")
+@NamedNativeQueries({
+        @NamedNativeQuery(name = Location.SIZE_OF_SERIES,
+                query = "select sum(x.max_object_size) from (" +
+                        "select max(object_size) max_object_size from location " +
+                        "join instance on location.instance_fk = instance.pk " +
+                        "where series_fk = ?1 and location.object_type = ?2 " +
+                        "group by instance_fk) x"),
+        @NamedNativeQuery(name = Location.COUNT_INSTANCES_OF_STUDY_NOT_ON_BOTH_STORAGE,
+                query = "select count(*) from (" +
+                        "select instance_fk from location " +
+                        "join instance on location.instance_fk = instance.pk " +
+                        "join series on series_fk = series.pk " +
+                        "where study_fk = ?1 and storage_id in (?2,?3) " +
+                        "group by instance_fk having count(location.pk) < 2) x")
+})
 public class Location {
 
     public static final String FIND_BY_STORAGE_ID_AND_STATUS = "Location.FindByStorageIDAndStatus";
@@ -102,6 +110,7 @@ public class Location {
     public static final String COUNT_BY_MULTI_REF = "Location.CountByMultiRef";
     public static final String COUNT_BY_UIDMAP = "Location.CountByUIDMap";
     public static final String SIZE_OF_SERIES = "Location.SizeOfSeries";
+    public static final String COUNT_INSTANCES_OF_STUDY_NOT_ON_BOTH_STORAGE = "Location.CountInstancesOfStudyNotOnBothStorage";
 
     public enum Status { OK, TO_DELETE, FAILED_TO_DELETE }
 

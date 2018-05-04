@@ -1,10 +1,7 @@
-version: 1
-
-dn: cn={7}dcm4chee-archive-ui,cn=schema,cn=config
-changetype: modify
-delete: olcAttributeTypes
--
-add: olcAttributeTypes
+# DICOM Application Configuration Data Model Hierarchy LDAP Schema
+dn: cn=dcm4chee-archive-ui,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: dcm4chee-archive-ui
 olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.1 NAME 'dcmuiConfigName'
   DESC 'UI Configuration Name'
   EQUALITY caseExactMatch
@@ -125,10 +122,6 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.111.3.24 NAME 'dcmuiElasticsearchURL'
     EQUALITY caseExactIA5Match
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
     SINGLE-VALUE )
--
-delete: olcObjectClasses
--
-add: olcObjectClasses
 olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.1 NAME 'dcmuiConfig'
   DESC 'Archive UI Configuration'
   SUP top STRUCTURAL

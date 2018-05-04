@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.BinaryPrefix;
@@ -49,6 +50,7 @@ import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Metadata;
+import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
@@ -61,7 +63,9 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -122,9 +126,7 @@ public class PurgeStorageScheduler extends Scheduler {
             }
             for (int i = 0; i == 0 || deleteSize > 0L; i++) {
                 if (deleteSize > 0L) {
-                    if ((desc.getExternalRetrieveAETitle() == null
-                            ? deleteStudies(desc, deleteStudyBatchSize, deletePatient)
-                            : deleteObjectsOfStudies(desc, deleteStudyBatchSize)) == 0)
+                    if (deleteStudies(desc, deleteStudyBatchSize, deletePatient) == 0)
                         deleteSize = 0L;
                 }
                 while (deleteNextObjectsFromStorage(desc, fetchSize)) ;
@@ -151,7 +153,7 @@ public class PurgeStorageScheduler extends Scheduler {
     private int deleteStudies(StorageDescriptor desc, int fetchSize, boolean deletePatient) {
         List<Long> studyPks;
         try {
-           studyPks = ejb.findStudiesForDeletionOnStorage(desc.getStorageID(), fetchSize);
+           studyPks = findStudiesForDeletion(desc, fetchSize);
         } catch (Exception e) {
             LOG.warn("Query for studies for deletion on {} failed", desc, e);
             return 0;
@@ -160,6 +162,44 @@ public class PurgeStorageScheduler extends Scheduler {
             LOG.warn("No studies for deletion found on {}", desc);
             return 0;
         }
+        return desc.getExternalRetrieveAETitle() != null || desc.getExportStorageID() != null
+                ? deleteObjectsOfStudies(desc, studyPks)
+                : deleteStudiesFromDB(desc, studyPks, deletePatient);
+    }
+
+    private List<Long> findStudiesForDeletion(StorageDescriptor desc, int fetchSize) {
+        List<Long> studyPks = desc.getExternalRetrieveAETitle() != null
+                ? ejb.findStudiesForDeletionOnStorageWithExternalRetrieveAET(
+                        toStorageID(desc), desc.getExternalRetrieveAETitle(), fetchSize)
+                : ejb.findStudiesForDeletionOnStorage(toStorageID(desc), fetchSize);
+
+        if (desc.getExportStorageID() != null) {
+            for (Iterator<Long> iter = studyPks.iterator(); iter.hasNext();) {
+                Long studyPk = iter.next();
+                int notStoredOnBoth = ejb.instancesNotStoredOnBoth(studyPk, desc.getStorageID(), desc.getExportStorageID());
+                if (notStoredOnBoth > 0) {
+                    LOG.warn("{} of instances of Study[pk={}] on {} not stored on Storage[id={}] - defer deletion objects",
+                            notStoredOnBoth, studyPk, desc, desc.getExportStorageID());
+                    em.createNamedQuery(Study.UPDATE_ACCESS_TIME)
+                            .setParameter(1, studyPk)
+                            .executeUpdate();
+                    iter.remove();
+                }
+            }
+        }
+        return studyPks;
+    }
+
+    private static String toStorageID(StorageDescriptor desc) {
+        if (desc.getExportStorageID() == null)
+            return desc.getStorageID();
+
+        String[] ss = { desc.getStorageID(), desc.getExportStorageID() };
+        Arrays.sort(ss);
+        return StringUtils.concat(ss, '\\');
+    }
+
+    private int deleteStudiesFromDB(StorageDescriptor desc, List<Long> studyPks, boolean deletePatient) {
         int removed = 0;
         for (Long studyPk : studyPks) {
             StudyDeleteContextImpl ctx = new StudyDeleteContextImpl(studyPk);
@@ -182,21 +222,7 @@ public class PurgeStorageScheduler extends Scheduler {
         return removed;
     }
 
-    private int deleteObjectsOfStudies(StorageDescriptor desc, int fetchSize) {
-        List<Long> studyPks;
-        try {
-           studyPks = ejb.findStudiesForDeletionOnStorageWithExternalRetrieveAET(
-                    desc.getStorageID(), desc.getExternalRetrieveAETitle(), fetchSize);
-        } catch (Exception e) {
-            LOG.warn("Query for studies available at {} for deletion on {} failed",
-                    desc.getExternalRetrieveAETitle(), desc, e);
-            return 0;
-        }
-        if (studyPks.isEmpty()) {
-            LOG.warn("No studies available at {} for deletion found on {}",
-                    desc.getExternalRetrieveAETitle(), desc);
-            return 0;
-        }
+    private int deleteObjectsOfStudies(StorageDescriptor desc, List<Long> studyPks) {
         int removed = 0;
         for (Long studyPk : studyPks) {
             try {

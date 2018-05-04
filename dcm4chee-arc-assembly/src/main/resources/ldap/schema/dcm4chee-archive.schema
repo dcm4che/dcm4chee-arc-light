@@ -730,7 +730,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.122 NAME 'dcmStorePermissionServiceErrorC
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.123 NAME 'dcmExternalRetrieveAET'
-  DESC 'Constrain deletion of Studies, whose objects are retrievable using this AE from an external C-MOVE SCP, if usable space falls below configured threshold.'
+  DESC 'Constrain deletion of Studies, if usable space falls below the configured threshold, to Studies which objects are retrievable using this AE from an external C-MOVE SCP.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -1232,6 +1232,11 @@ attributetype ( 1.2.40.0.13.1.15.110.3.207 NAME 'dcmTLSDisableTrustManager'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.208 NAME 'dcmExportStorageID'
+  DESC 'Constrain deletion of Studies, if usable space falls below the configured threshold, to Studies which objects are also accessible from the specified other storage.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -1473,6 +1478,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmStorageThreshold $
     dcmDeleterThreshold $
     dcmExternalRetrieveAET $
+    dcmExportStorageID $
     dcmReadOnly $
     dcmProperty ) )
 

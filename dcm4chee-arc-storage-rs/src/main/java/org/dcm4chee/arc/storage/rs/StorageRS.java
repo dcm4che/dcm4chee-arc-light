@@ -124,6 +124,7 @@ public class StorageRS {
                         gen.write("storageThreshold", desc.getStorageThreshold().getMinUsableDiskSpace());
                     writeDeleterThresholds(writer, gen, desc.getDeleterThresholds());
                     writer.writeNotNullOrDef("dcmExternalRetrieveAET", desc.getExternalRetrieveAETitle(), null);
+                    writer.writeNotNullOrDef("dcmExportStorageID", desc.getExportStorageID(), null);
                     writer.writeNotEmpty("dcmProperty", descriptorProperties(desc.getProperties()));
                     writer.writeNotEmpty("dicomAETitle", ss.aets.stream().sorted().toArray(String[]::new));
                     writer.writeNotEmpty("usages", ss.usages.toArray(new String[ss.usages.size()]));

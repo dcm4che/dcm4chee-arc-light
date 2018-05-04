@@ -18,6 +18,7 @@ public final class StorageDescriptor {
     private URI storageURI;
     private String digestAlgorithm;
     private Availability instanceAvailability = Availability.ONLINE;
+    private String exportStorageID;
     private String externalRetrieveAETitle;
     private boolean readOnly;
     private StorageThreshold storageThreshold;
@@ -87,6 +88,14 @@ public final class StorageDescriptor {
 
     public void setExternalRetrieveAETitle(String externalRetrieveAETitle) {
         this.externalRetrieveAETitle = externalRetrieveAETitle;
+    }
+
+    public String getExportStorageID() {
+        return exportStorageID;
+    }
+
+    public void setExportStorageID(String exportStorageID) {
+        this.exportStorageID = exportStorageID;
     }
 
     public boolean isReadOnly() {

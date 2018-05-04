@@ -363,7 +363,24 @@ public class Study {
         if (!set.add(storageID))
             return false;
 
-        this.storageIDs = StringUtils.concat(set.toArray(new String[set.size()]), '\\');
+        this.storageIDs = StringUtils.concat(set.toArray(StringUtils.EMPTY_STRING), '\\');
+        return true;
+    }
+
+    public boolean removeStorageID(String storageID) {
+        if (storageIDs == null)
+            return false;
+
+        if (storageID.equals(storageIDs)) {
+            storageIDs = null;
+            return true;
+        }
+
+        TreeSet<String> set = new TreeSet<>(Arrays.asList(getStorageIDs()));
+        if (!set.remove(storageID))
+            return false;
+
+        this.storageIDs = StringUtils.concat(set.toArray(StringUtils.EMPTY_STRING), '\\');
         return true;
     }
 

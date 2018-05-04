@@ -1357,6 +1357,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleterThreshold", descriptor.getDeleterThresholdsAsStrings());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(descriptor.getProperties()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalRetrieveAET", descriptor.getExternalRetrieveAETitle(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExportStorageID", descriptor.getExportStorageID(), null);
         return attrs;
     }
 
@@ -1384,6 +1385,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setDeleterThresholdsFromStrings(LdapUtils.stringArray(attrs.get("dcmDeleterThreshold")));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 desc.setExternalRetrieveAETitle(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAET"), null));
+                desc.setExportStorageID(LdapUtils.stringValue(attrs.get("dcmExportStorageID"), null));
                 arcdev.addStorageDescriptor(desc);
             }
         } finally {
@@ -1437,6 +1439,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getDeleterThresholdsAsStrings(), desc.getDeleterThresholdsAsStrings());
         storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalRetrieveAET", prev.getExternalRetrieveAETitle(), desc.getExternalRetrieveAETitle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExportStorageID", prev.getExportStorageID(), desc.getExportStorageID(), null);
         return mods;
     }
 
