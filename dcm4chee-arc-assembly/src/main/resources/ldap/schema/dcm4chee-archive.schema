@@ -1226,7 +1226,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.206 NAME 'dcmTLSAllowAnyHostname'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.207 NAME 'dcmDisableTrustManager'
+attributetype ( 1.2.40.0.13.1.15.110.3.207 NAME 'dcmTLSDisableTrustManager'
   DESC 'If the other server requires HTTPS and this config option is set to true you do not have to specify a truststore. Default is false.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
@@ -1633,7 +1633,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.25 NAME 'dcmRSForwardRule'
   MAY (
     dcmKeycloakServerID $
     dcmTLSAllowAnyHostname $
-    dcmDisableTrustManager $
+    dcmTLSDisableTrustManager $
     dcmRSOperation ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.26 NAME 'dcmMetadataFilter'
@@ -1686,6 +1686,6 @@ objectclass ( 1.2.40.0.13.1.15.110.4.30 NAME 'dcmKeycloakServer'
     dcmKeycloakGrantType $
     dcmKeycloakClientSecret $
     dcmTLSAllowAnyHostname $
-    dcmDisableTrustManager $
+    dcmTLSDisableTrustManager $
     uid $
     userPassword ) )

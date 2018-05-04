@@ -69,7 +69,7 @@ public class AccessTokenRequestor {
             ResteasyClientBuilder resteasyClientBuilder = new ResteasyClientBuilder()
                     .hostnameVerification(hostnameVerificationPolicy(server.isTlsAllowAnyHostname()))
                     .sslContext(device.sslContext());
-            if (server.isDisableTrustManager())
+            if (server.isTlsDisableTrustManager())
                 resteasyClientBuilder.disableTrustManager();
             cachedKeycloak = tmp = new CachedKeycloak(server.getKeycloakServerID(), KeycloakBuilder.builder()
                     .serverUrl(server.getServerURL())

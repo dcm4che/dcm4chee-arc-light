@@ -1930,7 +1930,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRSOperation", rule.getRSOperations());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeycloakServerID", rule.getKeycloakServerID(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmTLSAllowAnyHostname", rule.isTlsAllowAnyHostname(), false);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmDisableTrustManager", rule.isDisableTrustManager(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmTLSDisableTrustManager", rule.isTlsDisableTrustManager(), false);
         return attrs;
     }
 
@@ -1943,7 +1943,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeycloakGrantType", keycloakServer.getGrantType(), KeycloakServer.GrantType.client_credentials);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmKeycloakClientSecret", keycloakServer.getClientSecret(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmTLSAllowAnyHostname", keycloakServer.isTlsAllowAnyHostname(), false);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmDisableTrustManager", keycloakServer.isDisableTrustManager(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmTLSDisableTrustManager", keycloakServer.isTlsDisableTrustManager(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "uid", keycloakServer.getUserID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "userPassword", keycloakServer.getPassword(), null);
         return attrs;
@@ -2068,7 +2068,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 rule.setRSOperations(LdapUtils.enumArray(RSOperation.class, attrs.get("dcmRSOperation")));
                 rule.setKeycloakServerID(LdapUtils.stringValue(attrs.get("dcmKeycloakServerID"), null));
                 rule.setTlsAllowAnyHostname(LdapUtils.booleanValue(attrs.get("dcmTLSAllowAnyHostname"), false));
-                rule.setDisableTrustManager(LdapUtils.booleanValue(attrs.get("dcmDisableTrustManager"), false));
+                rule.setTlsDisableTrustManager(LdapUtils.booleanValue(attrs.get("dcmTLSDisableTrustManager"), false));
 
                 rules.add(rule);
             }
@@ -2094,7 +2094,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         KeycloakServer.GrantType.client_credentials));
                 keycloakServer.setClientSecret(LdapUtils.stringValue(attrs.get("dcmKeycloakClientSecret"), null));
                 keycloakServer.setTlsAllowAnyHostname(LdapUtils.booleanValue(attrs.get("dcmTLSAllowAnyHostname"), false));
-                keycloakServer.setDisableTrustManager(LdapUtils.booleanValue(attrs.get("dcmDisableTrustManager"), false));
+                keycloakServer.setTlsDisableTrustManager(LdapUtils.booleanValue(attrs.get("dcmTLSDisableTrustManager"), false));
                 keycloakServer.setUserID(LdapUtils.stringValue(attrs.get("uid"), null));
                 keycloakServer.setPassword(LdapUtils.stringValue(attrs.get("userPassword"), null));
                 arcdev.addKeycloakServer(keycloakServer);
@@ -2405,8 +2405,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakServerID", prev.getKeycloakServerID(), rule.getKeycloakServerID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmTLSAllowAnyHostname",
                 prev.isTlsAllowAnyHostname(), rule.isTlsAllowAnyHostname(), false);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmDisableTrustManager",
-                prev.isDisableTrustManager(), rule.isDisableTrustManager(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmTLSDisableTrustManager",
+                prev.isTlsDisableTrustManager(), rule.isTlsDisableTrustManager(), false);
         return mods;
     }
 
@@ -2420,8 +2420,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmKeycloakClientSecret", prev.getClientSecret(), keycloakServer.getClientSecret(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmTLSAllowAnyHostname",
                 prev.isTlsAllowAnyHostname(), keycloakServer.isTlsAllowAnyHostname(), false);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmDisableTrustManager",
-                prev.isDisableTrustManager(), keycloakServer.isDisableTrustManager(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmTLSDisableTrustManager",
+                prev.isTlsDisableTrustManager(), keycloakServer.isTlsDisableTrustManager(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "uid", prev.getUserID(), keycloakServer.getUserID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "userPassword", prev.getPassword(), keycloakServer.getPassword(), null);
         return mods;

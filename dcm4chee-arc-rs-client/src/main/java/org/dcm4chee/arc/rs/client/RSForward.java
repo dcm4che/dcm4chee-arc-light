@@ -86,7 +86,7 @@ public class RSForward {
                             toContent(attrs),
                             rule.getKeycloakServerID(),
                             rule.isTlsAllowAnyHostname(),
-                            rule.isDisableTrustManager());
+                            rule.isTlsDisableTrustManager());
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to apply {}:\n", rule, e);
@@ -107,7 +107,7 @@ public class RSForward {
                             in,
                             rule.getKeycloakServerID(),
                             rule.isTlsAllowAnyHostname(),
-                            rule.isDisableTrustManager());
+                            rule.isTlsDisableTrustManager());
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to apply {}:\n", rule, e);

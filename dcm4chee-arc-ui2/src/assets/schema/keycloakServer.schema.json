@@ -51,8 +51,8 @@
       "type": "boolean",
       "default": false
     },
-    "dcmDisableTrustManager": {
-      "title": "Disable Trust Manager",
+    "dcmTLSDisableTrustManager": {
+      "title": "TLS Disable Trust Manager",
       "description": "If the other server requires HTTPS and this config option is set to true you do not have to specify a truststore",
       "type": "boolean",
       "default": false

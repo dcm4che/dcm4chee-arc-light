@@ -56,7 +56,7 @@ public class KeycloakServer {
     private String password;
     private GrantType grantType = GrantType.client_credentials;
     private boolean tlsAllowAnyHostname;
-    private boolean disableTrustManager;
+    private boolean tlsDisableTrustManager;
 
     public enum GrantType {
         client_credentials, password
@@ -141,11 +141,11 @@ public class KeycloakServer {
         this.tlsAllowAnyHostname = tlsAllowAnyHostname;
     }
 
-    public boolean isDisableTrustManager() {
-        return disableTrustManager;
+    public boolean isTlsDisableTrustManager() {
+        return tlsDisableTrustManager;
     }
 
-    public void setDisableTrustManager(boolean disableTrustManager) {
-        this.disableTrustManager = disableTrustManager;
+    public void setTlsDisableTrustManager(boolean tlsDisableTrustManager) {
+        this.tlsDisableTrustManager = tlsDisableTrustManager;
     }
 }

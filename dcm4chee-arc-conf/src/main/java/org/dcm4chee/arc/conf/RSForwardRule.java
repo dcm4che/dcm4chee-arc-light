@@ -60,7 +60,7 @@ public class RSForwardRule {
 
     private boolean tlsAllowAnyHostname;
 
-    private boolean disableTrustManager;
+    private boolean tlsDisableTrustManager;
 
     public RSForwardRule() {
     }
@@ -110,12 +110,12 @@ public class RSForwardRule {
         this.tlsAllowAnyHostname = tlsAllowAnyHostname;
     }
 
-    public boolean isDisableTrustManager() {
-        return disableTrustManager;
+    public boolean isTlsDisableTrustManager() {
+        return tlsDisableTrustManager;
     }
 
-    public void setDisableTrustManager(boolean disableTrustManager) {
-        this.disableTrustManager = disableTrustManager;
+    public void setTlsDisableTrustManager(boolean tlsDisableTrustManager) {
+        this.tlsDisableTrustManager = tlsDisableTrustManager;
     }
 
     public boolean match(RSOperation rsOperation) {

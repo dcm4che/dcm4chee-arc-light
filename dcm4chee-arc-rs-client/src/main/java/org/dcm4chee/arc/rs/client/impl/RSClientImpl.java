@@ -80,7 +80,7 @@ public class RSClientImpl implements RSClient {
 
     @Override
     public void scheduleRequest(
-            String method, String uri, byte[] content, String keycloakServerID, boolean tlsAllowAnyHostName, boolean disableTrustManager)
+            String method, String uri, byte[] content, String keycloakServerID, boolean tlsAllowAnyHostName, boolean tlsDisableTrustManager)
             throws QueueSizeLimitExceededException {
         try {
             ObjectMessage msg = queueManager.createObjectMessage(content);
@@ -88,7 +88,7 @@ public class RSClientImpl implements RSClient {
             msg.setStringProperty("URI", uri);
             msg.setStringProperty("KeycloakServerID", keycloakServerID);
             msg.setStringProperty("TLSAllowAnyHostname", String.valueOf(tlsAllowAnyHostName));
-            msg.setStringProperty("DisableTrustManager", String.valueOf(disableTrustManager));
+            msg.setStringProperty("TLSDisableTrustManager", String.valueOf(tlsDisableTrustManager));
             queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
@@ -97,12 +97,12 @@ public class RSClientImpl implements RSClient {
 
     @Override
     public Outcome request(
-            String method, String uri, String keycloakServerID, boolean tlsAllowAnyHostname, boolean disableTrustManager, byte[] content)
+            String method, String uri, String keycloakServerID, boolean tlsAllowAnyHostname, boolean tlsDisableTrustManager, byte[] content)
             throws Exception {
         ResteasyClientBuilder resteasyClientBuilder = new ResteasyClientBuilder()
                 .hostnameVerification(accessTokenRequestor.hostnameVerificationPolicy(tlsAllowAnyHostname))
                 .sslContext(device.sslContext());
-        if (disableTrustManager)
+        if (tlsDisableTrustManager)
             resteasyClientBuilder.disableTrustManager();
         ResteasyClient client = resteasyClientBuilder.build();
         WebTarget target = client.target(uri);

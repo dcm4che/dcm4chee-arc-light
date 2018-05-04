@@ -87,7 +87,7 @@ public class RSClientMDB implements MessageListener {
                     msg.getStringProperty("URI"),
                     msg.getStringProperty("KeycloakServerID"),
                     Boolean.valueOf(msg.getStringProperty("TLSAllowAnyHostname")),
-                    Boolean.valueOf(msg.getStringProperty("DisableTrustManager")),
+                    Boolean.valueOf(msg.getStringProperty("TLSDisableTrustManager")),
                     content);
             queueManager.onProcessingSuccessful(msgID, outcome);
         } catch (Throwable e) {
