@@ -43,6 +43,7 @@ package org.dcm4chee.arc.conf;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since May 2018
  */
 public class KeycloakServer {
@@ -54,6 +55,8 @@ public class KeycloakServer {
     private String userID;
     private String password;
     private GrantType grantType = GrantType.client_credentials;
+    private boolean tlsAllowAnyHostname;
+    private boolean disableTrustManager;
 
     public enum GrantType {
         client_credentials, password
@@ -128,5 +131,21 @@ public class KeycloakServer {
 
     public void setGrantType(GrantType grantType) {
         this.grantType = grantType;
+    }
+
+    public boolean isTlsAllowAnyHostname() {
+        return tlsAllowAnyHostname;
+    }
+
+    public void setTlsAllowAnyHostname(boolean tlsAllowAnyHostname) {
+        this.tlsAllowAnyHostname = tlsAllowAnyHostname;
+    }
+
+    public boolean isDisableTrustManager() {
+        return disableTrustManager;
+    }
+
+    public void setDisableTrustManager(boolean disableTrustManager) {
+        this.disableTrustManager = disableTrustManager;
     }
 }

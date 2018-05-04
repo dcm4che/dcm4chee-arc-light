@@ -49,6 +49,8 @@ import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.rs.client.RSClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -77,13 +79,16 @@ public class RSClientImpl implements RSClient {
     private AccessTokenRequestor accessTokenRequestor;
 
     @Override
-    public void scheduleRequest(String method, String uri, byte[] content, String keycloakServerID)
+    public void scheduleRequest(
+            String method, String uri, byte[] content, String keycloakServerID, boolean tlsAllowAnyHostName, boolean disableTrustManager)
             throws QueueSizeLimitExceededException {
         try {
             ObjectMessage msg = queueManager.createObjectMessage(content);
             msg.setStringProperty("Method", method);
             msg.setStringProperty("URI", uri);
             msg.setStringProperty("KeycloakServerID", keycloakServerID);
+            msg.setStringProperty("TLSAllowAnyHostname", String.valueOf(tlsAllowAnyHostName));
+            msg.setStringProperty("DisableTrustManager", String.valueOf(disableTrustManager));
             queueManager.scheduleMessage(QUEUE_NAME, msg, Message.DEFAULT_PRIORITY, null);
         } catch (JMSException e) {
             throw new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
@@ -91,15 +96,22 @@ public class RSClientImpl implements RSClient {
     }
 
     @Override
-    public Outcome request(String method, String uri, String keycloakServerID, byte[] content) throws Exception {
-        Client client = ClientBuilder.newBuilder().build();
+    public Outcome request(
+            String method, String uri, String keycloakServerID, boolean tlsAllowAnyHostname, boolean disableTrustManager, byte[] content)
+            throws Exception {
+        ResteasyClientBuilder resteasyClientBuilder = new ResteasyClientBuilder()
+                .hostnameVerification(accessTokenRequestor.hostnameVerificationPolicy(tlsAllowAnyHostname))
+                .sslContext(device.sslContext());
+        if (disableTrustManager)
+            resteasyClientBuilder.disableTrustManager();
+        ResteasyClient client = resteasyClientBuilder.build();
         WebTarget target = client.target(uri);
         Response response = null;
         Outcome outcome;
         Invocation.Builder request = target.request();
         if (keycloakServerID != null) {
             KeycloakServer keycloakServer = device.getDeviceExtension(ArchiveDeviceExtension.class).getKeycloakServer(keycloakServerID);
-            request.header("Authorization: ", "Bearer " + accessTokenRequestor.getAccessTokenString(keycloakServer));
+            request.header("Authorization", "Bearer " + accessTokenRequestor.getAccessTokenString(keycloakServer));
         }
         switch (method) {
             case "DELETE":

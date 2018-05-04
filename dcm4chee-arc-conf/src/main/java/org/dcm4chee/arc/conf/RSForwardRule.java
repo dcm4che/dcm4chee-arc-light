@@ -45,6 +45,7 @@ import java.util.EnumSet;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <gunterze@gmail.com>
  * @since Nov 2016
  */
 public class RSForwardRule {
@@ -56,6 +57,10 @@ public class RSForwardRule {
     private EnumSet<RSOperation> rsOperations = EnumSet.noneOf(RSOperation.class);
 
     private String keycloakServerID;
+
+    private boolean tlsAllowAnyHostname;
+
+    private boolean disableTrustManager;
 
     public RSForwardRule() {
     }
@@ -95,6 +100,22 @@ public class RSForwardRule {
 
     public void setKeycloakServerID(String keycloakServerID) {
         this.keycloakServerID = keycloakServerID;
+    }
+
+    public boolean isTlsAllowAnyHostname() {
+        return tlsAllowAnyHostname;
+    }
+
+    public void setTlsAllowAnyHostname(boolean tlsAllowAnyHostname) {
+        this.tlsAllowAnyHostname = tlsAllowAnyHostname;
+    }
+
+    public boolean isDisableTrustManager() {
+        return disableTrustManager;
+    }
+
+    public void setDisableTrustManager(boolean disableTrustManager) {
+        this.disableTrustManager = disableTrustManager;
     }
 
     public boolean match(RSOperation rsOperation) {

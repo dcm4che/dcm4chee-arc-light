@@ -535,6 +535,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmURI", rule.getBaseURI(), null);
             writer.writeNotEmpty("dcmRSOperation", rule.getRSOperations());
             writer.writeNotNullOrDef("dcmKeycloakServerID", rule.getKeycloakServerID(), null);
+            writer.writeNotDef("dcmTLSAllowAnyHostname", rule.isTlsAllowAnyHostname(), false);
+            writer.writeNotDef("dcmDisableTrustManager", rule.isDisableTrustManager(), false);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -550,6 +552,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmKeycloakClientID", keycloakServer.getClientID(), null);
             writer.writeNotNullOrDef("dcmKeycloakGrantType", keycloakServer.getGrantType(), null);
             writer.writeNotNullOrDef("dcmKeycloakClientSecret", keycloakServer.getClientSecret(), null);
+            writer.writeNotDef("dcmTLSAllowAnyHostname", keycloakServer.isTlsAllowAnyHostname(), false);
+            writer.writeNotDef("dcmDisableTrustManager", keycloakServer.isDisableTrustManager(), false);
             writer.writeNotNullOrDef("uid", keycloakServer.getUserID(), null);
             writer.writeNotNullOrDef("userPassword", keycloakServer.getPassword(), null);
             writer.writeEnd();
@@ -1756,6 +1760,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmKeycloakServerID":
                         rule.setKeycloakServerID(reader.stringValue());
                         break;
+                    case "dcmTLSAllowAnyHostname":
+                        rule.setTlsAllowAnyHostname(reader.booleanValue());
+                        break;
+                    case "dcmDisableTrustManager":
+                        rule.setDisableTrustManager(reader.booleanValue());
+                        break;
                     default:
                         reader.skipUnknownProperty();
                 }
@@ -1791,6 +1801,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmKeycloakClientSecret":
                         keycloakServer.setClientSecret(reader.stringValue());
+                        break;
+                    case "dcmTLSAllowAnyHostname":
+                        keycloakServer.setTlsAllowAnyHostname(reader.booleanValue());
+                        break;
+                    case "dcmDisableTrustManager":
+                        keycloakServer.setDisableTrustManager(reader.booleanValue());
                         break;
                     case "uid":
                         keycloakServer.setUserID(reader.stringValue());

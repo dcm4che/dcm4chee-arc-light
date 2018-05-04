@@ -81,7 +81,12 @@ public class RSForward {
                 if (!request.getRemoteAddr().equals(
                         InetAddress.getByName(URI.create(baseURI).getHost()).getHostAddress())) {
                     rsClient.scheduleRequest(
-                            getMethod(rsOp), mkForwardURI(baseURI, rsOp, attrs, request), toContent(attrs), rule.getKeycloakServerID());
+                            getMethod(rsOp),
+                            mkForwardURI(baseURI, rsOp, attrs, request),
+                            toContent(attrs),
+                            rule.getKeycloakServerID(),
+                            rule.isTlsAllowAnyHostname(),
+                            rule.isDisableTrustManager());
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to apply {}:\n", rule, e);
@@ -97,7 +102,12 @@ public class RSForward {
                 if (!request.getRemoteAddr().equals(
                         InetAddress.getByName(URI.create(baseURI).getHost()).getHostAddress())) {
                     rsClient.scheduleRequest(
-                            getMethod(rsOp), mkForwardURI(baseURI, rsOp, null, request), in, rule.getKeycloakServerID());
+                            getMethod(rsOp),
+                            mkForwardURI(baseURI, rsOp, null, request),
+                            in,
+                            rule.getKeycloakServerID(),
+                            rule.isTlsAllowAnyHostname(),
+                            rule.isDisableTrustManager());
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to apply {}:\n", rule, e);
