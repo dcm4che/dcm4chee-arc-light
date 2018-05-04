@@ -96,22 +96,16 @@ public class RSClientImpl implements RSClient {
     }
 
     @Override
-    public Outcome request(
-            String method, String uri, String keycloakServerID, boolean tlsAllowAnyHostname, boolean tlsDisableTrustManager, byte[] content)
-            throws Exception {
-        ResteasyClientBuilder resteasyClientBuilder = new ResteasyClientBuilder()
-                .hostnameVerification(accessTokenRequestor.hostnameVerificationPolicy(tlsAllowAnyHostname))
-                .sslContext(device.sslContext());
-        if (tlsDisableTrustManager)
-            resteasyClientBuilder.disableTrustManager();
-        ResteasyClient client = resteasyClientBuilder.build();
+    public Outcome request(String method, String uri, String keycloakServerID, boolean allowAnyHostname,
+            boolean disableTrustManager, byte[] content) throws Exception {
+        ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(uri, allowAnyHostname, disableTrustManager)
+                .build();
         WebTarget target = client.target(uri);
         Response response = null;
         Outcome outcome;
         Invocation.Builder request = target.request();
         if (keycloakServerID != null) {
-            KeycloakServer keycloakServer = device.getDeviceExtension(ArchiveDeviceExtension.class).getKeycloakServer(keycloakServerID);
-            request.header("Authorization", "Bearer " + accessTokenRequestor.getAccessTokenString(keycloakServer));
+             request.header("Authorization", "Bearer " + accessTokenRequestor.getAccessTokenString(keycloakServerID));
         }
         switch (method) {
             case "DELETE":

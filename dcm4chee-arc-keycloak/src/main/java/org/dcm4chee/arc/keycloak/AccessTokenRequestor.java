@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.keycloak;
 
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.KeycloakServer;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
@@ -63,14 +64,11 @@ public class AccessTokenRequestor {
 
     private CachedKeycloak cachedKeycloak;
 
-    public String getAccessTokenString(KeycloakServer server) throws Exception {
+    public String getAccessTokenString(String keycloakServerID) throws Exception {
         CachedKeycloak tmp = cachedKeycloak;
-        if (tmp == null || !tmp.keycloakServerID.equals(server.getKeycloakServerID())) {
-            ResteasyClientBuilder resteasyClientBuilder = new ResteasyClientBuilder()
-                    .hostnameVerification(hostnameVerificationPolicy(server.isTlsAllowAnyHostname()))
-                    .sslContext(device.sslContext());
-            if (server.isTlsDisableTrustManager())
-                resteasyClientBuilder.disableTrustManager();
+        if (tmp == null || !tmp.keycloakServerID.equals(keycloakServerID)) {
+            KeycloakServer server = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                    .getKeycloakServerNotNull(keycloakServerID);
             cachedKeycloak = tmp = new CachedKeycloak(server.getKeycloakServerID(), KeycloakBuilder.builder()
                     .serverUrl(server.getServerURL())
                     .realm(server.getRealm())
@@ -79,17 +77,28 @@ public class AccessTokenRequestor {
                     .username(server.getUserID())
                     .password(server.getPassword())
                     .grantType(server.getGrantType().name())
-                    .resteasyClient(resteasyClientBuilder.build())
+                    .resteasyClient(resteasyClientBuilder(
+                            server.getServerURL(),
+                            server.isTlsAllowAnyHostname(),
+                            server.isTlsDisableTrustManager())
+                            .build())
                     .build());
         }
-
         return tmp.keycloak.tokenManager().getAccessTokenString();
     }
 
-    public ResteasyClientBuilder.HostnameVerificationPolicy hostnameVerificationPolicy(boolean tlsAllowAnyHostname) {
-        return tlsAllowAnyHostname
-                ? ResteasyClientBuilder.HostnameVerificationPolicy.ANY
-                : ResteasyClientBuilder.HostnameVerificationPolicy.WILDCARD;
+    public ResteasyClientBuilder resteasyClientBuilder(
+            String url, boolean allowAnyHostname, boolean disableTrustManager) throws Exception {
+        ResteasyClientBuilder builder = new ResteasyClientBuilder();
+        if (url.toLowerCase().startsWith("https")) {
+            builder.sslContext(device.sslContext())
+                    .hostnameVerification(allowAnyHostname
+                            ? ResteasyClientBuilder.HostnameVerificationPolicy.ANY
+                            : ResteasyClientBuilder.HostnameVerificationPolicy.WILDCARD);
+            if (disableTrustManager)
+                builder.disableTrustManager();
+        }
+        return builder;
     }
 
     private static class CachedKeycloak {
