@@ -180,7 +180,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.6 NAME 'dcmuiElasticsearchConfig'
     dcmuiElasticsearchConfigName )
     MAY (
     dcmuiElasticsearchURL ) )
-olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.7 NAME 'dcmuiElasticsearchURL'
+olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.7 NAME 'dcmuiElasticsearchURLObject'
     DESC 'Elasticsearch URL'
     SUP top STRUCTURAL
     MUST (

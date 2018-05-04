@@ -142,7 +142,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         if (uiElasticsearchURLS.isEmpty())
             return;
 
-        writer.writeStartArray("dcmuiElasticsearchURL");
+        writer.writeStartArray("dcmuiElasticsearchURLObject");
         for (UIElasticsearchURL uiElasticsearchURL : uiElasticsearchURLS) {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName(), null);
@@ -263,7 +263,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     case "dcmuiElasticsearchConfigName":
                         uiElasticsearchConfig.setName(reader.stringValue());
                         break;
-                    case "dcmuiElasticsearchURL":
+                    case "dcmuiElasticsearchURLObject":
                         loadUIElasticsearchURL(uiElasticsearchConfig, reader);
                         break;
                     default:
