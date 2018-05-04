@@ -49,8 +49,6 @@
           "MergePatients",
           "UpdateStudy",
           "DeleteStudy",
-          "CopyInstances",
-          "MoveInstances",
           "RejectStudy",
           "RejectSeries",
           "RejectInstance",
@@ -58,10 +56,8 @@
           "UpdateSeriesExpirationDate",
           "CreateMWL",
           "UpdateMWL",
-          "DeleteMWL",
-          "LinkInstancesWithMWL"
+          "DeleteMWL"
         ]
-
       }
     }
   }
