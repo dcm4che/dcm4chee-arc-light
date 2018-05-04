@@ -41,21 +41,31 @@
 
 package org.dcm4chee.arc.keycloak;
 
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.SSLManagerFactory;
 import org.dcm4chee.arc.conf.KeycloakServer;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.security.KeyStore;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <gunterze@gmail.com>
  * @since May 2018
  */
 @ApplicationScoped
 public class AccessTokenRequestor {
+
+    @Inject
+    private Device device;
+
     private CachedKeycloak cachedKeycloak;
 
-    public String getAccessTokenString(KeycloakServer server) {
+    public String getAccessTokenString(KeycloakServer server) throws Exception {
         CachedKeycloak tmp = cachedKeycloak;
         if (tmp == null || !tmp.keycloakServerID.equals(server.getKeycloakServerID()))
             cachedKeycloak = tmp = new CachedKeycloak(server.getKeycloakServerID(), KeycloakBuilder.builder()
@@ -65,9 +75,20 @@ public class AccessTokenRequestor {
                     .clientSecret(server.getClientSecret())
                     .username(server.getUserID())
                     .password(server.getPassword())
-                    .grantType(server.getGrantType().name()).build());
+                    .grantType(server.getGrantType().name())
+                    .resteasyClient(
+                            new ResteasyClientBuilder()
+                                    .hostnameVerification(ResteasyClientBuilder.HostnameVerificationPolicy.ANY)
+                                    .trustStore(truststore()).build())
+                    .build());
 
         return tmp.keycloak.tokenManager().getAccessTokenString();
+    }
+
+    private KeyStore truststore() throws Exception {
+        return device.getTrustStoreURL() != null
+                ? SSLManagerFactory.loadKeyStore(device.getTrustStoreType(), device.getTrustStoreURL(), device.getTrustStorePin())
+                : SSLManagerFactory.createKeyStore(device.getAllAuthorizedNodeCertificates());
     }
 
     private static class CachedKeycloak {
