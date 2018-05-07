@@ -458,7 +458,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     private void mergeElasticsearchConfigs(ConfigurationChanges diffs, UIConfig prevUIConfig, UIConfig uiConfig, String uiConfigDN) throws NamingException {
         for (UIElasticsearchConfig prevUIElasticsearchConfig : prevUIConfig.getElasticsearchConfigs()) {
             String prevUIElasticsearchConfigName = prevUIElasticsearchConfig.getName();
-            if (uiConfig.getDiffConfig(prevUIElasticsearchConfigName) == null) {
+            if (uiConfig.getElasticsearchConfig(prevUIElasticsearchConfigName) == null) {
                 String dn = LdapUtils.dnOf("dcmuiElasticsearchConfigName", prevUIElasticsearchConfigName, uiConfigDN);
                 for (UIElasticsearchURL prevUIElasticsearchURL : prevUIElasticsearchConfig.getURLS())
                     deleteUIElasticsearchURL(diffs, prevUIElasticsearchURL.getUrlName(), dn);
