@@ -117,6 +117,9 @@ public class PurgeStorageScheduler extends Scheduler {
             if (desc.isReadOnly())
                 continue;
 
+            if (!isUnconditionalDeletion(desc))
+                continue;
+
             long minUsableSpace = desc.hasDeleterThresholds() ? desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance()) : -1L;
             long deleteSize = deleteSize(desc, minUsableSpace);
             if (deleteSize > 0L) {
@@ -135,6 +138,10 @@ public class PurgeStorageScheduler extends Scheduler {
             } while (deleteSize > 0L);
             while (deleteSeriesMetadata(desc, fetchSize));
         }
+    }
+
+    private boolean isUnconditionalDeletion(StorageDescriptor desc) {
+        return desc.getExportStorageID() == null && desc.getExternalRetrieveAETitle() == null && desc.isNoDeletionConstraint();
     }
 
     private long deleteSize(StorageDescriptor desc, long minUsableSpace) {
