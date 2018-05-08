@@ -208,7 +208,7 @@ public class StorageRS {
         return storageSystems;
     }
 
-    class StorageSystem {
+    private static class StorageSystem {
         final StorageDescriptor desc;
         final long usableSpace;
         final long totalSpace;
