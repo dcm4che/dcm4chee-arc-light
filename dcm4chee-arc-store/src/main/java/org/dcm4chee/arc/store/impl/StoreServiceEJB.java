@@ -448,12 +448,6 @@ public class StoreServiceEJB {
     }
 
     public void removeOrMarkToDelete(Location location) {
-        if (location.getObjectType() == Location.ObjectType.DICOM_FILE) {
-            Instance instance = location.getInstance();
-            Series series = instance.getSeries();
-            series.resetSize();
-            series.getStudy().resetSize();
-        }
         if (countLocationsByMultiRef(location.getMultiReference()) > 1)
             em.remove(location);
         else
@@ -486,6 +480,8 @@ public class StoreServiceEJB {
         locations.clear();
         Series series = instance.getSeries();
         Study study = series.getStudy();
+        series.resetSize();
+        study.resetSize();
         em.remove(instance);
         em.flush(); // to avoid ERROR: duplicate key value violates unique constraint on re-insert
         boolean sameStudy = ctx.getStudyInstanceUID().equals(study.getStudyInstanceUID());

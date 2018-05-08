@@ -58,7 +58,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -113,7 +113,7 @@ public class DeletionServiceEJB {
     }
 
     public int instancesNotStoredOnBoth(Long studyPk, String storageID, String otherStorageID) {
-        return ((BigDecimal) em.createNamedQuery(Location.COUNT_INSTANCES_OF_STUDY_NOT_ON_BOTH_STORAGE)
+        return ((BigInteger) em.createNamedQuery(Location.COUNT_INSTANCES_OF_STUDY_NOT_ON_BOTH_STORAGE)
                 .setParameter(1, studyPk)
                 .setParameter(2, storageID)
                 .setParameter(3, otherStorageID)
@@ -151,7 +151,7 @@ public class DeletionServiceEJB {
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
                                     .setParameter(1, studyPk)
                                     .getResultList();
-        return deleteStudy(removeOrMarkToDelete(locations, Integer.MAX_VALUE), ctx);
+        return deleteStudy(removeOrMarkToDelete(locations, Integer.MAX_VALUE, false), ctx);
     }
 
     public Study deleteObjectsOfStudy(Long studyPk, String storageID) {
@@ -159,7 +159,7 @@ public class DeletionServiceEJB {
                                     .setParameter(1, studyPk)
                                     .setParameter(2, storageID)
                                     .getResultList();
-        Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE);
+        Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE, false);
         Set<Long> seriesPks = new HashSet<>();
         for (Instance inst : insts) {
             Series series = inst.getSeries();
@@ -182,7 +182,7 @@ public class DeletionServiceEJB {
 
         List<Location> locations = query.setMaxResults(limit).getResultList();
         if (!locations.isEmpty())
-            deleteInstances(removeOrMarkToDelete(locations, limit));
+            deleteInstances(removeOrMarkToDelete(locations, limit, true));
         return locations.size();
     }
 
@@ -198,7 +198,7 @@ public class DeletionServiceEJB {
             em.remove(mwlItem);
     }
 
-    private Collection<Instance> removeOrMarkToDelete(List<Location> locations, int limit) {
+    private Collection<Instance> removeOrMarkToDelete(List<Location> locations, int limit, boolean resetSize) {
         int size = locations.size();
         int initialCapacity = size * 4 / 3;
         HashMap<Long, Instance> insts = new HashMap<>(initialCapacity);
@@ -213,6 +213,12 @@ public class DeletionServiceEJB {
             UIDMap uidMap = location.getUidMap();
             if (uidMap != null)
                 uidMaps.put(uidMap.getPk(), uidMap);
+
+            if (resetSize) {
+                Series series = inst.getSeries();
+                series.resetSize();
+                series.getStudy().resetSize();
+            }
             storeEjb.removeOrMarkToDelete(location);
         }
         for (UIDMap uidMap : uidMaps.values())

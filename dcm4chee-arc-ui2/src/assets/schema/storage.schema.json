@@ -68,7 +68,7 @@
       "title": "Export Storage ID",
       "description": "Constrain deletion of Studies, if usable space falls below the configured threshold, to Studies which objects are also accessible from the specified other storage.",
       "type": "string",
-      "format": "dcmAETitle"
+      "format": "dcmStorageID"
     },
     "dcmProperty": {
       "title": "Storage Property",
