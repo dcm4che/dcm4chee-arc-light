@@ -70,6 +70,12 @@
       "type": "string",
       "format": "dcmStorageID"
     },
+    "dcmNoDeletionConstraint": {
+      "title": "No Deletion Constraint",
+      "description": "If no External Retrieve AET or Export Storage ID is configured on Storage Descriptor and deleter threshold is reached, by default studies will not be deleted.",
+      "type": "boolean",
+      "default": false
+    },
     "dcmProperty": {
       "title": "Storage Property",
       "description": "Property in format <name>=<value>",

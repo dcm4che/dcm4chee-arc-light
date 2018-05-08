@@ -21,6 +21,7 @@ public final class StorageDescriptor {
     private String exportStorageID;
     private String externalRetrieveAETitle;
     private boolean readOnly;
+    private boolean noDeletionConstraint;
     private StorageThreshold storageThreshold;
     private final ArrayList<DeleterThreshold> deleterThresholds = new ArrayList<>();
     private final Map<String, String> properties = new HashMap<>();
@@ -168,6 +169,14 @@ public final class StorageDescriptor {
                 throw new IllegalArgumentException("Property in incorrect format : " + s);
             setProperty(s.substring(0, index), s.substring(index+1));
         }
+    }
+
+    public boolean isNoDeletionConstraint() {
+        return noDeletionConstraint;
+    }
+
+    public void setNoDeletionConstraint(boolean noDeletionConstraint) {
+        this.noDeletionConstraint = noDeletionConstraint;
     }
 
     @Override
