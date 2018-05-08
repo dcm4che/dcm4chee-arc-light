@@ -16,6 +16,18 @@
       "title": "Elasticsearch URL",
       "description": "Access URL of Elastic Search. E.g. http://elasticsearch:9200",
       "type": "string"
+    },
+    "dcmuiElasticsearchIsDefault": {
+      "title": "Is Default",
+      "description": "Set this URL to the default one. (Make sure that only one of the urls - siblings child is set to default).",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmuiElasticsearchInstalled": {
+      "title": "Installed",
+      "description": "Use this URL in the UI",
+      "type": "boolean",
+      "default": true
     }
   }
 }

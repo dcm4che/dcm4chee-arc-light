@@ -11,7 +11,7 @@
       "description": "UI Elasticsearch Configuration Name",
       "type": "string"
     },
-    "dcmuiElasticsearchURLObject": {
+    "dcmuiElasticsearchURLObjects": {
       "title": "UI Elasticsearch URL",
       "description": "UI Elasticsearch URL",
       "titleKey":"{dcmuiElasticsearchURLName}",

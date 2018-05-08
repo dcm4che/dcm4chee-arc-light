@@ -7,6 +7,8 @@ package org.dcm4chee.arc.conf.ui;
 public class UIElasticsearchURL {
     private String urlName;
     private String url;
+    private boolean isDefault;
+    private boolean installed;
 
     public UIElasticsearchURL(){}
 
@@ -28,5 +30,21 @@ public class UIElasticsearchURL {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
+    }
+
+    public boolean isInstalled() {
+        return installed;
+    }
+
+    public void setInstalled(boolean installed) {
+        this.installed = installed;
     }
 }

@@ -178,7 +178,7 @@ objectClasses: ( 1.2.40.0.13.1.15.111.4.6 NAME 'dcmuiElasticsearchConfig'
     dcmuiElasticsearchConfigName )
     MAY (
     dcmuiElasticsearchURL ) )
-objectClasses: ( 1.2.40.0.13.1.15.111.4.7 NAME 'dcmuiElasticsearchURLObject'
+objectClasses: ( 1.2.40.0.13.1.15.111.4.7 NAME 'dcmuiElasticsearchURLObjects'
     DESC 'Elasticsearch URL'
     SUP top STRUCTURAL
     MUST (
