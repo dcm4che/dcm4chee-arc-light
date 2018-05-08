@@ -74,6 +74,7 @@ import static org.dcm4che3.util.StringUtils.contains;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since May 2017
  */
 
