@@ -195,8 +195,8 @@ public class StorageRS {
                 && (uriScheme == null || desc.getStorageURI().getScheme().equals(uriScheme))) {
                 try (Storage storage = storageFactory.getStorage(desc)) {
                     long usableSpace = storage.getUsableSpace();
-                    long totalSpace = storage.getTotalSpace();
                     if (usableSpaceBelow == null || usableSpace < usableSpaceBelow) {
+                        long totalSpace = storage.getTotalSpace();
                         storageSystems.add(new StorageSystem(desc, usableSpace, totalSpace, usages, aets));
                     }
                 } catch (IOException e) {
