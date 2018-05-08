@@ -70,8 +70,6 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.util.*;
 
-import static org.dcm4che3.util.StringUtils.contains;
-
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -177,16 +175,16 @@ public class StorageRS {
             String storageID = desc.getStorageID();
             Set<String> usages = new HashSet<>();
             Set<String> aets = new HashSet<>();
-            if (contains(arcdev.getSeriesMetadataStorageIDs(), storageID)) {
+            if (StringUtils.contains(arcdev.getSeriesMetadataStorageIDs(), storageID)) {
                 usages.add("dcmSeriesMetadataStorageID");
             }
             for (ApplicationEntity ae : device.getApplicationEntities()) {
                 ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
-                if (contains(arcAE.getObjectStorageIDs(), desc.getStorageID())) {
+                if (StringUtils.contains(arcAE.getObjectStorageIDs(), desc.getStorageID())) {
                     usages.add("dcmObjectStorageID");
                     aets.add(ae.getAETitle());
                 }
-                if (contains(arcAE.getMetadataStorageIDs(), desc.getStorageID())) {
+                if (StringUtils.contains(arcAE.getMetadataStorageIDs(), desc.getStorageID())) {
                     usages.add("dcmMetadataStorageID");
                     aets.add(ae.getAETitle());
                 }
