@@ -184,15 +184,15 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.6 NAME 'dcmuiElasticsearchConfig'
     DESC 'UI Configuration for Elasticsearch'
     SUP top STRUCTURAL
     MUST (
-    dcmuiElasticsearchConfigName )
+      dcmuiElasticsearchConfigName )
     MAY (
-    dcmuiElasticsearchURL ) )
+      dcmuiElasticsearchURL ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.111.4.7 NAME 'dcmuiElasticsearchURLObjects'
     DESC 'Elasticsearch URL'
     SUP top STRUCTURAL
     MUST (
-    dcmuiElasticsearchURLName $
-    dcmuiElasticsearchURL )
+      dcmuiElasticsearchURLName $
+      dcmuiElasticsearchURL )
     MAY (
-    dcmuiElasticsearchIsDefault $
-    dcmuiElasticsearchInstalled) )
+      dcmuiElasticsearchIsDefault $
+      dcmuiElasticsearchInstalled) )

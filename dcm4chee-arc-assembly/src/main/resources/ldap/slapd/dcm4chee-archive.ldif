@@ -1032,6 +1032,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.208 NAME 'dcmExportStorageID'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.209 NAME 'dcmNoDeletionConstraint'
+  DESC 'If no External Retrieve AET or Export Storage ID is configured on Storage Descriptor and deleter threshold is reached, by default studies will not be deleted. Default is false.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1269,6 +1274,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmDeleterThreshold $
     dcmExternalRetrieveAET $
     dcmExportStorageID $
+    dcmNoDeletionConstraint $
     dcmReadOnly $
     dcmProperty ) )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.13 NAME 'dcmQueryRetrieveView'
