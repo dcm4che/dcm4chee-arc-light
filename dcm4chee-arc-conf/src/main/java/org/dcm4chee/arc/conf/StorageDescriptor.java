@@ -116,7 +116,8 @@ public final class StorageDescriptor {
     }
 
     public boolean hasDeleterThresholds() {
-        return !deleterThresholds.isEmpty();
+        return !deleterThresholds.isEmpty()
+                && (noDeletionConstraint || exportStorageID != null || externalRetrieveAETitle != null);
     }
 
     public String[] getDeleterThresholdsAsStrings() {

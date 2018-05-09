@@ -129,10 +129,6 @@ public class PurgeStorageScheduler extends Scheduler {
             if (desc.isReadOnly())
                 continue;
 
-            if (desc.getExportStorageID() == null && desc.getExternalRetrieveAETitle() == null)
-                if (!desc.isNoDeletionConstraint())
-                    continue;
-
             long minUsableSpace = desc.hasDeleterThresholds() ? desc.getDeleterThresholdMinUsableSpace(Calendar.getInstance()) : -1L;
             long deleteSize = deleteSize(desc, minUsableSpace);
             if (deleteSize > 0L) {
