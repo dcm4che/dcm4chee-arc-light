@@ -88,10 +88,14 @@ public class StorageExporter extends AbstractExporter {
                 exportContext.getSeriesInstanceUID(),
                 exportContext.getSopInstanceUID())) {
             retrieveContext.setHttpServletRequestInfo(exportContext.getHttpServletRequestInfo());
+            String storageID = descriptor.getExportURI().getSchemeSpecificPart();
+            storeService.restoreInstances(
+                    storeService.newStoreSession(retrieveContext.getLocalApplicationEntity(), storageID),
+                    exportContext.getStudyInstanceUID(),
+                    exportContext.getSeriesInstanceUID());
             if (!retrieveService.calculateMatches(retrieveContext))
                 return new Outcome(QueueMessage.Status.WARNING, noMatches(exportContext));
 
-            String storageID = descriptor.getExportURI().getSchemeSpecificPart();
             Storage storage = retrieveService.getStorage(storageID, retrieveContext);
             retrieveContext.setDestinationStorage(storage.getStorageDescriptor());
             for (InstanceLocations instanceLocations : retrieveContext.getMatches()) {
