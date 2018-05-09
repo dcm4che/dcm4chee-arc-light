@@ -327,6 +327,9 @@ public class QueryServiceEJB {
                 .on(QStudyQueryAttributes.studyQueryAttributes.viewID.eq(viewID))
                 .where(QStudy.study.studyInstanceUID.eq(studyIUID))
                 .fetchOne();
+        if (result == null)
+            return null;
+
         String modalitiesInStudy;
         Integer numberOfStudyRelatedInstances =
                 result.get(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances);
