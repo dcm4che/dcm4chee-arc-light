@@ -466,6 +466,17 @@ public class RetrieveServiceImpl implements RetrieveService {
         inst.setExternalRetrieveAET(
                 attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.InstanceExternalRetrieveAETitle));
         inst.setContainsMetadata(true);
+        addLocationFromMetadata(inst, attrs);
+        Sequence otherStorageSeq = attrs.getSequence(ArchiveTag.PrivateCreator, ArchiveTag.OtherStorageSequence);
+        if (otherStorageSeq != null)
+            for (Attributes otherStorageItem : otherStorageSeq)
+                addLocationFromMetadata(inst, otherStorageItem);
+        if (ctx.getSeriesMetadataUpdate() == null)
+            attrs.removePrivateAttributes(ArchiveTag.PrivateCreator, 0x7777);
+        return inst;
+    }
+
+    private void addLocationFromMetadata(InstanceLocationsImpl inst, Attributes attrs) {
         inst.getLocations().add(new Location.Builder()
                 .storageID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID))
                 .storagePath(StringUtils.concat(attrs.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath), '/'))
@@ -473,9 +484,6 @@ public class RetrieveServiceImpl implements RetrieveService {
                 .digest(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest))
                 .size(attrs.getInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, -1))
                 .build());
-        if (ctx.getSeriesMetadataUpdate() == null)
-            attrs.removePrivateAttributes(ArchiveTag.PrivateCreator, 0x7777);
-        return inst;
     }
 
     private Attributes rejectionCode(Tuple tuple) {

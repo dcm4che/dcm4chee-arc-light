@@ -181,7 +181,10 @@ import java.util.Date;
 @NamedQuery(
         name=Series.UPDATE_INSTANCE_PURGE_STATE,
         query = "update Series se set se.instancePurgeState = ?3 " +
-                "where se.pk = ?1 and se.instancePurgeState = ?2")
+                "where se.pk = ?1 and se.instancePurgeState = ?2"),
+@NamedQuery(
+        name = Series.FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE,
+        query = "select se.metadata from Series se where se.study.pk=?1 and se.instancePurgeState=?2")
 })
 @Entity
 @Table(name = "series",
@@ -235,6 +238,7 @@ public class Series {
     public static final String SCHEDULE_METADATA_UPDATE_FOR_SERIES = "Series.scheduleMetadataUpdateForSeries";
     public static final String UPDATE_INSTANCE_PURGE_STATE = "Series.updateInstancePurgeState";
     public static final String FIND_DISTINCT_MODALITIES = "Series.findDistinctModalities";
+    public static final String FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE = "Series.findByStudyPkAndInstancePurgeState";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 

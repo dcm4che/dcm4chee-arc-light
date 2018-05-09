@@ -71,7 +71,7 @@ public class DeletionServiceEJB {
 
     public static final int MAX_LOCATIONS_PER_INSTANCE = 2;
 
-    @PersistenceContext(unitName="dcm4chee-arc")
+    @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
 
     @Inject
@@ -128,6 +128,13 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
+    public List<Metadata> findMetadataOfSeriesWithPurgedInstances(Long studyPk) {
+        return em.createNamedQuery(Series.FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE, Metadata.class)
+                .setParameter(1, studyPk)
+                .setParameter(2, Series.InstancePurgeState.PURGED)
+                .getResultList();
+    }
+
     public void failedToDelete(Location location) {
         location.setStatus(Location.Status.FAILED_TO_DELETE);
         em.merge(location);
@@ -149,16 +156,16 @@ public class DeletionServiceEJB {
     public Study deleteStudy(StudyDeleteContext ctx) {
         Long studyPk = ctx.getStudyPk();
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK, Location.class)
-                                    .setParameter(1, studyPk)
-                                    .getResultList();
+                .setParameter(1, studyPk)
+                .getResultList();
         return deleteStudy(removeOrMarkToDelete(locations, Integer.MAX_VALUE, false), ctx);
     }
 
     public Study deleteObjectsOfStudy(Long studyPk, String storageID) {
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_AND_STORAGE_ID, Location.class)
-                                    .setParameter(1, studyPk)
-                                    .setParameter(2, storageID)
-                                    .getResultList();
+                .setParameter(1, studyPk)
+                .setParameter(2, storageID)
+                .getResultList();
         Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE, false);
         Set<Long> seriesPks = new HashSet<>();
         for (Instance inst : insts) {
@@ -227,7 +234,7 @@ public class DeletionServiceEJB {
     }
 
     private void deleteInstances(Collection<Instance> insts) {
-        HashMap<Long,Series> series = new HashMap<>();
+        HashMap<Long, Series> series = new HashMap<>();
         for (Instance inst : insts) {
             Series ser = inst.getSeries();
             if (!series.containsKey(ser.getPk())) {
@@ -236,7 +243,7 @@ public class DeletionServiceEJB {
             }
             em.remove(inst);
         }
-        HashMap<Long,Study> studies = new HashMap<>();
+        HashMap<Long, Study> studies = new HashMap<>();
         for (Series ser : series.values()) {
             Study study = ser.getStudy();
             if (!studies.containsKey(study.getPk())) {
@@ -270,7 +277,7 @@ public class DeletionServiceEJB {
     private Study deleteStudy(Collection<Instance> insts, StudyDeleteContext ctx) {
         Patient patient = null;
         Study study = null;
-        HashMap<Long,Series> series = new HashMap<>();
+        HashMap<Long, Series> series = new HashMap<>();
         for (Instance inst : insts) {
             Series ser = inst.getSeries();
             if (!series.containsKey(ser.getPk())) {

@@ -40,7 +40,12 @@
 
 package org.dcm4chee.arc.delete.impl;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -51,6 +56,7 @@ import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Metadata;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.slf4j.Logger;
@@ -59,13 +65,16 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.json.Json;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -103,13 +112,16 @@ public class PurgeStorageScheduler extends Scheduler {
 
     @Override
     protected Duration getPollingInterval() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getPurgeStoragePollingInterval();
+        return arcdev().getPurgeStoragePollingInterval();
+    }
+
+    private ArchiveDeviceExtension arcdev() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
     @Override
     protected void execute() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = arcdev();
         int fetchSize = arcDev.getPurgeStorageFetchSize();
         int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
         boolean deletePatient = arcDev.isDeletePatientOnDeleteLastStudy();
@@ -179,13 +191,28 @@ public class PurgeStorageScheduler extends Scheduler {
                         toStorageID(desc), desc.getExternalRetrieveAETitle(), fetchSize)
                 : ejb.findStudiesForDeletionOnStorage(toStorageID(desc), fetchSize);
 
-        if (desc.getExportStorageID() != null) {
+        String storageID = desc.getStorageID();
+        String exportStorageID = desc.getExportStorageID();
+        if (exportStorageID != null) {
             for (Iterator<Long> iter = studyPks.iterator(); iter.hasNext();) {
                 Long studyPk = iter.next();
-                int notStoredOnBoth = ejb.instancesNotStoredOnBoth(studyPk, desc.getStorageID(), desc.getExportStorageID());
+                int notStoredOnBoth = ejb.instancesNotStoredOnBoth(studyPk, storageID, exportStorageID);
+                Map<String,Storage> storageMap = new HashMap<>();
+                try {
+                    for (Metadata metadata : ejb.findMetadataOfSeriesWithPurgedInstances(studyPk)) {
+                        Storage storage = getStorage(metadata.getStorageID(), storageMap);
+                        ReadContext readContext = storage.createReadContext();
+                        readContext.setStoragePath(metadata.getStoragePath());
+                        notStoredOnBoth += instancesNotStoredOnBoth(readContext, storageID, exportStorageID);
+                    }
+                } finally {
+                    for (Storage storage : storageMap.values()) {
+                        SafeClose.close(storage);
+                    }
+                }
                 if (notStoredOnBoth > 0) {
                     LOG.warn("{} of instances of Study[pk={}] on {} not stored on Storage[id={}] - defer deletion objects",
-                            notStoredOnBoth, studyPk, desc, desc.getExportStorageID());
+                            notStoredOnBoth, studyPk, desc, exportStorageID);
                     em.createNamedQuery(Study.UPDATE_ACCESS_TIME)
                             .setParameter(1, studyPk)
                             .executeUpdate();
@@ -203,6 +230,52 @@ public class PurgeStorageScheduler extends Scheduler {
         String[] ss = { desc.getStorageID(), desc.getExportStorageID() };
         Arrays.sort(ss);
         return StringUtils.concat(ss, '\\');
+    }
+
+    private Storage getStorage(String storageID, Map<String,Storage> storageMap) {
+        Storage storage = storageMap.get(storageID);
+        if (storage == null) {
+            storageMap.put(storageID,
+                    storage = storageFactory.getStorage(arcdev().getStorageDescriptorNotNull(storageID)));
+        }
+        return storage;
+    }
+
+    private static int instancesNotStoredOnBoth(ReadContext ctx, String storageID, String exportStorageID) {
+        int count = 0;
+        try (InputStream in = ctx.getStorage().openInputStream(ctx)) {
+            ZipInputStream zip = new ZipInputStream(in);
+            while (zip.getNextEntry() != null) {
+                JSONReader jsonReader = new JSONReader(Json.createParser(
+                        new InputStreamReader(in, "UTF-8")));
+                Attributes metadata = jsonReader.readDataset(null);
+                if (!containsStorageID(metadata, storageID) || !containsStorageID(metadata, exportStorageID))
+                    count++;
+                zip.closeEntry();
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to read Metadata {} from {}",
+                    ctx.getStoragePath(), ctx.getStorage().getStorageDescriptor());
+            count++;
+        }
+        return count;
+    }
+
+    private static boolean containsStorageID(Attributes attrs, String storageID) {
+        if (matchStorageID(attrs, storageID))
+            return true;
+
+        Sequence otherStorageSeq = attrs.getSequence(ArchiveTag.PrivateCreator, ArchiveTag.OtherStorageSequence);
+        if (otherStorageSeq != null)
+            for (Attributes otherStorageItem : otherStorageSeq)
+                if (matchStorageID(otherStorageItem, storageID))
+                    return true;
+
+        return false;
+    }
+
+    private static boolean matchStorageID(Attributes attrs, String storageID) {
+        return storageID.equals(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID));
     }
 
     private int deleteStudiesFromDB(StorageDescriptor desc, List<Long> studyPks, boolean deletePatient) {
