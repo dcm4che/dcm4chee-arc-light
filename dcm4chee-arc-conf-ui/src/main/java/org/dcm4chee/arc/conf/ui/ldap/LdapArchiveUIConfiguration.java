@@ -189,7 +189,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         String uiElasticsearchURLDN = LdapUtils.dnOf("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName(), uiElasticsearchConfigDN);
         ConfigurationChanges.ModifiedObject ldapObj = ConfigurationChanges.addModifiedObjectIfVerbose(
                 diffs,
-                uiElasticsearchConfigDN,
+                uiElasticsearchURLDN,
                 ConfigurationChanges.ChangeType.C
         );
         config.createSubcontext(uiElasticsearchURLDN, storeTo(ldapObj, uiElasticsearchURL, new BasicAttributes(true)));
@@ -203,8 +203,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         attrs.put(new BasicAttribute("objectclass", "dcmuiElasticsearchURLObjects"));
         attrs.put(new BasicAttribute("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiElasticsearchURL", uiElasticsearchURL.getUrl(), null);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmuiElasticsearchIsDefault", uiElasticsearchURL.isDefault(), false);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmuiElasticsearchInstalled", uiElasticsearchURL.isInstalled(), true);
+        LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiElasticsearchIsDefault",uiElasticsearchURL.isDefault(),false);
+        LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiElasticsearchInstalled",uiElasticsearchURL.isInstalled(),true);
         return attrs;
     }
 
@@ -511,9 +511,10 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             if (prevElasticserachURL == null)
                 storeElasticsearchURL(diffs, uiElasticsearcConfigDN, uiElasticsearchURL);
             else {
+                String uiElasticsearchURLDN = LdapUtils.dnOf("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName(), uiElasticsearcConfigDN);
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, uiElasticsearcConfigDN, ConfigurationChanges.ChangeType.U);
-                config.modifyAttributes(uiElasticsearcConfigDN, storeDiff(ldapObj, prevElasticserachURL, uiElasticsearchURL,
+                config.modifyAttributes(uiElasticsearchURLDN, storeDiff(ldapObj, prevElasticserachURL, uiElasticsearchURL,
                         new ArrayList<ModificationItem>()));
                 ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }
@@ -522,7 +523,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
 
     private List<ModificationItem> storeDiff(ConfigurationChanges.ModifiedObject ldapObj, UIElasticsearchURL a,
                                                               UIElasticsearchURL b, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiElasticsearchURLObjects",
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiElasticsearchURL",
                 a.getUrl(),
                 b.getUrl(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiElasticsearchIsDefault",
@@ -617,9 +618,10 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             if (prevUIDiffCriteria == null)
                 storeDiffCriteria(diffs, uiDiffConfigDN, uiDiffCriteria);
             else {
+                String dcmuiDiffCriteriaURLDN = LdapUtils.dnOf("dcmuiDiffCriteriaTitle", uiDiffCriteria.getTitle(), uiDiffConfigDN);
                 ConfigurationChanges.ModifiedObject ldapObj =
                         ConfigurationChanges.addModifiedObject(diffs, uiDiffConfigDN, ConfigurationChanges.ChangeType.U);
-                config.modifyAttributes(uiDiffConfigDN, storeDiffs(ldapObj, prevUIDiffCriteria, uiDiffCriteria,
+                config.modifyAttributes(dcmuiDiffCriteriaURLDN, storeDiffs(ldapObj, prevUIDiffCriteria, uiDiffCriteria,
                         new ArrayList<ModificationItem>()));
                 ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
             }

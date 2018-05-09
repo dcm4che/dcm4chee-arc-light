@@ -8,7 +8,7 @@ public class UIElasticsearchURL {
     private String urlName;
     private String url;
     private boolean isDefault;
-    private boolean installed;
+    private boolean installed = true;
 
     public UIElasticsearchURL(){}
 

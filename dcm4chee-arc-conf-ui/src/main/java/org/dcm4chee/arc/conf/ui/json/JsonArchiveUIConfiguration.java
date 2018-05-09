@@ -147,8 +147,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName(), null);
             writer.writeNotNullOrDef("dcmuiElasticsearchURL", uiElasticsearchURL.getUrl(),null);
-            writer.writeNotNullOrDef("dcmuiElasticsearchIsDefault", uiElasticsearchURL.isDefault(), false);
-            writer.writeNotNullOrDef("dcmuiElasticsearchInstalled", uiElasticsearchURL.isInstalled(), true);
+            writer.writeNotDef("dcmuiElasticsearchIsDefault", uiElasticsearchURL.isDefault(), false);
+            writer.writeNotDef("dcmuiElasticsearchInstalled", uiElasticsearchURL.isInstalled(), true);
             writer.writeEnd();
         }
         writer.writeEnd();
