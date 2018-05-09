@@ -6,7 +6,8 @@
     "dcmStorageID",
     "dcmURI",
     "dcmInstanceAvailability",
-    "dcmReadOnly"
+    "dcmReadOnly",
+    "dcmNoDeletionConstraint"
   ],
   "properties": {
     "dcmStorageID": {
