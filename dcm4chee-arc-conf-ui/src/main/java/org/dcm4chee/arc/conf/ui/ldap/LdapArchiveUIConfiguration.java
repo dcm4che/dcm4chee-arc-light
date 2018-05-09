@@ -620,7 +620,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
             else {
                 String dcmuiDiffCriteriaURLDN = LdapUtils.dnOf("dcmuiDiffCriteriaTitle", uiDiffCriteria.getTitle(), uiDiffConfigDN);
                 ConfigurationChanges.ModifiedObject ldapObj =
-                        ConfigurationChanges.addModifiedObject(diffs, uiDiffConfigDN, ConfigurationChanges.ChangeType.U);
+                        ConfigurationChanges.addModifiedObject(diffs, dcmuiDiffCriteriaURLDN, ConfigurationChanges.ChangeType.U);
                 config.modifyAttributes(dcmuiDiffCriteriaURLDN, storeDiffs(ldapObj, prevUIDiffCriteria, uiDiffCriteria,
                         new ArrayList<ModificationItem>()));
                 ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
