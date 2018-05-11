@@ -755,11 +755,6 @@
       "description": "Access URL of Audit Record Repository. E.g. http://kibana:5601",
       "type": "string"
     },
-    "dcmElasticSearchURL": {
-      "title": "Elastic Search URL",
-      "description": "Access URL of Elastic Search. E.g. http://elasticsearch:9200",
-      "type": "string"
-    },
     "dcmAudit2JsonFhirTemplateURI": {
       "title": "Audit to json+fhir Template URI",
       "description": "Specifies URI for the style sheet to transcode Audit Message to a FHIR JSON Resource Audit Event",
