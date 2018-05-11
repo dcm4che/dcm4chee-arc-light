@@ -41,6 +41,8 @@
 
 package org.dcm4che.arc.export.storage;
 
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -89,10 +91,12 @@ public class StorageExporter extends AbstractExporter {
                 exportContext.getSopInstanceUID())) {
             retrieveContext.setHttpServletRequestInfo(exportContext.getHttpServletRequestInfo());
             String storageID = descriptor.getExportURI().getSchemeSpecificPart();
+            ApplicationEntity ae = retrieveContext.getLocalApplicationEntity();
             storeService.restoreInstances(
-                    storeService.newStoreSession(retrieveContext.getLocalApplicationEntity(), storageID),
+                    storeService.newStoreSession(ae, storageID),
                     exportContext.getStudyInstanceUID(),
-                    exportContext.getSeriesInstanceUID());
+                    exportContext.getSeriesInstanceUID(),
+                    ae.getAEExtensionNotNull(ArchiveAEExtension.class).purgeInstanceRecordsDelay());
             if (!retrieveService.calculateMatches(retrieveContext))
                 return new Outcome(QueueMessage.Status.WARNING, noMatches(exportContext));
 

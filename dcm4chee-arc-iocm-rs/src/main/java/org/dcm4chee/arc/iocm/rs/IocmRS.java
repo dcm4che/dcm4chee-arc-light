@@ -609,7 +609,7 @@ public class IocmRS {
             ArchiveAEExtension arcAE = getArchiveAE();
             RejectionNote rjNote = toRejectionNote(codeValue, designator);
             StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), rejectionNoteObjectStorageID());
-            storeService.restoreInstances(session, studyUID, seriesUID);
+            storeService.restoreInstances(session, studyUID, seriesUID, null);
 
             Attributes attrs = queryService.createRejectionNote(
                     arcAE.getApplicationEntity(), studyUID, seriesUID, objectUID, rjNote);
@@ -661,9 +661,9 @@ public class IocmRS {
         String studyUID = sopInstanceRefs.getString(Tag.StudyInstanceUID);
         Sequence seq = sopInstanceRefs.getSequence(Tag.ReferencedSeriesSequence);
         if (seq == null || seq.isEmpty())
-            storeService.restoreInstances(session, studyUID, null);
+            storeService.restoreInstances(session, studyUID, null, null);
         else for (Attributes item : seq)
-            storeService.restoreInstances(session, studyUID, item.getString(Tag.SeriesInstanceUID));
+            storeService.restoreInstances(session, studyUID, item.getString(Tag.SeriesInstanceUID), null);
     }
 
     private RejectionNote toRejectionNote(String codeValue, String designator) {
