@@ -205,7 +205,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptConflictingPatientID",
                 ext.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAuditRecordRepositoryURL", ext.getAuditRecordRepositoryURL(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmElasticSearchURL", ext.getElasticSearchURL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmAudit2JsonFhirTemplateURI", ext.getAudit2JsonFhirTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmAudit2XmlFhirTemplateURI", ext.getAudit2XmlFhirTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCopyMoveUpdatePolicy", ext.getCopyMoveUpdatePolicy(), null);
@@ -360,7 +359,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.enumValue(AcceptConflictingPatientID.class,
                         attrs.get("dcmAcceptConflictingPatientID"), AcceptConflictingPatientID.MERGED));
         ext.setAuditRecordRepositoryURL(LdapUtils.stringValue(attrs.get("dcmAuditRecordRepositoryURL"), null));
-        ext.setElasticSearchURL(LdapUtils.stringValue(attrs.get("dcmElasticSearchURL"), null));
         ext.setAudit2JsonFhirTemplateURI(LdapUtils.stringValue(attrs.get("dcmAudit2JsonFhirTemplateURI"), null));
         ext.setAudit2XmlFhirTemplateURI(LdapUtils.stringValue(attrs.get("dcmAudit2XmlFhirTemplateURI"), null));
         ext.setCopyMoveUpdatePolicy(LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmCopyMoveUpdatePolicy"), null));
@@ -607,8 +605,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 AcceptConflictingPatientID.MERGED);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAuditRecordRepositoryURL",
                 aa.getAuditRecordRepositoryURL(), bb.getAuditRecordRepositoryURL(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmElasticSearchURL",
-                aa.getElasticSearchURL(), bb.getElasticSearchURL(), null);
         LdapUtils.storeDiffObject(ldapObj, mods,"dcmAudit2JsonFhirTemplateURI",
                 aa.getAudit2JsonFhirTemplateURI(), bb.getAudit2JsonFhirTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods,"dcmAudit2XmlFhirTemplateURI",

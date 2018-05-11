@@ -167,7 +167,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration hl7PSUTaskPollingInterval;
     private boolean hl7PSUMWL = false;
     private String auditRecordRepositoryURL;
-    private String elasticSearchURL;
     private String atna2JsonFhirTemplateURI;
     private String atna2XmlFhirTemplateURI;
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
@@ -1521,14 +1520,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.auditRecordRepositoryURL = auditRecordRepositoryURL;
     }
 
-    public String getElasticSearchURL() {
-        return elasticSearchURL;
-    }
-
-    public void setElasticSearchURL(String elasticSearchURL) {
-        this.elasticSearchURL = elasticSearchURL;
-    }
-
     public String getAudit2JsonFhirTemplateURI() {
         return atna2JsonFhirTemplateURI;
     }
@@ -1812,7 +1803,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUMWL = arcdev.hl7PSUMWL;
         acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
         auditRecordRepositoryURL = arcdev.auditRecordRepositoryURL;
-        elasticSearchURL = arcdev.elasticSearchURL;
         atna2JsonFhirTemplateURI = arcdev.atna2JsonFhirTemplateURI;
         atna2XmlFhirTemplateURI = arcdev.atna2XmlFhirTemplateURI;
         copyMoveUpdatePolicy = arcdev.copyMoveUpdatePolicy;

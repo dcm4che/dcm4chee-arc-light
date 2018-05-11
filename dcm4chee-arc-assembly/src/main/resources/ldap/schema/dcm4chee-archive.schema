@@ -996,7 +996,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.167 NAME 'hl7ScheduledStationAETInOrder'
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.168 NAME 'dcmElasticSearchURL'
-  DESC 'Access URL of Elastic Search. E.g. http://elasticsearch:9200'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
