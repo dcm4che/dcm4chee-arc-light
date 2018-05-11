@@ -34,7 +34,7 @@
 <ul id="mainmenu" class="nav slideInLeft animated" *ngIf="showMenu" (clickOutside)="closeFromOutside()" [clickOutsideExceptionClass]="'menu_button'">
     <div (click)="showMenu = false;" class="glyphicon glyphicon-align-justify toggle-button "></div>
     <!--<li (click)="showMenu = false;"><a routerLink="queues" routerLinkActive="active">Queues</a></li>-->
-    <li (click)="showMenu = false;" [permission]="{id:'menu-monitoring',param:'visible'}"><a routerLink="monitoring/queues" routerLinkActive="active">Monitoring</a></li>
+    <li (click)="showMenu = false;" [permission]="{id:'menu-monitoring',param:'visible'}"><a routerLink="monitoring/associations" routerLinkActive="active">Monitoring</a></li>
     <li (click)="showMenu = false;" [permission]="{id:'menu-studies',param:'visible'}"><a routerLink="studies" routerLinkActive="active">Studies</a></li>
     <!--<li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="control" routerLinkActive="active">Control</a></li>-->
     <li (click)="showMenu = false;" [permission]="{id:'menu-configuration',param:'visible'}"><a routerLink="device/devicelist" routerLinkActive="active">Configuration</a></li>
