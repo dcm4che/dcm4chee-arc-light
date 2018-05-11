@@ -49,6 +49,7 @@ import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -85,6 +86,9 @@ public class DiffTaskRS {
 
     @Context
     private HttpHeaders httpHeaders;
+
+    @Inject
+    private Event<QueueMessageEvent> queueMsgEvent;
 
     @Inject
     private Event<BulkQueueMessageEvent> bulkQueueMsgEvent;
@@ -189,6 +193,19 @@ public class DiffTaskRS {
             return Response.noContent().build();
 
         return Response.ok(entity(diffService.getDiffTaskAttributes(diffTask, parseInt(offset), parseInt(limit))))
+                .build();
+    }
+
+    @DELETE
+    @Path("/{taskPK}")
+    public Response deleteTask(@PathParam("taskPK") long pk) {
+        logRequest();
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
+        boolean deleteRetrieveTask = diffService.deleteDiffTask(pk, queueEvent);
+        queueMsgEvent.fire(queueEvent);
+        return Response.status(deleteRetrieveTask
+                ? Response.Status.NO_CONTENT
+                : Response.Status.NOT_FOUND)
                 .build();
     }
 

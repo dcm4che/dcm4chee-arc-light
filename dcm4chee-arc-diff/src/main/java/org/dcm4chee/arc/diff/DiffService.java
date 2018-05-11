@@ -45,6 +45,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -82,6 +83,8 @@ public interface DiffService {
                                     int offset, int limit);
 
     long diffTasksOfBatch(String batchID);
+
+    boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent);
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask);
 }

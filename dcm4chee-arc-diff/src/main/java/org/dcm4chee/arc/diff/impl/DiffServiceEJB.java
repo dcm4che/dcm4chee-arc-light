@@ -52,6 +52,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.hibernate.Session;
@@ -181,6 +182,17 @@ public class DiffServiceEJB {
 
     public DiffTask getDiffTask(long taskPK) {
         return em.find(DiffTask.class, taskPK);
+    }
+
+    public boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent) {
+        DiffTask task = em.find(DiffTask.class, pk);
+        if (task == null)
+            return false;
+
+        queueEvent.setQueueMsg(task.getQueueMessage());
+        em.remove(task);
+        LOG.info("Delete {}", task);
+        return true;
     }
 
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {

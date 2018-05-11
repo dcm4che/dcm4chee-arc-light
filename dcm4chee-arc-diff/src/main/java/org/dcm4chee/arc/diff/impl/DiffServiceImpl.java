@@ -51,6 +51,7 @@ import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -148,6 +149,11 @@ public class DiffServiceImpl implements DiffService {
     @Override
     public long diffTasksOfBatch(String batchID) {
         return ejb.diffTasksOfBatch(batchID);
+    }
+
+    @Override
+    public boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent) {
+        return ejb.deleteDiffTask(pk, queueEvent);
     }
 
     @Override
