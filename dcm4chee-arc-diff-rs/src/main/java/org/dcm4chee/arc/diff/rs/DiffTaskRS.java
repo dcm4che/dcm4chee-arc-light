@@ -297,13 +297,13 @@ public class DiffTaskRS {
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
-            List<Long> retrieveTaskPks;
+            List<Long> diffTaskPks;
             do {
-                retrieveTaskPks = diffService.getDiffTaskPks(matchQueueMessage, matchDiffTask, fetchSize);
-                for (long pk : retrieveTaskPks)
+                diffTaskPks = diffService.getDiffTaskPks(matchQueueMessage, matchDiffTask, fetchSize);
+                for (long pk : diffTaskPks)
                     diffService.rescheduleDiffTask(pk, null);
-                count += retrieveTaskPks.size();
-            } while (retrieveTaskPks.size() >= fetchSize);
+                count += diffTaskPks.size();
+            } while (diffTaskPks.size() >= fetchSize);
             queueEvent.setCount(count);
             return count(count);
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
