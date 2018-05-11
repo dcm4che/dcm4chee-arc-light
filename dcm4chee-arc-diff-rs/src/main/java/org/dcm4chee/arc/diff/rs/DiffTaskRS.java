@@ -319,9 +319,9 @@ public class DiffTaskRS {
     public Response deleteTask(@PathParam("taskPK") long pk) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        boolean deleteRetrieveTask = diffService.deleteDiffTask(pk, queueEvent);
+        boolean deleteDiffTask = diffService.deleteDiffTask(pk, queueEvent);
         queueMsgEvent.fire(queueEvent);
-        return Response.status(deleteRetrieveTask
+        return Response.status(deleteDiffTask
                 ? Response.Status.NO_CONTENT
                 : Response.Status.NOT_FOUND)
                 .build();

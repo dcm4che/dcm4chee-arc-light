@@ -206,7 +206,7 @@ public class DiffServiceEJB {
                 .where(matchQueueMessage);
         List<Long> referencedQueueMsgs;
         do {
-            referencedQueueMsgs = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
+            referencedQueueMsgs = new HibernateQuery<DiffTask>(em.unwrap(Session.class))
                     .select(QDiffTask.diffTask.queueMessage.pk)
                     .from(QDiffTask.diffTask)
                     .where(matchDiffTask, QDiffTask.diffTask.queueMessage.in(queueMsgQuery))
