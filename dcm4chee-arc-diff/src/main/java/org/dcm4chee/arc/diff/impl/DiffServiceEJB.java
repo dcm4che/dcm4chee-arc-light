@@ -53,6 +53,8 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.hibernate.Session;
@@ -222,6 +224,28 @@ public class DiffServiceEJB {
 
     public long diffTasksOfBatch(String batchID) {
         return batchIDQuery(batchID).fetchCount();
+    }
+
+    public boolean rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException, DifferentDeviceException {
+        DiffTask task = em.find(DiffTask.class, pk);
+        if (task == null)
+            return false;
+
+        QueueMessage queueMessage = task.getQueueMessage();
+        if (queueMessage != null)
+            queueManager.rescheduleTask(queueMessage, DiffService.QUEUE_NAME, queueEvent);
+
+        LOG.info("Reschedule {}", task);
+        return true;
+    }
+
+    public List<Long> getDiffTaskPks(Predicate matchQueueMessage, Predicate matchDiffTask, int limit) {
+        HibernateQuery<Long> diffTaskPkQuery = createQuery(matchQueueMessage, matchDiffTask)
+                .select(QDiffTask.diffTask.pk);
+        if (limit > 0)
+            diffTaskPkQuery.limit(limit);
+        return diffTaskPkQuery.fetch();
     }
 
     public List<AttributesBlob> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit) {

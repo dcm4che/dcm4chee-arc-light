@@ -52,9 +52,7 @@ import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -149,6 +147,17 @@ public class DiffServiceImpl implements DiffService {
     @Override
     public long diffTasksOfBatch(String batchID) {
         return ejb.diffTasksOfBatch(batchID);
+    }
+
+    @Override
+    public boolean rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException, DifferentDeviceException {
+        return ejb.rescheduleDiffTask(pk, queueEvent);
+    }
+
+    @Override
+    public List<Long> getDiffTaskPks(Predicate matchQueueMessage, Predicate matchDiffTask, int limit) {
+        return ejb.getDiffTaskPks(matchQueueMessage, matchDiffTask, limit);
     }
 
     @Override

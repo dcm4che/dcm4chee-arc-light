@@ -46,9 +46,7 @@ import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.qmgt.*;
 
 import java.util.Date;
 import java.util.List;
@@ -83,6 +81,10 @@ public interface DiffService {
                                     int offset, int limit);
 
     long diffTasksOfBatch(String batchID);
+
+    boolean rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException, DifferentDeviceException;
+
+    List<Long> getDiffTaskPks(Predicate matchQueueMessage, Predicate matchDiffTask, int limit);
 
     boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent);
 

@@ -41,8 +41,11 @@
 
 package org.dcm4chee.arc.diff.rs;
 
+import com.querydsl.core.types.Predicate;
 import org.dcm4che3.json.JSONWriter;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.diff.DiffTaskQuery;
 import org.dcm4chee.arc.entity.AttributesBlob;
@@ -51,6 +54,8 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
+import org.dcm4chee.arc.qmgt.DifferentDeviceException;
+import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -68,6 +73,7 @@ import javax.ws.rs.core.*;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -83,6 +89,9 @@ public class DiffTaskRS {
 
     @Inject
     private DiffService diffService;
+
+    @Inject
+    private Device device;
 
     @Context
     private HttpHeaders httpHeaders;
@@ -194,6 +203,67 @@ public class DiffTaskRS {
 
         return Response.ok(entity(diffService.getDiffTaskAttributes(diffTask, parseInt(offset), parseInt(limit))))
                 .build();
+    }
+
+    @POST
+    @Path("{taskPK}/reschedule")
+    public Response rescheduleTask(@PathParam("taskPK") long pk) {
+        logRequest();
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        try {
+            return Response.status(diffService.rescheduleDiffTask(pk, queueEvent)
+                    ? Response.Status.NO_CONTENT
+                    : Response.Status.NOT_FOUND)
+                    .build();
+        } catch (IllegalTaskStateException | DifferentDeviceException e) {
+            queueEvent.setException(e);
+            return rsp(Response.Status.CONFLICT, e.getMessage());
+        } finally {
+            queueMsgEvent.fire(queueEvent);
+        }
+    }
+
+    @POST
+    @Path("/reschedule")
+    public Response rescheduleDiffTasks() {
+        logRequest();
+        QueueMessage.Status status = status();
+        if (status == null)
+            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+        if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
+            return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
+        if (deviceName == null)
+            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: dicomDeviceName");
+        if (!deviceName.equals(device.getDeviceName()))
+            return rsp(Response.Status.CONFLICT,
+                    "Cannot reschedule Tasks originally scheduled on Device " + deviceName
+                            + " on Device " + device.getDeviceName());
+
+        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
+        try {
+            Predicate matchQueueMessage = MatchTask.matchQueueMessage(
+                    null, deviceName, status, batchID, null, null, null, new Date());
+            Predicate matchDiffTask = MatchTask.matchDiffTask(
+                    localAET, primaryAET, secondaryAET, checkDifferent, checkMissing,
+                    comparefields, createdTime, updatedTime);
+            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+            int fetchSize = arcDev.getQueueTasksFetchSize();
+            int count = 0;
+            List<Long> retrieveTaskPks;
+            do {
+                retrieveTaskPks = diffService.getDiffTaskPks(matchQueueMessage, matchDiffTask, fetchSize);
+                for (long pk : retrieveTaskPks)
+                    diffService.rescheduleDiffTask(pk, null);
+                count += retrieveTaskPks.size();
+            } while (retrieveTaskPks.size() >= fetchSize);
+            queueEvent.setCount(count);
+            return count(count);
+        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            queueEvent.setException(e);
+            return rsp(Response.Status.CONFLICT, e.getMessage());
+        } finally {
+            bulkQueueMsgEvent.fire(queueEvent);
+        }
     }
 
     @DELETE
