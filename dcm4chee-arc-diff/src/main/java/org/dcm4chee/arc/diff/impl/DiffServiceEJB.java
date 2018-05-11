@@ -45,6 +45,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
@@ -180,6 +181,31 @@ public class DiffServiceEJB {
 
     public DiffTask getDiffTask(long taskPK) {
         return em.find(DiffTask.class, taskPK);
+    }
+
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
+        int count = 0;
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int deleteTaskFetchSize = arcDev.getQueueTasksFetchSize();
+        HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
+                .from(QQueueMessage.queueMessage)
+                .where(matchQueueMessage);
+        List<Long> referencedQueueMsgs;
+        do {
+            referencedQueueMsgs = new HibernateQuery<RetrieveTask>(em.unwrap(Session.class))
+                    .select(QDiffTask.diffTask.queueMessage.pk)
+                    .from(QDiffTask.diffTask)
+                    .where(matchDiffTask, QDiffTask.diffTask.queueMessage.in(queueMsgQuery))
+                    .limit(deleteTaskFetchSize).fetch();
+
+            new HibernateDeleteClause(em.unwrap(Session.class), QDiffTask.diffTask)
+                    .where(matchDiffTask, QDiffTask.diffTask.queueMessage.pk.in(referencedQueueMsgs))
+                    .execute();
+
+            count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
+                    .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
+        } while (referencedQueueMsgs.size() >= deleteTaskFetchSize);
+        return count;
     }
 
     public long diffTasksOfBatch(String batchID) {

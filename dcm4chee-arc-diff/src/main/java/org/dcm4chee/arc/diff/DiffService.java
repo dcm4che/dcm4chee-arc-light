@@ -82,4 +82,6 @@ public interface DiffService {
                                     int offset, int limit);
 
     long diffTasksOfBatch(String batchID);
+
+    int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask);
 }

@@ -150,6 +150,11 @@ public class DiffServiceImpl implements DiffService {
         return ejb.diffTasksOfBatch(batchID);
     }
 
+    @Override
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
+        return ejb.deleteTasks(matchQueueMessage, matchDiffTask);
+    }
+
     private QueueMessage.Status check(String prompt, int failures, QueueMessage.Status status, StringBuilder sb) {
         if (failures == 0)
             return status;

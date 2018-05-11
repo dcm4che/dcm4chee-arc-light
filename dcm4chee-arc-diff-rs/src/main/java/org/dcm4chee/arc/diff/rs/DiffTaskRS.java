@@ -48,12 +48,15 @@ import org.dcm4chee.arc.diff.DiffTaskQuery;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.event.BulkQueueMessageEvent;
+import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -82,6 +85,9 @@ public class DiffTaskRS {
 
     @Context
     private HttpHeaders httpHeaders;
+
+    @Inject
+    private Event<BulkQueueMessageEvent> bulkQueueMsgEvent;
 
     @Context
     private HttpServletRequest request;
@@ -184,6 +190,21 @@ public class DiffTaskRS {
 
         return Response.ok(entity(diffService.getDiffTaskAttributes(diffTask, parseInt(offset), parseInt(limit))))
                 .build();
+    }
+
+    @DELETE
+    public String deleteTasks() {
+        logRequest();
+        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
+        int deleted = diffService.deleteTasks(
+                MatchTask.matchQueueMessage(
+                        null, deviceName, status(), batchID, null, null, null, null),
+                MatchTask.matchDiffTask(
+                        localAET, primaryAET, secondaryAET, checkDifferent, checkMissing,
+                        comparefields, createdTime, updatedTime));
+        queueEvent.setCount(deleted);
+        bulkQueueMsgEvent.fire(queueEvent);
+        return "{\"deleted\":" + deleted + '}';
     }
 
     private Output selectMediaType(String accept) {
