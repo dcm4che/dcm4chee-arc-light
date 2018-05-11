@@ -103,7 +103,8 @@ public class SyslogSearchRS {
     @Produces("application/json")
     public StreamingOutput retrieveSyslogEvent() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        String esURL = arcDev.getElasticSearchURL();
+        //String esURL = arcDev.getElasticSearchURL();
+        String esURL = null;
         if (esURL == null) {
             throw new WebApplicationException(
                     Response.status(Response.Status.NOT_FOUND)

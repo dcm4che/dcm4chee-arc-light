@@ -1091,7 +1091,6 @@ class ArchiveDeviceFactory {
     static final Duration PURGE_STGCMT_COMPLETED_DELAY = Duration.parse("P1D");
     static final Duration PURGE_STGCMT_POLLING_INTERVAL = Duration.parse("PT1H");
     static final String AUDIT_RECORD_REPOSITORY_URL = "http://kibana:5601";
-    static final String ELASTIC_SEARCH_URL = "http://elasticsearch:9200";
 
 
     static {
@@ -1421,7 +1420,6 @@ class ArchiveDeviceFactory {
         ext.setRejectExpiredSeriesFetchSize(REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE);
 
         ext.setAuditRecordRepositoryURL(AUDIT_RECORD_REPOSITORY_URL);
-        ext.setElasticSearchURL(ELASTIC_SEARCH_URL);
         ext.setAudit2JsonFhirTemplateURI(AUDIT2JSONFHIR_XSL);
         ext.setAudit2XmlFhirTemplateURI(AUDIT2XMLFHIR_XSL);
 
