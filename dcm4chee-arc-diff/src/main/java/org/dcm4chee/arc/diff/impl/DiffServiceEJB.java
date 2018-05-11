@@ -226,6 +226,25 @@ public class DiffServiceEJB {
         return batchIDQuery(batchID).fetchCount();
     }
 
+    public boolean cancelDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
+        DiffTask task = em.find(DiffTask.class, pk);
+        if (task == null)
+            return false;
+
+        QueueMessage queueMessage = task.getQueueMessage();
+        if (queueMessage == null)
+            throw new IllegalTaskStateException("Cannot cancel Task with status: 'TO SCHEDULE'");
+
+        queueManager.cancelTask(queueMessage.getMessageID(), queueEvent);
+        LOG.info("Cancel {}", task);
+        return true;
+    }
+
+    public long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        return queueManager.cancelDiffTasks(matchQueueMessage, matchDiffTask, prev);
+    }
+
     public boolean rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent)
             throws IllegalTaskStateException, DifferentDeviceException {
         DiffTask task = em.find(DiffTask.class, pk);

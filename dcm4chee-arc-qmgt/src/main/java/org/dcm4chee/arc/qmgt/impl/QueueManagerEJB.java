@@ -48,10 +48,7 @@ import com.querydsl.jpa.hibernate.HibernateUpdateClause;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
-import org.dcm4chee.arc.entity.QExportTask;
-import org.dcm4chee.arc.entity.QQueueMessage;
-import org.dcm4chee.arc.entity.QRetrieveTask;
-import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
@@ -248,6 +245,13 @@ public class QueueManagerEJB {
                 .execute();
     }
 
+    private void updateDiffTaskUpdatedTime(HibernateQuery<Long> queueMessageQuery, Date now) {
+        new HibernateUpdateClause(em.unwrap(Session.class), QDiffTask.diffTask)
+                .set(QDiffTask.diffTask.updatedTime, now)
+                .where(QDiffTask.diffTask.queueMessage.pk.in(queueMessageQuery))
+                .execute();
+    }
+
     private long updateStatus(HibernateQuery<Long> queueMessageQuery, QueueMessage.Status status, Date now) {
         return new HibernateUpdateClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
                 .set(QQueueMessage.queueMessage.status, status)
@@ -290,6 +294,18 @@ public class QueueManagerEJB {
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
+    public long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
+        Date now = new Date();
+        HibernateQuery<Long> queueMessageQuery = new HibernateQuery<Long>(em.unwrap(Session.class))
+                .select(QDiffTask.diffTask.queueMessage.pk)
+                .from(QDiffTask.diffTask)
+                .join(QDiffTask.diffTask.queueMessage, QQueueMessage.queueMessage)
+                .on(matchQueueMessage)
+                .where(matchDiffTask);
+        updateDiffTaskUpdatedTime(queueMessageQuery, now);
+        return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
+    }
+
     public List<String> getRetrieveTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         return new HibernateQuery<String>(em.unwrap(Session.class))
                 .select(QRetrieveTask.retrieveTask.queueMessage.messageID)
@@ -297,6 +313,16 @@ public class QueueManagerEJB {
                 .join(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
                 .on(matchQueueMessage)
                 .where(matchRetrieveTask)
+                .fetch();
+    }
+
+    public List<String> getDiffTasksReferencedQueueMsgIDs(Predicate matchQueueMessage, Predicate matchDiffTask) {
+        return new HibernateQuery<String>(em.unwrap(Session.class))
+                .select(QDiffTask.diffTask.queueMessage.messageID)
+                .from(QDiffTask.diffTask)
+                .join(QDiffTask.diffTask.queueMessage, QQueueMessage.queueMessage)
+                .on(matchQueueMessage)
+                .where(matchDiffTask)
                 .fetch();
     }
 

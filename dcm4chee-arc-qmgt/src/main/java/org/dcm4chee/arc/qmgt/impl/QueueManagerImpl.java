@@ -160,6 +160,18 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
+    public long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        if (prev == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getDiffTasksReferencedQueueMsgIDs(matchQueueMessage, matchDiffTask);
+            for (String msgID : msgIDs)
+                cancelTask(msgID, null);
+            return msgIDs.size();
+        }
+        return ejb.cancelDiffTasks(matchQueueMessage, matchDiffTask);
+    }
+
+    @Override
     public boolean rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
             throws IllegalTaskStateException, DifferentDeviceException {
         return ejb.rescheduleTask(msgId, queueName, queueEvent);

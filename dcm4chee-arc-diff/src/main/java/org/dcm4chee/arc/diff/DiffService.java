@@ -45,6 +45,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
+import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 
@@ -81,6 +82,11 @@ public interface DiffService {
                                     int offset, int limit);
 
     long diffTasksOfBatch(String batchID);
+
+    boolean cancelDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
+
+    long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException;
 
     boolean rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException, DifferentDeviceException;
 

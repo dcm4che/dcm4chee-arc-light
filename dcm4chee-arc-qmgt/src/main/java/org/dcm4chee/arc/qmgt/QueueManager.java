@@ -52,6 +52,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2015
  */
 public interface QueueManager {
@@ -74,6 +75,9 @@ public interface QueueManager {
             throws IllegalTaskStateException;
 
     long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prevStatus)
+            throws IllegalTaskStateException;
+
+    long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prevStatus)
             throws IllegalTaskStateException;
 
     boolean rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)

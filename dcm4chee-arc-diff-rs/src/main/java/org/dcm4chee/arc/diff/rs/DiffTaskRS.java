@@ -206,6 +206,54 @@ public class DiffTaskRS {
     }
 
     @POST
+    @Path("{taskPK}/cancel")
+    public Response cancelDiffTask(@PathParam("taskPK") long pk) {
+        logRequest();
+        QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
+        try {
+            return Response.status(diffService.cancelDiffTask(pk, queueEvent)
+                    ? Response.Status.NO_CONTENT
+                    : Response.Status.NOT_FOUND)
+                    .build();
+        } catch (IllegalTaskStateException e) {
+            queueEvent.setException(e);
+            return rsp(Response.Status.CONFLICT, e.getMessage());
+        } finally {
+            queueMsgEvent.fire(queueEvent);
+        }
+    }
+
+    @POST
+    @Path("/cancel")
+    public Response cancelDiffTasks() {
+        logRequest();
+        QueueMessage.Status status = status();
+        if (status == null)
+            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
+        if (status != QueueMessage.Status.SCHEDULED && status != QueueMessage.Status.IN_PROCESS)
+            return rsp(Response.Status.BAD_REQUEST, "Cannot cancel tasks with status: " + status);
+
+        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
+        try {
+            LOG.info("Cancel processing of Diff Tasks with Status {}", status);
+            long count = diffService.cancelDiffTasks(
+                    MatchTask.matchQueueMessage(
+                            null, deviceName, status, batchID, null,null, updatedTime, null),
+                    MatchTask.matchDiffTask(
+                            localAET, primaryAET, secondaryAET, checkDifferent, checkMissing,
+                            comparefields, createdTime, updatedTime),
+                    status);
+            queueEvent.setCount(count);
+            return count(count);
+        } catch (IllegalTaskStateException e) {
+            queueEvent.setException(e);
+            return rsp(Response.Status.CONFLICT, e.getMessage());
+        } finally {
+            bulkQueueMsgEvent.fire(queueEvent);
+        }
+    }
+
+    @POST
     @Path("{taskPK}/reschedule")
     public Response rescheduleTask(@PathParam("taskPK") long pk) {
         logRequest();

@@ -150,6 +150,17 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
+    public boolean cancelDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
+        return ejb.cancelDiffTask(pk, queueEvent);
+    }
+
+    @Override
+    public long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        return ejb.cancelDiffTasks(matchQueueMessage, matchDiffTask, prev);
+    }
+
+    @Override
     public boolean rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent)
             throws IllegalTaskStateException, DifferentDeviceException {
         return ejb.rescheduleDiffTask(pk, queueEvent);
