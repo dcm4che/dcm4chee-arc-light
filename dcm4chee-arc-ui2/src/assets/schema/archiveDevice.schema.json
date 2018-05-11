@@ -93,19 +93,19 @@
       "exclusiveMinimum": true
     },
     "dcmPurgeInstanceRecordsDelay": {
-      "title": "Remove Instance Records Delay",
+      "title": "Purge Instance Records Delay",
       "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB. If absent, Instance Records will never be purged. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "format": "dcmDuration"
     },
     "dcmPurgeInstanceRecordsPollingInterval": {
-      "title": "Remove Instance Records Polling Interval",
+      "title": "Purge Instance Records Polling Interval",
       "description": "Polling Interval for Series scheduled for purging Instance Records from the DB in ISO-8601 duration format PnDTnHnMn.nS. If absent, Instance Records will not be purged.",
       "type": "string",
       "format": "dcmDuration"
     },
     "dcmPurgeInstanceRecordsFetchSize": {
-      "title": "Remove Instance Records Fetch Size",
+      "title": "Purge Instance Records Fetch Size",
       "description": "Maximal number of Series scheduled for purging Instance Records from the DB fetched by one query.",
       "type": "integer",
       "default" : 100,
