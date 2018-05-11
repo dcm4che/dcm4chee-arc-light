@@ -177,6 +177,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         attrs.put(new BasicAttribute("dcmuiDashboardConfigName", uiDashboardConfig.getName()));
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiQueueName", uiDashboardConfig.getQueueNames());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomuiDeviceName", uiDashboardConfig.getDeviceNames());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomuiIgnoreParams", uiDashboardConfig.getIgnoreParams());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmuiCountAET",uiDashboardConfig.getCountAet(),null);
         return attrs;
     }
@@ -324,6 +325,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiDashboardConfig.setCountAet(LdapUtils.stringValue(attrs.get("dcmuiCountAET"),null));
                 uiDashboardConfig.setQueueNames(LdapUtils.stringArray(attrs.get("dcmuiQueueName")));
                 uiDashboardConfig.setDeviceNames(LdapUtils.stringArray(attrs.get("dicomuiDeviceName")));
+                uiDashboardConfig.setIgnoreParams(LdapUtils.stringArray(attrs.get("dicomuiIgnoreParams")));
                 uiConfig.addDashboardConfig(uiDashboardConfig);
             }
         } finally {
@@ -569,6 +571,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj, mods, "dicomuiDeviceName",
                 prev.getDeviceNames(),
                 uiDashboardConfig.getDeviceNames());
+        LdapUtils.storeDiff(ldapObj, mods, "dicomuiIgnoreParams",
+                prev.getIgnoreParams(),
+                uiDashboardConfig.getIgnoreParams());
         LdapUtils.storeDiffObject(ldapObj, mods,"dcmuiCountAET",
                 prev.getCountAet(),
                 uiDashboardConfig.getCountAet(), null);

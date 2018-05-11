@@ -25,6 +25,12 @@
       "items" : { "type": "string" },
       "format": "dicomDeviceName"
     },
+    "dicomuiIgnoreParams": {
+      "title": "Audit Events Ignore Parameters",
+      "description": "Set Elasticsearch parameters that should be ignored in the Audit Events. E.g. Source.UserID=TESTVALUE",
+      "type": "array",
+      "items" : { "type": "string" }
+    },
     "dcmuiCountAET": {
       "title": "Count Aet",
       "description": "Selected Aet will be used to get the count of studies in the dashboard",

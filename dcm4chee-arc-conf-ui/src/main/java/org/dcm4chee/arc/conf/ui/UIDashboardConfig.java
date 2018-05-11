@@ -48,6 +48,7 @@ public class UIDashboardConfig {
     private String[] queueNames = {};
     private String[] deviceNames = {};
     private String countAet;
+    private String[] ignoreParams = {};
 
     public UIDashboardConfig() {
     }
@@ -83,4 +84,12 @@ public class UIDashboardConfig {
     public String getCountAet() { return countAet; }
 
     public void setCountAet(String countAet) { this.countAet = countAet; }
+
+    public String[] getIgnoreParams() {
+        return ignoreParams;
+    }
+
+    public void setIgnoreParams(String[] ignoreParams) {
+        this.ignoreParams = ignoreParams;
+    }
 }
