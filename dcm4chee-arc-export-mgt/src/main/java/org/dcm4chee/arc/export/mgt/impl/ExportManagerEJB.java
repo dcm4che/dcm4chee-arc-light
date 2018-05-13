@@ -207,8 +207,11 @@ public class ExportManagerEJB implements ExportManager {
         task.setScheduledTime(scheduledTime);
         QueueMessage queueMessage = task.getQueueMessage();
         if (queueMessage != null) {
-            if (queueMessage.getStatus() == QueueMessage.Status.SCHEDULED)
+            if (queueMessage.getStatus() == QueueMessage.Status.SCHEDULED) {
                 queueMessage.setStatus(QueueMessage.Status.CANCELED);
+                LOG.info("Cancel processing of Task[id={}] at Queue {}",
+                        queueMessage.getMessageID(), queueMessage.getQueueName());
+            }
             task.setQueueMessage(null);
         }
         LOG.debug("Update {}", task);
