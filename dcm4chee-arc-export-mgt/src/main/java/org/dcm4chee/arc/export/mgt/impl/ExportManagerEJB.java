@@ -206,7 +206,7 @@ public class ExportManagerEJB implements ExportManager {
         task.setSopInstanceUID(sopIUID);
         task.setScheduledTime(scheduledTime);
         QueueMessage queueMessage = task.getQueueMessage();
-        if (queueMessage == null) {
+        if (queueMessage != null) {
             if (queueMessage.getStatus() == QueueMessage.Status.SCHEDULED)
                 queueMessage.setStatus(QueueMessage.Status.CANCELED);
             task.setQueueMessage(null);
