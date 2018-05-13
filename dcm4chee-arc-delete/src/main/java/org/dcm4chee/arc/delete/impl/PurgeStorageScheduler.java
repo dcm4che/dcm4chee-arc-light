@@ -136,6 +136,8 @@ public class PurgeStorageScheduler extends Scheduler {
                         BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
             }
             for (int i = 0; i == 0 || deleteSize > 0L; i++) {
+                if (getPollingInterval() == null)
+                    return;
                 if (deleteSize > 0L) {
                     if (deleteStudies(desc, deleteStudyBatchSize, deletePatient) == 0)
                         deleteSize = 0L;
@@ -274,6 +276,8 @@ public class PurgeStorageScheduler extends Scheduler {
     private int deleteStudiesFromDB(StorageDescriptor desc, List<Long> studyPks, boolean deletePatient) {
         int removed = 0;
         for (Long studyPk : studyPks) {
+            if (getPollingInterval() == null)
+                break;
             StudyDeleteContextImpl ctx = new StudyDeleteContextImpl(studyPk);
             ctx.setDeletePatientOnDeleteLastStudy(deletePatient);
             try {
@@ -297,6 +301,8 @@ public class PurgeStorageScheduler extends Scheduler {
     private int deleteObjectsOfStudies(StorageDescriptor desc, List<Long> studyPks) {
         int removed = 0;
         for (Long studyPk : studyPks) {
+            if (getPollingInterval() == null)
+                break;
             try {
                 Study study = ejb.deleteObjectsOfStudy(studyPk, desc.getStorageID());
                 removed++;
@@ -315,6 +321,8 @@ public class PurgeStorageScheduler extends Scheduler {
 
         try (Storage storage = storageFactory.getStorage(desc)) {
             for (Metadata m : metadata) {
+                if (getPollingInterval() == null)
+                    return false;
                 try {
                     storage.deleteObject(m.getStoragePath());
                     ejb.removeMetadata(m);
@@ -337,6 +345,8 @@ public class PurgeStorageScheduler extends Scheduler {
 
         try (Storage storage = storageFactory.getStorage(desc)) {
             for (Location location : locations) {
+                if (getPollingInterval() == null)
+                    return false;
                 try {
                     storage.deleteObject(location.getStoragePath());
                     ejb.removeLocation(location);

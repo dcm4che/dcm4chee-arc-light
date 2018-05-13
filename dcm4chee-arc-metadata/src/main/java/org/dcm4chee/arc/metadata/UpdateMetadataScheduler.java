@@ -132,6 +132,9 @@ public class UpdateMetadataScheduler extends Scheduler {
             if (!metadataUpdates.isEmpty())
                 try (Storage storage = storageFactory.getUsableStorage(descriptors)) {
                     for (Series.MetadataUpdate metadataUpdate : metadataUpdates) {
+                        if (getPollingInterval() == null)
+                            return;
+
                         try (RetrieveContext ctx = retrieveService.newRetrieveContextSeriesMetadata(metadataUpdate)) {
                             updateMetadata(ctx, storage);
                         } catch (Exception e) {

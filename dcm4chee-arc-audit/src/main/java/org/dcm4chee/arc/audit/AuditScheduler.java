@@ -122,8 +122,12 @@ public class AuditScheduler extends Scheduler {
             } catch (IOException e) {
                 LOG.warn("Failed to access Audit Spool Directory - {}", dir, e);
             }
-            for (Path path : pathList)
+            for (Path path : pathList) {
+                if (getPollingInterval() == null)
+                    return;
+
                 service.auditAndProcessFile(logger, path);
+            }
         }
     }
 }

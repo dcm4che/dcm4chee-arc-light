@@ -103,7 +103,10 @@ public class HL7PSUScheduler extends Scheduler {
         List<HL7PSUTask> hl7psuTasks;
         do {
             hl7psuTasks = ejb.fetchHL7PSUTasksForMPPS(device.getDeviceName(), hl7psuTaskPk, fetchSize);
-            for (HL7PSUTask hl7psuTask : hl7psuTasks)
+            for (HL7PSUTask hl7psuTask : hl7psuTasks) {
+                if (getPollingInterval() == null)
+                    return;
+
                 try {
                     hl7psuTaskPk = hl7psuTask.getPk();
                     ApplicationEntity ae = device.getApplicationEntity(hl7psuTask.getAETitle());
@@ -115,10 +118,14 @@ public class HL7PSUScheduler extends Scheduler {
                 } catch (Exception e) {
                     LOG.warn("Failed to process {}:\n", hl7psuTask, e);
                 }
+            }
         } while (hl7psuTasks.size() == fetchSize);
         do {
             hl7psuTasks = ejb.fetchHL7PSUTasksForStudy(device.getDeviceName(), fetchSize);
             for (HL7PSUTask hl7psuTask : hl7psuTasks) {
+                if (getPollingInterval() == null)
+                    return;
+
                 ApplicationEntity ae = device.getApplicationEntity(hl7psuTask.getAETitle());
                 ArchiveAEExtension arcAE = ae.getAEExtension(ArchiveAEExtension.class);
                 HL7PSU action = hl7PSUActionOnStudy(arcAE);

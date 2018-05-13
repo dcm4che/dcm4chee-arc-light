@@ -111,8 +111,14 @@ public class PurgeInstanceRecordsScheduler extends Scheduler {
         Map<String, Storage> storageMap = new HashMap<>();
         try {
             do {
+                if (getPollingInterval() == null)
+                    return;
+
                 series = ejb.findSeriesToPurgeInstances(fetchSize);
                 for (Series.MetadataUpdate metadataUpdate : series) {
+                    if (getPollingInterval() == null)
+                        return;
+
                     Long seriesPk = metadataUpdate.seriesPk;
                     if (!claim(seriesPk))
                         continue;
