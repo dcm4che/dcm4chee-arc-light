@@ -163,9 +163,7 @@ public class ExportManagerEJB implements ExportManager {
                     .setParameter(1, exporterID)
                     .setParameter(2, studyIUID)
                     .getSingleResult();
-            task.setSeriesInstanceUID("*");
-            task.setSopInstanceUID("*");
-            task.setScheduledTime(scheduledTime);
+            updateExportTask(task, "*", "*", scheduledTime);
         } catch (NoResultException nre) {
             createExportTask(exporterID, studyIUID, "*", "*", scheduledTime);
         }
@@ -180,8 +178,7 @@ public class ExportManagerEJB implements ExportManager {
                     .setParameter(2, studyIUID)
                     .setParameter(3, seriesIUID)
                     .getSingleResult();
-            task.setSopInstanceUID("*");
-            task.setScheduledTime(scheduledTime);
+            updateExportTask(task, seriesIUID, "*", scheduledTime);
         } catch (NoResultException nre) {
             createExportTask(exporterID, studyIUID, seriesIUID, "*", scheduledTime);
         }
@@ -197,10 +194,24 @@ public class ExportManagerEJB implements ExportManager {
                     .setParameter(3, seriesIUID)
                     .setParameter(4, sopIUID)
                     .getSingleResult();
-            task.setScheduledTime(scheduledTime);
+            updateExportTask(task, seriesIUID, sopIUID, scheduledTime);
         } catch (NoResultException nre) {
             createExportTask(exporterID, studyIUID, seriesIUID, sopIUID, scheduledTime);
         }
+    }
+
+    private void updateExportTask(ExportTask task, String seriesIUID, String sopIUID, Date scheduledTime) {
+        task.setDeviceName(device.getDeviceName());
+        task.setSeriesInstanceUID(seriesIUID);
+        task.setSopInstanceUID(sopIUID);
+        task.setScheduledTime(scheduledTime);
+        QueueMessage queueMessage = task.getQueueMessage();
+        if (queueMessage == null) {
+            if (queueMessage.getStatus() == QueueMessage.Status.SCHEDULED)
+                queueMessage.setStatus(QueueMessage.Status.CANCELED);
+            task.setQueueMessage(null);
+        }
+        LOG.debug("Update {}", task);
     }
 
     private ExportTask createExportTask(
@@ -213,6 +224,7 @@ public class ExportManagerEJB implements ExportManager {
         task.setSopInstanceUID(sopIUID);
         task.setScheduledTime(scheduledTime);
         em.persist(task);
+        LOG.info("Create {}", task);
         return task;
     }
 
