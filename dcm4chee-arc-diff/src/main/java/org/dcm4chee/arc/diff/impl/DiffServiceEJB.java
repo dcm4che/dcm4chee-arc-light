@@ -45,7 +45,6 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.hibernate.HibernateDeleteClause;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
@@ -191,7 +190,8 @@ public class DiffServiceEJB {
         if (task == null)
             return false;
 
-        queueEvent.setQueueMsg(task.getQueueMessage());
+        if (queueEvent != null)
+            queueEvent.setQueueMsg(task.getQueueMessage());
         em.remove(task);
         LOG.info("Delete {}", task);
         return true;
@@ -204,21 +204,19 @@ public class DiffServiceEJB {
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(matchQueueMessage);
-        List<Long> referencedQueueMsgs;
+        List<Long> diffTaskPks;
         do {
-            referencedQueueMsgs = new HibernateQuery<DiffTask>(em.unwrap(Session.class))
-                    .select(QDiffTask.diffTask.queueMessage.pk)
+            diffTaskPks = new HibernateQuery<DiffTask>(em.unwrap(Session.class))
+                    .select(QDiffTask.diffTask.pk)
                     .from(QDiffTask.diffTask)
                     .where(matchDiffTask, QDiffTask.diffTask.queueMessage.in(queueMsgQuery))
                     .limit(deleteTaskFetchSize).fetch();
 
-            new HibernateDeleteClause(em.unwrap(Session.class), QDiffTask.diffTask)
-                    .where(matchDiffTask, QDiffTask.diffTask.queueMessage.pk.in(referencedQueueMsgs))
-                    .execute();
+            for (Long diffTaskPk : diffTaskPks)
+                deleteDiffTask(diffTaskPk, null);
 
-            count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
-                    .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
-        } while (referencedQueueMsgs.size() >= deleteTaskFetchSize);
+            count += diffTaskPks.size();
+        } while (diffTaskPks.size() >= deleteTaskFetchSize);
         return count;
     }
 
