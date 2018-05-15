@@ -118,43 +118,90 @@ attributetype ( 1.2.40.0.13.1.15.111.3.20 NAME 'dicomuiDeviceName'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
-attributetype ( 1.2.40.0.13.1.15.111.3.20 NAME 'dicomuiIgnoreParams'
+attributetype ( 1.2.40.0.13.1.15.111.3.21 NAME 'dicomuiIgnoreParams'
   DESC 'Device Names for UI Dashboard Configuration'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
-attributetype ( 1.2.40.0.13.1.15.111.3.21 NAME 'dcmuiCountAET'
+attributetype ( 1.2.40.0.13.1.15.111.3.22 NAME 'dcmuiCountAET'
   DESC 'UI Dashboard Count AET'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.111.3.22 NAME 'dcmuiElasticsearchConfigName'
+attributetype ( 1.2.40.0.13.1.15.111.3.23 NAME 'dcmuiElasticsearchConfigName'
     DESC 'Name of Elasticsearch UI Configuration'
     EQUALITY caseExactMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
     SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.111.3.23 NAME 'dcmuiElasticsearchURLName'
+attributetype ( 1.2.40.0.13.1.15.111.3.24 NAME 'dcmuiElasticsearchURLName'
     DESC 'Elasticsearch URL Name'
     EQUALITY caseExactMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
     SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.111.3.24 NAME 'dcmuiElasticsearchURL'
+attributetype ( 1.2.40.0.13.1.15.111.3.25 NAME 'dcmuiElasticsearchURL'
     DESC 'Elasticsearch URL'
     EQUALITY caseExactMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
     SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.111.3.25 NAME 'dcmuiElasticsearchIsDefault'
+attributetype ( 1.2.40.0.13.1.15.111.3.26 NAME 'dcmuiElasticsearchIsDefault'
   DESC 'Indicates if the URL is the default one'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.111.3.26 NAME 'dcmuiElasticsearchInstalled'
+attributetype ( 1.2.40.0.13.1.15.111.3.27 NAME 'dcmuiElasticsearchInstalled'
   DESC 'Indicates if the URL is installed'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.28 NAME 'dcmuiDeviceURLName'
+  DESC 'UI Device URL Name'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.29 NAME 'dcmuiDeviceURL'
+  DESC 'UI Device URL'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.30 NAME 'dcmuiDeviceURLDescription'
+  DESC 'UI Device URL Description'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.31 NAME 'dcmuiDeviceURLInstalled'
+  DESC 'Indicates if the Device URL is installed'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.32 NAME 'dcmuiDeviceClusterName'
+  DESC 'Cluster Name'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.33 NAME 'dcmuiDeviceClusterDescription'
+  DESC 'Cluster Description'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.34 NAME 'dcmuiDeviceClusterDevices'
+    DESC 'Devices in Cluster'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15)
+
+attributetype ( 1.2.40.0.13.1.15.111.3.35 NAME 'dcmuiDeviceClusterInstalled'
+  DESC 'Indicates if the Cluster is installed'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
@@ -230,3 +277,23 @@ objectclass ( 1.2.40.0.13.1.15.111.4.7 NAME 'dcmuiElasticsearchURLObjects'
     MAY (
       dcmuiElasticsearchIsDefault $
       dcmuiElasticsearchInstalled) )
+
+objectclass ( 1.2.40.0.13.1.15.111.4.8 NAME 'dcmuiDeviceURLObject'
+    DESC 'Device URL'
+    SUP top STRUCTURAL
+    MUST (
+      dcmuiDeviceURLName $
+      dcmuiDeviceURL)
+    MAY (
+      dcmuiDeviceURLDescription $
+      dcmuiDeviceURLInstalled) )
+
+objectclass ( 1.2.40.0.13.1.15.111.4.9 NAME 'dcmuiDeviceClusterObject'
+    DESC 'Device Cluster'
+    SUP top STRUCTURAL
+    MUST (
+      dcmuiDeviceClusterName $
+      dcmuiDeviceClusterDevices)
+    MAY (
+      dcmuiDeviceClusterDescription $
+      dcmuiDeviceClusterInstalled) )

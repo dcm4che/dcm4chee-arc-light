@@ -85,6 +85,8 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writeUIDiffConfigs(writer, uiConfig.getDiffConfigs());
         writeUIDashboardConfigs(writer, uiConfig.getDashboardConfigs());
         writeUIElasticsearchConfigs(writer, uiConfig.getElasticsearchConfigs());
+        writeUIDeviceURLs(writer, uiConfig.getDeviceURLs());
+        writeUIDeviceClusters(writer, uiConfig.getDeviceClusters());
         writer.writeEnd();
     }
 
@@ -99,6 +101,36 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiAction", uiPermission.getAction(), null);
             writer.writeNotEmpty("dcmuiActionParam", uiPermission.getActionParams());
             writer.writeNotEmpty("dcmAcceptedUserRole", uiPermission.getAcceptedUserRoles());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+    private void writeUIDeviceURLs(JsonWriter writer, Collection<UIDeviceURL> uiDeviceURLs) {
+        if (uiDeviceURLs.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiDeviceURLObject");
+        for (UIDeviceURL uiDeviceURL : uiDeviceURLs) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiDeviceURLName", uiDeviceURL.getDeviceName(), null);
+            writer.writeNotNullOrDef("dcmuiDeviceURL", uiDeviceURL.getDeviceURL(), null);
+            writer.writeNotNullOrDef("dcmuiDeviceURLDescription", uiDeviceURL.getDescription(), null);
+            writer.writeNotDef("dcmuiDeviceURLInstalled", uiDeviceURL.isInstalled(), true);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+    private void writeUIDeviceClusters(JsonWriter writer, Collection<UIDeviceCluster> uiDeviceClusters) {
+        if (uiDeviceClusters.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiDeviceClusterObject");
+        for (UIDeviceCluster uiDeviceCluster : uiDeviceClusters) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiDeviceClusterName", uiDeviceCluster.getClusterName(), null);
+            writer.writeNotNullOrDef("dcmuiDeviceClusterDescription", uiDeviceCluster.getDescription(), null);
+            writer.writeNotEmpty("dcmuiDeviceClusterDevices", uiDeviceCluster.getDevices());
+            writer.writeNotDef("dcmuiDeviceClusterInstalled", uiDeviceCluster.isInstalled(), true);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -219,6 +251,12 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                 case "dcmuiElasticsearchConfig":
                     loadUIElasticsearchConfigs(uiConfig, reader);
                     break;
+                case "dcmuiDeviceURLObject":
+                    loadUIDeviceURLs(uiConfig, reader);
+                    break;
+                case "dcmuiDeviceClusterObject":
+                    loadUIDeviceClusters(uiConfig, reader);
+                    break;
                 default:
                     reader.skipUnknownProperty();
             }
@@ -251,6 +289,64 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             uiConfig.addPermission(uiPermission);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+    private void loadUIDeviceURLs(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIDeviceURL uiDeviceURL = new UIDeviceURL();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiDeviceURLName":
+                        uiDeviceURL.setDeviceName(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceURL":
+                        uiDeviceURL.setDeviceURL(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceURLDescription":
+                        uiDeviceURL.setDescription(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceURLInstalled":
+                        uiDeviceURL.setInstalled(reader.booleanValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addDeviceURL(uiDeviceURL);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+    private void loadUIDeviceClusters(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIDeviceCluster uiDeviceCluster = new UIDeviceCluster();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiDeviceClusterName":
+                        uiDeviceCluster.setClusterName(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceClusterDevices":
+                        uiDeviceCluster.setDevices(reader.stringArray());
+                        break;
+                    case "dcmuiDeviceClusterDescription":
+                        uiDeviceCluster.setDescription(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceClusterInstalled":
+                        uiDeviceCluster.setInstalled(reader.booleanValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addDeviceCluster(uiDeviceCluster);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

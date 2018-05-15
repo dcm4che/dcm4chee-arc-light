@@ -512,6 +512,12 @@ export class Globalvar {
                 msg:'Create first an Rejection Note!',
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmRejectionNote'
             },
+            dcmuiDeviceURLObject:{
+                key:'dcmuiDeviceURLName',
+                labelKey:'{dcmuiDeviceURLName}',
+                msg:'Create first an UI Device URL!',
+                pathInDevice:'dcmDevice.dcmuiConfig[0].dcmuiDeviceURLObject'
+            }
 /*            dicomDeviceName:{
                 key:'dicomDeviceName',
                 labelKey:'{dicomDeviceName}',

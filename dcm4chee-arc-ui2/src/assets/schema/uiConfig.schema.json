@@ -46,6 +46,24 @@
       "items" : {
         "$ref": "uiElasticsearch.schema.json"
       }
+    },
+    "dcmuiDeviceURLObject": {
+      "title": "UI Device URLs",
+      "description": "Other UI Device URLs",
+      "titleKey":"{dcmuiDeviceURLName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiDeviceURL.schema.json"
+      }
+    },
+    "dcmuiDeviceClusterObject": {
+      "title": "Cluster Configuration",
+      "description": "Group Devices in Clusters",
+      "titleKey":"{dcmuiDeviceClusterName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiDeviceCluster.schema.json"
+      }
     }
   }
 }
