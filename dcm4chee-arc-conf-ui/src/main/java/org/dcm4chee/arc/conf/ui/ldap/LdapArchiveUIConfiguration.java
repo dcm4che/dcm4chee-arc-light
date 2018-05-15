@@ -606,7 +606,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 String dn = LdapUtils.dnOf("dcmuiDashboardConfigName", prevUIDashboardConfigName, uiConfigDN);
                 config.destroySubcontext(dn);
                 ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
-            } 2
+            }
         }
         for (UIDashboardConfig uiDashboardConfig : uiConfig.getDashboardConfigs()) {
             String uiDashboardConfigName = uiDashboardConfig.getName();
