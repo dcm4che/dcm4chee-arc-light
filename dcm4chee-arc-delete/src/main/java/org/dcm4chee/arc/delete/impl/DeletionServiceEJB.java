@@ -433,4 +433,10 @@ public class DeletionServiceEJB {
             queryService.calculateSeriesQueryAttributes(seriesPk, arcDev.getQueryRetrieveView(viewID));
         }
     }
+
+    public void updateStudyAccessTime(Long studyPk) {
+        em.createNamedQuery(Study.UPDATE_ACCESS_TIME)
+                .setParameter(1, studyPk)
+                .executeUpdate();
+    }
 }

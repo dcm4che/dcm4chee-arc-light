@@ -122,6 +122,7 @@ public class StorageRS {
                     writer.writeNotNullOrDef("dcmDigestAlgorithm", desc.getDigestAlgorithm(), null);
                     writer.writeNotNullOrDef("dcmInstanceAvailability", desc.getInstanceAvailability(), null);
                     writer.writeNotDef("dcmReadOnly", desc.isReadOnly(), false);
+                    writer.writeNotDef("dcmNoDeletionConstraint", desc.isNoDeletionConstraint(), false);
                     if (desc.getStorageThreshold() != null)
                         gen.write("storageThreshold", desc.getStorageThreshold().getMinUsableDiskSpace());
                     writeDeleterThresholds(writer, gen, desc.getDeleterThresholds());
