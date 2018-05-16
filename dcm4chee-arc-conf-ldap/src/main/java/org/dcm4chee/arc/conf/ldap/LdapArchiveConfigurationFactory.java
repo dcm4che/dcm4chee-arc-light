@@ -40,10 +40,7 @@
 
 package org.dcm4chee.arc.conf.ldap;
 
-import org.dcm4che3.conf.api.ApplicationEntityCache;
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.conf.api.DicomConfiguration;
-import org.dcm4che3.conf.api.IApplicationEntityCache;
+import org.dcm4che3.conf.api.*;
 import org.dcm4che3.conf.api.hl7.HL7ApplicationCache;
 import org.dcm4che3.conf.api.hl7.HL7Configuration;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
@@ -125,6 +122,12 @@ public class LdapArchiveConfigurationFactory {
     @ApplicationScoped
     public IApplicationEntityCache newApplicationEntityCache(DicomConfiguration conf) {
         return new ApplicationEntityCache(conf);
+    }
+
+    @Produces
+    @ApplicationScoped
+    public IDeviceCache newDeviceCache(DicomConfiguration conf) {
+        return new DeviceCache(conf);
     }
 
     @Produces
