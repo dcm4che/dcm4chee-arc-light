@@ -40,9 +40,6 @@
 
 package org.dcm4chee.arc.rs.client.impl;
 
-import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.KeycloakServer;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -50,7 +47,6 @@ import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -71,9 +67,6 @@ public class RSClientImpl implements RSClient {
 
     @Inject
     private QueueManager queueManager;
-
-    @Inject
-    private Device device;
 
     @Inject
     private AccessTokenRequestor accessTokenRequestor;
