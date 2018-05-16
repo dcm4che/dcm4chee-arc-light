@@ -156,10 +156,7 @@ public class QueueManagerRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
-            return Response.status(mgr.cancelTask(msgId, queueEvent)
-                    ? Response.Status.NO_CONTENT
-                    : Response.Status.NOT_FOUND)
-                    .build();
+            return rsp(mgr.cancelTask(msgId, queueEvent));
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
@@ -200,10 +197,7 @@ public class QueueManagerRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            return Response.status(mgr.rescheduleTask(msgId, null, queueEvent)
-                    ? Response.Status.NO_CONTENT
-                    : Response.Status.NOT_FOUND)
-                    .build();
+            return rsp(mgr.rescheduleTask(msgId, null, queueEvent));
         } catch (IllegalTaskStateException|DifferentDeviceException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
@@ -259,10 +253,7 @@ public class QueueManagerRS {
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         boolean deleteTask = mgr.deleteTask(msgId, queueEvent);
         queueMsgEvent.fire(queueEvent);
-        return Response.status(deleteTask
-                ? Response.Status.NO_CONTENT
-                : Response.Status.NOT_FOUND)
-                .build();
+        return rsp(deleteTask);
     }
 
     @DELETE
@@ -279,6 +270,13 @@ public class QueueManagerRS {
 
     private static Response rsp(Response.Status status, Object entity) {
         return Response.status(status).entity(entity).build();
+    }
+
+    private static Response rsp(boolean result) {
+        return Response.status(result
+                ? Response.Status.NO_CONTENT
+                : Response.Status.NOT_FOUND)
+                .build();
     }
 
     private static Response count(long count) {

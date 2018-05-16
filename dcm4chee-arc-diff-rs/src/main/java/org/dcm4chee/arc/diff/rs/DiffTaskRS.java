@@ -211,10 +211,7 @@ public class DiffTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
-            return Response.status(diffService.cancelDiffTask(pk, queueEvent)
-                    ? Response.Status.NO_CONTENT
-                    : Response.Status.NOT_FOUND)
-                    .build();
+            return rsp(diffService.cancelDiffTask(pk, queueEvent));
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
@@ -259,10 +256,7 @@ public class DiffTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            return Response.status(diffService.rescheduleDiffTask(pk, queueEvent)
-                    ? Response.Status.NO_CONTENT
-                    : Response.Status.NOT_FOUND)
-                    .build();
+            return rsp(diffService.rescheduleDiffTask(pk, queueEvent));
         } catch (IllegalTaskStateException | DifferentDeviceException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
@@ -321,10 +315,7 @@ public class DiffTaskRS {
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         boolean deleteDiffTask = diffService.deleteDiffTask(pk, queueEvent);
         queueMsgEvent.fire(queueEvent);
-        return Response.status(deleteDiffTask
-                ? Response.Status.NO_CONTENT
-                : Response.Status.NOT_FOUND)
-                .build();
+        return rsp(deleteDiffTask);
     }
 
     @DELETE
@@ -437,6 +428,13 @@ public class DiffTaskRS {
 
     private static Response rsp(Response.Status status, Object entity) {
         return Response.status(status).entity(entity).build();
+    }
+
+    private static Response rsp(boolean result) {
+        return Response.status(result
+                ? Response.Status.NO_CONTENT
+                : Response.Status.NOT_FOUND)
+                .build();
     }
 
     private static int parseInt(String s) {
