@@ -19,6 +19,8 @@ public final class StorageDescriptor {
     private String digestAlgorithm;
     private Availability instanceAvailability = Availability.ONLINE;
     private String exportStorageID;
+    private String retrieveCacheStorageID;
+    private int retrieveCacheStorageMaxParallel = 10;
     private String externalRetrieveAETitle;
     private boolean readOnly;
     private boolean noDeletionConstraint;
@@ -97,6 +99,22 @@ public final class StorageDescriptor {
 
     public void setExportStorageID(String exportStorageID) {
         this.exportStorageID = exportStorageID;
+    }
+
+    public String getRetrieveCacheStorageID() {
+        return retrieveCacheStorageID;
+    }
+
+    public void setRetrieveCacheStorageID(String retrieveCacheStorageID) {
+        this.retrieveCacheStorageID = retrieveCacheStorageID;
+    }
+
+    public int getRetrieveCacheMaxParallel() {
+        return retrieveCacheStorageMaxParallel;
+    }
+
+    public void setRetrieveCacheMaxParallel(int retrieveCacheStorageMaxParallel) {
+        this.retrieveCacheStorageMaxParallel = retrieveCacheStorageMaxParallel;
     }
 
     public boolean isReadOnly() {

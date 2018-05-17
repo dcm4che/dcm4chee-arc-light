@@ -831,7 +831,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.167 NAME 'hl7ScheduledStationAETInOr
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.168 NAME 'dcmElasticSearchURL'
-  DESC 'Access URL of Elastic Search. E.g. http://elasticsearch:9200'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
@@ -1036,6 +1036,16 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.209 NAME 'dcmNoDeletionConstraint'
   DESC 'If no External Retrieve AET or Export Storage ID is configured on Storage Descriptor and deleter threshold is reached, by default studies will not be deleted. Default is false.'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.210 NAME 'dcmRetrieveCacheStorageID'
+  DESC 'Specifies another Storage to which objects are copied in parallel on retrieve to increase the performance on accessing storage systems which provides more bandwidth using multiple connections in parallel.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.211 NAME 'dcmRetrieveCacheMaxParallel'
+  DESC 'Maximal number of parallel copies to cache storage on retrieve specified by dcmRetrieveCacheStorageID; 10 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
@@ -1274,6 +1284,8 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmDeleterThreshold $
     dcmExternalRetrieveAET $
     dcmExportStorageID $
+    dcmRetrieveCacheStorageID $
+    dcmRetrieveCacheMaxParallel $
     dcmNoDeletionConstraint $
     dcmReadOnly $
     dcmProperty ) )

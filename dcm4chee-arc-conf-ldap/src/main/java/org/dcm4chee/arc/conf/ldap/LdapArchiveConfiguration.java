@@ -1355,6 +1355,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(descriptor.getProperties()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExternalRetrieveAET", descriptor.getExternalRetrieveAETitle(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmExportStorageID", descriptor.getExportStorageID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveCacheStorageID",
+                descriptor.getRetrieveCacheStorageID(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetrieveCacheMaxParallel",
+                descriptor.getRetrieveCacheMaxParallel(), 100);
         return attrs;
     }
 
@@ -1384,6 +1388,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
                 desc.setExternalRetrieveAETitle(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAET"), null));
                 desc.setExportStorageID(LdapUtils.stringValue(attrs.get("dcmExportStorageID"), null));
+                desc.setRetrieveCacheStorageID(
+                        LdapUtils.stringValue(attrs.get("dcmRetrieveCacheStorageID"), null));
+                desc.setRetrieveCacheMaxParallel(
+                        LdapUtils.intValue(attrs.get("dcmRetrieveCacheMaxParallel"), 10));
                 arcdev.addStorageDescriptor(desc);
             }
         } finally {
@@ -1439,6 +1447,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalRetrieveAET", prev.getExternalRetrieveAETitle(), desc.getExternalRetrieveAETitle(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmExportStorageID", prev.getExportStorageID(), desc.getExportStorageID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveCacheStorageID",
+                prev.getRetrieveCacheStorageID(), desc.getRetrieveCacheStorageID(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveCacheMaxParallel",
+                prev.getRetrieveCacheMaxParallel(), desc.getRetrieveCacheMaxParallel(), 10);
         return mods;
     }
 

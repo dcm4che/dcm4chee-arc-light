@@ -6,6 +6,7 @@
     "dcmStorageID",
     "dcmURI",
     "dcmInstanceAvailability",
+    "dcmRetrieveCacheMaxParallel",
     "dcmReadOnly",
     "dcmNoDeletionConstraint"
   ],
@@ -70,6 +71,19 @@
       "description": "Constrain deletion of Studies, if usable space falls below the configured threshold, to Studies which objects are also accessible from the specified other storage.",
       "type": "string",
       "format": "dcmStorageID"
+    },
+    "dcmRetrieveCacheStorageID": {
+      "title": "Retrieve Cache Storage ID",
+      "description": "Specifies another Storage to which objects are copied in parallel on retrieve to increase the performance on accessing storage systems which provides more bandwidth using multiple connections in parallel.",
+      "type": "string",
+      "format": "dcmStorageID"
+    },
+    "dcmRetrieveCacheMaxParallel": {
+      "title": "Retrieve Cache Max Parallel",
+      "description": "Maximal number of parallel copies to cache storage on retrieve. Only effective if a Retrieve Cache Storage ID is configured.",
+      "type": "integer",
+      "default" : 10,
+      "minimum": 1
     },
     "dcmNoDeletionConstraint": {
       "title": "No Deletion Constraint",
