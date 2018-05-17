@@ -18,6 +18,12 @@
       "description": "Cluster Description",
       "type": "string"
     },
+    "dcmuiDeviceClusterLoadBalancer": {
+      "title": "Load Balancer",
+      "description": "Select the Load Balancer",
+      "type": "string",
+      "format": "dcmuiDeviceURLObject"
+    },
     "dcmuiDeviceClusterDevices": {
       "title": "Device",
       "description": "Add the name of the configured devices",

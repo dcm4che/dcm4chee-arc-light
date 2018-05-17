@@ -129,6 +129,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiDeviceClusterName", uiDeviceCluster.getClusterName(), null);
             writer.writeNotNullOrDef("dcmuiDeviceClusterDescription", uiDeviceCluster.getDescription(), null);
+            writer.writeNotNullOrDef("dcmuiDeviceClusterLoadBalancer", uiDeviceCluster.getLoadBalancer(), null);
             writer.writeNotEmpty("dcmuiDeviceClusterDevices", uiDeviceCluster.getDevices());
             writer.writeNotDef("dcmuiDeviceClusterInstalled", uiDeviceCluster.isInstalled(), true);
             writer.writeEnd();
@@ -216,11 +217,28 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dicomuiDeviceName", uiDashboardConfig.getDeviceNames());
             writer.writeNotEmpty("dicomuiIgnoreParams", uiDashboardConfig.getIgnoreParams());
             writer.writeNotNullOrDef("dcmuiCountAET", uiDashboardConfig.getCountAet(),null);
+            writeUICompareSide(writer, uiDashboardConfig.getCompareSides());
             writer.writeEnd();
         }
         writer.writeEnd();
     }
 
+    private void writeUICompareSide(JsonWriter writer, Collection<UICompareSide> uiCompareSides) {
+        if (uiCompareSides.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiCompareSideObjects");
+        for (UICompareSide uiCompareSide : uiCompareSides) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiCompareSideName", uiCompareSide.getName(), null);
+            writer.writeNotNullOrDef("dcmuiCompareSideDescription", uiCompareSide.getDescription(),null);
+            writer.writeNotNullOrDef("dcmuiCompareSideCluster", uiCompareSide.getCluster(),null);
+            writer.writeNotNullOrDef("dcmuiCompareSideElasticsearch", uiCompareSide.getElasticsearch(),null);
+            writer.writeNotDef("dcmuiCompareSideInstalled", uiCompareSide.isInstalled(), true);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
     private void loadFrom(UIConfigDeviceExtension ext, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
@@ -337,6 +355,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmuiDeviceClusterDescription":
                         uiDeviceCluster.setDescription(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceClusterLoadBalancer":
+                        uiDeviceCluster.setLoadBalancer(reader.stringValue());
                         break;
                     case "dcmuiDeviceClusterInstalled":
                         uiDeviceCluster.setInstalled(reader.booleanValue());
@@ -510,12 +531,47 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     case "dcmuiCountAET":
                         uiDashboardConfig.setCountAet(reader.stringValue());
                         break;
+                    case "dcmuiCompareSideObjects":
+                        loadCompareSides(uiDashboardConfig, reader);
+                        break;
                     default:
                         reader.skipUnknownProperty();
                 }
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             uiConfig.addDashboardConfig(uiDashboardConfig);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+    private void loadCompareSides(UIDashboardConfig uiDashboardConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UICompareSide uiCompareSide = new UICompareSide();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiCompareSideName":
+                        uiCompareSide.setName(reader.stringValue());
+                        break;
+                    case "dcmuiCompareSideDescription":
+                        uiCompareSide.setDescription(reader.stringValue());
+                        break;
+                    case "dcmuiCompareSideCluster":
+                        uiCompareSide.setCluster(reader.stringValue());
+                        break;
+                    case "dcmuiCompareSideElasticsearch":
+                        uiCompareSide.setElasticsearch(reader.stringValue());
+                        break;
+                    case "dcmuiCompareSideInstalled":
+                        uiCompareSide.setInstalled(reader.booleanValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiDashboardConfig.addCompareSide(uiCompareSide);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

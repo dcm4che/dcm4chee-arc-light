@@ -36,6 +36,15 @@
       "description": "Selected Aet will be used to get the count of studies in the dashboard",
       "type": "string",
       "format": "dcmArchiveAETitle"
+    },
+    "dcmuiCompareSideObjects": {
+      "title": "Compare Sides",
+      "description": "Compare Sides",
+      "titleKey":"{dcmuiCompareSideName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiCompareSide.schema.json"
+      }
     }
   }
 }

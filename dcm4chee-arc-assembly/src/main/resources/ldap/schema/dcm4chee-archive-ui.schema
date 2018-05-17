@@ -195,13 +195,49 @@ attributetype ( 1.2.40.0.13.1.15.111.3.33 NAME 'dcmuiDeviceClusterDescription'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.111.3.34 NAME 'dcmuiDeviceClusterDevices'
+attributetype ( 1.2.40.0.13.1.15.111.3.34 NAME 'dcmuiDeviceClusterLoadBalancer'
+  DESC 'Cluster Load Balancer'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.35 NAME 'dcmuiDeviceClusterDevices'
     DESC 'Devices in Cluster'
     EQUALITY caseExactMatch
     SYNTAX 1.3.6.1.4.1.1466.115.121.1.15)
 
-attributetype ( 1.2.40.0.13.1.15.111.3.35 NAME 'dcmuiDeviceClusterInstalled'
+attributetype ( 1.2.40.0.13.1.15.111.3.36 NAME 'dcmuiDeviceClusterInstalled'
   DESC 'Indicates if the Cluster is installed'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.37 NAME 'dcmuiCompareSideName'
+    DESC 'Compare Side Name'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.38 NAME 'dcmuiCompareSideDescription'
+    DESC 'Compare Side Description'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.39 NAME 'dcmuiCompareSideCluster'
+    DESC 'Compare Side Cluster'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.40 NAME 'dcmuiCompareSideElasticsearch'
+    DESC 'Compare Side Elasticsearch'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.111.3.41 NAME 'dcmuiCompareSideInstalled'
+  DESC 'Indicates if the Compare Side is installed'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
@@ -258,7 +294,8 @@ objectclass ( 1.2.40.0.13.1.15.111.4.5 NAME 'dcmuiDashboardConfig'
     dcmuiQueueName $
     dcmuiCountAET $
     dicomuiDeviceName $
-    dicomuiIgnoreParams ) )
+    dicomuiIgnoreParams $
+    dcmuiCompareSideName) )
 
 objectclass ( 1.2.40.0.13.1.15.111.4.6 NAME 'dcmuiElasticsearchConfig'
     DESC 'UI Configuration for Elasticsearch'
@@ -296,4 +333,16 @@ objectclass ( 1.2.40.0.13.1.15.111.4.9 NAME 'dcmuiDeviceClusterObject'
       dcmuiDeviceClusterDevices)
     MAY (
       dcmuiDeviceClusterDescription $
+      dcmuiDeviceClusterLoadBalancer $
       dcmuiDeviceClusterInstalled) )
+
+objectclass ( 1.2.40.0.13.1.15.111.4.10 NAME 'dcmuiCompareSideObjects'
+  DESC 'Dashboard Side Compare'
+  SUP top STRUCTURAL
+  MUST (
+    dcmuiCompareSideName $
+    dcmuiCompareSideElasticsearch $
+    dcmuiCompareSideCluster )
+  MAY (
+    dcmuiCompareSideInstalled $
+    dcmuiCompareSideDescription) )

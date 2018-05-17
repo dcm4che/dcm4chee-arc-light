@@ -8,6 +8,7 @@ package org.dcm4chee.arc.conf.ui;
 public class UIDeviceCluster {
     private String clusterName;
     private String description;
+    private String loadBalancer;
     private String[] devices = {};
     private boolean installed = true;
 
@@ -29,6 +30,14 @@ public class UIDeviceCluster {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getLoadBalancer() {
+        return loadBalancer;
+    }
+
+    public void setLoadBalancer(String loadBalancer) {
+        this.loadBalancer = loadBalancer;
     }
 
     public void setDescription(String description) {

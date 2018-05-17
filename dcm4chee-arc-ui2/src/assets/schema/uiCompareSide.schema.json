@@ -1,0 +1,39 @@
+{
+  "title": "Compare Side",
+  "description": "Compare Side",
+  "type": "object",
+  "required": [
+    "dcmuiCompareSideName",
+    "dcmuiCompareSideCluster",
+    "dcmuiCompareSideElasticsearch",
+    "dcmuiCompareSideInstalled"
+  ],
+  "properties": {
+    "dcmuiCompareSideName": {
+      "title": "Name",
+      "description": "Compare Side Name",
+      "type": "string"
+    },
+    "dcmuiCompareSideDescription": {
+      "title": "Description",
+      "description": "A short description about this Group",
+      "type": "string"
+    },
+    "dcmuiCompareSideCluster": {
+      "title": "Cluster",
+      "description": "Select a Cluster",
+      "type": "string"
+    },
+    "dcmuiCompareSideElasticsearch": {
+      "title": "Elasticsearch",
+      "description": "Select an Elasticsearch URL",
+      "type": "string"
+    },
+    "dcmuiCompareSideInstalled": {
+      "title": "Installed",
+      "description": "Installed",
+      "type": "boolean",
+      "default": true
+    }
+  }
+}
