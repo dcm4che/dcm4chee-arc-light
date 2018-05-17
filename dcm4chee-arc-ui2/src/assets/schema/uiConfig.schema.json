@@ -57,7 +57,7 @@
       }
     },
     "dcmuiDeviceClusterObject": {
-      "title": "Cluster Configuration",
+      "title": "UI Cluster Configuration",
       "description": "Group Devices in Clusters",
       "titleKey":"{dcmuiDeviceClusterName}",
       "type": "array",

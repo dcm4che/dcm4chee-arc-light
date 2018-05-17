@@ -22,16 +22,18 @@
     "dcmuiCompareSideCluster": {
       "title": "Cluster",
       "description": "Select a Cluster",
-      "type": "string"
+      "type": "string",
+      "format":"dcmuiDeviceClusterObject"
     },
     "dcmuiCompareSideElasticsearch": {
       "title": "Elasticsearch",
       "description": "Select an Elasticsearch URL",
-      "type": "string"
+      "type": "string",
+      "format":"dcmuiElasticsearchConfig"
     },
     "dcmuiCompareSideInstalled": {
       "title": "Installed",
-      "description": "Installed",
+      "description": "If true this Compare side is active in the dashboard",
       "type": "boolean",
       "default": true
     }
