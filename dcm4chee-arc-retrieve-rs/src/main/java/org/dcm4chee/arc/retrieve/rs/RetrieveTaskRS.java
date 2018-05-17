@@ -41,7 +41,11 @@
 package org.dcm4chee.arc.retrieve.rs;
 
 import com.querydsl.core.types.Predicate;
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.IDeviceCache;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -49,12 +53,13 @@ import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +71,9 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.util.Date;
@@ -89,6 +97,9 @@ public class RetrieveTaskRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private IDeviceCache iDeviceCache;
 
     @Inject
     private Event<QueueMessageEvent> queueMsgEvent;
@@ -221,12 +232,17 @@ public class RetrieveTaskRS {
 
     @POST
     @Path("{taskPK}/reschedule")
-    public Response rescheduleTask(@PathParam("taskPK") long pk) {
+    public Response rescheduleTask(@PathParam("taskPK") long pk) throws ConfigurationException {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            return rsp(mgr.rescheduleRetrieveTask(pk, queueEvent));
-        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            String devName = mgr.rescheduleRetrieveTask(pk, queueEvent);
+            return devName == null
+                    ? Response.status(Response.Status.NOT_FOUND).build()
+                    : devName.equals("")
+                        ? Response.status(Response.Status.NO_CONTENT).build()
+                        : forwardTask(devName);
+        } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
         } finally {
@@ -268,7 +284,7 @@ public class RetrieveTaskRS {
             } while (retrieveTaskPks.size() >= fetchSize);
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+        } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
         } finally {
@@ -309,6 +325,43 @@ public class RetrieveTaskRS {
                 ? Response.Status.NO_CONTENT
                 : Response.Status.NOT_FOUND)
                 .build();
+    }
+
+    private Response forwardTask(String devName) throws ConfigurationException {
+        ResteasyClient client = new ResteasyClientBuilder().build();
+        Device device = iDeviceCache.get(devName);
+        for (WebApplication webApplication : device.getWebApplications()) {
+            for (WebApplication.ServiceClass serviceClass : webApplication.getServiceClasses()) {
+                if (serviceClass == WebApplication.ServiceClass.DCM4CHEE_ARC) {
+                    String uri = toURI(webApplication.getConnections());
+                    if (uri == null)
+                        return Response.status(Response.Status.BAD_REQUEST)
+                                .entity("HTTP connection not configured for WebApplication " + webApplication)
+                                .build();
+
+                    WebTarget target = client.target(uri);
+                    Invocation.Builder req = target.request();
+                    String authorization = request.getHeader("Authorization");
+                    if (authorization != null)
+                        req.header("Authorization", authorization);
+                    return req.post(Entity.json(""));
+                }
+            }
+        }
+        return Response.status(Response.Status.BAD_REQUEST)
+                .entity("No Web Application with Service Class DCM4CHEE_ARC configured for device " + devName)
+                .build();
+    }
+
+    private String toURI(List<Connection> connections) {
+        for (Connection connection : connections)
+            if (connection.getProtocol() == Connection.Protocol.HTTP)
+                return "http://"
+                        + connection.getHostname()
+                        + ":"
+                        + connection.getPort()
+                        + request.getRequestURI();
+        return null;
     }
 
     private static Response count(long count) {

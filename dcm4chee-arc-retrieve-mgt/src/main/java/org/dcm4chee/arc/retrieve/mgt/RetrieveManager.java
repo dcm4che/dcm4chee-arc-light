@@ -73,7 +73,7 @@ public interface RetrieveManager {
     long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
-    boolean rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException, DifferentDeviceException;
+    String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException;
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 

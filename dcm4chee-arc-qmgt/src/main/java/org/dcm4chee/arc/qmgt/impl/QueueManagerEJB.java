@@ -50,7 +50,6 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -326,23 +325,21 @@ public class QueueManagerEJB {
                 .fetch();
     }
 
-    public boolean rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException {
+    public String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException {
         return rescheduleTask(findQueueMessage(msgId), queueName, queueEvent);
     }
 
-    public boolean rescheduleTask(QueueMessage entity, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException {
+    public String rescheduleTask(QueueMessage entity, String queueName, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException {
         if (entity == null)
-            return false;
+            return null;
 
         if (queueEvent != null)
             queueEvent.setQueueMsg(entity);
 
         if (!device.getDeviceName().equals(entity.getDeviceName()))
-            throw new DifferentDeviceException("Cannot reschedule Task[id=" + entity.getMessageID()
-                    + "] previous scheduled on Device " + entity.getDeviceName()
-                    + " on Device " + device.getDeviceName());
+            return entity.getDeviceName();
 
         switch (entity.getStatus()) {
             case SCHEDULED:
@@ -358,7 +355,7 @@ public class QueueManagerEJB {
         entity.setOutcomeMessage(null);
         entity.updateExporterIDInMessageProperties();
         rescheduleTask(entity, descriptorOf(entity.getQueueName()), 0L);
-        return true;
+        return "";
     }
 
     private void rescheduleTask(QueueMessage entity, QueueDescriptor descriptor, long delay) {

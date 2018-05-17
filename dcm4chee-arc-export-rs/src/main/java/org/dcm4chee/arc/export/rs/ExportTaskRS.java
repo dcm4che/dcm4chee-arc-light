@@ -40,7 +40,11 @@
 package org.dcm4chee.arc.export.rs;
 
 import com.querydsl.core.types.Predicate;
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.IDeviceCache;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
@@ -51,10 +55,11 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,9 +71,13 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -87,6 +96,9 @@ public class ExportTaskRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private IDeviceCache iDeviceCache;
 
     @Inject
     private Event<QueueMessageEvent> queueMsgEvent;
@@ -217,7 +229,8 @@ public class ExportTaskRS {
 
     @POST
     @Path("{taskPK}/reschedule/{ExporterID}")
-    public Response rescheduleTask(@PathParam("taskPK") long pk, @PathParam("ExporterID") String exporterID) {
+    public Response rescheduleTask(@PathParam("taskPK") long pk, @PathParam("ExporterID") String exporterID)
+            throws ConfigurationException {
         logRequest();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
@@ -226,8 +239,13 @@ public class ExportTaskRS {
 
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            return rsp(mgr.rescheduleExportTask(pk, exporter, queueEvent));
-        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            String devName = mgr.rescheduleExportTask(pk, exporter, queueEvent);
+            return devName == null
+                    ? Response.status(Response.Status.NOT_FOUND).build()
+                    : devName.equals("")
+                        ? Response.status(Response.Status.NO_CONTENT).build()
+                        : forwardTask(devName);
+        } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
         } finally {
@@ -288,7 +306,7 @@ public class ExportTaskRS {
             }
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException|DifferentDeviceException|IOException e) {
+        } catch (IllegalTaskStateException | IOException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
         } finally {
@@ -329,6 +347,43 @@ public class ExportTaskRS {
                 ? Response.Status.NO_CONTENT
                 : Response.Status.NOT_FOUND)
                 .build();
+    }
+
+    private Response forwardTask(String devName) throws ConfigurationException {
+        ResteasyClient client = new ResteasyClientBuilder().build();
+        Device device = iDeviceCache.get(devName);
+        for (WebApplication webApplication : device.getWebApplications()) {
+            for (WebApplication.ServiceClass serviceClass : webApplication.getServiceClasses()) {
+                if (serviceClass == WebApplication.ServiceClass.DCM4CHEE_ARC) {
+                    String uri = toURI(webApplication.getConnections());
+                    if (uri == null)
+                        return Response.status(Response.Status.BAD_REQUEST)
+                                .entity("HTTP connection not configured for WebApplication " + webApplication)
+                                .build();
+
+                    WebTarget target = client.target(uri);
+                    Invocation.Builder req = target.request();
+                    String authorization = request.getHeader("Authorization");
+                    if (authorization != null)
+                        req.header("Authorization", authorization);
+                    return req.post(Entity.json(""));
+                }
+            }
+        }
+        return Response.status(Response.Status.BAD_REQUEST)
+                .entity("No Web Application with Service Class DCM4CHEE_ARC configured for device " + devName)
+                .build();
+    }
+
+    private String toURI(List<Connection> connections) {
+        for (Connection connection : connections)
+            if (connection.getProtocol() == Connection.Protocol.HTTP)
+                return "http://"
+                        + connection.getHostname()
+                        + ":"
+                        + connection.getPort()
+                        + request.getRequestURI();
+        return null;
     }
 
     private static Response count(long count) {
