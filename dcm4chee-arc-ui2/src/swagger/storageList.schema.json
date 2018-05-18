@@ -56,6 +56,16 @@
         "description": "Constrain deletion of Studies, if usable space falls below the configured threshold, to Studies which objects are also accessible from the specified other storage.",
         "type": "string"
       },
+      "dcmRetrieveCacheStorageID": {
+        "title": "Retrieve Cache Storage ID",
+        "description": "Specifies another Storage to which objects are copied in parallel on retrieve to increase the performance on accessing storage systems which provides more bandwidth using multiple connections in parallel.",
+        "type": "string"
+      },
+      "dcmRetrieveCacheMaxParallel": {
+        "title": "Retrieve Cache Max Parallel",
+        "description": "Maximal number of parallel copies to cache storage on retrieve.",
+        "type": "integer"
+      },
       "dcmProperty": {
         "title": "Storage Property",
         "description": "Property in format <name>=<value>",

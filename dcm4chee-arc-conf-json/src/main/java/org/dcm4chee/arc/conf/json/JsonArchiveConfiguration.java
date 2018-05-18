@@ -308,6 +308,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmProperty", descriptorProperties(st.getProperties()));
             writer.writeNotNullOrDef("dcmExternalRetrieveAET", st.getExternalRetrieveAETitle(), null);
             writer.writeNotNullOrDef("dcmExportStorageID", st.getExportStorageID(), null);
+            writer.writeNotNullOrDef("dcmRetrieveCacheStorageID", st.getRetrieveCacheStorageID(), null);
+            writer.writeNotDef("dcmRetrieveCacheMaxParallel", st.getRetrieveCacheMaxParallel(), 10);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -1220,6 +1222,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmExportStorageID":
                         st.setExportStorageID(reader.stringValue());
+                        break;
+                    case "dcmRetrieveCacheStorageID":
+                        st.setRetrieveCacheStorageID(reader.stringValue());
+                        break;
+                    case "dcmRetrieveCacheMaxParallel":
+                        st.setRetrieveCacheMaxParallel(reader.intValue());
                         break;
                     default:
                         reader.skipUnknownProperty();

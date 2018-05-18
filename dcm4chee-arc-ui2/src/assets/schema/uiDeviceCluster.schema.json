@@ -1,5 +1,5 @@
 {
-  "title": "Cluster Configuration",
+  "title": "UI Cluster Configuration",
   "description": "Configuration of Device URL to use beside the main UI URL",
   "type": "object",
   "required": [
@@ -17,6 +17,12 @@
       "title": "Description",
       "description": "Cluster Description",
       "type": "string"
+    },
+    "dcmuiDeviceClusterLoadBalancer": {
+      "title": "Load Balancer",
+      "description": "Select the Load Balancer",
+      "type": "string",
+      "format": "dcmuiDeviceURLObject"
     },
     "dcmuiDeviceClusterDevices": {
       "title": "Device",

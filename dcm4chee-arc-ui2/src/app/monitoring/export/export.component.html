@@ -10,7 +10,8 @@
                                                             <option>*</option>
                                                             <option *ngFor="let s of exporters" title="{{s.description}}" value="{{ s.id }}">{{ s.id }}</option>
                                                         </select>-->
-                            <mat-select [(ngModel)]="filters.ExporterID" (change)="filters.ExporterID = $event.target.value" class="col-md-12" placeholder="Exporter ID">
+                            exporterID:{{filters.ExporterID}}
+                            <mat-select [(ngModel)]="filters.ExporterID" class="col-md-12" placeholder="Exporter ID">
                                 <mat-option>*</mat-option>
                                 <mat-option *ngFor="let s of exporters" title="{{s.description}}" value="{{ s.id }}">{{ s.id }}</mat-option>
                             </mat-select>

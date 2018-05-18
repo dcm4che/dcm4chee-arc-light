@@ -517,6 +517,18 @@ export class Globalvar {
                 labelKey:'{dcmuiDeviceURLName}',
                 msg:'Create first an UI Device URL!',
                 pathInDevice:'dcmDevice.dcmuiConfig[0].dcmuiDeviceURLObject'
+            },
+            dcmuiDeviceClusterObject:{
+                key:'dcmuiDeviceClusterName',
+                labelKey:'{dcmuiDeviceClusterName}',
+                msg:'Create first an UI Device Cluster!',
+                pathInDevice:'dcmDevice.dcmuiConfig["0"].dcmuiDeviceClusterObject'
+            },
+            dcmuiElasticsearchConfig:{
+                key:'dcmuiElasticsearchURLName',
+                labelKey:'{dcmuiElasticsearchURLName}',
+                msg:'Create first an UI Elasticsearch URL!',
+                pathInDevice:'dcmDevice.dcmuiConfig[0].dcmuiElasticsearchConfig[0].dcmuiElasticsearchURLObjects'
             }
 /*            dicomDeviceName:{
                 key:'dicomDeviceName',
