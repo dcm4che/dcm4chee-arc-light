@@ -51,7 +51,6 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
@@ -302,7 +301,7 @@ public class QueueManagerRS {
         for (WebApplication webApplication : device.getWebApplications()) {
             for (WebApplication.ServiceClass serviceClass : webApplication.getServiceClasses()) {
                 if (serviceClass == WebApplication.ServiceClass.DCM4CHEE_ARC) {
-                    String uri = toURI(webApplication.getConnections());
+                    String uri = toURI(webApplication);
                     if (uri == null)
                         return Response.status(Response.Status.BAD_REQUEST)
                                 .entity("HTTP connection not configured for WebApplication " + webApplication)
@@ -322,14 +321,17 @@ public class QueueManagerRS {
                 .build();
     }
 
-    private String toURI(List<Connection> connections) {
-        for (Connection connection : connections)
-            if (connection.getProtocol() == Connection.Protocol.HTTP)
+    private String toURI(WebApplication webApplication) {
+        for (Connection connection : webApplication.getConnections())
+            if (connection.getProtocol() == Connection.Protocol.HTTP) {
+                String requestURI = request.getRequestURI();
                 return "http://"
                         + connection.getHostname()
                         + ":"
                         + connection.getPort()
-                        + request.getRequestURI();
+                        + webApplication.getServicePath()
+                        + requestURI.substring(requestURI.indexOf("/queue"));
+            }
         return null;
     }
 

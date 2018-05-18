@@ -459,7 +459,7 @@ public class DiffTaskRS {
         for (WebApplication webApplication : device.getWebApplications()) {
             for (WebApplication.ServiceClass serviceClass : webApplication.getServiceClasses()) {
                 if (serviceClass == WebApplication.ServiceClass.DCM4CHEE_ARC) {
-                    String uri = toURI(webApplication.getConnections());
+                    String uri = toURI(webApplication);
                     if (uri == null)
                         return Response.status(Response.Status.BAD_REQUEST)
                                 .entity("HTTP connection not configured for WebApplication " + webApplication)
@@ -479,14 +479,17 @@ public class DiffTaskRS {
                 .build();
     }
 
-    private String toURI(List<Connection> connections) {
-        for (Connection connection : connections)
-            if (connection.getProtocol() == Connection.Protocol.HTTP)
+    private String toURI(WebApplication webApplication) {
+        for (Connection connection : webApplication.getConnections())
+            if (connection.getProtocol() == Connection.Protocol.HTTP) {
+                String requestURI = request.getRequestURI();
                 return "http://"
                         + connection.getHostname()
                         + ":"
                         + connection.getPort()
-                        + request.getRequestURI();
+                        + webApplication.getServicePath()
+                        + requestURI.substring(requestURI.indexOf("/monitor"));
+            }
         return null;
     }
 
