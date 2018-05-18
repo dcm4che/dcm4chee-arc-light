@@ -632,7 +632,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
     }
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, UIDeviceCluster prev,
                                               UIDeviceCluster uiDeviceCluster, ArrayList<ModificationItem> mods) {
-        LdapUtils.storeDiff(ldapObj, mods, "dcmuiDeviceClusterDevice",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiDeviceClusterDevices",
                 prev.getDevices(),
                 uiDeviceCluster.getDevices());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDeviceClusterDescription",
