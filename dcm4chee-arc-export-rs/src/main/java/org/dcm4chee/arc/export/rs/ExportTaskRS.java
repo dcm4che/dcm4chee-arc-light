@@ -76,9 +76,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
 import java.io.*;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -255,17 +253,17 @@ public class ExportTaskRS {
 
     @POST
     @Path("/reschedule")
-    public Response rescheduleExportTasks() {
+    public Response rescheduleExportTasks() throws ConfigurationException {
         return rescheduleTasks(null);
     }
 
     @POST
     @Path("/reschedule/{ExporterID}")
-    public Response rescheduleExportTasks(@PathParam("ExporterID") String newExporterID) {
+    public Response rescheduleExportTasks(@PathParam("ExporterID") String newExporterID) throws ConfigurationException {
         return rescheduleTasks(newExporterID);
     }
 
-    private Response rescheduleTasks(String newExporterID) {
+    private Response rescheduleTasks(String newExporterID) throws ConfigurationException {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
@@ -275,9 +273,7 @@ public class ExportTaskRS {
         if (deviceName == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: dicomDeviceName");
         if (!deviceName.equals(device.getDeviceName()))
-            return rsp(Response.Status.CONFLICT,
-                    "Cannot reschedule Tasks originally scheduled on Device " + deviceName
-                            + " on Device " + device.getDeviceName());
+            return forwardTasks();
 
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -350,43 +346,84 @@ public class ExportTaskRS {
     }
 
     private Response forwardTask(String devName) throws ConfigurationException {
-        ResteasyClient client = new ResteasyClientBuilder().build();
         Device device = iDeviceCache.get(devName);
-        for (WebApplication webApplication : device.getWebApplications()) {
-            for (WebApplication.ServiceClass serviceClass : webApplication.getServiceClasses()) {
-                if (serviceClass == WebApplication.ServiceClass.DCM4CHEE_ARC) {
-                    String uri = toURI(webApplication);
-                    if (uri == null)
-                        return Response.status(Response.Status.BAD_REQUEST)
-                                .entity("HTTP connection not configured for WebApplication " + webApplication)
-                                .build();
+        WebApplicationInfo webApplicationInfo = new WebApplicationInfo(device);
+        
+        return webApplicationInfo.baseURI == null
+                ? webApplicationInfo.errRsp()
+                : webApplicationInfo.forwardTask();
+    }
 
-                    WebTarget target = client.target(uri);
-                    Invocation.Builder req = target.request();
-                    String authorization = request.getHeader("Authorization");
-                    if (authorization != null)
-                        req.header("Authorization", authorization);
-                    return req.post(Entity.json(""));
+    private Response forwardTasks() throws ConfigurationException {
+        Device device = iDeviceCache.get(deviceName);
+        WebApplicationInfo webApplicationInfo = new WebApplicationInfo(device);
+
+        return webApplicationInfo.baseURI == null
+                    ? webApplicationInfo.errRsp()
+                    : webApplicationInfo.forwardTasks();
+    }
+
+    class WebApplicationInfo {
+        private String webAppName;
+        private String baseURI;
+        private String devName;
+
+        WebApplicationInfo(Device dev) {
+            devName = dev.getDeviceName();
+            for (WebApplication webApplication : dev.getWebApplications()) {
+                for (WebApplication.ServiceClass serviceClass : webApplication.getServiceClasses()) {
+                    if (serviceClass == WebApplication.ServiceClass.DCM4CHEE_ARC) {
+                        webAppName = webApplication.getApplicationName();
+                        baseURI = toBaseURI(webApplication);
+                    }
                 }
             }
         }
-        return Response.status(Response.Status.BAD_REQUEST)
-                .entity("No Web Application with Service Class DCM4CHEE_ARC configured for device " + devName)
-                .build();
-    }
 
-    private String toURI(WebApplication webApplication) {
-        for (Connection connection : webApplication.getConnections())
-            if (connection.getProtocol() == Connection.Protocol.HTTP) {
-                String requestURI = request.getRequestURI();
-                return "http://"
-                        + connection.getHostname()
-                        + ":"
-                        + connection.getPort()
-                        + webApplication.getServicePath()
-                        + requestURI.substring(requestURI.indexOf("/monitor"));
-            }
-        return null;
+        private String toBaseURI(WebApplication webApplication) {
+            for (Connection connection : webApplication.getConnections())
+                if (connection.getProtocol() == Connection.Protocol.HTTP) {
+                    return "http://"
+                            + connection.getHostname()
+                            + ":"
+                            + connection.getPort()
+                            + webApplication.getServicePath();
+                }
+            return null;
+        }
+
+        Response forwardTask() {
+            String requestURI = request.getRequestURI();
+            ResteasyClient client = new ResteasyClientBuilder().build();
+            WebTarget target = client.target(baseURI + requestURI.substring(requestURI.indexOf("/monitor")));
+            Invocation.Builder req = target.request();
+            String authorization = request.getHeader("Authorization");
+            if (authorization != null)
+                req.header("Authorization", authorization);
+            return req.post(Entity.json(""));
+        }
+
+        Response forwardTasks() {
+            String requestURI = request.getRequestURI();
+            ResteasyClient client = new ResteasyClientBuilder().build();
+            String targetURI = baseURI
+                                + requestURI.substring(requestURI.indexOf("/monitor"))
+                                + "?"
+                                + request.getQueryString();
+            WebTarget target = client.target(targetURI);
+            Invocation.Builder req = target.request();
+            String authorization = request.getHeader("Authorization");
+            if (authorization != null)
+                req.header("Authorization", authorization);
+            return req.post(Entity.json(""));
+        }
+
+        Response errRsp() {
+            String entity = webAppName == null
+                    ? "No Web Application with Service Class 'DCM4CHEE_ARC' configured for device " + devName
+                    : "HTTP connection not configured for WebApplication " + webAppName;
+            return rsp(Response.Status.INTERNAL_SERVER_ERROR, entity);
+        }
     }
 
     private static Response count(long count) {
