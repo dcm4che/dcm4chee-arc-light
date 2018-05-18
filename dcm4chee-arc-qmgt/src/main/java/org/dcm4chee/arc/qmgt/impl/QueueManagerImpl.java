@@ -207,4 +207,9 @@ public class QueueManagerImpl implements QueueManager {
     public List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit) {
         return ejb.getQueueMsgIDs(matchQueueMessage, limit);
     }
+
+    @Override
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage) {
+        return ejb.listDistinctDeviceNames(matchQueueMessage);
+    }
 }

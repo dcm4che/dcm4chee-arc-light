@@ -211,7 +211,7 @@ public class QueueManagerRS {
             String devName = mgr.rescheduleTask(msgId, null, queueEvent);
             return devName == null
                     ? Response.status(Response.Status.NOT_FOUND).build()
-                    : devName.equals("")
+                    : devName.equals(device.getDeviceName())
                         ? Response.status(Response.Status.NO_CONTENT).build()
                         : forwardTask(devName);
         } catch (IllegalTaskStateException e) {
@@ -231,15 +231,28 @@ public class QueueManagerRS {
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
         if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
             return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
-        if (deviceName == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: dicomDeviceName");
-        if (!deviceName.equals(device.getDeviceName()))
-            return forwardTasks();
 
+        Predicate matchQueueMessage = MatchTask.matchQueueMessage(
+                queueName, deviceName, status, batchID, jmsMessageID, createdTime, updatedTime, new Date());
+
+        if (deviceName == null) {
+            List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(matchQueueMessage);
+            for (String devName : distinctDeviceNames) {
+                if (devName.equals(device.getDeviceName()))
+                    rescheduleMessages(matchQueueMessage);
+                else
+                    forwardTasks(devName);
+            }
+            return Response.ok().build();
+        }
+        return !deviceName.equals(device.getDeviceName())
+                ? forwardTasks(null)
+                : rescheduleMessages(matchQueueMessage);
+    }
+
+    private Response rescheduleMessages(Predicate matchQueueMessage) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            Predicate matchQueueMessage = MatchTask.matchQueueMessage(
-                    queueName, deviceName, status, batchID, jmsMessageID, createdTime, updatedTime, new Date());
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
@@ -302,13 +315,13 @@ public class QueueManagerRS {
                 : webApplicationInfo.forwardTask();
     }
 
-    private Response forwardTasks() throws ConfigurationException {
-        Device device = iDeviceCache.get(deviceName);
+    private Response forwardTasks(String devName) throws ConfigurationException {
+        Device device = iDeviceCache.get(devName != null ? devName : deviceName);
         WebApplicationInfo webApplicationInfo = new WebApplicationInfo(device);
 
         return webApplicationInfo.baseURI == null
                 ? webApplicationInfo.errRsp()
-                : webApplicationInfo.forwardTasks();
+                : webApplicationInfo.forwardTasks(devName != null ? "&dicomDeviceName=" : null);
     }
 
     class WebApplicationInfo {
@@ -342,22 +355,22 @@ public class QueueManagerRS {
 
         Response forwardTask() {
             String requestURI = request.getRequestURI();
-            ResteasyClient client = new ResteasyClientBuilder().build();
-            WebTarget target = client.target(baseURI + requestURI.substring(requestURI.indexOf("/monitor")));
-            Invocation.Builder req = target.request();
-            String authorization = request.getHeader("Authorization");
-            if (authorization != null)
-                req.header("Authorization", authorization);
-            return req.post(Entity.json(""));
+            return forward( baseURI + requestURI.substring(requestURI.indexOf("/monitor")));
         }
 
-        Response forwardTasks() {
+        Response forwardTasks(String devNameFilter) {
             String requestURI = request.getRequestURI();
-            ResteasyClient client = new ResteasyClientBuilder().build();
             String targetURI = baseURI
                     + requestURI.substring(requestURI.indexOf("/monitor"))
                     + "?"
                     + request.getQueryString();
+            if (devNameFilter != null)
+                targetURI = targetURI.concat(devNameFilter + devName);
+            return forward(targetURI);
+        }
+
+        private Response forward(String targetURI) {
+            ResteasyClient client = new ResteasyClientBuilder().build();
             WebTarget target = client.target(targetURI);
             Invocation.Builder req = target.request();
             String authorization = request.getHeader("Authorization");

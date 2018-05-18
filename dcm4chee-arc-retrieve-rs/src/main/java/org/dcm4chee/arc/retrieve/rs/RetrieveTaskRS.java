@@ -54,6 +54,7 @@ import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
@@ -94,6 +95,9 @@ public class RetrieveTaskRS {
 
     @Inject
     private RetrieveManager mgr;
+
+    @Inject
+    private QueueManager queueMgr;
 
     @Inject
     private Device device;
@@ -239,7 +243,7 @@ public class RetrieveTaskRS {
             String devName = mgr.rescheduleRetrieveTask(pk, queueEvent);
             return devName == null
                     ? Response.status(Response.Status.NOT_FOUND).build()
-                    : devName.equals("")
+                    : devName.equals(device.getDeviceName())
                         ? Response.status(Response.Status.NO_CONTENT).build()
                         : forwardTask(devName);
         } catch (IllegalTaskStateException e) {
@@ -259,15 +263,28 @@ public class RetrieveTaskRS {
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
         if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
             return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
-        if (deviceName == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: dicomDeviceName");
-        if (!deviceName.equals(device.getDeviceName()))
-            return forwardTasks();
 
+        Predicate matchQueueMessage = MatchTask.matchQueueMessage(
+                null, deviceName, status, batchID, null, null, null, new Date());
+
+        if (deviceName == null) {
+            List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
+            for (String devName : distinctDeviceNames) {
+                if (devName.equals(device.getDeviceName()))
+                    rescheduleTasks(matchQueueMessage);
+                else
+                    forwardTasks(devName);
+            }
+            return Response.ok().build();
+        }
+        return !deviceName.equals(device.getDeviceName())
+                ? forwardTasks(null)
+                : rescheduleTasks(matchQueueMessage);
+    }
+
+    private Response rescheduleTasks(Predicate matchQueueMessage) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            Predicate matchQueueMessage = MatchTask.matchQueueMessage(
-                    null, deviceName, status, batchID, null, null, null, new Date());
             Predicate matchRetrieveTask = MatchTask.matchRetrieveTask(
                     localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -334,13 +351,13 @@ public class RetrieveTaskRS {
                 : webApplicationInfo.forwardTask();
     }
 
-    private Response forwardTasks() throws ConfigurationException {
-        Device device = iDeviceCache.get(deviceName);
+    private Response forwardTasks(String devName) throws ConfigurationException {
+        Device device = iDeviceCache.get(devName != null ? devName : deviceName);
         WebApplicationInfo webApplicationInfo = new WebApplicationInfo(device);
 
         return webApplicationInfo.baseURI == null
                 ? webApplicationInfo.errRsp()
-                : webApplicationInfo.forwardTasks();
+                : webApplicationInfo.forwardTasks(devName != null ? "&dicomDeviceName=" : null);
     }
 
     class WebApplicationInfo {
@@ -374,22 +391,22 @@ public class RetrieveTaskRS {
 
         Response forwardTask() {
             String requestURI = request.getRequestURI();
-            ResteasyClient client = new ResteasyClientBuilder().build();
-            WebTarget target = client.target(baseURI + requestURI.substring(requestURI.indexOf("/monitor")));
-            Invocation.Builder req = target.request();
-            String authorization = request.getHeader("Authorization");
-            if (authorization != null)
-                req.header("Authorization", authorization);
-            return req.post(Entity.json(""));
+            return forward( baseURI + requestURI.substring(requestURI.indexOf("/monitor")));
         }
 
-        Response forwardTasks() {
+        Response forwardTasks(String devNameFilter) {
             String requestURI = request.getRequestURI();
-            ResteasyClient client = new ResteasyClientBuilder().build();
             String targetURI = baseURI
                     + requestURI.substring(requestURI.indexOf("/monitor"))
                     + "?"
                     + request.getQueryString();
+            if (devNameFilter != null)
+                targetURI = targetURI.concat(devNameFilter + devName);
+            return forward(targetURI);
+        }
+
+        private Response forward(String targetURI) {
+            ResteasyClient client = new ResteasyClientBuilder().build();
             WebTarget target = client.target(targetURI);
             Invocation.Builder req = target.request();
             String authorization = request.getHeader("Authorization");

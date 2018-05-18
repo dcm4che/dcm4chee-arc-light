@@ -95,4 +95,6 @@ public interface QueueManager {
     long countTasks(Predicate matchQueueMessage);
 
     List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit);
+
+    List<String> listDistinctDeviceNames(Predicate matchQueueMessage);
 }

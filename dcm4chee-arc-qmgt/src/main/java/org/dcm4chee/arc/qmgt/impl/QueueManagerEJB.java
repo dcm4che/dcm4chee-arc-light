@@ -355,7 +355,7 @@ public class QueueManagerEJB {
         entity.setOutcomeMessage(null);
         entity.updateExporterIDInMessageProperties();
         rescheduleTask(entity, descriptorOf(entity.getQueueName()), 0L);
-        return "";
+        return entity.getDeviceName();
     }
 
     private void rescheduleTask(QueueMessage entity, QueueDescriptor descriptor, long delay) {
@@ -427,12 +427,19 @@ public class QueueManagerEJB {
     }
 
     public List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit) {
-        HibernateQuery<String> queueMsgIDsQuery =  createQuery(matchQueueMessage)
+        HibernateQuery<String> queueMsgIDsQuery = createQuery(matchQueueMessage)
                 .select(QQueueMessage.queueMessage.messageID);
         if (limit > 0)
             queueMsgIDsQuery.limit(limit);
         return queueMsgIDsQuery.fetch();
     }
+
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage) {
+        return createQuery(matchQueueMessage)
+                .select(QQueueMessage.queueMessage.deviceName)
+                .distinct()
+                .fetch();
+        }
 
     private void sendMessage(QueueDescriptor desc, ObjectMessage msg, long delay, int priority) {
         jmsCtx.createProducer().setDeliveryDelay(delay).setPriority(priority).send(lookup(desc.getJndiName()), msg);
