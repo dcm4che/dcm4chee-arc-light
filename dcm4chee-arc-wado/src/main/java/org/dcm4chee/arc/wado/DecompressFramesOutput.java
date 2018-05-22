@@ -40,8 +40,8 @@
 
 package org.dcm4chee.arc.wado;
 
-import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.store.InstanceLocations;
 
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;

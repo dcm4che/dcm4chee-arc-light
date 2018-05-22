@@ -63,9 +63,7 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.storage.*;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -118,9 +116,6 @@ class StoreServiceImpl implements StoreService {
 
     @Inject
     private Event<SoftwareConfiguration> softwareConfigurationEvent;
-
-    @Inject
-    private RetrieveService retrieveService;
 
     @Inject
     private MergeMWLCache mergeMWLCache;
@@ -361,46 +356,6 @@ class StoreServiceImpl implements StoreService {
         refSOPSeq.add(refSOP);
     }
 
-    @Override
-    public Collection<InstanceLocations> queryInstances(
-            StoreSession session, Attributes instanceRefs, String targetStudyIUID)
-            throws IOException {
-        Map<String, String> uidMap = session.getUIDMap();
-        String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
-        uidMap.put(sourceStudyUID, targetStudyIUID);
-        Sequence refSeriesSeq = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);
-        Map<String, Set<String>> refIUIDsBySeriesIUID = new HashMap<>();
-        RetrieveContext ctx;
-        if (refSeriesSeq == null) {
-            ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
-                    sourceStudyUID);
-        } else {
-            for (Attributes item : refSeriesSeq) {
-                String seriesIUID = item.getString(Tag.SeriesInstanceUID);
-                uidMap.put(seriesIUID, UIDUtils.createUID());
-                refIUIDsBySeriesIUID.put(seriesIUID, refIUIDs(item.getSequence(Tag.ReferencedSOPSequence)));
-            }
-            ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
-                    sourceStudyUID, refIUIDsBySeriesIUID.keySet().toArray(new String[refIUIDsBySeriesIUID.size()]));
-        }
-        ctx.setObjectType(null);
-        if (!retrieveService.calculateMatches(ctx))
-            return null;
-        Collection<InstanceLocations> matches = ctx.getMatches();
-        Iterator<InstanceLocations> matchesIter = matches.iterator();
-        while (matchesIter.hasNext()) {
-            InstanceLocations il = matchesIter.next();
-            if (contains(refIUIDsBySeriesIUID, il)) {
-                uidMap.put(il.getSopInstanceUID(), UIDUtils.createUID());
-                if (refSeriesSeq == null)
-                    if (!uidMap.containsKey(il.getAttributes().getString(Tag.SeriesInstanceUID)))
-                        uidMap.put(il.getAttributes().getString(Tag.SeriesInstanceUID), UIDUtils.createUID());
-            } else
-                matchesIter.remove();
-        }
-        return matches;
-    }
-
     private void checkCharacterSet(StoreContext ctx) {
         Attributes attrs = ctx.getAttributes();
         if (attrs.contains(Tag.SpecificCharacterSet))
@@ -423,20 +378,6 @@ class StoreServiceImpl implements StoreService {
                 jsonWriter.write(ctx.getAttributes());
             }
         }
-    }
-
-    private Set<String> refIUIDs(Sequence refSOPSeq) {
-        if (refSOPSeq == null)
-            return null;
-        Set<String> iuids = new HashSet<>(refSOPSeq.size() * 4 / 3 + 1);
-        for (Attributes refSOP : refSOPSeq)
-            iuids.add(refSOP.getString(Tag.ReferencedSOPInstanceUID));
-        return iuids;
-    }
-
-    private boolean contains(Map<String, Set<String>> refIUIDsBySeriesIUID, InstanceLocations il) {
-        Set<String> iuids = refIUIDsBySeriesIUID.get(il.getAttributes().getString(Tag.SeriesInstanceUID));
-        return iuids == null || iuids.contains(il.getSopInstanceUID());
     }
 
     private static void revokeStorage(StoreContext ctx, UpdateDBResult result) {

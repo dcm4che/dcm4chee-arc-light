@@ -56,6 +56,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Completeness;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.store.scu.CStoreSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -57,6 +57,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
@@ -69,6 +70,9 @@ import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.store.InstanceLocations;
+import org.dcm4chee.arc.store.StoreService;
+import org.dcm4chee.arc.store.StoreSession;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
@@ -160,6 +164,9 @@ public class RetrieveServiceImpl implements RetrieveService {
     private StorageFactory storageFactory;
 
     @Inject
+    private StoreService storeService;
+
+    @Inject
     private Device device;
 
     @Inject
@@ -181,8 +188,14 @@ public class RetrieveServiceImpl implements RetrieveService {
         return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
     }
 
-    private ArchiveDeviceExtension getArchiveDeviceExtension() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class);
+    @Override
+    public Device getDevice() {
+        return device;
+    }
+
+    @Override
+    public ArchiveDeviceExtension getArchiveDeviceExtension() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
     @Override
@@ -407,6 +420,60 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
     }
 
+    @Override
+    public Collection<InstanceLocations> queryInstances(
+            StoreSession session, Attributes instanceRefs, String targetStudyIUID)
+            throws IOException {
+        Map<String, String> uidMap = session.getUIDMap();
+        String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
+        uidMap.put(sourceStudyUID, targetStudyIUID);
+        Sequence refSeriesSeq = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);
+        Map<String, Set<String>> refIUIDsBySeriesIUID = new HashMap<>();
+        RetrieveContext ctx;
+        if (refSeriesSeq == null) {
+            ctx = newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
+                    sourceStudyUID);
+        } else {
+            for (Attributes item : refSeriesSeq) {
+                String seriesIUID = item.getString(Tag.SeriesInstanceUID);
+                uidMap.put(seriesIUID, UIDUtils.createUID());
+                refIUIDsBySeriesIUID.put(seriesIUID, refIUIDs(item.getSequence(Tag.ReferencedSOPSequence)));
+            }
+            ctx = newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
+                    sourceStudyUID, refIUIDsBySeriesIUID.keySet().toArray(StringUtils.EMPTY_STRING));
+        }
+        ctx.setObjectType(null);
+        if (!calculateMatches(ctx))
+            return null;
+        Collection<InstanceLocations> matches = ctx.getMatches();
+        Iterator<InstanceLocations> matchesIter = matches.iterator();
+        while (matchesIter.hasNext()) {
+            InstanceLocations il = matchesIter.next();
+            if (contains(refIUIDsBySeriesIUID, il)) {
+                uidMap.put(il.getSopInstanceUID(), UIDUtils.createUID());
+                if (refSeriesSeq == null)
+                    if (!uidMap.containsKey(il.getAttributes().getString(Tag.SeriesInstanceUID)))
+                        uidMap.put(il.getAttributes().getString(Tag.SeriesInstanceUID), UIDUtils.createUID());
+            } else
+                matchesIter.remove();
+        }
+        return matches;
+    }
+
+    private Set<String> refIUIDs(Sequence refSOPSeq) {
+        if (refSOPSeq == null)
+            return null;
+        Set<String> iuids = new HashSet<>(refSOPSeq.size() * 4 / 3 + 1);
+        for (Attributes refSOP : refSOPSeq)
+            iuids.add(refSOP.getString(Tag.ReferencedSOPInstanceUID));
+        return iuids;
+    }
+
+    private boolean contains(Map<String, Set<String>> refIUIDsBySeriesIUID, InstanceLocations il) {
+        Set<String> iuids = refIUIDsBySeriesIUID.get(il.getAttributes().getString(Tag.SeriesInstanceUID));
+        return iuids == null || iuids.contains(il.getSopInstanceUID());
+    }
+
     private InstanceLocations instanceLocationsFromDB(Tuple tuple, Attributes instAttrs) {
         InstanceLocationsImpl inst = new InstanceLocationsImpl(instAttrs);
         inst.setInstancePk(tuple.get(QInstance.instance.pk));
@@ -538,6 +605,11 @@ public class RetrieveServiceImpl implements RetrieveService {
             if (study.getAccessTime().getTime() < minAccessTime)
                 ejb.updateStudyAccessTime(study.getStudyPk());
         }
+    }
+
+    @Override
+    public StoreService getStoreService() {
+        return storeService;
     }
 
     private static class SeriesAttributes {

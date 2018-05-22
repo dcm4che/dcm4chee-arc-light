@@ -47,6 +47,7 @@ import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.*;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.xdsi.*;
 
 import javax.activation.DataHandler;

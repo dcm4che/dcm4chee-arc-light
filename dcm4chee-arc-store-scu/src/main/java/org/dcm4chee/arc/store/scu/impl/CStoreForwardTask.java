@@ -45,7 +45,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.net.*;
 import org.dcm4chee.arc.entity.*;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.StoreContext;
@@ -161,6 +161,7 @@ class CStoreForwardTask implements Runnable {
         return locations.isEmpty() ? storeCtx.getStoredInstance().getLocations() : locations;
     }
 
+    //needed to use storeContext == null as marker of end of queue
     private static class WrappedStoreContext {
         final StoreContext storeContext;
 
