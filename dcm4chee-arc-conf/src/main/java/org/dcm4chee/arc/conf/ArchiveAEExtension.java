@@ -181,9 +181,12 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public Duration purgeInstanceRecordsDelay() {
-        return purgeInstanceRecordsDelay != null
+        ArchiveDeviceExtension arcdev = getArchiveDeviceExtension();
+        return arcdev.isPurgeInstanceRecords()
+            ? purgeInstanceRecordsDelay != null
                 ? purgeInstanceRecordsDelay
-                : getArchiveDeviceExtension().getPurgeInstanceRecordsDelay();
+                : arcdev.getPurgeInstanceRecordsDelay()
+            : null;
     }
 
     public String getStoreAccessControlID() {

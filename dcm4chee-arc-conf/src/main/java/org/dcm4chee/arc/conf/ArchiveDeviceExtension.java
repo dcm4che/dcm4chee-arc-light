@@ -71,6 +71,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration seriesMetadataDelay;
     private Duration seriesMetadataPollingInterval;
     private int seriesMetadataFetchSize = 100;
+    private boolean purgeInstanceRecords;
     private Duration purgeInstanceRecordsDelay;
     private Duration purgeInstanceRecordsPollingInterval;
     private int purgeInstanceRecordsFetchSize = 100;
@@ -324,6 +325,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setSeriesMetadataFetchSize(int seriesMetadataFetchSize) {
         this.seriesMetadataFetchSize =  greaterZero(seriesMetadataFetchSize, "seriesMetadataFetchSize");
+    }
+
+    public boolean isPurgeInstanceRecords() {
+        return purgeInstanceRecords;
+    }
+
+    public void setPurgeInstanceRecords(boolean purgeInstanceRecords) {
+        this.purgeInstanceRecords = purgeInstanceRecords;
     }
 
     public Duration getPurgeInstanceRecordsDelay() {
@@ -1705,6 +1714,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         seriesMetadataDelay = arcdev.seriesMetadataDelay;
         seriesMetadataPollingInterval = arcdev.seriesMetadataPollingInterval;
         seriesMetadataFetchSize = arcdev.seriesMetadataFetchSize;
+        purgeInstanceRecords = arcdev.purgeInstanceRecords;
         purgeInstanceRecordsDelay = arcdev.purgeInstanceRecordsDelay;
         purgeInstanceRecordsPollingInterval = arcdev.purgeInstanceRecordsPollingInterval;
         purgeInstanceRecordsFetchSize = arcdev.purgeInstanceRecordsFetchSize;

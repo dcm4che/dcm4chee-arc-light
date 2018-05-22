@@ -100,7 +100,7 @@ public class PurgeInstanceRecordsScheduler extends Scheduler {
     @Override
     protected Duration getPollingInterval() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getPurgeInstanceRecordsPollingInterval();
+        return arcDev.isPurgeInstanceRecords() ? arcDev.getPurgeInstanceRecordsPollingInterval() : null;
     }
 
     @Override

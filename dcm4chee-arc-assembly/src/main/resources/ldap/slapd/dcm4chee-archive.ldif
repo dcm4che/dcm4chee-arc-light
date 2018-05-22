@@ -670,17 +670,17 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.134 NAME 'dcmMetadataFilterName'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.135 NAME 'dcmPurgeInstanceRecordsDelay'
-  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB. If absent, Instance Records will never be purged.'
+  DESC 'Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB. Only effective if dcmPurgeInstanceRecords = true.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.136 NAME 'dcmPurgeInstanceRecordsPollingInterval'
-  DESC 'Polling Interval for Series scheduled for purging Instance Records from the DB in ISO-8601 duration format PnDTnHnMn.nS. If absent, Instance Records will not be purged.'
+  DESC 'Polling Interval for Series scheduled for purging Instance Records from the DB in ISO-8601 duration format PnDTnHnMn.nS. Only effective if dcmPurgeInstanceRecords = true.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.137 NAME 'dcmPurgeInstanceRecordsFetchSize'
-  DESC 'Maximal number of Series scheduled for purging Instance Records from the DB fetched by one query; 100 if absent'
+  DESC 'Maximal number of Series scheduled for purging Instance Records from the DB fetched by one query; 100 if absent. Only effective if dcmPurgeInstanceRecords = true.'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
@@ -1047,6 +1047,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.211 NAME 'dcmRetrieveCacheMaxParalle
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.212 NAME 'dcmPurgeInstanceRecords'
+  DESC 'Indicates that Instance Records may be purged from the DB; disabled if absent'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1062,6 +1067,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmSeriesMetadataDelay $
     dcmSeriesMetadataPollingInterval $
     dcmSeriesMetadataFetchSize $
+    dcmPurgeInstanceRecords $
     dcmPurgeInstanceRecordsDelay $
     dcmPurgeInstanceRecordsPollingInterval $
     dcmPurgeInstanceRecordsFetchSize $

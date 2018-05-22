@@ -609,7 +609,7 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public boolean isConsiderPurgedInstances() {
         return arcAE != null
-                && arcAE.getArchiveDeviceExtension().getPurgeInstanceRecordsPollingInterval() != null
+                && arcAE.getArchiveDeviceExtension().isPurgeInstanceRecords()
                 && (qrLevel != QueryRetrieveLevel2.IMAGE || seriesInstanceUIDs.length != 0);
     }
 
