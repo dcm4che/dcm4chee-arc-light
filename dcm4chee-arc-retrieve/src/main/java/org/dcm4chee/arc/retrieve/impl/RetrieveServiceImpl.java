@@ -1020,8 +1020,10 @@ public class RetrieveServiceImpl implements RetrieveService {
 
         for (Location location : locations) {
             try {
+                LOG.debug("Read {} from {}", inst, location);
                 return openLocationInputStream(getStorage(location.getStorageID(), ctx), location, studyInstanceUID);
             } catch (IOException e) {
+                LOG.warn("Failed to read {} from {}", inst, location);
                 ex = e;
             }
         }
