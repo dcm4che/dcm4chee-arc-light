@@ -111,6 +111,15 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
             retrieveStart.fire(ctx);
             DicomDataHandler dh = null;
             for (InstanceLocations match : ctx.getMatches()) {
+                if (!ctx.copyToRetrieveCache(match)) {
+                    dh = new DicomDataHandler(ctx, match, tsuids);
+                    rsp.getDocumentResponse().add(
+                            createDocumentResponse(docReqs.get(match.getSopInstanceUID()), dh));
+                }
+            }
+            ctx.copyToRetrieveCache(null);
+            InstanceLocations match;
+            while ((match = ctx.copiedToRetrieveCache()) != null) {
                 dh = new DicomDataHandler(ctx, match, tsuids);
                 rsp.getDocumentResponse().add(
                         createDocumentResponse(docReqs.get(match.getSopInstanceUID()), dh));
