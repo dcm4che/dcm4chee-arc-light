@@ -349,7 +349,7 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
-    public boolean purgeInstanceRecordsOfSeries(Long seriesPk, Map<String, Location> locationsFromMetadata) {
+    public boolean purgeInstanceRecordsOfSeries(Long seriesPk, Map<String, List<Location>> locationsFromMetadata) {
         Series series = em.find(Series.class, seriesPk);
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_SERIES_PK, Location.class)
                 .setParameter(1, seriesPk)
@@ -381,22 +381,29 @@ public class DeletionServiceEJB {
         return true;
     }
 
-    private boolean verifyMetadata(Map<String, Location> locationsFromMetadata, List<Location> locations) {
+    private boolean verifyMetadata(Map<String, List<Location>> locationsFromMetadata, List<Location> locations) {
         for (Location location : locations) {
             if (location.getObjectType() == Location.ObjectType.DICOM_FILE) {
-                if (!equals(location, locationsFromMetadata.remove(location.getInstance().getSopInstanceUID())))
+                if (!verifyMetadata(locationsFromMetadata, location))
                     return false;
             }
         }
         return locationsFromMetadata.isEmpty();
     }
 
-    private boolean equals(Location location, Location locationFromMetadata) {
-        return locationFromMetadata != null
-                && Objects.equals(location.getStorageID(), locationFromMetadata.getStorageID())
-                && Objects.equals(location.getStoragePath(), locationFromMetadata.getStoragePath())
-                && Objects.equals(location.getDigestAsHexString(), locationFromMetadata.getDigestAsHexString())
-                && Objects.equals(location.getSize(), locationFromMetadata.getSize());
+    private boolean verifyMetadata(Map<String, List<Location>> locationsFromMetadata, Location location) {
+        String iuid = location.getInstance().getSopInstanceUID();
+        List<Location> locations = locationsFromMetadata.get(iuid);
+        if (locations == null || !locations.removeIf(l ->
+            Objects.equals(location.getStorageID(), l.getStorageID())
+                    && Objects.equals(location.getStoragePath(), l.getStoragePath())
+                    && Objects.equals(location.getDigestAsHexString(), l.getDigestAsHexString())
+                    && Objects.equals(location.getSize(), l.getSize())))
+            return false;
+
+        if (locations.isEmpty())
+            locationsFromMetadata.remove(iuid);
+        return true;
     }
 
     public boolean claimPurgeInstanceRecordsOfSeries(Long seriesPk) {

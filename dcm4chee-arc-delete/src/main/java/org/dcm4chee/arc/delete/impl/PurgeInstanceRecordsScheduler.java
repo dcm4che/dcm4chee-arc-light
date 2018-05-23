@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.delete.impl;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.json.JSONReader;
@@ -64,6 +65,7 @@ import javax.json.Json;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +126,7 @@ public class PurgeInstanceRecordsScheduler extends Scheduler {
                         continue;
 
                     LOG.info("Purging Instance records of Series[pk={}]", seriesPk);
-                    Map<String, Location> locationsFromMetadata = null;
+                    Map<String, List<Location>> locationsFromMetadata = null;
                     try {
                         locationsFromMetadata = locationsFromMetadata(
                                 getStorage(metadataUpdate.storageID, storageMap),
@@ -171,27 +173,34 @@ public class PurgeInstanceRecordsScheduler extends Scheduler {
         }
     }
 
-    private Map<String,Location> locationsFromMetadata(Storage storage, String storagePath)
+    private Map<String,List<Location>> locationsFromMetadata(Storage storage, String storagePath)
             throws IOException {
-        Map<String, Location> map = new HashMap<>();
+        Map<String, List<Location>> map = new HashMap<>();
         try (InputStream in = storage.openInputStream(createReadContext(storage, storagePath))) {
             ZipInputStream zip = new ZipInputStream(in);
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 Attributes attrs = parseJSON(zip);
-                map.put(
-                    attrs.getString(Tag.SOPInstanceUID),
-                    new Location.Builder()
-                        .storageID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID))
-                        .storagePath(StringUtils.concat(attrs.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath), '/'))
-                        .transferSyntaxUID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID))
-                        .digest(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest))
-                        .size(attrs.getInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, -1))
-                        .build());
+                List<Location> list = new ArrayList<>(2);
+                list.add(createLocation(attrs));
+                Sequence seq = attrs.getSequence(ArchiveTag.PrivateCreator, ArchiveTag.OtherStorageSequence);
+                if (seq != null) for (Attributes item : seq) list.add(createLocation(item));
+                map.put(attrs.getString(Tag.SOPInstanceUID), list);
                 zip.closeEntry();
             }
         }
         return map;
+    }
+
+    private Location createLocation(Attributes attrs) {
+            return new Location.Builder()
+                .storageID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID))
+                .storagePath(StringUtils.concat(attrs.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath), '/'))
+                .transferSyntaxUID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID))
+                .digest(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest))
+                .size(attrs.getInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, -1))
+                .build();
+
     }
 
     private static Attributes parseJSON(InputStream in) throws IOException {
