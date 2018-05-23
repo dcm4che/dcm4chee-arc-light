@@ -115,10 +115,12 @@ public class StorageExporter extends AbstractExporter {
                 writeCtx.setStudyInstanceUID(exportContext.getStudyInstanceUID());
                 Location location = null;
                 try {
+                    LOG.debug("Start copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
                     location = copyTo(retrieveContext, instanceLocations, storage, writeCtx);
                     storeService.addLocation(instanceLocations.getInstancePk(), location);
                     storage.commitStorage(writeCtx);
                     retrieveContext.incrementCompleted();
+                    LOG.debug("Finished copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
                 } catch (Exception e) {
                     LOG.warn("Failed to copy {} to {}:\n", instanceLocations, storage.getStorageDescriptor(), e);
                     retrieveContext.addFailedSOPInstanceUID(instanceLocations.getSopInstanceUID());

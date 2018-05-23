@@ -102,7 +102,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
             }
             semaphore.acquire(maxParallel);
         } catch (InterruptedException e) {
-            LOG.error("{}: Failed to schedule copy to retrieve cache:", ctx, e);
+            LOG.error("Failed to schedule copy to retrieve cache:", e);
         }
         completed.offer(new WrappedInstanceLocations(null));
     }
@@ -113,10 +113,12 @@ public class CopyToRetrieveCacheTask implements Runnable {
         writeCtx.setAttributes(match.getAttributes());
         Location location = null;
         try {
+            LOG.debug("Start copying {} to {}:\n", match, storage.getStorageDescriptor());
             location = copyTo(match, storage, writeCtx);
             ctx.getRetrieveService().getStoreService().addLocation(match.getInstancePk(), location);
             storage.commitStorage(writeCtx);
             match.getLocations().add(location);
+            LOG.debug("Finished copying {} to {}:\n", match, storage.getStorageDescriptor());
             return true;
         } catch (Exception e) {
             LOG.warn("Failed to copy {} to {}:\n", match, storage.getStorageDescriptor(), e);
@@ -148,10 +150,12 @@ public class CopyToRetrieveCacheTask implements Runnable {
 
     public InstanceLocations copiedToRetrieveCache() {
         try {
-            LOG.info("{}: Wait for next finished copy to retrieve cache:", ctx);
-            return completed.take().instanceLocations;
+            LOG.debug("Wait for next finished copy to retrieve cache");
+            InstanceLocations inst = completed.take().instanceLocations;
+            LOG.debug("Got next finished copy to retrieve cache");
+            return inst;
         } catch (InterruptedException e) {
-            LOG.error("{}: Failed to wait copy to retrieve cache:", ctx, e);
+            LOG.error("Failed to wait for next finished copy to retrieve cache:", e);
             return null;
         }
     }
