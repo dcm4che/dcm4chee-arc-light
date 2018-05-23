@@ -514,6 +514,12 @@ public class WadoRS {
                 throws IOException {
             MultipartRelatedOutput output = new MultipartRelatedOutput();
             for (InstanceLocations inst : ctx.getMatches()) {
+                if (!ctx.copyToRetrieveCache(inst))
+                    addPart(output, wadoRS, ctx, inst, frameList, attributePath);
+            }
+            ctx.copyToRetrieveCache(null);
+            InstanceLocations inst;
+            while ((inst = ctx.copiedToRetrieveCache()) != null) {
                 addPart(output, wadoRS, ctx, inst, frameList, attributePath);
             }
             return output;
