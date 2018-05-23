@@ -1740,27 +1740,9 @@ class ArchiveDeviceFactory {
     private static void addUIConfigDeviceExtension(Device device, ConfigType configType) {
         UIConfigDeviceExtension ext = new UIConfigDeviceExtension();
         UIConfig uiConfig = new UIConfig("default");
-        addPermissions(uiConfig, configType);
         addDiffConfig(uiConfig);
         ext.addUIConfig(uiConfig);
         device.addDeviceExtension(ext);
-    }
-
-    private static void addPermissions(UIConfig uiConfig, ConfigType configType) {
-        uiConfig.addPermission(createUIPermission(
-                "BrowseArchive", "BrowseArchive",
-                new String[] { "DCM4CHEE" }, new String[] { "user" }));
-        uiConfig.addPermission(createUIPermission(
-                "BrowseArchiveAdmin", "BrowseArchive",
-                new String[] { "DCM4CHEE_ADMIN",  "DCM4CHEE_TRASH" }, new String[] { "admin" }));
-    }
-
-    private static UIPermission createUIPermission(String name, String action, String[] actionParams, String[] userRoles) {
-        UIPermission permission = new UIPermission(name);
-        permission.setAction(action);
-        permission.setActionParams(actionParams);
-        permission.setAcceptedUserRoles(userRoles);
-        return permission;
     }
 
     private static void addDiffConfig(UIConfig uiConfig) {
