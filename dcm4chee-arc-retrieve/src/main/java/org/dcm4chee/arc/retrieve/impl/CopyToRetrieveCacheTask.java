@@ -41,13 +41,17 @@
 
 package org.dcm4chee.arc.retrieve.impl;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.LocationInputStream;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
+import org.dcm4chee.arc.store.StoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,8 +84,32 @@ public class CopyToRetrieveCacheTask implements Runnable {
         this.semaphore = new Semaphore(maxParallel);
     }
 
-    public void schedule(InstanceLocations match) {
+    public boolean schedule(InstanceLocations match) {
+        if (match != null && match.getInstancePk() == null) {
+            try {
+                restoreInstances(match.getAttributes());
+            } catch (IOException e) {
+                LOG.error("Failed to restore purged Instance Records:\n", e);
+                return false;
+            }
+        }
         scheduled.offer(new WrappedInstanceLocations(match));
+        return true;
+    }
+
+    private void restoreInstances(Attributes attrs) throws IOException {
+        StoreService storeService = ctx.getRetrieveService().getStoreService();
+        for (Instance inst : storeService.restoreInstances(storeService.newStoreSession(ctx
+                        .getLocalApplicationEntity(), storageID),
+                attrs.getString(Tag.StudyInstanceUID),
+                attrs.getString(Tag.SeriesInstanceUID),
+                ctx.getArchiveAEExtension().purgeInstanceRecordsDelay())) {
+            for (InstanceLocations match : ctx.getMatches()) {
+                if (match.getSopInstanceUID().equals(inst.getSopInstanceUID())) {
+                    match.setInstancePk(inst.getPk());
+                }
+            }
+        }
     }
 
     @Override
@@ -102,7 +130,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
             }
             semaphore.acquire(maxParallel);
         } catch (InterruptedException e) {
-            LOG.error("Failed to schedule copy to retrieve cache:", e);
+            LOG.error("Failed to schedule copy to retrieve cache:\n", e);
         }
         completed.offer(new WrappedInstanceLocations(null));
     }

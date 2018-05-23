@@ -640,8 +640,7 @@ class RetrieveContextImpl implements RetrieveContext {
                         .getRetrieveCacheStorageID() == null))
             return false;
 
-        copyToRetrieveCacheTask(match).schedule(match);
-        return true;
+        return copyToRetrieveCacheTask(match).schedule(match);
 
     }
 

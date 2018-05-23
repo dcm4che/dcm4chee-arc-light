@@ -614,9 +614,9 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public void restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
+    public List<Instance> restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
             throws IOException {
-        ejb.restoreInstances(session, studyUID, seriesUID, duration);
+        return ejb.restoreInstances(session, studyUID, seriesUID, duration);
     }
 
     private ArchiveCompressionRule selectCompressionRule(Transcoder transcoder, StoreContext storeContext) {

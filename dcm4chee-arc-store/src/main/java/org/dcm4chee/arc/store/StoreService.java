@@ -6,6 +6,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,7 +68,7 @@ public interface StoreService {
             StoreSession session, String storageID, String storagePath, String studyUID)
             throws IOException;
 
-    void restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
+    List<Instance> restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
             throws IOException;
 
     List<String> studyIUIDsByAccessionNo(String accNo);

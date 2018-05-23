@@ -75,6 +75,7 @@ public class InstanceLocationsImpl implements InstanceLocations {
         this.attributes = attrs;
     }
 
+    @Override
     public void setInstancePk(Long instancePk) {
         this.instancePk = instancePk;
     }
