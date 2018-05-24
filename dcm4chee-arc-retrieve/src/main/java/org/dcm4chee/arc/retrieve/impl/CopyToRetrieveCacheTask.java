@@ -56,6 +56,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
@@ -74,6 +78,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
     private final Semaphore semaphore;
     private final LinkedBlockingQueue<WrappedInstanceLocations> scheduled = new LinkedBlockingQueue();
     private final LinkedBlockingQueue<WrappedInstanceLocations> completed = new LinkedBlockingQueue();
+    private final Map<String,Set<String>> uidMap = new HashMap<>();
 
     public CopyToRetrieveCacheTask(RetrieveContextImpl ctx, InstanceLocations match) {
         this.ctx = ctx;
@@ -121,8 +126,17 @@ public class CopyToRetrieveCacheTask implements Runnable {
                 semaphore.acquire();
                 arcdev.getDevice().execute(() -> {
                     try {
-                        if (copy(inst))
+                        if (copy(inst)) {
+                            String studyIUID = inst.getAttributes().getString(Tag.StudyInstanceUID);
+                            String seriesIUID = inst.getAttributes().getString(Tag.SeriesInstanceUID);
+                            synchronized (uidMap) {
+                                Set<String> seriesIUIDs = uidMap.get(studyIUID);
+                                if (seriesIUIDs == null)
+                                    uidMap.put(studyIUID, seriesIUIDs = new HashSet<>());
+                                seriesIUIDs.add(seriesIUID);
+                            }
                             completed.offer(new WrappedInstanceLocations(inst));
+                        }
                     } finally {
                         semaphore.release();
                     }
@@ -131,6 +145,14 @@ public class CopyToRetrieveCacheTask implements Runnable {
             semaphore.acquire(maxParallel);
         } catch (InterruptedException e) {
             LOG.error("Failed to schedule copy to retrieve cache:\n", e);
+        }
+        StoreService storeService = ctx.getRetrieveService().getStoreService();
+        for (Map.Entry<String, Set<String>> entry : uidMap.entrySet()) {
+            String studyIUID = entry.getKey();
+            storeService.addStorageID(studyIUID, storageID);
+            for (String seriesIUID : entry.getValue()) {
+                storeService.scheduleMetadataUpdate(seriesIUID);
+            }
         }
         completed.offer(new WrappedInstanceLocations(null));
     }

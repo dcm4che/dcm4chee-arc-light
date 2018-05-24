@@ -1194,11 +1194,19 @@ public class StoreServiceEJB {
         Instance instance = em.find(Instance.class, instancePk);
         location.setInstance(instance);
         em.persist(location);
-        Series series = instance.getSeries();
-        if (series.getMetadataScheduledUpdateTime() == null
-                && series.getMetadata() != null)
-            series.setMetadataScheduledUpdateTime(new Date());
-        series.getStudy().addStorageID(location.getStorageID());
+    }
+
+    public void addStorageID(String studyIUID, String storageID) {
+        em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
+                .setParameter(1, studyIUID)
+                .getSingleResult()
+                .addStorageID(storageID);
+    }
+
+    public void scheduleMetadataUpdate(String seriesIUID) {
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID)
+                .setParameter(1, seriesIUID)
+                .executeUpdate();
     }
 
     private UIDMap createUIDMap(Map<String, String> uidMap, UIDMap prevUIDMap, Map<Long, UIDMap> uidMapCache) {

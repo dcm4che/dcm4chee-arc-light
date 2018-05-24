@@ -41,6 +41,7 @@
 
 package org.dcm4che.arc.export.storage;
 
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
@@ -61,6 +62,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -84,9 +87,10 @@ public class StorageExporter extends AbstractExporter {
 
     @Override
     public Outcome export(ExportContext exportContext) throws Exception {
+        String studyIUID = exportContext.getStudyInstanceUID();
         try (RetrieveContext retrieveContext = retrieveService.newRetrieveContext(
                 exportContext.getAETitle(),
-                exportContext.getStudyInstanceUID(),
+                studyIUID,
                 exportContext.getSeriesInstanceUID(),
                 exportContext.getSopInstanceUID())) {
             retrieveContext.setHttpServletRequestInfo(exportContext.getHttpServletRequestInfo());
@@ -94,12 +98,13 @@ public class StorageExporter extends AbstractExporter {
             ApplicationEntity ae = retrieveContext.getLocalApplicationEntity();
             storeService.restoreInstances(
                     storeService.newStoreSession(ae, storageID),
-                    exportContext.getStudyInstanceUID(),
+                    studyIUID,
                     exportContext.getSeriesInstanceUID(),
                     ae.getAEExtensionNotNull(ArchiveAEExtension.class).purgeInstanceRecordsDelay());
             if (!retrieveService.calculateMatches(retrieveContext))
                 return new Outcome(QueueMessage.Status.WARNING, noMatches(exportContext));
 
+            Set<String> seriesIUIDs = new HashSet<>();
             Storage storage = retrieveService.getStorage(storageID, retrieveContext);
             retrieveContext.setDestinationStorage(storage.getStorageDescriptor());
             for (InstanceLocations instanceLocations : retrieveContext.getMatches()) {
@@ -112,7 +117,7 @@ public class StorageExporter extends AbstractExporter {
 
                 WriteContext writeCtx = storage.createWriteContext();
                 writeCtx.setAttributes(instanceLocations.getAttributes());
-                writeCtx.setStudyInstanceUID(exportContext.getStudyInstanceUID());
+                writeCtx.setStudyInstanceUID(studyIUID);
                 Location location = null;
                 try {
                     LOG.debug("Start copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
@@ -121,6 +126,7 @@ public class StorageExporter extends AbstractExporter {
                     storage.commitStorage(writeCtx);
                     retrieveContext.incrementCompleted();
                     LOG.debug("Finished copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
+                    seriesIUIDs.add(instanceLocations.getAttributes().getString(Tag.SeriesInstanceUID));
                 } catch (Exception e) {
                     LOG.warn("Failed to copy {} to {}:\n", instanceLocations, storage.getStorageDescriptor(), e);
                     retrieveContext.addFailedSOPInstanceUID(instanceLocations.getSopInstanceUID());
@@ -130,6 +136,12 @@ public class StorageExporter extends AbstractExporter {
                         } catch (IOException e2) {
                             LOG.warn("Failed to revoke storage", e2);
                         }
+                }
+            }
+            if (!seriesIUIDs.isEmpty()) {
+                storeService.addStorageID(studyIUID, storageID);
+                for (String seriesIUID : seriesIUIDs) {
+                    storeService.scheduleMetadataUpdate(seriesIUID);
                 }
             }
             return new Outcome(retrieveContext.failed() > 0

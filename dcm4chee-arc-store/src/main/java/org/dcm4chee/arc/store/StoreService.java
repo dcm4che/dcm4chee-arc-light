@@ -59,6 +59,10 @@ public interface StoreService {
 
     void store(StoreContext ctx, InputStream data) throws IOException;
 
+    void addStorageID(String studyIUID, String storageID);
+
+    void scheduleMetadataUpdate(String seriesIUID);
+
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 
     Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances)
