@@ -112,12 +112,16 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
-    public int instancesNotStoredOnBoth(Long studyPk, String storageID, String otherStorageID) {
-        return ((BigInteger) em.createNamedQuery(Location.COUNT_INSTANCES_OF_STUDY_NOT_ON_BOTH_STORAGE)
+    public int instancesNotStoredOnOtherStorage(Long studyPk, String storageID, String otherStorageID) {
+        Set<Long> onStorage = new HashSet<>(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_ID, Long.class)
                 .setParameter(1, studyPk)
                 .setParameter(2, storageID)
-                .setParameter(3, otherStorageID)
-                .getSingleResult()).intValue();
+                .getResultList());
+        onStorage.removeAll(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_ID, Long.class)
+                .setParameter(1, studyPk)
+                .setParameter(2, otherStorageID)
+                .getResultList());
+        return onStorage.size();
     }
 
     public List<Long> findStudiesForDeletionOnStorageWithExternalRetrieveAET(String storageID, String aet, int limit) {
@@ -128,8 +132,8 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
-    public List<Metadata> findMetadataOfSeriesWithPurgedInstances(Long studyPk) {
-        return em.createNamedQuery(Series.FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE, Metadata.class)
+    public List<Series> findSeriesWithPurgedInstances(Long studyPk) {
+        return em.createNamedQuery(Series.FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE, Series.class)
                 .setParameter(1, studyPk)
                 .setParameter(2, Series.InstancePurgeState.PURGED)
                 .getResultList();

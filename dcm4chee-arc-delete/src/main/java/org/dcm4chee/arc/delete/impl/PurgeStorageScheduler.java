@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.json.JSONReader;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
@@ -55,10 +56,12 @@ import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Metadata;
+import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
+import org.dcm4chee.arc.store.StoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,9 +74,7 @@ import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -94,6 +95,9 @@ public class PurgeStorageScheduler extends Scheduler {
 
     @Inject
     private DeletionServiceEJB ejb;
+
+    @Inject
+    private StoreService storeService;
 
     @Inject
     private StorageFactory storageFactory;
@@ -191,25 +195,45 @@ public class PurgeStorageScheduler extends Scheduler {
         if (exportStorageID != null) {
             for (Iterator<Long> iter = studyPks.iterator(); iter.hasNext();) {
                 Long studyPk = iter.next();
-                int notStoredOnBoth = ejb.instancesNotStoredOnBoth(studyPk, storageID, exportStorageID);
+                int notStoredOnOtherStorage = ejb.instancesNotStoredOnOtherStorage(studyPk, storageID, exportStorageID);
                 Map<String,Storage> storageMap = new HashMap<>();
+                List<Series> seriesWithPurgedInstances = null;
                 try {
-                    for (Metadata metadata : ejb.findMetadataOfSeriesWithPurgedInstances(studyPk)) {
-                        Storage storage = getStorage(metadata.getStorageID(), storageMap);
+                    seriesWithPurgedInstances = ejb.findSeriesWithPurgedInstances(studyPk);
+                    for (Series series : seriesWithPurgedInstances) {
+                        Storage storage = getStorage(series.getMetadata().getStorageID(), storageMap);
                         ReadContext readContext = storage.createReadContext();
-                        readContext.setStoragePath(metadata.getStoragePath());
-                        notStoredOnBoth += instancesNotStoredOnBoth(readContext, storageID, exportStorageID);
+                        readContext.setStoragePath(series.getMetadata().getStoragePath());
+                        notStoredOnOtherStorage += instancesNotStoredOnOtherStorage(readContext, storageID, exportStorageID);
                     }
                 } finally {
                     for (Storage storage : storageMap.values()) {
                         SafeClose.close(storage);
                     }
                 }
-                if (notStoredOnBoth > 0) {
-                    LOG.warn("{} of instances of Study[pk={}] on {} not stored on Storage[id={}] - defer deletion objects",
-                            notStoredOnBoth, studyPk, desc, exportStorageID);
+                if (notStoredOnOtherStorage > 0) {
+                    LOG.warn("{} of instances of Study[pk={}] on {} not stored on Storage[id={}] - defer deletion of objects",
+                            notStoredOnOtherStorage, studyPk, desc, exportStorageID);
                     ejb.updateStudyAccessTime(studyPk);
                     iter.remove();
+                } else if (!seriesWithPurgedInstances.isEmpty()){
+                    ApplicationEntity ae = device.getApplicationEntities().iterator().next();
+                    Duration purgeInstanceRecordsDelay = device.getDeviceExtension(ArchiveDeviceExtension.class)
+                            .getPurgeInstanceRecordsDelay();
+                    for (Series series : seriesWithPurgedInstances) {
+                        try {
+                            storeService.restoreInstances(storeService.newStoreSession(ae, storageID),
+                                    series.getStudy().getStudyInstanceUID(),
+                                    series.getSeriesInstanceUID(),
+                                    purgeInstanceRecordsDelay);
+                        } catch (Exception e) {
+                            LOG.warn("Failed to restore Instance records of Series[pk={}] - defer deletion of objects from Storage[id={}]\n",
+                                    series.getPk(), desc, e);
+                            ejb.updateStudyAccessTime(studyPk);
+                            iter.remove();
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -234,15 +258,15 @@ public class PurgeStorageScheduler extends Scheduler {
         return storage;
     }
 
-    private static int instancesNotStoredOnBoth(ReadContext ctx, String storageID, String exportStorageID) {
+    private static int instancesNotStoredOnOtherStorage(ReadContext ctx, String storageID, String exportStorageID) {
         int count = 0;
         try (InputStream in = ctx.getStorage().openInputStream(ctx)) {
             ZipInputStream zip = new ZipInputStream(in);
             while (zip.getNextEntry() != null) {
                 JSONReader jsonReader = new JSONReader(Json.createParser(
-                        new InputStreamReader(in, "UTF-8")));
+                        new InputStreamReader(zip, "UTF-8")));
                 Attributes metadata = jsonReader.readDataset(null);
-                if (!containsStorageID(metadata, storageID) || !containsStorageID(metadata, exportStorageID))
+                if (containsStorageID(metadata, storageID) && !containsStorageID(metadata, exportStorageID))
                     count++;
                 zip.closeEntry();
             }
