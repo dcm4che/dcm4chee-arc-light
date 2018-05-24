@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.metadata;
 
+import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.DicomConfiguration;
 import org.dcm4che3.data.Attributes;
@@ -51,16 +52,18 @@ import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Metadata;
 import org.dcm4chee.arc.entity.Series;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
+import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.dcm4chee.arc.storage.WriteContext;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
@@ -90,6 +93,9 @@ public class UpdateMetadataScheduler extends Scheduler {
 
     @Inject
     private RetrieveService retrieveService;
+
+    @Inject
+    private Event<SoftwareConfiguration> softwareConfigurationEvent;
 
     @Inject
     private StorageFactory storageFactory;
@@ -148,16 +154,20 @@ public class UpdateMetadataScheduler extends Scheduler {
         while (metadataUpdates.size() == fetchSize);
         if (descriptors.size() < storageIDs.length) {
             arcDev.setSeriesMetadataStorageIDs(StorageDescriptor.storageIDsOf(descriptors));
-            updateDeviceConfiguration();
+            updateDeviceConfiguration(arcDev);
         }
     }
 
-    private void updateDeviceConfiguration() {
+    private void updateDeviceConfiguration(ArchiveDeviceExtension arcDev) {
         try {
             LOG.info("Update Storage configuration of Device: {}:\n", device.getDeviceName());
-            conf.merge(device, EnumSet.of(
+            ConfigurationChanges diffs = conf.merge(device, EnumSet.of(
                     DicomConfiguration.Option.PRESERVE_VENDOR_DATA,
-                    DicomConfiguration.Option.PRESERVE_CERTIFICATE));
+                    DicomConfiguration.Option.PRESERVE_CERTIFICATE,
+                    arcDev.isAuditSoftwareConfigurationVerbose()
+                            ? DicomConfiguration.Option.CONFIGURATION_CHANGES_VERBOSE
+                            : DicomConfiguration.Option.CONFIGURATION_CHANGES));
+            softwareConfigurationEvent.fire(new SoftwareConfiguration(null, device.getDeviceName(), diffs));
         } catch (ConfigurationException e) {
             LOG.warn("Failed to update Storage configuration of Device: {}:\n", device.getDeviceName(), e);
         }

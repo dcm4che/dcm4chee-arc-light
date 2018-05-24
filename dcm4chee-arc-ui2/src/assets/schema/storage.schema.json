@@ -83,7 +83,8 @@
       "description": "Maximal number of parallel copies to cache storage on retrieve. Only effective if a Retrieve Cache Storage ID is configured.",
       "type": "integer",
       "default" : 10,
-      "minimum": 1
+      "minimum": 0,
+      "exclusiveMinimum": true
     },
     "dcmNoDeletionConstraint": {
       "title": "No Deletion Constraint",

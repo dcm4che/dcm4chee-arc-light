@@ -112,12 +112,16 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
-    public int instancesNotStoredOnBoth(Long studyPk, String storageID, String otherStorageID) {
-        return ((BigInteger) em.createNamedQuery(Location.COUNT_INSTANCES_OF_STUDY_NOT_ON_BOTH_STORAGE)
+    public int instancesNotStoredOnOtherStorage(Long studyPk, String storageID, String otherStorageID) {
+        Set<Long> onStorage = new HashSet<>(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_ID, Long.class)
                 .setParameter(1, studyPk)
                 .setParameter(2, storageID)
-                .setParameter(3, otherStorageID)
-                .getSingleResult()).intValue();
+                .getResultList());
+        onStorage.removeAll(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_ID, Long.class)
+                .setParameter(1, studyPk)
+                .setParameter(2, otherStorageID)
+                .getResultList());
+        return onStorage.size();
     }
 
     public List<Long> findStudiesForDeletionOnStorageWithExternalRetrieveAET(String storageID, String aet, int limit) {
@@ -128,8 +132,8 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
-    public List<Metadata> findMetadataOfSeriesWithPurgedInstances(Long studyPk) {
-        return em.createNamedQuery(Series.FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE, Metadata.class)
+    public List<Series> findSeriesWithPurgedInstances(Long studyPk) {
+        return em.createNamedQuery(Series.FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE, Series.class)
                 .setParameter(1, studyPk)
                 .setParameter(2, Series.InstancePurgeState.PURGED)
                 .getResultList();
@@ -349,7 +353,7 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
-    public boolean purgeInstanceRecordsOfSeries(Long seriesPk, Map<String, Location> locationsFromMetadata) {
+    public boolean purgeInstanceRecordsOfSeries(Long seriesPk, Map<String, List<Location>> locationsFromMetadata) {
         Series series = em.find(Series.class, seriesPk);
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_SERIES_PK, Location.class)
                 .setParameter(1, seriesPk)
@@ -381,22 +385,29 @@ public class DeletionServiceEJB {
         return true;
     }
 
-    private boolean verifyMetadata(Map<String, Location> locationsFromMetadata, List<Location> locations) {
+    private boolean verifyMetadata(Map<String, List<Location>> locationsFromMetadata, List<Location> locations) {
         for (Location location : locations) {
             if (location.getObjectType() == Location.ObjectType.DICOM_FILE) {
-                if (!equals(location, locationsFromMetadata.remove(location.getInstance().getSopInstanceUID())))
+                if (!verifyMetadata(locationsFromMetadata, location))
                     return false;
             }
         }
         return locationsFromMetadata.isEmpty();
     }
 
-    private boolean equals(Location location, Location locationFromMetadata) {
-        return locationFromMetadata != null
-                && Objects.equals(location.getStorageID(), locationFromMetadata.getStorageID())
-                && Objects.equals(location.getStoragePath(), locationFromMetadata.getStoragePath())
-                && Objects.equals(location.getDigestAsHexString(), locationFromMetadata.getDigestAsHexString())
-                && Objects.equals(location.getSize(), locationFromMetadata.getSize());
+    private boolean verifyMetadata(Map<String, List<Location>> locationsFromMetadata, Location location) {
+        String iuid = location.getInstance().getSopInstanceUID();
+        List<Location> locations = locationsFromMetadata.get(iuid);
+        if (locations == null || !locations.removeIf(l ->
+            Objects.equals(location.getStorageID(), l.getStorageID())
+                    && Objects.equals(location.getStoragePath(), l.getStoragePath())
+                    && Objects.equals(location.getDigestAsHexString(), l.getDigestAsHexString())
+                    && Objects.equals(location.getSize(), l.getSize())))
+            return false;
+
+        if (locations.isEmpty())
+            locationsFromMetadata.remove(iuid);
+        return true;
     }
 
     public boolean claimPurgeInstanceRecordsOfSeries(Long seriesPk) {

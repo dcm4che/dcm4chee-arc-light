@@ -52,7 +52,7 @@ import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Duration;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.slf4j.Logger;
@@ -125,8 +125,15 @@ final class RetrieveTaskImpl implements RetrieveTask {
             for (InstanceLocations match : ctx.getMatches()) {
                 if (canceled)
                     break;
-                store(match);
+
+                if (!ctx.copyToRetrieveCache(match))
+                    store(match);
             }
+            ctx.copyToRetrieveCache(null);
+            InstanceLocations match;
+            while ((match = ctx.copiedToRetrieveCache()) != null && !canceled)
+                store(match);
+
             waitForOutstandingCStoreRSP();
         } finally {
             releaseStoreAssociation();

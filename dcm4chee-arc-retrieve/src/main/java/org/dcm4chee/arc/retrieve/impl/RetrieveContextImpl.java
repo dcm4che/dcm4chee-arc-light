@@ -49,15 +49,13 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.AttributeSet;
-import org.dcm4chee.arc.conf.QueryRetrieveView;
-import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.store.InstanceLocations;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -115,6 +113,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private boolean retryFailedRetrieve;
     private AttributeSet metadataFilter;
     private HttpServletRequestInfo httpServletRequestInfo;
+    private CopyToRetrieveCacheTask copyToRetrieveCacheTask;
 
     RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle,
                         QueryRetrieveView qrView) {
@@ -609,7 +608,7 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public boolean isConsiderPurgedInstances() {
         return arcAE != null
-                && arcAE.getArchiveDeviceExtension().getPurgeInstanceRecordsPollingInterval() != null
+                && arcAE.getArchiveDeviceExtension().isPurgeInstanceRecords()
                 && (qrLevel != QueryRetrieveLevel2.IMAGE || seriesInstanceUIDs.length != 0);
     }
 
@@ -626,5 +625,36 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
         this.httpServletRequestInfo = httpServletRequestInfo;
+    }
+
+    @Override
+    public boolean copyToRetrieveCache(InstanceLocations match) {
+        if (match == null) {
+            if (copyToRetrieveCacheTask != null)
+                copyToRetrieveCacheTask.schedule(null);
+            return false;
+        }
+        ArchiveDeviceExtension arcdev = retrieveService.getArchiveDeviceExtension();
+        if (match.getLocations().stream().anyMatch(location ->
+                arcdev.getStorageDescriptorNotNull(location.getStorageID())
+                        .getRetrieveCacheStorageID() == null))
+            return false;
+
+        return copyToRetrieveCacheTask(match).schedule(match);
+
+    }
+
+    private CopyToRetrieveCacheTask copyToRetrieveCacheTask(InstanceLocations match) {
+        CopyToRetrieveCacheTask task = copyToRetrieveCacheTask;
+        if (task == null) {
+            retrieveService.getDevice().execute(task = new CopyToRetrieveCacheTask(this, match));
+            copyToRetrieveCacheTask = task;
+        }
+        return task;
+    }
+
+    @Override
+    public InstanceLocations copiedToRetrieveCache() {
+        return copyToRetrieveCacheTask != null ? copyToRetrieveCacheTask.copiedToRetrieveCache() : null;
     }
 }

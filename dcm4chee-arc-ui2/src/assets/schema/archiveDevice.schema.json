@@ -6,6 +6,7 @@
     "dcmFuzzyAlgorithmClass",
     "dcmQueryRetrieveViewID",
     "dcmSeriesMetadataFetchSize",
+    "dcmPurgeInstanceRecords",
     "dcmPurgeInstanceRecordsFetchSize",
     "dcmOverwritePolicy",
     "dcmAcceptMissingPatientID",
@@ -92,21 +93,27 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
+    "dcmPurgeInstanceRecords": {
+      "title": "Purge Instance Records",
+      "description": "Indicates that Instance Records may be purged from the DB.",
+      "type": "boolean",
+      "default" : false
+    },
     "dcmPurgeInstanceRecordsDelay": {
       "title": "Purge Instance Records Delay",
-      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB. If absent, Instance Records will never be purged. May be overwritten by configured values for particular Archive Network AEs.",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB. May be overwritten by configured values for particular Archive Network AEs. Only effective, if Purge Instance Records = true.",
       "type": "string",
       "format": "dcmDuration"
     },
     "dcmPurgeInstanceRecordsPollingInterval": {
       "title": "Purge Instance Records Polling Interval",
-      "description": "Polling Interval for Series scheduled for purging Instance Records from the DB in ISO-8601 duration format PnDTnHnMn.nS. If absent, Instance Records will not be purged.",
+      "description": "Polling Interval for Series scheduled for purging Instance Records from the DB in ISO-8601 duration format PnDTnHnMn.nS. Only effective, if Purge Instance Records = true.",
       "type": "string",
       "format": "dcmDuration"
     },
     "dcmPurgeInstanceRecordsFetchSize": {
       "title": "Purge Instance Records Fetch Size",
-      "description": "Maximal number of Series scheduled for purging Instance Records from the DB fetched by one query.",
+      "description": "Maximal number of Series scheduled for purging Instance Records from the DB fetched by one query. Only effective, if Purge Instance Records = true.",
       "type": "integer",
       "default" : 100,
       "minimum": 0,

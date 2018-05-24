@@ -44,7 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
+import org.dcm4chee.arc.store.InstanceLocations;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -75,6 +75,7 @@ public class InstanceLocationsImpl implements InstanceLocations {
         this.attributes = attrs;
     }
 
+    @Override
     public void setInstancePk(Long instancePk) {
         this.instancePk = instancePk;
     }

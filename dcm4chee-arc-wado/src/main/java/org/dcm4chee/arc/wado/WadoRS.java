@@ -52,6 +52,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.jboss.resteasy.plugins.providers.multipart.OutputPart;
@@ -513,6 +514,12 @@ public class WadoRS {
                 throws IOException {
             MultipartRelatedOutput output = new MultipartRelatedOutput();
             for (InstanceLocations inst : ctx.getMatches()) {
+                if (!ctx.copyToRetrieveCache(inst))
+                    addPart(output, wadoRS, ctx, inst, frameList, attributePath);
+            }
+            ctx.copyToRetrieveCache(null);
+            InstanceLocations inst;
+            while ((inst = ctx.copiedToRetrieveCache()) != null) {
                 addPart(output, wadoRS, ctx, inst, frameList, attributePath);
             }
             return output;

@@ -52,6 +52,7 @@ import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.storage.Storage;
+import org.dcm4chee.arc.store.InstanceLocations;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.Closeable;
@@ -253,4 +254,8 @@ public interface RetrieveContext extends Closeable {
     HttpServletRequestInfo getHttpServletRequestInfo();
 
     void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo);
+
+    boolean copyToRetrieveCache(InstanceLocations match);
+
+    InstanceLocations copiedToRetrieveCache();
 }

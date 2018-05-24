@@ -49,7 +49,7 @@ import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.retrieve.LocationInputStream;
@@ -115,15 +115,21 @@ public class StorageExporter extends AbstractExporter {
                 writeCtx.setStudyInstanceUID(exportContext.getStudyInstanceUID());
                 Location location = null;
                 try {
+                    LOG.debug("Start copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
                     location = copyTo(retrieveContext, instanceLocations, storage, writeCtx);
                     storeService.addLocation(instanceLocations.getInstancePk(), location);
                     storage.commitStorage(writeCtx);
                     retrieveContext.incrementCompleted();
+                    LOG.debug("Finished copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
                 } catch (Exception e) {
                     LOG.warn("Failed to copy {} to {}:\n", instanceLocations, storage.getStorageDescriptor(), e);
                     retrieveContext.addFailedSOPInstanceUID(instanceLocations.getSopInstanceUID());
                     if (location != null)
-                        storage.revokeStorage(writeCtx);
+                        try {
+                            storage.revokeStorage(writeCtx);
+                        } catch (IOException e2) {
+                            LOG.warn("Failed to revoke storage", e2);
+                        }
                 }
             }
             return new Outcome(retrieveContext.failed() > 0

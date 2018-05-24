@@ -42,8 +42,8 @@ package org.dcm4chee.arc.wado;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.store.InstanceLocations;
 
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;

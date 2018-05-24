@@ -47,7 +47,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.SeriesInfo;
 import org.dcm4chee.arc.retrieve.StudyInfo;

@@ -184,7 +184,7 @@ import java.util.Date;
                 "where se.pk = ?1 and se.instancePurgeState = ?2"),
 @NamedQuery(
         name = Series.FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE,
-        query = "select se.metadata from Series se where se.study.pk=?1 and se.instancePurgeState=?2")
+        query = "select se from Series se join fetch se.metadata where se.study.pk=?1 and se.instancePurgeState=?2")
 })
 @Entity
 @Table(name = "series",

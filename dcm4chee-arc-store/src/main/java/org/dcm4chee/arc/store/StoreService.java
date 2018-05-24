@@ -6,8 +6,8 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.Duration;
+import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -64,15 +64,11 @@ public interface StoreService {
     Attributes copyInstances(StoreSession session, Collection<InstanceLocations> instances)
             throws Exception;
 
-    Collection<InstanceLocations> queryInstances(
-            StoreSession session, Attributes instanceRefs, String targetStudyIUID)
-            throws IOException;
-
     ZipInputStream openZipInputStream(
             StoreSession session, String storageID, String storagePath, String studyUID)
             throws IOException;
 
-    void restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
+    List<Instance> restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
             throws IOException;
 
     List<String> studyIUIDsByAccessionNo(String accNo);

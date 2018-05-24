@@ -129,7 +129,7 @@ public class StoreServiceEJB {
         StoreSession session = ctx.getStoreSession();
         ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        restoreInstances(session, findSeries(ctx), ctx.getStudyInstanceUID(), null);
+        restoreInstances(session, findSeries(ctx), ctx.getStudyInstanceUID(), null, null);
         Instance prevInstance = findPreviousInstance(ctx);
         if (prevInstance != null) {
             Collection<Location> locations = prevInstance.getLocations();
@@ -233,9 +233,9 @@ public class StoreServiceEJB {
         return result;
     }
 
-    public void restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
+    public List<Instance> restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
             throws DicomServiceException {
-        List<Series> resultList = (seriesUID == null
+        List<Series> seriesList = (seriesUID == null
                 ? em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_INSTANCE_PURGE_STATE, Series.class)
                 .setParameter(1, studyUID)
                 .setParameter(2, Series.InstancePurgeState.PURGED)
@@ -244,12 +244,15 @@ public class StoreServiceEJB {
                 .setParameter(2, seriesUID)
                 .setParameter(3, Series.InstancePurgeState.PURGED))
                 .getResultList();
-        for (Series series : resultList) {
-            restoreInstances(session, series, studyUID, duration);
+        List<Instance> instList = new ArrayList<>();
+        for (Series series : seriesList) {
+            restoreInstances(session, series, studyUID, duration, instList);
         }
+        return instList;
     }
 
-    private void restoreInstances(StoreSession session, Series series, String studyUID, Duration duration)
+    private void restoreInstances(StoreSession session, Series series, String studyUID, Duration duration,
+                                  List <Instance> instList)
             throws DicomServiceException {
         if (series == null || series.getInstancePurgeState() == Series.InstancePurgeState.NO)
             return;
@@ -262,7 +265,9 @@ public class StoreServiceEJB {
             while ((entry = zip.getNextEntry()) != null) {
                 JSONReader jsonReader = new JSONReader(Json.createParser(new InputStreamReader(zip, "UTF-8")));
                 jsonReader.setSkipBulkDataURI(true);
-                restoreInstance(session, series, jsonReader.readDataset(null));
+                Instance inst = restoreInstance(session, series, jsonReader.readDataset(null));
+                if (instList != null)
+                    instList.add(inst);
             }
         } catch (IOException e) {
             LOG.warn("Failed to restore Instance records of Series[pk={}]", series.getPk(), e);
@@ -272,7 +277,7 @@ public class StoreServiceEJB {
         series.scheduleInstancePurge(duration);
     }
 
-    private void restoreInstance(StoreSession session, Series series, Attributes attrs) {
+    private Instance restoreInstance(StoreSession session, Series series, Attributes attrs) {
         Instance inst = createInstance(session, series, findOrCreateCode(attrs, Tag.ConceptNameCodeSequence), attrs,
                 attrs.getStrings(Tag.RetrieveAETitle), Availability.valueOf(attrs.getString(Tag.InstanceAvailability)));
         Location location = new Location.Builder()
@@ -284,6 +289,7 @@ public class StoreServiceEJB {
                 .build();
         location.setInstance(inst);
         em.persist(location);
+        return inst;
     }
 
     private void rejectInstances(StoreContext ctx, RejectionNote rjNote, CodeEntity rejectionCode,
@@ -305,7 +311,7 @@ public class StoreServiceEJB {
                 if (rjNote.getRejectionNoteType() == RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED)
                     checkExpirationDate(series, arcAE.allowRejectionForDataRetentionPolicyExpired());
 
-                restoreInstances(session, series, studyUID, null);
+                restoreInstances(session, series, studyUID, null, null);
                 for (Attributes sopRef : seriesRef.getSequence(Tag.ReferencedSOPSequence)) {
                     String classUID = sopRef.getString(Tag.ReferencedSOPClassUID);
                     String objectUID = sopRef.getString(Tag.ReferencedSOPInstanceUID);

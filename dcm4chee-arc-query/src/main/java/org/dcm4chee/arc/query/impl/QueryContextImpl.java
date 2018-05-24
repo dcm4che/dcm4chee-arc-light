@@ -225,7 +225,7 @@ class QueryContextImpl implements QueryContext {
     @Override
     public boolean isConsiderPurgedInstances() {
         return qrLevel == QueryRetrieveLevel2.IMAGE
-                && getArchiveDeviceExtension().getPurgeInstanceRecordsPollingInterval() != null
+                && getArchiveDeviceExtension().isPurgeInstanceRecords()
                 && queryKeys.containsValue(Tag.SeriesInstanceUID);
     }
 

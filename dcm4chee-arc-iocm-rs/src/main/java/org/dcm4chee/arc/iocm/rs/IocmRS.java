@@ -59,7 +59,8 @@ import org.dcm4chee.arc.patient.*;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.query.QueryService;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
+import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.rs.client.RSForward;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -103,6 +104,9 @@ public class IocmRS {
 
     @Inject
     private QueryService queryService;
+
+    @Inject
+    private RetrieveService retrieveService;
 
     @Inject
     private StoreService storeService;
@@ -519,7 +523,7 @@ public class IocmRS {
 
         StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), rejectionNoteObjectStorageID);
         restoreInstances(session, instanceRefs);
-        Collection<InstanceLocations> instanceLocations = storeService.queryInstances(session, instanceRefs, studyUID);
+        Collection<InstanceLocations> instanceLocations = retrieveService.queryInstances(session, instanceRefs, studyUID);
         if (instanceLocations.isEmpty())
             return errResponse("No Instances found. ", Response.Status.NOT_FOUND);
 
@@ -641,7 +645,7 @@ public class IocmRS {
         StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(),
                 rjNote != null ? rejectionNoteObjectStorageID() : null);
         restoreInstances(session, instanceRefs);
-        Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID);
+        Collection<InstanceLocations> instances = retrieveService.queryInstances(session, instanceRefs, studyUID);
         if (instances.isEmpty())
             return errResponse("No Instances found. ", Response.Status.NOT_FOUND);
 
