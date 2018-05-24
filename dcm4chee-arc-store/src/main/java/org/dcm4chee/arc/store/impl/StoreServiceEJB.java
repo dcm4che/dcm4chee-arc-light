@@ -1194,7 +1194,11 @@ public class StoreServiceEJB {
         Instance instance = em.find(Instance.class, instancePk);
         location.setInstance(instance);
         em.persist(location);
-        instance.getSeries().getStudy().addStorageID(location.getStorageID());
+        Series series = instance.getSeries();
+        if (series.getMetadataScheduledUpdateTime() == null
+                && series.getMetadata() != null)
+            series.setMetadataScheduledUpdateTime(new Date());
+        series.getStudy().addStorageID(location.getStorageID());
     }
 
     private UIDMap createUIDMap(Map<String, String> uidMap, UIDMap prevUIDMap, Map<Long, UIDMap> uidMapCache) {
