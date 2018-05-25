@@ -60,7 +60,6 @@ import java.math.BigDecimal;
 public class QuerySizeEJB {
 
     private static final Long ZERO = Long.valueOf(0L);
-    private static final BigDecimal ZERO_BIG = BigDecimal.valueOf(0);
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     EntityManager em;
@@ -84,12 +83,11 @@ public class QuerySizeEJB {
     }
 
     public long calculateSeriesSize(Long seriesPk) {
-        long size = StringUtils.maskNull(
-                (BigDecimal) em.createNamedQuery(Location.SIZE_OF_SERIES)
-                    .setParameter(1, seriesPk)
-                    .setParameter(2, Location.ObjectType.DICOM_FILE.ordinal())
-                    .getSingleResult(),
-                ZERO_BIG).longValue();
+        Object result = em.createNamedQuery(Location.SIZE_OF_SERIES)
+                .setParameter(1, seriesPk)
+                .setParameter(2, Location.ObjectType.DICOM_FILE.ordinal())
+                .getSingleResult();
+        long size = result instanceof Number ? ((Number) result).longValue() : 0L;
         em.createNamedQuery(Series.SET_SERIES_SIZE)
                 .setParameter(1, seriesPk)
                 .setParameter(2, size)
