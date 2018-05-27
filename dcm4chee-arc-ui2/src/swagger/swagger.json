@@ -11,8 +11,8 @@
   ],
   "tags": [
     {
-      "name": "REALM-RS",
-      "description": "Access realm"
+      "name": "AUTH-RS",
+      "description": "Authentication/Authorization services"
     },
     {
       "name": "CTRL-RS",
@@ -75,10 +75,10 @@
     "/ui2/rs/realm": {
       "get": {
         "tags": [
-          "REALM-RS"
+          "AUTH-RS"
         ],
-        "summary": "Show Realm of Logged-in User",
-        "operationId": "realm",
+        "summary": "Get information about logged-in user",
+        "operationId": "get",
         "produces": [
           "application/json"
         ],
@@ -451,6 +451,55 @@
           },
           "404": {
             "description": "Device not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/devices/{deviceName}/token/{keycloakID}": {
+      "get": {
+        "tags": [
+          "AUTH-RS"
+        ],
+        "summary": "Get Access token from Keycloak",
+        "operationId": "getAccessToken",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "deviceName",
+            "in": "path",
+            "description": "Name of the Archive Device secured by Keycloak",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "keycloakID",
+            "in": "path",
+            "description": "Identifies Keycloak access parameters in Archive Device configuration",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Access Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "title": "token",
+                  "description": "OAuth Bearer Token",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No such Archive Device or no such Keycloak identifier in the Archive Device configuration"
           },
           "default": {
             "description": "unexpected error"
