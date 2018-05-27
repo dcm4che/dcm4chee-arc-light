@@ -498,7 +498,7 @@
               }
             }
           },
-          "204": {
+          "404": {
             "description": "No such Archive Device or no such Keycloak identifier in the Archive Device configuration"
           },
           "default": {
