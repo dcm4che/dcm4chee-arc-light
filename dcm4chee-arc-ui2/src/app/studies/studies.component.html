@@ -300,12 +300,12 @@
 
                 </div>
                 <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-size',param:'visible'}">
-                   <span class="count_text" title="Total size of filtered studies found">Size: <b>{{size}}</b></span>
+                   <span class="count_text" title="Total size of filtered studies found">Size: <b class="nowrap">{{size|largeIntFormat}}</b></span>
                     <span *ngIf="!showGetSizeLoader" (click)="getSize()" title="Get total size of filtered studies" class="glyphicon glyphicon-refresh"></span>
                     <span *ngIf="showGetSizeLoader" class="fa fa-circle-o-notch fa-spin dashboard_loader"></span>
                 </div>
                 <div class="count_block_total" *ngIf="filterMode != 'diff'" [ngClass]="{single:externalInternalAetMode === 'external' || filterMode!='study'}" [permission]="{id:'action-studies-count',param:'visible'}">
-                   <span class="count_text" title="Total count of filtered studies found">Total count: <b>{{count}}</b></span>
+                   <span class="count_text" title="Total count of filtered studies found">Total count: <b class="nowrap">{{count|largeIntFormat}}</b></span>
                         <span *ngIf="!showGetCountLoader" (click)="getCount()" title="Get total count of filtered studies" class="glyphicon glyphicon-refresh"></span>
                         <span *ngIf="showGetCountLoader" class="fa fa-circle-o-notch fa-spin"></span>
                 </div>
