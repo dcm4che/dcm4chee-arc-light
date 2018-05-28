@@ -506,7 +506,7 @@ public class DiffTaskRS {
         private String toBaseURI(WebApplication webApplication) {
             for (Connection connection : webApplication.getConnections())
                 if (connection.getProtocol() == Connection.Protocol.HTTP) {
-                    return "http://"
+                    return connection.isTls() ? "https://" : "http://"
                             + connection.getHostname()
                             + ":"
                             + connection.getPort()

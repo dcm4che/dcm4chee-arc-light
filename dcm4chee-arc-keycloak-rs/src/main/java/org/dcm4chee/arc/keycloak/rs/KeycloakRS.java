@@ -59,7 +59,7 @@ import javax.ws.rs.core.Context;
  */
 
 @RequestScoped
-@Path("/devices/token/{keycloakID}")
+@Path("token/{keycloakID}")
 public class KeycloakRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(KeycloakRS.class);
@@ -77,7 +77,7 @@ public class KeycloakRS {
     @NoCache
     public String getAccessToken() throws Exception {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return "{\"Access Token\":\"" + accessTokenRequestor.getAccessTokenString(keycloakID) + "\"}";
+        return "{\"token\":\"" + accessTokenRequestor.getAccessTokenString(keycloakID) + "\"}";
     }
 
 }
