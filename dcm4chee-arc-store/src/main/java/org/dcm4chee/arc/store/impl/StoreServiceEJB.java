@@ -1160,6 +1160,7 @@ public class StoreServiceEJB {
                 .build();
         location.setInstance(instance);
         em.persist(location);
+        LOG.info("{}: Create {}", ctx.getStoreSession(), location);
         result.getLocations().add(location);
         result.getWriteContexts().add(writeContext);
         if (objectType == Location.ObjectType.DICOM_FILE)
@@ -1171,13 +1172,13 @@ public class StoreServiceEJB {
         Map<Long, UIDMap> uidMapCache = session.getUIDMapCache();
         Map<String, String> uidMap = session.getUIDMap();
         for (Location prevLocation : ctx.getLocations()) {
-            result.getLocations().add(copyLocation(prevLocation, instance, uidMap, uidMapCache));
+            result.getLocations().add(copyLocation(session, prevLocation, instance, uidMap, uidMapCache));
             if (prevLocation.getObjectType() == Location.ObjectType.DICOM_FILE)
                 instance.getSeries().getStudy().addStorageID(prevLocation.getStorageID());
         }
     }
 
-    private Location copyLocation(
+    private Location copyLocation(StoreSession session,
             Location prevLocation, Instance instance, Map<String, String> uidMap, Map<Long, UIDMap> uidMapCache) {
         if (prevLocation.getMultiReference() == null) {
             prevLocation = em.find(Location.class, prevLocation.getPk());
@@ -1187,13 +1188,15 @@ public class StoreServiceEJB {
         newLocation.setUidMap(createUIDMap(uidMap, prevLocation.getUidMap(), uidMapCache));
         newLocation.setInstance(instance);
         em.persist(newLocation);
+        LOG.info("{}: Create {}", session, newLocation);
         return newLocation;
     }
 
-    public void addLocation(Long instancePk, Location location) {
+    public void addLocation(StoreSession session, Long instancePk, Location location) {
         Instance instance = em.find(Instance.class, instancePk);
         location.setInstance(instance);
         em.persist(location);
+        LOG.info("{}: Create {}", session, location);
     }
 
     public void addStorageID(String studyIUID, String storageID) {

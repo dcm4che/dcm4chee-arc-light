@@ -43,6 +43,7 @@ package org.dcm4chee.arc.retrieve.impl;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Instance;
@@ -52,6 +53,7 @@ import org.dcm4chee.arc.retrieve.LocationInputStream;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreService;
+import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,7 +167,10 @@ public class CopyToRetrieveCacheTask implements Runnable {
         try {
             LOG.debug("Start copying {} to {}:\n", match, storage.getStorageDescriptor());
             location = copyTo(match, storage, writeCtx);
-            ctx.getRetrieveService().getStoreService().addLocation(match.getInstancePk(), location);
+            StoreService storeService = ctx.getRetrieveService().getStoreService();
+            ApplicationEntity ae = ctx.getLocalApplicationEntity();
+            StoreSession storeSession = storeService.newStoreSession(ae, storageID);
+            storeService.addLocation(storeSession, match.getInstancePk(), location);
             storage.commitStorage(writeCtx);
             match.getLocations().add(location);
             LOG.debug("Finished copying {} to {}:\n", match, storage.getStorageDescriptor());

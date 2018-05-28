@@ -77,5 +77,5 @@ public interface StoreService {
 
     List<String> studyIUIDsByAccessionNo(String accNo);
 
-    void addLocation(Long instancePk, Location location);
+    void addLocation(StoreSession storeSession, Long instancePk, Location location);
 }

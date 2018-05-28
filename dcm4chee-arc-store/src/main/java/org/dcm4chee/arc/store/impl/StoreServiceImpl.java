@@ -277,8 +277,8 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public void addLocation(Long instancePk, Location location) {
-        ejb.addLocation(instancePk, location);
+    public void addLocation(StoreSession session, Long instancePk, Location location) {
+        ejb.addLocation(session, instancePk, location);
     }
 
     @Override

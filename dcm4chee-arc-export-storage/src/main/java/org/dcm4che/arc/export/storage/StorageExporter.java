@@ -58,6 +58,7 @@ import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.dcm4chee.arc.store.StoreService;
+import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,8 +97,9 @@ public class StorageExporter extends AbstractExporter {
             retrieveContext.setHttpServletRequestInfo(exportContext.getHttpServletRequestInfo());
             String storageID = descriptor.getExportURI().getSchemeSpecificPart();
             ApplicationEntity ae = retrieveContext.getLocalApplicationEntity();
+            StoreSession storeSession = storeService.newStoreSession(ae, storageID);
             storeService.restoreInstances(
-                    storeService.newStoreSession(ae, storageID),
+                    storeSession,
                     studyIUID,
                     exportContext.getSeriesInstanceUID(),
                     ae.getAEExtensionNotNull(ArchiveAEExtension.class).purgeInstanceRecordsDelay());
@@ -122,7 +124,7 @@ public class StorageExporter extends AbstractExporter {
                 try {
                     LOG.debug("Start copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
                     location = copyTo(retrieveContext, instanceLocations, storage, writeCtx);
-                    storeService.addLocation(instanceLocations.getInstancePk(), location);
+                    storeService.addLocation(storeSession, instanceLocations.getInstancePk(), location);
                     storage.commitStorage(writeCtx);
                     retrieveContext.incrementCompleted();
                     LOG.debug("Finished copying {} to {}:\n", instanceLocations, storage.getStorageDescriptor());
