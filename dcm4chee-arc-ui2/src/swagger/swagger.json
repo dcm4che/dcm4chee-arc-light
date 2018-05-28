@@ -1742,7 +1742,6 @@
             "name": "dicomDeviceName",
             "in": "query",
             "description": "Archive Device Name",
-            "required": true,
             "type": "string"
           },
           {
@@ -2426,7 +2425,6 @@
             "name": "dicomDeviceName",
             "in": "query",
             "description": "Archive Device Name",
-            "required": true,
             "type": "string"
           },
           {
@@ -2515,7 +2513,6 @@
             "name": "dicomDeviceName",
             "in": "query",
             "description": "Archive Device Name",
-            "required": true,
             "type": "string"
           },
           {
@@ -3187,7 +3184,6 @@
             "name": "dicomDeviceName",
             "in": "query",
             "description": "Archive Device Name",
-            "required": true,
             "type": "string"
           },
           {
@@ -3724,7 +3720,6 @@
             "name": "dicomDeviceName",
             "in": "query",
             "description": "Archive Device Name",
-            "required": true,
             "type": "string"
           },
           {

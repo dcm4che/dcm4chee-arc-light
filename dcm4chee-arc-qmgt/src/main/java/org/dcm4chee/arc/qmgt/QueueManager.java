@@ -80,13 +80,13 @@ public interface QueueManager {
     long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prevStatus)
             throws IllegalTaskStateException;
 
-    boolean rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException;
+    String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException;
 
     boolean deleteTask(String msgId, QueueMessageEvent queueEvent);
 
-    boolean rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException;
+    String rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException;
 
     int deleteTasks(String queueName, Predicate matchQueueMessage);
 
@@ -95,4 +95,6 @@ public interface QueueManager {
     long countTasks(Predicate matchQueueMessage);
 
     List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit);
+
+    List<String> listDistinctDeviceNames(Predicate matchQueueMessage);
 }

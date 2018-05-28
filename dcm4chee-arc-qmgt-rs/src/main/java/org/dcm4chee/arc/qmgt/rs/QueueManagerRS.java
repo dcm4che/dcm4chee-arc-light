@@ -41,17 +41,22 @@
 package org.dcm4chee.arc.qmgt.rs;
 
 import com.querydsl.core.types.Predicate;
+import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.IDeviceCache;
+import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.jboss.resteasy.annotations.cache.NoCache;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +66,9 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -84,6 +92,9 @@ public class QueueManagerRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private IDeviceCache iDeviceCache;
 
     @Inject
     private Event<QueueMessageEvent> queueMsgEvent;
@@ -193,12 +204,17 @@ public class QueueManagerRS {
 
     @POST
     @Path("{msgId}/reschedule")
-    public Response rescheduleMessage(@PathParam("msgId") String msgId) {
+    public Response rescheduleMessage(@PathParam("msgId") String msgId) throws ConfigurationException {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            return rsp(mgr.rescheduleTask(msgId, null, queueEvent));
-        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            String devName = mgr.rescheduleTask(msgId, null, queueEvent);
+            return devName == null
+                    ? Response.status(Response.Status.NOT_FOUND).build()
+                    : devName.equals(device.getDeviceName())
+                        ? Response.status(Response.Status.NO_CONTENT).build()
+                        : forwardTask(devName);
+        } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
         } finally {
@@ -208,24 +224,35 @@ public class QueueManagerRS {
 
     @POST
     @Path("/reschedule")
-    public Response rescheduleMessages() {
+    public Response rescheduleMessages() throws ConfigurationException {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
         if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
             return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
-        if (deviceName == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: dicomDeviceName");
-        if (!deviceName.equals(device.getDeviceName()))
-            return rsp(Response.Status.CONFLICT,
-                    "Cannot reschedule Tasks originally scheduled on Device " + deviceName
-                    + " on Device " + device.getDeviceName());
 
+        Predicate matchQueueMessage = MatchTask.matchQueueMessage(
+                queueName, deviceName, status, batchID, jmsMessageID, createdTime, updatedTime, new Date());
+
+        if (deviceName == null) {
+            List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(matchQueueMessage);
+            for (String devName : distinctDeviceNames) {
+                if (devName.equals(device.getDeviceName()))
+                    rescheduleMessages(matchQueueMessage);
+                else
+                    forwardTasks(devName);
+            }
+            return Response.ok().build();
+        }
+        return !deviceName.equals(device.getDeviceName())
+                ? forwardTasks(null)
+                : rescheduleMessages(matchQueueMessage);
+    }
+
+    private Response rescheduleMessages(Predicate matchQueueMessage) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            Predicate matchQueueMessage = MatchTask.matchQueueMessage(
-                    queueName, deviceName, status, batchID, jmsMessageID, createdTime, updatedTime, new Date());
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
@@ -238,7 +265,7 @@ public class QueueManagerRS {
             } while (queueMsgIDs.size() >= fetchSize);
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+        } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
         } finally {
@@ -277,6 +304,87 @@ public class QueueManagerRS {
                 ? Response.Status.NO_CONTENT
                 : Response.Status.NOT_FOUND)
                 .build();
+    }
+
+    private Response forwardTask(String devName) throws ConfigurationException {
+        Device device = iDeviceCache.get(devName);
+        WebApplicationInfo webApplicationInfo = new WebApplicationInfo(device);
+
+        return webApplicationInfo.baseURI == null
+                ? webApplicationInfo.errRsp()
+                : webApplicationInfo.forwardTask();
+    }
+
+    private Response forwardTasks(String devName) throws ConfigurationException {
+        Device device = iDeviceCache.get(devName != null ? devName : deviceName);
+        WebApplicationInfo webApplicationInfo = new WebApplicationInfo(device);
+
+        return webApplicationInfo.baseURI == null
+                ? webApplicationInfo.errRsp()
+                : webApplicationInfo.forwardTasks(devName != null ? "&dicomDeviceName=" : null);
+    }
+
+    class WebApplicationInfo {
+        private String webAppName;
+        private String baseURI;
+        private String devName;
+
+        WebApplicationInfo(Device dev) {
+            devName = dev.getDeviceName();
+            for (WebApplication webApplication : dev.getWebApplications()) {
+                for (WebApplication.ServiceClass serviceClass : webApplication.getServiceClasses()) {
+                    if (serviceClass == WebApplication.ServiceClass.DCM4CHEE_ARC) {
+                        webAppName = webApplication.getApplicationName();
+                        baseURI = toBaseURI(webApplication);
+                    }
+                }
+            }
+        }
+
+        private String toBaseURI(WebApplication webApplication) {
+            for (Connection connection : webApplication.getConnections())
+                if (connection.getProtocol() == Connection.Protocol.HTTP) {
+                    return "http://"
+                            + connection.getHostname()
+                            + ":"
+                            + connection.getPort()
+                            + webApplication.getServicePath();
+                }
+            return null;
+        }
+
+        Response forwardTask() {
+            String requestURI = request.getRequestURI();
+            return forward( baseURI + requestURI.substring(requestURI.indexOf("/monitor")));
+        }
+
+        Response forwardTasks(String devNameFilter) {
+            String requestURI = request.getRequestURI();
+            String targetURI = baseURI
+                    + requestURI.substring(requestURI.indexOf("/monitor"))
+                    + "?"
+                    + request.getQueryString();
+            if (devNameFilter != null)
+                targetURI = targetURI.concat(devNameFilter + devName);
+            return forward(targetURI);
+        }
+
+        private Response forward(String targetURI) {
+            ResteasyClient client = new ResteasyClientBuilder().build();
+            WebTarget target = client.target(targetURI);
+            Invocation.Builder req = target.request();
+            String authorization = request.getHeader("Authorization");
+            if (authorization != null)
+                req.header("Authorization", authorization);
+            return req.post(Entity.json(""));
+        }
+
+        Response errRsp() {
+            String entity = webAppName == null
+                    ? "No Web Application with Service Class 'DCM4CHEE_ARC' configured for device " + devName
+                    : "HTTP connection not configured for WebApplication " + webAppName;
+            return rsp(Response.Status.INTERNAL_SERVER_ERROR, entity);
+        }
     }
 
     private static Response count(long count) {

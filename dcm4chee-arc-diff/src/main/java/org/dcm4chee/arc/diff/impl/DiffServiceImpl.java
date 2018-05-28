@@ -161,8 +161,8 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public boolean rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException {
+    public String rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException {
         return ejb.rescheduleDiffTask(pk, queueEvent);
     }
 

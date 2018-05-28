@@ -172,14 +172,14 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public boolean rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException {
+    public String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException {
         return ejb.rescheduleTask(msgId, queueName, queueEvent);
     }
 
     @Override
-    public boolean rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException {
+    public String rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException {
         return ejb.rescheduleTask(task, queueName, queueEvent);
     }
 
@@ -206,5 +206,10 @@ public class QueueManagerImpl implements QueueManager {
     @Override
     public List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit) {
         return ejb.getQueueMsgIDs(matchQueueMessage, limit);
+    }
+
+    @Override
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage) {
+        return ejb.listDistinctDeviceNames(matchQueueMessage);
     }
 }

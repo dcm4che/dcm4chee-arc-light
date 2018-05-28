@@ -53,7 +53,6 @@ import org.dcm4chee.arc.entity.QRetrieveTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -214,18 +213,14 @@ public class RetrieveManagerEJB {
         return queueManager.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask, prev);
     }
 
-    public boolean rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException {
+    public String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
-            return false;
-
-        QueueMessage queueMessage = task.getQueueMessage();
-        if (queueMessage != null)
-            queueManager.rescheduleTask(queueMessage, RetrieveManager.QUEUE_NAME, queueEvent);
+            return null;
 
         LOG.info("Reschedule {}", task);
-        return true;
+        return queueManager.rescheduleTask(task.getQueueMessage(), RetrieveManager.QUEUE_NAME, queueEvent);
     }
 
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {

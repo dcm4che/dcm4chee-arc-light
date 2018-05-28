@@ -52,7 +52,6 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -243,18 +242,14 @@ public class DiffServiceEJB {
         return queueManager.cancelDiffTasks(matchQueueMessage, matchDiffTask, prev);
     }
 
-    public boolean rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException {
+    public String rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent)
+            throws IllegalTaskStateException {
         DiffTask task = em.find(DiffTask.class, pk);
         if (task == null)
-            return false;
-
-        QueueMessage queueMessage = task.getQueueMessage();
-        if (queueMessage != null)
-            queueManager.rescheduleTask(queueMessage, DiffService.QUEUE_NAME, queueEvent);
+            return null;
 
         LOG.info("Reschedule {}", task);
-        return true;
+        return queueManager.rescheduleTask(task.getQueueMessage(), DiffService.QUEUE_NAME, queueEvent);
     }
 
     public List<Long> getDiffTaskPks(Predicate matchQueueMessage, Predicate matchDiffTask, int limit) {
