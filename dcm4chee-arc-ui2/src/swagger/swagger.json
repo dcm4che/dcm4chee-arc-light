@@ -11,8 +11,8 @@
   ],
   "tags": [
     {
-      "name": "REALM-RS",
-      "description": "Access realm"
+      "name": "AUTH-RS",
+      "description": "Authentication/Authorization services"
     },
     {
       "name": "CTRL-RS",
@@ -75,10 +75,10 @@
     "/ui2/rs/realm": {
       "get": {
         "tags": [
-          "REALM-RS"
+          "AUTH-RS"
         ],
-        "summary": "Show Realm of Logged-in User",
-        "operationId": "realm",
+        "summary": "Get information about logged-in user",
+        "operationId": "get",
         "produces": [
           "application/json"
         ],

@@ -282,6 +282,16 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
+    public void addStorageID(String studyIUID, String storageID) {
+        ejb.addStorageID(studyIUID, storageID);
+    }
+
+    @Override
+    public void scheduleMetadataUpdate(String seriesIUID) {
+        ejb.scheduleMetadataUpdate(seriesIUID);
+    }
+
+    @Override
     public void store(StoreContext ctx, Attributes attrs) throws IOException {
         ctx.setAttributes(attrs);
         List<Location> locations = ctx.getLocations();
