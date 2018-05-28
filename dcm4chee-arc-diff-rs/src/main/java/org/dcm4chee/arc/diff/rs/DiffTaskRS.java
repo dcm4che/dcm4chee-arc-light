@@ -267,7 +267,7 @@ public class DiffTaskRS {
 
     @POST
     @Path("{taskPK}/reschedule")
-    public Response rescheduleTask(@PathParam("taskPK") long pk) throws ConfigurationException {
+    public Response rescheduleTask(@PathParam("taskPK") long pk) throws Exception {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
@@ -287,7 +287,7 @@ public class DiffTaskRS {
 
     @POST
     @Path("/reschedule")
-    public Response rescheduleDiffTasks() throws ConfigurationException {
+    public Response rescheduleDiffTasks() throws Exception {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
@@ -468,7 +468,7 @@ public class DiffTaskRS {
                 .build();
     }
 
-    private Response forwardTask(String devName) throws ConfigurationException {
+    private Response forwardTask(String devName) throws Exception {
         Device device = iDeviceCache.get(devName);
         WebApplicationInfo webApplicationInfo = new WebApplicationInfo(device);
 
@@ -477,7 +477,7 @@ public class DiffTaskRS {
                 : webApplicationInfo.forwardTask();
     }
 
-    private Response forwardTasks(String devName) throws ConfigurationException {
+    private Response forwardTasks(String devName) throws Exception {
         Device device = iDeviceCache.get(devName != null ? devName : deviceName);
         WebApplicationInfo webApplicationInfo = new WebApplicationInfo(device);
 
@@ -515,12 +515,12 @@ public class DiffTaskRS {
             return null;
         }
 
-        Response forwardTask() {
+        Response forwardTask() throws Exception {
             String requestURI = request.getRequestURI();
             return forward( baseURI + requestURI.substring(requestURI.indexOf("/monitor")));
         }
 
-        Response forwardTasks(String devNameFilter) {
+        Response forwardTasks(String devNameFilter) throws Exception {
             String requestURI = request.getRequestURI();
             String targetURI = baseURI
                     + requestURI.substring(requestURI.indexOf("/monitor"))
@@ -531,8 +531,12 @@ public class DiffTaskRS {
             return forward(targetURI);
         }
 
-        private Response forward(String targetURI) {
-            ResteasyClient client = new ResteasyClientBuilder().build();
+        private Response forward(String targetURI) throws Exception {
+            ResteasyClientBuilder builder = new ResteasyClientBuilder();
+            if (targetURI.startsWith("https"))
+                builder.sslContext(device.sslContext());
+
+            ResteasyClient client = builder.build();
             WebTarget target = client.target(targetURI);
             Invocation.Builder req = target.request();
             String authorization = request.getHeader("Authorization");

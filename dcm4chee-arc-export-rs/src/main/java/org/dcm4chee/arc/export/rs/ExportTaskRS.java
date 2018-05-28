@@ -77,6 +77,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
 import java.io.*;
+import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -232,7 +233,7 @@ public class ExportTaskRS {
     @POST
     @Path("{taskPK}/reschedule/{ExporterID}")
     public Response rescheduleTask(@PathParam("taskPK") long pk, @PathParam("ExporterID") String exporterID)
-            throws ConfigurationException {
+            throws Exception {
         logRequest();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
@@ -257,17 +258,17 @@ public class ExportTaskRS {
 
     @POST
     @Path("/reschedule")
-    public Response rescheduleExportTasks() throws ConfigurationException {
+    public Response rescheduleExportTasks() throws Exception {
         return rescheduleTasks(null);
     }
 
     @POST
     @Path("/reschedule/{ExporterID}")
-    public Response rescheduleExportTasks(@PathParam("ExporterID") String newExporterID) throws ConfigurationException {
+    public Response rescheduleExportTasks(@PathParam("ExporterID") String newExporterID) throws Exception {
         return rescheduleTasks(newExporterID);
     }
 
-    private Response rescheduleTasks(String newExporterID) throws ConfigurationException {
+    private Response rescheduleTasks(String newExporterID) throws Exception {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
@@ -362,7 +363,7 @@ public class ExportTaskRS {
                 .build();
     }
 
-    private Response forwardTask(String devName) throws ConfigurationException {
+    private Response forwardTask(String devName) throws Exception {
         Device device = iDeviceCache.get(devName);
         WebApplicationInfo webApplicationInfo = new WebApplicationInfo(device);
         
@@ -371,7 +372,7 @@ public class ExportTaskRS {
                 : webApplicationInfo.forwardTask();
     }
 
-    private Response forwardTasks(String devName) throws ConfigurationException {
+    private Response forwardTasks(String devName) throws Exception {
         Device device = iDeviceCache.get(devName != null ? devName : deviceName);
         WebApplicationInfo webApplicationInfo = new WebApplicationInfo(device);
 
@@ -400,7 +401,7 @@ public class ExportTaskRS {
         private String toBaseURI(WebApplication webApplication) {
             for (Connection connection : webApplication.getConnections())
                 if (connection.getProtocol() == Connection.Protocol.HTTP) {
-                    return "http://"
+                    return connection.isTls() ? "https://" : "http://"
                             + connection.getHostname()
                             + ":"
                             + connection.getPort()
@@ -409,12 +410,12 @@ public class ExportTaskRS {
             return null;
         }
 
-        Response forwardTask() {
+        Response forwardTask() throws Exception {
             String requestURI = request.getRequestURI();
             return forward( baseURI + requestURI.substring(requestURI.indexOf("/monitor")));
         }
 
-        Response forwardTasks(String devNameFilter) {
+        Response forwardTasks(String devNameFilter) throws Exception {
             String requestURI = request.getRequestURI();
             String targetURI = baseURI
                     + requestURI.substring(requestURI.indexOf("/monitor"))
@@ -425,8 +426,12 @@ public class ExportTaskRS {
             return forward(targetURI);
         }
 
-        private Response forward(String targetURI) {
-            ResteasyClient client = new ResteasyClientBuilder().build();
+        private Response forward(String targetURI) throws Exception {
+            ResteasyClientBuilder builder = new ResteasyClientBuilder();
+            if (targetURI.startsWith("https"))
+                builder.sslContext(device.sslContext());
+
+            ResteasyClient client = builder.build();
             WebTarget target = client.target(targetURI);
             Invocation.Builder req = target.request();
             String authorization = request.getHeader("Authorization");
