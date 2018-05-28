@@ -458,7 +458,7 @@
         }
       }
     },
-    "/devices/{deviceName}/token/{keycloakID}": {
+    "/token/{keycloakID}": {
       "get": {
         "tags": [
           "AUTH-RS"
@@ -469,13 +469,6 @@
           "application/json"
         ],
         "parameters": [
-          {
-            "name": "deviceName",
-            "in": "path",
-            "description": "Name of the Archive Device secured by Keycloak",
-            "required": true,
-            "type": "string"
-          },
           {
             "name": "keycloakID",
             "in": "path",
@@ -499,7 +492,7 @@
             }
           },
           "404": {
-            "description": "No such Archive Device or no such Keycloak identifier in the Archive Device configuration"
+            "description": "No such Keycloak identifier in Archive Device configuration"
           },
           "default": {
             "description": "unexpected error"
