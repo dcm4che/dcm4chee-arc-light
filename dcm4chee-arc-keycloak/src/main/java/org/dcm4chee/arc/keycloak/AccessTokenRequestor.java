@@ -72,6 +72,21 @@ public class AccessTokenRequestor {
     }
 
     public String getAccessTokenString(String keycloakServerID) throws Exception {
+        return getAccessTokenString(toCachedKeycloak(keycloakServerID));
+    }
+
+    private String getAccessTokenString(CachedKeycloak tmp) {
+        return tmp.keycloak.tokenManager().getAccessTokenString();
+    }
+    
+    public AccessToken getAccessToken(String keycloakServerID) throws Exception {
+        CachedKeycloak tmp = toCachedKeycloak(keycloakServerID);
+        return new AccessToken(
+                getAccessTokenString(tmp), 
+                tmp.keycloak.tokenManager().getAccessToken().getExpiresIn());
+    }
+
+    private CachedKeycloak toCachedKeycloak(String keycloakServerID) throws Exception {
         CachedKeycloak tmp = cachedKeycloak;
         if (tmp == null || !tmp.keycloakServerID.equals(keycloakServerID)) {
             KeycloakServer server = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
@@ -91,7 +106,7 @@ public class AccessTokenRequestor {
                             .build())
                     .build());
         }
-        return tmp.keycloak.tokenManager().getAccessTokenString();
+        return tmp;
     }
 
     public ResteasyClientBuilder resteasyClientBuilder(
@@ -115,6 +130,24 @@ public class AccessTokenRequestor {
         CachedKeycloak(String keycloakServerID, Keycloak keycloak) {
             this.keycloakServerID = keycloakServerID;
             this.keycloak = keycloak;
+        }
+    }
+    
+    public static class AccessToken {
+        final String token;
+        final long expiration;
+        
+        AccessToken(String tokenStr, long expiresIn) {
+            token = tokenStr;
+            expiration = expiresIn;
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+        public long getExpiration() {
+            return expiration;
         }
     }
 }

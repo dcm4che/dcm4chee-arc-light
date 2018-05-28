@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.keycloak.rs;
 
+import org.dcm4che3.conf.json.JsonWriter;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -47,11 +48,15 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.StreamingOutput;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -75,9 +80,19 @@ public class KeycloakRS {
 
     @GET
     @NoCache
-    public String getAccessToken() throws Exception {
+    @Produces("application/json")
+    public StreamingOutput getAccessToken() throws Exception {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        return "{\"token\":\"" + accessTokenRequestor.getAccessTokenString(keycloakID) + "\"}";
+        AccessTokenRequestor.AccessToken accessToken = accessTokenRequestor.getAccessToken(keycloakID);
+        return out -> {
+            JsonGenerator gen = Json.createGenerator(out);
+            JsonWriter writer = new JsonWriter(gen);
+            gen.writeStartObject();
+            writer.writeNotNullOrDef("token", accessToken.getToken(), null);
+            writer.write("expiration", (int) accessToken.getExpiration());
+            gen.writeEnd();
+            gen.flush();
+        };
     }
 
 }

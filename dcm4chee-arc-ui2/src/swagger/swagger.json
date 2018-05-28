@@ -487,6 +487,11 @@
                   "title": "token",
                   "description": "OAuth Bearer Token",
                   "type": "string"
+                },
+                "expiration": {
+                  "title": "expiration",
+                  "description": "Access token lifetime in seconds",
+                  "type": "string"
                 }
               }
             }
