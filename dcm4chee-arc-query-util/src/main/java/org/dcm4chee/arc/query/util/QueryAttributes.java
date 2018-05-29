@@ -43,6 +43,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.ElementDictionary;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 
@@ -92,13 +93,16 @@ public class QueryAttributes {
                 case "retrievefailed":
                 case "incomplete":
                 case "SendingApplicationEntityTitleOfSeries":
-                case "StudyReceiveDateTime":
                 case "ExternalRetrieveAET":
                 case "ExternalRetrieveAET!":
                 case "only-stgcmt":
                 case "only-ian":
                 case "batchID":
                 case "queue":
+                    break;
+                case "StudyReceiveDateTime":
+                    keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT,
+                            entry.getValue().toArray(StringUtils.EMPTY_STRING));
                     break;
                 default:
                     addQueryKey(key, entry.getValue());

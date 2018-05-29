@@ -64,7 +64,6 @@ public class QueryParam {
     private boolean incomplete;
     private boolean retrieveFailed;
     private String sendingApplicationEntityTitleOfSeries;
-    private String studyReceiveDateTime;
     private String externalRetrieveAET;
     private String externalRetrieveAETNot;
 
@@ -176,14 +175,6 @@ public class QueryParam {
 
     public void setSendingApplicationEntityTitleOfSeries(String sendingApplicationEntityTitleOfSeries) {
         this.sendingApplicationEntityTitleOfSeries = sendingApplicationEntityTitleOfSeries;
-    }
-
-    public String getStudyReceiveDateTime() {
-        return studyReceiveDateTime;
-    }
-
-    public void setStudyReceiveDateTime(String studyReceiveDateTime) {
-        this.studyReceiveDateTime = studyReceiveDateTime;
     }
 
     public String getExternalRetrieveAET() {

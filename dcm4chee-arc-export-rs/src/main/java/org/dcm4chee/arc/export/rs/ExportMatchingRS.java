@@ -139,9 +139,6 @@ public class ExportMatchingRS {
     @QueryParam("SendingApplicationEntityTitleOfSeries")
     private String sendingApplicationEntityTitleOfSeries;
 
-    @QueryParam("StudyReceiveDateTime")
-    private String studyReceiveDateTime;
-
     @QueryParam("ExternalRetrieveAET")
     private String externalRetrieveAET;
 
@@ -333,7 +330,6 @@ public class ExportMatchingRS {
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
         queryParam.setSendingApplicationEntityTitleOfSeries(sendingApplicationEntityTitleOfSeries);
-        queryParam.setStudyReceiveDateTime(studyReceiveDateTime);
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         return queryParam;

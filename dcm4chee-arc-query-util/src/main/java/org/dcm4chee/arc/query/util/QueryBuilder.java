@@ -47,6 +47,7 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.hibernate.HibernateQuery;
 import org.dcm4che3.data.*;
+import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.AttributeFilter;
@@ -336,10 +337,11 @@ public class QueryBuilder {
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute2(), "*"), true));
         builder.and(wildCard(QStudy.study.studyCustomAttribute3,
                 AttributeFilter.selectStringValue(keys, attrFilter.getCustomAttribute3(), "*"), true));
-        if (queryParam.getStudyReceiveDateTime() != null)
-            builder.and(ExpressionUtils.and(MatchDateTimeRange.range(
-                    QStudy.study.createdTime, getDateRange(queryParam.getStudyReceiveDateTime()), MatchDateTimeRange.FormatDate.DT),
-                    QStudy.study.createdTime.isNotNull()));
+        DateRange studyReceiveDateTime =
+                keys.getDateRange(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT);
+        if (studyReceiveDateTime != null)
+            builder.and(MatchDateTimeRange.range(
+                    QStudy.study.createdTime, studyReceiveDateTime, MatchDateTimeRange.FormatDate.DT));
         if (queryParam.getExternalRetrieveAET() != null)
             builder.and(QStudy.study.externalRetrieveAET.eq(queryParam.getExternalRetrieveAET()));
         if (queryParam.getExternalRetrieveAETNot() != null)
@@ -824,27 +826,4 @@ public class QueryBuilder {
                         predicate).exists();
     }
 
-    private static DateRange getDateRange(String s) {
-        String[] range = splitRange(s);
-        DatePrecision precision = new DatePrecision();
-        Date start = range[0] == null ? null
-                : VR.DT.toDate(range[0], null, 0, false, null, precision);
-        Date end = range[1] == null ? null
-                : VR.DT.toDate(range[1], null, 0, true, null, precision);
-        return new DateRange(start, end);
-    }
-
-    private static String[] splitRange(String s) {
-        String[] range = new String[2];
-        int delim = s.indexOf('-');
-        if (delim == -1)
-            range[0] = range[1] = s;
-        else {
-            if (delim > 0)
-                range[0] =  s.substring(0, delim);
-            if (delim < s.length() - 1)
-                range[1] =  s.substring(delim+1);
-        }
-        return range;
-    }
 }
