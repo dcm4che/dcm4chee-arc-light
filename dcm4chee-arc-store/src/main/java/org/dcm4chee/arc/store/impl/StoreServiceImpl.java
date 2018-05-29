@@ -221,7 +221,9 @@ class StoreServiceImpl implements StoreService {
         for (;;) {
             try {
                 UpdateDBResult result = new UpdateDBResult();
+                long start = System.currentTimeMillis();
                 ejb.updateDB(ctx, result);
+                LOG.info("{}: Updated DB in {} ms", session, System.currentTimeMillis() - start);
                 return result;
             } catch (EJBException e) {
                 if (retries-- > 0) {
