@@ -130,6 +130,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiDeviceClusterName", uiDeviceCluster.getClusterName(), null);
             writer.writeNotNullOrDef("dcmuiDeviceClusterDescription", uiDeviceCluster.getDescription(), null);
             writer.writeNotNullOrDef("dcmuiDeviceClusterLoadBalancer", uiDeviceCluster.getLoadBalancer(), null);
+            writer.writeNotNullOrDef("dcmuiDeviceClusterKeycloakServer", uiDeviceCluster.getKeycloakServer(), null);
             writer.writeNotEmpty("dcmuiDeviceClusterDevices", uiDeviceCluster.getDevices());
             writer.writeNotDef("dcmuiDeviceClusterInstalled", uiDeviceCluster.isInstalled(), true);
             writer.writeEnd();
@@ -358,6 +359,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmuiDeviceClusterLoadBalancer":
                         uiDeviceCluster.setLoadBalancer(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceClusterKeycloakServer":
+                        uiDeviceCluster.setKeycloakServer(reader.stringValue());
                         break;
                     case "dcmuiDeviceClusterInstalled":
                         uiDeviceCluster.setInstalled(reader.booleanValue());

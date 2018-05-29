@@ -146,7 +146,8 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         attrs.put(new BasicAttribute("objectclass", "dcmuiDeviceClusterObject"));
         attrs.put(new BasicAttribute("dcmuiDeviceClusterName", uiDeviceCluster.getClusterName()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDeviceClusterDescription", uiDeviceCluster.getDescription(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDeviceClusterLoadBalancer", uiDeviceCluster.getDescription(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDeviceClusterLoadBalancer", uiDeviceCluster.getLoadBalancer(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiDeviceClusterKeycloakServer", uiDeviceCluster.getKeycloakServer(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiDeviceClusterDevices", uiDeviceCluster.getDevices());
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiDeviceClusterInstalled",uiDeviceCluster.isInstalled(),true);
         return attrs;
@@ -354,6 +355,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 UIDeviceCluster uiDeviceCluster = new UIDeviceCluster((String) attrs.get("dcmuiDeviceClusterName").get());
                 uiDeviceCluster.setDescription(LdapUtils.stringValue(attrs.get("dcmuiDeviceClusterDescription"), null));
                 uiDeviceCluster.setLoadBalancer(LdapUtils.stringValue(attrs.get("dcmuiDeviceClusterLoadBalancer"), null));
+                uiDeviceCluster.setKeycloakServer(LdapUtils.stringValue(attrs.get("dcmuiDeviceClusterKeycloakServer"), null));
                 uiDeviceCluster.setDevices(LdapUtils.stringArray(attrs.get("dcmuiDeviceClusterDevices")));
                 uiDeviceCluster.setInstalled(LdapUtils.booleanValue(attrs.get("dcmuiDeviceClusterInstalled"),true));
                 uiConfig.addDeviceCluster(uiDeviceCluster);
@@ -641,6 +643,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDeviceClusterLoadBalancer",
                 prev.getLoadBalancer(),
                 uiDeviceCluster.getLoadBalancer(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiDeviceClusterKeycloakServer",
+                prev.getKeycloakServer(),
+                uiDeviceCluster.getKeycloakServer(), null);
         LdapUtils.storeDiff(ldapObj,mods,"dcmuiDeviceClusterInstalled",prev.isInstalled(),uiDeviceCluster.isInstalled(),true);
         return mods;
     }

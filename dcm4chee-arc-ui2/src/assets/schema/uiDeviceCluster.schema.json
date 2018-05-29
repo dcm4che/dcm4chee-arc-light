@@ -24,6 +24,12 @@
       "type": "string",
       "format": "dcmuiDeviceURLObject"
     },
+    "dcmuiDeviceClusterKeycloakServer": {
+      "title": "Keycloak Server",
+      "description": "If this cluster doesn't use the same Keycloak select the configured Keycloak",
+      "type":  "string",
+      "format": "dcmKeycloakServer"
+    },
     "dcmuiDeviceClusterDevices": {
       "title": "Device",
       "description": "Add the name of the configured devices",

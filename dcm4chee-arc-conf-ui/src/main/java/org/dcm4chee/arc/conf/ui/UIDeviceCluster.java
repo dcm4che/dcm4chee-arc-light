@@ -9,6 +9,7 @@ public class UIDeviceCluster {
     private String clusterName;
     private String description;
     private String loadBalancer;
+    private String keycloakServer;
     private String[] devices = {};
     private boolean installed = true;
 
@@ -38,6 +39,14 @@ public class UIDeviceCluster {
 
     public void setLoadBalancer(String loadBalancer) {
         this.loadBalancer = loadBalancer;
+    }
+
+    public String getKeycloakServer() {
+        return keycloakServer;
+    }
+
+    public void setKeycloakServer(String keycloakServer) {
+        this.keycloakServer = keycloakServer;
     }
 
     public void setDescription(String description) {
