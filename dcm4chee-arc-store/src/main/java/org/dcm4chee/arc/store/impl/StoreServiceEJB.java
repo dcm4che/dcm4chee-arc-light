@@ -280,6 +280,17 @@ public class StoreServiceEJB {
     private Instance restoreInstance(StoreSession session, Series series, Attributes attrs) {
         Instance inst = createInstance(session, series, findOrCreateCode(attrs, Tag.ConceptNameCodeSequence), attrs,
                 attrs.getStrings(Tag.RetrieveAETitle), Availability.valueOf(attrs.getString(Tag.InstanceAvailability)));
+        restoreLocation(session, inst, attrs);
+        Sequence otherStorageSeq = attrs.getSequence(ArchiveTag.PrivateCreator, ArchiveTag.OtherStorageSequence);
+        if (otherStorageSeq != null) {
+            for (Attributes otherStorageItem : otherStorageSeq) {
+                restoreLocation(session, inst, otherStorageItem);
+            }
+        }
+        return inst;
+    }
+
+    private void restoreLocation(StoreSession session, Instance inst, Attributes attrs) {
         Location location = new Location.Builder()
                 .storageID(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID))
                 .storagePath(StringUtils.concat(attrs.getStrings(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath), '/'))
@@ -289,7 +300,7 @@ public class StoreServiceEJB {
                 .build();
         location.setInstance(inst);
         em.persist(location);
-        return inst;
+        LOG.info("{}: Create {}", session, location);
     }
 
     private void rejectInstances(StoreContext ctx, RejectionNote rjNote, CodeEntity rejectionCode,
