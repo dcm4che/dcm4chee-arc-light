@@ -67,7 +67,7 @@
     <jboss-ejb3-ext-api.version>2.2.0.Final</jboss-ejb3-ext-api.version>
     <resteasy.version>3.5.0.Final</resteasy.version>
     <keycloak.version>3.4.3.Final</keycloak.version>
-    <jclouds.version>2.0.2</jclouds.version>
+    <jclouds.version>2.1.0</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
     <querydsl.version>4.2.1</querydsl.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
