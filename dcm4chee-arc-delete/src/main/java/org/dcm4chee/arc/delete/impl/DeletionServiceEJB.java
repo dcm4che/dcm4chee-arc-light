@@ -69,7 +69,7 @@ import java.util.*;
 @Stateless
 public class DeletionServiceEJB {
 
-    public static final int MAX_LOCATIONS_PER_INSTANCE = 2;
+    public static final int MAX_LOCATIONS_PER_INSTANCE = 3;
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
