@@ -1018,16 +1018,18 @@ public class RetrieveServiceImpl implements RetrieveService {
         else if (locationsByAvailability.containsKey(Availability.NEARLINE))
             locations.addAll(locationsByAvailability.get(Availability.NEARLINE));
 
-        for (Location location : locations) {
-            try {
-                LOG.debug("Read {} from {}", inst, location);
-                return openLocationInputStream(getStorage(location.getStorageID(), ctx), location, studyInstanceUID);
-            } catch (IOException e) {
-                LOG.warn("Failed to read {} from {}", inst, location);
-                ex = e;
+        if (locations != null) {
+            for (Location location : locations) {
+                try {
+                    LOG.debug("Read {} from {}", inst, location);
+                    return openLocationInputStream(getStorage(location.getStorageID(), ctx), location, studyInstanceUID);
+                } catch (IOException e) {
+                    LOG.warn("Failed to read {} from {}", inst, location);
+                    ex = e;
+                }
             }
+            if (ex != null) throw ex;
         }
-        if (ex != null) throw ex;
         return null;
     }
 
