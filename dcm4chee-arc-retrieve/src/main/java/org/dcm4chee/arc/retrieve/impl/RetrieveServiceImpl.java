@@ -1004,7 +1004,6 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Override
     public LocationInputStream openLocationInputStream(RetrieveContext ctx, InstanceLocations inst)
             throws IOException {
-        IOException ex = null;
         String studyInstanceUID = inst.getAttributes().getString(Tag.StudyInstanceUID);
         ArchiveDeviceExtension arcdev = getArchiveDeviceExtension();
         Map<Availability, List<Location>> locationsByAvailability = inst.getLocations()
@@ -1018,19 +1017,20 @@ public class RetrieveServiceImpl implements RetrieveService {
         else if (locationsByAvailability.containsKey(Availability.NEARLINE))
             locations.addAll(locationsByAvailability.get(Availability.NEARLINE));
 
-        if (locations != null) {
-            for (Location location : locations) {
-                try {
-                    LOG.debug("Read {} from {}", inst, location);
-                    return openLocationInputStream(getStorage(location.getStorageID(), ctx), location, studyInstanceUID);
-                } catch (IOException e) {
-                    LOG.warn("Failed to read {} from {}", inst, location);
-                    ex = e;
-                }
-            }
-            if (ex != null) throw ex;
+        if (locations == null || locations.isEmpty()) {
+            throw new IOException("Failed to find location of " + inst);
         }
-        return null;
+        IOException ex = null;
+        for (Location location : locations) {
+            try {
+                LOG.debug("Read {} from {}", inst, location);
+                return openLocationInputStream(getStorage(location.getStorageID(), ctx), location, studyInstanceUID);
+            } catch (IOException e) {
+                LOG.warn("Failed to read {} from {}", inst, location);
+                ex = e;
+            }
+        }
+        throw ex;
     }
 
     private LocationInputStream openLocationInputStream(
