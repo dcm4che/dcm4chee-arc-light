@@ -460,6 +460,7 @@
     <module>dcm4chee-arc-iocm-rs</module>
     <module>dcm4chee-arc-issuer</module>
     <module>dcm4chee-arc-keycloak</module>
+    <module>dcm4chee-arc-keycloak-rs</module>
     <module>dcm4chee-arc-metadata</module>
     <module>dcm4chee-arc-mima</module>
     <module>dcm4chee-arc-monitor-rs</module>
@@ -509,7 +510,6 @@
     <module>dcm4chee-arc-assembly</module>
     <module>dcm4chee-arr-proxy</module>
     <module>dcm4chee-arr-query</module>
-      <module>dcm4chee-arc-keycloak-rs</module>
   </modules>
 
   <build>
