@@ -159,7 +159,6 @@ public class StoreServiceEJB {
                 }
                 throw new DicomServiceException(StoreService.DUPLICATE_REJECTION_NOTE,
                         MessageFormat.format(StoreService.DUPLICATE_REJECTION_NOTE_MSG, prevInstance.getSopInstanceUID()));
-
             }
             RejectionNote rjNote = getRejectionNote(arcDev, prevInstance.getRejectionNoteCode());
             if (rjNote != null) {
