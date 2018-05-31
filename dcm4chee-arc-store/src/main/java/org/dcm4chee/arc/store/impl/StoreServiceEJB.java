@@ -152,9 +152,15 @@ public class StoreServiceEJB {
                 return result;
             }
             if (prevInstance.getSopClassUID().equals(UID.KeyObjectSelectionDocumentStorage)
-                    && getRejectionNote(arcDev, prevInstance.getConceptNameCode()) != null)
+                    && getRejectionNote(arcDev, prevInstance.getConceptNameCode()) != null) {
+                if (containsWithEqualDigest(locations, ctx.getWriteContext(Location.ObjectType.DICOM_FILE).getDigest())) {
+                    logInfo(IGNORE_WITH_EQUAL_DIGEST, ctx);
+                    return result;
+                }
                 throw new DicomServiceException(StoreService.DUPLICATE_REJECTION_NOTE,
                         MessageFormat.format(StoreService.DUPLICATE_REJECTION_NOTE_MSG, prevInstance.getSopInstanceUID()));
+
+            }
             RejectionNote rjNote = getRejectionNote(arcDev, prevInstance.getRejectionNoteCode());
             if (rjNote != null) {
                 RejectionNote.AcceptPreviousRejectedInstance accept = rjNote.getAcceptPreviousRejectedInstance();
