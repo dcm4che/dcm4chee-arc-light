@@ -41,11 +41,9 @@
 
 package org.dcm4che.arc.export.storage;
 
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterProvider;
-import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.dcm4chee.arc.store.StoreService;
