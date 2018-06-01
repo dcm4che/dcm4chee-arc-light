@@ -66,18 +66,10 @@ dcmuiAction: tab-monitoring->control
 
 dn: dcmuiPermissionName=Action - Studies - Edit MWL,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmuiPermissionName: Action - Studies - Edit MWL
-dcmuiActionParam: upload
+dcmuiActionParam: edit
 objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
 dcmuiAction: action-studies-mwl
-
-dn: dcmuiPermissionName=Menu - Lifecycle Management,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmuiPermissionName: Menu - Lifecycle Management
-dcmuiActionParam: accessible
-dcmuiActionParam: visible
-objectClass: dcmuiPermission
-dcmAcceptedUserRole: admin
-dcmuiAction: menu-lifecycle_management
 
 dn: dcmuiPermissionName=Tab - Configuration Ae List,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmuiPermissionName: Tab - Configuration Ae List
@@ -152,14 +144,6 @@ objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
 dcmAcceptedUserRole: user
 dcmuiAction: action-studies-serie
-
-dn: dcmuiPermissionName=Menu - Audit Record Repository,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dcmuiPermissionName: Menu - Audit Record Repository
-dcmuiActionParam: accessible
-dcmuiActionParam: visible
-objectClass: dcmuiPermission
-dcmAcceptedUserRole: admin
-dcmuiAction: menu-audit_record_repository
 
 dn: dcmuiPermissionName=Action - Studies - Delete study,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmuiPermissionName: Action - Studies - Delete study
@@ -356,3 +340,9 @@ objectClass: dcmuiPermission
 dcmAcceptedUserRole: admin
 dcmuiAction: action-monitoring->external_retrieve-single_action
 
+dn: dcmuiPermissionName=Action - Studies - Upload MWL,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: action-studies-mwl
+dcmuiPermissionName: Action - Studies - Upload MWL
+dcmAcceptedUserRole: admin
+dcmuiActionParam: upload
