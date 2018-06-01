@@ -62,7 +62,6 @@ import java.net.URI;
 import java.time.LocalTime;
 import java.time.Period;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -670,13 +669,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         reader.next();
         reader.expect(JsonParser.Event.START_OBJECT);
         ArchiveDeviceExtension arcDev = new ArchiveDeviceExtension();
-        loadFrom(arcDev, reader, device.listConnections(), config);
+        loadFrom(arcDev, reader, config);
         device.addDeviceExtension(arcDev);
         reader.expect(JsonParser.Event.END_OBJECT);
         return true;
     }
 
-    private void loadFrom(ArchiveDeviceExtension arcDev, JsonReader reader, List<Connection> conns,
+    private void loadFrom(ArchiveDeviceExtension arcDev, JsonReader reader,
                           ConfigurationDelegate config) throws ConfigurationException {
         while (reader.next() == JsonParser.Event.KEY_NAME) {
             switch (reader.getString()) {
@@ -1489,7 +1488,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
     }
 
     private void loadArchiveAttributeCoercion(Collection<ArchiveAttributeCoercion> coercions, JsonReader reader,
-                                              ConfigurationDelegate config) throws ConfigurationException {
+                                              ConfigurationDelegate config) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
         while (reader.next() == JsonParser.Event.START_OBJECT) {
@@ -1568,7 +1567,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         return issuers;
     }
 
-    private Device loadSupplementFromDevice(ConfigurationDelegate config, String supplementDeviceRef) throws ConfigurationException {
+    private Device loadSupplementFromDevice(ConfigurationDelegate config, String supplementDeviceRef) {
         try {
             return supplementDeviceRef != null
                     ? config.findDevice(supplementDeviceRef)
@@ -1580,7 +1579,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         }
     }
 
-    private static Device loadScheduledStation(ConfigurationDelegate config, String scheduledStationDeviceRef) throws ConfigurationException {
+    private static Device loadScheduledStation(ConfigurationDelegate config, String scheduledStationDeviceRef) {
         try {
             return config.findDevice(scheduledStationDeviceRef);
         } catch (ConfigurationException e) {
