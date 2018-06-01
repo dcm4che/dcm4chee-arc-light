@@ -369,7 +369,7 @@ public class StowRS {
                     return stowRS.spoolBulkdata(in, mediaType, contentLocation);
 
                 JSONReader reader = new JSONReader(Json.createParser(new InputStreamReader(in, "UTF-8")));
-                stowRS.instances.add(reader.readDataset(null));
+                reader.readDatasets((fmi, dataset) -> stowRS.instances.add(dataset));
                 return true;
             }
         };
