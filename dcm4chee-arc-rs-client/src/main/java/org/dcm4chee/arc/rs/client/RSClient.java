@@ -43,6 +43,9 @@ package org.dcm4chee.arc.rs.client;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -67,4 +70,6 @@ public interface RSClient {
             boolean tlsAllowAnyHostname,
             boolean tlsDisableTrustManager,
             byte[] content) throws Exception;
+
+    Response forward(HttpServletRequest request, String deviceName) throws Exception;
 }

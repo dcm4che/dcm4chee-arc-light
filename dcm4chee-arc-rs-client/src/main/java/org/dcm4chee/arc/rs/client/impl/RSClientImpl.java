@@ -40,6 +40,10 @@
 
 package org.dcm4chee.arc.rs.client.impl;
 
+import org.dcm4che3.conf.api.IDeviceCache;
+import org.dcm4che3.net.Connection;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -47,6 +51,8 @@ import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -54,6 +60,7 @@ import javax.jms.JMSException;
 import javax.jms.JMSRuntimeException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.Response;
 
@@ -65,11 +72,16 @@ import javax.ws.rs.core.Response;
 @ApplicationScoped
 public class RSClientImpl implements RSClient {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RSClientImpl.class);
+
     @Inject
     private QueueManager queueManager;
 
     @Inject
     private AccessTokenRequestor accessTokenRequestor;
+
+    @Inject
+    private IDeviceCache iDeviceCache;
 
     @Override
     public void scheduleRequest(
@@ -91,29 +103,68 @@ public class RSClientImpl implements RSClient {
     @Override
     public Outcome request(String method, String uri, String keycloakServerID, boolean allowAnyHostname,
             boolean disableTrustManager, byte[] content) throws Exception {
+        Response response = toResponse(method, uri, keycloakServerID, allowAnyHostname, disableTrustManager, content, null);
+        Outcome outcome = buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
+        response.close();
+        return outcome;
+    }
+
+    private Response toResponse(String method, String uri, String keycloakServerID, boolean allowAnyHostname,
+                                boolean disableTrustManager, byte[] content, String authorization) throws Exception {
         ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(uri, allowAnyHostname, disableTrustManager)
                 .build();
         WebTarget target = client.target(uri);
-        Response response = null;
-        Outcome outcome;
         Invocation.Builder request = target.request();
-        if (keycloakServerID != null) {
-             request.header("Authorization", "Bearer " + accessTokenRequestor.getAccessTokenString(keycloakServerID));
+        if (authorization != null)
+            request.header("Authorization", authorization);
+        if (keycloakServerID != null)
+            request.header("Authorization", "Bearer " + accessTokenRequestor.getAccessTokenString(keycloakServerID));
+
+        return method.equals("POST")
+                ? content != null
+                    ? request.post(Entity.json(content))
+                    : request.post(Entity.json(""))
+                : method.equals("PUT")
+                    ? request.put(Entity.json(content))
+                    : request.delete();
+    }
+
+    @Override
+    public Response forward(HttpServletRequest request, String deviceName) throws Exception {
+        LOG.info("Forward {} {} from {}@{} to device {}", request.getMethod(), request.getRequestURI(),
+                request.getRemoteUser(), request.getRemoteHost(), deviceName);
+        String authorization = request.getHeader("Authorization");
+        String targetURI = null;
+        String requestURI = request.getRequestURI();
+        Device device = iDeviceCache.get(deviceName);
+        for (WebApplication webApplication : device.getWebApplications()) {
+            for (WebApplication.ServiceClass serviceClass : webApplication.getServiceClasses()) {
+                if (serviceClass == WebApplication.ServiceClass.DCM4CHEE_ARC) {
+                    for (Connection connection : webApplication.getConnections())
+                        if (connection.getProtocol() == Connection.Protocol.HTTP) {
+                            targetURI = connection.isTls() ? "https://" : "http://"
+                                    + connection.getHostname()
+                                    + ":"
+                                    + connection.getPort()
+                                    + webApplication.getServicePath()
+                                    + requestURI.substring(requestURI.indexOf("/", requestURI.indexOf("/") + 1));
+                            String queryString = request.getQueryString();
+                            if (queryString != null) {
+                                targetURI = targetURI + queryString;
+                                if (!queryString.contains("dicomDeviceName="))
+                                    targetURI = targetURI + "?dicomDeviceName=" + deviceName;
+                            }
+                        }
+                }
+            }
         }
-        switch (method) {
-            case "DELETE":
-                response = request.delete();
-                break;
-            case "POST":
-                response = request.post(Entity.json(content));
-                break;
-            case "PUT":
-                response = request.put(Entity.json(content));
-                break;
-        }
-        outcome = buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
-        response.close();
-        return outcome;
+        return targetURI == null
+                ? Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Either Web Application with Service Class 'DCM4CHEE_ARC' not configured for device: "
+                            + deviceName
+                            + " or HTTP connection not configured for WebApplication with Service Class 'DCM4CHEE_ARC' of this device.")
+                    .build()
+                : toResponse("POST", targetURI, null, true, false, null, authorization);
     }
 
     private Outcome buildOutcome(Response.Status status, Response.StatusType st) {

@@ -41,11 +41,7 @@
 package org.dcm4chee.arc.retrieve.rs;
 
 import com.querydsl.core.types.Predicate;
-import org.dcm4che3.conf.api.ConfigurationException;
-import org.dcm4che3.conf.api.IDeviceCache;
-import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
-import org.dcm4che3.net.WebApplication;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -58,9 +54,8 @@ import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
+import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
-import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,9 +67,6 @@ import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.util.Date;
@@ -103,7 +95,7 @@ public class RetrieveTaskRS {
     private Device device;
 
     @Inject
-    private IDeviceCache iDeviceCache;
+    private RSClient rsClient;
 
     @Inject
     private Event<QueueMessageEvent> queueMsgEvent;
@@ -245,7 +237,7 @@ public class RetrieveTaskRS {
                     ? Response.status(Response.Status.NOT_FOUND).build()
                     : devName.equals(device.getDeviceName())
                         ? Response.status(Response.Status.NO_CONTENT).build()
-                        : forwardTask(devName);
+                        : rsClient.forward(request, devName);
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
@@ -270,15 +262,16 @@ public class RetrieveTaskRS {
         if (deviceName == null) {
             List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
             for (String devName : distinctDeviceNames) {
-                if (devName.equals(device.getDeviceName()))
-                    rescheduleTasks(matchQueueMessage);
-                else
-                    forwardTasks(devName);
+                Response response = devName.equals(device.getDeviceName())
+                        ? rescheduleTasks(matchQueueMessage)
+                        : rsClient.forward(request, devName);
+                LOG.info("Tasks rescheduled on device: {}. Response received with status: {} and entity: {}",
+                        devName, response.getStatus(), response.getEntity().toString());
             }
             return Response.ok().build();
         }
         return !deviceName.equals(device.getDeviceName())
-                ? forwardTasks(null)
+                ? rsClient.forward(request, deviceName)
                 : rescheduleTasks(matchQueueMessage);
     }
 
@@ -340,91 +333,6 @@ public class RetrieveTaskRS {
                 ? Response.Status.NO_CONTENT
                 : Response.Status.NOT_FOUND)
                 .build();
-    }
-
-    private Response forwardTask(String devName) throws Exception {
-        Device device = iDeviceCache.get(devName);
-        WebApplicationInfo webApplicationInfo = new WebApplicationInfo(device);
-
-        return webApplicationInfo.baseURI == null
-                ? webApplicationInfo.errRsp()
-                : webApplicationInfo.forwardTask();
-    }
-
-    private Response forwardTasks(String devName) throws Exception {
-        Device device = iDeviceCache.get(devName != null ? devName : deviceName);
-        WebApplicationInfo webApplicationInfo = new WebApplicationInfo(device);
-
-        return webApplicationInfo.baseURI == null
-                ? webApplicationInfo.errRsp()
-                : webApplicationInfo.forwardTasks(devName != null ? "&dicomDeviceName=" : null);
-    }
-
-    class WebApplicationInfo {
-        private String webAppName;
-        private String baseURI;
-        private String devName;
-
-        WebApplicationInfo(Device dev) {
-            devName = dev.getDeviceName();
-            for (WebApplication webApplication : dev.getWebApplications()) {
-                for (WebApplication.ServiceClass serviceClass : webApplication.getServiceClasses()) {
-                    if (serviceClass == WebApplication.ServiceClass.DCM4CHEE_ARC) {
-                        webAppName = webApplication.getApplicationName();
-                        baseURI = toBaseURI(webApplication);
-                    }
-                }
-            }
-        }
-
-        private String toBaseURI(WebApplication webApplication) {
-            for (Connection connection : webApplication.getConnections())
-                if (connection.getProtocol() == Connection.Protocol.HTTP) {
-                    return connection.isTls() ? "https://" : "http://"
-                            + connection.getHostname()
-                            + ":"
-                            + connection.getPort()
-                            + webApplication.getServicePath();
-                }
-            return null;
-        }
-
-        Response forwardTask() throws Exception {
-            String requestURI = request.getRequestURI();
-            return forward( baseURI + requestURI.substring(requestURI.indexOf("/monitor")));
-        }
-
-        Response forwardTasks(String devNameFilter) throws Exception {
-            String requestURI = request.getRequestURI();
-            String targetURI = baseURI
-                    + requestURI.substring(requestURI.indexOf("/monitor"))
-                    + "?"
-                    + request.getQueryString();
-            if (devNameFilter != null)
-                targetURI = targetURI.concat(devNameFilter + devName);
-            return forward(targetURI);
-        }
-
-        private Response forward(String targetURI) throws Exception {
-            ResteasyClientBuilder builder = new ResteasyClientBuilder();
-            if (targetURI.startsWith("https"))
-                builder.sslContext(device.sslContext());
-
-            ResteasyClient client = builder.build();
-            WebTarget target = client.target(targetURI);
-            Invocation.Builder req = target.request();
-            String authorization = request.getHeader("Authorization");
-            if (authorization != null)
-                req.header("Authorization", authorization);
-            return req.post(Entity.json(""));
-        }
-
-        Response errRsp() {
-            String entity = webAppName == null
-                    ? "No Web Application with Service Class 'DCM4CHEE_ARC' configured for device " + devName
-                    : "HTTP connection not configured for WebApplication " + webAppName;
-            return rsp(Response.Status.INTERNAL_SERVER_ERROR, entity);
-        }
     }
 
     private static Response count(long count) {
