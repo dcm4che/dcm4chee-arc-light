@@ -1,4 +1,7 @@
+version: 1
+
 dn: dcmuiPermissionName=Menu - Lifecycle Management,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 dcmuiPermissionName: Menu - Lifecycle Management
 dcmuiActionParam: accessible
 dcmuiActionParam: visible
@@ -7,6 +10,7 @@ dcmAcceptedUserRole: admin
 dcmuiAction: menu-lifecycle_management
 
 dn: dcmuiPermissionName=Menu - Audit Record Repository,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 objectClass: dcmuiPermission
 dcmuiAction: menu-audit_record_repository
 dcmuiPermissionName: Menu - Audit Record Repository
@@ -15,6 +19,7 @@ dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
 dn: dcmuiPermissionName=Menu - dashboard,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 objectClass: dcmuiPermission
 dcmuiAction: menu-dashboard
 dcmuiPermissionName: Menu - dashboard
@@ -23,6 +28,7 @@ dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
 dn: dcmuiPermissionName=Tab - Move Data Retrieve,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 objectClass: dcmuiPermission
 dcmuiAction: tab-move_data->retrieve
 dcmuiPermissionName: Tab - Move Data Retrieve
@@ -31,6 +37,7 @@ dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
 dn: dcmuiPermissionName=Tab - Move Data Export,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 objectClass: dcmuiPermission
 dcmuiAction: tab-move_data->export
 dcmuiPermissionName: Tab - Move Data Export
@@ -39,6 +46,7 @@ dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
 dn: dcmuiPermissionName=Tab - Statistics,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 objectClass: dcmuiPermission
 dcmuiAction: tab-statistics->statistics
 dcmuiPermissionName: Tab - Statistics
@@ -47,6 +55,7 @@ dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
 dn: dcmuiPermissionName=Tab - Statistics Studies Stored,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 objectClass: dcmuiPermission
 dcmuiAction: tab-statistics->studies-stored
 dcmuiPermissionName: Tab - Statistics Studies Stored
@@ -55,6 +64,7 @@ dcmuiActionParam: accessible
 dcmuiActionParam: visible
 
 dn: dcmuiPermissionName=Tab - Correct Data Diff,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 objectClass: dcmuiPermission
 dcmuiAction: tab-correct_data->diff
 dcmuiPermissionName: Tab - Correct Data Diff
@@ -62,6 +72,7 @@ dcmAcceptedUserRole: admin
 dcmuiActionParam: accessible
 
 dn: dcmuiPermissionName=Menu - Correct Data,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 objectClass: dcmuiPermission
 dcmuiAction: menu-correct_data
 dcmuiPermissionName: Menu - Correct Data
@@ -69,6 +80,7 @@ dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
 
 dn: dcmuiPermissionName=Menu - Move Data,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 objectClass: dcmuiPermission
 dcmuiAction: menu-move_data
 dcmuiPermissionName: Menu - Move Data
@@ -77,6 +89,7 @@ dcmAcceptedUserRole: user
 dcmuiActionParam: visible
 
 dn: dcmuiPermissionName=Menu - Statistics,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
 objectClass: dcmuiPermission
 dcmuiAction: menu-statistics
 dcmuiPermissionName: Menu - Statistics
