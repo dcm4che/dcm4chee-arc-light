@@ -177,7 +177,6 @@ public class CopyToRetrieveCacheTask implements Runnable {
             return true;
         } catch (Exception e) {
             LOG.warn("Failed to copy {} to {}:\n", match, storage.getStorageDescriptor(), e);
-            ctx.addFailedSOPInstanceUID(match.getSopInstanceUID());
             if (location != null)
                 try {
                     storage.revokeStorage(writeCtx);
