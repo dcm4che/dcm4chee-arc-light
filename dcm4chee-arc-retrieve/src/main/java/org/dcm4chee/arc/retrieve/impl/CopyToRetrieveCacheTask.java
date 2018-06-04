@@ -137,8 +137,8 @@ public class CopyToRetrieveCacheTask implements Runnable {
                                     uidMap.put(studyIUID, seriesIUIDs = new HashSet<>());
                                 seriesIUIDs.add(seriesIUID);
                             }
-                            completed.offer(new WrappedInstanceLocations(inst));
                         }
+                        completed.offer(new WrappedInstanceLocations(inst));
                     } finally {
                         semaphore.release();
                     }
