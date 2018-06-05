@@ -161,6 +161,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
                 storeService.scheduleMetadataUpdate(seriesIUID);
             }
         }
+        LOG.error("Push end mark");
         completed.offer(new WrappedInstanceLocations(null));
     }
 
@@ -209,9 +210,12 @@ public class CopyToRetrieveCacheTask implements Runnable {
 
     public InstanceLocations copiedToRetrieveCache() {
         try {
-            LOG.debug("Wait for next finished copy to retrieve cache");
+            LOG.debug("Wait for next finished copy to retrieve cache or end mark");
             InstanceLocations inst = completed.take().instanceLocations;
-            LOG.debug("Got next finished copy to retrieve cache");
+            if (inst == null)
+                LOG.debug("No more copy available");
+            else
+                LOG.debug("Got next finished copy to retrieve cache");
             return inst;
         } catch (InterruptedException e) {
             LOG.error("Failed to wait for next finished copy to retrieve cache:", e);
