@@ -161,7 +161,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
                 storeService.scheduleMetadataUpdate(seriesIUID);
             }
         }
-        LOG.error("Push end mark");
+        LOG.debug("Push end mark");
         completed.offer(new WrappedInstanceLocations(null));
     }
 
@@ -213,7 +213,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
             LOG.debug("Wait for next finished copy to retrieve cache or end mark");
             InstanceLocations inst = completed.take().instanceLocations;
             if (inst == null)
-                LOG.debug("No more copy available");
+                LOG.debug("Got end mark");
             else
                 LOG.debug("Got next finished copy to retrieve cache");
             return inst;
