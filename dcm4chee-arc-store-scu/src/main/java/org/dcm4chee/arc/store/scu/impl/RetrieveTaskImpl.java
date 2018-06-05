@@ -256,10 +256,14 @@ final class RetrieveTaskImpl implements RetrieveTask {
 
     private void waitForOutstandingCStoreRSP() {
         try {
+            LOG.info("{}: wait for outstanding C-STORE RSP(s) on association to {}",
+                    rqas, storeas.getRemoteAET());
             synchronized (outstandingRSP) {
                 while (!outstandingRSP.isEmpty())
                     outstandingRSP.wait();
             }
+            LOG.info("{}: received outstanding C-STORE RSP(s) on association to {}",
+                    rqas, storeas.getRemoteAET());
         } catch (InterruptedException e) {
             LOG.warn("{}: failed to wait for outstanding C-STORE RSP(s) on association to {}",
                     rqas, storeas.getRemoteAET(), e);
@@ -283,7 +287,7 @@ final class RetrieveTaskImpl implements RetrieveTask {
     private void removeOutstandingRSP(InstanceLocations inst) {
         outstandingRSP.remove(inst);
         synchronized (outstandingRSP) {
-            outstandingRSP.notify();
+            outstandingRSP.notifyAll();
         }
     }
 
