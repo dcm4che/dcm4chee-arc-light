@@ -125,6 +125,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
             InstanceLocations instanceLocations;
             while ((instanceLocations = scheduled.take().instanceLocations) != null) {
                 final InstanceLocations inst = instanceLocations;
+                LOG.debug("Acquiring semaphore for copying {} to Storage {}", inst, storageID);
                 semaphore.acquire();
                 arcdev.getDevice().execute(() -> {
                     try {
@@ -140,11 +141,15 @@ public class CopyToRetrieveCacheTask implements Runnable {
                         }
                         completed.offer(new WrappedInstanceLocations(inst));
                     } finally {
+                        LOG.debug("Release semaphore for copying {} to Storage {}", inst, storageID);
                         semaphore.release();
                     }
                 });
             }
+            LOG.debug("Wait for finishing copying {} instances to retrieve cache",
+                    maxParallel - semaphore.availablePermits());
             semaphore.acquire(maxParallel);
+            LOG.debug("All instances copied to retrieve cache");
         } catch (InterruptedException e) {
             LOG.error("Failed to schedule copy to retrieve cache:\n", e);
         }
@@ -165,7 +170,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
         writeCtx.setAttributes(match.getAttributes());
         Location location = null;
         try {
-            LOG.debug("Start copying {} to {}:\n", match, storage.getStorageDescriptor());
+            LOG.debug("Start copying {} to {}", match, storage.getStorageDescriptor());
             location = copyTo(match, storage, writeCtx);
             StoreService storeService = ctx.getRetrieveService().getStoreService();
             ApplicationEntity ae = ctx.getLocalApplicationEntity();
