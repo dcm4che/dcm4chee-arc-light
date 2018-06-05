@@ -30,6 +30,8 @@ export class AuthGuard implements CanActivate {
                     'status': 'error'
                 });
             }
+            if(check && check.redirect)
+                this.router.navigateByUrl(check.redirect);
             return check;
         }
     }
