@@ -2257,6 +2257,36 @@ mat-dialog-container{
   float: left;
   width: 100%;
 }
+.dynamic_table{
+  .table_header{
+    .tr{
+      float: left;
+      width: 100%;
+      .th{
+        float: left;
+        background: $lightBlue;
+        color:white;
+        box-sizing: border-box;
+        padding: 5px 2px 5px 7px;
+      }
+    }
+  }
+  .table_body{
+    .tr{
+      border-bottom: 1px solid $lightBlue;
+      float: left;
+      width: 100%;
+      &:last-child{
+        border-bottom:none;
+      }
+      .td{
+        float: left;
+        box-sizing: border-box;
+        padding: 5px 2px 5px 7px;
+      }
+    }
+  }
+}
 .input_group_dropdown{
   input{
     width:65%;
