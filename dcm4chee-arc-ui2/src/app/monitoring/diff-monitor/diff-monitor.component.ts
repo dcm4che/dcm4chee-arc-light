@@ -21,6 +21,8 @@ export class DiffMonitorComponent implements OnInit {
     aes;
     aets;
     devices;
+    batchGrouped = false;
+    diffs = [];
     constructor(
     private service:DiffMonitorService,
     private mainservice:AppService,
@@ -84,7 +86,17 @@ export class DiffMonitorComponent implements OnInit {
           this.initSchema();
       });
     }
+    onSubmit(e){
 
+    }
+
+    onFormChange(e){
+
+    }
+
+    downloadCsv(){
+
+    }
     initSchema(){
       this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,"Size",this.devices),3);
     }
