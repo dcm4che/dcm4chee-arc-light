@@ -180,7 +180,8 @@ import java.util.Date;
 @NamedQuery(
         name=Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID,
         query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
-                "where se.seriesInstanceUID = ?1 " +
+                "where se.study = ?1 " +
+                "and se.seriesInstanceUID = ?2 " +
                 "and se.metadata is not null " +
                 "and se.metadataScheduledUpdateTime is null"),
 @NamedQuery(
@@ -276,7 +277,7 @@ public class Series {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "pk")
     private long pk;
-    
+
     @Version
     @Column(name = "version")
     private long version;    

@@ -55,6 +55,7 @@ import org.dcm4chee.arc.StorePermission;
 import org.dcm4chee.arc.StorePermissionCache;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.id.IDService;
 import org.dcm4chee.arc.issuer.IssuerService;
@@ -71,10 +72,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.json.Json;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -1215,21 +1213,30 @@ public class StoreServiceEJB {
         LOG.info("{}: Create {}", session, location);
     }
 
-    public void addStorageID(String studyIUID, String storageID) {
-        LOG.debug("Enter addStorageID()");
-        em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
+    public Study addStorageID(String studyIUID, String storageID) {
+        Tuple tuple = em.createNamedQuery(Study.STORAGE_IDS_BY_STUDY_UID, Tuple.class)
                 .setParameter(1, studyIUID)
-                .getSingleResult()
-                .addStorageID(storageID);
-        LOG.debug("Leave addStorageID()");
+                .getSingleResult();
+        Long studyPk = tuple.get(0, Long.class);
+        String prevStorageIDs = tuple.get(1, String.class);
+        String newStorageIDs = Study.addStorageID(prevStorageIDs, storageID);
+        if (!newStorageIDs.equals(prevStorageIDs)) {
+            em.createNamedQuery(Study.SET_STORAGE_IDS)
+                    .setParameter(1, studyPk)
+                    .setParameter(2, newStorageIDs)
+                    .executeUpdate();
+            LOG.info("Associate Study[uid={}] with Storage[id:{}]", studyIUID, storageID);
+        }
+        return new Study(studyPk, studyIUID);
     }
 
-    public void scheduleMetadataUpdate(String seriesIUID) {
-        LOG.debug("Enter scheduleMetadataUpdate()");
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID)
-                .setParameter(1, seriesIUID)
-                .executeUpdate();
-        LOG.debug("Leave scheduleMetadataUpdate()");
+    public void scheduleMetadataUpdate(Study study, String seriesIUID) {
+        if (em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID)
+                .setParameter(1, study)
+                .setParameter(2, seriesIUID)
+                .executeUpdate() > 0) {
+            LOG.info("Schedule update of metadata of Series[uid={}] of {}", seriesIUID, study);
+        }
     }
 
     private UIDMap createUIDMap(Map<String, String> uidMap, UIDMap prevUIDMap, Map<Long, UIDMap> uidMapCache) {

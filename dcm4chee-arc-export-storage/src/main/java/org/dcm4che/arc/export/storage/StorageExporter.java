@@ -47,6 +47,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -141,9 +142,9 @@ public class StorageExporter extends AbstractExporter {
                 }
             }
             if (!seriesIUIDs.isEmpty()) {
-                storeService.addStorageID(studyIUID, storageID);
+                Study study = storeService.addStorageID(studyIUID, storageID);
                 for (String seriesIUID : seriesIUIDs) {
-                    storeService.scheduleMetadataUpdate(seriesIUID);
+                    storeService.scheduleMetadataUpdate(study, seriesIUID);
                 }
             }
             return new Outcome(retrieveContext.failed() > 0

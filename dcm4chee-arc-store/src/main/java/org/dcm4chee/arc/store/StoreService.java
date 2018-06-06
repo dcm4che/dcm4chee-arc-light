@@ -8,6 +8,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Study;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -59,9 +60,9 @@ public interface StoreService {
 
     void store(StoreContext ctx, InputStream data) throws IOException;
 
-    void addStorageID(String studyIUID, String storageID);
+    Study addStorageID(String studyIUID, String storageID);
 
-    void scheduleMetadataUpdate(String seriesIUID);
+    void scheduleMetadataUpdate(Study study, String seriesIUID);
 
     void store(StoreContext ctx, Attributes attrs) throws IOException;
 

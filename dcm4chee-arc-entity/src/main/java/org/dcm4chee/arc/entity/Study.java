@@ -123,8 +123,15 @@ import java.util.*;
                 query = "select st.patient.attributesBlob from Study st " +
                         "join st.patient p " +
                         "join p.attributesBlob " +
-                        "where st.studyInstanceUID in ?1")
-
+                        "where st.studyInstanceUID in ?1"),
+        @NamedQuery(
+                name = Study.STORAGE_IDS_BY_STUDY_UID,
+                query = "select st.pk, st.storageIDs from Study st " +
+                        "where st.studyInstanceUID in ?1"),
+        @NamedQuery(
+                name = Study.SET_STORAGE_IDS,
+                query = "update Study st set st.storageIDs = ?2 " +
+                        "where st.pk = ?1")
 })
 @Entity
 @Table(name = "study",
@@ -156,14 +163,16 @@ public class Study {
     public static final String FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME = "Study.findPkByStorageIDOrderByAccessTime";
     public static final String FIND_PK_BY_STORAGE_ID_AND_EXT_RETR_AET = "Study.findPkByStorageIDAndExtRetrAET";
     public static final String UPDATE_ACCESS_TIME = "Study.UpdateAccessTime";
-    public static final String SET_STUDY_SIZE = "Study.UpdateStudySize";
-    public static final String SET_COMPLETENESS = "Study.SetCompleteness";
-    public static final String INCREMENT_FAILED_RETRIEVES = "Study.IncrementFailedRetrieves";
-    public static final String COUNT_STUDIES_OF_PATIENT = "Study.CountStudiesOfPatient";
-    public static final String GET_EXPIRED_STUDIES = "Study.GetExpiredStudies";
-    public static final String STUDY_IUIDS_BY_ACCESSION_NUMBER = "Study.StudyIUIDsByAccessionNumber";
+    public static final String SET_STUDY_SIZE = "Study.setStudySize";
+    public static final String SET_COMPLETENESS = "Study.setCompleteness";
+    public static final String INCREMENT_FAILED_RETRIEVES = "Study.incrementFailedRetrieves";
+    public static final String COUNT_STUDIES_OF_PATIENT = "Study.countStudiesOfPatient";
+    public static final String GET_EXPIRED_STUDIES = "Study.getExpiredStudies";
+    public static final String STUDY_IUIDS_BY_ACCESSION_NUMBER = "Study.studyIUIDsByAccessionNumber";
     public static final String FIND_PATIENT_ATTRS_BY_STUDY_UIDS = "Study.findPatientAttrsByStudyUIDs";
     public static final String FIND_PK_BY_STUDY_UID = "Study.findPkByStudyUID";
+    public static final String STORAGE_IDS_BY_STUDY_UID = "Study.storageIDsByStudyUID";
+    public static final String SET_STORAGE_IDS = "Study.setStorageIDs";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -287,6 +296,13 @@ public class Study {
     @JoinColumn(name = "patient_fk")
     private Patient patient;
 
+    public Study() {};
+
+    public Study(long pk, String studyInstanceUID) {
+        this.pk = pk;
+        this.studyInstanceUID = studyInstanceUID;
+    }
+
     @Override
     public String toString() {
         return "Study[pk=" + pk
@@ -352,19 +368,25 @@ public class Study {
     }
 
     public boolean addStorageID(String storageID) {
-        if (storageID.equals(storageIDs))
+        String newStorageIDs = addStorageID(storageIDs, storageID);
+        if (newStorageIDs.equals(storageIDs)) {
             return false;
-
-        if (storageIDs == null) {
-            storageIDs = storageID;
-            return true;
         }
-        TreeSet<String> set = new TreeSet<>(Arrays.asList(getStorageIDs()));
-        if (!set.add(storageID))
-            return false;
-
-        this.storageIDs = StringUtils.concat(set.toArray(StringUtils.EMPTY_STRING), '\\');
+        this.storageIDs = newStorageIDs;
         return true;
+    }
+
+    public static String addStorageID(String storageIDs, String storageID) {
+        if (storageID.equals(storageIDs) || storageIDs == null) {
+            return storageID;
+        }
+
+        TreeSet<String> set = new TreeSet<>(Arrays.asList(StringUtils.split(storageIDs, '\\')));
+        if (!set.add(storageID)) {
+            return storageIDs;
+        }
+
+        return StringUtils.concat(set.toArray(StringUtils.EMPTY_STRING), '\\');
     }
 
     public boolean removeStorageID(String storageID) {

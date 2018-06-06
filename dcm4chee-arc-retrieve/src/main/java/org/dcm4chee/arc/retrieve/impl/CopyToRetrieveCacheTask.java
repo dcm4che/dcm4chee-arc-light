@@ -48,6 +48,7 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.LocationInputStream;
 import org.dcm4chee.arc.storage.Storage;
@@ -125,7 +126,6 @@ public class CopyToRetrieveCacheTask implements Runnable {
             InstanceLocations instanceLocations;
             while ((instanceLocations = scheduled.take().instanceLocations) != null) {
                 final InstanceLocations inst = instanceLocations;
-                LOG.debug("Acquiring semaphore for copying {} to Storage {}", inst, storageID);
                 semaphore.acquire();
                 arcdev.getDevice().execute(() -> {
                     try {
@@ -141,7 +141,6 @@ public class CopyToRetrieveCacheTask implements Runnable {
                         }
                         completed.offer(new WrappedInstanceLocations(inst));
                     } finally {
-                        LOG.debug("Release semaphore for copying {} to Storage {}", inst, storageID);
                         semaphore.release();
                     }
                 });
@@ -156,9 +155,9 @@ public class CopyToRetrieveCacheTask implements Runnable {
         StoreService storeService = ctx.getRetrieveService().getStoreService();
         for (Map.Entry<String, Set<String>> entry : uidMap.entrySet()) {
             String studyIUID = entry.getKey();
-            storeService.addStorageID(studyIUID, storageID);
+            Study study = storeService.addStorageID(studyIUID, storageID);
             for (String seriesIUID : entry.getValue()) {
-                storeService.scheduleMetadataUpdate(seriesIUID);
+                storeService.scheduleMetadataUpdate(study, seriesIUID);
             }
         }
         completed.offer(new WrappedInstanceLocations(null));
