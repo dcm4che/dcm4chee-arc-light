@@ -96,7 +96,7 @@ import java.util.zip.ZipInputStream;
  */
 @Stateless
 public class StoreServiceEJB {
-    private static final Logger LOG = LoggerFactory.getLogger(StoreServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StoreServiceEJB.class);
     private static final String IGNORE = "{}: Ignore received Instance[studyUID={},seriesUID={},objectUID={}]";
     private static final String IGNORE_FROM_DIFFERENT_SOURCE = IGNORE + " from different source";
     private static final String IGNORE_PREVIOUS_REJECTED = IGNORE + " previous rejected by {}";
