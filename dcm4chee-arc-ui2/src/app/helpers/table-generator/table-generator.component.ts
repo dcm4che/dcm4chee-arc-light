@@ -11,6 +11,7 @@ export class TableGeneratorComponent implements OnInit {
     @Input() config;
     @Input() models;
     _ = _;
+    Object = Object;
     constructor() {}
     ngOnInit() {
         this.calculateWidthOfTable();

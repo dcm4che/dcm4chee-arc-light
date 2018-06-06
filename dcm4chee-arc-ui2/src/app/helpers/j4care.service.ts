@@ -545,4 +545,15 @@ export class j4care {
             };
         });
     }
+
+    static calculateWidthOfTable(table){
+        let summ = 0;
+        table.forEach((m)=>{
+            summ += m.widthWeight;
+        });
+        table.forEach((m)=>{
+            m.calculatedWidth =  ((m.widthWeight * 100)/summ)+"%";
+        });
+        return table;
+    };
 }

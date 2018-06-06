@@ -2268,6 +2268,7 @@ mat-dialog-container{
         color:white;
         box-sizing: border-box;
         padding: 5px 2px 5px 7px;
+        height: 30px;
       }
     }
   }
@@ -2337,6 +2338,28 @@ mat-dialog-container{
 .diff_border{
   border-bottom:1px solid #ff6471;
   overflow: hidden !important;
+}
+.left_arrow, .right_arrow{
+  color: rgba(28, 36, 43, 0.60);
+  &.active{
+    color: rgba(28, 36, 43, 0.85);
+    &:hover{
+      cursor: pointer;
+      color: rgba(28, 36, 43,1);
+    }
+  }
+}
+.left_arrow{
+  position: fixed;
+  left:5px;
+  top: 50%;
+  font-size:33px;
+}
+.right_arrow{
+  font-size:33px;
+  position: fixed;
+  right:5px;
+  top: 50%;
 }
 .dropdownSearch{
   position: absolute;

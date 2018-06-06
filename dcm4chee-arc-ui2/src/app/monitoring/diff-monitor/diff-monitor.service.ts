@@ -2,12 +2,14 @@ import { Injectable } from '@angular/core';
 import {DevicesService} from "../../devices/devices.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
+import {AppService} from "../../app.service";
 
 @Injectable()
 export class DiffMonitorService {
 
     constructor(
         private deviceService: DevicesService,
+        private mainservice:AppService,
         private $http:J4careHttpService
     ) { }
 
@@ -164,24 +166,47 @@ export class DiffMonitorService {
     getTableColumens(){
         return [
             {
+                type:"index",
                 title:"#",
                 description:"Index",
                 widthWeight:0.1,
                 calculatedWidth:"4%"
             },{
+                type:"buttons",
+                title:"",
+                buttons:[
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-th-list',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            e.showAttributes = !e.showAttributes;
+                        }
+                    }
+                ],
+                description:"Index",
+                widthWeight:0.1,
+                calculatedWidth:"4%"
+            },{
+                type:"model",
                 title:"Primary AET",
                 key:"PrimaryAET",
-                description:"AE Title of the primary C-FIND SCP to filter by",
+                description:"AE Title of the primary C-FIND SCP",
                 widthWeight:1,
                 calculatedWidth:"20%"
             },{
+                type:"model",
                 title:"Secondary AET",
                 key:"SecondaryAET",
-                description:"AE Title of the secondary C-FIND SCP to filter by",
+                description:"AE Title of the secondary C-FIND SCP",
                 widthWeight:1,
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
             },{
+                type:"model",
                 title:"Compare field",
                 key:"comparefield",
                 description:"Compare attribute set id",
@@ -189,18 +214,21 @@ export class DiffMonitorService {
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
             },{
+                type:"model",
                 title:"Status",
                 key:"status",
                 description:"Status of tasks",
                 widthWeight:1,
                 calculatedWidth:"20%"
             },{
+                type:"model",
                 title:"Batch ID",
                 key:"batchID",
                 description:"Batch ID",
                 widthWeight:1,
                 calculatedWidth:"20%"
             },{
+                type:"model",
                 title:"Created time",
                 key:"createdTime",
                 description:"list Compare Studies Tasks which were created between",
@@ -208,6 +236,7 @@ export class DiffMonitorService {
                 calculatedWidth:"20%",
                 cssClass:"hideOn800px"
             },{
+                type:"model",
                 title:"Updated time",
                 key:"updatedTime",
                 description:"list Compare Studies Tasks which were updated between",
@@ -220,8 +249,10 @@ export class DiffMonitorService {
     getDevices(){
         return this.deviceService.getDevices()
     }
-    getDiffTask(){
-        return this.$http.get(`../monitor/diff`)
+    getDiffTask(filters){
+        let urlParam = this.mainservice.param(filters);
+        urlParam = urlParam?`?${urlParam}`:'';
+        return this.$http.get(`../monitor/diff${urlParam}`)
             .map(res => j4care.redirectOnAuthResponse(res));
 
     }
