@@ -6,7 +6,7 @@
             <div class="filter_block">
                 <div class="line">
                     <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text">Download CSV</span></div>
-                    <div class="checkbox_button" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="diffs = []">Batch ID grouped</mat-checkbox></div>
+                    <div class="checkbox_button" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="tasks = []">Batch ID grouped</mat-checkbox></div>
                 </div>
             </div>
         </div>
