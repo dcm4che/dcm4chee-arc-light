@@ -86,6 +86,7 @@ import { StackedProgressComponent } from './helpers/stacked-progress/stacked-pro
 import { DiffMonitorComponent } from './monitoring/diff-monitor/diff-monitor.component';
 import {DiffMonitorService} from "./monitoring/diff-monitor/diff-monitor.service";
 import { LargeIntFormatPipe } from './pipes/large-int-format.pipe';
+import { TableGeneratorComponent } from './helpers/table-generator/table-generator.component';
 
 @NgModule({
     declarations: [
@@ -136,6 +137,7 @@ import { LargeIntFormatPipe } from './pipes/large-int-format.pipe';
         StackedProgressComponent,
         DiffMonitorComponent,
         LargeIntFormatPipe,
+        TableGeneratorComponent,
     ],
     imports: [
         BrowserModule,

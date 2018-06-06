@@ -9,9 +9,9 @@ import {Observable} from "rxjs/Observable";
 import {j4care} from "../../helpers/j4care.service";
 
 @Component({
-  selector: 'diff-monitor',
-  templateUrl: './diff-monitor.component.html',
-  styleUrls: ['./diff-monitor.component.scss']
+    selector: 'diff-monitor',
+    templateUrl: './diff-monitor.component.html',
+    styleUrls: ['./diff-monitor.component.scss']
 })
 export class DiffMonitorComponent implements OnInit {
 
@@ -22,72 +22,88 @@ export class DiffMonitorComponent implements OnInit {
     aets;
     devices;
     batchGrouped = false;
-    diffs = [];
+    tasks = [];
+    config;
     constructor(
-    private service:DiffMonitorService,
-    private mainservice:AppService,
-    private route: ActivatedRoute,
-    public cfpLoadingBar: LoadingBarService,
-    public aeListService:AeListService,
-    ) { }
+        private service:DiffMonitorService,
+        private mainservice:AppService,
+        private route: ActivatedRoute,
+        public cfpLoadingBar: LoadingBarService,
+        public aeListService:AeListService,
+    ){}
 
     ngOnInit(){
-      this.initCheck(10);
+        this.initCheck(10);
     }
     initCheck(retries){
-      let $this = this;
-      if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
-
-          this.route.queryParams.subscribe(params => {
-              console.log("params",params);
-              this.urlParam = Object.assign({},params);
-              this.init();
-          });
-      }else{
-          if (retries){
-              setTimeout(()=>{
-                  $this.initCheck(retries-1);
-              },20);
-          }else{
-              this.init();
-          }
-      }
+        let $this = this;
+        if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+            this.route.queryParams.subscribe(params => {
+                console.log("params",params);
+                this.urlParam = Object.assign({},params);
+                this.init();
+            });
+        }else{
+            if (retries){
+                setTimeout(()=>{
+                    $this.initCheck(retries-1);
+                },20);
+            }else{
+                this.init();
+            }
+        }
     }
 
     init(){
-      this.filterObject = {
-          limit:20
-      };
-      Observable.forkJoin(
-          this.aeListService.getAes(),
-          this.aeListService.getAets(),
-          this.service.getDevices()
-      ).subscribe((response)=>{
-          this.aes = (<any[]>j4care.extendAetObjectWithAlias(response[0])).map(ae => {
-              return {
+        this.filterObject = {
+            limit:20
+        };
+        Observable.forkJoin(
+            this.aeListService.getAes(),
+            this.aeListService.getAets(),
+            this.service.getDevices()
+        ).subscribe((response)=>{
+            this.aes = (<any[]>j4care.extendAetObjectWithAlias(response[0])).map(ae => {
+                return {
                   value:ae.dicomAETitle,
                   text:ae.dicomAETitle
-              }
-          });
-          this.aets = (<any[]>j4care.extendAetObjectWithAlias(response[1])).map(ae => {
-              return {
+                }
+            });
+            this.aets = (<any[]>j4care.extendAetObjectWithAlias(response[1])).map(ae => {
+                return {
                   value:ae.dicomAETitle,
                   text:ae.dicomAETitle
-              }
-          });
-          this.devices = (<any[]>response[2])
-              .filter(dev => dev.hasArcDevExt)
-              .map(device => {
-                  return {
+                }
+            });
+            this.devices = (<any[]>response[2])
+                .filter(dev => dev.hasArcDevExt)
+                .map(device => {
+                    return {
                       value:device.dicomDeviceName,
                       text:device.dicomDeviceName
-                  }
-              });
-          this.initSchema();
-      });
+                    }
+                });
+            this.initSchema();
+        });
+    }
+    initSchema(){
+        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,"Size",this.devices),3);
+
     }
     onSubmit(e){
+        console.log("e",e);
+        if(e.id){
+            if(e.id === "search"){
+                this.service.getDiffTask().subscribe(tasks=>{
+                    this.config = {
+                        table:this.service.getTableColumens(),
+                    };
+                    this.tasks = tasks;
+                },err=>{
 
+                })
+            }
+        }
     }
 
     onFormChange(e){
@@ -96,9 +112,6 @@ export class DiffMonitorComponent implements OnInit {
 
     downloadCsv(){
 
-    }
-    initSchema(){
-      this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,"Size",this.devices),3);
     }
     ngOnDestroy(){
     }

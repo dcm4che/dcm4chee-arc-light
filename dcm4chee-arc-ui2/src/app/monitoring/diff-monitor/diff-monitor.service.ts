@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import {DevicesService} from "../../devices/devices.service";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {j4care} from "../../helpers/j4care.service";
 
 @Injectable()
 export class DiffMonitorService {
 
     constructor(
-        private deviceService: DevicesService
+        private deviceService: DevicesService,
+        private $http:J4careHttpService
     ) { }
 
     statusValues(){
@@ -157,7 +160,69 @@ export class DiffMonitorService {
           }
       ];
   }
+
+    getTableColumens(){
+        return [
+            {
+                title:"#",
+                description:"Index",
+                widthWeight:0.1,
+                calculatedWidth:"4%"
+            },{
+                title:"Primary AET",
+                key:"PrimaryAET",
+                description:"AE Title of the primary C-FIND SCP to filter by",
+                widthWeight:1,
+                calculatedWidth:"20%"
+            },{
+                title:"Secondary AET",
+                key:"SecondaryAET",
+                description:"AE Title of the secondary C-FIND SCP to filter by",
+                widthWeight:1,
+                calculatedWidth:"20%",
+                cssClass:"hideOn1100px"
+            },{
+                title:"Compare field",
+                key:"comparefield",
+                description:"Compare attribute set id",
+                widthWeight:1,
+                calculatedWidth:"20%",
+                cssClass:"hideOn1100px"
+            },{
+                title:"Status",
+                key:"status",
+                description:"Status of tasks",
+                widthWeight:1,
+                calculatedWidth:"20%"
+            },{
+                title:"Batch ID",
+                key:"batchID",
+                description:"Batch ID",
+                widthWeight:1,
+                calculatedWidth:"20%"
+            },{
+                title:"Created time",
+                key:"createdTime",
+                description:"list Compare Studies Tasks which were created between",
+                widthWeight:1,
+                calculatedWidth:"20%",
+                cssClass:"hideOn800px"
+            },{
+                title:"Updated time",
+                key:"updatedTime",
+                description:"list Compare Studies Tasks which were updated between",
+                widthWeight:1,
+                calculatedWidth:"20%",
+                cssClass:"hideOn800px"
+            }
+        ];
+    }
     getDevices(){
         return this.deviceService.getDevices()
+    }
+    getDiffTask(){
+        return this.$http.get(`../monitor/diff`)
+            .map(res => j4care.redirectOnAuthResponse(res));
+
     }
 }
