@@ -296,7 +296,7 @@ public class Study {
     @JoinColumn(name = "patient_fk")
     private Patient patient;
 
-    public Study() {};
+    public Study() {}
 
     public Study(long pk, String studyInstanceUID) {
         this.pk = pk;
