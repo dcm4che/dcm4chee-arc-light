@@ -285,16 +285,16 @@ class StoreServiceImpl implements StoreService {
 
     @Override
     public void addStorageID(String studyIUID, String storageID) {
-        long start = System.currentTimeMillis();
+        LOG.debug("Enter addStorageID()");
         ejb.addStorageID(studyIUID, storageID);
-        LOG.debug("addStorageID() takes {} ms", System.currentTimeMillis() - start);
+        LOG.debug("Leave addStorageID()");
     }
 
     @Override
     public void scheduleMetadataUpdate(String seriesIUID) {
-        long start = System.currentTimeMillis();
+        LOG.debug("Enter scheduleMetadataUpdate()");
         ejb.scheduleMetadataUpdate(seriesIUID);
-        LOG.debug("addStorageID() takes {} ms", System.currentTimeMillis() - start);
+        LOG.debug("Leave scheduleMetadataUpdate()");
     }
 
     @Override

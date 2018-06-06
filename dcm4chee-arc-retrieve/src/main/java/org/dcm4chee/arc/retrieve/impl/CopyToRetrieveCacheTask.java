@@ -161,8 +161,8 @@ public class CopyToRetrieveCacheTask implements Runnable {
                 storeService.scheduleMetadataUpdate(seriesIUID);
             }
         }
-        LOG.debug("Push end mark");
         completed.offer(new WrappedInstanceLocations(null));
+        LOG.debug("Leave run()");
     }
 
     private boolean copy(InstanceLocations match) {
@@ -210,10 +210,10 @@ public class CopyToRetrieveCacheTask implements Runnable {
 
     public InstanceLocations copiedToRetrieveCache() {
         try {
-            LOG.debug("Wait for next finished copy to retrieve cache or end mark");
+            LOG.debug("Wait for next finished copy to retrieve cache");
             InstanceLocations inst = completed.take().instanceLocations;
             if (inst == null)
-                LOG.debug("Got end mark");
+                LOG.debug("No more copy to retrieve cache");
             else
                 LOG.debug("Got next finished copy to retrieve cache");
             return inst;

@@ -1216,16 +1216,20 @@ public class StoreServiceEJB {
     }
 
     public void addStorageID(String studyIUID, String storageID) {
+        LOG.debug("Enter addStorageID()");
         em.createNamedQuery(Study.FIND_BY_STUDY_IUID, Study.class)
                 .setParameter(1, studyIUID)
                 .getSingleResult()
                 .addStorageID(storageID);
+        LOG.debug("Leave addStorageID()");
     }
 
     public void scheduleMetadataUpdate(String seriesIUID) {
+        LOG.debug("Enter scheduleMetadataUpdate()");
         em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID)
                 .setParameter(1, seriesIUID)
                 .executeUpdate();
+        LOG.debug("Leave scheduleMetadataUpdate()");
     }
 
     private UIDMap createUIDMap(Map<String, String> uidMap, UIDMap prevUIDMap, Map<Long, UIDMap> uidMapCache) {
