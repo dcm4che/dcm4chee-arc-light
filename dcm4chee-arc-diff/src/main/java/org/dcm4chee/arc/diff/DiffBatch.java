@@ -204,8 +204,8 @@ public class DiffBatch {
         return comparefields;
     }
 
-    public void setComparefields(List<String> comparefields) {
-        this.comparefields = comparefields.toArray(new String[comparefields.size()]);
+    public void setComparefields(String[] comparefields) {
+        this.comparefields = comparefields;
     }
 
     public Boolean[] getCheckMissing() {

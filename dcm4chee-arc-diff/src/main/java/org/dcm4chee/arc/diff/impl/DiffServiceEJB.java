@@ -72,6 +72,7 @@ import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -350,7 +351,10 @@ public class DiffServiceEJB {
                     batchIDQuery(batchID)
                             .select(QDiffTask.diffTask.compareFields)
                             .distinct()
-                            .fetch());
+                            .fetch()
+                            .stream()
+                            .filter(Objects::nonNull)
+                            .toArray(String[]::new));
             diffBatch.setCheckMissing(
                     batchIDQuery(batchID)
                             .select(QDiffTask.diffTask.checkMissing)
