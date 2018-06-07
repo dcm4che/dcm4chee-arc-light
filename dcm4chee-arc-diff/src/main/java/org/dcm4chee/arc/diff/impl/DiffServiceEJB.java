@@ -72,7 +72,6 @@ import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -317,79 +316,69 @@ public class DiffServiceEJB {
 
             diffBatch.setDeviceNames(
                     batchIDQuery(batchID)
-                    .select(QQueueMessage.queueMessage.deviceName)
-                    .distinct()
-                    .fetch()
-                    .stream()
-                    .sorted()
-                    .toArray(String[]::new));
+                        .select(QQueueMessage.queueMessage.deviceName)
+                        .distinct()
+                        .orderBy(QQueueMessage.queueMessage.deviceName.asc())
+                        .fetch());
             diffBatch.setLocalAETs(
                     batchIDQuery(batchID)
-                            .select(QDiffTask.diffTask.localAET)
-                            .distinct()
-                            .fetch()
-                            .stream()
-                            .sorted()
-                            .toArray(String[]::new));
+                        .select(QDiffTask.diffTask.localAET)
+                        .distinct()
+                        .orderBy(QDiffTask.diffTask.localAET.asc())
+                        .fetch());
             diffBatch.setPrimaryAETs(
                     batchIDQuery(batchID)
-                            .select(QDiffTask.diffTask.primaryAET)
-                            .distinct()
-                            .fetch()
-                            .stream()
-                            .sorted()
-                            .toArray(String[]::new));
+                        .select(QDiffTask.diffTask.primaryAET)
+                        .distinct()
+                        .orderBy(QDiffTask.diffTask.primaryAET.asc())
+                        .fetch());
             diffBatch.setSecondaryAETs(
                     batchIDQuery(batchID)
-                            .select(QDiffTask.diffTask.secondaryAET)
-                            .distinct()
-                            .fetch()
-                            .stream()
-                            .sorted()
-                            .toArray(String[]::new));
+                        .select(QDiffTask.diffTask.secondaryAET)
+                        .distinct()
+                        .orderBy(QDiffTask.diffTask.secondaryAET.asc())
+                        .fetch());
             diffBatch.setComparefields(
                     batchIDQuery(batchID)
-                            .select(QDiffTask.diffTask.compareFields)
-                            .distinct()
-                            .fetch()
-                            .stream()
-                            .filter(Objects::nonNull)
-                            .toArray(String[]::new));
+                        .select(QDiffTask.diffTask.compareFields)
+                        .where(QDiffTask.diffTask.compareFields.isNotNull())
+                        .distinct()
+                        .fetch());
             diffBatch.setCheckMissing(
                     batchIDQuery(batchID)
-                            .select(QDiffTask.diffTask.checkMissing)
-                            .distinct()
-                            .fetch());
+                        .select(QDiffTask.diffTask.checkMissing)
+                        .distinct()
+                        .fetch());
             diffBatch.setCheckDifferent(
                     batchIDQuery(batchID)
-                            .select(QDiffTask.diffTask.checkDifferent)
-                            .distinct()
-                            .fetch());
+                        .select(QDiffTask.diffTask.checkDifferent)
+                        .distinct()
+                        .fetch());
 
             diffBatch.setCompleted(
                     batchIDQuery(batchID)
-                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
-                            .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
+                        .fetchCount());
             diffBatch.setCanceled(
                     batchIDQuery(batchID)
-                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
-                            .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
+                        .fetchCount());
             diffBatch.setWarning(
                     batchIDQuery(batchID)
-                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
-                            .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
+                        .fetchCount());
             diffBatch.setFailed(
                     batchIDQuery(batchID)
-                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
-                            .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
+                        .fetchCount());
             diffBatch.setScheduled(
                     batchIDQuery(batchID)
-                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
-                            .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
+                        .fetchCount());
             diffBatch.setInProcess(
                     batchIDQuery(batchID)
-                            .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
-                            .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
+                        .fetchCount());
 
             diffBatches.add(diffBatch);
         }

@@ -285,61 +285,53 @@ public class RetrieveManagerEJB {
 
             retrieveBatch.setDeviceNames(
                     batchIDQuery(batchID)
-                    .select(QQueueMessage.queueMessage.deviceName)
-                    .distinct()
-                    .fetch()
-                    .stream()
-                    .sorted()
-                    .toArray(String[]::new));
+                        .select(QQueueMessage.queueMessage.deviceName)
+                        .distinct()
+                        .orderBy(QQueueMessage.queueMessage.deviceName.asc())
+                        .fetch());
             retrieveBatch.setLocalAETs(
                     batchIDQuery(batchID)
-                    .select(QRetrieveTask.retrieveTask.localAET)
-                    .distinct()
-                    .fetch()
-                    .stream()
-                    .sorted()
-                    .toArray(String[]::new));
+                        .select(QRetrieveTask.retrieveTask.localAET)
+                        .distinct()
+                        .orderBy(QRetrieveTask.retrieveTask.localAET.asc())
+                        .fetch());
             retrieveBatch.setRemoteAETs(
                     batchIDQuery(batchID)
-                    .select(QRetrieveTask.retrieveTask.remoteAET)
-                    .distinct()
-                    .fetch()
-                    .stream()
-                    .sorted()
-                    .toArray(String[]::new));
+                        .select(QRetrieveTask.retrieveTask.remoteAET)
+                        .distinct()
+                        .orderBy(QRetrieveTask.retrieveTask.remoteAET.asc())
+                        .fetch());
             retrieveBatch.setDestinationAETs(
                     batchIDQuery(batchID)
-                    .select(QRetrieveTask.retrieveTask.destinationAET)
-                    .distinct()
-                    .fetch()
-                    .stream()
-                    .sorted()
-                    .toArray(String[]::new));
+                        .select(QRetrieveTask.retrieveTask.destinationAET)
+                        .distinct()
+                        .orderBy(QRetrieveTask.retrieveTask.destinationAET.asc())
+                        .fetch());
 
             retrieveBatch.setCompleted(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
+                        .fetchCount());
             retrieveBatch.setCanceled(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
+                        .fetchCount());
             retrieveBatch.setWarning(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
+                        .fetchCount());
             retrieveBatch.setFailed(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
+                        .fetchCount());
             retrieveBatch.setScheduled(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
+                        .fetchCount());
             retrieveBatch.setInProcess(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
+                        .fetchCount());
 
             retrieveBatches.add(retrieveBatch);
         }

@@ -133,9 +133,10 @@ public class DiffBatch {
         return deviceNames;
     }
 
-    public void setDeviceNames(String[] deviceNames) {
-        this.deviceNames = deviceNames;
+    public void setDeviceNames(List<String> deviceNames) {
+        this.deviceNames = deviceNames.toArray(new String[0]);
     }
+
     public int getCompleted() {
         return (int) completed;
     }
@@ -188,24 +189,24 @@ public class DiffBatch {
         return primaryAETs;
     }
 
-    public void setPrimaryAETs(String[] primaryAETs) {
-        this.primaryAETs = primaryAETs;
+    public void setPrimaryAETs(List<String> primaryAETs) {
+        this.primaryAETs = primaryAETs.toArray(new String[0]);
     }
 
     public String[] getSecondaryAETs() {
         return secondaryAETs;
     }
 
-    public void setSecondaryAETs(String[] secondaryAETs) {
-        this.secondaryAETs = secondaryAETs;
+    public void setSecondaryAETs(List<String> secondaryAETs) {
+        this.secondaryAETs = secondaryAETs.toArray(new String[0]);
     }
 
     public String[] getComparefields() {
         return comparefields;
     }
 
-    public void setComparefields(String[] comparefields) {
-        this.comparefields = comparefields;
+    public void setComparefields(List<String> comparefields) {
+        this.comparefields = comparefields.toArray(new String[0]);
     }
 
     public Boolean[] getCheckMissing() {
@@ -252,7 +253,7 @@ public class DiffBatch {
         return localAETs;
     }
 
-    public void setLocalAETs(String[] localAETs) {
-        this.localAETs = localAETs;
+    public void setLocalAETs(List<String> localAETs) {
+        this.localAETs = localAETs.toArray(new String[0]);
     }
 }

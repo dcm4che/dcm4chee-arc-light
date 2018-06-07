@@ -491,45 +491,41 @@ public class ExportManagerEJB implements ExportManager {
 
             exportBatch.setDeviceNames(
                     batchIDQuery(batchID)
-                    .select(QExportTask.exportTask.deviceName)
-                    .distinct()
-                    .fetch()
-                    .stream()
-                    .sorted()
-                    .toArray(String[]::new));
+                        .select(QExportTask.exportTask.deviceName)
+                        .distinct()
+                        .orderBy(QExportTask.exportTask.deviceName.asc())
+                        .fetch());
             exportBatch.setExporterIDs(
                     batchIDQuery(batchID)
-                    .select(QExportTask.exportTask.exporterID)
-                    .distinct()
-                    .fetch()
-                    .stream()
-                    .sorted()
-                    .toArray(String[]::new));
+                        .select(QExportTask.exportTask.exporterID)
+                        .distinct()
+                        .orderBy(QExportTask.exportTask.exporterID.asc())
+                        .fetch());
 
             exportBatch.setCompleted(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
+                        .fetchCount());
             exportBatch.setCanceled(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
+                        .fetchCount());
             exportBatch.setWarning(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
+                        .fetchCount());
             exportBatch.setFailed(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
+                        .fetchCount());
             exportBatch.setScheduled(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
+                        .fetchCount());
             exportBatch.setInProcess(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
+                        .fetchCount());
 
             exportBatches.add(exportBatch);
         }
