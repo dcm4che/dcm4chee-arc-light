@@ -15,6 +15,7 @@
                     <span *ngIf="button.icon.tag === 'span'" class="{{button.icon.cssClass||''}}">{{button.icon.text||''}}</span>
                 </a>
             </span>
+            <span *ngIf="table_element.type === 'progress'"><stacked-progress [model]="_.get(model,table_element.key)"></stacked-progress></span>
             <ng-container *ngIf="table_element.type === 'model'">
                 <span *ngIf="_.hasIn(model,table_element.key)">{{_.get(model,table_element.key)}}</span>
             </ng-container>

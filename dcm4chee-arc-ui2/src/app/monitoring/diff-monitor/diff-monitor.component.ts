@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewContainerRef} from '@angular/core';
 import {DiffMonitorService} from "./diff-monitor.service";
 import {AppService} from "../../app.service";
 import {ActivatedRoute} from "@angular/router";
@@ -8,6 +8,11 @@ import {AeListService} from "../../ae-list/ae-list.service";
 import {Observable} from "rxjs/Observable";
 import {j4care} from "../../helpers/j4care.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
+import {WindowRefService} from "../../helpers/window-ref.service";
+import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
+import {MatDialogConfig, MatDialog, MatDialogRef} from "@angular/material";
+import {Globalvar} from "../../constants/globalvar";
 
 @Component({
     selector: 'diff-monitor',
@@ -26,13 +31,18 @@ export class DiffMonitorComponent implements OnInit {
     tasks = [];
     config;
     moreTasks;
+    dialogRef: MatDialogRef<any>;
     constructor(
         private service:DiffMonitorService,
         private mainservice:AppService,
         private route: ActivatedRoute,
         private cfpLoadingBar: LoadingBarService,
         private aeListService:AeListService,
-        private httpErrorHandler:HttpErrorHandler
+        private httpErrorHandler:HttpErrorHandler,
+        private $http:J4careHttpService,
+        public viewContainerRef: ViewContainerRef,
+        public dialog: MatDialog,
+        public dialogConfig: MatDialogConfig,
     ){}
 
     ngOnInit(){
@@ -106,39 +116,69 @@ export class DiffMonitorComponent implements OnInit {
         }
     }
     getDiffTasks(filter){
-        this.service.getDiffTask(filter).subscribe(tasks=>{
-            this.config = {
-                table:j4care.calculateWidthOfTable(this.service.getTableColumens()),
-                filter:filter
-            };
-            this.tasks = tasks; /*= [
-                {"pk":"1","LocalAET":"DCM4CHEE2","PrimaryAET":"DCM4CHEE2","SecondaryAET":"DCM4CHEE_ADMIN","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
-                {"pk":"3","LocalAET":"DCM4CHEE23","PrimaryAET":"DCM4CHEE3","SecondaryAET":"DCM4CHEE_ADMIN2","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test2","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"}
-            ];*/
-            this.moreTasks = tasks.length > this.filterObject['limit'];
-            if(this.moreTasks)
-                this.tasks.splice(this.tasks.length-1,1);
-            // this.tasks = tasks;
+        this.cfpLoadingBar.start();
+        this.service.getDiffTask(filter,this.batchGrouped).subscribe(tasks=>{
+            if(tasks && tasks.length && tasks.length > 0){
+                if(this.batchGrouped){
+                    this.config = {
+                        table:j4care.calculateWidthOfTable(this.service.getTableBatchGroupedColumens()),
+                        filter:filter
+                    };
+                    this.tasks = tasks.map(taskObject=>{
+                        if(_.hasIn(taskObject, 'tasks')){
+                            let taskPrepared = [];
+                            Globalvar.TASK_NAMES.forEach(task=>{
+                                if(taskObject.tasks[task])
+                                    taskPrepared.push({[task]:taskObject.tasks[task]});
+                            });
+                            taskObject.tasks = taskPrepared;
+                        }
+                        return taskObject;
+                    });
+                }else{
+                    this.config = {
+                        table:j4care.calculateWidthOfTable(this.service.getTableColumens()),
+                        filter:filter
+                    };
+                    this.tasks = tasks;
+                }
+                    /*= [
+                    {"pk":"1","LocalAET":"DCM4CHEE2","PrimaryAET":"DCM4CHEE2","SecondaryAET":"DCM4CHEE_ADMIN","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"2","LocalAET":"DCM4CHEE4","PrimaryAET":"DCM4CHEE4","SecondaryAET":"DCM4CHEE_ADMIN5","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"},
+                    {"pk":"3","LocalAET":"DCM4CHEE23","PrimaryAET":"DCM4CHEE3","SecondaryAET":"DCM4CHEE_ADMIN2","QueryString":"includefield=all&offset=0&limit=21&returnempty=false&queue=true&missing=true&different=true&batchID=test2","checkMissing":true,"checkDifferent":true,"matches":31,"createdTime":"2018-06-06T14:03:04.136+0200","updatedTime":"2018-06-06T14:03:04.701+0200","queue":"DiffTasks","JMSMessageID":"ID:911a5646-6981-11e8-897e-0242ac120003","dicomDeviceName":"dcm4chee-arc","status":"COMPLETED","batchID":"test","scheduledTime":"2018-06-06T14:03:04.121+0200","processingStartTime":"2018-06-06T14:03:04.264+0200","processingEndTime":"2018-06-06T14:03:04.742+0200","outcomeMessage":"31 studies compared"}
+                ];*/
+                this.moreTasks = tasks.length > this.filterObject['limit'];
+                if(this.moreTasks)
+                    this.tasks.splice(this.tasks.length-1,1);
+                // this.tasks = tasks;
+            }else{
+                this.mainservice.setMessage({
+                    'title': 'Info',
+                    'text': 'No diff tasks found!',
+                    'status': 'info'
+                });
+            }
+            this.cfpLoadingBar.complete();
         },err=>{
+            this.cfpLoadingBar.complete();
             this.httpErrorHandler.handleError(err);
         })
     }
@@ -163,9 +203,45 @@ export class DiffMonitorComponent implements OnInit {
     onFormChange(e){
 
     }
-
+    confirm(confirmparameters){
+        this.dialogConfig.viewContainerRef = this.viewContainerRef;
+        this.dialogRef = this.dialog.open(ConfirmComponent, {
+            height: 'auto',
+            width: '500px'
+        });
+        this.dialogRef.componentInstance.parameters = confirmparameters;
+        return this.dialogRef.afterClosed();
+    };
     downloadCsv(){
-
+        this.confirm({
+            content:"Do you want to use semicolon as delimiter?",
+            cancelButton:"No",
+            saveButton:"Yes",
+            result:"yes"
+        }).subscribe((ok)=>{
+            let semicolon = false;
+            if(ok)
+                semicolon = true;
+            let token;
+            this.$http.refreshToken().subscribe((response)=>{
+                if(!this.mainservice.global.notSecure){
+                    if(response && response.length != 0){
+                        this.$http.resetAuthenticationInfo(response);
+                        token = response['token'];
+                    }else{
+                        token = this.mainservice.global.authentication.token;
+                    }
+                }
+                let filterClone = _.cloneDeep(this.filterObject);
+                delete filterClone['offset'];
+                delete filterClone['limit'];
+                if(!this.mainservice.global.notSecure){
+                    WindowRefService.nativeWindow.open(`../monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`);
+                }else{
+                    WindowRefService.nativeWindow.open(`../monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`);
+                }
+            });
+        })
     }
     ngOnDestroy(){
     }

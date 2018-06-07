@@ -10,6 +10,7 @@ export class TableGeneratorComponent implements OnInit {
 
     @Input() config;
     @Input() models;
+    @Input() detailAttribute;
     _ = _;
     Object = Object;
     constructor() {}

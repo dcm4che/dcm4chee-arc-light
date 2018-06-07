@@ -33,6 +33,7 @@
         "tab-monitoring->associations",
         "tab-monitoring->storage_commitments",
         "tab-monitoring->storage_systems",
+        "tab-monitoring->diff",
         "tab-statistics->statistics",
         "tab-statistics->studies-stored",
         "tab-configuration->devices",
@@ -64,6 +65,7 @@
         "action-monitoring->external_retrieve-all_action",
         "action-monitoring->queues-single_action",
         "action-monitoring->export-single_action",
+        "action-monitoring->diff_monitor-all_action",
         "action-monitoring->external_retrieve-single_action"
       ]
     },

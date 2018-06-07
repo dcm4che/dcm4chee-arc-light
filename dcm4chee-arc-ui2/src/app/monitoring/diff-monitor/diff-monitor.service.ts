@@ -246,13 +246,100 @@ export class DiffMonitorService {
             }
         ];
     }
+    getTableBatchGroupedColumens(){
+        return [
+            {
+                type:"index",
+                title:"#",
+                description:"Index",
+                widthWeight:0.1,
+                calculatedWidth:"4%"
+            },{
+                type:"buttons",
+                title:"",
+                buttons:[
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-th-list',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            e.showAttributes = !e.showAttributes;
+                        }
+                    }
+                ],
+                description:"Index",
+                widthWeight:0.1,
+                calculatedWidth:"4%"
+            },{
+                type:"model",
+                title:"Batch ID",
+                key:"batchID",
+                description:"Batch ID",
+                widthWeight:0.4,
+                calculatedWidth:"20%"
+            },{
+                type:"model",
+                title:"Primary AET",
+                key:"PrimaryAET",
+                description:"AE Title of the primary C-FIND SCP",
+                widthWeight:1,
+                calculatedWidth:"20%"
+            },{
+                type:"model",
+                title:"Secondary AET",
+                key:"SecondaryAET",
+                description:"AE Title of the secondary C-FIND SCP",
+                widthWeight:1,
+                calculatedWidth:"20%",
+                cssClass:"hideOn1100px"
+            },{
+                type:"model",
+                title:"Scheduled time range",
+                key:"scheduledTimeRange",
+                description:"Scheduled time range",
+                widthWeight:1.4,
+                calculatedWidth:"20%",
+                cssClass:"hideOn1100px"
+            },{
+                type:"model",
+                title:"Processing start time range",
+                key:"processingStartTimeRange",
+                description:"Processing start time range",
+                widthWeight:1.4,
+                calculatedWidth:"20%",
+                cssClass:"hideOn1100px"
+            },{
+                type:"model",
+                title:"Processing end time range",
+                key:"processingEndTimeRange",
+                description:"Processing end time range",
+                widthWeight:1.4,
+                calculatedWidth:"20%",
+                cssClass:"hideOn1100px"
+            },{
+                type:"progress",
+                title:"Tasks",
+                description:"Tasks",
+                key:"tasks",
+                widthWeight:2,
+                calculatedWidth:"30%",
+                cssClass:"hideOn800px"
+            }
+        ];
+    }
     getDevices(){
         return this.deviceService.getDevices()
     }
-    getDiffTask(filters){
+    getDiffTask(filters, batchGrouped){
         let urlParam = this.mainservice.param(filters);
         urlParam = urlParam?`?${urlParam}`:'';
-        return this.$http.get(`../monitor/diff${urlParam}`)
+        let url = `../monitor/diff${urlParam}`;
+        if(batchGrouped)
+            url = `../monitor/diff/batch${urlParam}`;
+        return this.$http.get(url)
             .map(res => j4care.redirectOnAuthResponse(res));
 
     }
