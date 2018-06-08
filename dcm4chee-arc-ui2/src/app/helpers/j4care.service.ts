@@ -84,8 +84,17 @@ export class j4care {
             if(_.isArray(properties[task]) && exceptions.indexOf(task) === -1){
                 if(properties[task].length === 2 && task.indexOf('Range') > -1)
                     properties[task] = properties[task].join(' - ');
-                else
-                    properties[task] = properties[task].join(', ');
+                else{
+                    if(_.isObject(properties[task][0])){
+                        properties[task] = properties[task].map(t=>{
+                            return Object.keys(t).map(key=>{
+                                return `${key}=${t[key]}`
+                            });
+                        }).join('; ');
+                    }else{
+                        properties[task] = properties[task].join(', ');
+                    }
+                }
             }
             if(_.isObject(properties[task]) && exceptions.indexOf(task) === -1)
                 properties[task] = Object.keys(properties[task]).map(taskKey=>`${taskKey}=${properties[task][taskKey]}`).join(', ');

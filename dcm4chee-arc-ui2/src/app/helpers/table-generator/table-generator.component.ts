@@ -1,5 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import * as _ from 'lodash';
+import {j4care} from "../j4care.service";
 
 @Component({
     selector: 'table-generator',
@@ -10,11 +11,18 @@ export class TableGeneratorComponent implements OnInit {
 
     @Input() config;
     @Input() models;
-    @Input() detailAttribute;
+    @Input() stringifyDetailAttributes;
     _ = _;
     Object = Object;
     constructor() {}
     ngOnInit() {
+        if(this.stringifyDetailAttributes){
+            this.models.map(model=>{
+                model.tableGeneratorDetailAttributes = Object.assign({},model);
+                j4care.stringifyArrayOrObject(model.tableGeneratorDetailAttributes, []);
+                return model;
+            });
+        }
         this.calculateWidthOfTable();
     }
     calculateWidthOfTable(){

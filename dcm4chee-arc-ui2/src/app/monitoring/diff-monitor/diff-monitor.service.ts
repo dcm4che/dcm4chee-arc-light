@@ -3,6 +3,7 @@ import {DevicesService} from "../../devices/devices.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {AppService} from "../../app.service";
+import {DatePipe} from "@angular/common";
 
 @Injectable()
 export class DiffMonitorService {
@@ -10,7 +11,8 @@ export class DiffMonitorService {
     constructor(
         private deviceService: DevicesService,
         private mainservice:AppService,
-        private $http:J4careHttpService
+        private $http:J4careHttpService,
+        private dataPipe:DatePipe
     ) { }
 
     statusValues(){
@@ -300,6 +302,7 @@ export class DiffMonitorService {
                 title:"Scheduled time range",
                 key:"scheduledTimeRange",
                 description:"Scheduled time range",
+                modifyData:(data)=> this.stringifyRangeArray(data),
                 widthWeight:1.4,
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
@@ -309,6 +312,7 @@ export class DiffMonitorService {
                 key:"processingStartTimeRange",
                 description:"Processing start time range",
                 widthWeight:1.4,
+                modifyData:(data)=> this.stringifyRangeArray(data),
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
             },{
@@ -316,6 +320,7 @@ export class DiffMonitorService {
                 title:"Processing end time range",
                 key:"processingEndTimeRange",
                 description:"Processing end time range",
+                modifyData:(data)=> this.stringifyRangeArray(data),
                 widthWeight:1.4,
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
@@ -329,6 +334,13 @@ export class DiffMonitorService {
                 cssClass:"hideOn800px"
             }
         ];
+    }
+    stringifyRangeArray(data){
+        try{
+            return `${this.dataPipe.transform(data[0],'yyyy.MM.dd HH:mm:ss')} - ${this.dataPipe.transform(data[0],'yyyy.MM.dd HH:mm:ss')}`
+        }catch (e){
+            return data;
+        }
     }
     getDevices(){
         return this.deviceService.getDevices()
