@@ -121,7 +121,9 @@ export class DiffMonitorComponent implements OnInit {
             if(tasks && tasks.length && tasks.length > 0){
                 if(this.batchGrouped){
                     this.config = {
-                        table:j4care.calculateWidthOfTable(this.service.getTableBatchGroupedColumens()),
+                        table:j4care.calculateWidthOfTable(this.service.getTableBatchGroupedColumens((e)=>{
+                            this.showDetails(e)
+                        })),
                         filter:filter
                     };
                     this.tasks = tasks.map(taskObject=>{
@@ -181,6 +183,15 @@ export class DiffMonitorComponent implements OnInit {
             this.cfpLoadingBar.complete();
             this.httpErrorHandler.handleError(err);
         })
+    }
+    showDetails(e){
+        console.log("in show details",e);
+        this.batchGrouped = false;
+        this.filterObject['batchID'] = e.batchID;
+        let filter = Object.assign({},this.filterObject);
+        if(filter['limit'])
+            filter['limit']++;
+        this.getDiffTasks(filter);
     }
     next(){
         if(this.moreTasks){

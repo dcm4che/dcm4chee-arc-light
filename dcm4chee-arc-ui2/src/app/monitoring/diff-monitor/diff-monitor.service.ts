@@ -248,7 +248,7 @@ export class DiffMonitorService {
             }
         ];
     }
-    getTableBatchGroupedColumens(){
+    getTableBatchGroupedColumens(showDetails){
         return [
             {
                 type:"index",
@@ -270,10 +270,20 @@ export class DiffMonitorService {
                             console.log("e",e);
                             e.showAttributes = !e.showAttributes;
                         }
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-list-alt',
+                            text:''
+                        },
+                        click:(e)=>{
+                            showDetails.apply(this,[e]);
+                        }
                     }
                 ],
                 description:"Index",
-                widthWeight:0.1,
+                widthWeight:0.3,
                 calculatedWidth:"4%"
             },{
                 type:"model",
