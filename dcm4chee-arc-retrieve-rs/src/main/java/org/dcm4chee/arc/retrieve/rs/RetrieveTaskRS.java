@@ -261,14 +261,14 @@ public class RetrieveTaskRS {
 
         if (deviceName == null) {
             List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
+            int count = 0;
             for (String devName : distinctDeviceNames) {
-                Response response = devName.equals(device.getDeviceName())
-                        ? rescheduleTasks(matchQueueMessage)
-                        : rsClient.forward(request, devName);
-                LOG.info("Tasks rescheduled on device: {}. Response received with status: {} and entity: {}",
-                        devName, response.getStatus(), response.getEntity().toString());
+                LOG.info("Reschedule tasks on device: {}.", devName);
+                count += count(devName.equals(device.getDeviceName())
+                                ? rescheduleTasks(matchQueueMessage)
+                                : rsClient.forward(request, devName));
             }
-            return Response.ok().build();
+            return count(count);
         }
         return !deviceName.equals(device.getDeviceName())
                 ? rsClient.forward(request, deviceName)
@@ -337,6 +337,18 @@ public class RetrieveTaskRS {
 
     private static Response count(long count) {
         return rsp(Response.Status.OK, "{\"count\":" + count + '}');
+    }
+
+    private int count(Response response) {
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            String entity = response.getEntity().toString();
+            Integer count = Integer.valueOf(entity.substring(entity.indexOf(':')+1, entity.indexOf('}')));
+            LOG.info("Rescheduling of {} tasks successfully completed.", count);
+            return count;
+        }
+        LOG.warn("Rescheduling of tasks unsuccessful. Response received with status: {} and entity: {}",
+                response.getStatus(), response.getEntity());
+        return 0;
     }
 
     private Output selectMediaType(String accept) {
