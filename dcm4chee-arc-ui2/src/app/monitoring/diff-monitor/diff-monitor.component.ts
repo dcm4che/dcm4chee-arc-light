@@ -32,6 +32,7 @@ export class DiffMonitorComponent implements OnInit {
     config;
     moreTasks;
     dialogRef: MatDialogRef<any>;
+    count;
     constructor(
         private service:DiffMonitorService,
         private mainservice:AppService,
@@ -101,7 +102,7 @@ export class DiffMonitorComponent implements OnInit {
         });
     }
     initSchema(){
-        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,"Size",this.devices),3);
+        this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFormSchema(this.aes, this.aets,`COUNT ${((this.count || this.count == 0)?this.count:'')}`,this.devices),3);
     }
     onSubmit(e){
         console.log("e",e);
@@ -112,6 +113,12 @@ export class DiffMonitorComponent implements OnInit {
                 if(filter['limit'])
                     filter['limit']++;
                 this.getDiffTasks(filter);
+            }
+            if(e.id === "count"){
+                let filter = Object.assign({},this.filterObject);
+                delete filter["limit"];
+                delete filter["offset"];
+                this.getDiffTasksCount(filter);
             }
         }
     }
@@ -183,6 +190,21 @@ export class DiffMonitorComponent implements OnInit {
             this.cfpLoadingBar.complete();
             this.httpErrorHandler.handleError(err);
         })
+    }
+    getDiffTasksCount(filters){
+        this.cfpLoadingBar.start();
+        this.service.getDiffTasksCount(filters).subscribe((res)=>{
+            try{
+                this.count = res.count;
+            }catch (e){
+                this.count = "";
+            }
+            this.initSchema();
+            this.cfpLoadingBar.complete();
+        },(err)=>{
+            this.cfpLoadingBar.complete();
+            this.httpErrorHandler.handleError(err);
+        });
     }
     showDetails(e){
         console.log("in show details",e);

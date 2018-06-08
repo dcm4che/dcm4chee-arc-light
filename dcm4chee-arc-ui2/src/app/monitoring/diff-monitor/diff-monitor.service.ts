@@ -365,4 +365,11 @@ export class DiffMonitorService {
             .map(res => j4care.redirectOnAuthResponse(res));
 
     }
+    getDiffTasksCount(filters){
+        let urlParam = this.mainservice.param(filters);
+        urlParam = urlParam?`?${urlParam}`:'';
+        let url = `../monitor/diff/count${urlParam}`;
+        return this.$http.get(url)
+            .map(res => j4care.redirectOnAuthResponse(res));
+    }
 }
