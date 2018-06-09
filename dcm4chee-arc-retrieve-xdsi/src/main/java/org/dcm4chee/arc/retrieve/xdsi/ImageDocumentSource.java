@@ -53,7 +53,7 @@ import org.dcm4chee.arc.xdsi.*;
 import org.dcm4chee.arc.xdsi.RetrieveDocumentSetRequestType.DocumentRequest;
 import org.dcm4chee.arc.xdsi.RetrieveDocumentSetResponseType.DocumentResponse;
 import org.dcm4chee.arc.xdsi.RetrieveRenderedImagingDocumentSetRequestType.StudyRequest.SeriesRequest.RenderedDocumentRequest;
-import org.dcm4chee.arc.xdsi.RetrieveRenderedImagingDocumentSetResponseType.RenderedDocumentSetResponse;
+import org.dcm4chee.arc.xdsi.RetrieveRenderedImagingDocumentSetResponseType.RenderedDocumentResponse;
 
 import javax.activation.DataHandler;
 import javax.enterprise.event.Event;
@@ -178,7 +178,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
                 if (!ctx.copyToRetrieveCache(match)) {
                     for (RenderedDocumentRequest docReq : map.get(match.getSopInstanceUID())) {
                         dh = new RenderedImageDataHandler(ctx, match);
-                        rsp.getRenderedDocumentSetResponse().add(createRenderedDocumentResponse(docReq, dh));
+                        rsp.getRenderedDocumentResponse().add(createRenderedDocumentResponse(docReq, dh));
                     }
                 }
             }
@@ -187,14 +187,14 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
             while ((match = ctx.copiedToRetrieveCache()) != null) {
                 for (RenderedDocumentRequest docReq : map.get(match.getSopInstanceUID())) {
                     dh = new RenderedImageDataHandler(ctx, match);
-                    rsp.getRenderedDocumentSetResponse().add(createRenderedDocumentResponse(docReq, dh));
+                    rsp.getRenderedDocumentResponse().add(createRenderedDocumentResponse(docReq, dh));
                 }
             }
             if (dh != null)
                 dh.setRetrieveEnd(retrieveEnd);
         }
         regRsp.setStatus(regRsp.getRegistryErrorList() == null ? XDS_STATUS_SUCCESS
-                : rsp.getRenderedDocumentSetResponse().isEmpty() ? XDS_STATUS_FAILURE
+                : rsp.getRenderedDocumentResponse().isEmpty() ? XDS_STATUS_FAILURE
                 : XDS_STATUS_PARTIAL_SUCCESS);
         return rsp;
     }
@@ -507,8 +507,8 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         return docRsp;
     }
 
-    private RenderedDocumentSetResponse createRenderedDocumentResponse(RenderedDocumentRequest docReq, DataHandler dh) {
-        RenderedDocumentSetResponse docRsp = new RenderedDocumentSetResponse();
+    private RenderedDocumentResponse createRenderedDocumentResponse(RenderedDocumentRequest docReq, DataHandler dh) {
+        RenderedDocumentResponse docRsp = new RenderedDocumentResponse();
         docRsp.setDocument(dh);
         docRsp.setSourceDocumentUniqueId(docReq.getDocumentUniqueId());
         docRsp.setHomeCommunityId(docReq.getHomeCommunityId());

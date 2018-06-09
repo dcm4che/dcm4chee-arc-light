@@ -24,7 +24,7 @@
 		<xsd:schema elementFormDefault="qualified" targetNamespace="urn:dicom:wado:ws:2011"
 			xmlns:ihe="urn:ihe:iti:xds-b:2007" xmlns:wado="urn:dicom:wado:ws:2011">
 			<!-- Include the message schema -->
-			<xsd:include schemaLocation="../schema/IHE/dicom.wado.ws.2011.xsd" />
+			<xsd:include schemaLocation="../schema/DICOM/dicom.wado.ws.2011.xsd" />
 		</xsd:schema>
 		<xsd:schema elementFormDefault="qualified"
 			targetNamespace="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0"
