@@ -62,7 +62,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -98,8 +97,8 @@ public interface RetrieveService {
             HttpServletRequest request, String localAET, String studyUID, String... seriesUIDs);
 
     RetrieveContext newRetrieveContextXDSI(
-            HttpServletRequest request, String localAET,List<String> studyUIDs,
-            List<String> seriesUIDs, List<String> objectUIDs);
+            HttpServletRequest request, String localAET, String[] studyUIDs,
+            String[] seriesUIDs, String[] objectUIDs);
 
     RetrieveContext newRetrieveContext(String localAET, String studyUID, String seriesUID, String objectUID);
 

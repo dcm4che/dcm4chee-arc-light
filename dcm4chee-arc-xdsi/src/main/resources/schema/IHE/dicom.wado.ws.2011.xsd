@@ -2,7 +2,7 @@
 <xs:schema xmlns:wado="urn:dicom:wado:ws:2011" xmlns:ihe="urn:ihe:iti:xds-b:2007"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0"
 	xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0" xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0"
-	xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0"
+	xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0" xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
 	elementFormDefault="qualified" attributeFormDefault="unqualified"
 	targetNamespace="urn:dicom:wado:ws:2011">
 	<xs:import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0"
@@ -66,6 +66,8 @@
 															type="xs:string"/>
 												<xs:element minOccurs="0" name="ImageQuality"
 															type="xs:string"/>
+												<xs:element minOccurs="0" name="PresentationUID"
+															type="xs:string"/>
 												<xs:element minOccurs="0" name="PresentationSeriesUID"
 															type="xs:string"/>
 												<xs:element minOccurs="0" name="Anonymize"
@@ -80,9 +82,13 @@
 										</xs:complexType>
 									</xs:element>
 								</xs:sequence>
+								<xs:attribute name="seriesInstanceUID" type="rim:LongName"
+									use="required" />
 							</xs:complexType>
 						</xs:element>
 					</xs:sequence>
+					<xs:attribute name="studyInstanceUID" type="rim:LongName"
+						use="required" />
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>
@@ -120,20 +126,31 @@
 								</xs:documentation>
 							</xs:annotation>
 						</xs:element>
-						<xs:element minOccurs="1" name="Annotation" type="xs:string"/>
-						<xs:element minOccurs="1" name="Rows" type="xs:string"/>
-						<xs:element minOccurs="1" name="Columns" type="xs:string"/>
-						<xs:element minOccurs="1" name="Region" type="xs:string"/>
-						<xs:element name="WindowWidth" type="xs:string"/>
-						<xs:element minOccurs="1" name="WindowCenter" type="xs:string"/>
-						<xs:element minOccurs="1" name="ImageQuality" type="xs:string"/>
-						<xs:element minOccurs="1" name="PresentationSeriesUID"
+						<xs:element minOccurs="0" name="Annotation"
 									type="xs:string"/>
-						<xs:element minOccurs="0" name="Anonymize" type="xs:string"/>
-						<xs:element minOccurs="0" name="FrameNumber" type="xs:string"/>
-						<xs:element minOccurs="1" name="mimeType" type="xs:string"
-									maxOccurs="1"/>
-						<xs:element minOccurs="1" name="Document" type="xs:base64Binary"/>
+						<xs:element minOccurs="0" name="Rows"
+									type="xs:string"/>
+						<xs:element minOccurs="0" name="Columns"
+									type="xs:string"/>
+						<xs:element minOccurs="0" name="Region"
+									type="xs:string"/>
+						<xs:element minOccurs="0" name="WindowWidth"
+									type="xs:string"/>
+						<xs:element minOccurs="0" name="WindowCenter"
+									type="xs:string"/>
+						<xs:element minOccurs="0" name="ImageQuality"
+									type="xs:string"/>
+						<xs:element minOccurs="0" name="PresentationUID"
+									type="xs:string"/>
+						<xs:element minOccurs="0" name="PresentationSeriesUID"
+									type="xs:string"/>
+						<xs:element minOccurs="0" name="Anonymize"
+									type="xs:string"/>
+						<xs:element minOccurs="0" name="FrameNumber"
+									type="xs:string"/>
+						<xs:element name="mimeType" type="xs:string"/>
+						<xs:element name="Document" type="xs:base64Binary"
+									xmime:expectedContentTypes="application/octet-stream"/>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
