@@ -20,13 +20,13 @@
   <xs:import namespace="urn:ihe:iti:xds-b:2007" schemaLocation="../IHE/XDS.b_DocumentRepository.xsd"/>
   <xs:complexType name="RetrieveRenderedImagingDocumentSetRequestType">
     <xs:sequence>
-      <xs:element maxOccurs="unbounded" name="StudyRequest">
+      <xs:element name="StudyRequest" maxOccurs="unbounded">
         <xs:complexType>
           <xs:sequence>
-            <xs:element maxOccurs="unbounded" name="SeriesRequest">
+            <xs:element name="SeriesRequest" maxOccurs="unbounded">
               <xs:complexType>
                 <xs:sequence>
-                  <xs:element maxOccurs="unbounded" name="RenderedDocumentRequest">
+                  <xs:element name="RenderedDocumentRequest" maxOccurs="unbounded">
                     <xs:complexType>
                       <xs:sequence>
                         <xs:element name="HomeCommunityId" type="rim:LongName" minOccurs="0"/>
