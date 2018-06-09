@@ -29,20 +29,20 @@
                   <xs:element maxOccurs="unbounded" name="RenderedDocumentRequest">
                     <xs:complexType>
                       <xs:sequence>
-                        <xs:element minOccurs="0" name="HomeCommunityId" type="rim:LongName"/>
-                        <xs:element minOccurs="0" name="RepositoryUniqueId" type="rim:LongName"/>
+                        <xs:element name="HomeCommunityId" type="rim:LongName" minOccurs="0"/>
+                        <xs:element name="RepositoryUniqueId" type="rim:LongName" minOccurs="0"/>
                         <xs:element name="DocumentUniqueId" type="rim:LongName"/>
-                        <xs:element minOccurs="0" name="Annotation" type="xs:string"/>
-                        <xs:element minOccurs="0" name="Rows" type="xs:string"/>
-                        <xs:element minOccurs="0" name="Columns" type="xs:string"/>
-                        <xs:element minOccurs="0" name="Region" type="xs:string"/>
-                        <xs:element minOccurs="0" name="WindowWidth" type="xs:string"/>
-                        <xs:element minOccurs="0" name="WindowCenter" type="xs:string"/>
-                        <xs:element minOccurs="0" name="ImageQuality" type="xs:string"/>
-                        <xs:element minOccurs="0" name="PresentationUID" type="xs:string"/>
-                        <xs:element minOccurs="0" name="PresentationSeriesUID" type="xs:string"/>
-                        <xs:element minOccurs="0" name="Anonymize" type="xs:string"/>
-                        <xs:element minOccurs="0" name="FrameNumber" type="xs:string"/>
+                        <xs:element name="Annotation" type="xs:string" minOccurs="0"/>
+                        <xs:element name="Rows" type="xs:string" minOccurs="0"/>
+                        <xs:element name="Columns" type="xs:string" minOccurs="0"/>
+                        <xs:element name="Region" type="xs:string" minOccurs="0"/>
+                        <xs:element name="WindowWidth" type="xs:string" minOccurs="0"/>
+                        <xs:element name="WindowCenter" type="xs:string" minOccurs="0"/>
+                        <xs:element name="ImageQuality" type="xs:string" minOccurs="0"/>
+                        <xs:element name="PresentationUID" type="xs:string" minOccurs="0"/>
+                        <xs:element name="PresentationSeriesUID" type="xs:string" minOccurs="0"/>
+                        <xs:element name="Anonymize" type="xs:string" minOccurs="0"/>
+                        <xs:element name="FrameNumber" type="xs:string" minOccurs="0"/>
                         <xs:element name="ContentTypeList" type="xs:string" maxOccurs="unbounded"/>
                         <xs:element name="CharsetList" type="xs:string" maxOccurs="unbounded"/>
                       </xs:sequence>
@@ -63,23 +63,23 @@
   <xs:complexType name="RetrieveRenderedImagingDocumentSetResponseType">
     <xs:sequence>
       <xs:element name="RegistryResponse" type="rs:RegistryResponseType"/>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="RenderedDocumentResponse">
+      <xs:element name="RenderedDocumentResponse" minOccurs="0" maxOccurs="unbounded">
         <xs:complexType>
           <xs:sequence>
-            <xs:element minOccurs="0" name="HomeCommunityId" type="rim:LongName"/>
+            <xs:element name="HomeCommunityId" type="rim:LongName" minOccurs="0"/>
             <xs:element name="RepositoryUniqueId" type="rim:LongName"/>
             <xs:element name="SourceDocumentUniqueId" type="rim:LongName"/>
-            <xs:element minOccurs="0" name="Annotation" type="xs:string"/>
-            <xs:element minOccurs="0" name="Rows" type="xs:string"/>
-            <xs:element minOccurs="0" name="Columns" type="xs:string"/>
-            <xs:element minOccurs="0" name="Region" type="xs:string"/>
-            <xs:element minOccurs="0" name="WindowWidth" type="xs:string"/>
-            <xs:element minOccurs="0" name="WindowCenter" type="xs:string"/>
-            <xs:element minOccurs="0" name="ImageQuality" type="xs:string"/>
-            <xs:element minOccurs="0" name="PresentationUID" type="xs:string"/>
-            <xs:element minOccurs="0" name="PresentationSeriesUID" type="xs:string"/>
-            <xs:element minOccurs="0" name="Anonymize" type="xs:string"/>
-            <xs:element minOccurs="0" name="FrameNumber" type="xs:string"/>
+            <xs:element name="Annotation" type="xs:string" minOccurs="0"/>
+            <xs:element name="Rows" type="xs:string" minOccurs="0"/>
+            <xs:element name="Columns" type="xs:string" minOccurs="0"/>
+            <xs:element name="Region" type="xs:string" minOccurs="0"/>
+            <xs:element name="WindowWidth" type="xs:string" minOccurs="0"/>
+            <xs:element name="WindowCenter" type="xs:string" minOccurs="0"/>
+            <xs:element name="ImageQuality" type="xs:string" minOccurs="0"/>
+            <xs:element name="PresentationUID" type="xs:string" minOccurs="0"/>
+            <xs:element name="PresentationSeriesUID" type="xs:string" minOccurs="0"/>
+            <xs:element name="Anonymize" type="xs:string" minOccurs="0"/>
+            <xs:element name="FrameNumber" type="xs:string" minOccurs="0"/>
             <xs:element name="mimeType" type="xs:string"/>
             <xs:element name="Document" type="xs:base64Binary"
                         xmime:expectedContentTypes="application/octet-stream"/>
