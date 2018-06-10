@@ -57,9 +57,13 @@ import org.dcm4chee.arc.xdsi.RetrieveRenderedImagingDocumentSetResponseType.Rend
 
 import javax.activation.DataHandler;
 import javax.enterprise.event.Event;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageWriter;
 import javax.inject.Inject;
 import javax.jws.WebService;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.xml.ws.BindingType;
 import javax.xml.ws.soap.Addressing;
@@ -174,10 +178,12 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         if (calculateMatches(ctx, regRsp, map)) {
             retrieveStart.fire(ctx);
             RenderedImageDataHandler dh = null;
+            ImageReader imageReader = getDicomImageReader();
+            ImageWriter imageWriter = getImageWriter(MediaTypes.IMAGE_JPEG_TYPE);
             for (InstanceLocations match : ctx.getMatches()) {
                 if (!ctx.copyToRetrieveCache(match)) {
                     for (RenderedDocumentRequest docReq : map.get(match.getSopInstanceUID())) {
-                        dh = new RenderedImageDataHandler(ctx, match);
+                        dh = new RenderedImageDataHandler(ctx, match, docReq, imageReader, imageWriter);
                         rsp.getRenderedDocumentResponse().add(createRenderedDocumentResponse(docReq, dh));
                     }
                 }
@@ -186,7 +192,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
             InstanceLocations match;
             while ((match = ctx.copiedToRetrieveCache()) != null) {
                 for (RenderedDocumentRequest docReq : map.get(match.getSopInstanceUID())) {
-                    dh = new RenderedImageDataHandler(ctx, match);
+                    dh = new RenderedImageDataHandler(ctx, match, docReq, imageReader, imageWriter);
                     rsp.getRenderedDocumentResponse().add(createRenderedDocumentResponse(docReq, dh));
                 }
             }
@@ -197,6 +203,26 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
                 : rsp.getRenderedDocumentResponse().isEmpty() ? XDS_STATUS_FAILURE
                 : XDS_STATUS_PARTIAL_SUCCESS);
         return rsp;
+    }
+
+    private static ImageReader getDicomImageReader() {
+        Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("DICOM");
+        if (!readers.hasNext()) {
+            ImageIO.scanForPlugins();
+            readers = ImageIO.getImageReadersByFormatName("DICOM");
+            if (!readers.hasNext())
+                throw new RuntimeException("DICOM Image Reader not registered");
+        }
+        return readers.next();
+    }
+
+    private static ImageWriter getImageWriter(MediaType mimeType) {
+        String formatName = mimeType.getSubtype();
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(formatName);
+        if (!writers.hasNext())
+            throw new RuntimeException(formatName + " Image Writer not registered");
+
+        return writers.next();
     }
 
     private RetrieveContext newRetrieveContextXDSI(
