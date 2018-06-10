@@ -170,6 +170,11 @@ enum ObjectType {
                 return MPEG2Video;
             case UID.MPEG4AVCH264HighProfileLevel41:
             case UID.MPEG4AVCH264BDCompatibleHighProfileLevel41:
+            case UID.MPEG4AVCH264HighProfileLevel42For2DVideo:
+            case UID.MPEG4AVCH264HighProfileLevel42For3DVideo:
+            case UID.MPEG4AVCH264StereoHighProfileLevel42:
+            case UID.HEVCH265MainProfileLevel51:
+            case UID.HEVCH265Main10ProfileLevel51:
                 return MPEG4Video;
             case UID.ImplicitVRLittleEndian:
             case UID.ExplicitVRLittleEndian:

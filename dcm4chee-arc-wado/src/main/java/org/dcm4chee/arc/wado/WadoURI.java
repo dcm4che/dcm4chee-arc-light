@@ -305,9 +305,10 @@ public class WadoURI {
 
         ImageWriter imageWriter = getImageWriter(mimeType);
         ImageWriteParam writeParam = imageWriter.getDefaultWriteParam();
-        if (imageQuality != null)
+        if (imageQuality != null) {
+            writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             writeParam.setCompressionQuality(parseInt(imageQuality) / 100.f);
-
+        }
         ImageReader imageReader = getDicomImageReader();
         return new RenderedImageOutput(service.openDicomInputStream(ctx, inst),
                 imageReader, readParam, parseInt(rows), parseInt(columns), imageIndex,

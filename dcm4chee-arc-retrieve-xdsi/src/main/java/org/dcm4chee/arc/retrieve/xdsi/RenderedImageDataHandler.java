@@ -109,8 +109,10 @@ public class RenderedImageDataHandler extends DataHandler {
 
     private ImageWriteParam writeParam() {
         ImageWriteParam writeParam = imageWriter.getDefaultWriteParam();
-        if (docReq.getImageQuality() != null)
+        if (docReq.getImageQuality() != null) {
+            writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             writeParam.setCompressionQuality(Integer.parseInt(docReq.getImageQuality()) / 100.f);
+        }
         return writeParam;
     }
 

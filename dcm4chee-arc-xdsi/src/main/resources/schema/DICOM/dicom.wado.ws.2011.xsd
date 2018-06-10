@@ -6,7 +6,6 @@
            xmlns:query="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
            xmlns:lcm="urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0"
            xmlns:rs="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0"
-           xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
            elementFormDefault="qualified"
            targetNamespace="urn:dicom:wado:ws:2011">
   <xs:import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0"
@@ -29,9 +28,9 @@
                   <xs:element name="RenderedDocumentRequest" maxOccurs="unbounded">
                     <xs:complexType>
                       <xs:sequence>
-                        <xs:element name="HomeCommunityId" type="rim:LongName" minOccurs="0"/>
-                        <xs:element name="RepositoryUniqueId" type="rim:LongName" minOccurs="0"/>
-                        <xs:element name="DocumentUniqueId" type="rim:LongName"/>
+                        <xs:element ref="ihe:HomeCommunityId" minOccurs="0"/>
+                        <xs:element ref="ihe:RepositoryUniqueId"/>
+                        <xs:element ref="ihe:DocumentUniqueId"/>
                         <xs:element name="Annotation" type="xs:string" minOccurs="0"/>
                         <xs:element name="Rows" type="xs:string" minOccurs="0"/>
                         <xs:element name="Columns" type="xs:string" minOccurs="0"/>
@@ -43,8 +42,20 @@
                         <xs:element name="PresentationSeriesUID" type="xs:string" minOccurs="0"/>
                         <xs:element name="Anonymize" type="xs:string" minOccurs="0"/>
                         <xs:element name="FrameNumber" type="xs:string" minOccurs="0"/>
-                        <xs:element name="ContentTypeList" type="xs:string" maxOccurs="unbounded"/>
-                        <xs:element name="CharsetList" type="xs:string" maxOccurs="unbounded"/>
+                        <xs:element name="ContentTypeList">
+                          <xs:complexType>
+                            <xs:sequence>
+                              <xs:element name="ContentType" type="xs:string" maxOccurs="unbounded"/>
+                            </xs:sequence>
+                          </xs:complexType>
+                        </xs:element>
+                        <xs:element name="CharsetList" minOccurs="0">
+                          <xs:complexType>
+                            <xs:sequence>
+                              <xs:element name="Charset" type="xs:string" maxOccurs="unbounded"/>
+                            </xs:sequence>
+                          </xs:complexType>
+                        </xs:element>
                       </xs:sequence>
                     </xs:complexType>
                   </xs:element>
@@ -66,8 +77,8 @@
       <xs:element name="RenderedDocumentResponse" minOccurs="0" maxOccurs="unbounded">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="HomeCommunityId" type="rim:LongName" minOccurs="0"/>
-            <xs:element name="RepositoryUniqueId" type="rim:LongName"/>
+            <xs:element ref="ihe:HomeCommunityId" minOccurs="0"/>
+            <xs:element ref="ihe:RepositoryUniqueId"/>
             <xs:element name="SourceDocumentUniqueId" type="rim:LongName"/>
             <xs:element name="Annotation" type="xs:string" minOccurs="0"/>
             <xs:element name="Rows" type="xs:string" minOccurs="0"/>
@@ -80,9 +91,8 @@
             <xs:element name="PresentationSeriesUID" type="xs:string" minOccurs="0"/>
             <xs:element name="Anonymize" type="xs:string" minOccurs="0"/>
             <xs:element name="FrameNumber" type="xs:string" minOccurs="0"/>
-            <xs:element name="mimeType" type="xs:string"/>
-            <xs:element name="Document" type="xs:base64Binary"
-                        xmime:expectedContentTypes="application/octet-stream"/>
+            <xs:element ref="ihe:mimeType"/>
+            <xs:element ref="ihe:Document"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>

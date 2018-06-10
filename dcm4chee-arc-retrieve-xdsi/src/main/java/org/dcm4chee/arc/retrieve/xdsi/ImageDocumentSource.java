@@ -47,6 +47,7 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.xdsi.*;
@@ -231,7 +232,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         List<RetrieveImagingDocumentSetRequestType.StudyRequest> studyRequest = req.getStudyRequest();
         String[] studyUIDs = new String[studyRequest.size()];
         String[] seriesUIDs = studyUIDs.length == 1
-                ? new String[studyRequest.get(1).getSeriesRequest().size()]
+                ? new String[studyRequest.get(0).getSeriesRequest().size()]
                 : null;
 
         int i = 0;
@@ -261,7 +262,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         List<RetrieveRenderedImagingDocumentSetRequestType.StudyRequest> studyRequest = req.getStudyRequest();
         String[] studyUIDs = new String[studyRequest.size()];
         String[] seriesUIDs = studyUIDs.length == 1
-                ? new String[studyRequest.get(1).getSeriesRequest().size()]
+                ? new String[studyRequest.get(0).getSeriesRequest().size()]
                 : null;
 
         int i = 0;
@@ -326,8 +327,11 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     }
 
     private boolean validateTransferSyntax(List<String> tsuids, RegistryResponseType regRsp, InstanceLocations match) {
-        if (match.getLocations().stream().anyMatch(l -> tsuids.contains(l.getTransferSyntaxUID())
-                && tsuids.contains(UID.ExplicitVRLittleEndian) && tsuids.contains(UID.ImplicitVRLittleEndian))) {
+        if (match.getLocations().stream().map(Location::getStoragePath).anyMatch(
+                tsuid -> tsuids.contains(tsuid)
+                        || (!isVideo(tsuid)
+                            && (tsuids.contains(UID.ExplicitVRLittleEndian)
+                            || tsuids.contains(UID.ImplicitVRLittleEndian))))) {
             return true;
         }
         errors(regRsp).add(createRegistryError(
@@ -357,7 +361,8 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
             return createUnsupportedParamError("Annotation", match);
         }
 
-        if (docReq.getContentTypeList().stream().noneMatch(accepted -> MediaTypes.IMAGE_JPEG.equalsIgnoreCase(accepted))) {
+        if (docReq.getContentTypeList().getContentType().stream().noneMatch(
+                accepted -> MediaTypes.IMAGE_JPEG.equalsIgnoreCase(accepted))) {
             return createRegistryError(NO_ACCEPTABLE_ERR_CODE, NO_ACCEPTABLE_CONTENT_TYPE, XDS_ERR_SEVERITY_ERROR, match);
         }
 
@@ -496,7 +501,11 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     }
 
     private static boolean isVideo(InstanceLocations inst) {
-        switch (inst.getLocations().get(0).getTransferSyntaxUID()) {
+        return isVideo(inst.getLocations().get(0).getTransferSyntaxUID());
+    }
+
+    private static boolean isVideo(String tsuid) {
+        switch (tsuid) {
             case UID.MPEG2:
             case UID.MPEG2MainProfileHighLevel:
             case UID.MPEG4AVCH264HighProfileLevel41:

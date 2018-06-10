@@ -12,32 +12,32 @@
 		schemaLocation="../ebRS/lcm.xsd" />
 	<xs:import namespace="urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0"
 		schemaLocation="../ebRS/query.xsd" />
+	<!-- Needed for WADO-WS specific services -->
+	<xs:element name="HomeCommunityId" type="rim:LongName">
+		<xs:annotation>
+			<xs:documentation>This corresponds to the home attribute of the Identifiable class in regrep RIM (regrep-rim-3.0-os.pdf, page 20)</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="RepositoryUniqueId" type="rim:LongName">
+		<xs:annotation>
+			<xs:documentation>This is the XDSDocumentEntry.repositoryUniqueId attribute in the XDS metadata</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="DocumentUniqueId" type="rim:LongName">
+		<xs:annotation>
+			<xs:documentation>This is the XDSDocumentEntry.uniqueId attribute in the XDS metadata</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="mimeType" type="xs:string"/>
+	<xs:element name="Document" type="xs:base64Binary" xmime:expectedContentTypes="application/dicom, image/jpeg, text/xml, text/html"/>
 	<xs:complexType name="RetrieveDocumentSetRequestType">
 		<xs:sequence>
 			<xs:element name="DocumentRequest" maxOccurs="unbounded">
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="HomeCommunityId" type="rim:LongName"
-							minOccurs="0">
-							<xs:annotation>
-								<xs:documentation>This corresponds to the home attribute of the
-									Identifiable class in regrep RIM (regrep-rim-3.0-os.pdf, page
-									20)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="RepositoryUniqueId" type="rim:LongName">
-							<xs:annotation>
-								<xs:documentation>This is the
-									XDSDocumentEntry.repositoryUniqueId attribute in the XDS
-									metadata</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="DocumentUniqueId" type="rim:LongName">
-							<xs:annotation>
-								<xs:documentation>This is the XDSDocumentEntry.uniqueId
-									attribute in the XDS metadata</xs:documentation>
-							</xs:annotation>
-						</xs:element>
+						<xs:element ref="HomeCommunityId" minOccurs="0"/>
+						<xs:element ref="RepositoryUniqueId"/>
+						<xs:element ref="DocumentUniqueId"/>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
@@ -50,27 +50,9 @@
 				<xs:element name="DocumentResponse" maxOccurs="unbounded">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="HomeCommunityId" type="rim:LongName"
-								minOccurs="0">
-								<xs:annotation>
-									<xs:documentation>This corresponds to the home attribute of the
-										Identifiable class in regrep RIM (regrep-rim-3.0-os.pdf, page
-										20)</xs:documentation>
-								</xs:annotation>
-							</xs:element>
-							<xs:element name="RepositoryUniqueId" type="rim:LongName">
-								<xs:annotation>
-									<xs:documentation>This is the
-										XDSDocumentEntry.repositoryUniqueId attribute in the XDS
-										metadata</xs:documentation>
-								</xs:annotation>
-							</xs:element>
-							<xs:element name="DocumentUniqueId" type="rim:LongName">
-								<xs:annotation>
-									<xs:documentation>This is the XDSDocumentEntry.uniqueId
-										attribute in the XDS metadata</xs:documentation>
-								</xs:annotation>
-							</xs:element>
+							<xs:element ref="HomeCommunityId" minOccurs="0"/>
+							<xs:element ref="RepositoryUniqueId"/>
+							<xs:element ref="DocumentUniqueId"/>
 							<xs:element name="NewRepositoryUniqueId" type="rim:LongName"
 								minOccurs="0">
 								<xs:annotation>
@@ -90,9 +72,8 @@
 									</xs:documentation>
 								</xs:annotation>
 							</xs:element>
-							<xs:element name="mimeType" type="rim:LongName" />
-							<xs:element name="Document" type="xs:base64Binary"
-								xmime:expectedContentTypes="application/octet-stream" />
+							<xs:element ref="mimeType"/>
+							<xs:element ref="Document"/>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
