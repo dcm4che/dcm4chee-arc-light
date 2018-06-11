@@ -129,7 +129,7 @@ public class DiffContext {
     public DiffContext setQueryString(String queryString, MultivaluedMap<String, String> queryParameters) {
         this.queryString = queryString;
         this.queryAttributes = new QueryAttributes(queryParameters);
-        this.compareKeys = parseComparefields(queryParameters.get("comparefields"));
+        this.compareKeys = parseComparefields(queryParameters.get("comparefield"));
         this.priority = parseInt(queryParameters.getFirst("priority"), 0);
         this.fuzzymatching = parseBoolean(queryParameters.getFirst("isFuzzymatching"), false);
         this.checkDifferent = parseBoolean(queryParameters.getFirst("different"), true);
