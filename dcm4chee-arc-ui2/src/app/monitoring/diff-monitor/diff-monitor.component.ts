@@ -33,6 +33,16 @@ export class DiffMonitorComponent implements OnInit {
     moreTasks;
     dialogRef: MatDialogRef<any>;
     count;
+    statusValues = {};
+    refreshInterval;
+    interval = 10;
+    timer = {
+        started:false,
+        startText:"Start Auto Refresh",
+        stopText:"Stop Auto Refresh"
+    };
+    Object = Object;
+    tableHovered = false;
     constructor(
         private service:DiffMonitorService,
         private mainservice:AppService,
@@ -69,6 +79,12 @@ export class DiffMonitorComponent implements OnInit {
     }
 
     init(){
+        this.service.statusValues().forEach(val =>{
+            this.statusValues[val.value] = {
+                count: 0,
+                loader: false
+            };
+        });
         this.filterObject = {
             limit:20,
             offset:0
@@ -245,6 +261,12 @@ export class DiffMonitorComponent implements OnInit {
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
+    tableMousEnter(){
+        this.tableHovered = true;
+    }
+    tableMousLeave(){
+        this.tableHovered = false;
+    }
     downloadCsv(){
         this.confirm({
             content:"Do you want to use semicolon as delimiter?",
@@ -276,6 +298,40 @@ export class DiffMonitorComponent implements OnInit {
             });
         })
     }
+    toggleAutoRefresh(){
+        this.timer.started = !this.timer.started;
+        if(this.timer.started){
+            this.getCounts();
+            this.refreshInterval = setInterval(()=>{
+                this.getCounts();
+            },this.interval*1000);
+        }else
+            clearInterval(this.refreshInterval);
+    }
+    getCounts(){
+        let filters = Object.assign({},this.filterObject);
+        if(!this.tableHovered)
+            this.getDiffTasks(filters);
+        Object.keys(this.statusValues).forEach(status=>{
+            filters['status'] = status;
+            this.statusValues[status].loader = true;
+            this.service.getDiffTasksCount(filters).subscribe((count)=>{
+                this.statusValues[status].loader = false;
+                try{
+                    this.statusValues[status].count = count.count;
+                }catch (e){
+                    this.statusValues[status].count = "";
+                }
+            },(err)=>{
+                this.statusValues[status].loader = false;
+                this.statusValues[status].count = "!";
+            });
+        });
+    }
     ngOnDestroy(){
+        if(this.timer.started){
+            this.timer.started = false;
+            clearInterval(this.refreshInterval);
+        }
     }
 }
