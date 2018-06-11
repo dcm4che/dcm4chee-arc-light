@@ -2010,7 +2010,10 @@
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "StudyInstanceUID",
@@ -2110,7 +2113,10 @@
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "StudyInstanceUID",
@@ -2187,7 +2193,10 @@
             "name": "ExporterID",
             "in": "query",
             "description": "list batches with at least one export task with the specified Exporter ID",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "status",
@@ -2276,7 +2285,10 @@
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "StudyInstanceUID",
@@ -2353,7 +2365,10 @@
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "StudyInstanceUID",
@@ -2429,7 +2444,10 @@
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "StudyInstanceUID",
@@ -2517,7 +2535,10 @@
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "StudyInstanceUID",

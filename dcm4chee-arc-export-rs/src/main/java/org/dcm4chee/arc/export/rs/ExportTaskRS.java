@@ -101,6 +101,9 @@ public class ExportTaskRS {
     private Event<BulkQueueMessageEvent> bulkQueueMsgEvent;
 
     @Context
+    private UriInfo uriInfo;
+
+    @Context
     private HttpHeaders httpHeaders;
 
     @QueryParam("StudyInstanceUID")
@@ -150,12 +153,11 @@ public class ExportTaskRS {
             return Response.notAcceptable(
                     Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
                     .build();
-
         QueueMessage.Status status = status();
         ExportTaskQuery tasks = mgr.listExportTasks(status,
                 MatchTask.matchQueueMessage(
                         null, deviceName, status, batchID, null,null, null, null),
-                MatchTask.matchExportTask(exporterID, deviceName, studyUID, createdTime, updatedTime),
+                MatchTask.matchExportTask(uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, updatedTime),
                 MatchTask.exportTaskOrder(orderby),
                 parseInt(offset), parseInt(limit)
         );
@@ -173,7 +175,7 @@ public class ExportTaskRS {
                 MatchTask.matchQueueMessage(
                 null, deviceName, status, batchID, null, null, null, null),
                 MatchTask.matchExportTask(
-                        exporterID, deviceName, studyUID, createdTime, updatedTime)));
+                        uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, updatedTime)));
     }
 
     @POST
@@ -209,7 +211,7 @@ public class ExportTaskRS {
                     MatchTask.matchQueueMessage(
                             null, deviceName, status, batchID, null, null, updatedTime, null),
                     MatchTask.matchExportTask(
-                            exporterID, deviceName, studyUID, createdTime, null),
+                            uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, null),
                     status);
             queueEvent.setCount(count);
             return count(count);
@@ -290,15 +292,12 @@ public class ExportTaskRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = null;
-        if ((exporterID != null && (exporter = arcDev.getExporterDescriptor(exporterID)) == null)
-                || (newExporterID != null && (exporter = arcDev.getExporterDescriptor(newExporterID)) == null)) {
-            return rsp(Response.Status.NOT_FOUND,
-                    "No such exporter - " + (newExporterID != null ? newExporterID : exporterID));
-        }
+        if (newExporterID != null && (exporter = arcDev.getExporterDescriptor(newExporterID)) == null)
+            return rsp(Response.Status.NOT_FOUND, "No such exporter - " + newExporterID);
 
         try {
             Predicate matchExportTask = MatchTask.matchExportTask(
-                    exporterID, deviceName, studyUID, createdTime, updatedTime);
+                    uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, updatedTime);
             int count = 0;
             try (ExportTaskQuery exportTasks = mgr.listExportTasks(status,
                     matchQueueMessage, matchExportTask, null, 0, 0)) {
@@ -339,7 +338,7 @@ public class ExportTaskRS {
         int deleted = mgr.deleteTasks(status,
                 MatchTask.matchQueueMessage(
                         null, deviceName, status, batchID, null, null, null, null),
-                MatchTask.matchExportTask(exporterID, deviceName, studyUID, createdTime, updatedTime));
+                MatchTask.matchExportTask(uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, updatedTime));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';

@@ -50,6 +50,7 @@ import com.querydsl.core.types.dsl.DateTimePath;
 import org.dcm4chee.arc.entity.*;
 
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -105,11 +106,11 @@ public class MatchTask {
         return predicate;
     }
 
-    public static Predicate matchExportTask(String exporterID, String deviceName, String studyUID,
+    public static Predicate matchExportTask(List<String> exporterIDs, String deviceName, String studyUID,
                                             String createdTime, String updatedTime) {
         BooleanBuilder predicate = new BooleanBuilder();
-        if (exporterID != null)
-            predicate.and(QExportTask.exportTask.exporterID.eq(exporterID));
+        if (exporterIDs != null)
+            predicate.and(QExportTask.exportTask.exporterID.in(exporterIDs));
         if (deviceName != null)
             predicate.and(QExportTask.exportTask.deviceName.eq(deviceName));
         if (studyUID != null)
@@ -212,19 +213,19 @@ public class MatchTask {
         BooleanBuilder predicate = new BooleanBuilder();
         predicate.and(QQueueMessage.queueMessage.batchID.isNotNull());
         if (status != null)
-            predicate.and(QQueueMessage.queueMessage.status.in(status));
+            predicate.and(QQueueMessage.queueMessage.status.eq(status));
         if (deviceName != null)
-            predicate.and(QQueueMessage.queueMessage.deviceName.in(deviceName));
+            predicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
         return predicate;
     }
 
     public static Predicate matchExportBatch(
-            String exporterID, String deviceName, String createdTime, String updatedTime) {
+            List<String> exporterIDs, String deviceName, String createdTime, String updatedTime) {
         BooleanBuilder predicate = new BooleanBuilder();
-        if (exporterID != null)
-            predicate.and(QExportTask.exportTask.exporterID.in(exporterID));
+        if (exporterIDs != null)
+            predicate.and(QExportTask.exportTask.exporterID.in(exporterIDs));
         if (deviceName != null)
-            predicate.and(QExportTask.exportTask.deviceName.in(deviceName));
+            predicate.and(QExportTask.exportTask.deviceName.eq(deviceName));
         if (createdTime != null)
             predicate.and(ExpressionUtils.anyOf(MatchDateTimeRange.range(
                     QExportTask.exportTask.createdTime, createdTime, MatchDateTimeRange.FormatDate.DT)));

@@ -41,7 +41,6 @@
 package org.dcm4chee.arc.export.rs;
 
 import org.dcm4che3.conf.json.JsonWriter;
-import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.export.mgt.ExportBatch;
 import org.dcm4chee.arc.export.mgt.ExportManager;
@@ -63,6 +62,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriInfo;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -80,14 +80,11 @@ public class ExportBatchRS {
     @Inject
     private ExportManager mgr;
 
-    @Inject
-    private Device device;
+    @Context
+    private UriInfo uriInfo;
 
     @QueryParam("dicomDeviceName")
     private String deviceName;
-
-    @QueryParam("ExporterID")
-    private String exporterID;
 
     @QueryParam("status")
     @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
@@ -121,7 +118,7 @@ public class ExportBatchRS {
         logRequest();
         List<ExportBatch> exportBatches = mgr.listExportBatches(
                 MatchTask.matchQueueBatch(deviceName, status()),
-                MatchTask.matchExportBatch(exporterID, deviceName, createdTime, updatedTime),
+                MatchTask.matchExportBatch(uriInfo.getQueryParameters().get("ExporterID"), deviceName, createdTime, updatedTime),
                 MatchTask.exportBatchOrder(orderby), parseInt(offset), parseInt(limit));
         return Response.ok().entity(Output.JSON.entity(exportBatches)).build();
     }
