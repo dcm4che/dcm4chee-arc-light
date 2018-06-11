@@ -51,12 +51,12 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -81,18 +81,32 @@ public class KeycloakRS {
     @GET
     @NoCache
     @Produces("application/json")
-    public StreamingOutput getAccessToken() throws Exception {
+    public Response getAccessToken() {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        AccessTokenRequestor.AccessToken accessToken = accessTokenRequestor.getAccessToken(keycloakID);
-        return out -> {
-            JsonGenerator gen = Json.createGenerator(out);
-            JsonWriter writer = new JsonWriter(gen);
-            gen.writeStartObject();
-            writer.writeNotNullOrDef("token", accessToken.getToken(), null);
-            writer.write("expiration", (int) accessToken.getExpiration());
-            gen.writeEnd();
-            gen.flush();
-        };
+        try {
+            AccessTokenRequestor.AccessToken accessToken = accessTokenRequestor.getAccessToken(keycloakID);
+            StreamingOutput out = output -> {
+                JsonGenerator gen = Json.createGenerator(output);
+                JsonWriter writer = new JsonWriter(gen);
+                gen.writeStartObject();
+                writer.writeNotNullOrDef("token", accessToken.getToken(), null);
+                writer.write("expiration", (int) accessToken.getExpiration());
+                gen.writeEnd();
+                gen.flush();
+            };
+            return Response.status(Response.Status.OK).entity(out).build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
+        }
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 
 }
