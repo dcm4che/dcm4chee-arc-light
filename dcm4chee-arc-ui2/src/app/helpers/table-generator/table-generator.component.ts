@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as _ from 'lodash';
 import {j4care} from "../j4care.service";
 
@@ -12,6 +12,8 @@ export class TableGeneratorComponent implements OnInit {
     @Input() config;
     @Input() models;
     @Input() stringifyDetailAttributes;
+    @Output() tableMouseEnter = new EventEmitter();
+    @Output() tableMouseLeave = new EventEmitter();
     _ = _;
     Object = Object;
     constructor() {}
@@ -34,4 +36,10 @@ export class TableGeneratorComponent implements OnInit {
             m.calculatedWidth =  ((m.widthWeight * 100)/summ)+"%";
         });
     };
+    tMousEnter(){
+        this.tableMouseEnter.emit();
+    }
+    tMousLeave(){
+        this.tableMouseLeave.emit();
+    }
 }

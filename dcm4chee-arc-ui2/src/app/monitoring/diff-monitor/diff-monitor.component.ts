@@ -249,9 +249,6 @@ export class DiffMonitorComponent implements OnInit {
             this.getDiffTasks(filter);
         }
     }
-    onFormChange(e){
-
-    }
     confirm(confirmparameters){
         this.dialogConfig.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
@@ -261,10 +258,10 @@ export class DiffMonitorComponent implements OnInit {
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
-    tableMousEnter(){
+    tableMouseEnter(){
         this.tableHovered = true;
     }
-    tableMousLeave(){
+    tableMouseLeave(){
         this.tableHovered = false;
     }
     downloadCsv(){
