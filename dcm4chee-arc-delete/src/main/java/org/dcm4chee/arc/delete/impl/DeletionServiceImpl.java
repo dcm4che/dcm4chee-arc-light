@@ -136,6 +136,7 @@ public class DeletionServiceImpl implements DeletionService {
         try {
             if (studyDeleted(ctx, study, arcAE, pCtx))
                 LOG.info("Successfully delete {} from database", study);
+            study.getPatient().decrementNumberOfStudies();
         } catch (Exception e) {
             LOG.warn("Failed to delete {} on {}", study, e);
             ctx.setException(e);
@@ -157,7 +158,6 @@ public class DeletionServiceImpl implements DeletionService {
             }
 
         if (ctx.getException() == null) {
-            ejb.deleteMWLItemsOfPatient(ctx);
             patientService.deletePatientFromUI(ctx);
             LOG.info("Successfully delete {} from database", ctx.getPatient());
         }

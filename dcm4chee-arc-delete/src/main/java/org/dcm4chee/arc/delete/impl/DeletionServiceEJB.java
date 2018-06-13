@@ -198,14 +198,7 @@ public class DeletionServiceEJB {
 
     public void deleteEmptyStudy(StudyDeleteContext ctx) {
         Study study = ctx.getStudy();
-        study.getPatient().decrementNumberOfStudies();
         em.remove(em.contains(study) ? study : em.merge(study));
-    }
-
-    public void deleteMWLItemsOfPatient(PatientMgtContext ctx) {
-        em.createNamedQuery(MWLItem.DELETE_BY_PATIENT)
-                .setParameter(1, ctx.getPatient())
-                .executeUpdate();
     }
 
     private Collection<Instance> removeOrMarkToDelete(List<Location> locations, int limit, boolean resetSize) {
@@ -298,7 +291,6 @@ public class DeletionServiceEJB {
                 ser.getMetadata().setStatus(Metadata.Status.TO_DELETE);
             em.remove(ser);
         }
-        study.getPatient().decrementNumberOfStudies();
         em.remove(study);
         if (ctx.isDeletePatientOnDeleteLastStudy() && countStudiesOfPatient(patient) == 0) {
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextScheduler();
