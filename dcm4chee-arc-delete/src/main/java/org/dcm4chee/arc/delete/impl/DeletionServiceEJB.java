@@ -298,6 +298,7 @@ public class DeletionServiceEJB {
                 ser.getMetadata().setStatus(Metadata.Status.TO_DELETE);
             em.remove(ser);
         }
+        study.getPatient().decrementNumberOfStudies();
         em.remove(study);
         if (ctx.isDeletePatientOnDeleteLastStudy() && countStudiesOfPatient(patient) == 0) {
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextScheduler();
