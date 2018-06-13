@@ -1875,6 +1875,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storeAccessControlIDRules.addAll(arcdev.storeAccessControlIDRules);
         rejectionNoteMap.clear();
         rejectionNoteMap.putAll(arcdev.rejectionNoteMap);
+        keycloakServerMap.clear();
+        keycloakServerMap.putAll(arcdev.keycloakServerMap);
         xRoadProperties.clear();
         xRoadProperties.putAll(arcdev.xRoadProperties);
     }
