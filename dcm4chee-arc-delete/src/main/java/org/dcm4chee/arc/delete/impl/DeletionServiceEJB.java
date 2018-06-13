@@ -198,6 +198,7 @@ public class DeletionServiceEJB {
 
     public void deleteEmptyStudy(StudyDeleteContext ctx) {
         Study study = ctx.getStudy();
+        study.getPatient().decrementNumberOfStudies();
         em.remove(em.contains(study) ? study : em.merge(study));
     }
 
