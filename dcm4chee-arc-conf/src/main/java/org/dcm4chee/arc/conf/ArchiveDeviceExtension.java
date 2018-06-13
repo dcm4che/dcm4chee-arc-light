@@ -154,6 +154,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired =
             AllowRejectionForDataRetentionPolicyExpired.EXPIRED_UNSET;
     private AcceptMissingPatientID acceptMissingPatientID = AcceptMissingPatientID.CREATE;
+    private AllowDeletePatient allowDeletePatient = AllowDeletePatient.WITHOUT_STUDIES;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently = AllowDeleteStudyPermanently.REJECTED;
     private AcceptConflictingPatientID acceptConflictingPatientID = AcceptConflictingPatientID.MERGED;
     private String[] retrieveAETitles = {};
@@ -1505,6 +1506,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.allowDeleteStudyPermanently = allowDeleteStudyPermanently;
     }
 
+    public AllowDeletePatient getAllowDeletePatient() {
+        return allowDeletePatient;
+    }
+
+    public void setAllowDeletePatient(AllowDeletePatient allowDeletePatient) {
+        this.allowDeletePatient = allowDeletePatient;
+    }
+
     public AcceptConflictingPatientID getAcceptConflictingPatientID() {
         return acceptConflictingPatientID;
     }
@@ -1800,6 +1809,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = arcdev.acceptMissingPatientID;
         allowDeleteStudyPermanently = arcdev.allowDeleteStudyPermanently;
+        allowDeletePatient = arcdev.allowDeletePatient;
         retrieveAETitles = arcdev.retrieveAETitles;
         remapRetrieveURL = arcdev.remapRetrieveURL;
         remapRetrieveURLClientHost = arcdev.remapRetrieveURLClientHost;

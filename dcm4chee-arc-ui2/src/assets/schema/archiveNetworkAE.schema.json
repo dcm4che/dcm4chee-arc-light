@@ -310,6 +310,16 @@
         "REJECTED"
       ]
     },
+    "dcmAllowDeletePatient": {
+      "title": "Allow Delete Patient",
+      "description": "Allow permanent deletion of Patients. Enumerated values: NEVER, ALWAYS, WITHOUT_STUDIES. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "WITHOUT_STUDIES"
+      ]
+    },
     "dcmDefaultCharacterSet": {
       "title": "Default Character Set",
       "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by this Network AE. Overwrites value specified on Device level.",

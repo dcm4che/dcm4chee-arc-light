@@ -177,6 +177,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 AllowRejectionForDataRetentionPolicyExpired.EXPIRED_UNSET);
         writer.writeNotNullOrDef("dcmAcceptMissingPatientID", arcDev.getAcceptMissingPatientID(), AcceptMissingPatientID.CREATE);
         writer.writeNotNullOrDef("dcmAllowDeleteStudyPermanently", arcDev.getAllowDeleteStudyPermanently(), null);
+        writer.writeNotNullOrDef("dcmAllowDeletePatient", arcDev.getAllowDeletePatient(), AllowDeletePatient.WITHOUT_STUDIES);
         writer.writeNotNullOrDef("dcmStorePermissionServiceExpirationDatePattern",
                 arcDev.getStorePermissionServiceExpirationDatePattern(), null);
         writer.writeNotNullOrDef("dcmShowPatientInfoInSystemLog",
@@ -628,6 +629,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("dcmAcceptedUserRole", arcAE.getAcceptedUserRoles());
         writer.writeNotNullOrDef("dcmAcceptMissingPatientID", arcAE.getAcceptMissingPatientID(), null);
         writer.writeNotNullOrDef("dcmAllowDeleteStudyPermanently", arcAE.getAllowDeleteStudyPermanently(), null);
+        writer.writeNotNullOrDef("dcmAllowDeletePatient", arcAE.getAllowDeletePatient(), null);
         writer.writeNotNullOrDef("dcmStorePermissionServiceExpirationDatePattern",
                 arcAE.getStorePermissionServiceExpirationDatePattern(), null);
         writer.writeNotNullOrDef("dcmDefaultCharacterSet", arcAE.getDefaultCharacterSet(), null);
@@ -916,6 +918,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAllowDeleteStudyPermanently":
                     arcDev.setAllowDeleteStudyPermanently(AllowDeleteStudyPermanently.valueOf(reader.stringValue()));
+                    break;
+                case "dcmAllowDeletePatient":
+                    arcDev.setAllowDeletePatient(AllowDeletePatient.valueOf(reader.stringValue()));
                     break;
                 case "dcmStorePermissionServiceExpirationDatePattern":
                     arcDev.setStorePermissionServiceExpirationDatePattern(Pattern.compile(reader.stringValue()));
@@ -1999,6 +2004,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAllowDeleteStudyPermanently":
                     arcAE.setAllowDeleteStudyPermanently(AllowDeleteStudyPermanently.valueOf(reader.stringValue()));
+                    break;
+                case "dcmAllowDeletePatient":
+                    arcAE.setAllowDeletePatient(AllowDeletePatient.valueOf(reader.stringValue()));
                     break;
                 case "dcmStorePermissionServiceExpirationDatePattern":
                     arcAE.setStorePermissionServiceExpirationDatePattern(Pattern.compile(reader.stringValue()));

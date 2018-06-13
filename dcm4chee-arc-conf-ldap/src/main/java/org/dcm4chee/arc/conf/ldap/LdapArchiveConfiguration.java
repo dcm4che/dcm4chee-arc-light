@@ -179,6 +179,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getAcceptMissingPatientID(), AcceptMissingPatientID.CREATE);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowDeleteStudyPermanently",
                 ext.getAllowDeleteStudyPermanently(), AllowDeleteStudyPermanently.REJECTED);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowDeletePatient",
+                ext.getAllowDeletePatient(), AllowDeletePatient.WITHOUT_STUDIES);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceExpirationDatePattern",
                 ext.getStorePermissionServiceExpirationDatePattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmShowPatientInfoInSystemLog",
@@ -334,6 +336,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAllowDeleteStudyPermanently(LdapUtils.enumValue(AllowDeleteStudyPermanently.class,
                 attrs.get("dcmAllowDeleteStudyPermanently"),
                 AllowDeleteStudyPermanently.REJECTED));
+        ext.setAllowDeletePatient(LdapUtils.enumValue(AllowDeletePatient.class, attrs.get("dcmAllowDeletePatient"), AllowDeletePatient.WITHOUT_STUDIES));
         ext.setStorePermissionServiceExpirationDatePattern(toPattern(attrs.get("dcmStorePermissionServiceExpirationDatePattern")));
         ext.setShowPatientInfoInSystemLog(LdapUtils.enumValue(ShowPatientInfo.class,
                 attrs.get("dcmShowPatientInfoInSystemLog"), ShowPatientInfo.PLAIN_TEXT));
@@ -569,6 +572,9 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAllowDeleteStudyPermanently",
                 aa.getAllowDeleteStudyPermanently(), bb.getAllowDeleteStudyPermanently(),
                 AllowDeleteStudyPermanently.REJECTED);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAllowDeletePatient",
+                aa.getAllowDeletePatient(), bb.getAllowDeletePatient(),
+                AllowDeletePatient.WITHOUT_STUDIES);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceExpirationDatePattern",
                 aa.getStorePermissionServiceExpirationDatePattern(), bb.getStorePermissionServiceExpirationDatePattern(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmShowPatientInfoInSystemLog",
@@ -798,6 +804,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAcceptedUserRole", ext.getAcceptedUserRoles());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptMissingPatientID", ext.getAcceptMissingPatientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowDeleteStudyPermanently", ext.getAllowDeleteStudyPermanently(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAllowDeletePatient", ext.getAllowDeletePatient(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceExpirationDatePattern", ext.getStorePermissionServiceExpirationDatePattern(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDefaultCharacterSet", ext.getDefaultCharacterSet(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCommentPattern", ext.getStorePermissionServiceErrorCommentPattern(), null);
@@ -871,6 +878,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.enumValue(AcceptMissingPatientID.class, attrs.get("dcmAcceptMissingPatientID"), null));
         ext.setAllowDeleteStudyPermanently(
                 LdapUtils.enumValue(AllowDeleteStudyPermanently.class, attrs.get("dcmAllowDeleteStudyPermanently"), null));
+        ext.setAllowDeletePatient(
+                LdapUtils.enumValue(AllowDeletePatient.class, attrs.get("dcmAllowDeletePatient"), null));
         ext.setStorePermissionServiceExpirationDatePattern(toPattern(attrs.get("dcmStorePermissionServiceExpirationDatePattern")));
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
         ext.setStorePermissionServiceErrorCommentPattern(toPattern(attrs.get("dcmStorePermissionServiceErrorCommentPattern")));
@@ -969,6 +978,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmAcceptedUserRole", aa.getAcceptedUserRoles(), bb.getAcceptedUserRoles());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptMissingPatientID", aa.getAcceptMissingPatientID(), bb.getAcceptMissingPatientID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAllowDeleteStudyPermanently", aa.getAllowDeleteStudyPermanently(), bb.getAllowDeleteStudyPermanently(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAllowDeletePatient", aa.getAllowDeletePatient(), bb.getAllowDeletePatient(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorePermissionServiceExpirationDatePattern",
                 aa.getStorePermissionServiceExpirationDatePattern(), bb.getStorePermissionServiceExpirationDatePattern(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDefaultCharacterSet", aa.getDefaultCharacterSet(), bb.getDefaultCharacterSet(), null);
