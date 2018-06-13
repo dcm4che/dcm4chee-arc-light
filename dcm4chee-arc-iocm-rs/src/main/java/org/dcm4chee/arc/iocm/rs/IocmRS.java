@@ -198,16 +198,26 @@ public class IocmRS {
         if (patient == null)
             throw new WebApplicationException(errResponse(
                     "Patient having patient ID : " + patientID + " not found.", Response.Status.NOT_FOUND));
-        if (patient.getNumberOfStudies() > 0)
-            throw new WebApplicationException(errResponse(
-                    "Patient having patient ID : " + patientID + " has non empty studies.", Response.Status.FORBIDDEN));
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
-        ctx.setPatientID(patientID);
-        ctx.setAttributes(patient.getAttributes());
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
-        ctx.setPatient(patient);
-        deletionService.deletePatient(ctx);
-        rsForward.forward(RSOperation.DeletePatient, arcAE, null, request);
+        AllowDeletePatient allowDeletePatient = arcAE.allowDeletePatient();
+        String patientDeleteForbidden = allowDeletePatient == AllowDeletePatient.NEVER
+                ? "Patient deletion as per configuration is never allowed."
+                : allowDeletePatient == AllowDeletePatient.WITHOUT_STUDIES && patient.getNumberOfStudies() > 0
+                    ? "Patient having patient ID : " + patientID + " has non empty studies."
+                    : null;
+        if (patientDeleteForbidden != null)
+            throw new WebApplicationException(errResponse(patientDeleteForbidden, Response.Status.FORBIDDEN));
+
+        try {
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
+            ctx.setPatientID(patientID);
+            ctx.setAttributes(patient.getAttributes());
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
+            ctx.setPatient(patient);
+            deletionService.deletePatient(ctx, arcAE);
+            rsForward.forward(RSOperation.DeletePatient, arcAE, null, request);
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
     }
 
     @DELETE
@@ -216,13 +226,15 @@ public class IocmRS {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            deletionService.deleteStudy(studyUID, HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
+            deletionService.deleteStudy(studyUID, HttpServletRequestInfo.valueOf(request), arcAE);
             rsForward.forward(RSOperation.DeleteStudy, arcAE, null, request);
         } catch (StudyNotFoundException e) {
-            throw new WebApplicationException(errResponse("Study having study instance UID " + studyUID + " not found.",
+            throw new WebApplicationException(errResponse("Study with study instance UID " + studyUID + " not found.",
                     Response.Status.NOT_FOUND));
         } catch (StudyNotEmptyException e) {
             throw new WebApplicationException(errResponse(e.getMessage() + studyUID, Response.Status.FORBIDDEN));
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 

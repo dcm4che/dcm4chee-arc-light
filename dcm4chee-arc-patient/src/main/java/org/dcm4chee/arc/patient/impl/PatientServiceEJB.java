@@ -340,11 +340,9 @@ public class PatientServiceEJB {
     }
 
     private void removeMPPSAndPatient(Patient patient) {
-        List<MPPS> mppsList = em.createNamedQuery(MPPS.FIND_BY_PATIENT, MPPS.class)
+        em.createNamedQuery(MPPS.DELETE_BY_PATIENT)
                 .setParameter(1, patient)
-                .getResultList();
-        for (MPPS mpps : mppsList)
-            em.remove(mpps);
+                .executeUpdate();
         em.remove(em.contains(patient) ? patient : em.merge(patient));
     }
 }

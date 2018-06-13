@@ -203,10 +203,9 @@ public class DeletionServiceEJB {
     }
 
     public void deleteMWLItemsOfPatient(PatientMgtContext ctx) {
-        List<MWLItem> mwlItems = em.createNamedQuery(MWLItem.FIND_BY_PATIENT, MWLItem.class)
-                .setParameter(1, ctx.getPatient()).getResultList();
-        for (MWLItem mwlItem : mwlItems)
-            em.remove(mwlItem);
+        em.createNamedQuery(MWLItem.DELETE_BY_PATIENT)
+                .setParameter(1, ctx.getPatient())
+                .executeUpdate();
     }
 
     private Collection<Instance> removeOrMarkToDelete(List<Location> locations, int limit, boolean resetSize) {
