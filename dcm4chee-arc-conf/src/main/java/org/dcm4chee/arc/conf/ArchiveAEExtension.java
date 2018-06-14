@@ -231,7 +231,7 @@ public class ArchiveAEExtension extends AEExtension {
     public AcceptMissingPatientID acceptMissingPatientID() {
         return acceptMissingPatientID != null
                 ? acceptMissingPatientID
-                : StringUtils.maskNull(getArchiveDeviceExtension().getAcceptMissingPatientID(), AcceptMissingPatientID.CREATE);
+                : getArchiveDeviceExtension().getAcceptMissingPatientID();
     }
 
     public String getBulkDataSpoolDirectory() {
@@ -833,8 +833,7 @@ public class ArchiveAEExtension extends AEExtension {
     public AllowDeleteStudyPermanently allowDeleteStudy() {
         return allowDeleteStudyPermanently != null
                 ? allowDeleteStudyPermanently
-                : StringUtils.maskNull(getArchiveDeviceExtension().getAllowDeleteStudyPermanently(),
-                AllowDeleteStudyPermanently.REJECTED);
+                : getArchiveDeviceExtension().getAllowDeleteStudyPermanently();
     }
 
     public AllowDeletePatient getAllowDeletePatient() {
@@ -967,8 +966,7 @@ public class ArchiveAEExtension extends AEExtension {
     public AcceptConflictingPatientID acceptConflictingPatientID() {
         return acceptConflictingPatientID != null
                 ? acceptConflictingPatientID
-                : StringUtils.maskNull(getArchiveDeviceExtension().getAcceptConflictingPatientID(),
-                AcceptConflictingPatientID.MERGED);
+                : getArchiveDeviceExtension().getAcceptConflictingPatientID();
     }
 
     public Attributes.UpdatePolicy getCopyMoveUpdatePolicy() {
