@@ -950,6 +950,6 @@ public class IocmRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.BAD_REQUEST).entity(exceptionAsString).type("text/plain").build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 }

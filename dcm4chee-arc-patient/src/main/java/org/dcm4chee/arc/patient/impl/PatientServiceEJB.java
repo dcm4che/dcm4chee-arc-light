@@ -347,6 +347,6 @@ public class PatientServiceEJB {
                 .setParameter(1, patient)
                 .executeUpdate();
         em.remove(em.contains(patient) ? patient : em.merge(patient));
-        LOG.info("Successfully removed {} from database along with its MPPS and MWLs", patient);
+        LOG.info("Successfully removed {} from database along with any of its MPPS and MWLs", patient);
     }
 }
