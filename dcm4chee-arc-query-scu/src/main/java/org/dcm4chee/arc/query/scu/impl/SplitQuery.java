@@ -63,13 +63,14 @@ class SplitQuery implements DimseRSP {
     private final Attributes keys;
     private int autoCancel;
     private long startDate;
-    private final long totEndDate;
+    private final long endDate;
     private final long maxRange;
     private final RangeType rangeType;
     private DimseRSP dimseRSP;
 
-    public SplitQuery(Association as, String cuid, int priority, Attributes keys, int autoCancel, DateRange dateRange,
-                      Duration splitStudyDateRange) throws IOException, InterruptedException {
+    public SplitQuery(Association as, String cuid, int priority, Attributes keys, int autoCancel,
+                      long startDate, long endDate, Duration splitStudyDateRange)
+            throws IOException, InterruptedException {
         this.as = as;
         this.cuid = cuid;
         this.priority = priority;
@@ -77,16 +78,16 @@ class SplitQuery implements DimseRSP {
         this.autoCancel = autoCancel;
         this.rangeType = RangeType.valueOf(splitStudyDateRange);
         this.maxRange = rangeType.rangeInMillis(splitStudyDateRange);
-        this.startDate = dateRange.getStartDate().getTime();
-        this.totEndDate = dateRange.getEndDate().getTime();
+        this.startDate = startDate;
+        this.endDate = endDate;
         nextQuery();
     }
 
     private boolean nextQuery() throws IOException, InterruptedException {
-        if (startDate >= totEndDate) {
+        if (startDate >= endDate) {
             return false;
         }
-        startDate = rangeType.adjustKeys(keys, startDate, maxRange, totEndDate);
+        startDate = rangeType.adjustKeys(keys, startDate, maxRange, endDate);
         dimseRSP = as.cfind(cuid, priority, keys, UID.ImplicitVRLittleEndian, autoCancel);
         return true;
     }

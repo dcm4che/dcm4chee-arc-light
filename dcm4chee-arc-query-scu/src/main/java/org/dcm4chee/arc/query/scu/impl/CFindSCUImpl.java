@@ -140,13 +140,14 @@ public class CFindSCUImpl implements CFindSCU {
         if (splitStudyDateRange != null
                 && !keys.containsValue(Tag.StudyInstanceUID)
                 && !keys.containsValue(Tag.StudyTime)
-                && (dateRange = keys.getDateRange(Tag.StudyDate)) != null) {
-            if (dateRange.getEndDate() == null) {
-                dateRange = new DateRange(dateRange.getStartDate(), new Date());
-            }
-            if ((dateRange.getEndDate().getTime() - dateRange.getStartDate().getTime())
-                    > splitStudyDateRange.getSeconds() * 1000)
-                return new SplitQuery(as, cuid, priority, keys, autoCancel, dateRange, splitStudyDateRange);
+                && (dateRange = keys.getDateRange(Tag.StudyDate)) != null
+                && dateRange.getStartDate() != null) {
+            long startDate = dateRange.getStartDate().getTime();
+            long endDate = dateRange.getEndDate() != null
+                    ? dateRange.getEndDate().getTime()
+                    : System.currentTimeMillis();
+            if (endDate - startDate > splitStudyDateRange.getSeconds() * 1000)
+                return new SplitQuery(as, cuid, priority, keys, autoCancel, startDate, endDate, splitStudyDateRange);
         }
         return as.cfind(cuid, priority, keys, UID.ImplicitVRLittleEndian, autoCancel);
     }
