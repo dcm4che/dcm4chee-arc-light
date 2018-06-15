@@ -178,7 +178,7 @@ public class ArchiveQueryTask extends BasicQueryTask {
                 spanningCFindSCP,
                 ctx.getSOPClassUID(),
                 as.getQueryOptionsFor(ctx.getSOPClassUID()));
-        spanningCFindRSP = cfindscu.query(spanningAssoc, Priority.NORMAL, spanningQueryKeys(), 0);
+        spanningCFindRSP = cfindscu.query(spanningAssoc, Priority.NORMAL, spanningQueryKeys(), 0, null);
         spanningCFindRSP.next();
         nextSpanningMatch();
     }

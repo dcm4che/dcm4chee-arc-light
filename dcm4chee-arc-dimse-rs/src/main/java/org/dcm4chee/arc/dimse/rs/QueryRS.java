@@ -47,11 +47,13 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,6 +120,10 @@ public class QueryRS {
     @QueryParam("priority")
     @Pattern(regexp = "0|1|2")
     private String priority;
+
+    @QueryParam("splitstudydaterange")
+    @ValidValueOf(type = Duration.class)
+    private String splitstudydaterange;
 
     @Inject
     private CFindSCU findSCU;
@@ -223,6 +229,10 @@ public class QueryRS {
         return s != null ? Integer.parseInt(s) : defval;
     }
 
+    private Duration splitStudyDateRange() {
+        return splitstudydaterange != null ? Duration.valueOf(splitstudydaterange) : null;
+    }
+
     private void search(AsyncResponse ar, Level level, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
                         boolean count)
             throws Exception {
@@ -265,7 +275,8 @@ public class QueryRS {
                         }
             });
             as = findSCU.openAssociation(localAE, externalAET, level.cuid, queryOptions);
-            DimseRSP dimseRSP = findSCU.query(as, priority(), keys, !count && limit != null ? offset() + limit() : 0);
+            DimseRSP dimseRSP = findSCU.query(as, priority(), keys, !count && limit != null ? offset() + limit() : 0,
+                    splitStudyDateRange());
             dimseRSP.next();
             ar.resume((count ? countResponse(dimseRSP) : responseBuilder(dimseRSP)).build());
         } catch (ConnectException e) {

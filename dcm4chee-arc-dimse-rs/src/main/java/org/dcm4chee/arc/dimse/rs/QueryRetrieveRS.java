@@ -48,6 +48,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -55,6 +56,7 @@ import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,6 +110,10 @@ public class QueryRetrieveRS {
     @QueryParam("priority")
     @Pattern(regexp = "0|1|2")
     private String priority;
+
+    @QueryParam("splitstudydaterange")
+    @ValidValueOf(type = Duration.class)
+    private String splitstudydaterange;
 
     @Inject
     private CFindSCU findSCU;
@@ -221,6 +227,10 @@ public class QueryRetrieveRS {
         return s != null ? Integer.parseInt(s) : defval;
     }
 
+    private Duration splitStudyDateRange() {
+        return splitstudydaterange != null ? Duration.valueOf(splitstudydaterange) : null;
+    }
+
     private Response retrieveMatching(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,
                                       String queryAET, String destAET) throws Exception {
         logRequest();
@@ -244,7 +254,7 @@ public class QueryRetrieveRS {
         Response.Status errorStatus = Response.Status.BAD_GATEWAY;
         try {
             as = findSCU.openAssociation(localAE, queryAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
-            DimseRSP dimseRSP = findSCU.query(as, priority(), keys, 0);
+            DimseRSP dimseRSP = findSCU.query(as, priority(), keys, 0, splitStudyDateRange());
             dimseRSP.next();
             int status;
             do {

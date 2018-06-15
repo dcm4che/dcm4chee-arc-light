@@ -1759,7 +1759,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
     }
 
     private static Duration toDuration(Attribute attr, Duration defValue) throws NamingException {
-        return attr != null ? Duration.parse((String) attr.get()) : defValue;
+        return attr != null ? Duration.valueOf((String) attr.get()) : defValue;
     }
 
     private Period toPeriod(Attribute attr) throws NamingException {

@@ -201,10 +201,10 @@ class ArchiveDeviceFactory {
         desc.setDescription(description);
         desc.setJndiName("jms/queue/" + name);
         desc.setMaxRetries(10);
-        desc.setRetryDelay(Duration.parse("PT30S"));
+        desc.setRetryDelay(Duration.valueOf("PT30S"));
         desc.setRetryDelayMultiplier(200);
-        desc.setMaxRetryDelay(Duration.parse("PT10M"));
-        desc.setPurgeQueueMessageCompletedDelay(Duration.parse("P1D"));
+        desc.setMaxRetryDelay(Duration.valueOf("PT10M"));
+        desc.setPurgeQueueMessageCompletedDelay(Duration.valueOf("P1D"));
         return desc;
     }
 
@@ -995,8 +995,8 @@ class ArchiveDeviceFactory {
     static final String SERIES_METADATA_STORAGE_ID = "series-metadata";
     static final String SERIES_METADATA_STORAGE_URI = "${jboss.server.data.url}/series-metadata/";
     static final String SERIES_METADATA_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{now,date,HHmmss}.zip";
-    static final Duration SERIES_METADATA_DELAY = Duration.parse("PT2M");
-    static final Duration SERIES_METADATA_POLLING_INTERVAL = Duration.parse("PT1M");
+    static final Duration SERIES_METADATA_DELAY = Duration.valueOf("PT2M");
+    static final Duration SERIES_METADATA_POLLING_INTERVAL = Duration.valueOf("PT1M");
     static final String WADO_JPEG_STORAGE_ID = "wado-jpeg";
     static final String WADO_JPEG_STORAGE_URI = "${jboss.server.data.url}/wado/";
     static final String WADO_JPEG_PATH_FORMAT = "{0020000D}/{0020000E}/{00080018}/{00081160}.jpeg";
@@ -1004,26 +1004,26 @@ class ArchiveDeviceFactory {
     static final String WADO_JSON_STORAGE_URI = "${jboss.server.data.url}/wado/";
     static final String WADO_JSON_PATH_FORMAT = "{0020000D}.json";
     static final boolean SEND_PENDING_C_GET = true;
-    static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.parse("PT5S");
+    static final Duration SEND_PENDING_C_MOVE_INTERVAL = Duration.valueOf("PT5S");
     static final int QIDO_MAX_NUMBER_OF_RESULTS = 1000;
-    static final Duration IAN_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
-    static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.parse("PT1H");
+    static final Duration IAN_TASK_POLLING_INTERVAL = Duration.valueOf("PT1M");
+    static final Duration PURGE_QUEUE_MSG_POLLING_INTERVAL = Duration.valueOf("PT1H");
     static final String REJECTION_NOTE_STORAGE_AET = "DCM4CHEE";
 
     static final String CALC_STUDY_SIZE_EXPORTER_ID = "CalculateStudySize";
     static final String CALC_STUDY_SIZE_EXPORTER_DESC = "Calculate Study Size";
     static final URI CALC_STUDY_SIZE_EXPORTER_URI = URI.create("study-size:dummyPath");
-    static final Duration CALC_STUDY_SIZE_DELAY = Duration.parse("PT5M");
+    static final Duration CALC_STUDY_SIZE_DELAY = Duration.valueOf("PT5M");
 
     static final String CALC_QUERY_ATTRS_EXPORTER_ID = "CalculateQueryAttributes";
     static final String CALC_QUERY_ATTRS_EXPORTER_DESC = "Calculate Query Attributes";
     static final URI CALC_QUERY_ATTRS_EXPORTER_URI = URI.create("query-attrs:hideRejected");
-    static final Duration CALC_QUERY_ATTRS_DELAY = Duration.parse("PT5M");
+    static final Duration CALC_QUERY_ATTRS_DELAY = Duration.valueOf("PT5M");
 
     static final String NEARLINE_STORAGE_EXPORTER_ID = "CopyToNearlineStorage";
     static final String NEARLINE_STORAGE_EXPORTER_DESC = "Copy to NEARLINE Storage";
     static final URI NEARLINE_STORAGE_EXPORTER_URI = URI.create("storage:nearline");
-    static final Duration NEARLINE_STORAGE_DELAY = Duration.parse("PT1M");
+    static final Duration NEARLINE_STORAGE_DELAY = Duration.valueOf("PT1M");
 
     static final String DICOM_EXPORTER_ID = "STORESCP";
     static final String DICOM_EXPORTER_DESC = "Export to STORESCP";
@@ -1072,24 +1072,24 @@ class ArchiveDeviceFactory {
             "SRT",
             null,
             "Radiology");
-    static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.parse("PT1M");
-    static final Duration PURGE_STORAGE_POLLING_INTERVAL = Duration.parse("PT5M");
-    static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.parse("PT5M");
+    static final Duration EXPORT_TASK_POLLING_INTERVAL = Duration.valueOf("PT1M");
+    static final Duration PURGE_STORAGE_POLLING_INTERVAL = Duration.valueOf("PT5M");
+    static final Duration DELETE_REJECTED_POLLING_INTERVAL = Duration.valueOf("PT5M");
     static final String AUDIT_SPOOL_DIR =  "${jboss.server.data.dir}/audit-spool";
-    static final Duration AUDIT_POLLING_INTERVAL = Duration.parse("PT1M");
-    static final Duration AUDIT_AGGREGATE_DURATION = Duration.parse("PT1M");
-    static final Duration DELETE_REJECTED_INSTANCE_DELAY = Duration.parse("P1D");
-    static final Duration MAX_ACCESS_TIME_STALENESS = Duration.parse("PT5M");
-    static final Duration AE_CACHE_STALE_TIMEOUT = Duration.parse("PT5M");
-    static final Duration LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT = Duration.parse("PT5M");
-    static final Duration REJECT_EXPIRED_STUDIES_POLLING_INTERVAL = Duration.parse("P1D");
+    static final Duration AUDIT_POLLING_INTERVAL = Duration.valueOf("PT1M");
+    static final Duration AUDIT_AGGREGATE_DURATION = Duration.valueOf("PT1M");
+    static final Duration DELETE_REJECTED_INSTANCE_DELAY = Duration.valueOf("P1D");
+    static final Duration MAX_ACCESS_TIME_STALENESS = Duration.valueOf("PT5M");
+    static final Duration AE_CACHE_STALE_TIMEOUT = Duration.valueOf("PT5M");
+    static final Duration LEADING_C_FIND_SCP_QUERY_CACHE_STALE_TIMEOUT = Duration.valueOf("PT5M");
+    static final Duration REJECT_EXPIRED_STUDIES_POLLING_INTERVAL = Duration.valueOf("P1D");
     static final LocalTime REJECT_EXPIRED_STUDIES_START_TIME = LocalTime.parse("00:00:00");
     static final int REJECT_EXPIRED_STUDIES_SERIES_FETCH_SIZE = 10;
     static final String REJECT_EXPIRED_STUDIES_AE_TITLE = "DCM4CHEE";
     static final String EXTERNAL_RETRIEVE_AE_DESTINATION = "DCM4CHEE";
     static final String XDSI_IMAGING_DOCUMENT_SOURCE_AE_TITLE = "DCM4CHEE";
-    static final Duration PURGE_STGCMT_COMPLETED_DELAY = Duration.parse("P1D");
-    static final Duration PURGE_STGCMT_POLLING_INTERVAL = Duration.parse("PT1H");
+    static final Duration PURGE_STGCMT_COMPLETED_DELAY = Duration.valueOf("P1D");
+    static final Duration PURGE_STGCMT_POLLING_INTERVAL = Duration.valueOf("PT1H");
     static final String AUDIT_RECORD_REPOSITORY_URL = "http://kibana:5601";
 
 
@@ -1603,7 +1603,7 @@ class ArchiveDeviceFactory {
             exportRule.getConditions().setSendingAETitle("FORWARD");
             exportRule.getConditions().setCondition("Modality", "CT|MR");
             exportRule.setEntity(Entity.Series);
-            exportRule.setExportDelay(Duration.parse("PT1M"));
+            exportRule.setExportDelay(Duration.valueOf("PT1M"));
             exportRule.setExporterIDs(DICOM_EXPORTER_ID);
             ext.addExportRule(exportRule);
 
@@ -1622,7 +1622,7 @@ class ArchiveDeviceFactory {
             ExportRule wadoExportRule = new ExportRule("Forward to WADO");
             wadoExportRule.getConditions().setSendingAETitle("WADO");
             wadoExportRule.setEntity(Entity.Series);
-            wadoExportRule.setExportDelay(Duration.parse("PT1M"));
+            wadoExportRule.setExportDelay(Duration.valueOf("PT1M"));
             wadoExportRule.setExporterIDs(WADO_EXPORTER_ID);
             ext.addExportRule(wadoExportRule);
 

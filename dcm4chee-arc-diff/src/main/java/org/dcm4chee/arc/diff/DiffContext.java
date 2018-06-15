@@ -46,10 +46,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.AttributeSet;
-import org.dcm4chee.arc.conf.Entity;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.query.util.QIDO;
 import org.dcm4chee.arc.query.util.QueryAttributes;
@@ -72,6 +69,7 @@ public class DiffContext {
     private ApplicationEntity secondaryAE;
     private String queryString;
     private QueryAttributes queryAttributes;
+    private Duration splitStudyDateRange;
     private int priority;
     private boolean fuzzymatching;
     private boolean checkMissing;
@@ -129,9 +127,10 @@ public class DiffContext {
     public DiffContext setQueryString(String queryString, MultivaluedMap<String, String> queryParameters) {
         this.queryString = queryString;
         this.queryAttributes = new QueryAttributes(queryParameters);
+        this.splitStudyDateRange = parseDuration(queryParameters.getFirst("splitstudydaterange"));
         this.compareKeys = parseComparefields(queryParameters.get("comparefield"));
         this.priority = parseInt(queryParameters.getFirst("priority"), 0);
-        this.fuzzymatching = parseBoolean(queryParameters.getFirst("isFuzzymatching"), false);
+        this.fuzzymatching = parseBoolean(queryParameters.getFirst("fuzzymatching"), false);
         this.checkDifferent = parseBoolean(queryParameters.getFirst("different"), true);
         this.checkMissing = parseBoolean(queryParameters.getFirst("missing"), false);
         this.batchID = queryParameters.getFirst("batchID");
@@ -140,6 +139,10 @@ public class DiffContext {
 
     public Attributes getQueryKeys() {
         return queryAttributes.getQueryKeys();
+    }
+
+    public Duration getSplitStudyDateRange() {
+        return splitStudyDateRange;
     }
 
     public int[] getCompareKeys() {
@@ -204,6 +207,10 @@ public class DiffContext {
 
     private static int parseInt(String s, int defval) {
         return s != null ? Integer.parseInt(s) : defval;
+    }
+
+    private static Duration parseDuration(String s) {
+        return s != null ? Duration.valueOf(s) : null;
     }
 
     private static boolean hasArchiveAEExtension(ApplicationEntity ae) {

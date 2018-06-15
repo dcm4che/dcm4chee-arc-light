@@ -99,6 +99,7 @@ public class QueryAttributes {
                 case "only-ian":
                 case "batchID":
                 case "queue":
+                case "splitstudydaterange":
                     break;
                 case "StudyReceiveDateTime":
                     keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT,

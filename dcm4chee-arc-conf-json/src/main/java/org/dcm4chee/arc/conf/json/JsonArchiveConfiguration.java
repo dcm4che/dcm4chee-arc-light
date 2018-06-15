@@ -688,10 +688,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setSeriesMetadataStorageIDs(reader.stringArray());
                     break;
                 case "dcmSeriesMetadataDelay":
-                    arcDev.setSeriesMetadataDelay(Duration.parse(reader.stringValue()));
+                    arcDev.setSeriesMetadataDelay(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmSeriesMetadataPollingInterval":
-                    arcDev.setSeriesMetadataPollingInterval(Duration.parse(reader.stringValue()));
+                    arcDev.setSeriesMetadataPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmSeriesMetadataFetchSize":
                     arcDev.setSeriesMetadataFetchSize(reader.intValue());
@@ -700,10 +700,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setPurgeInstanceRecords(reader.booleanValue());
                     break;
                 case "dcmPurgeInstanceRecordsDelay":
-                    arcDev.setPurgeInstanceRecordsDelay(Duration.parse(reader.stringValue()));
+                    arcDev.setPurgeInstanceRecordsDelay(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmPurgeInstanceRecordsPollingInterval":
-                    arcDev.setPurgeInstanceRecordsPollingInterval(Duration.parse(reader.stringValue()));
+                    arcDev.setPurgeInstanceRecordsPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmPurgeInstanceRecordsFetchSize":
                     arcDev.setPurgeInstanceRecordsFetchSize(reader.intValue());
@@ -727,7 +727,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setSendPendingCGet(reader.booleanValue());
                     break;
                 case "dcmSendPendingCMoveInterval":
-                    arcDev.setSendPendingCMoveInterval(Duration.parse(reader.stringValue()));
+                    arcDev.setSendPendingCMoveInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmWadoSupportedSRClasses":
                     arcDev.setWadoSupportedSRClasses(reader.stringArray());
@@ -754,16 +754,16 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setIanDestinations(reader.stringArray());
                     break;
                 case "dcmIanDelay":
-                    arcDev.setIanDelay(Duration.parse(reader.stringValue()));
+                    arcDev.setIanDelay(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmIanTimeout":
-                    arcDev.setIanTimeout(Duration.parse(reader.stringValue()));
+                    arcDev.setIanTimeout(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmIanOnTimeout":
                     arcDev.setIanOnTimeout(reader.booleanValue());
                     break;
                 case "dcmIanTaskPollingInterval":
-                    arcDev.setIanTaskPollingInterval(Duration.parse(reader.stringValue()));
+                    arcDev.setIanTaskPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmIanTaskFetchSize":
                     arcDev.setIanTaskFetchSize(reader.intValue());
@@ -793,13 +793,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setAlternativeCMoveSCP(reader.stringValue());
                     break;
                 case "dcmExportTaskPollingInterval":
-                    arcDev.setExportTaskPollingInterval(Duration.parse(reader.stringValue()));
+                    arcDev.setExportTaskPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmExportTaskFetchSize":
                     arcDev.setExportTaskFetchSize(reader.intValue());
                     break;
                 case "dcmPurgeStoragePollingInterval":
-                    arcDev.setPurgeStoragePollingInterval(Duration.parse(reader.stringValue()));
+                    arcDev.setPurgeStoragePollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmPurgeStorageFetchSize":
                     arcDev.setPurgeStorageFetchSize(reader.intValue());
@@ -811,19 +811,19 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setDeletePatientOnDeleteLastStudy(reader.booleanValue());
                     break;
                 case "dcmDeleteRejectedPollingInterval":
-                    arcDev.setDeleteRejectedPollingInterval(Duration.parse(reader.stringValue()));
+                    arcDev.setDeleteRejectedPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmDeleteRejectedFetchSize":
                     arcDev.setDeleteRejectedFetchSize(reader.intValue());
                     break;
                 case "dcmMaxAccessTimeStaleness":
-                    arcDev.setMaxAccessTimeStaleness(Duration.parse(reader.stringValue()));
+                    arcDev.setMaxAccessTimeStaleness(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmAECacheStaleTimeout":
-                    arcDev.setAECacheStaleTimeout(Duration.parse(reader.stringValue()));
+                    arcDev.setAECacheStaleTimeout(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmLeadingCFindSCPQueryCacheStaleTimeout":
-                    arcDev.setLeadingCFindSCPQueryCacheStaleTimeout(Duration.parse(reader.stringValue()));
+                    arcDev.setLeadingCFindSCPQueryCacheStaleTimeout(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmLeadingCFindSCPQueryCacheSize":
                     arcDev.setLeadingCFindSCPQueryCacheSize(reader.intValue());
@@ -832,10 +832,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setAuditSpoolDirectory(reader.stringValue());
                     break;
                 case "dcmAuditPollingInterval":
-                    arcDev.setAuditPollingInterval(Duration.parse(reader.stringValue()));
+                    arcDev.setAuditPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmAuditAggregateDuration":
-                    arcDev.setAuditAggregateDuration(Duration.parse(reader.stringValue()));
+                    arcDev.setAuditAggregateDuration(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmStowSpoolDirectory":
                     arcDev.setStowSpoolDirectory(reader.stringValue());
@@ -862,13 +862,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setUnzipVendorDataToURI(reader.stringValue());
                     break;
                 case "dcmPurgeQueueMessagePollingInterval":
-                    arcDev.setPurgeQueueMessagePollingInterval(Duration.parse(reader.stringValue()));
+                    arcDev.setPurgeQueueMessagePollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmWadoSpoolDirectory":
                     arcDev.setWadoSpoolDirectory(reader.stringValue());
                     break;
                 case "dcmRejectExpiredStudiesPollingInterval":
-                    arcDev.setRejectExpiredStudiesPollingInterval(Duration.parse(reader.stringValue()));
+                    arcDev.setRejectExpiredStudiesPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmRejectExpiredStudiesPollingStartTime":
                     arcDev.setRejectExpiredStudiesPollingStartTime(LocalTime.parse(reader.stringValue()));
@@ -892,13 +892,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setStorePermissionServiceResponsePattern(Pattern.compile(reader.stringValue()));
                     break;
                 case "dcmStorePermissionCacheStaleTimeout":
-                    arcDev.setStorePermissionCacheStaleTimeout(Duration.parse(reader.stringValue()));
+                    arcDev.setStorePermissionCacheStaleTimeout(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmStorePermissionCacheSize":
                     arcDev.setStorePermissionCacheSize(reader.intValue());
                     break;
                 case "dcmMergeMWLCacheStaleTimeout":
-                    arcDev.setMergeMWLCacheStaleTimeout(Duration.parse(reader.stringValue()));
+                    arcDev.setMergeMWLCacheStaleTimeout(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmMergeMWLCacheSize":
                     arcDev.setMergeMWLCacheSize(reader.intValue());
@@ -932,10 +932,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setShowPatientInfoInAuditLog(ShowPatientInfo.valueOf(reader.stringValue()));
                     break;
                 case "dcmPurgeStgCmtCompletedDelay":
-                    arcDev.setPurgeStgCmtCompletedDelay(Duration.parse(reader.stringValue()));
+                    arcDev.setPurgeStgCmtCompletedDelay(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmPurgeStgCmtPollingInterval":
-                    arcDev.setPurgeStgCmtPollingInterval(Duration.parse(reader.stringValue()));
+                    arcDev.setPurgeStgCmtPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmDefaultCharacterSet":
                     arcDev.setDefaultCharacterSet(reader.stringValue());
@@ -968,16 +968,16 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setHl7PSUReceivingApplications(reader.stringArray());
                     break;
                 case "hl7PSUDelay":
-                    arcDev.setHl7PSUDelay(Duration.parse(reader.stringValue()));
+                    arcDev.setHl7PSUDelay(Duration.valueOf(reader.stringValue()));
                     break;
                 case "hl7PSUTimeout":
-                    arcDev.setHl7PSUTimeout(Duration.parse(reader.stringValue()));
+                    arcDev.setHl7PSUTimeout(Duration.valueOf(reader.stringValue()));
                     break;
                 case "hl7PSUOnTimeout":
                     arcDev.setHl7PSUOnTimeout(reader.booleanValue());
                     break;
                 case "hl7PSUTaskPollingInterval":
-                    arcDev.setHl7PSUTaskPollingInterval(Duration.parse(reader.stringValue()));
+                    arcDev.setHl7PSUTaskPollingInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "hl7PSUTaskFetchSize":
                     arcDev.setHl7PSUTaskFetchSize(reader.intValue());
@@ -1298,10 +1298,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         qd.setMaxRetries(reader.intValue());
                         break;
                     case "dcmRetryDelay":
-                        qd.setRetryDelay(Duration.parse(reader.stringValue()));
+                        qd.setRetryDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     case "dcmMaxRetryDelay":
-                        qd.setMaxRetryDelay(Duration.parse(reader.stringValue()));
+                        qd.setMaxRetryDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     case "dcmRetryDelayMultiplier":
                         qd.setRetryDelayMultiplier(reader.intValue());
@@ -1310,7 +1310,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         qd.setRetryOnWarning(reader.booleanValue());
                         break;
                     case "dcmPurgeQueueMessageCompletedDelay":
-                        qd.setPurgeQueueMessageCompletedDelay(Duration.parse(reader.stringValue()));
+                        qd.setPurgeQueueMessageCompletedDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     case "dcmMaxQueueSize":
                         qd.setMaxQueueSize(reader.intValue());
@@ -1414,7 +1414,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         er.setSchedules(scheduleExpressions(reader.stringArray()));
                         break;
                     case "dcmDuration":
-                        er.setExportDelay(Duration.parse(reader.stringValue()));
+                        er.setExportDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     case "dcmExportPreviousEntity":
                         er.setExportPreviousEntity(reader.booleanValue());
@@ -1619,10 +1619,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         rn.setOverwritePreviousRejection(overwritePreviousRejection(reader.stringArray()));
                         break;
                     case "dcmDeleteRejectedInstanceDelay":
-                        rn.setDeleteRejectedInstanceDelay(Duration.parse(reader.stringValue()));
+                        rn.setDeleteRejectedInstanceDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     case "dcmDeleteRejectionNoteDelay":
-                        rn.setDeleteRejectionNoteDelay(Duration.parse(reader.stringValue()));
+                        rn.setDeleteRejectionNoteDelay(Duration.valueOf(reader.stringValue()));
                         break;
                     default:
                         reader.skipUnknownProperty();
@@ -1900,10 +1900,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcAE.setMetadataStorageIDs(reader.stringArray());
                     break;
                 case "dcmSeriesMetadataDelay":
-                    arcAE.setSeriesMetadataDelay(Duration.parse(reader.stringValue()));
+                    arcAE.setSeriesMetadataDelay(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmPurgeInstanceRecordsDelay":
-                    arcAE.setPurgeInstanceRecordsDelay(Duration.parse(reader.stringValue()));
+                    arcAE.setPurgeInstanceRecordsDelay(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmStoreAccessControlID":
                     arcAE.setStoreAccessControlID(reader.stringValue());
@@ -1930,7 +1930,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcAE.setSendPendingCGet(reader.booleanValue());
                     break;
                 case "dcmSendPendingCMoveInterval":
-                    arcAE.setSendPendingCMoveInterval(Duration.parse(reader.stringValue()));
+                    arcAE.setSendPendingCMoveInterval(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmWadoSR2HtmlTemplateURI":
                     arcAE.setWadoSR2HtmlTemplateURI(reader.stringValue());
@@ -1951,10 +1951,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcAE.setIanDestinations(reader.stringArray());
                     break;
                 case "dcmIanDelay":
-                    arcAE.setIanDelay(Duration.parse(reader.stringValue()));
+                    arcAE.setIanDelay(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmIanTimeout":
-                    arcAE.setIanTimeout(Duration.parse(reader.stringValue()));
+                    arcAE.setIanTimeout(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmIanOnTimeout":
                     arcAE.setIanOnTimeout(reader.booleanValue());
@@ -2039,10 +2039,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcAE.setHl7PSUReceivingApplications(reader.stringArray());
                     break;
                 case "hl7PSUDelay":
-                    arcAE.setHl7PSUDelay(Duration.parse(reader.stringValue()));
+                    arcAE.setHl7PSUDelay(Duration.valueOf(reader.stringValue()));
                     break;
                 case "hl7PSUTimeout":
-                    arcAE.setHl7PSUTimeout(Duration.parse(reader.stringValue()));
+                    arcAE.setHl7PSUTimeout(Duration.valueOf(reader.stringValue()));
                     break;
                 case "hl7PSUOnTimeout":
                     arcAE.setHl7PSUOnTimeout(reader.booleanValue());

@@ -23,7 +23,7 @@ public class Duration {
         this.nano = nano;
     }
 
-    public static Duration parse(String text) {
+    public static Duration valueOf(String text) {
         Matcher matcher = PATTERN.matcher(text);
         if (matcher.matches() && !"T".equals(matcher.group(2))) {
             String dayMatch = matcher.group(1);

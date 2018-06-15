@@ -51,6 +51,7 @@ import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.diff.DiffSCU;
@@ -58,6 +59,7 @@ import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,10 +142,12 @@ public class DiffRS {
     private String priority;
 
     @QueryParam("queue")
-    private boolean queue;
+    @Pattern(regexp = "true|false")
+    private String queue;
 
-    @QueryParam("batchID")
-    private String batchID;
+    @QueryParam("splitstudydaterange")
+    @ValidValueOf(type = Duration.class)
+    private String splitstudydaterange;
 
     @Override
     public String toString() {
@@ -159,7 +163,7 @@ public class DiffRS {
         try {
             DiffContext ctx = createDiffContext();
             ctx.setQueryString(request.getQueryString(), uriInfo.getQueryParameters());
-            if (queue) {
+            if (Boolean.parseBoolean(queue)) {
                 diffService.scheduleDiffTask(ctx);
                 ar.resume(Response.accepted().build());
                 return;

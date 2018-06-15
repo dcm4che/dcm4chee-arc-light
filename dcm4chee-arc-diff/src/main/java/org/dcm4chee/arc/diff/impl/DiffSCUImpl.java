@@ -93,11 +93,11 @@ public class DiffSCUImpl implements DiffSCU {
         as2 = findSCU.openAssociation(ctx.getLocalAE(), ctx.getSecondaryAE().getAETitle(),
                 UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
         if (ctx.supportSorting()) {
-            dimseRSP2 = findSCU.query(as2, ctx.priority(), ctx.getQueryKeys(), 0);
+            dimseRSP2 = findSCU.query(as2, ctx.priority(), ctx.getQueryKeys(), 0, ctx.getSplitStudyDateRange());
             dimseRSP2.next();
             checkRSP(dimseRSP2);
         }
-        dimseRSP = findSCU.query(as1, ctx.priority(), ctx.getQueryKeys(), 0);
+        dimseRSP = findSCU.query(as1, ctx.priority(), ctx.getQueryKeys(), 0, ctx.getSplitStudyDateRange());
         dimseRSP.next();
         return checkRSP(dimseRSP);
     }

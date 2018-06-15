@@ -537,7 +537,7 @@ public class StowRS {
             }
         } catch (Exception e) {
         }
-        LOG.info("{}: Failed to parse bulkdata {} from {}", session, bulkdata.mediaType, bulkdata.bulkData.getURI());
+        LOG.info("{}: Failed to valueOf bulkdata {} from {}", session, bulkdata.mediaType, bulkdata.bulkData.getURI());
     }
 
     private boolean spoolBulkdata(MultipartInputStream in, MediaType mediaType,

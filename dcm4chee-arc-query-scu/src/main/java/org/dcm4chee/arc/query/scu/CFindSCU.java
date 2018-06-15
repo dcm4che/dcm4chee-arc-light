@@ -46,6 +46,7 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.DimseRSP;
 import org.dcm4che3.net.QueryOption;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.Duration;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -67,5 +68,5 @@ public interface CFindSCU {
                     String studyIUID, String seriesIUID, String sopIUID, int... returnKeys)
             throws Exception;
 
-    DimseRSP query(Association as, int priority, Attributes keys, int autocancel) throws Exception;
+    DimseRSP query(Association as, int priority, Attributes keys, int autocancel, Duration splitStudyDateRange) throws Exception;
 }
