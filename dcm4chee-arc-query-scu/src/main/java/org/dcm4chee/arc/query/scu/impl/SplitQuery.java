@@ -57,14 +57,24 @@ import java.util.stream.IntStream;
  * @since Jun 2018
  */
 class SplitQuery implements DimseRSP {
+    private static final int MILLIS_PER_MIN = 60_000;
+    private static final int SECS_PER_DAY = 86400;
+    private static final int MINS_PER_DAY = 1440;
+    private static final int[] DIVS_OF_MINS_OF_DAY = {
+            720, 480, 360, 288, 240, 180, 160, 144, 120, 96,
+            90, 80, 72, 60, 48, 45, 40, 36, 32, 30,
+            24, 20, 18, 16, 15, 12, 10, 9, 8, 6,
+            5, 4, 3, 2, 1 };
+
     private final Association as;
     private final String cuid;
     private final int priority;
     private final Attributes keys;
     private int autoCancel;
-    private long startDate;
+    private final Calendar cal = Calendar.getInstance();
+    private int dstOff;
     private final long endDate;
-    private final long maxRange;
+    private final int maxMins;
     private final RangeType rangeType;
     private DimseRSP dimseRSP;
 
@@ -77,19 +87,46 @@ class SplitQuery implements DimseRSP {
         this.keys = keys;
         this.autoCancel = autoCancel;
         this.rangeType = RangeType.valueOf(splitStudyDateRange);
-        this.maxRange = rangeType.rangeInMillis(splitStudyDateRange);
-        this.startDate = startDate;
+        this.maxMins = rangeType.maxMins(splitStudyDateRange);
+        this.cal.setTimeInMillis(startDate);
+        this.dstOff = cal.get(Calendar.DST_OFFSET);
         this.endDate = endDate;
         nextQuery();
     }
 
     private boolean nextQuery() throws IOException, InterruptedException {
-        if (startDate >= endDate) {
+        if (cal.getTimeInMillis() >= endDate) {
             return false;
         }
-        startDate = rangeType.adjustKeys(keys, startDate, maxRange, endDate);
+        adjustEndOfDST();
+        Date startDate = cal.getTime();
+        cal.add(Calendar.MINUTE, maxMins);
+        if (cal.getTimeInMillis() >= endDate) {
+            cal.setTimeInMillis(endDate);
+        } else {
+            cal.add(rangeType.calendarField, -1);
+            adjustStartOfDST();
+        }
+        rangeType.adjustKeys(keys, new DateRange(startDate, cal.getTime()));
         dimseRSP = as.cfind(cuid, priority, keys, UID.ImplicitVRLittleEndian, autoCancel);
         return true;
+    }
+
+    private void adjustEndOfDST() {
+        cal.add(Calendar.MINUTE, maxMins);
+        int diffDST = dstOff - cal.get(Calendar.DST_OFFSET);
+        cal.add(Calendar.MINUTE, -maxMins);
+        if (diffDST > 0) { // end of DST
+            cal.add(Calendar.MILLISECOND, diffDST);
+        }
+    }
+
+    private void adjustStartOfDST() {
+        int diffDST = dstOff;
+        diffDST -= dstOff = cal.get(Calendar.DST_OFFSET);
+        if (diffDST < 0) {  // start of DST
+            cal.add(Calendar.MINUTE, (diffDST / MILLIS_PER_MIN) % maxMins);
+        }
     }
 
     @Override
@@ -107,6 +144,7 @@ class SplitQuery implements DimseRSP {
                 }
                 return true;
             }
+            cal.add(rangeType.calendarField, 1);
         } while (nextQuery());
         return true;
     }
@@ -127,59 +165,43 @@ class SplitQuery implements DimseRSP {
     }
 
     enum RangeType {
-        DA {
+        DA(Calendar.DATE) {
             @Override
-            long rangeInMillis(Duration duration) {
-                return (duration.getSeconds() / SECS_PER_DAY) * MILLIS_PER_DAY;
+            int maxMins(Duration duration) {
+                return (int) ((duration.getSeconds() / SECS_PER_DAY) * MINS_PER_DAY);
             }
 
             @Override
-            long adjustKeys(Attributes keys, long startDate, long maxRange, long totEndDate) {
-                long endDate = startDate + maxRange;
-                DateRange range = new DateRange(
-                        new Date(startDate),
-                        new Date((endDate < totEndDate) ? endDate - MILLIS_PER_DAY : totEndDate));
+            void adjustKeys(Attributes keys, DateRange range) {
                 keys.setDateRange(Tag.StudyDate, VR.DA, range);
-                return endDate;
             }
         },
-        DT {
+        DT(Calendar.MINUTE) {
             @Override
-            long rangeInMillis(Duration duration) {
+            int maxMins(Duration duration) {
                 int maxMins = ((int) duration.getSeconds()) / 60;
                 return maxMins > 0
                         ? IntStream.of(DIVS_OF_MINS_OF_DAY).filter(i -> i <= maxMins).findFirst().getAsInt()
-                            * MILLIS_PER_MINUTE
-                        : MILLIS_PER_MINUTE;
+                        : 1;
             }
 
             @Override
-            long adjustKeys(Attributes keys, long startDate, long maxRange, long totEndDate) {
-                long endDate = startDate + maxRange;
-                DateRange range = new DateRange(
-                        new Date(startDate),
-                        new Date((endDate < totEndDate) ? endDate - MILLIS_PER_MINUTE : totEndDate));
+            void adjustKeys(Attributes keys, DateRange range) {
                 keys.setDate(Tag.StudyDate, VR.DA, range.getStartDate());
-                keys.setDateRange(Tag.StudyTime, VR.TM, PRECISION_MINUTES, range);
-                return endDate;
+                keys.setDateRange(Tag.StudyTime, VR.TM, new DatePrecision(Calendar.MINUTE), range);
             }
         };
 
-        static final int SECS_PER_DAY = 86400;
-        static final long MILLIS_PER_DAY = 86400_000L;
-        static final long MILLIS_PER_MINUTE = 60_000L;
-        static final int[] DIVS_OF_MINS_OF_DAY = {
-                720, 480, 360, 288, 240, 180, 160, 144, 120, 96,
-                90, 80, 72, 60, 48, 45, 40, 36, 32, 30,
-                24, 20, 18, 16, 15, 12, 10, 9, 8, 6,
-                5, 4, 3, 2, 1 };
-        static final DatePrecision PRECISION_MINUTES = new DatePrecision(Calendar.MINUTE);
+        final int calendarField;
 
+        RangeType(int calendarField) {
+            this.calendarField = calendarField;
+        }
 
         static RangeType valueOf(Duration duration) {
             return duration.getSeconds() >= SECS_PER_DAY ? DA : DT;
         }
-        abstract long rangeInMillis(Duration duration);
-        abstract long adjustKeys(Attributes keys, long startDate, long maxRange, long totEndDate);
+        abstract int maxMins(Duration duration);
+        abstract void adjustKeys(Attributes keys, DateRange range);
     }
 }
