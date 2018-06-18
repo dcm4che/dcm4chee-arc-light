@@ -227,6 +227,7 @@ public class QueueManagerEJB {
                 .where(matchQueueMessage);
         updateExportTaskUpdatedTime(queueMessageQuery, now);
         updateRetrieveTaskUpdatedTime(queueMessageQuery, now);
+        updateDiffTaskUpdatedTime(queueMessageQuery, now);
         return updateStatus(queueMessageQuery, QueueMessage.Status.CANCELED, now);
     }
 
