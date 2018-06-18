@@ -65,6 +65,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Date;
 import java.util.List;
@@ -196,7 +198,7 @@ public class QueueManagerRS {
 
     @POST
     @Path("{msgId}/reschedule")
-    public Response rescheduleMessage(@PathParam("msgId") String msgId) throws Exception {
+    public Response rescheduleMessage(@PathParam("msgId") String msgId) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
@@ -206,9 +208,9 @@ public class QueueManagerRS {
                     : devName.equals(device.getDeviceName())
                         ? Response.status(Response.Status.NO_CONTENT).build()
                         : rsClient.forward(request, devName);
-        } catch (IllegalTaskStateException e) {
+        } catch (Exception e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponseAsTextPlain(e);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -221,8 +223,6 @@ public class QueueManagerRS {
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
-        if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
-            return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
 
         Predicate matchQueueMessage = MatchTask.matchQueueMessage(
                 queueName, deviceName, status, batchID, jmsMessageID, createdTime, updatedTime, new Date());
@@ -257,9 +257,9 @@ public class QueueManagerRS {
             } while (queueMsgIDs.size() >= fetchSize);
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException e) {
+        } catch (Exception e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponseAsTextPlain(e);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -340,5 +340,12 @@ public class QueueManagerRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 }

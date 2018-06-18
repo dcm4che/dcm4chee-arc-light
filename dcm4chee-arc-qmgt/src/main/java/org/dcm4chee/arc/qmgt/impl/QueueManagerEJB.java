@@ -207,7 +207,11 @@ public class QueueManagerEJB {
                 throw new IllegalTaskStateException(
                         "Cannot cancel Task[id=" + msgId + "] with Status: " + entity.getStatus());
         }
+        cancelTask(entity);
+        return true;
+    }
 
+    private void cancelTask(QueueMessage entity) {
         entity.setStatus(QueueMessage.Status.CANCELED);
         if (entity.getExportTask() != null)
             entity.getExportTask().setUpdatedTime();
@@ -215,8 +219,7 @@ public class QueueManagerEJB {
             entity.getRetrieveTask().setUpdatedTime();
         if (entity.getDiffTask() != null)
             entity.getDiffTask().setUpdatedTime();
-        LOG.info("Cancel processing of Task[id={}] at Queue {}", msgId, entity.getQueueName());
-        return true;
+        LOG.info("Cancel processing of Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
     }
 
     public long cancelTasks(Predicate matchQueueMessage) {
@@ -326,13 +329,11 @@ public class QueueManagerEJB {
                 .fetch();
     }
 
-    public String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException {
+    public String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
         return rescheduleTask(findQueueMessage(msgId), queueName, queueEvent);
     }
 
-    public String rescheduleTask(QueueMessage entity, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException {
+    public String rescheduleTask(QueueMessage entity, String queueName, QueueMessageEvent queueEvent) {
         if (entity == null)
             return null;
 
@@ -345,9 +346,8 @@ public class QueueManagerEJB {
         switch (entity.getStatus()) {
             case SCHEDULED:
             case IN_PROCESS:
-                throw new IllegalTaskStateException(
-                        "Cannot reschedule Task[id=" + entity.getMessageID()
-                                + "] with Status: " + entity.getStatus());
+                cancelTask(entity);
+                //TODO - messageCanceledEvent.fire(new MessageCanceled(msgId));
         }
         if (queueName != null)
             entity.setQueueName(queueName);

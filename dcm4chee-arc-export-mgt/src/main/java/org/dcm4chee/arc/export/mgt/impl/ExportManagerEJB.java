@@ -393,8 +393,7 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public String rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException {
+    public String rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
             return null;

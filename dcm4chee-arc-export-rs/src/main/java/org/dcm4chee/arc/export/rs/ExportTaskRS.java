@@ -225,8 +225,7 @@ public class ExportTaskRS {
 
     @POST
     @Path("{taskPK}/reschedule/{ExporterID}")
-    public Response rescheduleTask(@PathParam("taskPK") long pk, @PathParam("ExporterID") String exporterID)
-            throws Exception {
+    public Response rescheduleTask(@PathParam("taskPK") long pk, @PathParam("ExporterID") String exporterID) {
         logRequest();
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
@@ -241,9 +240,9 @@ public class ExportTaskRS {
                     : devName.equals(device.getDeviceName())
                         ? Response.status(Response.Status.NO_CONTENT).build()
                         : rsClient.forward(request, devName);
-        } catch (IllegalTaskStateException e) {
+        } catch (Exception e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponseAsTextPlain(e);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -266,8 +265,6 @@ public class ExportTaskRS {
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
-        if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
-            return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
 
         Predicate matchQueueMessage = MatchTask.matchQueueMessage(
                 null, deviceName, status, batchID, null, null, null, new Date());
@@ -311,10 +308,10 @@ public class ExportTaskRS {
             }
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException | IOException e) {
+        } catch (IOException e) {
             queueEvent.setException(e);
             LOG.warn(e.getMessage());
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponseAsTextPlain(e);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -462,5 +459,12 @@ public class ExportTaskRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 }

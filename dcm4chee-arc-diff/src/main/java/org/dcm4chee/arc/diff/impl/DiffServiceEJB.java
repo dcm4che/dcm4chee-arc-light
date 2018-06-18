@@ -242,8 +242,7 @@ public class DiffServiceEJB {
         return queueManager.cancelDiffTasks(matchQueueMessage, matchDiffTask, prev);
     }
 
-    public String rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException {
+    public String rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) {
         DiffTask task = em.find(DiffTask.class, pk);
         if (task == null)
             return null;

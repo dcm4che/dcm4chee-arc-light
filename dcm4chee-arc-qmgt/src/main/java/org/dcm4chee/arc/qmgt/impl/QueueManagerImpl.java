@@ -172,14 +172,12 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException {
+    public String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
         return ejb.rescheduleTask(msgId, queueName, queueEvent);
     }
 
     @Override
-    public String rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException {
+    public String rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent) {
         return ejb.rescheduleTask(task, queueName, queueEvent);
     }
 

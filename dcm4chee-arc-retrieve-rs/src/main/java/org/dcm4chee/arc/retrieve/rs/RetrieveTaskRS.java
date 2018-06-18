@@ -228,7 +228,7 @@ public class RetrieveTaskRS {
 
     @POST
     @Path("{taskPK}/reschedule")
-    public Response rescheduleTask(@PathParam("taskPK") long pk) throws Exception {
+    public Response rescheduleTask(@PathParam("taskPK") long pk) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
@@ -238,9 +238,9 @@ public class RetrieveTaskRS {
                     : devName.equals(device.getDeviceName())
                         ? Response.status(Response.Status.NO_CONTENT).build()
                         : rsClient.forward(request, devName);
-        } catch (IllegalTaskStateException e) {
+        } catch (Exception e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponseAsTextPlain(e);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -253,8 +253,6 @@ public class RetrieveTaskRS {
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
-        if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
-            return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
 
         Predicate matchQueueMessage = MatchTask.matchQueueMessage(
                 null, deviceName, status, batchID, null, null, null, new Date());
@@ -292,9 +290,9 @@ public class RetrieveTaskRS {
             } while (retrieveTaskPks.size() >= fetchSize);
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException e) {
+        } catch (Exception e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponseAsTextPlain(e);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -434,5 +432,12 @@ public class RetrieveTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 }

@@ -71,9 +71,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -259,7 +257,7 @@ public class DiffTaskRS {
 
     @POST
     @Path("{taskPK}/reschedule")
-    public Response rescheduleTask(@PathParam("taskPK") long pk) throws Exception {
+    public Response rescheduleTask(@PathParam("taskPK") long pk) {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
@@ -269,9 +267,9 @@ public class DiffTaskRS {
                     : devName.equals(device.getDeviceName())
                         ? Response.status(Response.Status.NO_CONTENT).build()
                         : rsClient.forward(request, devName);
-        } catch (IllegalTaskStateException e) {
+        } catch (Exception e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponseAsTextPlain(e);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -284,8 +282,6 @@ public class DiffTaskRS {
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
-        if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
-            return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
 
         Predicate matchQueueMessage = MatchTask.matchQueueMessage(
                 null, deviceName, status, batchID, null, null, null, new Date());
@@ -324,9 +320,9 @@ public class DiffTaskRS {
             } while (diffTaskPks.size() >= fetchSize);
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException e) {
+        } catch (Exception e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponseAsTextPlain(e);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -480,4 +476,12 @@ public class DiffTaskRS {
     private QueueMessage.Status status() {
         return status != null ? QueueMessage.Status.fromString(status) : null;
     }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+    }
+
 }

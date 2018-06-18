@@ -213,8 +213,7 @@ public class RetrieveManagerEJB {
         return queueManager.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask, prev);
     }
 
-    public String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException {
+    public String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
             return null;

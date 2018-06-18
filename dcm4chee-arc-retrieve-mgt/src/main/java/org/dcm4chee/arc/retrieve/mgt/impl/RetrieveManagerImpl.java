@@ -186,8 +186,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException {
+    public String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
         return ejb.rescheduleRetrieveTask(pk, queueEvent);
     }
 
