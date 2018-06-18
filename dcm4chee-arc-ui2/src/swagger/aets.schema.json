@@ -50,21 +50,12 @@
       "dcmAllowDeletePatient": {
         "title": "Allow Delete Patient",
         "description": "Indicates policy for Allow Permanent Deletion of Patients; WITHOUT_STUDIES by default",
-        "type": "string",
-        "enum": [
-          "NEVER",
-          "ALWAYS",
-          "WITHOUT_STUDIES"
-        ]
+        "type": "string"
       },
       "dcmAllowDeleteStudyPermanently": {
         "title": "Allow Delete Patient",
         "description": "Indicates policy for Allow Permanent Deletion of Patients; WITHOUT_STUDIES by default",
-        "type": "string",
-        "enum": [
-          "ALWAYS",
-          "REJECTED"
-        ]
+        "type": "string"
       }
     }
   }
