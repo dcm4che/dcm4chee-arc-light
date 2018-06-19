@@ -69,9 +69,12 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -106,19 +109,65 @@ public class RetrieveManagerEJB {
             QQueueMessage.queueMessage.batchID
     };
 
-    public void scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx, String batchID)
+    enum QueryRetrieveTask {
+        STUDY {
+            @Override
+            Query createQuery(EntityManager em, ExternalRetrieveContext ctx) {
+                return em.createNamedQuery(RetrieveTask.PK_FOR_STUDY_RETRIEVE_TASK);
+            }
+        },
+        SERIES {
+            @Override
+            Query createQuery(EntityManager em, ExternalRetrieveContext ctx) {
+                return em.createNamedQuery(RetrieveTask.PK_FOR_SERIES_RETRIEVE_TASK)
+                        .setParameter(6, ctx.getSeriesInstanceUID());
+            }
+        },
+        IMAGE {
+            @Override
+            Query createQuery(EntityManager em, ExternalRetrieveContext ctx) {
+                return em.createNamedQuery(RetrieveTask.PK_FOR_OBJECT_RETRIEVE_TASK)
+                        .setParameter(6, ctx.getSeriesInstanceUID())
+                        .setParameter(7, ctx.getSOPInstanceUID());
+            }
+        };
+
+        static boolean isAlreadyScheduled(EntityManager em, ExternalRetrieveContext ctx) {
+            try {
+                valueOf(ctx.getKeys().getString(Tag.QueryRetrieveLevel))
+                        .createQuery(em, ctx)
+                        .setParameter(1, EnumSet.of(QueueMessage.Status.SCHEDULED, QueueMessage.Status.IN_PROCESS))
+                        .setParameter(2, ctx.getLocalAET())
+                        .setParameter(3, ctx.getRemoteAET())
+                        .setParameter(4, ctx.getDestinationAET())
+                        .setParameter(5, ctx.getStudyInstanceUID())
+                        .getSingleResult();
+                return true;
+            } catch (NoResultException e) {
+                return false;
+            }
+        }
+
+        abstract Query createQuery(EntityManager em, ExternalRetrieveContext ctx);
+    }
+
+    public boolean scheduleRetrieveTask(Device device, int priority, ExternalRetrieveContext ctx, String batchID)
             throws QueueSizeLimitExceededException {
+        if (QueryRetrieveTask.isAlreadyScheduled(em, ctx)) {
+            return false;
+        }
         try {
             ObjectMessage msg = queueManager.createObjectMessage(ctx.getKeys());
             msg.setStringProperty("LocalAET", ctx.getLocalAET());
             msg.setStringProperty("RemoteAET", ctx.getRemoteAET());
             msg.setIntProperty("Priority", priority);
             msg.setStringProperty("DestinationAET", ctx.getDestinationAET());
-            msg.setStringProperty("StudyInstanceUID", ctx.getKeys().getString(Tag.StudyInstanceUID));
+            msg.setStringProperty("StudyInstanceUID", ctx.getStudyInstanceUID());
             ctx.getHttpServletRequestInfo().copyTo(msg);
             QueueMessage queueMessage = queueManager.scheduleMessage(RetrieveManager.QUEUE_NAME, msg,
                     Message.DEFAULT_PRIORITY, batchID);
             createRetrieveTask(device, ctx, queueMessage);
+            return true;
         } catch (JMSException e) {
             throw QueueMessage.toJMSRuntimeException(e);
         }
