@@ -4092,7 +4092,7 @@
             "default": 0
           },
           {
-            "name": "splitstudydaterange",
+            "name": "SplitStudyDateRange",
             "in": "query",
             "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
             "type": "string"
@@ -4444,7 +4444,7 @@
             "default": 0
           },
           {
-            "name": "splitstudydaterange",
+            "name": "SplitStudyDateRange",
             "in": "query",
             "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
             "type": "string"
@@ -5335,7 +5335,7 @@
             "type": "string"
           },
           {
-            "name": "splitstudydaterange",
+            "name": "SplitStudyDateRange",
             "in": "query",
             "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
             "type": "string"
@@ -5629,7 +5629,7 @@
             "default": "no"
           },
           {
-            "name": "splitstudydaterange",
+            "name": "SplitStudyDateRange",
             "in": "query",
             "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
             "type": "string"
@@ -5763,7 +5763,7 @@
             "type": "string"
           },
           {
-            "name": "splitstudydaterange",
+            "name": "SplitStudyDateRange",
             "in": "query",
             "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
             "type": "string"

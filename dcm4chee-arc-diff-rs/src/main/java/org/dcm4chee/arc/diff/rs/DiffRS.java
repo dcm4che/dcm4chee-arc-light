@@ -143,9 +143,9 @@ public class DiffRS {
     @Pattern(regexp = "true|false")
     private String queue;
 
-    @QueryParam("splitstudydaterange")
+    @QueryParam("SplitStudyDateRange")
     @ValidValueOf(type = Duration.class)
-    private String splitstudydaterange;
+    private String splitStudyDateRange;
 
     @Override
     public String toString() {

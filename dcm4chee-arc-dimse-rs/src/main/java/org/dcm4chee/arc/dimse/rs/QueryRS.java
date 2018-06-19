@@ -121,9 +121,9 @@ public class QueryRS {
     @Pattern(regexp = "0|1|2")
     private String priority;
 
-    @QueryParam("splitstudydaterange")
+    @QueryParam("SplitStudyDateRange")
     @ValidValueOf(type = Duration.class)
-    private String splitstudydaterange;
+    private String splitStudyDateRange;
 
     @Inject
     private CFindSCU findSCU;
@@ -230,7 +230,7 @@ public class QueryRS {
     }
 
     private Duration splitStudyDateRange() {
-        return splitstudydaterange != null ? Duration.valueOf(splitstudydaterange) : null;
+        return splitStudyDateRange != null ? Duration.valueOf(splitStudyDateRange) : null;
     }
 
     private void search(AsyncResponse ar, Level level, String studyInstanceUID, String seriesInstanceUID, QIDO qido,
