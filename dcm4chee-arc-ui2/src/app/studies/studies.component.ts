@@ -83,7 +83,8 @@ export class StudiesComponent implements OnDestroy,OnInit{
         StudyDate:'',
         IssuerOfPatientID:'',
         fuzzymatching:'',
-        StudyTime:''
+        StudyTime:'',
+        SplitStudyDateRange:''
     };
     diffQueue = false;
     missing = true;
@@ -524,6 +525,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             this.orderbytext = "Study";
             this.filterMode = "study";
         }
+        this.filter.SplitStudyDateRange = '';
     }
 
     /*
@@ -1603,6 +1605,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 return this.allAes[i].hl7ApplicationName;
             }
         };
+    }
+    test(e){
+        console.log("SplitStudyDateRange=",e);
     }
     modifyPatient(patient, mode , patientkey){
         let originalPatientObject = _.cloneDeep(patient);

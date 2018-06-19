@@ -2375,3 +2375,37 @@ mat-dialog-container{
 .dropdown {
   position: static;
 }
+.range_picker{
+  input, p-calendar input{
+    margin: 0 !important;
+  }
+  .smart_input input{
+    height: 30px;
+  }
+  duration-picker{
+    position: absolute;
+    left: 5%;
+    width: 90%;
+    top: 161px;
+    .form-group{
+      width:100%;
+      float: left;
+      margin-bottom: 0;
+      .col-md-7{
+        padding: 0;
+      }
+    }
+    .durationpicker{
+      width: 100%;
+    }
+    .btn_content{
+      .btn{
+        background: rgba(6, 29, 47, 0.84);
+        color: white;
+        border: 0;
+        width: 24%;
+        float: right;
+      }
+    }
+  }
+}

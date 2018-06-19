@@ -49,7 +49,7 @@
         "action-devicelist-device_configuration",
         "action-studies-patient",
         "action-studies-mwl",
-        "action-studies-studie",
+        "action-studies-study",
         "action-studies-serie",
         "action-studies-instance",
         "action-studies-copy_merge_move",
