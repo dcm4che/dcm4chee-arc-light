@@ -51,6 +51,7 @@ import org.dcm4chee.arc.conf.QueueDescriptor;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.MessageCanceled;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.hibernate.Session;
@@ -60,6 +61,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.ObjectMessage;
@@ -91,6 +93,9 @@ public class QueueManagerEJB {
 
     @Inject
     private Device device;
+
+    @Inject
+    private Event<MessageCanceled> messageCanceledEvent;
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public ObjectMessage createObjectMessage(Serializable object) {
@@ -220,6 +225,7 @@ public class QueueManagerEJB {
         if (entity.getDiffTask() != null)
             entity.getDiffTask().setUpdatedTime();
         LOG.info("Cancel processing of Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
+        messageCanceledEvent.fire(new MessageCanceled(entity.getMessageID()));
     }
 
     public long cancelTasks(Predicate matchQueueMessage) {
