@@ -79,6 +79,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -86,7 +87,7 @@ import java.util.*;
  * @since Mar 2016
  */
 @RequestScoped
-@Path("aets/{AETitle}/rs")
+@Path("aets/{AETitle}/rs/studies/{studyUID}")
 public class WadoRS {
 
     private static final Logger LOG = LoggerFactory.getLogger(WadoRS.class);
@@ -118,6 +119,9 @@ public class WadoRS {
     @PathParam("AETitle")
     private String aet;
 
+    @PathParam("studyUID")
+    String studyUID;
+
     private Collection<String> acceptableTransferSyntaxes;
     private List<MediaType> acceptableMediaTypes;
     private Map<String, MediaType> selectedMediaTypes;
@@ -136,204 +140,196 @@ public class WadoRS {
     }
 
     @GET
-    @Path("/studies/{studyUID}")
-    @Produces("multipart/related;type=application/dicom")
     public void retrieveStudy(
-            @PathParam("studyUID") String studyUID,
+            @QueryParam("accept") String accept,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudy", studyUID, null, null, null, null, null, ar, Output.DICOM);
+        Output output = selectMediaType(accept);
+        if (output == null)
+            ar.resume(Response.notAcceptable(
+                    Variant.mediaTypes(MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE, MediaTypes.MULTIPART_RELATED_TYPE).build())
+                    .build());
+
+        String method = output == Output.DICOM ? "retrieveStudy" : "retrieveStudyBulkdata";
+        retrieve(method, null, null, null, null, null, ar, output);
     }
 
     @GET
-    @Path("/studies/{studyUID}")
-    @Produces("multipart/related")
-    public void retrieveStudyBulkdata(
-            @PathParam("studyUID") String studyUID,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudyBulkdata", studyUID, null, null, null, null, null, ar, Output.BULKDATA);
-    }
-
-    @GET
-    @Path("/studies/{studyUID}/metadata")
-    @Produces("application/dicom+json,application/json")
-    public void retrieveStudyMetadataAsJSON(
-            @PathParam("studyUID") String studyUID,
+    @Path("/metadata")
+    public void retrieveStudyMetadata(
+            @QueryParam("accept") String accept,
             @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudyMetadataAsJSON", studyUID, null, null, null, null, includefields, ar, Output.METADATA_JSON);
+        Output output = selectMediaType(accept);
+        if (output == null)
+            ar.resume(Response.notAcceptable(
+                    Variant.mediaTypes(MediaTypes.APPLICATION_DICOM_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE,
+                            MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_XML_TYPE).build())
+                    .build());
+
+        String method = output == Output.METADATA_JSON ? "retrieveStudyMetadataAsJSON" : "retrieveStudyMetadataAsXML";
+        retrieve(method, null, null, null, null, includefields, ar, output);
     }
 
     @GET
-    @Path("/studies/{studyUID}/metadata")
-    @Produces("multipart/related;type=application/dicom+xml")
-    public void retrieveStudyMetadataAsXML(
-            @PathParam("studyUID") String studyUID,
-            @QueryParam("includefields") String includefields,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudyMetadataAsXML", studyUID, null, null, null, null, includefields, ar, Output.METADATA_XML);
-    }
-
-    @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}")
-    @Produces("multipart/related;type=application/dicom")
+    @Path("/series/{seriesUID}")
     public void retrieveSeries(
-            @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
+            @QueryParam("accept") String accept,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeries", studyUID, seriesUID, null, null, null, null, ar, Output.DICOM);
+        Output output = selectMediaType(accept);
+        if (output == null)
+            ar.resume(Response.notAcceptable(
+                    Variant.mediaTypes(MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE, MediaTypes.MULTIPART_RELATED_TYPE).build())
+                    .build());
+
+        String method = output == Output.DICOM ? "retrieveSeries" : "retrieveSeriesBulkdata";
+        retrieve(method, seriesUID, null, null, null, null, ar, output);
     }
 
     @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}")
-    @Produces("multipart/related")
-    public void retrieveSeriesBulkdata(
-            @PathParam("studyUID") String studyUID,
+    @Path("/series/{seriesUID}/metadata")
+    public void retrieveSeriesMetadata(
             @PathParam("seriesUID") String seriesUID,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeriesBulkdata", studyUID, seriesUID, null, null, null, null, ar, Output.BULKDATA);
-    }
-
-    @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/metadata")
-    @Produces("application/dicom+json,application/json")
-    public void retrieveSeriesMetadataAsJSON(
-            @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID,
+            @QueryParam("accept") String accept,
             @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeriesMetadataAsJSON", studyUID, seriesUID, null, null, null, includefields, ar, Output.METADATA_JSON);
+        Output output = selectMediaType(accept);
+        if (output == null)
+            ar.resume(Response.notAcceptable(
+                    Variant.mediaTypes(MediaTypes.APPLICATION_DICOM_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE,
+                            MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_XML_TYPE).build())
+                    .build());
+
+        String method = output == Output.METADATA_JSON ? "retrieveSeriesMetadataAsJSON" : "retrieveSeriesMetadataAsXML";
+        retrieve(method, seriesUID, null, null, null, includefields, ar, output);
     }
 
     @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/metadata")
-    @Produces("multipart/related;type=application/dicom+xml")
-    public void retrieveSeriesMetadataAsXML(
-            @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID,
-            @QueryParam("includefields") String includefields,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeriesMetadataAsXML", studyUID, seriesUID, null, null, null, includefields, ar, Output.METADATA_XML);
-    }
-
-    @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}")
-    @Produces("multipart/related;type=application/dicom")
+    @Path("/series/{seriesUID}/instances/{objectUID}")
     public void retrieveInstance(
-            @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
+            @QueryParam("accept") String accept,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstance", studyUID, seriesUID, objectUID, null, null, null, ar, Output.DICOM);
+        Output output = selectMediaType(accept);
+        if (output == null)
+            ar.resume(Response.notAcceptable(
+                    Variant.mediaTypes(MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE, MediaTypes.MULTIPART_RELATED_TYPE).build())
+                    .build());
+
+        String method = output == Output.DICOM ? "retrieveInstance" : "retrieveInstanceBulkdata";
+        retrieve(method, seriesUID, objectUID, null, null, null, ar, output);
     }
 
     @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}")
-    @Produces("multipart/related")
-    public void retrieveInstanceBulkdata(
-            @PathParam("studyUID") String studyUID,
+    @Path("/series/{seriesUID}/instances/{objectUID}/metadata")
+    public void retrieveInstanceMetadata(
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
+            @QueryParam("accept") String accept,
+            @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstanceBulkdata", studyUID, seriesUID, objectUID, null, null, null, ar, Output.BULKDATA);
+        Output output = selectMediaType(accept);
+        if (output == null)
+            ar.resume(Response.notAcceptable(
+                    Variant.mediaTypes(MediaTypes.APPLICATION_DICOM_JSON_TYPE, MediaType.APPLICATION_JSON_TYPE,
+                            MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_XML_TYPE).build())
+                    .build());
+
+        String method = output == Output.METADATA_JSON ? "retrieveInstanceMetadataAsJSON" : "retrieveInstanceMetadataAsXML";
+        retrieve(method, seriesUID, objectUID, null, null, includefields, ar, output);
     }
 
     @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/bulkdata/{attributePath:.+}")
-    @Produces("multipart/related")
+    @Path("/series/{seriesUID}/instances/{objectUID}/bulkdata/{attributePath:.+}")
     public void retrieveBulkdata(
-            @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @PathParam("attributePath") @ValidValueOf(type = AttributePath.class) String attributePath,
+            @QueryParam("accept") String accept,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveBulkdata", studyUID, seriesUID, objectUID,
+        if (selectMediaType(accept) == null)
+            ar.resume(Response.notAcceptable(Variant.mediaTypes(MediaTypes.MULTIPART_RELATED_TYPE).build()).build());
+
+        retrieve("retrieveBulkdata", seriesUID, objectUID,
                 null, new AttributePath(attributePath).path, null, ar, Output.BULKDATA_PATH);
     }
 
     @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/frames/{frameList}")
-    @Produces("multipart/related")
+    @Path("/series/{seriesUID}/instances/{objectUID}/frames/{frameList}")
     public void retrieveFrames(
-            @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
+            @QueryParam("accept") String accept,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveFrames", studyUID, seriesUID, objectUID,
+        if (selectMediaType(accept) == null)
+            ar.resume(Response.notAcceptable(Variant.mediaTypes(MediaTypes.MULTIPART_RELATED_TYPE).build()).build());
+        
+        retrieve("retrieveFrames", seriesUID, objectUID,
                 new FrameList(frameList).frames, null, null, ar, Output.BULKDATA_FRAME);
+    }
+
+    private Output selectMediaType(String accept) {
+        Stream<MediaType> acceptableTypes = headers.getAcceptableMediaTypes().stream();
+        if (accept != null) {
+            try {
+                MediaType type = MediaType.valueOf(accept);
+                headers.getRequestHeaders().add("Accept", accept);
+                return acceptableTypes.anyMatch(type::isCompatible) ? Output.valueOf(type) : null;
+            } catch (IllegalArgumentException ae) {
+                return null;
+            }
+        }
+
+        return acceptableTypes.map(Output::valueOf)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
 /*
     @GET
-    @Path("/studies/{studyUID}/rendered")
+    @Path("/rendered")
     @Produces("multipart/related")
     public void retrieveRenderedStudy(
-            @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedStudy", studyUID, null, null, null, null, ar, Output.RENDER);
+        retrieve("retrieveRenderedStudy", null, null, null, null, ar, Output.RENDER);
     }
 
     @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/rendered")
+    @Path("/series/{seriesUID}/rendered")
     @Produces("multipart/related")
     public void retrieveRenderedSeries(
-            @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedSeries", studyUID, seriesUID, null, null, null, ar, Output.RENDER);
+        retrieve("retrieveRenderedSeries", seriesUID, null, null, null, ar, Output.RENDER);
     }
 
     @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/rendered")
+    @Path("/series/{seriesUID}/instances/{objectUID}/rendered")
     @Produces("multipart/related")
     public void retrieveRenderedInstance(
-            @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedInstance", studyUID, seriesUID, objectUID, null, null, ar, Output.RENDER);
+        retrieve("retrieveRenderedInstance", seriesUID, objectUID, null, null, ar, Output.RENDER);
     }
 
     @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/frames/{frameList}/rendered")
+    @Path("/series/{seriesUID}/instances/{objectUID}/frames/{frameList}/rendered")
     @Produces("multipart/related")
     public void retrieveRenderedFrames(
-            @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedFrames", studyUID, seriesUID, objectUID,
+        retrieve("retrieveRenderedFrames", seriesUID, objectUID,
                 new FrameList(frameList).frames, null, ar, Output.RENDER_FRAME);
     }
 */
 
-    @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/metadata")
-    @Produces("application/dicom+json,application/json")
-    public void retrieveInstanceMetadataAsJSON(
-            @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID,
-            @PathParam("objectUID") String objectUID,
-            @QueryParam("includefields") String includefields,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstanceMetadataAsJSON", studyUID, seriesUID, objectUID, null, null, includefields, ar,
-                Output.METADATA_JSON);
-    }
-
-    @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/metadata")
-    @Produces("multipart/related;type=application/dicom+xml")
-    public void retrieveInstanceMetadataAsXML(
-            @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID,
-            @PathParam("objectUID") String objectUID,
-            @QueryParam("includefields") String includefields,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstanceMetadataAsXML", studyUID, seriesUID, objectUID, null, null, includefields, ar, Output.METADATA_XML);
-    }
-
-    private void retrieve(String method, String studyUID, String seriesUID, String objectUID, int[] frameList,
+    private void retrieve(String method, String seriesUID, String objectUID, int[] frameList,
                           int[] attributePath, String includefields, AsyncResponse ar, Output output) {
         LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         try {
@@ -561,6 +557,17 @@ public class WadoRS {
                                InstanceLocations inst, int[] frameList, int[] attributePath) throws IOException {
              throw new WebApplicationException(errResponse(
                      name() + " not implemented", Response.Status.SERVICE_UNAVAILABLE));
+        }
+
+        static Output valueOf(MediaType type) {
+            return MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_TYPE.isCompatible(type)
+                    ? DICOM
+                    : MediaTypes.MULTIPART_RELATED_TYPE.isCompatible(type)
+                        ? BULKDATA
+                        : MediaType.APPLICATION_JSON_TYPE.isCompatible(type) || MediaTypes.APPLICATION_DICOM_JSON_TYPE.isCompatible(type)
+                            ? METADATA_JSON
+                            : MediaTypes.MULTIPART_RELATED_APPLICATION_DICOM_XML_TYPE.isCompatible(type)
+                                ? METADATA_XML : null;
         }
 
         public boolean isMetadata() {
