@@ -100,6 +100,7 @@ public class QueryAttributes {
                 case "batchID":
                 case "queue":
                 case "SplitStudyDateRange":
+                case "ForceQueryByStudyUID":
                     break;
                 case "StudyReceiveDateTime":
                     keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT,

@@ -5619,14 +5619,21 @@
             "in": "query",
             "description": "include Studies different at originalAET",
             "type": "boolean",
-            "default": "yes"
+            "default": true
           },
           {
             "name": "missing",
             "in": "query",
             "description": "include Studies missing at originalAET",
             "type": "boolean",
-            "default": "no"
+            "default": false
+          },
+          {
+            "name": "ForceQueryByStudyUID",
+            "in": "query",
+            "description": "Force queries by Study Instance UID to secondary C-FIND SCP, although both C-FIND SCPs are instances of dcm4chee-arc",
+            "type": "boolean",
+            "default": false
           },
           {
             "name": "SplitStudyDateRange",
@@ -5761,6 +5768,13 @@
             "description": "AE Title of secondary C-FIND SCP to query for Studies returned from externalAET",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "ForceQueryByStudyUID",
+            "in": "query",
+            "description": "Force queries by Study Instance UID to secondary C-FIND SCP, although both C-FIND SCPs are instances of dcm4chee-arc",
+            "type": "boolean",
+            "default": false
           },
           {
             "name": "SplitStudyDateRange",

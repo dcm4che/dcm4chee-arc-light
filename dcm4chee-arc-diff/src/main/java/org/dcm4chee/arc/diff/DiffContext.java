@@ -71,6 +71,7 @@ public class DiffContext {
     private QueryAttributes queryAttributes;
     private Duration splitStudyDateRange;
     private int priority;
+    private boolean forceQueryByStudyUID;
     private boolean fuzzymatching;
     private boolean checkMissing;
     private boolean checkDifferent;
@@ -127,6 +128,7 @@ public class DiffContext {
     public DiffContext setQueryString(String queryString, MultivaluedMap<String, String> queryParameters) {
         this.queryString = queryString;
         this.queryAttributes = new QueryAttributes(queryParameters);
+        this.forceQueryByStudyUID = parseBoolean(queryParameters.getFirst("ForceQueryByStudyUID"), false);
         this.splitStudyDateRange = parseDuration(queryParameters.getFirst("SplitStudyDateRange"));
         this.compareKeys = parseComparefields(queryParameters.get("comparefield"));
         this.priority = parseInt(queryParameters.getFirst("priority"), 0);
@@ -139,6 +141,10 @@ public class DiffContext {
 
     public Attributes getQueryKeys() {
         return queryAttributes.getQueryKeys();
+    }
+
+    public boolean isForceQueryByStudyUID() {
+        return forceQueryByStudyUID;
     }
 
     public Duration getSplitStudyDateRange() {
@@ -268,5 +274,4 @@ public class DiffContext {
         }
         return queryParameters;
     }
-
 }

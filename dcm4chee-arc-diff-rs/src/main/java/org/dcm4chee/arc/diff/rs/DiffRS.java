@@ -143,6 +143,10 @@ public class DiffRS {
     @Pattern(regexp = "true|false")
     private String queue;
 
+    @QueryParam("ForceQueryByStudyUID")
+    @ValidValueOf(type = Duration.class)
+    private String forceQueryByStudyUID;
+
     @QueryParam("SplitStudyDateRange")
     @ValidValueOf(type = Duration.class)
     private String splitStudyDateRange;
