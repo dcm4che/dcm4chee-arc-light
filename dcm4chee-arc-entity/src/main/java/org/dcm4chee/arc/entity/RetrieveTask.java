@@ -65,6 +65,33 @@ import java.util.Date;
                 @Index(columnList = "study_iuid") }
 )
 @NamedQueries({
+        @NamedQuery(name = RetrieveTask.PK_FOR_STUDY_RETRIEVE_TASK,
+                query = "select o.pk from RetrieveTask o " +
+                        "where o.queueMessage.status in ?1 " +
+                        "and o.localAET=?2 " +
+                        "and o.remoteAET=?3 " +
+                        "and o.destinationAET=?4 " +
+                        "and o.studyInstanceUID=?5 " +
+                        "and o.seriesInstanceUID is null " +
+                        "and o.sopInstanceUID is null"),
+        @NamedQuery(name = RetrieveTask.PK_FOR_SERIES_RETRIEVE_TASK,
+                query = "select o.pk from RetrieveTask o " +
+                        "where o.queueMessage.status in ?1 " +
+                        "and o.localAET=?2 " +
+                        "and o.remoteAET=?3 " +
+                        "and o.destinationAET=?4 " +
+                        "and o.studyInstanceUID=?5 " +
+                        "and (o.seriesInstanceUID is null or o.seriesInstanceUID=?6) " +
+                        "and o.sopInstanceUID is null"),
+        @NamedQuery(name = RetrieveTask.PK_FOR_OBJECT_RETRIEVE_TASK,
+                query = "select o.pk from RetrieveTask o " +
+                        "where o.queueMessage.status in ?1 " +
+                        "and o.localAET=?2 " +
+                        "and o.remoteAET=?3 " +
+                        "and o.destinationAET=?4 " +
+                        "and o.studyInstanceUID=?5 " +
+                        "and (o.seriesInstanceUID is null or o.seriesInstanceUID=?6) " +
+                        "and (o.sopInstanceUID is null or o.sopInstanceUID=?7)"),
         @NamedQuery(name = RetrieveTask.UPDATE_BY_QUEUE_MESSAGE,
                 query = "update RetrieveTask o set " +
                         "o.updatedTime=current_timestamp, " +
@@ -78,6 +105,9 @@ import java.util.Date;
 })
 public class RetrieveTask {
 
+    public static final String PK_FOR_STUDY_RETRIEVE_TASK = "RetrieveTask.pkForStudyRetrieveTask";
+    public static final String PK_FOR_SERIES_RETRIEVE_TASK = "RetrieveTask.pkForSeriesRetrieveTask";
+    public static final String PK_FOR_OBJECT_RETRIEVE_TASK = "RetrieveTask.pkForObjectRetrieveTask";
     public static final String UPDATE_BY_QUEUE_MESSAGE = "RetrieveTask.UpdateByQueueMessage";
 
     @Id

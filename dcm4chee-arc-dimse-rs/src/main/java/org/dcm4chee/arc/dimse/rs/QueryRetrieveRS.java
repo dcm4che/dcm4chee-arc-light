@@ -184,8 +184,8 @@ public class QueryRetrieveRS {
             while ((line = reader.readLine()) != null) {
                 String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
                 if (count > 0 || UIDUtils.isValid(studyUID)) {
-                    retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, studyUID), batchID);
-                    count++;
+                    if (retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, studyUID), batchID))
+                        count++;
                 }
             }
         } catch (QueueSizeLimitExceededException e) {
@@ -260,8 +260,8 @@ public class QueryRetrieveRS {
             do {
                 status = dimseRSP.getCommand().getInt(Tag.Status, -1);
                 if (Status.isPending(status)) {
-                    retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, dimseRSP), batchID);
-                    count++;
+                    if (retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, dimseRSP), batchID))
+                        count++;
                 }
             } while (dimseRSP.next()) ;
             warning = warning(status);
