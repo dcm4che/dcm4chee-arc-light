@@ -1818,10 +1818,7 @@
             }
           },
           "400": {
-            "description": "Compare Studies Tasks status is null or invalid or device name is null"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
+            "description": "Compare Studies Tasks status is null or invalid"
           },
           "default": {
             "description": "unexpected error"
@@ -2495,10 +2492,7 @@
             }
           },
           "400": {
-            "description": "Export task status is null or invalid or device name is null"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
+            "description": "Export task status is null or invalid"
           },
           "default": {
             "description": "unexpected error"
@@ -3269,10 +3263,7 @@
             }
           },
           "400": {
-            "description": "Retrieve tasks status is null or invalid or device name is null"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
+            "description": "Retrieve tasks status is null or invalid"
           },
           "default": {
             "description": "unexpected error"
@@ -3781,10 +3772,7 @@
             }
           },
           "400": {
-            "description": "Queue Message status is null or invalid or device name is null"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
+            "description": "Queue Message status is null or invalid"
           },
           "default": {
             "description": "unexpected error"
@@ -4092,7 +4080,7 @@
             "default": 0
           },
           {
-            "name": "splitstudydaterange",
+            "name": "SplitStudyDateRange",
             "in": "query",
             "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
             "type": "string"
@@ -4444,7 +4432,7 @@
             "default": 0
           },
           {
-            "name": "splitstudydaterange",
+            "name": "SplitStudyDateRange",
             "in": "query",
             "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
             "type": "string"
@@ -5335,7 +5323,7 @@
             "type": "string"
           },
           {
-            "name": "splitstudydaterange",
+            "name": "SplitStudyDateRange",
             "in": "query",
             "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
             "type": "string"
@@ -5619,17 +5607,24 @@
             "in": "query",
             "description": "include Studies different at originalAET",
             "type": "boolean",
-            "default": "yes"
+            "default": true
           },
           {
             "name": "missing",
             "in": "query",
             "description": "include Studies missing at originalAET",
             "type": "boolean",
-            "default": "no"
+            "default": false
           },
           {
-            "name": "splitstudydaterange",
+            "name": "ForceQueryByStudyUID",
+            "in": "query",
+            "description": "Force queries by Study Instance UID to secondary C-FIND SCP, although both C-FIND SCPs are instances of dcm4chee-arc",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SplitStudyDateRange",
             "in": "query",
             "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
             "type": "string"
@@ -5763,7 +5758,14 @@
             "type": "string"
           },
           {
-            "name": "splitstudydaterange",
+            "name": "ForceQueryByStudyUID",
+            "in": "query",
+            "description": "Force queries by Study Instance UID to secondary C-FIND SCP, although both C-FIND SCPs are instances of dcm4chee-arc",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SplitStudyDateRange",
             "in": "query",
             "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
             "type": "string"

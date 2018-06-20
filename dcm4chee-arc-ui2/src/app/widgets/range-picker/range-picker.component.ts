@@ -14,12 +14,15 @@ export class RangePickerComponent implements OnInit {
     @Input() dateFormat;
     @Input() onlyTime;
     @Input() onlyDate;
+    @Input() dateRange;
     @Input() mode:("leftOpen"|"rightOpen"|"range"|"single");
     @Output() modelChange = new EventEmitter();
+    @Output() splitDateRangeChanged = new EventEmitter();
     @ViewChild('fromCalendar') fromCalendarObject;
     @ViewChild('fromTimeCalendar') fromTimeCalendarObject;
     @ViewChild('toCalendar') toCalendarObject;
     @ViewChild('singleCalendar') singleCalendarObject;
+    SplitStudyDateRange;
     fromModel;
     fromTimeModel;
     toModel;
@@ -28,12 +31,14 @@ export class RangePickerComponent implements OnInit {
     singleTimeModel;
     showPicker;
     smartPickerActive = false;
+    showDurationPaicker = false;
     smartInput;
     HH = [];
     mm = [];
     includeTime = false;
     maiInputValid = true;
     showSelectOptions = false;
+    showRangePicker = false;
     constructor() {}
     ngOnInit(){
         this.mode = this.mode || "range";
@@ -54,10 +59,15 @@ export class RangePickerComponent implements OnInit {
     }
     toggleTime(){
     }
+    setDuration(e){
+        console.log("setDuratione",e);
+        this.SplitStudyDateRange = e;
+        this.showDurationPaicker = !this.showDurationPaicker;
+    }
     setRange(){
         switch(this.mode){
             case 'single':
-                this.model = this.getDateFromValue(this.singleDateModel) + this.getTimeFromValue(this.singleTimeModel, false);
+                this.model = (this.singleDateModel != "" || this.singleTimeModel != '') ? this.getDateFromValue(this.singleDateModel) + this.getTimeFromValue(this.singleTimeModel, false) :'';
             break;
             case 'range':
                 this.model = (this.fromModel != '' || this.toModel != '' || this.onlyTime) ? `${this.getDateFromValue(this.fromModel) + this.getTimeFromValue(this.fromTimeModel, false)}-${this.getDateFromValue(this.toModel) + this.getTimeFromValue(this.toTimeModel, false)}`:'';
@@ -68,6 +78,9 @@ export class RangePickerComponent implements OnInit {
             case 'leftOpen':
                 this.model = (this.toModel != '' || this.onlyTime) ?`-${this.getDateFromValue(this.toModel) + this.getTimeFromValue(this.toTimeModel, false)}`:'';
                 break;
+        }
+        if(this.dateRange && this.splitDateRangeChanged){
+            this.splitDateRangeChanged.emit(this.SplitStudyDateRange);
         }
         this.modelChange.emit(this.model);
         this.filterChanged();
@@ -90,6 +103,7 @@ export class RangePickerComponent implements OnInit {
         this.toTimeModel = '';
         this.singleDateModel = '';
         this.singleTimeModel = '';
+        this.SplitStudyDateRange = '';
         // this.modelChange.emit('');
     }
 
@@ -234,6 +248,9 @@ export class RangePickerComponent implements OnInit {
         }
         if(this.maiInputValid){
             this.modelChange.emit(this.model);
+            if(this.dateRange && this.splitDateRangeChanged){
+                this.splitDateRangeChanged.emit(this.SplitStudyDateRange);
+            }
         }
     }
 
@@ -307,6 +324,9 @@ export class RangePickerComponent implements OnInit {
             break;
         }
         this.modelChange.emit(this.model);
+        if(this.dateRange && this.splitDateRangeChanged){
+            this.splitDateRangeChanged.emit(this.SplitStudyDateRange);
+        }
         this.filterChanged();
         this.showPicker = false;
     }
@@ -340,6 +360,9 @@ export class RangePickerComponent implements OnInit {
     today(){
         this.model = j4care.convertDateToString(new Date());
         this.modelChange.emit(this.model);
+        if(this.dateRange && this.splitDateRangeChanged){
+            this.splitDateRangeChanged.emit(this.SplitStudyDateRange);
+        }
         this.showPicker = false;
         this.filterChanged();
     }
@@ -352,6 +375,9 @@ export class RangePickerComponent implements OnInit {
         else
             this.model = `${j4care.convertDateToString(todayDate)}-${j4care.convertDateToString(new Date())}`;
         this.modelChange.emit(this.model);
+        if(this.dateRange && this.splitDateRangeChanged){
+            this.splitDateRangeChanged.emit(this.SplitStudyDateRange);
+        }
         this.showPicker = false;
         this.filterChanged();
     }
@@ -360,7 +386,19 @@ export class RangePickerComponent implements OnInit {
         todayDate.setFullYear(todayDate.getFullYear()-1);
         this.model(`${j4care.convertDateToString(todayDate)}-${j4care.convertDateToString(new Date())}`);
         this.modelChange.emit(this.model);
+        if(this.dateRange && this.splitDateRangeChanged){
+            this.splitDateRangeChanged.emit(this.SplitStudyDateRange);
+        }
         this.showPicker = false;
+        
         this.filterChanged();
+    }
+    hardClear(){
+        this.model = "";
+        this.clear();
+        this.modelChange.emit(this.model);
+        this.splitDateRangeChanged.emit(this.SplitStudyDateRange);
+        this.filterChanged();
+        this.showPicker = false;
     }
 }

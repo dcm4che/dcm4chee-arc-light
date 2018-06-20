@@ -111,9 +111,9 @@ public class QueryRetrieveRS {
     @Pattern(regexp = "0|1|2")
     private String priority;
 
-    @QueryParam("splitstudydaterange")
+    @QueryParam("SplitStudyDateRange")
     @ValidValueOf(type = Duration.class)
-    private String splitstudydaterange;
+    private String splitStudyDateRange;
 
     @Inject
     private CFindSCU findSCU;
@@ -228,7 +228,7 @@ public class QueryRetrieveRS {
     }
 
     private Duration splitStudyDateRange() {
-        return splitstudydaterange != null ? Duration.valueOf(splitstudydaterange) : null;
+        return splitStudyDateRange != null ? Duration.valueOf(splitStudyDateRange) : null;
     }
 
     private Response retrieveMatching(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,

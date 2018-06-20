@@ -23,6 +23,9 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
         cursor: pointer;
       }
     }
+    &:hover .clear_picker{
+      display: block;
+    }
   }
   .picker{
     z-index: 9999;
@@ -47,6 +50,7 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
         background: $backgroundColor;
         color: white;
         width: calc(100% - 4px);
+        line-height: 30px;
         margin: 5px 2px;
         padding-left: 10px;
         -webkit-box-shadow: 3px 3px 6px 0px #666;
@@ -164,6 +168,31 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
             width: 100%;
           }
         }
+        &.duration{
+          margin-top:5px;
+          li.smart_input{
+            width: calc(100% - 22px);
+            margin-right: 4px;
+          }
+          li.duration_buttons{
+            &.glyphicon-remove{
+              width: 52px;
+              margin-right: 4px;
+              margin-top: -1px;
+            }
+          }
+          li:last-child{
+            width: 52px;
+            background-image: url("../../../assets/img/range_clock_white.png");
+            background-repeat: no-repeat;
+            background-size: 20px;
+            background-position: center;
+          }
+        }
+      }
+      .form-group{
+        float: left;
+        width: 100%;
       }
     }
     ul.interval{
@@ -246,10 +275,28 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
   }
 
 }
-
+.clear_picker{
+  display: none;
+  width: 20px;
+  line-height: 26px;
+  text-align: center;
+  color: rgba(95, 95, 95, 0.6);
+  height: 27px;
+  margin-right: 1px;
+  top: 0;
+  margin-left: 1px;
+  position: absolute;
+  left: 141px;
+  &:hover{
+    cursor: pointer;
+    color: rgba(55, 55, 55, 0.62);
+  }
+}
 ul.j4care_select{
   position: relative;
+  z-index: 2;
   padding:0;
+  height: 30px;
   -webkit-box-shadow: 3px 3px 6px 0px #666;
   -moz-box-shadow: 3px 3px 6px 0px #666;
   box-shadow: 3px 3px 6px 0px #666;
@@ -259,9 +306,9 @@ ul.j4care_select{
   li:not(.placeholder){
     border-top: 1px solid white;
     background: rgb(56, 83, 103);
-    -webkit-box-shadow: 3px 3px 6px 0px #666;
-    -moz-box-shadow: 3px 3px 6px 0px #666;
-    box-shadow: 3px 3px 6px 0px #666;
+    -webkit-box-shadow: 3px 3px 6px 0px rgba(43, 43, 43, 0.58);
+    -moz-box-shadow: 3px 3px 6px 0px rgba(43, 43, 43, 0.58);
+    box-shadow: 3px 3px 6px 0px rgba(43, 43, 43, 0.58);
     width: 130%;
     &:hover{
       background: rgb(48, 91, 123);

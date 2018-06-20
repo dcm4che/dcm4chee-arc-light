@@ -230,7 +230,7 @@ public class Series {
     public static final String COUNT_SERIES_OF_STUDY = "Series.countSeriesOfStudy";
     public static final String SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE = "Series.seriesPKsOfStudyWithUnknownSize";
     public static final String SIZE_OF_STUDY="Series.sizeOfStudy";
-    public static final String SET_SERIES_SIZE = "Series.UpdateStudySize";
+    public static final String SET_SERIES_SIZE = "Series.SetSeriesSize";
     public static final String SET_COMPLETENESS = "Series.SetCompleteness";
     public static final String SET_COMPLETENESS_OF_STUDY = "Series.SetCompletenessOfStudy";
     public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";

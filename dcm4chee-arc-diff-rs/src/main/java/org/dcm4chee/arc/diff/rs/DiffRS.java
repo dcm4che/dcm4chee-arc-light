@@ -78,9 +78,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -145,9 +143,13 @@ public class DiffRS {
     @Pattern(regexp = "true|false")
     private String queue;
 
-    @QueryParam("splitstudydaterange")
+    @QueryParam("ForceQueryByStudyUID")
     @ValidValueOf(type = Duration.class)
-    private String splitstudydaterange;
+    private String forceQueryByStudyUID;
+
+    @QueryParam("SplitStudyDateRange")
+    @ValidValueOf(type = Duration.class)
+    private String splitStudyDateRange;
 
     @Override
     public String toString() {
@@ -158,7 +160,7 @@ public class DiffRS {
     @NoCache
     @Path("/studies")
     @Produces("application/dicom+json,application/json")
-    public void compareStudies(@Suspended AsyncResponse ar) throws Exception {
+    public void compareStudies(@Suspended AsyncResponse ar) {
         logRequest();
         try {
             DiffContext ctx = createDiffContext();
@@ -190,7 +192,7 @@ public class DiffRS {
             throw new WebApplicationException(errResponse(
                     errorMessage(e.getStatus(), e.getMessage()), Response.Status.BAD_GATEWAY));
         } catch (Exception e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -222,7 +224,7 @@ public class DiffRS {
             throw new WebApplicationException(errResponse(
                     errorMessage(e.getStatus(), e.getMessage()), Response.Status.BAD_GATEWAY));
         } catch (Exception e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -230,9 +232,9 @@ public class DiffRS {
     @Path("/studies/csv:{field}")
     @Consumes("text/csv")
     @Produces("application/json")
-    public Response retrieveMatchingStudiesFromCSV(
+    public Response compareStudiesFromCSV(
             @PathParam("field") int field,
-            InputStream in) throws Exception {
+            InputStream in) {
         logRequest();
         Response.Status errorStatus = Response.Status.BAD_REQUEST;
         if (field < 1)
@@ -351,6 +353,13 @@ public class DiffRS {
 
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 
 }

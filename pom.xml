@@ -55,18 +55,15 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     <!-- Define the version of the JBoss BOMs we want to import to specify tested stacks. -->
-    <wildfly-javaee7.version>12.0.0.Final</wildfly-javaee7.version>
-    <jbossws-cxf-client.version>5.2.0.Final</jbossws-cxf-client.version>
-    <apache-cxf.version>3.2.2</apache-cxf.version>
+    <wildfly-javaee7.version>13.0.0.Final</wildfly-javaee7.version>
+    <jbossws-cxf-client.version>5.2.1.Final</jbossws-cxf-client.version>
+    <apache-cxf.version>3.2.4-jbossorg-1</apache-cxf.version>
     <maven-war-plugin.version>3.2.0</maven-war-plugin.version>
     <jaxws-tools-maven-plugin.version>1.2.2.Final</jaxws-tools-maven-plugin.version>
     <!-- Versions -->
     <dcm4che.version>${project.version}</dcm4che.version>
     <jai_imageio.version>1.2-pre-dr-b04</jai_imageio.version>
-    <hibernate.version>5.1.10.Final</hibernate.version>
-    <jboss-ejb3-ext-api.version>2.2.0.Final</jboss-ejb3-ext-api.version>
-    <resteasy.version>3.5.0.Final</resteasy.version>
-    <keycloak.version>3.4.3.Final</keycloak.version>
+    <keycloak.version>4.0.0.Final</keycloak.version>
     <jclouds.version>2.1.0</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
     <querydsl.version>4.2.1</querydsl.version>
@@ -99,6 +96,10 @@
     <repository>
       <id>jboss-earlyaccess-repository</id>
       <url>http://maven.repository.redhat.com/earlyaccess/all/</url>
+    </repository>
+    <repository>
+      <id>jboss-releases</id>
+      <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
     </repository>
     <repository>
       <id>jboss-thirdparty-repository</id>
@@ -307,28 +308,24 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>${hibernate.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
-      <version>${hibernate.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api</artifactId>
-      <version>${jboss-ejb3-ext-api.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-multipart-provider</artifactId>
-      <version>${resteasy.version}</version>
       <scope>provided</scope>
     </dependency>
 
