@@ -23,6 +23,9 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
         cursor: pointer;
       }
     }
+    &:hover .clear_picker{
+      display: block;
+    }
   }
   .picker{
     z-index: 9999;
@@ -272,7 +275,23 @@ $backgroundColor:rgba(6, 29, 47, 0.84);
   }
 
 }
-
+.clear_picker{
+  display: none;
+  width: 20px;
+  line-height: 26px;
+  text-align: center;
+  color: rgba(95, 95, 95, 0.6);
+  height: 27px;
+  margin-right: 1px;
+  top: 0;
+  margin-left: 1px;
+  position: absolute;
+  left: 141px;
+  &:hover{
+    cursor: pointer;
+    color: rgba(55, 55, 55, 0.62);
+  }
+}
 ul.j4care_select{
   position: relative;
   z-index: 2;
