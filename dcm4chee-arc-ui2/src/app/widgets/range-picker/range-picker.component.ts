@@ -395,7 +395,7 @@ export class RangePickerComponent implements OnInit {
     }
     hardClear(){
         this.model = "";
-        this.SplitStudyDateRange = "";
+        this.clear();
         this.modelChange.emit(this.model);
         this.splitDateRangeChanged.emit(this.SplitStudyDateRange);
         this.filterChanged();
