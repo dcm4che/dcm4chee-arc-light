@@ -420,7 +420,10 @@
                     <div class="col-md-6">
                         <input id="BodyPartExamined" type="text" [(ngModel)]="filter.BodyPartExamined" placeholder="Body Part Examined" title="Body Part Examined" class="col-md-12 clearable" />
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6" *ngIf="filterMode === 'diff'">
+                        <input  type="checkbox" [(ngModel)]="filter.ForceQueryByStudyUID"> Force query by Study UID
+                    </div>
+                    <div class="col-md-6" *ngIf="filterMode != 'diff'">
                     </div>
                 </div>
             </div>

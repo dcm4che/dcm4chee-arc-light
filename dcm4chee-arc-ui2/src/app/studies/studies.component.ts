@@ -3963,8 +3963,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
                     }
                     resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
-                .subscribe(
-                    function (res) {
+                .subscribe((res)=> {
                         $this.aes = j4care.extendAetObjectWithAlias($this.service.getAes($this.mainservice.user, res));
                         console.log('aes', $this.aes);
                         // $this.aesdropdown = $this.aes;
@@ -3984,7 +3983,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                         }
                         // $this.mainservice.setGlobal({aet:$this.aet,aetmodel:$this.aetmodel,aes:$this.aes, aesdropdown:$this.aesdropdown});
                     },
-                    function (res) {
+                    (res)=> {
                         if (retries)
                             $this.initAETs(retries - 1);
                 });
@@ -4000,7 +3999,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 }
                 resjson = res.json(); }catch (e){resjson = {}; } return resjson; })
             .subscribe(
-                function (res) {
+                (res)=> {
                     $this.allAes = j4care.extendAetObjectWithAlias(res.map((res)=>{
                         res['title'] = res['dicomAETitle'];
                         res['description'] = res['dicomDescription'];
@@ -4026,7 +4025,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     }*/
                     // $this.mainservice.setGlobal({aet:$this.aet,aetmodel:$this.aetmodel,aes:$this.aes, aesdropdown:$this.aesdropdown});
                 },
-                function (res) {
+                (res)=> {
                     if (retries)
                         $this.getAllAes(retries - 1);
             });
@@ -4058,6 +4057,9 @@ export class StudiesComponent implements OnDestroy,OnInit{
 
             // this[model] = newValue;
         // }
+        if(model === 'aetmodel' || model === 'externalInternalAetModel'){
+         //TODO Show ForceQueryByStudyUID only if bouth selected aets are parte of an device the primary device type ARCHIVE
+        }
         if (model === 'aetmodel'){
             this.aet = newValue.dicomAETitle;
             // this.aetmodel = newValue;
