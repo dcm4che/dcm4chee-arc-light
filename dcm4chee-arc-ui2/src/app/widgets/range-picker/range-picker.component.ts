@@ -67,7 +67,7 @@ export class RangePickerComponent implements OnInit {
     setRange(){
         switch(this.mode){
             case 'single':
-                this.model = this.getDateFromValue(this.singleDateModel) + this.getTimeFromValue(this.singleTimeModel, false);
+                this.model = (this.singleDateModel != "" || this.singleTimeModel != '') ? this.getDateFromValue(this.singleDateModel) + this.getTimeFromValue(this.singleTimeModel, false) :'';
             break;
             case 'range':
                 this.model = (this.fromModel != '' || this.toModel != '' || this.onlyTime) ? `${this.getDateFromValue(this.fromModel) + this.getTimeFromValue(this.fromTimeModel, false)}-${this.getDateFromValue(this.toModel) + this.getTimeFromValue(this.toTimeModel, false)}`:'';
@@ -103,6 +103,7 @@ export class RangePickerComponent implements OnInit {
         this.toTimeModel = '';
         this.singleDateModel = '';
         this.singleTimeModel = '';
+        this.SplitStudyDateRange = '';
         // this.modelChange.emit('');
     }
 
