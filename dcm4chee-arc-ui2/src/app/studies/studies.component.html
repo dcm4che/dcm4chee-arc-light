@@ -199,8 +199,8 @@
                     <div class="row datetime">
                         <div class="block_seid">
                             <div class="col-md-12">
-                                <range-picker *ngIf="externalInternalAetMode === 'internal'" [model]="filter.StudyDate" (modelChange)="filter.StudyDate = $event" mode="range" placeholder="Study date" dateFormat="yymmdd" onlyDate="true" title="Study date"></range-picker>
-                                <range-picker *ngIf="externalInternalAetMode === 'external'" [model]="filter.StudyDate" (modelChange)="filter.StudyDate = $event" mode="range" placeholder="Study date" dateFormat="yymmdd" onlyDate="true" title="Study date" dateRange="true" (splitDateRangeChanged)="filter.SplitStudyDateRange = $event"></range-picker>
+                                <range-picker *ngIf="externalInternalAetMode === 'internal' && filterMode != 'diff'" [model]="filter.StudyDate" (modelChange)="filter.StudyDate = $event" mode="range" placeholder="Study date" dateFormat="yymmdd" onlyDate="true" title="Study date"></range-picker>
+                                <range-picker *ngIf="externalInternalAetMode === 'external' || filterMode === 'diff'" [model]="filter.StudyDate" (modelChange)="filter.StudyDate = $event" mode="range" placeholder="Study date" dateFormat="yymmdd" onlyDate="true" title="Study date" dateRange="true" (splitDateRangeChanged)="filter.SplitStudyDateRange = $event"></range-picker>
                             </div>
                             <div class="col-md-12">
                                 <range-picker [model]="filter.StudyTime" (modelChange)="filter.StudyTime = $event" mode="range" placeholder="Study time" dateFormat="yymmdd" onlyTime="true" title="Study time"></range-picker>
