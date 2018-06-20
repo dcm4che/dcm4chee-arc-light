@@ -1606,9 +1606,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
         };
     }
-    test(e){
-        console.log("SplitStudyDateRange=",e);
-    }
     modifyPatient(patient, mode , patientkey){
         let originalPatientObject = _.cloneDeep(patient);
         this.config.viewContainerRef = this.viewContainerRef;
