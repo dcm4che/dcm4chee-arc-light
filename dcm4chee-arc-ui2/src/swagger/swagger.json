@@ -1818,10 +1818,7 @@
             }
           },
           "400": {
-            "description": "Compare Studies Tasks status is null or invalid or device name is null"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
+            "description": "Compare Studies Tasks status is null or invalid"
           },
           "default": {
             "description": "unexpected error"
@@ -2495,10 +2492,7 @@
             }
           },
           "400": {
-            "description": "Export task status is null or invalid or device name is null"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
+            "description": "Export task status is null or invalid"
           },
           "default": {
             "description": "unexpected error"
@@ -3269,10 +3263,7 @@
             }
           },
           "400": {
-            "description": "Retrieve tasks status is null or invalid or device name is null"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
+            "description": "Retrieve tasks status is null or invalid"
           },
           "default": {
             "description": "unexpected error"
@@ -3781,10 +3772,7 @@
             }
           },
           "400": {
-            "description": "Queue Message status is null or invalid or device name is null"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
+            "description": "Queue Message status is null or invalid"
           },
           "default": {
             "description": "unexpected error"
