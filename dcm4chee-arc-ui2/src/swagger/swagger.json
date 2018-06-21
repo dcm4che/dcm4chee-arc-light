@@ -1788,7 +1788,9 @@
               "COMPLETED",
               "WARNING",
               "FAILED",
-              "CANCELED"
+              "CANCELED",
+              "SCHEDULED",
+              "IN PROCESS"
             ]
           },
           {
@@ -1818,7 +1820,7 @@
             }
           },
           "400": {
-            "description": "Compare Studies Tasks status is null or invalid"
+            "description": "Compare Studies Tasks status is null"
           },
           "default": {
             "description": "unexpected error"
@@ -2463,7 +2465,9 @@
               "WARNING",
               "FAILED",
               "CANCELED",
-              "TO SCHEDULE"
+              "TO SCHEDULE",
+              "SCHEDULED",
+              "IN PROCESS"
             ]
           },
           {
@@ -2493,7 +2497,7 @@
             }
           },
           "400": {
-            "description": "Export task status is null or invalid"
+            "description": "Export task status is null"
           },
           "default": {
             "description": "unexpected error"
@@ -2552,7 +2556,9 @@
               "WARNING",
               "FAILED",
               "CANCELED",
-              "TO SCHEDULE"
+              "TO SCHEDULE",
+              "SCHEDULED",
+              "IN PROCESS"
             ]
           },
           {
@@ -2581,11 +2587,11 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Export task status is null"
+          },
           "404": {
             "description": "exporter not found"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
           },
           "default": {
             "description": "unexpected error"
@@ -3235,7 +3241,9 @@
               "COMPLETED",
               "WARNING",
               "FAILED",
-              "CANCELED"
+              "CANCELED",
+              "SCHEDULED",
+              "IN PROCESS"
             ]
           },
           {
@@ -3265,7 +3273,7 @@
             }
           },
           "400": {
-            "description": "Retrieve tasks status is null or invalid"
+            "description": "Retrieve tasks status is null"
           },
           "default": {
             "description": "unexpected error"
@@ -3744,7 +3752,9 @@
               "COMPLETED",
               "WARNING",
               "FAILED",
-              "CANCELED"
+              "CANCELED",
+              "SCHEDULED",
+              "IN PROCESS"
             ]
           },
           {
@@ -3774,7 +3784,7 @@
             }
           },
           "400": {
-            "description": "Queue Message status is null or invalid"
+            "description": "Queue Message status is null"
           },
           "default": {
             "description": "unexpected error"
