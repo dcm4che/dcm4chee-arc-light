@@ -197,11 +197,6 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public List<Long> getRetrieveTaskPks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit) {
-        return ejb.getRetrieveTaskPks(matchQueueMessage, matchRetrieveTask, limit);
-    }
-
-    @Override
     public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
                                                    OrderSpecifier<Date> order, int offset, int limit) {
         return ejb.listRetrieveBatches(matchQueueBatch, matchRetrieveBatch, order, offset, limit);

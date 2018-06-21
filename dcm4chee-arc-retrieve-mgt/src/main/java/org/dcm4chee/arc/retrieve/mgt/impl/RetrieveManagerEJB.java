@@ -224,14 +224,6 @@ public class RetrieveManagerEJB {
                 .where(matchRetrieveTask, QRetrieveTask.retrieveTask.queueMessage.in(queueMsgQuery));
     }
 
-    public List<Long> getRetrieveTaskPks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit) {
-        HibernateQuery<Long> retrieveTaskPkQuery = createQuery(matchQueueMessage, matchRetrieveTask)
-                .select(QRetrieveTask.retrieveTask.pk);
-        if (limit > 0)
-            retrieveTaskPkQuery.limit(limit);
-        return retrieveTaskPkQuery.fetch();
-    }
-
     public boolean deleteRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)

@@ -280,19 +280,17 @@ public class RetrieveTaskRS {
         try {
             Predicate matchRetrieveTask = MatchTask.matchRetrieveTask(
                     localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
-            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
-            List<Long> retrieveTaskPks;
-            do {
-                retrieveTaskPks = mgr.getRetrieveTaskPks(matchQueueMessage, matchRetrieveTask, fetchSize);
-                for (long pk : retrieveTaskPks)
-                    mgr.rescheduleRetrieveTask(pk, null);
-                count += retrieveTaskPks.size();
-            } while (retrieveTaskPks.size() >= fetchSize);
+            try (RetrieveTaskQuery retrieveTasks = mgr.listRetrieveTasks(
+                    matchQueueMessage, matchRetrieveTask, null, 0, 0)) {
+                for (RetrieveTask retrieveTask : retrieveTasks) {
+                    mgr.rescheduleRetrieveTask(retrieveTask.getPk(), null);
+                    count++;
+                }
+            }
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException e) {
+        } catch (IllegalTaskStateException | IOException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
         } finally {
