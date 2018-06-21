@@ -67,6 +67,10 @@
       "description": "Retrieve Tasks"
     },
     {
+      "name": "IMPAX-REPORT-RS",
+      "description": "Query Agfa IMPAX Report Service"
+    },
+    {
       "name": "X-ROAD-RS",
       "description": "Query Estonia National Patient Registry"
     }
@@ -9321,6 +9325,44 @@
             "schema": {
               "$ref": "storageList.schema.json"
             }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/impax/report/studies/{StudyInstanceUID}": {
+      "get": {
+        "tags": [
+          "IMPAX-REPORT-RS"
+        ],
+        "summary": "Query report by Study Instance UID",
+        "operationId": "queryReportByStudyUID",
+        "produces": [
+          "multipart/related;type=text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "204": {
+            "description": "Impax Report Service returns no report for the study"
+          },
+          "404": {
+            "description": "Impax Report Service returns QueryReportByStudyUidResult: false"
           },
           "default": {
             "description": "unexpected error"
