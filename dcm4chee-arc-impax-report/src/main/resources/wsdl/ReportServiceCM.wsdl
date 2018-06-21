@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://www.agfa.com/hc" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+	xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://www.agfa.com/hc" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+	<wsdl:types>
+		<s:schema elementFormDefault="qualified" targetNamespace="http://www.agfa.com/hc">
+			<s:element name="StoreReport">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="0" maxOccurs="1" name="xmlReport" type="s:string" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="StoreReportResponse">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="1" maxOccurs="1" name="StoreReportResult" type="s:boolean" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="QueryReportByReportUid">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="0" maxOccurs="1" name="reportUid" type="s:string" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="QueryReportByReportUidResponse">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="1" maxOccurs="1" name="QueryReportByReportUidResult" type="s:boolean" />
+						<s:element minOccurs="0" maxOccurs="1" name="xmlReport" type="tns:ArrayOfString" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:complexType name="ArrayOfString">
+				<s:sequence>
+					<s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+				</s:sequence>
+			</s:complexType>
+			<s:element name="QueryReportByStudyUid">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="0" maxOccurs="1" name="studyUid" type="s:string" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="QueryReportByStudyUidResponse">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="1" maxOccurs="1" name="QueryReportByStudyUidResult" type="s:boolean" />
+						<s:element minOccurs="0" maxOccurs="1" name="xmlReport" type="tns:ArrayOfString" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="QueryReportByPatientId">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="0" maxOccurs="1" name="domainId" type="s:string" />
+						<s:element minOccurs="0" maxOccurs="1" name="patientId" type="s:string" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="QueryReportByPatientIdResponse">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="1" maxOccurs="1" name="QueryReportByPatientIdResult" type="s:boolean" />
+						<s:element minOccurs="0" maxOccurs="1" name="xmlMetadata" type="tns:ArrayOfString" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="QueryReportByAccessionNumber">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="0" maxOccurs="1" name="domainId" type="s:string" />
+						<s:element minOccurs="0" maxOccurs="1" name="patientId" type="s:string" />
+						<s:element minOccurs="0" maxOccurs="1" name="accessionNumber" type="s:string" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="QueryReportByAccessionNumberResponse">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="1" maxOccurs="1" name="QueryReportByAccessionNumberResult" type="s:boolean" />
+						<s:element minOccurs="0" maxOccurs="1" name="xmlMetadata" type="tns:ArrayOfString" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="UpdateReportStatus">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="0" maxOccurs="1" name="domainId" type="s:string" />
+						<s:element minOccurs="0" maxOccurs="1" name="patientId" type="s:string" />
+						<s:element minOccurs="0" maxOccurs="1" name="accessionNumber" type="s:string" />
+						<s:element minOccurs="0" maxOccurs="1" name="reportStatus" type="s:string" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="UpdateReportStatusResponse">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="1" maxOccurs="1" name="UpdateReportStatusResult" type="s:boolean" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="UpdateReportMetadata">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="0" maxOccurs="1" name="xmlMetadata" type="s:string" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="UpdateReportMetadataResponse">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="1" maxOccurs="1" name="UpdateReportMetadataResult" type="s:boolean" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="UpdateReportPatientInfo">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="0" maxOccurs="1" name="domainId" type="s:string" />
+						<s:element minOccurs="0" maxOccurs="1" name="patientId" type="s:string" />
+						<s:element minOccurs="0" maxOccurs="1" name="xmlMetadata" type="s:string" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="UpdateReportPatientInfoResponse">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="1" maxOccurs="1" name="UpdateReportPatientInfoResult" type="s:boolean" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="QueryPatient">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="0" maxOccurs="1" name="domainId" type="s:string" />
+						<s:element minOccurs="0" maxOccurs="1" name="patientId" type="s:string" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="QueryPatientResponse">
+				<s:complexType>
+					<s:sequence>
+						<s:element minOccurs="1" maxOccurs="1" name="QueryPatientResult" type="s:boolean" />
+						<s:element minOccurs="0" maxOccurs="1" name="xmlMetadata" type="s:string" />
+					</s:sequence>
+				</s:complexType>
+			</s:element>
+			<s:element name="boolean" type="s:boolean" />
+		</s:schema>
+	</wsdl:types>
+	<wsdl:message name="StoreReportSoapIn">
+		<wsdl:part name="parameters" element="tns:StoreReport" />
+	</wsdl:message>
+	<wsdl:message name="StoreReportSoapOut">
+		<wsdl:part name="parameters" element="tns:StoreReportResponse" />
+	</wsdl:message>
+	<wsdl:message name="QueryReportByReportUidSoapIn">
+		<wsdl:part name="parameters" element="tns:QueryReportByReportUid" />
+	</wsdl:message>
+	<wsdl:message name="QueryReportByReportUidSoapOut">
+		<wsdl:part name="parameters" element="tns:QueryReportByReportUidResponse" />
+	</wsdl:message>
+	<wsdl:message name="QueryReportByStudyUidSoapIn">
+		<wsdl:part name="parameters" element="tns:QueryReportByStudyUid" />
+	</wsdl:message>
+	<wsdl:message name="QueryReportByStudyUidSoapOut">
+		<wsdl:part name="parameters" element="tns:QueryReportByStudyUidResponse" />
+	</wsdl:message>
+	<wsdl:message name="QueryReportByPatientIdSoapIn">
+		<wsdl:part name="parameters" element="tns:QueryReportByPatientId" />
+	</wsdl:message>
+	<wsdl:message name="QueryReportByPatientIdSoapOut">
+		<wsdl:part name="parameters" element="tns:QueryReportByPatientIdResponse" />
+	</wsdl:message>
+	<wsdl:message name="QueryReportByAccessionNumberSoapIn">
+		<wsdl:part name="parameters" element="tns:QueryReportByAccessionNumber" />
+	</wsdl:message>
+	<wsdl:message name="QueryReportByAccessionNumberSoapOut">
+		<wsdl:part name="parameters" element="tns:QueryReportByAccessionNumberResponse" />
+	</wsdl:message>
+	<wsdl:message name="UpdateReportStatusSoapIn">
+		<wsdl:part name="parameters" element="tns:UpdateReportStatus" />
+	</wsdl:message>
+	<wsdl:message name="UpdateReportStatusSoapOut">
+		<wsdl:part name="parameters" element="tns:UpdateReportStatusResponse" />
+	</wsdl:message>
+	<wsdl:message name="UpdateReportMetadataSoapIn">
+		<wsdl:part name="parameters" element="tns:UpdateReportMetadata" />
+	</wsdl:message>
+	<wsdl:message name="UpdateReportMetadataSoapOut">
+		<wsdl:part name="parameters" element="tns:UpdateReportMetadataResponse" />
+	</wsdl:message>
+	<wsdl:message name="UpdateReportPatientInfoSoapIn">
+		<wsdl:part name="parameters" element="tns:UpdateReportPatientInfo" />
+	</wsdl:message>
+	<wsdl:message name="UpdateReportPatientInfoSoapOut">
+		<wsdl:part name="parameters" element="tns:UpdateReportPatientInfoResponse" />
+	</wsdl:message>
+	<wsdl:message name="QueryPatientSoapIn">
+		<wsdl:part name="parameters" element="tns:QueryPatient" />
+	</wsdl:message>
+	<wsdl:message name="QueryPatientSoapOut">
+		<wsdl:part name="parameters" element="tns:QueryPatientResponse" />
+	</wsdl:message>
+	<wsdl:portType name="ReportServicePortType">
+		<wsdl:operation name="StoreReport">
+			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Store the report in report repository</wsdl:documentation>
+			<wsdl:input message="tns:StoreReportSoapIn" />
+			<wsdl:output message="tns:StoreReportSoapOut" />
+		</wsdl:operation>
+		<wsdl:operation name="QueryReportByReportUid">
+			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Query report by Report Instance UID</wsdl:documentation>
+			<wsdl:input message="tns:QueryReportByReportUidSoapIn" />
+			<wsdl:output message="tns:QueryReportByReportUidSoapOut" />
+		</wsdl:operation>
+		<wsdl:operation name="QueryReportByStudyUid">
+			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">[CM] Query report by Study Instance UID</wsdl:documentation>
+			<wsdl:input message="tns:QueryReportByStudyUidSoapIn" />
+			<wsdl:output message="tns:QueryReportByStudyUidSoapOut" />
+		</wsdl:operation>
+		<wsdl:operation name="QueryReportByPatientId">
+			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">[CM] Query report by Patient Id</wsdl:documentation>
+			<wsdl:input message="tns:QueryReportByPatientIdSoapIn" />
+			<wsdl:output message="tns:QueryReportByPatientIdSoapOut" />
+		</wsdl:operation>
+		<wsdl:operation name="QueryReportByAccessionNumber">
+			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">[CM] Query report by Patient Id and Accession Number</wsdl:documentation>
+			<wsdl:input message="tns:QueryReportByAccessionNumberSoapIn" />
+			<wsdl:output message="tns:QueryReportByAccessionNumberSoapOut" />
+		</wsdl:operation>
+		<wsdl:operation name="UpdateReportStatus">
+			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update report status</wsdl:documentation>
+			<wsdl:input message="tns:UpdateReportStatusSoapIn" />
+			<wsdl:output message="tns:UpdateReportStatusSoapOut" />
+		</wsdl:operation>
+		<wsdl:operation name="UpdateReportMetadata">
+			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update report metadata information</wsdl:documentation>
+			<wsdl:input message="tns:UpdateReportMetadataSoapIn" />
+			<wsdl:output message="tns:UpdateReportMetadataSoapOut" />
+		</wsdl:operation>
+		<wsdl:operation name="UpdateReportPatientInfo">
+			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update report patient information</wsdl:documentation>
+			<wsdl:input message="tns:UpdateReportPatientInfoSoapIn" />
+			<wsdl:output message="tns:UpdateReportPatientInfoSoapOut" />
+		</wsdl:operation>
+		<wsdl:operation name="QueryPatient">
+			<wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Query MVF DOSR_STUDY for patient information</wsdl:documentation>
+			<wsdl:input message="tns:QueryPatientSoapIn" />
+			<wsdl:output message="tns:QueryPatientSoapOut" />
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="ReportServiceBinding" type="tns:ReportServicePortType">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="StoreReport">
+			<soap:operation soapAction="http://www.agfa.com/hc/StoreReport" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="QueryReportByReportUid">
+			<soap:operation soapAction="http://www.agfa.com/hc/QueryReportByReportUid" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="QueryReportByStudyUid">
+			<soap:operation soapAction="http://www.agfa.com/hc/QueryReportByStudyUid" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="QueryReportByPatientId">
+			<soap:operation soapAction="http://www.agfa.com/hc/QueryReportByPatientId" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="QueryReportByAccessionNumber">
+			<soap:operation soapAction="http://www.agfa.com/hc/QueryReportByAccessionNumber" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="UpdateReportStatus">
+			<soap:operation soapAction="http://www.agfa.com/hc/UpdateReportStatus" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="UpdateReportMetadata">
+			<soap:operation soapAction="http://www.agfa.com/hc/UpdateReportMetadata" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="UpdateReportPatientInfo">
+			<soap:operation soapAction="http://www.agfa.com/hc/UpdateReportPatientInfo" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="QueryPatient">
+			<soap:operation soapAction="http://www.agfa.com/hc/QueryPatient" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="ReportServiceBinding12" type="tns:ReportServicePortType">
+		<soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="StoreReport">
+			<soap12:operation soapAction="http://www.agfa.com/hc/StoreReport" />
+			<wsdl:input>
+				<soap12:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap12:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="QueryReportByReportUid">
+			<soap12:operation soapAction="http://www.agfa.com/hc/QueryReportByReportUid" />
+			<wsdl:input>
+				<soap12:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap12:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="QueryReportByStudyUid">
+			<soap12:operation soapAction="http://www.agfa.com/hc/QueryReportByStudyUid" />
+			<wsdl:input>
+				<soap12:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap12:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="QueryReportByPatientId">
+			<soap12:operation soapAction="http://www.agfa.com/hc/QueryReportByPatientId" />
+			<wsdl:input>
+				<soap12:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap12:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="QueryReportByAccessionNumber">
+			<soap12:operation soapAction="http://www.agfa.com/hc/QueryReportByAccessionNumber" />
+			<wsdl:input>
+				<soap12:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap12:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="UpdateReportStatus">
+			<soap12:operation soapAction="http://www.agfa.com/hc/UpdateReportStatus" />
+			<wsdl:input>
+				<soap12:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap12:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="UpdateReportMetadata">
+			<soap12:operation soapAction="http://www.agfa.com/hc/UpdateReportMetadata" />
+			<wsdl:input>
+				<soap12:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap12:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="UpdateReportPatientInfo">
+			<soap12:operation soapAction="http://www.agfa.com/hc/UpdateReportPatientInfo" />
+			<wsdl:input>
+				<soap12:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap12:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="QueryPatient">
+			<soap12:operation soapAction="http://www.agfa.com/hc/QueryPatient" />
+			<wsdl:input>
+				<soap12:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap12:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="ReportService">
+		<wsdl:port name="ReportServicePort" binding="tns:ReportServiceBinding">
+			<soap:address location="https://localhost/AgfaHC.Connectivity.Web.Services/ReportServiceCM.asmx" />
+		</wsdl:port>
+		<wsdl:port name="ReportServicePort12" binding="tns:ReportServiceBinding12">
+			<soap12:address location="https://localhost/AgfaHC.Connectivity.Web.Services/ReportServiceCM.asmx" />
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>
