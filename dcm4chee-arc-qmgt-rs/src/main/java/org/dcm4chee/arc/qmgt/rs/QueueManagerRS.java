@@ -42,13 +42,13 @@ package org.dcm4chee.arc.qmgt.rs;
 
 import com.querydsl.core.types.Predicate;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueMessageQuery;
 import org.dcm4chee.arc.query.util.MatchTask;
 import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -61,9 +61,8 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.*;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -139,10 +138,10 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response search() {
         logRequest();
-        return Response.ok(toEntity(mgr.search(
-                MatchTask.matchQueueMessage(queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null),
-                MatchTask.queueMessageOrder(orderby), parseInt(offset), parseInt(limit))))
-                .build();
+        QueueMessageQuery queueMessages = mgr.listQueueMessages(
+                matchQueueMessage(status(), null),
+                MatchTask.queueMessageOrder(orderby), parseInt(offset), parseInt(limit));
+        return Response.ok(toEntity(queueMessages)).build();
     }
 
     @GET
@@ -151,8 +150,7 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response countTasks() {
         logRequest();
-        return count(mgr.countTasks(MatchTask.matchQueueMessage(
-                        queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null)));
+        return count(mgr.countTasks(matchQueueMessage(status(), null)));
     }
 
     @POST
@@ -183,9 +181,7 @@ public class QueueManagerRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
             LOG.info("Cancel processing of Tasks with Status {} at Queue {}", this.status, queueName);
-            Predicate matchQueueMessage = MatchTask.matchQueueMessage(queueName, deviceName, status, batchID, jmsMessageID,
-                    createdTime, updatedTime, null);
-            long count = mgr.cancelTasks(matchQueueMessage, status);
+            long count = mgr.cancelTasks(matchQueueMessage(status,null), status);
             queueEvent.setCount(count);
             return count(count);
         } catch (IllegalTaskStateException e) {
@@ -224,8 +220,7 @@ public class QueueManagerRS {
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
 
-        Predicate matchQueueMessage = MatchTask.matchQueueMessage(
-                queueName, deviceName, status, batchID, jmsMessageID, createdTime, updatedTime, new Date());
+        Predicate matchQueueMessage = matchQueueMessage(status, new Date());
 
         if (deviceName == null) {
             List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(matchQueueMessage);
@@ -245,16 +240,13 @@ public class QueueManagerRS {
     private Response rescheduleMessages(Predicate matchQueueMessage) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
-            List<String> queueMsgIDs;
-            do {
-                queueMsgIDs = mgr.getQueueMsgIDs(matchQueueMessage, fetchSize);
-                for (String msgID : queueMsgIDs)
-                    mgr.rescheduleTask(msgID, queueName, null);
-                count += queueMsgIDs.size();
-            } while (queueMsgIDs.size() >= fetchSize);
+            try(QueueMessageQuery queueMsgs = mgr.listQueueMessages(matchQueueMessage, null, 0,0)) {
+                for (QueueMessage queueMsg : queueMsgs) {
+                    mgr.rescheduleTask(queueMsg.getMessageID(), queueName, null);
+                    count++;
+                }
+            }
             queueEvent.setCount(count);
             return count(count);
         } catch (Exception e) {
@@ -280,8 +272,7 @@ public class QueueManagerRS {
     public String deleteMessages() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        int deleted = mgr.deleteTasks(queueName, MatchTask.matchQueueMessage(
-                queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null));
+        int deleted = mgr.deleteTasks(queueName, matchQueueMessage(status(), null));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
@@ -314,23 +305,30 @@ public class QueueManagerRS {
         return 0;
     }
 
-    private StreamingOutput toEntity(final List<QueueMessage> msgs) {
+    private StreamingOutput toEntity(QueueMessageQuery msgs) {
         return out -> {
+            try (QueueMessageQuery m = msgs) {
                 Writer w = new OutputStreamWriter(out, "UTF-8");
                 int count = 0;
                 w.write('[');
-                for (QueueMessage msg : msgs) {
+                for (QueueMessage msg : m) {
                     if (count++ > 0)
                         w.write(',');
                     msg.writeAsJSON(w);
                 }
                 w.write(']');
                 w.flush();
+            }
         };
     }
 
     private QueueMessage.Status status() {
         return status != null ? QueueMessage.Status.fromString(status) : null;
+    }
+
+    private Predicate matchQueueMessage(QueueMessage.Status status, Date updatedBefore) {
+        return MatchTask.matchQueueMessage(
+                queueName, deviceName, status, batchID, jmsMessageID, createdTime, updatedTime, updatedBefore);
     }
 
     private static int parseInt(String s) {

@@ -77,8 +77,6 @@ public interface RetrieveManager {
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 
-    List<Long> getRetrieveTaskPks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit);
-
     List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
                                             OrderSpecifier<Date> order, int offset, int limit);
 }

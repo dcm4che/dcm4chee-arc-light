@@ -19,7 +19,30 @@
                   <mat-option *ngFor="let option of line[index].options" value="{{option.value}}">{{option.text}}</mat-option>
                 </mat-select>
                 <p-calendar [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'p-calendar'"  dataType="string" dateFormat="yymmdd" monthNavigator="true" yearNavigator="true" yearRange="1800:2100" placeholder="{{line[index].description || line[index].placeholder}}" title="{{line[index]?.description}}"></p-calendar>
-                <range-picker [ngStyle]="line[index].style" *ngSwitchCase="'range-picker'"  [model]="model[line[index]?.filterKey]" (modelChange)="model[line[index]?.filterKey] = $event;filterChange($event)" mode="range" placeholder="{{line[index]?.description || line[index]?.placeholder}}" dateFormat="yymmdd" title="{{line[index]?.description}}"></range-picker>
+                <range-picker
+                        [ngStyle]="line[index].style"
+                        *ngSwitchCase="'range-picker'"
+                        onlyDate="line[index].onlyDate"
+                        [model]="model[line[index]?.filterKey]"
+                        (modelChange)="model[line[index]?.filterKey] = $event;filterChange($event)"
+                        mode="range"
+                        placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                        dateFormat="yymmdd"
+                        title="{{line[index]?.description}}"
+                ></range-picker>
+                <range-picker
+                        [ngStyle]="line[index].style"
+                        *ngSwitchCase="'range-picker-limit'"
+                        onlyDate="line[index].onlyDate"
+                        [model]="model[line[index]?.filterKey]"
+                        (modelChange)="model[line[index]?.filterKey] = $event;filterChange($event)"
+                        mode="range"
+                        placeholder="{{line[index]?.description || line[index]?.placeholder}}"
+                        dateFormat="yymmdd"
+                        title="{{line[index]?.description}}"
+                        dateRange="true"
+                        (splitDateRangeChanged)="model['SplitStudyDateRange'] = $event;filterChange($event);"
+                ></range-picker>
               </ng-container>
               <div *ngSwitchCase="'dummy'"></div>
               <button (click)="submitEmit(line[index].id)" class="btn-default submit" *ngSwitchCase="'button'" title="{{line[index].description}}"><span class="glyphicon glyphicon-refresh"></span>  {{line[index].text}}</button>

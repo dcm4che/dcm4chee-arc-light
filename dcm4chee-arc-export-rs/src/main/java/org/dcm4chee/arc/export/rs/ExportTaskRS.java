@@ -70,7 +70,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -150,14 +149,12 @@ public class ExportTaskRS {
         logRequest();
         Output output = selectMediaType(accept);
         if (output == null)
-            return Response.notAcceptable(
-                    Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
-                    .build();
+            return notAcceptable();
+
         QueueMessage.Status status = status();
         ExportTaskQuery tasks = mgr.listExportTasks(status,
-                MatchTask.matchQueueMessage(
-                        null, deviceName, status, batchID, null,null, null, null),
-                MatchTask.matchExportTask(uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, updatedTime),
+                matchQueueMessage(status, null, null),
+                matchExportTask(updatedTime),
                 MatchTask.exportTaskOrder(orderby),
                 parseInt(offset), parseInt(limit)
         );
@@ -172,10 +169,8 @@ public class ExportTaskRS {
         logRequest();
         QueueMessage.Status status = status();
         return count(mgr.countExportTasks(status,
-                MatchTask.matchQueueMessage(
-                null, deviceName, status, batchID, null, null, null, null),
-                MatchTask.matchExportTask(
-                        uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, updatedTime)));
+                matchQueueMessage(status, null, null),
+                matchExportTask(updatedTime)));
     }
 
     @POST
@@ -208,10 +203,8 @@ public class ExportTaskRS {
         try {
             LOG.info("Cancel processing of Export Tasks with Status {}", status);
             long count = mgr.cancelExportTasks(
-                    MatchTask.matchQueueMessage(
-                            null, deviceName, status, batchID, null, null, updatedTime, null),
-                    MatchTask.matchExportTask(
-                            uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, null),
+                    matchQueueMessage(status, updatedTime, null),
+                    matchExportTask(null),
                     status);
             queueEvent.setCount(count);
             return count(count);
@@ -266,8 +259,7 @@ public class ExportTaskRS {
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
 
-        Predicate matchQueueMessage = MatchTask.matchQueueMessage(
-                null, deviceName, status, batchID, null, null, null, new Date());
+        Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
 
         if (deviceName == null) {
             List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
@@ -293,11 +285,9 @@ public class ExportTaskRS {
             return rsp(Response.Status.NOT_FOUND, "No such exporter - " + newExporterID);
 
         try {
-            Predicate matchExportTask = MatchTask.matchExportTask(
-                    uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, updatedTime);
             int count = 0;
             try (ExportTaskQuery exportTasks = mgr.listExportTasks(status,
-                    matchQueueMessage, matchExportTask, null, 0, 0)) {
+                    matchQueueMessage, matchExportTask(updatedTime), null, 0, 0)) {
                 for (ExportTask task : exportTasks) {
                     mgr.rescheduleExportTask(
                             task.getPk(),
@@ -333,9 +323,8 @@ public class ExportTaskRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         QueueMessage.Status status = status();
         int deleted = mgr.deleteTasks(status,
-                MatchTask.matchQueueMessage(
-                        null, deviceName, status, batchID, null, null, null, null),
-                MatchTask.matchExportTask(uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, updatedTime));
+                matchQueueMessage(status, null, null),
+                matchExportTask(updatedTime));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
@@ -369,16 +358,11 @@ public class ExportTaskRS {
     }
 
     private Output selectMediaType(String accept) {
-        Stream<MediaType> acceptableTypes = httpHeaders.getAcceptableMediaTypes().stream();
-        if (accept != null) {
-            try {
-                MediaType type = MediaType.valueOf(accept);
-                return acceptableTypes.anyMatch(type::isCompatible) ? Output.valueOf(type) : null;
-            } catch (IllegalArgumentException ae) {
-                return null;
-            }
-        }
-        return acceptableTypes.map(Output::valueOf)
+        if (accept != null)
+            httpHeaders.getRequestHeaders().putSingle("Accept", accept);
+
+        return httpHeaders.getAcceptableMediaTypes().stream()
+                .map(Output::valueOf)
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
@@ -450,6 +434,21 @@ public class ExportTaskRS {
 
     private QueueMessage.Status status() {
         return status != null ? QueueMessage.Status.fromString(status) : null;
+    }
+
+    private Predicate matchExportTask(String updatedTime) {
+        return MatchTask.matchExportTask(uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, updatedTime);
+    }
+
+    private Predicate matchQueueMessage(QueueMessage.Status status, String updatedTime, Date updatedBefore) {
+        return MatchTask.matchQueueMessage(
+                null, deviceName, status, batchID, null, null, updatedTime, updatedBefore);
+    }
+
+    private Response notAcceptable() {
+        return Response.notAcceptable(
+                Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
+                .build();
     }
 
     private static int parseInt(String s) {

@@ -192,22 +192,17 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public List<QueueMessage> search(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit) {
-        return ejb.search(matchQueueMessage, order, offset, limit);
-    }
-
-    @Override
     public long countTasks(Predicate matchQueueMessage) {
         return ejb.countTasks(matchQueueMessage);
     }
 
     @Override
-    public List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit) {
-        return ejb.getQueueMsgIDs(matchQueueMessage, limit);
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage) {
+        return ejb.listDistinctDeviceNames(matchQueueMessage);
     }
 
     @Override
-    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage) {
-        return ejb.listDistinctDeviceNames(matchQueueMessage);
+    public QueueMessageQuery listQueueMessages(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit) {
+        return ejb.listQueueMessages(matchQueueMessage, order, offset, limit);
     }
 }

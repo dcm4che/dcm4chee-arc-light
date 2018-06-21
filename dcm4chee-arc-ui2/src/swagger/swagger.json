@@ -2462,7 +2462,8 @@
               "COMPLETED",
               "WARNING",
               "FAILED",
-              "CANCELED"
+              "CANCELED",
+              "TO SCHEDULE"
             ]
           },
           {
@@ -2550,7 +2551,8 @@
               "COMPLETED",
               "WARNING",
               "FAILED",
-              "CANCELED"
+              "CANCELED",
+              "TO SCHEDULE"
             ]
           },
           {

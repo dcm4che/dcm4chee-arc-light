@@ -43,7 +43,6 @@ package org.dcm4chee.arc.retrieve.rs;
 import com.querydsl.core.types.Predicate;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
@@ -72,7 +71,6 @@ import java.io.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -156,15 +154,11 @@ public class RetrieveTaskRS {
         logRequest();
         Output output = selectMediaType(accept);
         if (output == null)
-            return Response.notAcceptable(
-                    Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
-                    .build();
+            return notAcceptable();
 
         RetrieveTaskQuery tasks = mgr.listRetrieveTasks(
-                MatchTask.matchQueueMessage(
-                        null, deviceName, status(), batchID, null, null, null, null),
-                MatchTask.matchRetrieveTask(
-                        localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime),
+                matchQueueMessage(status(),null, null),
+                matchRetrieveTask(updatedTime),
                 MatchTask.retrieveTaskOrder(orderby), parseInt(offset), parseInt(limit));
         return Response.ok(output.entity(tasks), output.type).build();
     }
@@ -176,10 +170,8 @@ public class RetrieveTaskRS {
     public Response countRetrieveTasks() {
         logRequest();
         return count( mgr.countRetrieveTasks(
-                MatchTask.matchQueueMessage(
-                        null, deviceName, status(), batchID, null, null, null, null),
-                MatchTask.matchRetrieveTask(
-                        localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime)));
+                matchQueueMessage(status(), null, null),
+                matchRetrieveTask(updatedTime)));
     }
 
     @POST
@@ -211,10 +203,8 @@ public class RetrieveTaskRS {
         try {
             LOG.info("Cancel processing of Retrieve Tasks with Status {}", status);
             long count = mgr.cancelRetrieveTasks(
-                    MatchTask.matchQueueMessage(
-                            null, deviceName, status, batchID, null,null, updatedTime, null),
-                    MatchTask.matchRetrieveTask(
-                            localAET, remoteAET, destinationAET, studyIUID, createdTime, null),
+                    matchQueueMessage(status, updatedTime, null),
+                    matchRetrieveTask(null),
                     status);
             queueEvent.setCount(count);
             return count(count);
@@ -254,8 +244,7 @@ public class RetrieveTaskRS {
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
 
-        Predicate matchQueueMessage = MatchTask.matchQueueMessage(
-                null, deviceName, status, batchID, null, null, null, new Date());
+        Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
 
         if (deviceName == null) {
             List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
@@ -276,18 +265,14 @@ public class RetrieveTaskRS {
     private Response rescheduleTasks(Predicate matchQueueMessage) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            Predicate matchRetrieveTask = MatchTask.matchRetrieveTask(
-                    localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
-            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
-            List<Long> retrieveTaskPks;
-            do {
-                retrieveTaskPks = mgr.getRetrieveTaskPks(matchQueueMessage, matchRetrieveTask, fetchSize);
-                for (long pk : retrieveTaskPks)
-                    mgr.rescheduleRetrieveTask(pk, null);
-                count += retrieveTaskPks.size();
-            } while (retrieveTaskPks.size() >= fetchSize);
+            try (RetrieveTaskQuery retrieveTasks = mgr.listRetrieveTasks(
+                    matchQueueMessage, matchRetrieveTask(updatedTime), null, 0, 0)) {
+                for (RetrieveTask retrieveTask : retrieveTasks) {
+                    mgr.rescheduleRetrieveTask(retrieveTask.getPk(), null);
+                    count++;
+                }
+            }
             queueEvent.setCount(count);
             return count(count);
         } catch (Exception e) {
@@ -313,10 +298,8 @@ public class RetrieveTaskRS {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         int deleted = mgr.deleteTasks(
-                MatchTask.matchQueueMessage(
-                        null, deviceName, status(), batchID, null, null, null, null),
-                MatchTask.matchRetrieveTask(
-                        localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime));
+                matchQueueMessage(status(), null, null),
+                matchRetrieveTask(updatedTime));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
@@ -350,16 +333,11 @@ public class RetrieveTaskRS {
     }
 
     private Output selectMediaType(String accept) {
-        Stream<MediaType> acceptableTypes = httpHeaders.getAcceptableMediaTypes().stream();
-        if (accept != null) {
-            try {
-                MediaType type = MediaType.valueOf(accept);
-                return acceptableTypes.anyMatch(type::isCompatible) ? Output.valueOf(type) : null;
-            } catch (IllegalArgumentException ae) {
-                return null;
-            }
-        }
-        return acceptableTypes.map(Output::valueOf)
+        if (accept != null)
+            httpHeaders.getRequestHeaders().putSingle("Accept", accept);
+
+        return httpHeaders.getAcceptableMediaTypes().stream()
+                .map(Output::valueOf)
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
@@ -423,6 +401,21 @@ public class RetrieveTaskRS {
 
     private QueueMessage.Status status() {
         return status != null ? QueueMessage.Status.fromString(status) : null;
+    }
+
+    private Response notAcceptable() {
+        return Response.notAcceptable(
+                Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
+                .build();
+    }
+
+    private Predicate matchRetrieveTask(String updatedTime) {
+        return MatchTask.matchRetrieveTask(localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
+    }
+
+    private Predicate matchQueueMessage(QueueMessage.Status status, String updatedTime, Date updatedBefore) {
+        return MatchTask.matchQueueMessage(
+                null, deviceName, status, batchID, null, null, updatedTime, updatedBefore);
     }
 
     private void logRequest() {

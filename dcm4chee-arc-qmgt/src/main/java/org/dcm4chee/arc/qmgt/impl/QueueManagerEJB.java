@@ -53,8 +53,10 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.MessageCanceled;
 import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.qmgt.QueueMessageQuery;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -412,16 +414,6 @@ public class QueueManagerEJB {
         return n;
     }
 
-    public List<QueueMessage> search(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit) {
-        HibernateQuery<QueueMessage> queueMsgQuery = createQuery(matchQueueMessage);
-        if (limit > 0)
-            queueMsgQuery.limit(limit);
-        if (offset > 0)
-            queueMsgQuery.offset(offset);
-        queueMsgQuery.orderBy(order);
-        return queueMsgQuery.fetch();
-    }
-
     public long countTasks(Predicate matchQueueMessage) {
         return createQuery(matchQueueMessage).fetchCount();
     }
@@ -473,4 +465,17 @@ public class QueueManagerEJB {
         }
     }
 
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public QueueMessageQuery listQueueMessages(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit) {
+        return new QueueMessageQueryImpl(
+                openStatelessSession(), queryFetchSize(), matchQueueMessage, order, offset, limit);
+    }
+
+    private StatelessSession openStatelessSession() {
+        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
+    }
 }

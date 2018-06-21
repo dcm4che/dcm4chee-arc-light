@@ -88,11 +88,9 @@ public interface QueueManager {
 
     int deleteTasks(String queueName, Predicate matchQueueMessage);
 
-    List<QueueMessage> search(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit);
-
     long countTasks(Predicate matchQueueMessage);
 
-    List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit);
-
     List<String> listDistinctDeviceNames(Predicate matchQueueMessage);
+
+    QueueMessageQuery listQueueMessages(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit);
 }
