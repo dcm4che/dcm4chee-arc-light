@@ -61,9 +61,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -139,7 +137,7 @@ public class QueueManagerRS {
     public Response search() {
         logRequest();
         QueueMessageQuery queueMessages = mgr.listQueueMessages(
-                MatchTask.matchQueueMessage(queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null),
+                matchQueueMessage(status(), null),
                 MatchTask.queueMessageOrder(orderby), parseInt(offset), parseInt(limit));
         return Response.ok(toEntity(queueMessages)).build();
     }
@@ -150,8 +148,7 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response countTasks() {
         logRequest();
-        return count(mgr.countTasks(MatchTask.matchQueueMessage(
-                        queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null)));
+        return count(mgr.countTasks(matchQueueMessage(status(), null)));
     }
 
     @POST
@@ -182,9 +179,7 @@ public class QueueManagerRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
             LOG.info("Cancel processing of Tasks with Status {} at Queue {}", this.status, queueName);
-            Predicate matchQueueMessage = MatchTask.matchQueueMessage(queueName, deviceName, status, batchID, jmsMessageID,
-                    createdTime, updatedTime, null);
-            long count = mgr.cancelTasks(matchQueueMessage, status);
+            long count = mgr.cancelTasks(matchQueueMessage(status,null), status);
             queueEvent.setCount(count);
             return count(count);
         } catch (IllegalTaskStateException e) {
@@ -225,8 +220,7 @@ public class QueueManagerRS {
         if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
             return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
 
-        Predicate matchQueueMessage = MatchTask.matchQueueMessage(
-                queueName, deviceName, status, batchID, jmsMessageID, createdTime, updatedTime, new Date());
+        Predicate matchQueueMessage = matchQueueMessage(status, new Date());
 
         if (deviceName == null) {
             List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(matchQueueMessage);
@@ -278,8 +272,7 @@ public class QueueManagerRS {
     public String deleteMessages() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        int deleted = mgr.deleteTasks(queueName, MatchTask.matchQueueMessage(
-                queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null));
+        int deleted = mgr.deleteTasks(queueName, matchQueueMessage(status(), null));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
@@ -331,6 +324,11 @@ public class QueueManagerRS {
 
     private QueueMessage.Status status() {
         return status != null ? QueueMessage.Status.fromString(status) : null;
+    }
+
+    private Predicate matchQueueMessage(QueueMessage.Status status, Date updatedBefore) {
+        return MatchTask.matchQueueMessage(
+                queueName, deviceName, status, batchID, jmsMessageID, createdTime, updatedTime, updatedBefore);
     }
 
     private static int parseInt(String s) {

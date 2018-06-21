@@ -77,7 +77,6 @@ import java.io.Writer;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -167,15 +166,11 @@ public class DiffTaskRS {
         logRequest();
         Output output = selectMediaType(accept);
         if (output == null)
-            return Response.notAcceptable(
-                    Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
-                    .build();
+            return notAcceptable();
 
         DiffTaskQuery diffTasks = diffService.listDiffTasks(
-                MatchTask.matchQueueMessage(
-                        null, deviceName, status(), batchID, null, null, null, null),
-                MatchTask.matchDiffTask(localAET, primaryAET, secondaryAET, checkDifferent, checkMissing,
-                        comparefields, createdTime, updatedTime),
+                matchQueueMessage(status(), null, null),
+                matchDiffTask(),
                 MatchTask.diffTaskOrder(orderby),
                 parseInt(offset), parseInt(limit));
 
@@ -189,10 +184,8 @@ public class DiffTaskRS {
     public Response countDiffTasks() {
         logRequest();
         return count(diffService.countDiffTasks(
-                MatchTask.matchQueueMessage(
-                        null, deviceName, status(), batchID, null, null, null, null),
-                MatchTask.matchDiffTask(localAET, primaryAET, secondaryAET, checkDifferent, checkMissing,
-                        comparefields, createdTime, updatedTime)));
+                matchQueueMessage(status(), null, null),
+                matchDiffTask()));
     }
 
     @GET
@@ -241,11 +234,8 @@ public class DiffTaskRS {
         try {
             LOG.info("Cancel processing of Diff Tasks with Status {}", status);
             long count = diffService.cancelDiffTasks(
-                    MatchTask.matchQueueMessage(
-                            null, deviceName, status, batchID, null,null, updatedTime, null),
-                    MatchTask.matchDiffTask(
-                            localAET, primaryAET, secondaryAET, checkDifferent, checkMissing,
-                            comparefields, createdTime, updatedTime),
+                    matchQueueMessage(status, updatedTime, null),
+                    matchDiffTask(),
                     status);
             queueEvent.setCount(count);
             return count(count);
@@ -287,8 +277,7 @@ public class DiffTaskRS {
         if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
             return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
 
-        Predicate matchQueueMessage = MatchTask.matchQueueMessage(
-                null, deviceName, status, batchID, null, null, null, new Date());
+        Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
 
         if (deviceName == null) {
             List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
@@ -309,12 +298,9 @@ public class DiffTaskRS {
     private Response rescheduleTasks(Predicate matchQueueMessage) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            Predicate matchDiffTask = MatchTask.matchDiffTask(
-                    localAET, primaryAET, secondaryAET, checkDifferent, checkMissing,
-                    comparefields, createdTime, updatedTime);
             int count = 0;
             try (DiffTaskQuery diffTasks = diffService.listDiffTasks(
-                    matchQueueMessage, matchDiffTask, null, 0,0)) {
+                    matchQueueMessage, matchDiffTask(), null, 0,0)) {
                 for (DiffTask diffTask : diffTasks) {
                     diffService.rescheduleDiffTask(diffTask.getPk(), null);
                     count++;
@@ -345,27 +331,19 @@ public class DiffTaskRS {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         int deleted = diffService.deleteTasks(
-                MatchTask.matchQueueMessage(
-                        null, deviceName, status(), batchID, null, null, null, null),
-                MatchTask.matchDiffTask(
-                        localAET, primaryAET, secondaryAET, checkDifferent, checkMissing,
-                        comparefields, createdTime, updatedTime));
+                matchQueueMessage(status(), null, null),
+                matchDiffTask());
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
     }
 
     private Output selectMediaType(String accept) {
-        Stream<MediaType> acceptableTypes = httpHeaders.getAcceptableMediaTypes().stream();
-        if (accept != null) {
-            try {
-                MediaType type = MediaType.valueOf(accept);
-                return acceptableTypes.anyMatch(type::isCompatible) ? Output.valueOf(type) : null;
-            } catch (IllegalArgumentException ae) {
-                return null;
-            }
-        }
-        return acceptableTypes.map(Output::valueOf)
+        if (accept != null)
+            httpHeaders.getRequestHeaders().putSingle("Accept", accept);
+
+        return httpHeaders.getAcceptableMediaTypes().stream()
+                .map(Output::valueOf)
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
@@ -471,6 +449,12 @@ public class DiffTaskRS {
                 .build();
     }
 
+    private Response notAcceptable() {
+        return Response.notAcceptable(
+                Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
+                .build();
+    }
+
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
     }
@@ -478,4 +462,15 @@ public class DiffTaskRS {
     private QueueMessage.Status status() {
         return status != null ? QueueMessage.Status.fromString(status) : null;
     }
+
+    private Predicate matchDiffTask() {
+        return MatchTask.matchDiffTask(
+                localAET, primaryAET, secondaryAET, checkDifferent, checkMissing, comparefields, createdTime, updatedTime);
+    }
+
+    private Predicate matchQueueMessage(QueueMessage.Status status, String updatedTime, Date updatedBefore) {
+        return MatchTask.matchQueueMessage(
+                null, deviceName, status, batchID, null, null, updatedTime, updatedBefore);
+    }
+
 }
