@@ -45,7 +45,6 @@ import com.querydsl.core.types.Predicate;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.diff.DiffTaskQuery;
 import org.dcm4chee.arc.entity.AttributesBlob;
@@ -72,6 +71,7 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Date;
@@ -312,19 +312,17 @@ public class DiffTaskRS {
             Predicate matchDiffTask = MatchTask.matchDiffTask(
                     localAET, primaryAET, secondaryAET, checkDifferent, checkMissing,
                     comparefields, createdTime, updatedTime);
-            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
-            List<Long> diffTaskPks;
-            do {
-                diffTaskPks = diffService.getDiffTaskPks(matchQueueMessage, matchDiffTask, fetchSize);
-                for (long pk : diffTaskPks)
-                    diffService.rescheduleDiffTask(pk, null);
-                count += diffTaskPks.size();
-            } while (diffTaskPks.size() >= fetchSize);
+            try (DiffTaskQuery diffTasks = diffService.listDiffTasks(
+                    matchQueueMessage, matchDiffTask, null, 0,0)) {
+                for (DiffTask diffTask : diffTasks) {
+                    diffService.rescheduleDiffTask(diffTask.getPk(), null);
+                    count++;
+                }
+            }
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException e) {
+        } catch (IllegalTaskStateException | IOException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
         } finally {
