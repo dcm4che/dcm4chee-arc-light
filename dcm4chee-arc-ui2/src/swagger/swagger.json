@@ -9332,7 +9332,7 @@
         }
       }
     },
-    "/impax/report/studies/{StudyInstanceUID}": {
+    "/impax/reports/studies/{StudyInstanceUID}": {
       "get": {
         "tags": [
           "IMPAX-REPORT-RS"
