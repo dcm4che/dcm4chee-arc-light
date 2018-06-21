@@ -59,11 +59,15 @@ import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
+import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
 import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -385,5 +389,20 @@ public class RetrieveManagerEJB {
                 .from(QRetrieveTask.retrieveTask)
                 .leftJoin(QRetrieveTask.retrieveTask.queueMessage, QQueueMessage.queueMessage)
                 .where(QQueueMessage.queueMessage.batchID.eq(batchID));
+    }
+
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+    public RetrieveTaskQuery listRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask,
+                                               OrderSpecifier<Date> order, int offset, int limit) {
+        return new RetrieveTaskQueryImpl(
+                openStatelessSession(), queryFetchSize(), matchQueueMessage, matchRetrieveTask, order, offset, limit);
+    }
+
+    private StatelessSession openStatelessSession() {
+        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
+    }
+
+    private int queryFetchSize() {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 }

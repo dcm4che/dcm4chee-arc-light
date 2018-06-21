@@ -45,7 +45,6 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.*;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
@@ -56,16 +55,12 @@ import org.dcm4chee.arc.retrieve.mgt.RetrieveBatch;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveTaskQuery;
 import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
-import org.hibernate.Session;
-import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -78,9 +73,6 @@ import java.util.List;
 @ApplicationScoped
 public class RetrieveManagerImpl implements RetrieveManager {
     private static final Logger LOG = LoggerFactory.getLogger(RetrieveManagerImpl.class);
-
-    @PersistenceContext(unitName = "dcm4chee-arc")
-    private EntityManager em;
 
     @Inject
     private Device device;
@@ -160,8 +152,7 @@ public class RetrieveManagerImpl implements RetrieveManager {
     @Override
     public RetrieveTaskQuery listRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask,
                                                OrderSpecifier<Date> order, int offset, int limit) {
-        return new RetrieveTaskQueryImpl(
-                openStatelessSession(), queryFetchSize(), matchQueueMessage, matchRetrieveTask, order, offset, limit);
+        return ejb.listRetrieveTasks(matchQueueMessage, matchRetrieveTask, order, offset, limit);
     }
 
     @Override
@@ -200,13 +191,5 @@ public class RetrieveManagerImpl implements RetrieveManager {
     public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
                                                    OrderSpecifier<Date> order, int offset, int limit) {
         return ejb.listRetrieveBatches(matchQueueBatch, matchRetrieveBatch, order, offset, limit);
-    }
-
-    private StatelessSession openStatelessSession() {
-        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
-    }
-
-    private int queryFetchSize() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 }
