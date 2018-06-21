@@ -969,7 +969,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.194 NAME 'dcmRejectionNoteStorageAET
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.195 NAME 'dcmXRoadProperty'
-  DESC 'Property in format <name>=<value>'
+  DESC 'Properties for accessing Estonian National Patient Registry in format <name>=<value>'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.196 NAME 'dcmUIConfigurationDeviceName'
@@ -1055,6 +1055,15 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.212 NAME 'dcmPurgeInstanceRecords'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.213 NAME 'dcmAllowDeletePatient'
+  DESC 'Allow permanent deletion of Patients. Enumerated values: NEVER, ALWAYS, WITHOUT_STUDIES. If absent, WITHOUT_STUDIES will be applied.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.214 NAME 'dcmImpaxReportProperty'
+  DESC 'Properties for accessing Agfa Impax Report Service in format <name>=<value>'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 -
 delete: olcObjectClasses
 -
@@ -1168,6 +1177,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmStoreUpdateDBMaxRetryDelay $
     dcmAllowRejectionForDataRetentionPolicyExpired $
     dcmAllowDeleteStudyPermanently $
+    dcmAllowDeletePatient $
     dcmRemapRetrieveURL $
     dcmAuditRecordRepositoryURL $
     dcmElasticSearchURL $
@@ -1181,6 +1191,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmQueueTasksFetchSize $
     dcmRejectionNoteStorageAET $
     dcmXRoadProperty $
+    dcmImpaxReportProperty $
     dcmUIConfigurationDeviceName $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
@@ -1248,6 +1259,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmAllowRejectionForDataRetentionPolicyExpired $
     dcmAcceptedUserRole $
     dcmAllowDeleteStudyPermanently $
+    dcmAllowDeletePatient $
     dcmInvokeImageDisplayPatientURL $
     dcmInvokeImageDisplayStudyURL $
     dcmCopyMoveUpdatePolicy $

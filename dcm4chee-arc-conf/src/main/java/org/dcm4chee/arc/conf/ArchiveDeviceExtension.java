@@ -209,6 +209,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
     private final Map<String,String> xRoadProperties = new HashMap<>();
+    private final Map<String,String> impaxReportProperties = new HashMap<>();
 
     private transient FuzzyStr fuzzyStr;
 
@@ -1123,6 +1124,28 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return xRoadProperties.containsKey("endpoint");
     }
 
+    public Map<String, String> getImpaxReportProperties() {
+        return impaxReportProperties;
+    }
+
+    public void setImpaxReportProperty(String name, String value) {
+        impaxReportProperties.put(name, value);
+    }
+
+    public void setImpaxReportProperties(String[] ss) {
+        impaxReportProperties.clear();
+        for (String s : ss) {
+            int index = s.indexOf('=');
+            if (index < 0)
+                throw new IllegalArgumentException("Property in incorrect format : " + s);
+            setImpaxReportProperty(s.substring(0, index), s.substring(index+1));
+        }
+    }
+
+    public boolean hasImpaxReportProperties() {
+        return impaxReportProperties.containsKey("endpoint");
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         AttributeFilter filter = attributeFilters.get(entity);
         if (filter == null)
@@ -1879,5 +1902,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         keycloakServerMap.putAll(arcdev.keycloakServerMap);
         xRoadProperties.clear();
         xRoadProperties.putAll(arcdev.xRoadProperties);
+        impaxReportProperties.clear();
+        impaxReportProperties.putAll(arcdev.impaxReportProperties);
     }
 }

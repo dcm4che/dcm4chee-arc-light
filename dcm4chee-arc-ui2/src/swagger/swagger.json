@@ -9457,6 +9457,9 @@
         "xRoad": {
           "type": "boolean"
         },
+        "impaxReport": {
+          "type": "boolean"
+        },
         "UIConfigurationDeviceName": {
           "type": "string"
         }

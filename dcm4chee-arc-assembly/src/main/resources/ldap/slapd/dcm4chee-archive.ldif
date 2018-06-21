@@ -966,7 +966,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.194 NAME 'dcmRejectionNoteStorageAET
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.195 NAME 'dcmXRoadProperty'
-  DESC 'Property in format <name>=<value>'
+  DESC 'Properties for accessing Estonian National Patient Registry in format <name>=<value>'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.196 NAME 'dcmUIConfigurationDeviceName'
@@ -1057,6 +1057,10 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.213 NAME 'dcmAllowDeletePatient'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.214 NAME 'dcmImpaxReportProperty'
+  DESC 'Properties for accessing Agfa Impax Report Service in format <name>=<value>'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1180,6 +1184,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmQueueTasksFetchSize $
     dcmRejectionNoteStorageAET $
     dcmXRoadProperty $
+    dcmImpaxReportProperty $
     dcmUIConfigurationDeviceName $
     hl7ADTReceivingApplication $
     hl7ADTSendingApplication $
