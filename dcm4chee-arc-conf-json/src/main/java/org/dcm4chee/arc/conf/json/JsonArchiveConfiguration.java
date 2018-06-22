@@ -102,6 +102,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmSendPendingCGet", arcDev.isSendPendingCGet(), false);
         writer.writeNotNullOrDef("dcmSendPendingCMoveInterval", arcDev.getSendPendingCMoveInterval(), null);
         writer.writeNotEmpty("dcmWadoSupportedSRClasses", arcDev.getWadoSupportedSRClasses());
+        writer.writeNotNullOrDef("dcmWadoZIPEntryNameFormat",
+                arcDev.getWadoZIPEntryNameFormat(), ArchiveDeviceExtension.DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT);
         writer.writeNotNullOrDef("dcmWadoSR2HtmlTemplateURI", arcDev.getWadoSR2HtmlTemplateURI(), null);
         writer.writeNotNullOrDef("dcmWadoSR2TextTemplateURI", arcDev.getWadoSR2TextTemplateURI(), null);
         writer.writeNotDef("dcmQueryFetchSize", arcDev.getQueryFetchSize(), 100);
@@ -604,6 +606,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcAE.getPersonNameComponentOrderInsensitiveMatching());
         writer.writeNotNull("dcmSendPendingCGet", arcAE.getSendPendingCGet());
         writer.writeNotNullOrDef("dcmSendPendingCMoveInterval", arcAE.getSendPendingCMoveInterval(), null);
+        writer.writeNotNullOrDef("dcmWadoZIPEntryNameFormat", arcAE.getWadoZIPEntryNameFormat(), null);
         writer.writeNotNullOrDef("dcmWadoSR2HtmlTemplateURI", arcAE.getWadoSR2HtmlTemplateURI(), null);
         writer.writeNotNullOrDef("dcmWadoSR2TextTemplateURI", arcAE.getWadoSR2TextTemplateURI(), null);
         writer.writeNotNull("dcmQueryMaxNumberOfResults", arcAE.getQueryMaxNumberOfResults());
@@ -732,6 +735,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoSupportedSRClasses":
                     arcDev.setWadoSupportedSRClasses(reader.stringArray());
+                    break;
+                case "dcmWadoZIPEntryNameFormat":
+                    arcDev.setWadoZIPEntryNameFormat(reader.stringValue());
                     break;
                 case "dcmWadoSR2HtmlTemplateURI":
                     arcDev.setWadoSR2HtmlTemplateURI(reader.stringValue());
@@ -1935,6 +1941,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmSendPendingCMoveInterval":
                     arcAE.setSendPendingCMoveInterval(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmWadoZIPEntryNameFormat":
+                    arcAE.setWadoZIPEntryNameFormat(reader.stringValue());
                     break;
                 case "dcmWadoSR2HtmlTemplateURI":
                     arcAE.setWadoSR2HtmlTemplateURI(reader.stringValue());

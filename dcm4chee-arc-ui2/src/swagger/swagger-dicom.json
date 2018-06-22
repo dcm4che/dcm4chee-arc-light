@@ -886,7 +886,8 @@
           "multipart/related;type=image/x-jls",
           "multipart/related;type=text/xml",
           "multipart/related;type=video/mpeg",
-          "multipart/related;type=video/mp4"
+          "multipart/related;type=video/mp4",
+          "application/zip"
         ],
         "parameters": [
           {
@@ -990,7 +991,8 @@
           "multipart/related;type=image/x-jls",
           "multipart/related;type=text/xml",
           "multipart/related;type=video/mpeg",
-          "multipart/related;type=video/mp4"
+          "multipart/related;type=video/mp4",
+          "application/zip"
         ],
         "parameters": [
           {
@@ -1055,7 +1057,8 @@
           "multipart/related;type=image/x-jls",
           "multipart/related;type=text/xml",
           "multipart/related;type=video/mpeg",
-          "multipart/related;type=video/mp4"
+          "multipart/related;type=video/mp4",
+          "application/zip"
         ],
         "parameters": [
           {

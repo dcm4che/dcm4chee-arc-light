@@ -432,8 +432,6 @@ public class WadoURI {
     private Collection<String> tsuids() {
         if (transferSyntax == null)
             return Collections.singleton(UID.ExplicitVRLittleEndian);
-        if (transferSyntax.equals("*"))
-            return Collections.emptyList();
         return Arrays.asList(StringUtils.split(transferSyntax, ','));
     }
 

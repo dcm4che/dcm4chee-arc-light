@@ -154,6 +154,11 @@
       "description": "Specifies URI for the style sheet used to render structured reports to plain text. Overwrites value specified on Device level.",
       "type": "string"
     },
+    "dcmWadoZIPEntryNameFormat": {
+      "title": "Wado ZIP Entry Name Format",
+      "description": "Format of entry names in ZIP archive returned by WADO-RS. Overwrites value specified on Device level.",
+      "type": "string"
+    },
     "dcmQueryMaxNumberOfResults": {
       "title": "Query Max Number Of Results",
       "description": "Maximal number of return results by C-FIND SCP. If the number of matches extends the limit, the C-FIND request will be refused. 0 = no limitation. Overwrites value specified on Device level.",

@@ -17,6 +17,7 @@
     "dcmQueryFetchSize",
     "dcmQueryMaxNumberOfResults",
     "dcmQidoMaxNumberOfResults",
+    "dcmWadoZIPEntryNameFormat",
     "dcmIanOnTimeout",
     "dcmIanTaskFetchSize",
     "dcmSpanningCFindSCPPolicy",
@@ -225,6 +226,12 @@
       "title": "Wado SR2 Text Template URI",
       "description": "Specifies URI for the style sheet used to render structured reports to plain text. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string"
+    },
+    "dcmWadoZIPEntryNameFormat": {
+      "title": "Wado ZIP Entry Name Format",
+      "description": "Format of entry names in ZIP archive returned by WADO-RS. May be overwritten by configured value for particular Archive Network AEs.",
+      "type": "string",
+      "default": "DICOM/{0020000D,hash}/{0020000E,hash}/{00080018,hash}"
     },
     "dcmQueryFetchSize": {
       "title": "Query Fetch Size",

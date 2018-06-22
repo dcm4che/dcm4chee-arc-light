@@ -64,6 +64,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public static final String AUDIT_UNKNOWN_STUDY_INSTANCE_UID = "1.2.40.0.13.1.15.110.3.165.1";
     public static final String AUDIT_UNKNOWN_PATIENT_ID = "<none>";
     public static final String JBOSS_SERVER_TEMP_DIR = "${jboss.server.temp.dir}";
+    public static final String DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT =
+            "DICOM/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
 
     private String defaultCharacterSet;
     private String fuzzyAlgorithmClass;
@@ -87,6 +89,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int queryFetchSize = 100;
     private int queryMaxNumberOfResults = 0;
     private int qidoMaxNumberOfResults = 0;
+    private String wadoZIPEntryNameFormat = DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
     private String patientUpdateTemplateURI;
@@ -412,6 +415,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public boolean isWadoSupportedSRClass(String cuid) {
         return wadoSupportedSRClasses.contains(cuid);
+    }
+
+    public String getWadoZIPEntryNameFormat() {
+        return wadoZIPEntryNameFormat;
+    }
+
+    public void setWadoZIPEntryNameFormat(String wadoZIPEntryNameFormat) {
+        this.wadoZIPEntryNameFormat = wadoZIPEntryNameFormat;
     }
 
     public String getWadoSR2HtmlTemplateURI() {
@@ -1761,6 +1772,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         sendPendingCMoveInterval = arcdev.sendPendingCMoveInterval;
         wadoSupportedSRClasses.clear();
         wadoSupportedSRClasses.addAll(arcdev.wadoSupportedSRClasses);
+        wadoZIPEntryNameFormat = arcdev.wadoZIPEntryNameFormat;
         wadoSR2HtmlTemplateURI = arcdev.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = arcdev.wadoSR2TextTemplateURI;
         patientUpdateTemplateURI = arcdev.patientUpdateTemplateURI;

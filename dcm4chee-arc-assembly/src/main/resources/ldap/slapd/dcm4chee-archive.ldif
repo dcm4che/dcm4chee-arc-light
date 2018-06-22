@@ -1061,6 +1061,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.214 NAME 'dcmImpaxReportProperty'
   DESC 'Properties for accessing Agfa Impax Report Service in format <name>=<value>'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.215 NAME 'dcmWadoZIPEntryNameFormat'
+  DESC 'Format of entry names in ZIP archive returned by WADO-RS. "DICOM/{0020000D,hash}/{0020000E,hash}/{00080018,hash}", if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1094,6 +1099,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmWadoSupportedSRClasses $
     dcmWadoSR2HtmlTemplateURI $
     dcmWadoSR2TextTemplateURI $
+    dcmWadoZIPEntryNameFormat $
     dcmQueryFetchSize $
     dcmQueryMaxNumberOfResults $
     dcmQidoMaxNumberOfResults $
@@ -1225,6 +1231,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmSendPendingCMoveInterval $
     dcmWadoSR2HtmlTemplateURI $
     dcmWadoSR2TextTemplateURI $
+    dcmWadoZIPEntryNameFormat $
     dcmQueryMaxNumberOfResults $
     dcmQidoMaxNumberOfResults $
     dcmFwdMppsDestination $
