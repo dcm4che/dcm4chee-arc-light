@@ -50,6 +50,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
@@ -61,6 +62,7 @@ import java.util.Optional;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jun 2018
  */
+@ApplicationScoped
 public class ReportServiceProvider {
 
     @Inject
