@@ -188,7 +188,6 @@ public class WadoRS {
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/metadata")
-    @Produces("application/dicom+json,application/json")
     public void retrieveSeriesMetadata(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
