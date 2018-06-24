@@ -50,7 +50,7 @@ import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.InstanceLocations;
-import org.dcm4chee.arc.xdsi.RetrieveRenderedImagingDocumentSetRequestType.StudyRequest.SeriesRequest.RenderedDocumentRequest;
+import org.dcm4che3.xdsi.RetrieveRenderedImagingDocumentSetRequestType.StudyRequest.SeriesRequest.RenderedDocumentRequest;
 
 import javax.activation.DataHandler;
 import javax.enterprise.event.Event;

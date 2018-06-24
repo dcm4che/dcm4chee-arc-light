@@ -44,7 +44,7 @@ import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterProvider;
 import org.dcm4chee.arc.query.QueryService;
-import org.dcm4chee.arc.xdsi.DocumentRepositoryService;
+import org.dcm4che3.xdsi.DocumentRepositoryService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
