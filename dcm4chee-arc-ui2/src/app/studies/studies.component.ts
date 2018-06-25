@@ -2759,11 +2759,32 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
         });
     };
-    downloadStudyUncompressed(study){
+    downloadZip(object, level, mode){
+        let token;
+        let param = 'accept=application/zip';
+        let url = this.studyURL(object.attrs);;
+        if(mode === 'compressed'){
+            param += ';transfer-syntax=*';
+        }
+        if(level === 'serie'){
+            url = this.seriesURL(object.attrs);
+        }
+        this.$http.refreshToken().subscribe((response)=>{
+            if(!this.mainservice.global.notSecure){
+                if(response && response.length != 0){
+                    this.$http.resetAuthenticationInfo(response);
+                    token = response['token'];
+                }else{
+                    token = this.mainservice.global.authentication.token;
+                }
+            }
 
-    };
-    downloadStudyCompressed(study){
-        
+            if(!this.mainservice.global.notSecure){
+                WindowRefService.nativeWindow.open(`${url}?${param}&access_token=${token}`);
+            }else{
+                WindowRefService.nativeWindow.open(`${url}?${param}`);
+            }
+        });
     };
     viewInstance(inst) {
         let $this = this;
