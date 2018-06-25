@@ -357,7 +357,9 @@ public class WadoRS {
 
     private static Optional<MediaType> selectMediaType(List<MediaType> list, MediaType... mediaTypes) {
         return list.stream()
-                .filter(entry -> Stream.of(mediaTypes).anyMatch(mediaType -> mediaType.isCompatible(entry)))
+                .map(entry -> Stream.of(mediaTypes).filter(mediaType -> mediaType.isCompatible(entry)).findFirst())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .findFirst();
     }
 
