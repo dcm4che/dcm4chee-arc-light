@@ -2759,6 +2759,12 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
         });
     };
+    downloadStudyUncompressed(study){
+
+    };
+    downloadStudyCompressed(study){
+        
+    };
     viewInstance(inst) {
         let $this = this;
         let token;
