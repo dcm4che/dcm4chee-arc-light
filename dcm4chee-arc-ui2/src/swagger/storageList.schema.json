@@ -61,6 +61,11 @@
         "description": "Specifies another Storage to which objects are copied in parallel on retrieve to increase the performance on accessing storage systems which provides more bandwidth using multiple connections in parallel.",
         "type": "string"
       },
+      "dcmStorageClusterID": {
+        "title": "Storage Cluster ID",
+        "description": "Specifies storage cluster to which the storage system belongs.",
+        "type": "string"
+      },
       "dcmRetrieveCacheMaxParallel": {
         "title": "Retrieve Cache Max Parallel",
         "description": "Maximal number of parallel copies to cache storage on retrieve.",

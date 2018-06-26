@@ -105,6 +105,9 @@ public class StorageRS {
     @QueryParam("usableSpaceBelow")
     private Long usableSpaceBelow;
 
+    @QueryParam("dcmStorageClusterID")
+    private String storageClusterID;
+
     @GET
     @NoCache
     @Produces("application/json")
@@ -134,6 +137,7 @@ public class StorageRS {
                     }
                     writer.writeNotEmpty("dcmProperty", descriptorProperties(desc.getProperties()));
                     writer.writeNotEmpty("dicomAETitle", ss.aets);
+                    writer.writeNotNullOrDef("dcmStorageClusterID", desc.getStorageClusterID(), null);
                     writer.writeNotEmpty("usages", ss.usages);
                     if (ss.usableSpace > 0L)
                         gen.write("usableSpace", ss.usableSpace);
@@ -196,6 +200,7 @@ public class StorageRS {
             }
             if ((dicomAETitle == null || aets.contains(dicomAETitle))
                 && (usage == null || usages.contains(usage))
+                && (storageClusterID == null || storageClusterID.equals(desc.getStorageClusterID()))
                 && (uriScheme == null || desc.getStorageURI().getScheme().equals(uriScheme))) {
                 try (Storage storage = storageFactory.getStorage(desc)) {
                     long usableSpace = storage.getUsableSpace();
