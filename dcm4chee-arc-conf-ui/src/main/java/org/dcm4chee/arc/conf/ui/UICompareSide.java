@@ -5,6 +5,7 @@ public class UICompareSide {
     private String description;
     private String cluster;
     private String elasticsearch;
+    private String queueName;
     private boolean installed = true;
 
     public UICompareSide() {
@@ -44,6 +45,14 @@ public class UICompareSide {
 
     public void setElasticsearch(String elasticsearch) {
         this.elasticsearch = elasticsearch;
+    }
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 
     public boolean isInstalled() {

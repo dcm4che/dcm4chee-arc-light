@@ -840,9 +840,24 @@ class ArchiveDeviceFactory {
                     new Code[0],
                     new Code[]{DATA_RETENTION_POLICY_EXPIRED},
                     false);
-    static final QueryRetrieveView TRASH_VIEW =
-            createQueryRetrieveView("trashView",
-                    REJECTION_CODES,
+    static final QueryRetrieveView IOCM_EXPIRED_VIEW =
+            createQueryRetrieveView("iocmExpiredView",
+                    new Code[]{DATA_RETENTION_POLICY_EXPIRED},
+                    new Code[0],
+                    true);
+    static final QueryRetrieveView IOCM_QUALITY_VIEW =
+            createQueryRetrieveView("iocmQualityView",
+                    new Code[]{REJECTED_FOR_QUALITY_REASONS},
+                    new Code[0],
+                    true);
+    static final QueryRetrieveView IOCM_PATSAFETY_VIEW =
+            createQueryRetrieveView("iocmPatientSafetyView",
+                    new Code[]{REJECT_FOR_PATIENT_SAFETY_REASONS},
+                    new Code[0],
+                    true);
+    static final QueryRetrieveView IOCM_WRONGWKLST_VIEW =
+            createQueryRetrieveView("iocmWrongWorklistView",
+                    new Code[]{INCORRECT_MODALITY_WORKLIST_ENTRY},
                     new Code[0],
                     true);
 
@@ -1241,33 +1256,33 @@ class ArchiveDeviceFactory {
 
         device.addApplicationEntity(createAE("DCM4CHEE", "Hide instances rejected for Quality Reasons",
                 dicom, dicomTLS, HIDE_REJECTED_VIEW, true, true, true, configType, USER_AND_ADMIN));
-        device.addApplicationEntity(createAE("DCM4CHEE_ADMIN", "Show instances rejected for Quality Reasons",
+        device.addApplicationEntity(createAE("IOCM_REGULAR_USE", "Show instances rejected for Quality Reasons",
                 dicom, dicomTLS, REGULAR_USE_VIEW, false, true, false, configType, ONLY_ADMIN));
-        device.addApplicationEntity(createAE("DCM4CHEE_TRASH", "Show rejected instances only",
-                dicom, dicomTLS, TRASH_VIEW, false, false, false, configType, ONLY_ADMIN));
+        device.addApplicationEntity(createAE("IOCM_EXPIRED", "Only show instances rejected for Data Retention Expired",
+                dicom, dicomTLS, IOCM_EXPIRED_VIEW, false, false, false, configType, USER_AND_ADMIN));
+        device.addApplicationEntity(createAE("IOCM_QUALITY", "Only show instances rejected for Quality Reasons",
+                dicom, dicomTLS, IOCM_QUALITY_VIEW, false, false, false, configType, ONLY_ADMIN));
+        device.addApplicationEntity(createAE("IOCM_PATSAFETY", "Only show instances rejected for Patient Safety",
+                dicom, dicomTLS, IOCM_PATSAFETY_VIEW, false, false, false, configType, ONLY_ADMIN));
+        device.addApplicationEntity(createAE("IOCM_WRONGWKLST", "Only show instances rejected for Incorrect Modality Worklist Entries",
+                dicom, dicomTLS, IOCM_WRONGWKLST_VIEW, false, false, false, configType, ONLY_ADMIN));
+
+
         device.addWebApplication(createWebApp("DCM4CHEE-RS", "Hide instances rejected for Quality Reasons",
                 "/dcm4chee-arc/aets/DCM4CHEE/rs", "DCM4CHEE", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.STOW_RS,
                 WebApplication.ServiceClass.WADO_RS));
-        device.addWebApplication(createWebApp("DCM4CHEE_ADMIN-RS", "Show instances rejected for Quality Reasons",
-                "/dcm4chee-arc/aets/DCM4CHEE_ADMIN/rs", "DCM4CHEE_ADMIN", http, https,
-                WebApplication.ServiceClass.QIDO_RS,
-                WebApplication.ServiceClass.WADO_RS));
-        device.addWebApplication(createWebApp("DCM4CHEE_TRASH-RS", "Show rejected instances only",
-                "/dcm4chee-arc/aets/DCM4CHEE_TRASH/rs", "DCM4CHEE_TRASH", http, https,
+        device.addWebApplication(createWebApp("IOCM_REGULAR_USE-RS", "Show instances rejected for Quality Reasons",
+                "/dcm4chee-arc/aets/IOCM_REGULAR_USE/rs", "IOCM_REGULAR_USE", http, https,
                 WebApplication.ServiceClass.QIDO_RS,
                 WebApplication.ServiceClass.WADO_RS));
         device.addWebApplication(createWebApp("DCM4CHEE-WADO", "Hide instances rejected for Quality Reasons",
                 "/dcm4chee-arc/aets/DCM4CHEE/wado", "DCM4CHEE", http, https,
                 WebApplication.ServiceClass.WADO_URI));
-        device.addWebApplication(createWebApp("DCM4CHEE_ADMIN-WADO", "Show instances rejected for Quality Reasons",
-                "/dcm4chee-arc/aets/DCM4CHEE_ADMIN/wado", "DCM4CHEE_ADMIN", http, https,
+        device.addWebApplication(createWebApp("IOCM_REGULAR_USE-WADO", "Show instances rejected for Quality Reasons",
+                "/dcm4chee-arc/aets/IOCM_REGULAR_USE/wado", "IOCM_REGULAR_USE", http, https,
                 WebApplication.ServiceClass.WADO_URI));
-        device.addWebApplication(createWebApp("DCM4CHEE_TRASH-WADO", "Show rejected instances only",
-                "/dcm4chee-arc/aets/DCM4CHEE_TRASH/wado", "DCM4CHEE_TRASH", http, https,
-                WebApplication.ServiceClass.WADO_URI));
-
         return device;
     }
 
@@ -1385,7 +1400,10 @@ class ArchiveDeviceFactory {
         ext.setXDSiImagingDocumentSourceAETitle(XDSI_IMAGING_DOCUMENT_SOURCE_AE_TITLE);
         ext.addQueryRetrieveView(HIDE_REJECTED_VIEW);
         ext.addQueryRetrieveView(REGULAR_USE_VIEW);
-        ext.addQueryRetrieveView(TRASH_VIEW);
+        ext.addQueryRetrieveView(IOCM_EXPIRED_VIEW);
+        ext.addQueryRetrieveView(IOCM_PATSAFETY_VIEW);
+        ext.addQueryRetrieveView(IOCM_QUALITY_VIEW);
+        ext.addQueryRetrieveView(IOCM_WRONGWKLST_VIEW);
         ext.setLinkMWLEntryUpdatePolicy(LINK_MWL_ENTRY_UPDATE_POLICY);
 
         ext.setSendPendingCGet(SEND_PENDING_C_GET);
