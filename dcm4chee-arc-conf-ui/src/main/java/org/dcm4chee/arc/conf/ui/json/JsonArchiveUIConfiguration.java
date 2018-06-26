@@ -235,6 +235,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiCompareSideDescription", uiCompareSide.getDescription(),null);
             writer.writeNotNullOrDef("dcmuiCompareSideCluster", uiCompareSide.getCluster(),null);
             writer.writeNotNullOrDef("dcmuiCompareSideElasticsearch", uiCompareSide.getElasticsearch(),null);
+            writer.writeNotNullOrDef("dcmuiCompareSideQueueName", uiCompareSide.getQueueName(),null);
             writer.writeNotDef("dcmuiCompareSideInstalled", uiCompareSide.isInstalled(), true);
             writer.writeEnd();
         }
@@ -566,6 +567,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmuiCompareSideElasticsearch":
                         uiCompareSide.setElasticsearch(reader.stringValue());
+                        break;
+                    case "dcmuiCompareSideQueueName":
+                        uiCompareSide.setQueueName(reader.stringValue());
                         break;
                     case "dcmuiCompareSideInstalled":
                         uiCompareSide.setInstalled(reader.booleanValue());
