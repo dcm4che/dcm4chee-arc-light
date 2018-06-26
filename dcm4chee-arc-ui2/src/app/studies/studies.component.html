@@ -661,6 +661,12 @@
                                     <a class="hiddenbuttons" *ngIf="(!trashaktive && _.hasIn(study._VALUE,'attrs.00201206.Value[0]') && !_.isEqual(study._VALUE.attrs['00201206'].Value[0], 0))" [permission]="{id:'action-studies-study',param:'reject'}" (click)="$event.preventDefault();rejectStudy(study._VALUE)" href="" title="Reject study">
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </a>
+                                    <a class="hiddenbuttons" *ngIf="(!trashaktive && _.hasIn(study._VALUE,'attrs.00201206.Value[0]') && !_.isEqual(study._VALUE.attrs['00201206'].Value[0], 0)) && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-download',param:'visible'}" (click)="$event.preventDefault();downloadZip(study._VALUE, 'study','uncompressed')" href="" title="Retrieve Study uncompressed">
+                                        <span class="glyphicon glyphicon-save"></span>
+                                    </a>
+                                    <a class="hiddenbuttons" *ngIf="(!trashaktive && _.hasIn(study._VALUE,'attrs.00201206.Value[0]') && !_.isEqual(study._VALUE.attrs['00201206'].Value[0], 0)) && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-download',param:'visible'}" (click)="$event.preventDefault();;downloadZip(study._VALUE, 'study','compressed')" href="" title="Retrieve Study as stored at the archive">
+                                        <span class="glyphicon glyphicon-download-alt"></span>
+                                    </a>
                                     <a class="hiddenbuttons" *ngIf="trashaktive && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-study',param:'delete'}" (click)="$event.preventDefault();deleteStudy(study._VALUE)" href="" title="Delete study permanently">
                                         <span class="glyphicon glyphicon-remove"></span>
                                     </a>
@@ -770,6 +776,12 @@
                                                     </a>
                                                     <a class="hiddenbuttons" (click)="$event.preventDefault();storageCommitmen('series', series._VALUE)" *ngIf="externalInternalAetMode === 'internal'" href="" title="Verify storage commitment" [permission]="{id:'action-studies-verify_storage_commitment',param:'visible'}">
                                                         <span class="glyphicon glyphicon-ok"></span>
+                                                    </a>
+                                                    <a class="hiddenbuttons" *ngIf="(!trashaktive && _.hasIn(study._VALUE,'attrs.00201206.Value[0]') && !_.isEqual(study._VALUE.attrs['00201206'].Value[0], 0)) && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-download',param:'visible'}" (click)="$event.preventDefault();downloadZip(series._VALUE, 'serie','uncompressed')" href="" title="Retrieve Serie uncompressed">
+                                                        <span class="glyphicon glyphicon-save"></span>
+                                                    </a>
+                                                    <a class="hiddenbuttons" *ngIf="(!trashaktive && _.hasIn(study._VALUE,'attrs.00201206.Value[0]') && !_.isEqual(study._VALUE.attrs['00201206'].Value[0], 0)) && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-download',param:'visible'}" (click)="$event.preventDefault();;downloadZip(series._VALUE, 'serie','compressed')" href="" title="Retrieve Serie as stored at the archive">
+                                                        <span class="glyphicon glyphicon-download-alt"></span>
                                                     </a>
                                                 </div>
                                             </div>

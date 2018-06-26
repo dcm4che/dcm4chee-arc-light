@@ -49,6 +49,7 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -63,7 +64,7 @@ public class DicomObjectOutput implements StreamingOutput {
     public DicomObjectOutput(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids) {
         this.ctx = ctx;
         this.inst = inst;
-        this.tsuids = tsuids;
+        this.tsuids = tsuids.contains("*") ? Collections.EMPTY_LIST : tsuids;
     }
 
     @Override

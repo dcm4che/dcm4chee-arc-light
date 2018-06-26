@@ -53,6 +53,7 @@ import org.dcm4che3.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -64,6 +65,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public static final String AUDIT_UNKNOWN_STUDY_INSTANCE_UID = "1.2.40.0.13.1.15.110.3.165.1";
     public static final String AUDIT_UNKNOWN_PATIENT_ID = "<none>";
     public static final String JBOSS_SERVER_TEMP_DIR = "${jboss.server.temp.dir}";
+    public static final String DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT =
+            "DICOM/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
 
     private String defaultCharacterSet;
     private String fuzzyAlgorithmClass;
@@ -87,6 +90,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int queryFetchSize = 100;
     private int queryMaxNumberOfResults = 0;
     private int qidoMaxNumberOfResults = 0;
+    private String wadoZIPEntryNameFormat = DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
     private String patientUpdateTemplateURI;
@@ -209,6 +213,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
     private final Map<String,String> xRoadProperties = new HashMap<>();
+    private final Map<String,String> impaxReportProperties = new HashMap<>();
 
     private transient FuzzyStr fuzzyStr;
 
@@ -411,6 +416,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public boolean isWadoSupportedSRClass(String cuid) {
         return wadoSupportedSRClasses.contains(cuid);
+    }
+
+    public String getWadoZIPEntryNameFormat() {
+        return wadoZIPEntryNameFormat;
+    }
+
+    public void setWadoZIPEntryNameFormat(String wadoZIPEntryNameFormat) {
+        this.wadoZIPEntryNameFormat = wadoZIPEntryNameFormat;
     }
 
     public String getWadoSR2HtmlTemplateURI() {
@@ -1123,6 +1136,28 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return xRoadProperties.containsKey("endpoint");
     }
 
+    public Map<String, String> getImpaxReportProperties() {
+        return impaxReportProperties;
+    }
+
+    public void setImpaxReportProperty(String name, String value) {
+        impaxReportProperties.put(name, value);
+    }
+
+    public void setImpaxReportProperties(String[] ss) {
+        impaxReportProperties.clear();
+        for (String s : ss) {
+            int index = s.indexOf('=');
+            if (index < 0)
+                throw new IllegalArgumentException("Property in incorrect format : " + s);
+            setImpaxReportProperty(s.substring(0, index), s.substring(index+1));
+        }
+    }
+
+    public boolean hasImpaxReportProperties() {
+        return impaxReportProperties.containsKey("endpoint");
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         AttributeFilter filter = attributeFilters.get(entity);
         if (filter == null)
@@ -1261,6 +1296,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
             list.add(descriptor);
         }
         return list;
+    }
+
+    public Stream<String> getStorageIDsOfCluster(String clusterID) {
+        return storageDescriptorMap.values().stream()
+                .filter(desc -> clusterID.equals(desc.getStorageClusterID()))
+                .map(StorageDescriptor::getStorageID);
     }
 
     public QueueDescriptor getQueueDescriptor(String queueName) {
@@ -1738,6 +1779,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         sendPendingCMoveInterval = arcdev.sendPendingCMoveInterval;
         wadoSupportedSRClasses.clear();
         wadoSupportedSRClasses.addAll(arcdev.wadoSupportedSRClasses);
+        wadoZIPEntryNameFormat = arcdev.wadoZIPEntryNameFormat;
         wadoSR2HtmlTemplateURI = arcdev.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = arcdev.wadoSR2TextTemplateURI;
         patientUpdateTemplateURI = arcdev.patientUpdateTemplateURI;
@@ -1879,5 +1921,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         keycloakServerMap.putAll(arcdev.keycloakServerMap);
         xRoadProperties.clear();
         xRoadProperties.putAll(arcdev.xRoadProperties);
+        impaxReportProperties.clear();
+        impaxReportProperties.putAll(arcdev.impaxReportProperties);
     }
 }

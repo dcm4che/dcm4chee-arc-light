@@ -44,8 +44,10 @@ import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Code;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.PatientMgtContext;
@@ -59,6 +61,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -104,29 +108,29 @@ public class DeletionServiceEJB {
                 .getResultList();
     }
 
-    public List<Long> findStudiesForDeletionOnStorage(String storageID, int limit) {
-        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_ID_ORDER_BY_ACCESS_TIME, Long.class)
-                .setParameter(1, storageID)
+    public List<Long> findStudiesForDeletionOnStorage(StorageDescriptor desc, int limit) {
+        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_ORDER_BY_ACCESS_TIME, Long.class)
+                .setParameter(1, getStudyStorageIDs(desc))
                 .setMaxResults(limit)
                 .getResultList();
     }
 
-    public int instancesNotStoredOnOtherStorage(Long studyPk, String storageID, String otherStorageID) {
-        Set<Long> onStorage = new HashSet<>(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_ID, Long.class)
+    public int instancesNotStoredOnExportStorage(Long studyPk, StorageDescriptor desc) {
+        Set<Long> onStorage = new HashSet<>(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS, Long.class)
                 .setParameter(1, studyPk)
-                .setParameter(2, storageID)
+                .setParameter(2, getStorageIDsOfCluster(desc))
                 .getResultList());
-        onStorage.removeAll(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_ID, Long.class)
+        onStorage.removeAll(em.createNamedQuery(Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS, Long.class)
                 .setParameter(1, studyPk)
-                .setParameter(2, otherStorageID)
+                .setParameter(2, Collections.singletonList(desc.getExportStorageID()))
                 .getResultList());
         return onStorage.size();
     }
 
-    public List<Long> findStudiesForDeletionOnStorageWithExternalRetrieveAET(String storageID, String aet, int limit) {
-        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_ID_AND_EXT_RETR_AET, Long.class)
-                .setParameter(1, storageID)
-                .setParameter(2, aet)
+    public List<Long> findStudiesForDeletionOnStorageWithExternalRetrieveAET(StorageDescriptor desc, int limit) {
+        return em.createNamedQuery(Study.FIND_PK_BY_STORAGE_IDS_AND_EXT_RETR_AET, Long.class)
+                .setParameter(1, getStudyStorageIDs(desc))
+                .setParameter(2, desc.getExternalRetrieveAETitle())
                 .setMaxResults(limit)
                 .getResultList();
     }
@@ -164,10 +168,11 @@ public class DeletionServiceEJB {
         return deleteStudy(removeOrMarkToDelete(locations, Integer.MAX_VALUE, false), ctx);
     }
 
-    public Study deleteObjectsOfStudy(Long studyPk, String storageID) {
-        List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_AND_STORAGE_ID, Location.class)
+    public Study deleteObjectsOfStudy(Long studyPk, StorageDescriptor desc) {
+        List<String> storageIDs = getStorageIDsOfCluster(desc);
+        List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_AND_STORAGE_IDS, Location.class)
                 .setParameter(1, studyPk)
-                .setParameter(2, storageID)
+                .setParameter(2, storageIDs)
                 .getResultList();
         Collection<Instance> insts = removeOrMarkToDelete(locations, Integer.MAX_VALUE, false);
         Set<Long> seriesPks = new HashSet<>();
@@ -179,7 +184,9 @@ public class DeletionServiceEJB {
                 scheduleMetadataUpdate(series.getPk());
         }
         Study study = insts.iterator().next().getSeries().getStudy();
-        study.removeStorageID(storageID);
+        for (String storageID : storageIDs) {
+            study.removeStorageID(storageID);
+        }
         return study;
     }
 
@@ -442,4 +449,47 @@ public class DeletionServiceEJB {
                 .setParameter(1, studyPk)
                 .executeUpdate();
     }
+
+    private List<String> getStorageIDsOfCluster(StorageDescriptor desc) {
+        return desc.getStorageClusterID() != null
+            ? device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                .getStorageIDsOfCluster(desc.getStorageClusterID())
+                .collect(Collectors.toList())
+            : Collections.singletonList(desc.getStorageID());
+    }
+
+    private List<String> getOtherStorageIDs(StorageDescriptor desc) {
+        return desc.getStorageClusterID() != null
+            ? device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
+                .getStorageIDsOfCluster(desc.getStorageClusterID())
+                .filter(storageID -> !storageID.equals(desc.getStorageID()))
+                .collect(Collectors.toList())
+             : Collections.emptyList();
+
+    }
+
+    private List<String> getStudyStorageIDs(StorageDescriptor desc) {
+        return desc.getExportStorageID() != null
+                ? addPowerSet(getOtherStorageIDs(desc), desc.getStorageID(), desc.getExportStorageID())
+                : addPowerSet(getOtherStorageIDs(desc), desc.getStorageID());
+    }
+
+    private static List<String> addPowerSet(List<String> storageIDs, String... common) {
+        if (storageIDs.isEmpty()) {
+            Arrays.sort(common);
+            return Collections.singletonList(StringUtils.concat(common, '\\'));
+        }
+        return IntStream.range(0, 1 << storageIDs.size()).mapToObj(i -> {
+            String[] a = Arrays.copyOf(common, common.length + Integer.bitCount(i));
+            int j = common.length;
+            int mask = 1;
+            for (String storageID : storageIDs) {
+                if ((i & mask) != 0) a[j++] = storageID;
+                mask <<= 1;
+            }
+            Arrays.sort(a);
+            return StringUtils.concat(a, '\\');
+        }).collect(Collectors.toList());
+    }
+
 }

@@ -102,6 +102,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmSendPendingCGet", arcDev.isSendPendingCGet(), false);
         writer.writeNotNullOrDef("dcmSendPendingCMoveInterval", arcDev.getSendPendingCMoveInterval(), null);
         writer.writeNotEmpty("dcmWadoSupportedSRClasses", arcDev.getWadoSupportedSRClasses());
+        writer.writeNotNullOrDef("dcmWadoZIPEntryNameFormat",
+                arcDev.getWadoZIPEntryNameFormat(), ArchiveDeviceExtension.DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT);
         writer.writeNotNullOrDef("dcmWadoSR2HtmlTemplateURI", arcDev.getWadoSR2HtmlTemplateURI(), null);
         writer.writeNotNullOrDef("dcmWadoSR2TextTemplateURI", arcDev.getWadoSR2TextTemplateURI(), null);
         writer.writeNotDef("dcmQueryFetchSize", arcDev.getQueryFetchSize(), 100);
@@ -229,6 +231,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("dcmQueueTasksFetchSize", arcDev.getQueueTasksFetchSize(), 100);
         writer.writeNotNullOrDef("dcmRejectionNoteStorageAET", arcDev.getRejectionNoteStorageAET(), null);
         writer.writeNotEmpty("dcmXRoadProperty", descriptorProperties(arcDev.getXRoadProperties()));
+        writer.writeNotEmpty("dcmImpaxReportProperty", descriptorProperties(arcDev.getImpaxReportProperties()));
         writer.writeNotNullOrDef("dcmUIConfigurationDeviceName", arcDev.getUiConfigurationDeviceName(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
@@ -304,6 +307,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmInstanceAvailability", st.getInstanceAvailability(), Availability.ONLINE);
             writer.writeNotDef("dcmReadOnly", st.isReadOnly(), false);
             writer.writeNotDef("dcmNoDeletionConstraint", st.isNoDeletionConstraint(), false);
+            writer.writeNotNullOrDef("dcmStorageClusterID", st.getStorageClusterID(), null);
             writer.writeNotNullOrDef("dcmStorageThreshold", st.getStorageThreshold(), null);
             writer.writeNotEmpty("dcmDeleterThreshold", st.getDeleterThresholdsAsStrings());
             writer.writeNotEmpty("dcmProperty", descriptorProperties(st.getProperties()));
@@ -603,6 +607,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcAE.getPersonNameComponentOrderInsensitiveMatching());
         writer.writeNotNull("dcmSendPendingCGet", arcAE.getSendPendingCGet());
         writer.writeNotNullOrDef("dcmSendPendingCMoveInterval", arcAE.getSendPendingCMoveInterval(), null);
+        writer.writeNotNullOrDef("dcmWadoZIPEntryNameFormat", arcAE.getWadoZIPEntryNameFormat(), null);
         writer.writeNotNullOrDef("dcmWadoSR2HtmlTemplateURI", arcAE.getWadoSR2HtmlTemplateURI(), null);
         writer.writeNotNullOrDef("dcmWadoSR2TextTemplateURI", arcAE.getWadoSR2TextTemplateURI(), null);
         writer.writeNotNull("dcmQueryMaxNumberOfResults", arcAE.getQueryMaxNumberOfResults());
@@ -731,6 +736,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoSupportedSRClasses":
                     arcDev.setWadoSupportedSRClasses(reader.stringArray());
+                    break;
+                case "dcmWadoZIPEntryNameFormat":
+                    arcDev.setWadoZIPEntryNameFormat(reader.stringValue());
                     break;
                 case "dcmWadoSR2HtmlTemplateURI":
                     arcDev.setWadoSR2HtmlTemplateURI(reader.stringValue());
@@ -1048,6 +1056,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmXRoadProperty":
                     arcDev.setXRoadProperties(reader.stringArray());
                     break;
+                case "dcmImpaxReportProperty":
+                    arcDev.setImpaxReportProperties(reader.stringArray());
+                    break;
                 case "dcmUIConfigurationDeviceName":
                     arcDev.setUiConfigurationDeviceName(reader.stringValue());
                     break;
@@ -1215,6 +1226,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmNoDeletionConstraint":
                         st.setNoDeletionConstraint(reader.booleanValue());
+                        break;
+                    case "dcmStorageClusterID":
+                        st.setStorageClusterID(reader.stringValue());
                         break;
                     case "dcmStorageThreshold":
                         st.setStorageThreshold(StorageThreshold.valueOf(reader.stringValue()));
@@ -1931,6 +1945,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmSendPendingCMoveInterval":
                     arcAE.setSendPendingCMoveInterval(Duration.valueOf(reader.stringValue()));
+                    break;
+                case "dcmWadoZIPEntryNameFormat":
+                    arcAE.setWadoZIPEntryNameFormat(reader.stringValue());
                     break;
                 case "dcmWadoSR2HtmlTemplateURI":
                     arcAE.setWadoSR2HtmlTemplateURI(reader.stringValue());

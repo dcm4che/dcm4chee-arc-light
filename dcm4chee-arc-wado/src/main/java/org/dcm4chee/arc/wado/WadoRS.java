@@ -46,9 +46,11 @@ import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
@@ -84,7 +86,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -125,11 +130,12 @@ public class WadoRS {
     private String aet;
 
     @QueryParam("accept")
-    private String accept;
+    private List<String> accept;
 
     private List<MediaType> acceptableMediaTypes;
     private List<MediaType> acceptableMultipartRelatedMediaTypes;
     private Collection<String> acceptableTransferSyntaxes;
+    private Collection<String> acceptableZipTransferSyntaxes;
     private Map<String, MediaType> selectedMediaTypes;
     private CompressedMFPixelDataOutput compressedMFPixelDataOutput;
     private UncompressedFramesOutput uncompressedFramesOutput;
@@ -152,7 +158,7 @@ public class WadoRS {
             @Suspended AsyncResponse ar) {
         logRequest();
         checkAET();
-        Output output = dicomOrBulkdata();
+        Output output = dicomOrBulkdataOrZIP();
         retrieve("retrieveStudy", studyUID, null, null, null, null, null, ar, output);
     }
 
@@ -176,13 +182,12 @@ public class WadoRS {
             @Suspended AsyncResponse ar) {
         logRequest();
         checkAET();
-        Output output = dicomOrBulkdata();
+        Output output = dicomOrBulkdataOrZIP();
         retrieve("retrieveSeries", studyUID, seriesUID, null, null, null, null, ar, output);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/metadata")
-    @Produces("application/dicom+json,application/json")
     public void retrieveSeriesMetadata(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
@@ -203,7 +208,7 @@ public class WadoRS {
             @Suspended AsyncResponse ar) {
         logRequest();
         checkAET();
-        Output output = dicomOrBulkdata();
+        Output output = dicomOrBulkdataOrZIP();
         retrieve("retrieveInstance", studyUID, seriesUID, objectUID, null, null, null, ar, output);
     }
 
@@ -300,16 +305,24 @@ public class WadoRS {
     }
 
     private void initAcceptableMediaTypes() {
-        if (accept != null) {
-            headers.getRequestHeaders().putSingle("Accept", accept);
+        if (accept != null && !accept.isEmpty()) {
+            headers.getRequestHeaders().put("Accept",
+                    accept.stream().flatMap(s -> Stream.of(StringUtils.split(s, ',')))
+                            .collect(Collectors.toList()));
         }
         acceptableMediaTypes = headers.getAcceptableMediaTypes();
         acceptableMultipartRelatedMediaTypes = acceptableMediaTypes.stream()
                 .map(m -> MediaTypes.getMultiPartRelatedType(m))
                 .filter(t -> t != null)
                 .collect(Collectors.toList());
-        acceptableTransferSyntaxes = acceptableMultipartRelatedMediaTypes.stream()
-                .filter(m -> m.isCompatible(MediaTypes.APPLICATION_DICOM_JSON_TYPE))
+        acceptableTransferSyntaxes = transferSyntaxesOf(acceptableMultipartRelatedMediaTypes.stream()
+                .filter(m -> m.isCompatible(MediaTypes.APPLICATION_DICOM_JSON_TYPE)));
+        acceptableZipTransferSyntaxes = transferSyntaxesOf(acceptableMediaTypes.stream()
+                .filter(m -> m.isCompatible(MediaTypes.APPLICATION_ZIP_TYPE)));
+    }
+
+    private List<String> transferSyntaxesOf(Stream<MediaType> mediaTypeStream) {
+        return mediaTypeStream
                 .map(m -> m.getParameters().getOrDefault("transfer-syntax", UID.ExplicitVRLittleEndian))
                 .collect(Collectors.toList());
     }
@@ -321,11 +334,14 @@ public class WadoRS {
         }
     }
 
-    private Output dicomOrBulkdata() {
-        checkMultipartRelatedAcceptable();
+    private Output dicomOrBulkdataOrZIP() {
+        initAcceptableMediaTypes();
+        if (acceptableMultipartRelatedMediaTypes.isEmpty() && acceptableZipTransferSyntaxes.isEmpty()) {
+            throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+        }
         return selectMediaType(acceptableMultipartRelatedMediaTypes, MediaTypes.APPLICATION_DICOM_TYPE).isPresent()
                 ? Output.DICOM
-                : Output.BULKDATA;
+                : acceptableZipTransferSyntaxes.isEmpty() ? Output.BULKDATA : Output.ZIP;
     }
 
     private Output metadataJSONorXML() {
@@ -341,7 +357,9 @@ public class WadoRS {
 
     private static Optional<MediaType> selectMediaType(List<MediaType> list, MediaType... mediaTypes) {
         return list.stream()
-                .filter(entry -> Stream.of(mediaTypes).anyMatch(mediaType -> mediaType.isCompatible(entry)))
+                .map(entry -> Stream.of(mediaTypes).filter(mediaType -> mediaType.isCompatible(entry)).findFirst())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .findFirst();
     }
 
@@ -419,8 +437,8 @@ public class WadoRS {
         });
         responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
         Object entity = output.entity(this, ctx, frameList, attributePath);
-        ar.resume(Response.status(responseStatus).lastModified(lastModified)
-                .tag(String.valueOf(lastModified.hashCode())).entity(entity).build());
+        ar.resume(output.adjustType(Response.status(responseStatus).lastModified(lastModified)
+                .tag(String.valueOf(lastModified.hashCode())).entity(entity)).build());
     }
 
     private Response.ResponseBuilder evaluatePreConditions(Date lastModified) {
@@ -445,6 +463,22 @@ public class WadoRS {
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
                                    InstanceLocations inst, int[] frameList, int[] attributePath) {
                 wadoRS.writeDICOM(output, ctx, inst);
+            }
+        },
+        ZIP {
+            @Override
+            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx) {
+                return Collections.EMPTY_LIST;
+            }
+            @Override
+            public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
+                return wadoRS.writeZIP(ctx);
+            }
+
+            @Override
+            public Response.ResponseBuilder adjustType(Response.ResponseBuilder builder) {
+                builder.type(MediaTypes.APPLICATION_ZIP_TYPE);
+                return builder;
             }
         },
         BULKDATA {
@@ -518,6 +552,12 @@ public class WadoRS {
             public boolean isMetadata() {
                 return true;
             }
+
+            @Override
+            public Response.ResponseBuilder adjustType(Response.ResponseBuilder builder) {
+                builder.type(MediaTypes.APPLICATION_DICOM_JSON_TYPE);
+                return builder;
+            }
         };
 
         public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath)
@@ -576,6 +616,10 @@ public class WadoRS {
 
         public boolean isMetadata() {
             return false;
+        }
+
+        public Response.ResponseBuilder adjustType(Response.ResponseBuilder builder) {
+            return builder;
         }
     }
 
@@ -731,6 +775,49 @@ public class WadoRS {
     private void writeDICOM(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst)  {
         DicomObjectOutput entity = new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes);
         output.addPart(entity, MediaTypes.APPLICATION_DICOM_TYPE);
+    }
+
+    private Object writeZIP(RetrieveContext ctx) {
+        AttributesFormat pathFormat = new AttributesFormat(
+                ctx.getLocalApplicationEntity().getAEExtensionNotNull(ArchiveAEExtension.class).wadoZIPEntryNameFormat());
+        final Collection<InstanceLocations> insts = ctx.getMatches();
+        return (StreamingOutput) out -> {
+            try {
+                Set<String> dirPaths = new HashSet<>();
+                ZipOutputStream zip = new ZipOutputStream(out);
+                for (InstanceLocations inst : insts) {
+                    String name = pathFormat.format(inst.getAttributes());
+                    addDirEntries(zip, name, dirPaths);
+                    zip.putNextEntry(new ZipEntry(name));
+                    new DicomObjectOutput(ctx, inst, acceptableZipTransferSyntaxes).write(zip);
+                    zip.closeEntry();
+                }
+                zip.finish();
+                zip.flush();
+            } catch (Exception e) {
+                throw new WebApplicationException(errResponseAsTextPlain(e));
+            }
+        };
+    }
+
+    private void addDirEntries(ZipOutputStream zip, String name, Set<String> added) throws IOException {
+        try {
+            IntStream.range(0, name.length())
+                    .filter(i -> name.charAt(i) == '/')
+                    .mapToObj(i -> name.substring(0, i + 1))
+                    .filter(dirPath -> added.add(dirPath))
+                    .forEach(dirPath -> {
+                        try {
+                            zip.putNextEntry(new ZipEntry(dirPath));
+                            zip.closeEntry();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof IOException)
+                throw (IOException) e.getCause();
+        }
     }
 
     private void writeMetadataXML(MultipartRelatedOutput output, final RetrieveContext ctx,

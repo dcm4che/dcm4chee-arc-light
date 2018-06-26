@@ -71,6 +71,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean personNameComponentOrderInsensitiveMatching;
     private Boolean sendPendingCGet;
     private Duration sendPendingCMoveInterval;
+    private String wadoZIPEntryNameFormat;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
     private String[] mppsForwardDestinations = {};
@@ -322,6 +323,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getSendPendingCMoveInterval();
     }
 
+    public String getWadoZIPEntryNameFormat() {
+        return wadoZIPEntryNameFormat;
+    }
+
+    public void setWadoZIPEntryNameFormat(String wadoZIPEntryNameFormat) {
+        this.wadoZIPEntryNameFormat = wadoZIPEntryNameFormat;
+    }
+
+    public String wadoZIPEntryNameFormat() {
+        return wadoZIPEntryNameFormat != null
+                ? wadoZIPEntryNameFormat
+                : getArchiveDeviceExtension().getWadoZIPEntryNameFormat();
+    }
+
     public String getWadoSR2HtmlTemplateURI() {
         return wadoSR2HtmlTemplateURI;
     }
@@ -330,12 +345,12 @@ public class ArchiveAEExtension extends AEExtension {
         this.wadoSR2HtmlTemplateURI = wadoSR2HtmlTemplateURI;
     }
 
-
     public String wadoSR2HtmlTemplateURI() {
         return wadoSR2HtmlTemplateURI != null
                 ? wadoSR2HtmlTemplateURI
                 : getArchiveDeviceExtension().getWadoSR2HtmlTemplateURI();
     }
+
     public String getWadoSR2TextTemplateURI() {
         return wadoSR2TextTemplateURI;
     }

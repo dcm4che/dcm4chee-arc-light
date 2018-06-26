@@ -50,11 +50,11 @@ import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.store.InstanceLocations;
-import org.dcm4chee.arc.xdsi.*;
-import org.dcm4chee.arc.xdsi.RetrieveDocumentSetRequestType.DocumentRequest;
-import org.dcm4chee.arc.xdsi.RetrieveDocumentSetResponseType.DocumentResponse;
-import org.dcm4chee.arc.xdsi.RetrieveRenderedImagingDocumentSetRequestType.StudyRequest.SeriesRequest.RenderedDocumentRequest;
-import org.dcm4chee.arc.xdsi.RetrieveRenderedImagingDocumentSetResponseType.RenderedDocumentResponse;
+import org.dcm4che3.xdsi.*;
+import org.dcm4che3.xdsi.RetrieveDocumentSetRequestType.DocumentRequest;
+import org.dcm4che3.xdsi.RetrieveDocumentSetResponseType.DocumentResponse;
+import org.dcm4che3.xdsi.RetrieveRenderedImagingDocumentSetRequestType.StudyRequest.SeriesRequest.RenderedDocumentRequest;
+import org.dcm4che3.xdsi.RetrieveRenderedImagingDocumentSetResponseType.RenderedDocumentResponse;
 
 import javax.activation.DataHandler;
 import javax.enterprise.event.Event;
@@ -73,7 +73,7 @@ import javax.xml.ws.soap.SOAPBinding;
 import java.util.*;
 import java.util.function.IntPredicate;
 
-import static org.dcm4chee.arc.xdsi.XDSConstants.*;
+import static org.dcm4che3.xdsi.XDSConstants.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -82,7 +82,7 @@ import static org.dcm4chee.arc.xdsi.XDSConstants.*;
 @MTOM
 @BindingType(value = SOAPBinding.SOAP12HTTP_MTOM_BINDING)
 @Addressing(required=true)
-@WebService(endpointInterface="org.dcm4chee.arc.xdsi.ImagingDocumentSourcePortType",
+@WebService(endpointInterface="org.dcm4che3.xdsi.ImagingDocumentSourcePortType",
         name="ImagingDocumentSource",
         serviceName="ImagingDocumentSource",
         portName="ImagingDocumentSource_Port_Soap12",

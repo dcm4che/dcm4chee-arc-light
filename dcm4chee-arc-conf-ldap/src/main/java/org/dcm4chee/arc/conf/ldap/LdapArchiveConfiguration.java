@@ -111,6 +111,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPLeadingCFindSCP", ext.getFallbackCMoveSCPLeadingCFindSCP(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoZIPEntryNameFormat",
+                ext.getWadoZIPEntryNameFormat(), ArchiveDeviceExtension.DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PatientUpdateTemplateURI", ext.getPatientUpdateTemplateURI(), null);
@@ -231,6 +233,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectionNoteStorageAET",
                 ext.getRejectionNoteStorageAET(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmXRoadProperty", toStrings(ext.getXRoadProperties()));
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmImpaxReportProperty", toStrings(ext.getImpaxReportProperties()));
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUIConfigurationDeviceName",
                 ext.getUiConfigurationDeviceName(), null);
     }
@@ -269,6 +272,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setFallbackCMoveSCPRetries(LdapUtils.intValue(attrs.get("dcmFallbackCMoveSCPRetries"), 0));
         ext.setFallbackCMoveSCPLeadingCFindSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPLeadingCFindSCP"), null));
         ext.setAlternativeCMoveSCP(LdapUtils.stringValue(attrs.get("dcmAltCMoveSCP"), null));
+        ext.setWadoZIPEntryNameFormat(
+                LdapUtils.stringValue(attrs.get("dcmWadoZIPEntryNameFormat"), ArchiveDeviceExtension.DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT));
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
         ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
@@ -388,6 +393,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setRejectionNoteStorageAET(LdapUtils.stringValue(
                 attrs.get("dcmRejectionNoteStorageAET"), null));
         ext.setXRoadProperties(LdapUtils.stringArray(attrs.get("dcmXRoadProperty")));
+        ext.setImpaxReportProperties(LdapUtils.stringArray(attrs.get("dcmImpaxReportProperty")));
         ext.setUiConfigurationDeviceName(LdapUtils.stringValue(
                 attrs.get("dcmUIConfigurationDeviceName"), null));
     }
@@ -460,6 +466,10 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCPLeadingCFindSCP",
                 aa.getFallbackCMoveSCPLeadingCFindSCP(), bb.getFallbackCMoveSCPLeadingCFindSCP(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAltCMoveSCP", aa.getAlternativeCMoveSCP(), bb.getAlternativeCMoveSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoZIPEntryNameFormat",
+                aa.getWadoZIPEntryNameFormat(),
+                bb.getWadoZIPEntryNameFormat(),
+                ArchiveDeviceExtension.DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoSR2HtmlTemplateURI",
                 aa.getWadoSR2HtmlTemplateURI(), bb.getWadoSR2HtmlTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoSR2TextTemplateURI",
@@ -660,6 +670,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getRejectionNoteStorageAET(), bb.getRejectionNoteStorageAET(),
                 null);
         storeDiffProperties(ldapObj, mods, "dcmXRoadProperty", aa.getXRoadProperties(), bb.getXRoadProperties());
+        storeDiffProperties(ldapObj, mods, "dcmImpaxReportProperty",
+                aa.getImpaxReportProperties(), bb.getImpaxReportProperties());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUIConfigurationDeviceName",
                 aa.getUiConfigurationDeviceName(), bb.getUiConfigurationDeviceName(),
                 null);
@@ -787,6 +799,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNull(ldapObj, attrs, "dcmFallbackCMoveSCPRetries", ext.getFallbackCMoveSCPRetries());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmFallbackCMoveSCPLeadingCFindSCP", ext.getFallbackCMoveSCPLeadingCFindSCP(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAltCMoveSCP", ext.getAlternativeCMoveSCP(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoZIPEntryNameFormat", ext.getWadoZIPEntryNameFormat(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSR2HtmlTemplateURI", ext.getWadoSR2HtmlTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoSR2TextTemplateURI", ext.getWadoSR2TextTemplateURI(), null);
         LdapUtils.storeNotNull(ldapObj, attrs, "dcmQueryMaxNumberOfResults", ext.getQueryMaxNumberOfResults());
@@ -857,6 +870,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setFallbackCMoveSCPRetries(LdapUtils.intValue(attrs.get("dcmFallbackCMoveSCPRetries"), null));
         ext.setFallbackCMoveSCPLeadingCFindSCP(LdapUtils.stringValue(attrs.get("dcmFallbackCMoveSCPLeadingCFindSCP"), null));
         ext.setAlternativeCMoveSCP(LdapUtils.stringValue(attrs.get("dcmAltCMoveSCP"), null));
+        ext.setWadoZIPEntryNameFormat(LdapUtils.stringValue(attrs.get("dcmWadoZIPEntryNameFormat"), null));
         ext.setWadoSR2HtmlTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2HtmlTemplateURI"), null));
         ext.setWadoSR2TextTemplateURI(LdapUtils.stringValue(attrs.get("dcmWadoSR2TextTemplateURI"), null));
         ext.setQueryMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQueryMaxNumberOfResults"), null));
@@ -952,6 +966,8 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmFallbackCMoveSCPLeadingCFindSCP",
                 aa.getFallbackCMoveSCPLeadingCFindSCP(), bb.getFallbackCMoveSCPLeadingCFindSCP(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAltCMoveSCP", aa.getAlternativeCMoveSCP(), bb.getAlternativeCMoveSCP(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoZIPEntryNameFormat",
+                aa.getWadoZIPEntryNameFormat(), bb.getWadoZIPEntryNameFormat(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoSR2HtmlTemplateURI",
                 aa.getWadoSR2HtmlTemplateURI(), bb.getWadoSR2HtmlTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoSR2TextTemplateURI",
@@ -1366,6 +1382,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.getInstanceAvailability(), Availability.ONLINE);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmReadOnly", descriptor.isReadOnly(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoDeletionConstraint", descriptor.isNoDeletionConstraint(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageClusterID", descriptor.getStorageClusterID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageThreshold", descriptor.getStorageThreshold(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmDeleterThreshold", descriptor.getDeleterThresholdsAsStrings());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", toStrings(descriptor.getProperties()));
@@ -1399,6 +1416,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), Availability.ONLINE));
                 desc.setReadOnly(LdapUtils.booleanValue(attrs.get("dcmReadOnly"), false));
                 desc.setNoDeletionConstraint(LdapUtils.booleanValue(attrs.get("dcmNoDeletionConstraint"), false));
+                desc.setStorageClusterID(LdapUtils.stringValue(attrs.get("dcmStorageClusterID"), null));
                 desc.setStorageThreshold(toStorageThreshold(attrs.get("dcmStorageThreshold")));
                 desc.setDeleterThresholdsFromStrings(LdapUtils.stringArray(attrs.get("dcmDeleterThreshold")));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
@@ -1451,18 +1469,26 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
 
     private List<ModificationItem> storeDiffs(ConfigurationChanges.ModifiedObject ldapObj, StorageDescriptor prev, StorageDescriptor desc,
                                               List<ModificationItem> mods) {
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI", prev.getStorageURIStr(), desc.getStorageURIStr(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDigestAlgorithm", prev.getDigestAlgorithm(), desc.getDigestAlgorithm(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI",
+                prev.getStorageURIStr(), desc.getStorageURIStr(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDigestAlgorithm",
+                prev.getDigestAlgorithm(), desc.getDigestAlgorithm(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInstanceAvailability",
                 prev.getInstanceAvailability(), desc.getInstanceAvailability(), Availability.ONLINE);
         LdapUtils.storeDiff(ldapObj, mods, "dcmReadOnly", prev.isReadOnly(), desc.isReadOnly(), false);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmNoDeletionConstraint", prev.isNoDeletionConstraint(), desc.isNoDeletionConstraint(), false);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageThreshold", prev.getStorageThreshold(), desc.getStorageThreshold(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmNoDeletionConstraint",
+                prev.isNoDeletionConstraint(), desc.isNoDeletionConstraint(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageClusterID",
+                prev.getStorageClusterID(), desc.getStorageClusterID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageThreshold",
+                prev.getStorageThreshold(), desc.getStorageThreshold(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThreshold",
                 prev.getDeleterThresholdsAsStrings(), desc.getDeleterThresholdsAsStrings());
         storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalRetrieveAET", prev.getExternalRetrieveAETitle(), desc.getExternalRetrieveAETitle(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExportStorageID", prev.getExportStorageID(), desc.getExportStorageID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExternalRetrieveAET",
+                prev.getExternalRetrieveAETitle(), desc.getExternalRetrieveAETitle(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmExportStorageID",
+                prev.getExportStorageID(), desc.getExportStorageID(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRetrieveCacheStorageID",
                 prev.getRetrieveCacheStorageID(), desc.getRetrieveCacheStorageID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmRetrieveCacheMaxParallel",

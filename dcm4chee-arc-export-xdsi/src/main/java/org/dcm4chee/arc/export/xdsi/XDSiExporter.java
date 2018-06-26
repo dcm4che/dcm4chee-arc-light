@@ -54,7 +54,7 @@ import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.QueryService;
-import org.dcm4chee.arc.xdsi.*;
+import org.dcm4che3.xdsi.*;
 
 import javax.enterprise.event.Event;
 import javax.xml.bind.JAXBElement;
@@ -65,7 +65,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
-import static org.dcm4chee.arc.xdsi.XDSConstants.*;
+import static org.dcm4che3.xdsi.XDSConstants.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>

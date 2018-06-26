@@ -85,6 +85,7 @@ public class QueryDeviceName {
             writer.writeNotNullOrDef("dicomDeviceName", device.getDeviceName(), null);
             if (arcDev != null) {
                 writer.writeNotNullOrDef("xRoad", arcDev.hasXRoadProperties(), false);
+                writer.writeNotNullOrDef("impaxReport", arcDev.hasImpaxReportProperties(), false);
                 writer.writeNotNullOrDef("UIConfigurationDeviceName", arcDev.getUiConfigurationDeviceName(), null);
             }
             gen.writeEnd();

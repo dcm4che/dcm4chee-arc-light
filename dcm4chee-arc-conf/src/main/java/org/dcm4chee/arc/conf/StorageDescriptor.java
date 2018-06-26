@@ -18,6 +18,7 @@ public final class StorageDescriptor {
     private URI storageURI;
     private String digestAlgorithm;
     private Availability instanceAvailability = Availability.ONLINE;
+    private String storageClusterID;
     private String exportStorageID;
     private String retrieveCacheStorageID;
     private int retrieveCacheStorageMaxParallel = 10;
@@ -210,4 +211,13 @@ public final class StorageDescriptor {
         }
         return storageIDs;
     }
+
+    public String getStorageClusterID() {
+        return storageClusterID;
+    }
+
+    public void setStorageClusterID(String storageClusterID) {
+        this.storageClusterID = storageClusterID;
+    }
+
 }

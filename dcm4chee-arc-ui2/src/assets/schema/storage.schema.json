@@ -47,6 +47,11 @@
       "type": "boolean",
       "default": false
     },
+    "dcmStorageClusterID": {
+      "title": "Storage Cluster ID",
+      "description": "Identifies a Storage to belong to a Storage Cluster. Objects of one Study may be distributed over Storage Systems of one Storage Cluster. Used by threshold triggered deletion.",
+      "type": "string"
+    },
     "dcmStorageThreshold": {
       "title": "Storage Threshold",
       "description": "Minimal Usable Space on Storage System. If the usable space fall below that value the Storage System will be removed from the list of configured Storage Systems of the Network AE requesting that Storage System. Format nnn(MB|GB|MiB|GiB)",
