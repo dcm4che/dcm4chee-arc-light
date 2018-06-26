@@ -48,7 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.jms.ObjectMessage;
 import java.io.Serializable;
@@ -65,9 +64,6 @@ public class QueueManagerImpl implements QueueManager {
 
     @Inject
     private QueueManagerEJB ejb;
-
-    @Inject
-    private Event<MessageCanceled> messageCanceledEvent;
 
     @Override
     public ObjectMessage createObjectMessage(Serializable object) {
@@ -116,11 +112,7 @@ public class QueueManagerImpl implements QueueManager {
 
     @Override
     public boolean cancelTask(String msgId, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        if (!ejb.cancelTask(msgId, queueEvent))
-            return false;
-
-        messageCanceledEvent.fire(new MessageCanceled(msgId));
-        return true;
+        return ejb.cancelTask(msgId, queueEvent);
     }
 
     @Override

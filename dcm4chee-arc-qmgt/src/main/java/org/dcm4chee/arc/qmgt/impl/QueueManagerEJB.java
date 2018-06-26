@@ -227,6 +227,7 @@ public class QueueManagerEJB {
         if (entity.getDiffTask() != null)
             entity.getDiffTask().setUpdatedTime();
         LOG.info("Cancel processing of Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
+        messageCanceledEvent.fire(new MessageCanceled(entity.getMessageID()));
     }
 
     public long cancelTasks(Predicate matchQueueMessage) {
@@ -354,7 +355,6 @@ public class QueueManagerEJB {
             case SCHEDULED:
             case IN_PROCESS:
                 cancelTask(entity);
-                messageCanceledEvent.fire(new MessageCanceled(entity.getMessageID()));
         }
         if (queueName != null)
             entity.setQueueName(queueName);
