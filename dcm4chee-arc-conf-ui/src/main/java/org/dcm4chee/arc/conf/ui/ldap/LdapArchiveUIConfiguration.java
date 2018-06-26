@@ -277,6 +277,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiCompareSideDescription", uiCompareSide.getDescription(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiCompareSideCluster", uiCompareSide.getCluster(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiCompareSideElasticsearch", uiCompareSide.getElasticsearch(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmuiCompareSideQueueName", uiCompareSide.getQueueName(), null);
         LdapUtils.storeNotDef(ldapObj,attrs,"dcmuiCompareSideInstalled",uiCompareSide.isInstalled(),true);
         return attrs;
     }
@@ -475,6 +476,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 uiCompareSide.setDescription(LdapUtils.stringValue(attrs.get("dcmuiCompareSideDescription"), null));
                 uiCompareSide.setCluster(LdapUtils.stringValue(attrs.get("dcmuiCompareSideCluster"), null));
                 uiCompareSide.setElasticsearch(LdapUtils.stringValue(attrs.get("dcmuiCompareSideElasticsearch"), null));
+                uiCompareSide.setQueueName(LdapUtils.stringValue(attrs.get("dcmuiCompareSideQueueName"), null));
                 uiCompareSide.setInstalled(LdapUtils.booleanValue(attrs.get("dcmuiCompareSideInstalled"),true));
                 uiDashboardConfig.addCompareSide(uiCompareSide);
             }
@@ -674,8 +676,11 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                                 uiDashboardConfig, new BasicAttributes(true)));
                 storeCompareSides(diffs, dn, uiDashboardConfig);
             } else {
-                config.modifyAttributes(dn, storeUIDashboardConfig(diffs, dn, prevUIDashboardConfig, uiDashboardConfig,
-                        new ArrayList<ModificationItem>()));
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+          //TODO
+
+                config.modifyAttributes(dn, storeDiffs(diffs, dn, ldapObj,prevUIDashboardConfig,uiDashboardConfig,new ArrayList<ModificationItem>()));
             }
         }
     }
@@ -831,12 +836,15 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiCompareSideElasticsearch",
                 prev.getElasticsearch(),
                 uiCompareSide.getElasticsearch(),null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmuiCompareSideQueueName",
+                prev.getQueueName(),
+                uiCompareSide.getQueueName(),null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiCompareSideInstalled",
                 prev.isInstalled(),
                 uiCompareSide.isInstalled(), true) ;
         return mods;
     }
-    private List<ModificationItem> storeDiffs(ConfigurationChanges diffs, String uiDashboardConfigDN, ConfigurationChanges.ModifiedObject ldapObj, UIDashboardConfig prev,
+    private List<ModificationItem> storeDiffs(ConfigurationChanges diffs,String dn, ConfigurationChanges.ModifiedObject ldapObj, UIDashboardConfig prev,
                                               UIDashboardConfig uiDashboardConfig, ArrayList<ModificationItem> mods)throws NamingException{
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiQueueName",
                 prev.getQueueNames(),
@@ -850,6 +858,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiffObject(ldapObj, mods,"dcmuiCountAET",
                 prev.getCountAet(),
                 uiDashboardConfig.getCountAet(), null);
+        mergeUICompareSide(diffs, prev, uiDashboardConfig, dn);
         return mods;
     }
 
