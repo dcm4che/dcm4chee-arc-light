@@ -133,8 +133,11 @@ public class ArchiveDeviceConfigurationTest {
 
     private void cleanUp() throws Exception {
         config.unregisterAETitle("DCM4CHEE");
-        config.unregisterAETitle("DCM4CHEE_ADMIN");
-        config.unregisterAETitle("DCM4CHEE_TRASH");
+        config.unregisterAETitle("IOCM_REGULAR_USE");
+        config.unregisterAETitle("IOCM_EXPIRED");
+        config.unregisterAETitle("IOCM_QUALITY");
+        config.unregisterAETitle("IOCM_PAT_SAFETY");
+        config.unregisterAETitle("IOCM_WRONG_MWL");
         config.unregisterAETitle("SCHEDULEDSTATION");
         hl7Config.unregisterHL7Application("HL7RCV|DCM4CHEE");
         for (String aet : ArchiveDeviceFactory.OTHER_AES)

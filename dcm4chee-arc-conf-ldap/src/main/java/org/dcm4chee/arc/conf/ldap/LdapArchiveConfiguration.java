@@ -1391,7 +1391,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRetrieveCacheStorageID",
                 descriptor.getRetrieveCacheStorageID(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRetrieveCacheMaxParallel",
-                descriptor.getRetrieveCacheMaxParallel(), 100);
+                descriptor.getRetrieveCacheMaxParallel(), 10);
         return attrs;
     }
 

@@ -816,7 +816,7 @@ class ArchiveDeviceFactory {
             new Code("110514", "DCM", null, "Incorrect worklist entry selected");
     static final Code REJECTED_FOR_QUALITY_REASONS =
             new Code("113001", "DCM", null, "Rejected for Quality Reasons");
-    static final Code REJECT_FOR_PATIENT_SAFETY_REASONS =
+    static final Code REJECTED_FOR_PATIENT_SAFETY_REASONS =
             new Code("113037", "DCM", null, "Rejected for Patient Safety Reasons");
     static final Code INCORRECT_MODALITY_WORKLIST_ENTRY =
             new Code("113038", "DCM", null, "Incorrect Modality Worklist Entry");
@@ -826,7 +826,7 @@ class ArchiveDeviceFactory {
             new Code("REVOKE_REJECTION", "99DCM4CHEE", null, "Restore rejected Instances");
     static final Code[] REJECTION_CODES = {
             REJECTED_FOR_QUALITY_REASONS,
-            REJECT_FOR_PATIENT_SAFETY_REASONS,
+            REJECTED_FOR_PATIENT_SAFETY_REASONS,
             INCORRECT_MODALITY_WORKLIST_ENTRY,
             DATA_RETENTION_POLICY_EXPIRED
     };
@@ -841,22 +841,22 @@ class ArchiveDeviceFactory {
                     new Code[]{DATA_RETENTION_POLICY_EXPIRED},
                     false);
     static final QueryRetrieveView IOCM_EXPIRED_VIEW =
-            createQueryRetrieveView("iocmExpiredView",
+            createQueryRetrieveView("dataRetentionPolicyExpired",
                     new Code[]{DATA_RETENTION_POLICY_EXPIRED},
                     new Code[0],
                     true);
     static final QueryRetrieveView IOCM_QUALITY_VIEW =
-            createQueryRetrieveView("iocmQualityView",
+            createQueryRetrieveView("rejectedForQualityReasons",
                     new Code[]{REJECTED_FOR_QUALITY_REASONS},
                     new Code[0],
                     true);
-    static final QueryRetrieveView IOCM_PATSAFETY_VIEW =
-            createQueryRetrieveView("iocmPatientSafetyView",
-                    new Code[]{REJECT_FOR_PATIENT_SAFETY_REASONS},
+    static final QueryRetrieveView IOCM_PAT_SAFETY_VIEW =
+            createQueryRetrieveView("rejectedForPatientSafetyReasons",
+                    new Code[]{REJECTED_FOR_PATIENT_SAFETY_REASONS},
                     new Code[0],
                     true);
-    static final QueryRetrieveView IOCM_WRONGWKLST_VIEW =
-            createQueryRetrieveView("iocmWrongWorklistView",
+    static final QueryRetrieveView IOCM_WRONG_MWL_VIEW =
+            createQueryRetrieveView("incorrectModalityWorklistEntry",
                     new Code[]{INCORRECT_MODALITY_WORKLIST_ENTRY},
                     new Code[0],
                     true);
@@ -1262,10 +1262,10 @@ class ArchiveDeviceFactory {
                 dicom, dicomTLS, IOCM_EXPIRED_VIEW, false, false, false, configType, USER_AND_ADMIN));
         device.addApplicationEntity(createAE("IOCM_QUALITY", "Only show instances rejected for Quality Reasons",
                 dicom, dicomTLS, IOCM_QUALITY_VIEW, false, false, false, configType, ONLY_ADMIN));
-        device.addApplicationEntity(createAE("IOCM_PATSAFETY", "Only show instances rejected for Patient Safety",
-                dicom, dicomTLS, IOCM_PATSAFETY_VIEW, false, false, false, configType, ONLY_ADMIN));
-        device.addApplicationEntity(createAE("IOCM_WRONGWKLST", "Only show instances rejected for Incorrect Modality Worklist Entries",
-                dicom, dicomTLS, IOCM_WRONGWKLST_VIEW, false, false, false, configType, ONLY_ADMIN));
+        device.addApplicationEntity(createAE("IOCM_PAT_SAFETY", "Only show instances rejected for Patient Safety Reasons",
+                dicom, dicomTLS, IOCM_PAT_SAFETY_VIEW, false, false, false, configType, ONLY_ADMIN));
+        device.addApplicationEntity(createAE("IOCM_WRONG_MWL", "Only show instances rejected for Incorrect Modality Worklist Entry",
+                dicom, dicomTLS, IOCM_WRONG_MWL_VIEW, false, false, false, configType, ONLY_ADMIN));
 
 
         device.addWebApplication(createWebApp("DCM4CHEE-RS", "Hide instances rejected for Quality Reasons",
@@ -1401,9 +1401,9 @@ class ArchiveDeviceFactory {
         ext.addQueryRetrieveView(HIDE_REJECTED_VIEW);
         ext.addQueryRetrieveView(REGULAR_USE_VIEW);
         ext.addQueryRetrieveView(IOCM_EXPIRED_VIEW);
-        ext.addQueryRetrieveView(IOCM_PATSAFETY_VIEW);
+        ext.addQueryRetrieveView(IOCM_PAT_SAFETY_VIEW);
         ext.addQueryRetrieveView(IOCM_QUALITY_VIEW);
-        ext.addQueryRetrieveView(IOCM_WRONGWKLST_VIEW);
+        ext.addQueryRetrieveView(IOCM_WRONG_MWL_VIEW);
         ext.setLinkMWLEntryUpdatePolicy(LINK_MWL_ENTRY_UPDATE_POLICY);
 
         ext.setSendPendingCGet(SEND_PENDING_C_GET);
@@ -1512,19 +1512,19 @@ class ArchiveDeviceFactory {
                 RejectionNote.AcceptPreviousRejectedInstance.IGNORE));
         ext.addRejectionNote(createRejectionNote("Patient Safety",
                 RejectionNote.Type.REJECTED_FOR_PATIENT_SAFETY_REASONS,
-                REJECT_FOR_PATIENT_SAFETY_REASONS,
+                REJECTED_FOR_PATIENT_SAFETY_REASONS,
                 RejectionNote.AcceptPreviousRejectedInstance.REJECT,
                 REJECTED_FOR_QUALITY_REASONS));
         ext.addRejectionNote(createRejectionNote("Incorrect MWL Entry",
                 RejectionNote.Type.INCORRECT_MODALITY_WORKLIST_ENTRY,
                 INCORRECT_MODALITY_WORKLIST_ENTRY,
                 RejectionNote.AcceptPreviousRejectedInstance.REJECT,
-                REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS));
+                REJECTED_FOR_QUALITY_REASONS, REJECTED_FOR_PATIENT_SAFETY_REASONS));
         RejectionNote retentionExpired = createRejectionNote("Retention Expired",
                 RejectionNote.Type.DATA_RETENTION_POLICY_EXPIRED,
                 DATA_RETENTION_POLICY_EXPIRED,
                 RejectionNote.AcceptPreviousRejectedInstance.RESTORE,
-                REJECTED_FOR_QUALITY_REASONS, REJECT_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY);
+                REJECTED_FOR_QUALITY_REASONS, REJECTED_FOR_PATIENT_SAFETY_REASONS, INCORRECT_MODALITY_WORKLIST_ENTRY);
         retentionExpired.setDeleteRejectedInstanceDelay(DELETE_REJECTED_INSTANCE_DELAY);
         retentionExpired.setDeleteRejectionNoteDelay(DELETE_REJECTED_INSTANCE_DELAY);
         ext.addRejectionNote(retentionExpired);
