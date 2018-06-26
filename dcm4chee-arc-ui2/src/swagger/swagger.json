@@ -9302,6 +9302,12 @@
             "type": "string"
           },
           {
+            "name": "dcmStorageClusterID",
+            "in": "query",
+            "description": "only return Storage Systems belonging to a particular Storage Cluster",
+            "type": "string"
+          },
+          {
             "name": "usage",
             "in": "query",
             "description": "only return Storage Systems used for the specified content",
