@@ -63,10 +63,10 @@ import java.util.Date;
                 query = "select l from Location l where l.instance.series.study.pk=?1"),
         @NamedQuery(name = Location.FIND_BY_SERIES_PK,
                 query = "select l from Location l where l.instance.series.pk=?1"),
-        @NamedQuery(name = Location.FIND_BY_STUDY_PK_AND_STORAGE_ID,
-                query = "select l from Location l where l.instance.series.study.pk=?1 and l.storageID=?2"),
-        @NamedQuery(name = Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_ID,
-                query = "select l.instance.pk from Location l where l.instance.series.study.pk=?1 and l.storageID=?2"),
+        @NamedQuery(name = Location.FIND_BY_STUDY_PK_AND_STORAGE_IDS,
+                query = "select l from Location l where l.instance.series.study.pk=?1 and l.storageID in ?2"),
+        @NamedQuery(name = Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS,
+                query = "select l.instance.pk from Location l where l.instance.series.study.pk=?1 and l.storageID in ?2"),
         @NamedQuery(name = Location.FIND_BY_REJECTION_CODE,
                 query = "select l from Location l join l.instance i " +
                         "where i.rejectionNoteCode=?1 order by i.pk"),
@@ -97,8 +97,8 @@ public class Location {
     public static final String FIND_BY_STORAGE_ID_AND_STATUS = "Location.FindByStorageIDAndStatus";
     public static final String FIND_BY_STUDY_PK = "Location.FindByStudyPk";
     public static final String FIND_BY_SERIES_PK = "Location.FindBySeriesPk";
-    public static final String FIND_BY_STUDY_PK_AND_STORAGE_ID = "Location.FindByStudyPkAndStorageID";
-    public static final String INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_ID = "Location.InstancePksByStudyPkAndStorageID";
+    public static final String FIND_BY_STUDY_PK_AND_STORAGE_IDS = "Location.FindByStudyPkAndStorageIDs";
+    public static final String INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS = "Location.InstancePksByStudyPkAndStorageIDs";
     public static final String FIND_BY_REJECTION_CODE = "Location.FindByRejectionCode";
     public static final String FIND_BY_CONCEPT_NAME_CODE = "Location.FindByConceptNameCode";
     public static final String FIND_BY_REJECTION_CODE_BEFORE = "Location.FindByRejectionCodeBefore";

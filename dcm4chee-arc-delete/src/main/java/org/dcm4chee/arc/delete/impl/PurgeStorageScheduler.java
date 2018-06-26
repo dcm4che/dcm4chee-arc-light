@@ -47,7 +47,6 @@ import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.SafeClose;
-import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.BinaryPrefix;
@@ -186,16 +185,15 @@ public class PurgeStorageScheduler extends Scheduler {
 
     private List<Long> findStudiesForDeletion(StorageDescriptor desc, int fetchSize) {
         List<Long> studyPks = desc.getExternalRetrieveAETitle() != null
-                ? ejb.findStudiesForDeletionOnStorageWithExternalRetrieveAET(
-                        toStorageID(desc), desc.getExternalRetrieveAETitle(), fetchSize)
-                : ejb.findStudiesForDeletionOnStorage(toStorageID(desc), fetchSize);
+                ? ejb.findStudiesForDeletionOnStorageWithExternalRetrieveAET(desc, fetchSize)
+                : ejb.findStudiesForDeletionOnStorage(desc, fetchSize);
 
         String storageID = desc.getStorageID();
         String exportStorageID = desc.getExportStorageID();
         if (exportStorageID != null) {
             for (Iterator<Long> iter = studyPks.iterator(); iter.hasNext();) {
                 Long studyPk = iter.next();
-                int notStoredOnOtherStorage = ejb.instancesNotStoredOnOtherStorage(studyPk, storageID, exportStorageID);
+                int notStoredOnOtherStorage = ejb.instancesNotStoredOnExportStorage(studyPk, desc);
                 Map<String,Storage> storageMap = new HashMap<>();
                 List<Series> seriesWithPurgedInstances = null;
                 try {
@@ -238,15 +236,6 @@ public class PurgeStorageScheduler extends Scheduler {
             }
         }
         return studyPks;
-    }
-
-    private static String toStorageID(StorageDescriptor desc) {
-        if (desc.getExportStorageID() == null)
-            return desc.getStorageID();
-
-        String[] ss = { desc.getStorageID(), desc.getExportStorageID() };
-        Arrays.sort(ss);
-        return StringUtils.concat(ss, '\\');
     }
 
     private Storage getStorage(String storageID, Map<String,Storage> storageMap) {
@@ -326,7 +315,7 @@ public class PurgeStorageScheduler extends Scheduler {
             if (getPollingInterval() == null)
                 break;
             try {
-                Study study = ejb.deleteObjectsOfStudy(studyPk, desc.getStorageID());
+                Study study = ejb.deleteObjectsOfStudy(studyPk, desc);
                 removed++;
                 LOG.info("Successfully delete objects of {} on {}", study, desc);
             } catch (Exception e) {

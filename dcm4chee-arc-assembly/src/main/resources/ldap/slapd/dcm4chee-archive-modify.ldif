@@ -1069,6 +1069,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.215 NAME 'dcmWadoZIPEntryNameFormat'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.216 NAME 'dcmStorageClusterID'
+  DESC 'Identifies a Storage to belong to a Storage Cluster. Objects of one Study may be distributed over Storage Systems of one Storage Cluster. Used by threshold triggered deletion.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 -
 delete: olcObjectClasses
 -
@@ -1312,6 +1317,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.12 NAME 'dcmStorage'
     dcmDigestAlgorithm $
     dcmRetrieveAET $
     dcmInstanceAvailability $
+    dcmStorageClusterID $
     dcmStorageThreshold $
     dcmDeleterThreshold $
     dcmExternalRetrieveAET $

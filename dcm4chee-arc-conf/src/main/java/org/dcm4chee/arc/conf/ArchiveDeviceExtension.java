@@ -53,6 +53,7 @@ import org.dcm4che3.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -1295,6 +1296,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
             list.add(descriptor);
         }
         return list;
+    }
+
+    public Stream<String> getStorageIDsOfCluster(String clusterID) {
+        return storageDescriptorMap.values().stream()
+                .filter(desc -> clusterID.equals(desc.getStorageClusterID()))
+                .map(StorageDescriptor::getStorageID);
     }
 
     public QueueDescriptor getQueueDescriptor(String queueName) {
