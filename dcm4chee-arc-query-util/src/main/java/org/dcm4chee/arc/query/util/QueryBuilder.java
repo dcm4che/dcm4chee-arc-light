@@ -423,8 +423,9 @@ public class QueryBuilder {
                 builder.and(QSeries.series.completeness.ne(Completeness.COMPLETE));
             if (queryParam.isRetrieveFailed())
                 builder.and(QSeries.series.failedRetrieves.gt(0));
-            if (queryParam.getSendingApplicationEntityTitleOfSeries() != null)
-                builder.and(QSeries.series.sourceAET.eq(queryParam.getSendingApplicationEntityTitleOfSeries()));
+            builder.and(wildCard(QSeries.series.sourceAET,
+                    keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE, "*"),
+                    false));
         }
     }
 
@@ -683,9 +684,10 @@ public class QueryBuilder {
             .and(wildCard(QSeries.series.seriesDescription, keys.getString(Tag.SeriesDescription), true))
             .and(wildCard(QSeries.series.modality, keys.getString(Tag.ModalitiesInStudy, "*").toUpperCase(), false))
             .and(wildCard(QSeries.series.sopClassUID, keys.getString(Tag.SOPClassesInStudy, "*"), false))
-            .and(wildCard(QSeries.series.bodyPartExamined, keys.getString(Tag.BodyPartExamined, "*").toUpperCase(), false));
-        if (queryParam.getSendingApplicationEntityTitleOfSeries() != null)
-            result.and(wildCard(QSeries.series.sourceAET, queryParam.getSendingApplicationEntityTitleOfSeries().toUpperCase(), false));
+            .and(wildCard(QSeries.series.bodyPartExamined, keys.getString(Tag.BodyPartExamined, "*").toUpperCase(), false))
+            .and(wildCard(QSeries.series.sourceAET,
+                keys.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE, "*"),
+                    false));
         if (!result.hasValue())
             return null;
         return JPAExpressions.selectFrom(QSeries.series)

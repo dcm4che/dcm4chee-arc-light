@@ -92,7 +92,6 @@ public class QueryAttributes {
                 case "expired":
                 case "retrievefailed":
                 case "incomplete":
-                case "SendingApplicationEntityTitleOfSeries":
                 case "ExternalRetrieveAET":
                 case "ExternalRetrieveAET!":
                 case "only-stgcmt":
@@ -101,6 +100,10 @@ public class QueryAttributes {
                 case "queue":
                 case "SplitStudyDateRange":
                 case "ForceQueryByStudyUID":
+                    break;
+                case "SendingApplicationEntityTitleOfSeries":
+                    keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries, VR.AE,
+                            entry.getValue().toArray(StringUtils.EMPTY_STRING));
                     break;
                 case "StudyReceiveDateTime":
                     keys.setString(ArchiveTag.PrivateCreator, ArchiveTag.StudyReceiveDateTime, VR.DT,
