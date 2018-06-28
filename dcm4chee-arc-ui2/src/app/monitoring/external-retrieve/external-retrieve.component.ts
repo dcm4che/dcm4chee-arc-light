@@ -488,7 +488,8 @@ export class ExternalRetrieveComponent implements OnInit,OnDestroy {
             if(object.id === "count"){
                 this.getCount();
             }else{
-                this.getTasks(0);
+                // this.getTasks(0);
+                this.getCounts();
             }
         }
     }
