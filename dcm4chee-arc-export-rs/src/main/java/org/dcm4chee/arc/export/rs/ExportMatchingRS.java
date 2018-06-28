@@ -136,9 +136,6 @@ public class ExportMatchingRS {
     @Pattern(regexp = "true|false")
     private String retrievefailed;
 
-    @QueryParam("SendingApplicationEntityTitleOfSeries")
-    private String sendingApplicationEntityTitleOfSeries;
-
     @QueryParam("ExternalRetrieveAET")
     private String externalRetrieveAET;
 
@@ -329,7 +326,6 @@ public class ExportMatchingRS {
         queryParam.setExpired(Boolean.parseBoolean(expired));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
-        queryParam.setSendingApplicationEntityTitleOfSeries(sendingApplicationEntityTitleOfSeries);
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         return queryParam;
