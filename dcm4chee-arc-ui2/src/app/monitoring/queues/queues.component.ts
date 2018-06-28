@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
+import {Component, OnInit, ViewContainerRef, OnDestroy} from '@angular/core';
 import {Http} from '@angular/http';
 import {QueuesService} from './queues.service';
 import {AppService} from '../../app.service';
@@ -18,7 +18,7 @@ import {ActivatedRoute} from "@angular/router";
   selector: 'app-queues',
   templateUrl: './queues.component.html'
 })
-export class QueuesComponent implements OnInit{
+export class QueuesComponent implements OnInit, OnDestroy{
     matches = [];
     limit = 20;
     queues = [];
@@ -51,6 +51,24 @@ export class QueuesComponent implements OnInit{
     ];
     allActionsActive = [];
     urlParam;
+    statusValues = {};
+    refreshInterval;
+    interval = 10;
+    Object = Object;
+    tableHovered = false;
+    statuses = [
+        "SCHEDULED",
+        "IN PROCESS",
+        "COMPLETED",
+        "WARNING",
+        "FAILED",
+        "CANCELED"
+    ];
+    timer = {
+        started:false,
+        startText:"Start Auto Refresh",
+        stopText:"Stop Auto Refresh"
+    };
     constructor(
         public $http:J4careHttpService,
         public service: QueuesService,
@@ -178,6 +196,12 @@ export class QueuesComponent implements OnInit{
         this.initQuery();
         // this.before = new Date();
         let $this = this;
+        this.statuses.forEach(status =>{
+            this.statusValues[status] = {
+                count: 0,
+                loader: false
+            };
+        });
         if (!this.mainservice.user){
             // console.log("in if studies ajax");
             this.mainservice.user = this.mainservice.getUserInfo().share();
@@ -224,6 +248,40 @@ export class QueuesComponent implements OnInit{
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
         }
+    }
+    toggleAutoRefresh(){
+        this.timer.started = !this.timer.started;
+        if(this.timer.started){
+            this.getCounts();
+            this.refreshInterval = setInterval(()=>{
+                this.getCounts();
+            },this.interval*1000);
+        }else
+            clearInterval(this.refreshInterval);
+    }
+    tableMousEnter(){
+        this.tableHovered = true;
+    }
+    tableMousLeave(){
+        this.tableHovered = false;
+    }
+    getCounts(){
+        if(!this.tableHovered)
+            this.search(0);
+        Object.keys(this.statusValues).forEach(status=>{
+            this.statusValues[status].loader = true;
+            this.service.getCount(this.queueName, status, undefined, undefined, this.dicomDeviceName, this.createdTime,this.updatedTime, this.batchID, '').subscribe((count)=>{
+                this.statusValues[status].loader = false;
+                try{
+                    this.statusValues[status].count = count.count;
+                }catch (e){
+                    this.statusValues[status].count = "";
+                }
+            },(err)=>{
+                this.statusValues[status].loader = false;
+                this.statusValues[status].count = "!";
+            });
+        });
     }
     filterKeyUp(e){
         let code = (e.keyCode ? e.keyCode : e.which);
@@ -458,5 +516,10 @@ export class QueuesComponent implements OnInit{
             console.error("Could not get devices",err);
         });
     }
-
+    ngOnDestroy(){
+        if(this.timer.started){
+            this.timer.started = false;
+            clearInterval(this.refreshInterval);
+        }
+    }
 }
