@@ -302,6 +302,7 @@ public class StoreServiceEJB {
                 .size(attrs.getInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, -1))
                 .build();
         location.setInstance(inst);
+        inst.getLocations().add(location);
         em.persist(location);
         LOG.info("{}: Create {}", session, location);
     }
@@ -1209,6 +1210,7 @@ public class StoreServiceEJB {
     public void addLocation(StoreSession session, Long instancePk, Location location) {
         Instance instance = em.find(Instance.class, instancePk);
         location.setInstance(instance);
+        instance.getLocations().add(location);
         em.persist(location);
         LOG.info("{}: Create {}", session, location);
     }
