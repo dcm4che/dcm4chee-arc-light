@@ -3,7 +3,7 @@
  */
 import {
     Component, Input, ElementRef, ComponentFactoryResolver, ChangeDetectionStrategy,
-    ViewContainerRef, ChangeDetectorRef, HostListener
+    ViewContainerRef, ChangeDetectorRef, HostListener, OnDestroy
 } from '@angular/core';
 import {FormGroup, FormControl, FormArray, FormBuilder} from '@angular/forms';
 import {DynamicFormComponent} from './dynamic-form.component';
@@ -30,7 +30,7 @@ import {OrderByPipe} from "../../pipes/order-by.pipe";
     templateUrl: './dynamic-form-element.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DynamicFormElementComponent{
+export class DynamicFormElementComponent implements OnDestroy{
 
     @Input() formelement: FormElement<any>;
     @Input() formelements: FormElement<any>[];
@@ -562,5 +562,9 @@ export class DynamicFormElementComponent{
     }
     onMouseLeave(formelement){
         formelement.showPickerTooltipp = false;
+    }
+
+    ngOnDestroy(){
+        this.ref.detach();
     }
 }

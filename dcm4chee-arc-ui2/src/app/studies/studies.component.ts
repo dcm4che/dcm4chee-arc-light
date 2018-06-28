@@ -1599,6 +1599,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
         }, 50);
     }
+
     getHl7ApplicationNameFormAETtitle(aet){
         for(let i = 0; i < this.allAes.length; i++){
             if(aet === this.allAes[i].dicomAETitle){
@@ -2778,7 +2779,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
                     token = this.mainservice.global.authentication.token;
                 }
             }
-
             if(!this.mainservice.global.notSecure){
                 WindowRefService.nativeWindow.open(`${url}?${param}&access_token=${token}`);
             }else{
