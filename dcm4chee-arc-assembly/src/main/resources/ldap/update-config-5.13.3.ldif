@@ -320,27 +320,6 @@ dcmRelationalQueries: TRUE
 cn: Patient Study Only Query Retrieve Information Model - FIND (Retired) SCP
 dicomTransferSyntax: 1.2.840.10008.1.2
 
-dn: dcmWebAppName=IOCM_REGULAR_USE-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-changetype: add
-dicomDescription: Show instances rejected for Quality Reasons
-dcmWebServiceClass: WADO_RS
-dcmWebServiceClass: QIDO_RS
-objectClass: dcmWebApp
-dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomAETitle: IOCM_REGULAR_USE
-dcmWebAppName: IOCM_REGULAR_USE-RS
-dcmWebServicePath: /dcm4chee-arc/aets/IOCM_REGULAR_USE/rs
-
-dn: dcmWebAppName=IOCM_REGULAR_USE-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-changetype: add
-dicomDescription: Show instances rejected for Quality Reasons
-dcmWebServiceClass: WADO_URI
-objectClass: dcmWebApp
-dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-dicomAETitle: IOCM_REGULAR_USE
-dcmWebAppName: IOCM_REGULAR_USE-WADO
-dcmWebServicePath: /dcm4chee-arc/aets/IOCM_REGULAR_USE/wado
-
 dn: dicomAETitle=IOCM_EXPIRED,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 objectClass: dicomUniqueAETitle
@@ -361,16 +340,13 @@ changetype: add
 objectClass: dicomUniqueAETitle
 dicomAETitle: IOCM_PAT_SAFETY
 
-dn: dcmWebAppName=DCM4CHEE_ADMIN-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-changetype: delete
-
-dn: dcmWebAppName=DCM4CHEE_ADMIN-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmWebAppName=DCM4CHEE_TRASH-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: delete
 
 dn: dcmWebAppName=DCM4CHEE_TRASH-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: delete
 
-dcmQueryRetrieveViewID=trashView,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: dcmQueryRetrieveViewID=trashView,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: delete
 
 dn: cn=Verification SOP Class SCP,dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -393,3 +369,40 @@ changetype: delete
 
 dn: dicomAETitle=DCM4CHEE_TRASH,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: delete
+
+dn: dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modrdn
+newrdn: dicomAETitle=IOCM_REGULAR_USE
+deleteoldrdn: 1
+
+dn: dicomAETitle=DCM4CHEE_ADMIN,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modrdn
+newrdn: dicomAETitle=IOCM_REGULAR_USE
+deleteoldrdn: 1
+
+dn: dcmWebAppName=DCM4CHEE_ADMIN-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: dcmWebAppName=IOCM_REGULAR_USE-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Show instances rejected for Quality Reasons
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_REGULAR_USE
+dcmWebAppName: IOCM_REGULAR_USE-RS
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_REGULAR_USE/rs
+
+dn: dcmWebAppName=DCM4CHEE_ADMIN-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: dcmWebAppName=IOCM_REGULAR_USE-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Show instances rejected for Quality Reasons
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_REGULAR_USE
+dcmWebAppName: IOCM_REGULAR_USE-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_REGULAR_USE/wado
