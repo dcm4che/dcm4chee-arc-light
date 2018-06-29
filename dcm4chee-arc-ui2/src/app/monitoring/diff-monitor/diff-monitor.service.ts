@@ -4,6 +4,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {AppService} from "../../app.service";
 import {DatePipe} from "@angular/common";
+import {Router} from "@angular/router";
 
 @Injectable()
 export class DiffMonitorService {
@@ -12,7 +13,8 @@ export class DiffMonitorService {
         private deviceService: DevicesService,
         private mainservice:AppService,
         private $http:J4careHttpService,
-        private dataPipe:DatePipe
+        private dataPipe:DatePipe,
+        private router:Router
     ) { }
 
     statusValues(){
@@ -187,11 +189,28 @@ export class DiffMonitorService {
                             console.log("e",e);
                             e.showAttributes = !e.showAttributes;
                         }
+                    },
+                    {
+                        icon:{
+                            tag:'span',
+                            cssClass:'glyphicon glyphicon-eye-open',
+                            text:''
+                        },
+                        click:(e)=>{
+                            console.log("e",e);
+                            this.router.navigate(['./studies'],{
+                                queryParams:{
+                                    batchID:e.batchID,
+                                    pk:e.pk
+                                }
+                            })
+                            // e.showAttributes = !e.showAttributes;
+                        }
                     }
                 ],
                 description:"Index",
-                widthWeight:0.1,
-                calculatedWidth:"4%"
+                widthWeight:0.3,
+                calculatedWidth:"6%"
             },{
                 type:"model",
                 title:"Primary AET",
@@ -284,7 +303,7 @@ export class DiffMonitorService {
                 ],
                 description:"Index",
                 widthWeight:0.3,
-                calculatedWidth:"4%"
+                calculatedWidth:"6%"
             },{
                 type:"model",
                 title:"Batch ID",
