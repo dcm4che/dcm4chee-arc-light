@@ -190,7 +190,7 @@ export class DiffMonitorService {
                             e.showAttributes = !e.showAttributes;
                         }
                     },
-                    {
+/*                    {
                         icon:{
                             tag:'span',
                             cssClass:'glyphicon glyphicon-eye-open',
@@ -206,7 +206,7 @@ export class DiffMonitorService {
                             })
                             // e.showAttributes = !e.showAttributes;
                         }
-                    }
+                    }*/
                 ],
                 description:"Index",
                 widthWeight:0.3,
