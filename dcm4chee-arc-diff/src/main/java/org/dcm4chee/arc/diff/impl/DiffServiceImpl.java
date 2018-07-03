@@ -161,13 +161,13 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public String rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) {
-        return ejb.rescheduleDiffTask(pk, queueEvent);
+    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent, String newDeviceName) {
+        ejb.rescheduleDiffTask(pk, queueEvent, newDeviceName);
     }
 
     @Override
-    public List<Long> getDiffTaskPks(Predicate matchQueueMessage, Predicate matchDiffTask, int limit) {
-        return ejb.getDiffTaskPks(matchQueueMessage, matchDiffTask, limit);
+    public String findDeviceNameByPk(Long pk) {
+        return ejb.findDeviceNameByPk(pk);
     }
 
     @Override

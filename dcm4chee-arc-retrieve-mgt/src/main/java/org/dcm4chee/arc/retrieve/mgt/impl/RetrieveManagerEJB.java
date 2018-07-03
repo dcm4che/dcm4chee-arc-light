@@ -258,13 +258,23 @@ public class RetrieveManagerEJB {
         return queueManager.cancelRetrieveTasks(matchQueueMessage, matchRetrieveTask, prev);
     }
 
-    public String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
+    public String findDeviceNameByPk(Long pk) {
+        try {
+            return em.createNamedQuery(RetrieveTask.FIND_DEVICE_BY_PK, String.class)
+                    .setParameter(1, pk)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent, String newDeviceName) {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
-            return null;
+            return;
 
         LOG.info("Reschedule {}", task);
-        return queueManager.rescheduleTask(task.getQueueMessage(), RetrieveManager.QUEUE_NAME, queueEvent);
+        queueManager.rescheduleTask(task.getQueueMessage(), RetrieveManager.QUEUE_NAME, queueEvent, newDeviceName);
     }
 
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {

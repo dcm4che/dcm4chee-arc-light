@@ -151,7 +151,7 @@ public class RSClientImpl implements RSClient {
                             String queryString = request.getQueryString();
                             if (queryString != null) {
                                 targetURI = targetURI + queryString;
-                                if (!queryString.contains("dicomDeviceName="))
+                                if (!queryString.contains("dicomDeviceName=") && !queryString.contains("newDeviceName="))
                                     targetURI = targetURI + "?dicomDeviceName=" + deviceName;
                             }
                         }

@@ -69,7 +69,13 @@ import java.util.Date;
                 @Index(columnList = "check_different"),
                 @Index(columnList = "compare_fields") }
 )
+@NamedQueries({
+        @NamedQuery(name = DiffTask.FIND_DEVICE_BY_PK,
+                query = "select o.queueMessage.deviceName from DiffTask o where o.pk=?1")
+})
 public class DiffTask {
+
+    public static final String FIND_DEVICE_BY_PK = "DiffTask.FindDeviceByPk";
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)

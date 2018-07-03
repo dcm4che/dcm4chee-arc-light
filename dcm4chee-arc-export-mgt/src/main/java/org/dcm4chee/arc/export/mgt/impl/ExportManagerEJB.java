@@ -393,14 +393,25 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public String rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
+    public String findDeviceNameByPk(Long pk) {
+        try {
+            return em.createNamedQuery(ExportTask.FIND_DEVICE_BY_PK, String.class)
+                    .setParameter(1, pk)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent, String newDeviceName) {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
-            return null;
+            return;
 
         LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
         task.setExporterID(exporter.getExporterID());
-        return queueManager.rescheduleTask(task.getQueueMessage(), exporter.getQueueName(), queueEvent);
+        queueManager.rescheduleTask(task.getQueueMessage(), exporter.getQueueName(), queueEvent, newDeviceName);
     }
 
     @Override

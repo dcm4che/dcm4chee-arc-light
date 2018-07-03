@@ -88,9 +88,9 @@ public interface DiffService {
     long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
-    String rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent);
+    void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent, String newDeviceName);
 
-    List<Long> getDiffTaskPks(Predicate matchQueueMessage, Predicate matchDiffTask, int limit);
+    String findDeviceNameByPk(Long pk);
 
     boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent);
 

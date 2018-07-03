@@ -68,6 +68,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Date;
@@ -242,21 +243,23 @@ public class DiffServiceEJB {
         return queueManager.cancelDiffTasks(matchQueueMessage, matchDiffTask, prev);
     }
 
-    public String rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) {
+    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent, String newDeviceName) {
         DiffTask task = em.find(DiffTask.class, pk);
         if (task == null)
-            return null;
+            return;
 
         LOG.info("Reschedule {}", task);
-        return queueManager.rescheduleTask(task.getQueueMessage(), DiffService.QUEUE_NAME, queueEvent);
+        queueManager.rescheduleTask(task.getQueueMessage(), DiffService.QUEUE_NAME, queueEvent, newDeviceName);
     }
 
-    public List<Long> getDiffTaskPks(Predicate matchQueueMessage, Predicate matchDiffTask, int limit) {
-        HibernateQuery<Long> diffTaskPkQuery = createQuery(matchQueueMessage, matchDiffTask)
-                .select(QDiffTask.diffTask.pk);
-        if (limit > 0)
-            diffTaskPkQuery.limit(limit);
-        return diffTaskPkQuery.fetch();
+    public String findDeviceNameByPk(Long pk) {
+        try {
+            return em.createNamedQuery(DiffTask.FIND_DEVICE_BY_PK, String.class)
+                    .setParameter(1, pk)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     public List<AttributesBlob> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit) {

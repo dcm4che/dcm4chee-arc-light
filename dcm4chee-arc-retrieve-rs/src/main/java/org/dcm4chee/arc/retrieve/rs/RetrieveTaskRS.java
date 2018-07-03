@@ -110,6 +110,9 @@ public class RetrieveTaskRS {
     @QueryParam("dicomDeviceName")
     private String deviceName;
 
+    @QueryParam("newDeviceName")
+    private String newDeviceName;
+
     @QueryParam("LocalAET")
     private String localAET;
 
@@ -222,12 +225,20 @@ public class RetrieveTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            String devName = mgr.rescheduleRetrieveTask(pk, queueEvent);
-            return devName == null
-                    ? Response.status(Response.Status.NOT_FOUND).build()
-                    : devName.equals(device.getDeviceName())
-                        ? Response.status(Response.Status.NO_CONTENT).build()
-                        : rsClient.forward(request, devName);
+            if (newDeviceName != null && !newDeviceName.equals(device.getDeviceName()))
+                return rsClient.forward(request, newDeviceName);
+
+            String prevDeviceName = mgr.findDeviceNameByPk(pk);
+            if (prevDeviceName == null)
+                return rsp(Response.Status.NOT_FOUND, "Task not found");
+
+            if ((newDeviceName != null && !newDeviceName.equals(prevDeviceName))
+                    || prevDeviceName.equals(device.getDeviceName()))
+                mgr.rescheduleRetrieveTask(pk, queueEvent, newDeviceName);
+            else
+                return rsClient.forward(request, prevDeviceName);
+
+            return rsp(Response.Status.NO_CONTENT);
         } catch (Exception e) {
             queueEvent.setException(e);
             return errResponseAsTextPlain(e);
@@ -244,9 +255,14 @@ public class RetrieveTaskRS {
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
 
-        Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
+        if (newDeviceName != null && !newDeviceName.equals(device.getDeviceName()))
+            return rsClient.forward(request, newDeviceName);
 
-        if (deviceName == null) {
+        if (deviceName != null && !deviceName.equals(device.getDeviceName()))
+            return rsClient.forward(request, deviceName);
+
+        Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
+        if (deviceName == null && newDeviceName == null) {
             List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
             int count = 0;
             for (String devName : distinctDeviceNames) {
@@ -257,9 +273,7 @@ public class RetrieveTaskRS {
             }
             return count(count);
         }
-        return !deviceName.equals(device.getDeviceName())
-                ? rsClient.forward(request, deviceName)
-                : rescheduleTasks(matchQueueMessage);
+        return rescheduleTasks(matchQueueMessage);
     }
 
     private Response rescheduleTasks(Predicate matchQueueMessage) {
@@ -269,7 +283,7 @@ public class RetrieveTaskRS {
             try (RetrieveTaskQuery retrieveTasks = mgr.listRetrieveTasks(
                     matchQueueMessage, matchRetrieveTask(updatedTime), null, 0, 0)) {
                 for (RetrieveTask retrieveTask : retrieveTasks) {
-                    mgr.rescheduleRetrieveTask(retrieveTask.getPk(), null);
+                    mgr.rescheduleRetrieveTask(retrieveTask.getPk(), null, newDeviceName);
                     count++;
                 }
             }
@@ -307,6 +321,10 @@ public class RetrieveTaskRS {
 
     private static Response rsp(Response.Status status, Object entity) {
         return Response.status(status).entity(entity).build();
+    }
+
+    private Response rsp(Response.Status status) {
+        return Response.status(status).build();
     }
 
     private static Response rsp(boolean result) {

@@ -177,8 +177,13 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
-        return ejb.rescheduleRetrieveTask(pk, queueEvent);
+    public String findDeviceNameByPk(Long pk) {
+        return ejb.findDeviceNameByPk(pk);
+    }
+
+    @Override
+    public void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent, String newDeviceName) {
+        ejb.rescheduleRetrieveTask(pk, queueEvent, newDeviceName);
     }
 
     @Override

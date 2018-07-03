@@ -337,19 +337,26 @@ public class QueueManagerEJB {
                 .fetch();
     }
 
-    public String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
-        return rescheduleTask(findQueueMessage(msgId), queueName, queueEvent);
+    public String findDeviceNameByMsgId(String msgId) {
+        try {
+            return em.createNamedQuery(QueueMessage.FIND_DEVICE_BY_MSG_ID, String.class)
+                    .setParameter(1, msgId)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
-    public String rescheduleTask(QueueMessage entity, String queueName, QueueMessageEvent queueEvent) {
+    public void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent, String newDeviceName) {
+        rescheduleTask(findQueueMessage(msgId), queueName, queueEvent, newDeviceName);
+    }
+
+    public void rescheduleTask(QueueMessage entity, String queueName, QueueMessageEvent queueEvent, String newDeviceName) {
         if (entity == null)
-            return null;
+            return;
 
         if (queueEvent != null)
             queueEvent.setQueueMsg(entity);
-
-        if (!device.getDeviceName().equals(entity.getDeviceName()))
-            return entity.getDeviceName();
 
         switch (entity.getStatus()) {
             case SCHEDULED:
@@ -358,12 +365,13 @@ public class QueueManagerEJB {
         }
         if (queueName != null)
             entity.setQueueName(queueName);
+        if (newDeviceName != null)
+            entity.setDeviceName(newDeviceName);
         entity.setNumberOfFailures(0);
         entity.setErrorMessage(null);
         entity.setOutcomeMessage(null);
         entity.updateExporterIDInMessageProperties();
         rescheduleTask(entity, descriptorOf(entity.getQueueName()), 0L);
-        return entity.getDeviceName();
     }
 
     private void rescheduleTask(QueueMessage entity, QueueDescriptor descriptor, long delay) {

@@ -80,7 +80,9 @@ public interface ExportManager {
     long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
-    String rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent);
+    String findDeviceNameByPk(Long pk);
+
+    void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent, String newDeviceName);
 
     int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask);
 

@@ -62,7 +62,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -103,6 +102,9 @@ public class QueueManagerRS {
 
     @QueryParam("dicomDeviceName")
     private String deviceName;
+
+    @QueryParam("newDeviceName")
+    private String newDeviceName;
 
     @QueryParam("status")
     @Pattern(regexp = "SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
@@ -198,12 +200,20 @@ public class QueueManagerRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            String devName = mgr.rescheduleTask(msgId, null, queueEvent);
-            return devName == null
-                    ? Response.status(Response.Status.NOT_FOUND).build()
-                    : devName.equals(device.getDeviceName())
-                        ? Response.status(Response.Status.NO_CONTENT).build()
-                        : rsClient.forward(request, devName);
+            if (newDeviceName != null && !newDeviceName.equals(device.getDeviceName()))
+                return rsClient.forward(request, newDeviceName);
+
+            String devName = mgr.findDeviceNameByMsgId(msgId);
+            if (devName == null)
+                return rsp(Response.Status.NOT_FOUND, "Task not found");
+
+            if ((newDeviceName != null && !newDeviceName.equals(devName))
+                    || devName.equals(device.getDeviceName()))
+                mgr.rescheduleTask(msgId, null, queueEvent, newDeviceName);
+            else
+                return rsClient.forward(request, devName);
+
+            return rsp(Response.Status.NO_CONTENT);
         } catch (Exception e) {
             queueEvent.setException(e);
             return errResponseAsTextPlain(e);
@@ -220,9 +230,14 @@ public class QueueManagerRS {
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
 
-        Predicate matchQueueMessage = matchQueueMessage(status, new Date());
+        if (newDeviceName != null && !newDeviceName.equals(device.getDeviceName()))
+            return rsClient.forward(request, newDeviceName);
 
-        if (deviceName == null) {
+        if (deviceName != null && !deviceName.equals(device.getDeviceName()))
+            return rsClient.forward(request, deviceName);
+
+        Predicate matchQueueMessage = matchQueueMessage(status, new Date());
+        if (deviceName == null && newDeviceName == null) {
             List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(matchQueueMessage);
             int count = 0;
             for (String devName : distinctDeviceNames) {
@@ -232,9 +247,8 @@ public class QueueManagerRS {
             }
             return count(count);
         }
-        return !deviceName.equals(device.getDeviceName())
-                ? rsClient.forward(request, deviceName)
-                : rescheduleMessages(matchQueueMessage);
+
+        return rescheduleMessages(matchQueueMessage);
     }
 
     private Response rescheduleMessages(Predicate matchQueueMessage) {
@@ -243,7 +257,7 @@ public class QueueManagerRS {
             int count = 0;
             try(QueueMessageQuery queueMsgs = mgr.listQueueMessages(matchQueueMessage, null, 0,0)) {
                 for (QueueMessage queueMsg : queueMsgs) {
-                    mgr.rescheduleTask(queueMsg.getMessageID(), queueName, null);
+                    mgr.rescheduleTask(queueMsg.getMessageID(), queueName, null, newDeviceName);
                     count++;
                 }
             }
@@ -280,6 +294,10 @@ public class QueueManagerRS {
 
     private static Response rsp(Response.Status status, Object entity) {
         return Response.status(status).entity(entity).build();
+    }
+
+    private Response rsp(Response.Status status) {
+        return Response.status(status).build();
     }
 
     private static Response rsp(boolean result) {
