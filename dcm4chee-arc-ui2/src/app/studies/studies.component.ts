@@ -30,6 +30,7 @@ import {j4care} from "../helpers/j4care.service";
 import {ViewerComponent} from "../widgets/dialogs/viewer/viewer.component";
 import {PermissionService} from "../helpers/permissions/permission.service";
 import {LoadingBarModule, LoadingBarService} from "@ngx-loading-bar/core";
+import {ActivatedRoute} from "@angular/router";
 declare var Keycloak: any;
 declare var $: any;
 
@@ -115,6 +116,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     clipboardHasScrollbar = false;
     target;
     allAes;
+    diffModeShow = false;
     // birthDate;
     clipBoardNotEmpty(){
         if (this.clipboard && ((_.size(this.clipboard.otherObjects) > 0) || (_.size(this.clipboard.patients) > 0))){
@@ -144,6 +146,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.studyDate.to = '';
         this.filter.StudyDate = "";
     }
+
     clearForm(){
         _.forEach(this.filter, (m, i) => {
             if (i != 'orderby'){
@@ -273,7 +276,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     showGetCountLoader;
     dialogRef: MatDialogRef<any>;
     subscription: Subscription;
-
+    taskPK;
     constructor(
         public $http: J4careHttpService,
         public service: StudiesService,
@@ -285,12 +288,11 @@ export class StudiesComponent implements OnDestroy,OnInit{
         public config: MatDialogConfig,
         public httpErrorHandler:HttpErrorHandler,
         public j4care:j4care,
-        public permissionService:PermissionService
+        public permissionService:PermissionService,
+        private route: ActivatedRoute
     ) {}
     ngOnInit(){
         this.initCheck(10);
-        console.log("deviceName,",this.mainservice["deviceName"]);
-
     }
     initCheck(retries){
         let $this = this;
@@ -306,189 +308,242 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
         }
     }
+
     private init(){
-        this.showFilterWarning = true;
-        console.log('getglobal', this.mainservice.global);
-        let $this = this;
-        let dateset = localStorage.getItem('dateset');
-        console.log('dateset', dateset);
-        if (dateset === 'no'){
-            this.clearStudyDate();
-            this.filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'] = null;
-/*            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.fromObject = null;
-            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.toObject = null;
-            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.from = '';
-            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.to = '';*/
-        }
-
-        if (_.hasIn(this.mainservice.global, 'state')){
-            // $this = $this.mainservice.global.studyThis;
-            // _.merge(this,$this.mainservice.global.studyThis);
-            let selectedAet;
-            _.forEach(this.mainservice.global.state, (m, i) => {
-                if (m && i != 'aetmodel'){
-                    $this[i] = m;
-                }
-                if (i === 'aetmodel'){
-                    selectedAet = m;
-                }
-            });
-            let selectedAetIndex = _.indexOf($this.aes, selectedAet);
-            if (selectedAetIndex > -1){
-                $this.aetmodel = $this.aes[selectedAetIndex];
+        this.route.queryParams.subscribe(params => {
+            console.log("params",params);
+            this.checkDiffView(params);
+            this.showFilterWarning = true;
+            console.log('getglobal', this.mainservice.global);
+            let $this = this;
+            let dateset = localStorage.getItem('dateset');
+            console.log('dateset', dateset);
+            if (dateset === 'no'){
+                this.clearStudyDate();
+                this.filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'] = null;
+    /*            this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.fromObject = null;
+                this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.toObject = null;
+                this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.from = '';
+                this.ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate.to = '';*/
             }
-        }
-        // if(_.hasIn(this.mainservice.global,"patients")){
-        //     this.patients = this.mainservice.global.patients;
-        // }
-        this.modalities = Globalvar.MODALITIES;
 
-        this.initAETs(2);
-        this.getAllAes(2);
-        this.initAttributeFilter('Patient', 1);
-        this.initExporters(2);
-        this.initRjNotes(2);
-        this.getDiffAttributeSet();
-        // this.user = this.mainservice.user;
-/*        if (!this.mainservice.user){
-            // console.log("in if studies ajax");
-            this.mainservice.user = this.mainservice.getUserInfo().share();
-            this.mainservice.user
-                .subscribe(
-                    (response) => {
-                        $this.user.user  = response.user;
-                        $this.mainservice.user.user = response.user;
-                        $this.user.roles = response.roles;
-                        $this.mainservice.user.roles = response.roles;
-                        $this.isRole = (role) => {
-                            if (response.user === null && response.roles.length === 0){
-                                return true;
-                            }else{
-                                if (response.roles && response.roles.indexOf(role) > -1){
+            if (_.hasIn(this.mainservice.global, 'state')){
+                // $this = $this.mainservice.global.studyThis;
+                // _.merge(this,$this.mainservice.global.studyThis);
+                let selectedAet;
+                _.forEach(this.mainservice.global.state, (m, i) => {
+                    if (m && i != 'aetmodel'){
+                        $this[i] = m;
+                    }
+                    if (i === 'aetmodel'){
+                        selectedAet = m;
+                    }
+                });
+                let selectedAetIndex = _.indexOf($this.aes, selectedAet);
+                if (selectedAetIndex > -1){
+                    $this.aetmodel = $this.aes[selectedAetIndex];
+                }
+            }
+            // if(_.hasIn(this.mainservice.global,"patients")){
+            //     this.patients = this.mainservice.global.patients;
+            // }
+            this.modalities = Globalvar.MODALITIES;
+
+            this.initAETs(2);
+            this.getAllAes(2);
+            this.initAttributeFilter('Patient', 1);
+            this.initExporters(2);
+            this.initRjNotes(2);
+            this.getDiffAttributeSet();
+            // this.user = this.mainservice.user;
+    /*        if (!this.mainservice.user){
+                // console.log("in if studies ajax");
+                this.mainservice.user = this.mainservice.getUserInfo().share();
+                this.mainservice.user
+                    .subscribe(
+                        (response) => {
+                            $this.user.user  = response.user;
+                            $this.mainservice.user.user = response.user;
+                            $this.user.roles = response.roles;
+                            $this.mainservice.user.roles = response.roles;
+                            $this.isRole = (role) => {
+                                if (response.user === null && response.roles.length === 0){
                                     return true;
                                 }else{
-                                    return false;
+                                    if (response.roles && response.roles.indexOf(role) > -1){
+                                        return true;
+                                    }else{
+                                        return false;
+                                    }
                                 }
-                            }
-                        };
-                    },
-                    (response) => {
-                        // $this.user = $this.user || {};
-                        $this.user.user = 'user';
-                        $this.mainservice.user.user = 'user';
-                        $this.user.roles = ['user', 'admin'];
-                        $this.mainservice.user.roles = ['user', 'admin'];
-                        $this.isRole = (role) => {
-                            if (role === 'admin'){
-                                return false;
-                            }else{
-                                return true;
-                            }
-                        };
-                    }
-                );
+                            };
+                        },
+                        (response) => {
+                            // $this.user = $this.user || {};
+                            $this.user.user = 'user';
+                            $this.mainservice.user.user = 'user';
+                            $this.user.roles = ['user', 'admin'];
+                            $this.mainservice.user.roles = ['user', 'admin'];
+                            $this.isRole = (role) => {
+                                if (role === 'admin'){
+                                    return false;
+                                }else{
+                                    return true;
+                                }
+                            };
+                        }
+                    );
 
-        }else{
-            this.user = this.mainservice.user;
-            this.isRole = this.mainservice.isRole;
-            // console.log("isroletest",this.user.applyisRole("admin"));
-        }*/
-        this.hoverdic.forEach((m, i) => {
-            $(document.body).on('mouseover mouseleave', m, function(e){
-                if (e.type === 'mouseover' && $this.visibleHeaderIndex != i){
-                    $($this).addClass('hover');
-                    $(m).addClass('hover');
-                    $('.headerblock .header_block .thead').addClass('animated fadeOut');
-                    setTimeout(function(){
-                        $this.visibleHeaderIndex = i;
-                        $('.div-table .header_block .thead').removeClass('fadeOut').addClass('fadeIn');
-                    }, 200);
-                    setTimeout(function(){
-                        $('.headerblock .header_block .thead').removeClass('animated');
-                    }, 200);
-                }
-            });
-        });
-        $(document).keydown(function(e){
-            $this.pressedKey = e.keyCode;
-            if ($this.keysdown && $this.keysdown[e.keyCode]) {
-                // Ignore it
-                return;
-            }
-            console.log('$this.keysdown', this.keysdown);
-            console.log('e.keyCode', e.keyCode);
-            // console.log('isrole admin=', $this.isRole('admin'));
-            // console.log("isrole admin=",this.mainservice.isRole);
-            // Remember it's down
-            let validKeys = [16, 17, 67, 77, 86, 88, 91, 93, 224];
-            if (validKeys.indexOf(e.keyCode) > -1){
-                console.log('in if ');
-                $this.keysdown[e.keyCode] = true;
-            }
-            //ctrl + c clicked
-            if ($this.keysdown && ($this.keysdown[17] === true || $this.keysdown[91] === true || $this.keysdown[93] === true || $this.keysdown[224] === true) && $this.keysdown[67] === true && $this.isRole('admin')){
-                console.log('ctrl + c');
-                $this.ctrlC();
-                $this.keysdown = {};
-            }
-            //ctrl + v clicked
-            if ($this.keysdown && ($this.keysdown[17] === true || $this.keysdown[91] === true || $this.keysdown[93] === true || $this.keysdown[224] === true) && $this.keysdown[86] === true && $this.isRole('admin')){
-                $this.ctrlV();
-                $this.keysdown = {};
-            }
-            //ctrl + m clicked
-            if ($this.keysdown && ($this.keysdown[17] === true || $this.keysdown[91] === true || $this.keysdown[93] === true || $this.keysdown[224] === true) && $this.keysdown[77] === true && $this.isRole('admin')){
-                $this.merge();
-                $this.keysdown = {};
-            }
-            //ctrl + x clicked
-            if ($this.keysdown && ($this.keysdown[17] === true || $this.keysdown[91] === true || $this.keysdown[93] === true || $this.keysdown[224] === true) && $this.keysdown[88] === true && $this.isRole('admin')){
-                console.log('ctrl + x');
-                $this.ctrlX();
-                $this.keysdown = {};
-            }
-
-        });
-        $(document).keyup(function(e){
-            console.log('keyUP', e.keyCode);
-            $this.pressedKey = null;
-            console.log('$this.keysdown', this.keysdown);
-            delete $this.keysdown[e.keyCode];
-        });
-
-        //Detect in witch column is the mouse position and select the header.
-        $(document.body).on('mouseover mouseleave', '.hover_cell', function(e){
-            let $this = this;
-            if (e.type === 'mouseover'){
-                $('.headerblock > .header_block > .thead').each((i, m) => {
-                    $(m).find('.cellhover').removeClass('cellhover');
-                    $(m).find('.th:eq(' + $($this).index() + ')').addClass('cellhover');
-                });
             }else{
-                $('.headerblock > .header_block > .thead > .tr_row > .cellhover').removeClass('cellhover');
-            }
-        });
+                this.user = this.mainservice.user;
+                this.isRole = this.mainservice.isRole;
+                // console.log("isroletest",this.user.applyisRole("admin"));
+            }*/
+            this.hoverdic.forEach((m, i) => {
+                $(document.body).on('mouseover mouseleave', m, function(e){
+                    if (e.type === 'mouseover' && $this.visibleHeaderIndex != i){
+                        $($this).addClass('hover');
+                        $(m).addClass('hover');
+                        $('.headerblock .header_block .thead').addClass('animated fadeOut');
+                        setTimeout(function(){
+                            $this.visibleHeaderIndex = i;
+                            $('.div-table .header_block .thead').removeClass('fadeOut').addClass('fadeIn');
+                        }, 200);
+                        setTimeout(function(){
+                            $('.headerblock .header_block .thead').removeClass('animated');
+                        }, 200);
+                    }
+                });
+            });
+            $(document).keydown(function(e){
+                $this.pressedKey = e.keyCode;
+                if ($this.keysdown && $this.keysdown[e.keyCode]) {
+                    // Ignore it
+                    return;
+                }
+                console.log('$this.keysdown', this.keysdown);
+                console.log('e.keyCode', e.keyCode);
+                // console.log('isrole admin=', $this.isRole('admin'));
+                // console.log("isrole admin=",this.mainservice.isRole);
+                // Remember it's down
+                let validKeys = [16, 17, 67, 77, 86, 88, 91, 93, 224];
+                if (validKeys.indexOf(e.keyCode) > -1){
+                    console.log('in if ');
+                    $this.keysdown[e.keyCode] = true;
+                }
+                //ctrl + c clicked
+                if ($this.keysdown && ($this.keysdown[17] === true || $this.keysdown[91] === true || $this.keysdown[93] === true || $this.keysdown[224] === true) && $this.keysdown[67] === true && $this.isRole('admin')){
+                    console.log('ctrl + c');
+                    $this.ctrlC();
+                    $this.keysdown = {};
+                }
+                //ctrl + v clicked
+                if ($this.keysdown && ($this.keysdown[17] === true || $this.keysdown[91] === true || $this.keysdown[93] === true || $this.keysdown[224] === true) && $this.keysdown[86] === true && $this.isRole('admin')){
+                    $this.ctrlV();
+                    $this.keysdown = {};
+                }
+                //ctrl + m clicked
+                if ($this.keysdown && ($this.keysdown[17] === true || $this.keysdown[91] === true || $this.keysdown[93] === true || $this.keysdown[224] === true) && $this.keysdown[77] === true && $this.isRole('admin')){
+                    $this.merge();
+                    $this.keysdown = {};
+                }
+                //ctrl + x clicked
+                if ($this.keysdown && ($this.keysdown[17] === true || $this.keysdown[91] === true || $this.keysdown[93] === true || $this.keysdown[224] === true) && $this.keysdown[88] === true && $this.isRole('admin')){
+                    console.log('ctrl + x');
+                    $this.ctrlX();
+                    $this.keysdown = {};
+                }
 
-        this.headers.forEach((m, i) => {
-            this.items[i] = this.items[i] || {};
-            $(window).scroll(() => {
-                if ($(m).length){
-                    $this.items[i].itemOffset = $(m).offset().top;
-                    $this.items[i].scrollTop = $(window).scrollTop();
-                    if ($this.items[i].scrollTop >= $this.items[i].itemOffset){
-                        $this.items[i].itemOffsetOld = $this.items[i].itemOffsetOld || $(m).offset().top;
-                        $('.headerblock').addClass('fixed');
-                    }
-                    if ($this.items[i].itemOffsetOld  && ($this.items[i].scrollTop < $this.items[i].itemOffsetOld)){
-                        $('.headerblock').removeClass('fixed');
-                    }
+            });
+            $(document).keyup(function(e){
+                console.log('keyUP', e.keyCode);
+                $this.pressedKey = null;
+                console.log('$this.keysdown', this.keysdown);
+                delete $this.keysdown[e.keyCode];
+            });
+
+            //Detect in witch column is the mouse position and select the header.
+            $(document.body).on('mouseover mouseleave', '.hover_cell', function(e){
+                let $this = this;
+                if (e.type === 'mouseover'){
+                    $('.headerblock > .header_block > .thead').each((i, m) => {
+                        $(m).find('.cellhover').removeClass('cellhover');
+                        $(m).find('.th:eq(' + $($this).index() + ')').addClass('cellhover');
+                    });
+                }else{
+                    $('.headerblock > .header_block > .thead > .tr_row > .cellhover').removeClass('cellhover');
                 }
             });
-        });
 
-        this.subscription = this.mainservice.createPatient$.subscribe(patient => {
-            console.log('patient in subscribe messagecomponent ', patient);
-            this.createPatient();
+            this.headers.forEach((m, i) => {
+                this.items[i] = this.items[i] || {};
+                $(window).scroll(() => {
+                    if ($(m).length){
+                        $this.items[i].itemOffset = $(m).offset().top;
+                        $this.items[i].scrollTop = $(window).scrollTop();
+                        if ($this.items[i].scrollTop >= $this.items[i].itemOffset){
+                            $this.items[i].itemOffsetOld = $this.items[i].itemOffsetOld || $(m).offset().top;
+                            $('.headerblock').addClass('fixed');
+                        }
+                        if ($this.items[i].itemOffsetOld  && ($this.items[i].scrollTop < $this.items[i].itemOffsetOld)){
+                            $('.headerblock').removeClass('fixed');
+                        }
+                    }
+                });
+            });
+
+            this.subscription = this.mainservice.createPatient$.subscribe(patient => {
+                console.log('patient in subscribe messagecomponent ', patient);
+                this.createPatient();
+            });
+        });
+    }
+    orderByChanged(order){
+        this.setOrderByParam(order);
+        this.extendedFilter(false);
+        this.fireQueryOnChange(order)
+    }
+    setOrderByParam(order){
+        this.showoptionlist = false;
+        this.filter.orderby = order.value;
+        this.orderbytext = order.label;
+        this.filterMode = order.mode;
+    }
+    checkDiffView(params){
+        if(_.hasIn(params, "mode") && params.mode === "diff"){
+            setTimeout(()=>{
+                this.diffModeShow = true;
+                this.taskPK = params["pk"];
+                this.setOrderByParam(this.orderby.filter(orderby =>orderby.mode === "diff")[0]);
+                this.getDiffTaskResults(params, 0);
+            },1);
+        }
+    }
+    getDiffTaskResults(params,offset?){
+        let filter = Object.assign({},params);
+        filter['pk'] = this.taskPK;
+        filter['offset'] = offset ? offset:0;
+        filter['limit'] = this.limit;
+        this.cfpLoadingBar.start();
+        this.service.gitDiffTaskResults(filter).subscribe(res=>{
+            console.log("res",res);
+            this.patients = [];
+            this.morePatients = undefined;
+            this.moreStudies = undefined;
+            if (_.size(res) > 0) {
+                this.prepareDiffData(res, offset);
+            }else{
+                this.mainservice.setMessage({
+                    'title': 'Info',
+                    'text': 'No Diff Results found!',
+                    'status': 'info'
+                });
+            }
+            this.cfpLoadingBar.complete();
+        },err=>{
+            this.patients = [];
+            this.httpErrorHandler.handleError(err);
+            this.cfpLoadingBar.complete();
         });
     }
     // initAETs(retries) {
@@ -708,17 +763,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
         let $this = this;
         if (offset < 0 || offset === undefined) offset = 0;
         this.cfpLoadingBar.start();
-/*        if(this.externalInternalAetMode === 'internal'){
-            this.service.getCount(
-                this.rsURL(),
-                'studies',
-                queryParameters
-            ).subscribe((res)=>{
-                this.count = res.count;
-            });
-        }else{
-            this.count = "";
-        }*/
         this.service.queryStudies(
             this.rsURL(),
             queryParameters
@@ -731,10 +775,6 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 $this.count = "";
                 $this.size = "";
                 if (_.size(res) > 0) {
-                    // Add Number of Patient related Studies (0020,1200),
-                    // Private Creator (7777,0010),
-                    // Patient Create Date Time (7777,1010),
-                    // Patient Update Date Time (7777,1011)
                     let index = 0;
                     let pat, study, patAttrs, tags = $this.attributeFilters.Patient.dcmTag;
                     while (tags && (tags[index] < '00201200')) {
@@ -816,18 +856,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     queryDiff(queryParameters, offset){
         let $this = this;
         if (offset < 0 || offset === undefined) offset = 0;
-        let haederCodes = [
-            "00200010",
-            "0020000D",
-            "00080020",
-            "00080030",
-            "00080090",
-            "00080050",
-            "00080061",
-            "00081030",
-            "00201206",
-            "00201208"
-        ];
+
         if(!this.aet2) {
             this.mainservice.setMessage({
                 'title': 'Warning',
@@ -842,88 +871,41 @@ export class StudiesComponent implements OnDestroy,OnInit{
             queryParameters
         ).subscribe(
             (res) => {
-
                 $this.patients = [];
                 //           $this.studies = [];
                 $this.morePatients = undefined;
                 $this.moreStudies = undefined;
                 if (_.size(res) > 0) {
                     //Add number of patient related studies manuelly hex(00201200) => dec(2101760)
-                    let index = 0;
-                    while ($this.attributeFilters.Patient.dcmTag[index] && ($this.attributeFilters.Patient.dcmTag[index] < '00201200')) {
-                        index++;
-                    }
-                    $this.attributeFilters.Patient.dcmTag.splice(index, 0, '00201200');
-
-                    let pat, study, patAttrs, tags = $this.attributeFilters.Patient.dcmTag;
-                    console.log('res', res);
-                    res.forEach(function (studyAttrs, index) {
-                        patAttrs = {};
-                        $this.extractAttrs(studyAttrs, tags, patAttrs);
-                        if (!(pat && $this.equalsIgnoreSpecificCharacterSet(pat.attrs, patAttrs))) { //angular.equals replaced with Rx.helpers.defaultComparer
-                            pat = {
-                                attrs: patAttrs,
-                                studies: [],
-                                showAttributes: false,
-                                showStudies:true
-                            };
-                            // $this.$apply(function () {
-                            $this.patients.push(pat);
-                            // });
-                        }
-                        let showBorder = false;
-                        let diffHeaders = {};
-                        _.forEach(haederCodes,(m)=>{
-                            diffHeaders[m] = $this.getDiffHeader(studyAttrs,m);
-                        });
-                        study = {
-                            patient: pat,
-                            offset: offset + index,
-                            moreSeries: false,
-                            attrs: studyAttrs,
-                            series: null,
-                            showAttributes: false,
-                            fromAllStudies: false,
-                            selected: false,
-                            showBorder:false,
-                            diffHeaders:diffHeaders
-                        };
-                        pat.studies.push(study);
-                        $this.extendedFilter(false);
-                        //                   $this.studies.push(study); //sollte weg kommen
-                    });
-                    if ($this.moreStudies = (res.length > $this.limit)) {
-                        pat.studies.pop();
-                        if (pat.studies.length === 0) {
-                            $this.patients.pop();
-                        }
-                        // this.studies.pop();
-                    }
+                    this.prepareDiffData(res, offset);
                     console.log('global set', $this.mainservice.global);
                     $this.cfpLoadingBar.complete();
 
                 } else {
-                    if(res === null)
+                    if(queryParameters['queue']){
                         $this.mainservice.setMessage({
                             'title': 'Info',
-                            'text': 'No matching study found at primary C-FIND SCP',
+                            'text': 'Command executed successfully!',
                             'status': 'info'
                         });
-                    else
-                        $this.mainservice.setMessage({
-                            'title': 'Info',
-                            'text': 'No diffs found!',
-                            'status': 'info'
-                        });
+                    }else{
+                        if(res === null)
+                            $this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': 'No matching study found at primary C-FIND SCP',
+                                'status': 'info'
+                            });
+                        else
+                            $this.mainservice.setMessage({
+                                'title': 'Info',
+                                'text': 'No diffs found!',
+                                'status': 'info'
+                            });
+                    }
 
-                    console.log('in else setmsg');
                     $this.patients = [];
-
                     $this.cfpLoadingBar.complete();
                 }
-                // setTimeout(function(){
-                //     togglePatientsHelper("hide");
-                // }, 1000);
                 $this.cfpLoadingBar.complete();
             },(err)=>{
                 $this.cfpLoadingBar.complete();
@@ -931,6 +913,70 @@ export class StudiesComponent implements OnDestroy,OnInit{
             }
         );
     };
+    prepareDiffData(res, offset){
+        let haederCodes = [
+            "00200010",
+            "0020000D",
+            "00080020",
+            "00080030",
+            "00080090",
+            "00080050",
+            "00080061",
+            "00081030",
+            "00201206",
+            "00201208"
+        ];
+        let index = 0;
+        while (this.attributeFilters.Patient.dcmTag[index] && (this.attributeFilters.Patient.dcmTag[index] < '00201200')) {
+            index++;
+        }
+        this.attributeFilters.Patient.dcmTag.splice(index, 0, '00201200');
+
+        let pat, study, patAttrs, tags = this.attributeFilters.Patient.dcmTag;
+        console.log('res', res);
+        res.forEach((studyAttrs, index)=> {
+            patAttrs = {};
+            this.extractAttrs(studyAttrs, tags, patAttrs);
+            if (!(pat && this.equalsIgnoreSpecificCharacterSet(pat.attrs, patAttrs))) { //angular.equals replaced with Rx.helpers.defaultComparer
+                pat = {
+                    attrs: patAttrs,
+                    studies: [],
+                    showAttributes: false,
+                    showStudies:true
+                };
+                // this.$apply(function () {
+                this.patients.push(pat);
+                // });
+            }
+            let showBorder = false;
+            let diffHeaders = {};
+            _.forEach(haederCodes,(m)=>{
+                diffHeaders[m] = this.getDiffHeader(studyAttrs,m);
+            });
+            study = {
+                patient: pat,
+                offset: offset + index,
+                moreSeries: false,
+                attrs: studyAttrs,
+                series: null,
+                showAttributes: false,
+                fromAllStudies: false,
+                selected: false,
+                showBorder:false,
+                diffHeaders:diffHeaders
+            };
+            pat.studies.push(study);
+            this.extendedFilter(false);
+            //                   this.studies.push(study); //sollte weg kommen
+        });
+        if (this.moreStudies = (res.length > this.limit)) {
+            pat.studies.pop();
+            if (pat.studies.length === 0) {
+                this.patients.pop();
+            }
+            // this.studies.pop();
+        }
+    }
     getDiffHeader(study,code){
         let value;
         let sqValue;

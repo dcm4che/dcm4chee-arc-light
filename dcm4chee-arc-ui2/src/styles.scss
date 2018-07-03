@@ -2409,3 +2409,42 @@ mat-dialog-container{
     }
   }
 }
+
+.diff_mode_switch{
+  float: left;
+  height: 175px;
+  -webkit-transform: rotate(90deg);
+  transform: rotate(90deg);
+  top: -22px;
+  position: absolute;
+  right: -156px;
+  width: 134px;
+  ul{
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    position: relative;
+    bottom: -152px;
+    li{
+      float: left;
+      border: 1px solid #cccccc;
+      width: 50%;
+      text-align: center;
+      &:hover{
+        cursor: pointer;
+      }
+      &.active{
+        background: $lightBlue;
+        color:white;
+      }
+    }
+  }
+}
+.diff_result_button{
+  margin-top: 46px;
+  button{
+    border-radius: 0;
+    width: 100%;
+    background: $lightBlue;
+  }
+}

@@ -190,7 +190,7 @@ export class DiffMonitorService {
                             e.showAttributes = !e.showAttributes;
                         }
                     },
-/*                    {
+                    {
                         icon:{
                             tag:'span',
                             cssClass:'glyphicon glyphicon-eye-open',
@@ -201,12 +201,13 @@ export class DiffMonitorService {
                             this.router.navigate(['./studies'],{
                                 queryParams:{
                                     batchID:e.batchID,
-                                    pk:e.pk
+                                    pk:e.pk,
+                                    mode:"diff"
                                 }
                             })
                             // e.showAttributes = !e.showAttributes;
                         }
-                    }*/
+                    }
                 ],
                 description:"Index",
                 widthWeight:0.3,
