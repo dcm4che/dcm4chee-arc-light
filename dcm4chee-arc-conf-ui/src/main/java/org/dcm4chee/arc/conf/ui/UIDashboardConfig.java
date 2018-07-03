@@ -50,6 +50,7 @@ import java.util.Map;
 public class UIDashboardConfig {
     private String name;
     private String[] queueNames = {};
+    private String[] exportNames = {};
     private String[] deviceNames = {};
     private String countAet;
     private String[] ignoreParams = {};
@@ -77,6 +78,14 @@ public class UIDashboardConfig {
 
     public void setQueueNames(String[] queueNames) {
         this.queueNames = queueNames;
+    }
+
+    public String[] getExportNames() {
+        return exportNames;
+    }
+
+    public void setExportNames(String[] exportNames) {
+        this.exportNames = exportNames;
     }
 
     public String[] getDeviceNames() {

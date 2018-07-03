@@ -215,6 +215,7 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiDashboardConfigName", uiDashboardConfig.getName(), null);
             writer.writeNotEmpty("dcmuiQueueName", uiDashboardConfig.getQueueNames());
+            writer.writeNotEmpty("dcmuiExportName", uiDashboardConfig.getExportNames());
             writer.writeNotEmpty("dicomuiDeviceName", uiDashboardConfig.getDeviceNames());
             writer.writeNotEmpty("dicomuiIgnoreParams", uiDashboardConfig.getIgnoreParams());
             writer.writeNotNullOrDef("dcmuiCountAET", uiDashboardConfig.getCountAet(),null);
@@ -526,6 +527,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmuiQueueName":
                         uiDashboardConfig.setQueueNames(reader.stringArray());
+                        break;
+                    case "dcmuiExportName":
+                        uiDashboardConfig.setExportNames(reader.stringArray());
                         break;
                     case "dicomuiDeviceName":
                         uiDashboardConfig.setDeviceNames(reader.stringArray());

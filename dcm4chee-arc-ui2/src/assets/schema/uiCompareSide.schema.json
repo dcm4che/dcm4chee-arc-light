@@ -31,6 +31,12 @@
       "type": "string",
       "format":"dcmuiElasticsearchConfig"
     },
+    "dcmuiCompareSideQueueName": {
+      "title": "Queue",
+      "description": "Select the QueueName that should be used for the compare side",
+      "type": "string",
+      "format":"dcmQueueName"
+    },
     "dcmuiCompareSideInstalled": {
       "title": "Installed",
       "description": "If true this Compare side is active in the dashboard",

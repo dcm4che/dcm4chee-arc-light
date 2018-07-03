@@ -113,6 +113,11 @@ attributetype ( 1.2.40.0.13.1.15.111.3.19 NAME 'dcmuiQueueName'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
+attributetype ( 1.2.40.0.13.1.15.111.3.44 NAME 'dcmuiExportName'
+  DESC 'Export for UI Dashboard Configuration'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
 attributetype ( 1.2.40.0.13.1.15.111.3.20 NAME 'dicomuiDeviceName'
   DESC 'Device Names for UI Dashboard Configuration'
   EQUALITY caseExactIA5Match
@@ -305,6 +310,7 @@ objectclass ( 1.2.40.0.13.1.15.111.4.5 NAME 'dcmuiDashboardConfig'
     dcmuiDashboardConfigName )
   MAY (
     dcmuiQueueName $
+    dcmuiExportName $
     dcmuiCountAET $
     dicomuiDeviceName $
     dicomuiIgnoreParams $

@@ -214,6 +214,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         attrs.put(new BasicAttribute("objectclass", "dcmuiDashboardConfig"));
         attrs.put(new BasicAttribute("dcmuiDashboardConfigName", uiDashboardConfig.getName()));
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiQueueName", uiDashboardConfig.getQueueNames());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmuiExportName", uiDashboardConfig.getExportNames());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomuiDeviceName", uiDashboardConfig.getDeviceNames());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dicomuiIgnoreParams", uiDashboardConfig.getIgnoreParams());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmuiCountAET",uiDashboardConfig.getCountAet(),null);
@@ -422,6 +423,7 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
                 UIDashboardConfig uiDashboardConfig = new UIDashboardConfig((String) attrs.get("dcmuiDashboardConfigName").get());
                 uiDashboardConfig.setCountAet(LdapUtils.stringValue(attrs.get("dcmuiCountAET"),null));
                 uiDashboardConfig.setQueueNames(LdapUtils.stringArray(attrs.get("dcmuiQueueName")));
+                uiDashboardConfig.setExportNames(LdapUtils.stringArray(attrs.get("dcmuiExportName")));
                 uiDashboardConfig.setDeviceNames(LdapUtils.stringArray(attrs.get("dicomuiDeviceName")));
                 uiDashboardConfig.setIgnoreParams(LdapUtils.stringArray(attrs.get("dicomuiIgnoreParams")));
                 String uiDashboardConfigDN = LdapUtils.dnOf("dcmuiDashboardConfigName" , uiDashboardConfig.getName(), uiConfigDN);
@@ -849,6 +851,9 @@ public class LdapArchiveUIConfiguration extends LdapDicomConfigurationExtension 
         LdapUtils.storeDiff(ldapObj, mods, "dcmuiQueueName",
                 prev.getQueueNames(),
                 uiDashboardConfig.getQueueNames());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmuiExportName",
+                prev.getExportNames(),
+                uiDashboardConfig.getExportNames());
         LdapUtils.storeDiff(ldapObj, mods, "dicomuiDeviceName",
                 prev.getDeviceNames(),
                 uiDashboardConfig.getDeviceNames());
