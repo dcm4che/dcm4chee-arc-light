@@ -2441,10 +2441,19 @@ mat-dialog-container{
   }
 }
 .diff_result_button{
-  margin-top: 46px;
+  margin-top: 15px;
   button{
     border-radius: 0;
     width: 100%;
     background: $lightBlue;
+    height: 30px;
+    line-height: 30px;
+    padding: 0;
+    &:hover,&:active{
+      background: $blue;
+    }
   }
+}
+.diff_mode_result_input{
+  margin-bottom: 5px;
 }

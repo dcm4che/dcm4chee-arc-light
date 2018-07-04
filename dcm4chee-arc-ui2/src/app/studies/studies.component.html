@@ -321,8 +321,11 @@
                     </div>
                 </ng-container>
                 <ng-container *ngIf="filterMode === 'diff' && diffModeShow">
-                    <div class="col-md-12" *ngIf="filterMode === 'diff'">
-                        <input type="text" [(ngModel)]="taskPK" placeholder="Pk of task" title="Pk of task" class="col-md-12 clearable" />
+                    <div class="col-md-12 diff_mode_result_input" >
+                        <input type="text" [(ngModel)]="taskPK" placeholder="Pk of task" title="Pk of task" class="col-md-12 clearable" (focus)="batchID = ''" />
+                    </div>
+                    <div class="col-md-12 diff_mode_result_input">
+                        <input type="text" [(ngModel)]="batchID" placeholder="Bash ID" title="Bash ID" class="col-md-12 clearable" (focus)="taskPK = ''" />
                     </div>
                     <div class="col-md-12 diff_result_button">
                         <button type="button" class="col-md-12  btn btn-default btn-info"  (click)="getDiffTaskResults(0);" title="Query Diff Results">
@@ -332,8 +335,8 @@
                 </ng-container>
                 <div class="diff_mode_switch" *ngIf="filterMode==='diff'">
                     <ul>
-                        <li (click)="diffModeShow = false" class="trigger" [ngClass]="{active:!diffModeShow}">Trigger</li>
-                        <li (click)="diffModeShow = true" class="show" [ngClass]="{active:diffModeShow}">Show</li>
+                        <li (click)="diffModeShow = false" class="trigger" title="Trigger a new diff" [ngClass]="{active:!diffModeShow}">Trigger</li>
+                        <li (click)="diffModeShow = true" class="show" title="Show diff results" [ngClass]="{active:diffModeShow}">Show</li>
                     </ul>
                 </div>
             </div>

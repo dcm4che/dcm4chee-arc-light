@@ -197,7 +197,6 @@ export class DiffMonitorService {
                             text:''
                         },
                         click:(e)=>{
-                            console.log("e",e);
                             this.router.navigate(['./studies'],{
                                 queryParams:{
                                     batchID:e.batchID,

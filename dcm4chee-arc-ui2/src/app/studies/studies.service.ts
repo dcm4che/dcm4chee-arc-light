@@ -731,9 +731,16 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
        return this.$http.get(`../xroad/RR441/${patientID}`).map(res => j4care.redirectOnAuthResponse(res));
     }
 
-    gitDiffTaskResults(params){
-        let taskPK = params['pk'];
-        return this.$http.get(`../monitor/diff/${taskPK}/studies`).map(res => j4care.redirectOnAuthResponse(res));
+    gitDiffTaskResults(params, mode){
+        if(mode === 'pk'){
+            let taskPK = params['pk'];
+            delete params['pk'];
+            return this.$http.get(`../monitor/diff/${taskPK}/studies${this._config(params)}`).map(res => j4care.redirectOnAuthResponse(res));
+        }else{
+            let batchID = params['batchID'];
+            delete params['batchID'];
+            return this.$http.get(`../monitor/diff/batch/${batchID}/studies${this._config(params)}`).map(res => j4care.redirectOnAuthResponse(res));
+        }
     }
 
 }

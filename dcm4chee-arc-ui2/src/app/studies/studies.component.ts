@@ -94,6 +94,7 @@ export class StudiesComponent implements OnDestroy,OnInit{
     batchID;
     comparefield;
     queryMode = 'queryStudies';
+    moreDiffs;
     // ScheduledProcedureStepSequence: any = {
     //     ScheduledProcedureStepStartTime: {
     //         from: '',
@@ -515,22 +516,33 @@ export class StudiesComponent implements OnDestroy,OnInit{
                 this.diffModeShow = true;
                 this.taskPK = params["pk"];
                 this.setOrderByParam(this.orderby.filter(orderby =>orderby.mode === "diff")[0]);
-                this.getDiffTaskResults(params, 0);
+                let filters = Object.assign({},params);
+                delete filters['mode'];
+                this.getDiffTaskResults(filters, 0);
             },1);
         }
     }
     getDiffTaskResults(params,offset?){
         let filter = Object.assign({},params);
-        filter['pk'] = this.taskPK;
         filter['offset'] = offset ? offset:0;
-        filter['limit'] = this.limit;
+        filter['limit'] = this.limit + 1;
+        let mode = 'pk';
         this.cfpLoadingBar.start();
-        this.service.gitDiffTaskResults(filter).subscribe(res=>{
+        if(this.taskPK != ''){
+            filter['pk'] = this.taskPK;
+        }else{
+            mode = 'batch';
+            filter['batchID'] = this.batchID;
+        }
+        this.service.gitDiffTaskResults(filter,mode).subscribe(res=>{
             console.log("res",res);
             this.patients = [];
             this.morePatients = undefined;
+            this.moreDiffs = undefined;
             this.moreStudies = undefined;
+
             if (_.size(res) > 0) {
+                // this.moreDiffs = res.length > this.limit;
                 this.prepareDiffData(res, offset);
             }else{
                 this.mainservice.setMessage({
@@ -1098,16 +1110,26 @@ export class StudiesComponent implements OnDestroy,OnInit{
         this.queryDiffs(0);
     }
     queryDiffs(offset){
-        this.queryMode = 'queryDiff';
-        this.moreMWL = undefined;
-        this.morePatients = undefined;
-        let queryParameters = this.createQueryParams(offset, this.limit + 1, this.createStudyFilterParams());
-        queryParameters['queue'] = this.diffQueue;
-        queryParameters['missing'] = this.missing;
-        queryParameters['different'] = this.different;
-        if(this.batchID) queryParameters['batchID'] = this.batchID;
-        if(this.comparefield && this.different) queryParameters['comparefield'] = this.comparefield;
-        this.queryDiff(queryParameters, offset);
+        if(this.diffModeShow){
+            let params = {
+/*                offset:offset,
+                limit: this.limit + 1,
+                pk:this.taskPK,
+                batchID:this.batchID*/
+            };
+            this.getDiffTaskResults(params, offset);
+        }else{
+            this.queryMode = 'queryDiff';
+            this.moreMWL = undefined;
+            this.morePatients = undefined;
+            let queryParameters = this.createQueryParams(offset, this.limit + 1, this.createStudyFilterParams());
+            queryParameters['queue'] = this.diffQueue;
+            queryParameters['missing'] = this.missing;
+            queryParameters['different'] = this.different;
+            if(this.batchID) queryParameters['batchID'] = this.batchID;
+            if(this.comparefield && this.different) queryParameters['comparefield'] = this.comparefield;
+            this.queryDiff(queryParameters, offset);
+        }
     };
     setExpiredDate(study){
         this.setExpiredDateQuery(study,false);
