@@ -324,6 +324,7 @@ export class DiffMonitorService {
                 key:"SecondaryAET",
                 description:"AE Title of the secondary C-FIND SCP",
                 widthWeight:1,
+                modifyData:(data)=> data.join(', ') || data,
                 calculatedWidth:"20%",
                 cssClass:"hideOn1100px"
             },{

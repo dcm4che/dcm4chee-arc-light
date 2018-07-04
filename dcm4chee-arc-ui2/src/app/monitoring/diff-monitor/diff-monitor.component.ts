@@ -140,6 +140,7 @@ export class DiffMonitorComponent implements OnInit {
     }
     getDiffTasks(filter){
         this.cfpLoadingBar.start();
+        this.tasks = [];
         this.service.getDiffTask(filter,this.batchGrouped).subscribe(tasks=>{
             if(tasks && tasks.length && tasks.length > 0){
                 if(this.batchGrouped){
