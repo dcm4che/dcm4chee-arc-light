@@ -244,7 +244,7 @@
                 </a>
             </div>
             <div class="buttons_block col-md-2">
-                <ng-container *ngIf="filterMode === 'diff' && !diffModeShow">
+                <ng-container *ngIf="!(filterMode === 'diff' && diffModeShow)">
                     <div class="row col-md-12" title="AE Title of first C-FIND SCP" *ngIf="filterMode === 'diff'">
                         <mat-select [(ngModel)]="aet1" placeholder="Primary AET" floatPlaceholder="never">
                             <mat-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</mat-option>
