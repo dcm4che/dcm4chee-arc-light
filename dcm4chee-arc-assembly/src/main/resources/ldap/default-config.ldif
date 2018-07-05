@@ -20,6 +20,7 @@ dcmQidoMaxNumberOfResults: 1000
 dcmIanTaskPollingInterval: PT1M
 dcmAECacheStaleTimeout: PT5M
 dcmFuzzyAlgorithmClass: org.dcm4che3.soundex.ESoundex
+dcmWadoCDA2HtmlTemplateURI: https://raw.githubusercontent.com/lantanagroup/stylesheets/master/Stylesheets/CDA/dist/cda-web.xsl
 dcmAudit2XmlFhirTemplateURI: ${jboss.server.temp.url}/dcm4chee-arc/audit2xml+fhir.xsl
 dcmExportTaskPollingInterval: PT1M
 dcmKeyStoreType: JKS
