@@ -365,6 +365,11 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getWadoSR2TextTemplateURI();
     }
 
+    public String wadoCDA2HtmlTemplateURI() {
+        //TODO
+        return null;
+    }
+
     public String[] getMppsForwardDestinations() {
         return mppsForwardDestinations;
     }

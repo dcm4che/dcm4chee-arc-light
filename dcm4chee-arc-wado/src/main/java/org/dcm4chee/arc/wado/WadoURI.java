@@ -277,6 +277,8 @@ public class WadoURI {
             case UncompressedMultiFrameImage:
                 return renderImage(ctx, inst, mimeType, imageIndex);
             case EncapsulatedCDA:
+                return decapsulateCDA(service.openDicomInputStream(ctx, inst),
+                        ctx.getArchiveAEExtension().wadoCDA2HtmlTemplateURI());
             case EncapsulatedPDF:
                 return decapsulateDocument(service.openDicomInputStream(ctx, inst));
             case MPEG2Video:
@@ -367,12 +369,22 @@ public class WadoURI {
         return new StreamCopyOutput(dis, dis.length());
     }
 
+    private StreamingOutput decapsulateCDA(DicomInputStream dis, String templateURI) throws IOException {
+        seekEncapsulatedDocument(dis);
+        return templateURI != null
+                ? new CDAOutput(dis, dis.length(), templateURI)
+                : new StreamCopyOutput(dis, dis.length());
+    }
+
     private StreamingOutput decapsulateDocument(DicomInputStream dis) throws IOException {
+        seekEncapsulatedDocument(dis);
+        return new StreamCopyOutput(dis, dis.length());
+    }
+
+    private void seekEncapsulatedDocument(DicomInputStream dis) throws IOException {
         dis.readDataset(-1, Tag.EncapsulatedDocument);
         if (dis.tag() != Tag.EncapsulatedDocument)
             throw new IOException("No encapsulated document in requested object");
-
-        return new StreamCopyOutput(dis, dis.length());
     }
 
     private static ImageReader getDicomImageReader() {
