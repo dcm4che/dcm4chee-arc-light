@@ -250,12 +250,6 @@ public class RetrieveTaskRS {
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
 
-        if (newDeviceName != null && !newDeviceName.equals(device.getDeviceName()))
-            return rsClient.forward(request, newDeviceName);
-
-        if (deviceName != null && !deviceName.equals(device.getDeviceName()))
-            return rsClient.forward(request, deviceName);
-
         Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
         if (deviceName == null && newDeviceName == null) {
             List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
@@ -268,7 +262,12 @@ public class RetrieveTaskRS {
             }
             return count(count);
         }
-        return rescheduleTasks(matchQueueMessage);
+
+        if ((newDeviceName != null && newDeviceName.equals(device.getDeviceName()))
+                || (deviceName != null && deviceName.equals(device.getDeviceName())))
+            return rescheduleTasks(matchQueueMessage);
+
+        return rsClient.forward(request, newDeviceName != null ? newDeviceName : deviceName);
     }
 
     private Response rescheduleTasks(Predicate matchQueueMessage) {

@@ -265,12 +265,6 @@ public class ExportTaskRS {
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
 
-        if (newDeviceName != null && !newDeviceName.equals(device.getDeviceName()))
-            return rsClient.forward(request, newDeviceName);
-
-        if (deviceName != null && !deviceName.equals(device.getDeviceName()))
-            return rsClient.forward(request, deviceName);
-
         Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
         if (deviceName == null && newDeviceName == null) {
             List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
@@ -278,12 +272,17 @@ public class ExportTaskRS {
             for (String devName : distinctDeviceNames) {
                 LOG.info("Reschedule tasks on device: {}.", devName);
                 count += count(devName.equals(device.getDeviceName())
-                                ? rescheduleTasks(newExporterID, status, matchQueueMessage)
-                                : rsClient.forward(request, devName));
+                        ? rescheduleTasks(newExporterID, status, matchQueueMessage)
+                        : rsClient.forward(request, devName));
             }
             return count(count);
         }
-        return rescheduleTasks(newExporterID, status, matchQueueMessage);
+
+        if ((newDeviceName != null && newDeviceName.equals(device.getDeviceName()))
+                || (deviceName != null && deviceName.equals(device.getDeviceName())))
+            return rescheduleTasks(newExporterID, status, matchQueueMessage);
+
+        return rsClient.forward(request, newDeviceName != null ? newDeviceName : deviceName);
     }
 
     private Response rescheduleTasks(String newExporterID, QueueMessage.Status status, Predicate matchQueueMessage) {
