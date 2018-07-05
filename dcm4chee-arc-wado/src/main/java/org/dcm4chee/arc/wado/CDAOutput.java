@@ -97,10 +97,17 @@ public class CDAOutput implements StreamingOutput {
                 out.write(PROCESSING_INSTRUCTION_END);
                 out.write(buf, cdaStart, read - cdaStart);
             }
-            StreamUtils.copy(in, out, length - read, buf);
+            StreamUtils.copy(in, out, length - read -1, buf);
+            skipPaddedByte(out);
         } finally {
             SafeClose.close(in);
         }
+    }
+
+    private void skipPaddedByte(OutputStream out) throws IOException {
+        int lastByte;
+        if ((lastByte = in.read()) != 0)
+            out.write(lastByte);
     }
 
     private static int indexOf(byte[] b1, int fromIndex, byte[] b2, int length) {

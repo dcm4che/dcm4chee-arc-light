@@ -66,9 +66,16 @@ public class StreamCopyOutput implements StreamingOutput {
     @Override
     public void write(OutputStream out) throws IOException, WebApplicationException {
         try {
-            StreamUtils.copy(in, out, length);
+            StreamUtils.copy(in, out, length - 1);
+            skipPaddedByte(out);
         } finally {
             SafeClose.close(in);
         }
+    }
+
+    private void skipPaddedByte(OutputStream out) throws IOException {
+        int lastByte;
+        if ((lastByte = in.read()) != 0)
+            out.write(lastByte);
     }
 }
