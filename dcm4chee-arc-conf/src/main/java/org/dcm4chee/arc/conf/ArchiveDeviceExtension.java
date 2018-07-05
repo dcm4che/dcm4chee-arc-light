@@ -93,6 +93,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String wadoZIPEntryNameFormat = DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
+    private String wadoCDA2HtmlTemplateURI;
     private String patientUpdateTemplateURI;
     private String importReportTemplateURI;
     private String scheduleProcedureTemplateURI;
@@ -440,6 +441,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setWadoSR2TextTemplateURI(String wadoSR2TextTemplateURI) {
         this.wadoSR2TextTemplateURI = wadoSR2TextTemplateURI;
+    }
+
+    public String getWadoCDA2HtmlTemplateURI() {
+        return wadoCDA2HtmlTemplateURI;
+    }
+
+    public void setWadoCDA2HtmlTemplateURI(String wadoCDA2HtmlTemplateURI) {
+        this.wadoCDA2HtmlTemplateURI = wadoCDA2HtmlTemplateURI;
     }
 
     public String getPatientUpdateTemplateURI() {

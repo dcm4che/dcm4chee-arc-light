@@ -74,6 +74,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String wadoZIPEntryNameFormat;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
+    private String wadoCDA2HtmlTemplateURI;
     private String[] mppsForwardDestinations = {};
     private String[] ianDestinations = {};
     private Duration ianDelay;
@@ -365,9 +366,18 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getWadoSR2TextTemplateURI();
     }
 
+    public String getWadoCDA2HtmlTemplateURI() {
+        return wadoCDA2HtmlTemplateURI;
+    }
+
+    public void setWadoCDA2HtmlTemplateURI(String wadoCDA2HtmlTemplateURI) {
+        this.wadoCDA2HtmlTemplateURI = wadoCDA2HtmlTemplateURI;
+    }
+
     public String wadoCDA2HtmlTemplateURI() {
-        //TODO
-        return null;
+        return wadoCDA2HtmlTemplateURI != null
+                ? wadoCDA2HtmlTemplateURI
+                : getArchiveDeviceExtension().getWadoCDA2HtmlTemplateURI();
     }
 
     public String[] getMppsForwardDestinations() {
