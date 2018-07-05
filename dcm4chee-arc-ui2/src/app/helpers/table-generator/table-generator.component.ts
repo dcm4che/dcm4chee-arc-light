@@ -16,7 +16,9 @@ export class TableGeneratorComponent implements OnInit {
     @Output() tableMouseLeave = new EventEmitter();
     _ = _;
     Object = Object;
-    constructor() {}
+    constructor() {
+        console.log("model",this.models);
+    }
     ngOnInit() {
         if(this.stringifyDetailAttributes){
             this.models.map(model=>{

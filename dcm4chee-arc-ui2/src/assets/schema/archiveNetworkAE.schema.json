@@ -154,6 +154,11 @@
       "description": "Specifies URI for the style sheet used to render structured reports to plain text. Overwrites value specified on Device level.",
       "type": "string"
     },
+    "dcmWadoCDA2HtmlTemplateURI": {
+      "title": "Wado CDA to HTML Template URI",
+      "description": "URL to XSL style sheet inserted as <?xml-stylesheet type=\"text/xsl\" href=\"<url>\" > in CDA documents returned by WADO-URI service. If absent, the embedded CDI document is returned verbatim. Overwrites value specified on Device level.",
+      "type": "string"
+    },
     "dcmWadoZIPEntryNameFormat": {
       "title": "Wado ZIP Entry Name Format",
       "description": "Format of entry names in ZIP archive returned by WADO-RS. Overwrites value specified on Device level.",

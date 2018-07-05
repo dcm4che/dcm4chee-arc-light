@@ -244,79 +244,100 @@
                 </a>
             </div>
             <div class="buttons_block col-md-2">
-                <div class="row col-md-12" title="AE Title of first C-FIND SCP" *ngIf="filterMode === 'diff'">
-                    <mat-select [(ngModel)]="aet1" placeholder="Primary AET" floatPlaceholder="never">
-                        <mat-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</mat-option>
-                    </mat-select>
-                </div>
-                <i title="Switch the primary and secondary AET" (click)="swapDiff()" *ngIf="filterMode === 'diff'"  class="swap_icon material-icons">swap_vert</i>
-                <div class="row col-md-12" title="AE Title of second C-FIND SCP" *ngIf="filterMode === 'diff'">
-                    <mat-select [(ngModel)]="aet2" placeholder="Secondary AET" floatPlaceholder="never">
-                        <mat-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</mat-option>
-                    </mat-select>
-                </div>
-                <div class="row col-md-12 diff_input diff_toggle_button" *ngIf="filterMode === 'diff'" (click)="diffFilter = !diffFilter">
-                    <span class="click_outside_ignore">Diff Options <i *ngIf="!diffFilter" class="glyphicon glyphicon-triangle-bottom"></i><i *ngIf="diffFilter" class="glyphicon glyphicon-triangle-top"></i></span>
-                </div>
-                <div class="toggle_diff" *ngIf="diffFilter" (clickOutside)="diffFilter = false" [clickOutsideExceptionClass]="['diff_toggle_button', 'click_outside_ignore']">
-                    <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
-                        <input type="checkbox" [(ngModel)]="diffQueue" placeholder="Queue" title="Queued diff" class="clearable" /> Queued
+                <ng-container *ngIf="!(filterMode === 'diff' && diffModeShow)">
+                    <div class="row col-md-12" title="AE Title of first C-FIND SCP" *ngIf="filterMode === 'diff'">
+                        <mat-select [(ngModel)]="aet1" placeholder="Primary AET" floatPlaceholder="never">
+                            <mat-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</mat-option>
+                        </mat-select>
                     </div>
-                    <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff' && diffQueue">
-                        <input type="text" [(ngModel)]="batchID" title="Batch ID" class="clearable" placeholder="Batch ID"/>
+                    <i title="Switch the primary and secondary AET" (click)="swapDiff()" *ngIf="filterMode === 'diff'"  class="swap_icon material-icons">swap_vert</i>
+                    <div class="row col-md-12" title="AE Title of second C-FIND SCP" *ngIf="filterMode === 'diff'">
+                        <mat-select [(ngModel)]="aet2" placeholder="Secondary AET" floatPlaceholder="never">
+                            <mat-option *ngFor="let ae of allAes" [value]="ae.dicomAETitle" title="Aet from the device {{ae.dicomDeviceName}}">{{ ae.dicomAETitle }}</mat-option>
+                        </mat-select>
                     </div>
-                    <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
-                        <input type="checkbox" [(ngModel)]="missing" title="Include Studies different at Secondary AET" class="clearable" /> Missing Studies
+                    <div class="row col-md-12 diff_input diff_toggle_button" *ngIf="filterMode === 'diff'" (click)="diffFilter = !diffFilter">
+                        <span class="click_outside_ignore">Diff Options <i *ngIf="!diffFilter" class="glyphicon glyphicon-triangle-bottom"></i><i *ngIf="diffFilter" class="glyphicon glyphicon-triangle-top"></i></span>
                     </div>
-                    <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
-                        <input type="checkbox" [(ngModel)]="different" title="Include Studies missing at Secondary AET" class="clearable" /> Different Studies
-                    </div>
-                    <mat-select *ngIf="different" [(ngModel)]="comparefield" placeholder="Attribute Set" floatPlaceholder="never">
-                        <mat-option value="">*</mat-option>
-                        <mat-option *ngFor="let attr of diffAttributeSet" [value]="attr.id" title="{{attr.description}}" >{{ attr.title }}</mat-option>
-                    </mat-select>
+                    <div class="toggle_diff" *ngIf="diffFilter" (clickOutside)="diffFilter = false" [clickOutsideExceptionClass]="['diff_toggle_button', 'click_outside_ignore']">
+                        <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
+                            <input type="checkbox" [(ngModel)]="diffQueue" placeholder="Queue" title="Queued diff" class="clearable" /> Queued
+                        </div>
+                        <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff' && diffQueue">
+                            <input type="text" [(ngModel)]="batchID" title="Batch ID" class="clearable" placeholder="Batch ID"/>
+                        </div>
+                        <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
+                            <input type="checkbox" [(ngModel)]="missing" title="Include Studies different at Secondary AET" class="clearable" /> Missing Studies
+                        </div>
+                        <div class="row col-md-12 diff_input" *ngIf="filterMode === 'diff'">
+                            <input type="checkbox" [(ngModel)]="different" title="Include Studies missing at Secondary AET" class="clearable" /> Different Studies
+                        </div>
+                        <mat-select *ngIf="different" [(ngModel)]="comparefield" placeholder="Attribute Set" floatPlaceholder="never">
+                            <mat-option value="">*</mat-option>
+                            <mat-option *ngFor="let attr of diffAttributeSet" [value]="attr.id" title="{{attr.description}}" >{{ attr.title }}</mat-option>
+                        </mat-select>
 
-                </div>
-                <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-size',param:'visible'}">
-                   <span class="count_text" title="Total size of filtered studies found">Size: <b class="nowrap">{{size|largeIntFormat}}</b></span>
-                    <span *ngIf="!showGetSizeLoader" (click)="getSize()" title="Get total size of filtered studies" class="glyphicon glyphicon-refresh"></span>
-                    <span *ngIf="showGetSizeLoader" class="fa fa-circle-o-notch fa-spin dashboard_loader"></span>
-                </div>
-                <div class="count_block_total" *ngIf="filterMode != 'diff'" [ngClass]="{single:externalInternalAetMode === 'external' || filterMode!='study'}" [permission]="{id:'action-studies-count',param:'visible'}">
-                   <span class="count_text" title="Total count of filtered studies found">Total count: <b class="nowrap">{{count|largeIntFormat}}</b></span>
-                        <span *ngIf="!showGetCountLoader" (click)="getCount()" title="Get total count of filtered studies" class="glyphicon glyphicon-refresh"></span>
-                        <span *ngIf="showGetCountLoader" class="fa fa-circle-o-notch fa-spin"></span>
-                </div>
-                <div class="orderbyblock" [ngClass]="{notrash:trashaktive==false,diff:filterMode==='diff'}">
-                    <div class="btn-group" role="group" (clickOutside)="showoptionlist = false">
-                        <button id="showoptionlistbutton" type="button" class="btn btn-default selectedorderbutton" (click)="showoptionlist = !showoptionlist" >
-                            <span id="selectedorder" class="selectedorder"  [innerHtml]="orderbytext"></span>
-                            <span class="caret"></span>
-                        </button>
-                        <div class="optionlist" id="showoptionlist" *ngIf="showoptionlist && externalInternalAetMode === 'internal'" >
-                            <ul>
-                                <li *ngFor="let order of orderby; let i = index;" [ngClass]="{active:filter.orderby === order.value}" (click)="showoptionlist = false; filter.orderby = order.value; orderbytext = order.label; filterMode = order.mode;extendedFilter(false);fireQueryOnChange(order)" title="{{order.title}}" [innerHtml]="order.label"></li>
-                            </ul>
+                    </div>
+                    <div class="count_block_total" *ngIf="filterMode==='study' && externalInternalAetMode === 'internal'" [permission]="{id:'action-studies-size',param:'visible'}">
+                       <span class="count_text" title="Total size of filtered studies found">Size: <b class="nowrap">{{size|largeIntFormat}}</b></span>
+                        <span *ngIf="!showGetSizeLoader" (click)="getSize()" title="Get total size of filtered studies" class="glyphicon glyphicon-refresh"></span>
+                        <span *ngIf="showGetSizeLoader" class="fa fa-circle-o-notch fa-spin dashboard_loader"></span>
+                    </div>
+                    <div class="count_block_total" *ngIf="filterMode != 'diff'" [ngClass]="{single:externalInternalAetMode === 'external' || filterMode!='study'}" [permission]="{id:'action-studies-count',param:'visible'}">
+                       <span class="count_text" title="Total count of filtered studies found">Total count: <b class="nowrap">{{count|largeIntFormat}}</b></span>
+                            <span *ngIf="!showGetCountLoader" (click)="getCount()" title="Get total count of filtered studies" class="glyphicon glyphicon-refresh"></span>
+                            <span *ngIf="showGetCountLoader" class="fa fa-circle-o-notch fa-spin"></span>
+                    </div>
+                    <div class="orderbyblock" [ngClass]="{notrash:trashaktive==false,diff:filterMode==='diff'}">
+                        <div class="btn-group" role="group" (clickOutside)="showoptionlist = false">
+                            <button id="showoptionlistbutton" type="button" class="btn btn-default selectedorderbutton" (click)="showoptionlist = !showoptionlist" >
+                                <span id="selectedorder" class="selectedorder"  [innerHtml]="orderbytext"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <div class="optionlist" id="showoptionlist" *ngIf="showoptionlist && externalInternalAetMode === 'internal'" >
+                                <ul>
+                                    <li *ngFor="let order of orderby; let i = index;" [ngClass]="{active:filter.orderby === order.value}" (click)="orderByChanged(order)" title="{{order.title}}" [innerHtml]="order.label"></li>
+                                </ul>
+                            </div>
+                            <div class="optionlist" id="showoptionlistExternal" *ngIf="showoptionlist && externalInternalAetMode === 'external'" >
+                                <ul>
+                                    <li *ngFor="let order of orderbyExternal; let i = index;" [ngClass]="{active:(filter.orderby === order.value && filterMode === order.mode)}" (click)="orderByChanged(order)" title="{{order.title}}" [innerHtml]="order.label"></li>
+                                </ul>
+                            </div>
+                            <button type="button" class="btn btn-info btn-default executebutton" *ngIf="filterMode==='patient'" id="querypatients" (click)="queryPatients(0);patientmode=true" title="Query Patients">
+                                <span class="glyphicon glyphicon-refresh"></span>
+                            </button>
+                            <button type="button" class="btn btn-default executebutton"
+                                    *ngIf="filterMode==='study'" id="querystudies" (click)="queryStudies(0);patientmode=false" title="Query Studies">
+                                <span class="glyphicon glyphicon-refresh"></span>
+                            </button>
+                            <button *ngIf="filterMode==='mwl'" type="button" class="btn btn-default executebutton btn-info"  id="querymwl" (click)="queryMWL(0);patientmode=false" title="Query MWL">
+                                <span class="glyphicon glyphicon-refresh"></span>
+                            </button>
+                            <button *ngIf="filterMode==='diff'" type="button" class="btn btn-default executebutton btn-info"  id="querydiffs" (click)="queryDiffs(0);patientmode=false" title="Query Diff">
+                                <span class="glyphicon glyphicon-refresh"></span>
+                            </button>
                         </div>
-                        <div class="optionlist" id="showoptionlistExternal" *ngIf="showoptionlist && externalInternalAetMode === 'external'" >
-                            <ul>
-                                <li *ngFor="let order of orderbyExternal; let i = index;" [ngClass]="{active:(filter.orderby === order.value && filterMode === order.mode)}" (click)="showoptionlist = false; filter.orderby = order.value; orderbytext = order.label; filterMode = order.mode;extendedFilter(false);fireQueryOnChange(order)" title="{{order.title}}" [innerHtml]="order.label"></li>
-                            </ul>
-                        </div>
-                        <button type="button" class="btn btn-info btn-default executebutton" *ngIf="filterMode==='patient'" id="querypatients" (click)="queryPatients(0);patientmode=true" title="Query Patients">
-                            <span class="glyphicon glyphicon-refresh"></span>
-                        </button>
-                        <button type="button" class="btn btn-default executebutton"
-                                *ngIf="filterMode==='study'" id="querystudies" (click)="queryStudies(0);patientmode=false" title="Query Studies">
-                            <span class="glyphicon glyphicon-refresh"></span>
-                        </button>
-                        <button *ngIf="filterMode==='mwl'" type="button" class="btn btn-default executebutton btn-info"  id="querymwl" (click)="queryMWL(0);patientmode=false" title="Query MWL">
-                            <span class="glyphicon glyphicon-refresh"></span>
-                        </button>
-                        <button *ngIf="filterMode==='diff'" type="button" class="btn btn-default executebutton btn-info"  id="querydiffs" (click)="queryDiffs(0);patientmode=false" title="Query Diff">
-                            <span class="glyphicon glyphicon-refresh"></span>
+                    </div>
+                </ng-container>
+                <ng-container *ngIf="filterMode === 'diff' && diffModeShow">
+                    <div class="col-md-12 diff_mode_result_input" >
+                        <input type="text" [(ngModel)]="taskPK" placeholder="Pk of task" title="Pk of task" class="col-md-12 clearable" (focus)="batchID = ''" />
+                    </div>
+                    <div class="col-md-12 diff_mode_result_input">
+                        <input type="text" [(ngModel)]="batchID" placeholder="Bash ID" title="Bash ID" class="col-md-12 clearable" (focus)="taskPK = ''" />
+                    </div>
+                    <div class="col-md-12 diff_result_button">
+                        <button type="button" class="col-md-12  btn btn-default btn-info"  (click)="getDiffTaskResults(0);" title="Query Diff Results">
+                            <span class="glyphicon glyphicon-refresh"></span> Submit
                         </button>
                     </div>
+                </ng-container>
+                <div class="diff_mode_switch" *ngIf="filterMode==='diff'">
+                    <ul>
+                        <li (click)="diffModeShow = false" class="trigger" title="Trigger a new diff" [ngClass]="{active:!diffModeShow}">Trigger</li>
+                        <li (click)="diffModeShow = true" class="show" title="Show diff results" [ngClass]="{active:diffModeShow}">Show</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -1053,13 +1074,13 @@
             <button class="btn btn-link btn-xs"
                     [disabled]="!patients[0] || !patients[0].studies || !patients[0].studies[0] || patients[0].studies[0].offset === 0"
                     (click)="queryDiffs(patients[0].studies[0].offset-limit);addEffect('left')"
-                    title="Previous Studies">
+                    title="Previous Diffs">
                 <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
             </button>
             <button class="btn btn-link btn-xs"
                     [disabled]="!moreStudies"
                     (click)="queryDiffs(patients[0].studies[0].offset+limit);addEffect('right')"
-                    title="Next Studies">
+                    title="Next Diffs">
                 <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
             </button> 
         </div>
