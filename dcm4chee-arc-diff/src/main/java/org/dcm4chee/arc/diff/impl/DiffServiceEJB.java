@@ -243,13 +243,13 @@ public class DiffServiceEJB {
         return queueManager.cancelDiffTasks(matchQueueMessage, matchDiffTask, prev);
     }
 
-    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent, String newDeviceName) {
+    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) {
         DiffTask task = em.find(DiffTask.class, pk);
         if (task == null)
             return;
 
         LOG.info("Reschedule {}", task);
-        queueManager.rescheduleTask(task.getQueueMessage(), DiffService.QUEUE_NAME, queueEvent, newDeviceName);
+        queueManager.rescheduleTask(task.getQueueMessage(), DiffService.QUEUE_NAME, queueEvent);
     }
 
     public String findDeviceNameByPk(Long pk) {

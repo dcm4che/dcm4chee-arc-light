@@ -228,16 +228,14 @@ public class RetrieveTaskRS {
             if (newDeviceName != null && !newDeviceName.equals(device.getDeviceName()))
                 return rsClient.forward(request, newDeviceName);
 
-            String prevDeviceName = mgr.findDeviceNameByPk(pk);
-            if (prevDeviceName == null)
+            String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByPk(pk);
+            if (devName == null)
                 return rsp(Response.Status.NOT_FOUND, "Task not found");
 
-            if ((newDeviceName != null && !newDeviceName.equals(prevDeviceName))
-                    || prevDeviceName.equals(device.getDeviceName()))
-                mgr.rescheduleRetrieveTask(pk, queueEvent, newDeviceName);
-            else
-                return rsClient.forward(request, prevDeviceName);
+            if (!devName.equals(device.getDeviceName()))
+                return rsClient.forward(request, newDeviceName);
 
+            mgr.rescheduleRetrieveTask(pk, queueEvent);
             return rsp(Response.Status.NO_CONTENT);
         } catch (Exception e) {
             queueEvent.setException(e);
@@ -283,7 +281,7 @@ public class RetrieveTaskRS {
             try (RetrieveTaskQuery retrieveTasks = mgr.listRetrieveTasks(
                     matchQueueMessage, matchRetrieveTask(updatedTime), null, 0, 0)) {
                 for (RetrieveTask retrieveTask : retrieveTasks) {
-                    mgr.rescheduleRetrieveTask(retrieveTask.getPk(), null, newDeviceName);
+                    mgr.rescheduleRetrieveTask(retrieveTask.getPk(), null);
                     count++;
                 }
             }

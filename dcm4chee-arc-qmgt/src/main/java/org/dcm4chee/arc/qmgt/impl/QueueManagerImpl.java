@@ -164,8 +164,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent, String newDeviceName) {
-        ejb.rescheduleTask(msgId, queueName, queueEvent, newDeviceName);
+    public void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
+        ejb.rescheduleTask(msgId, queueName, queueEvent);
     }
 
     @Override
@@ -174,8 +174,8 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public void rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent, String newDeviceName) {
-        ejb.rescheduleTask(task, queueName, queueEvent, newDeviceName);
+    public void rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent) {
+        ejb.rescheduleTask(task, queueName, queueEvent);
     }
 
     @Override

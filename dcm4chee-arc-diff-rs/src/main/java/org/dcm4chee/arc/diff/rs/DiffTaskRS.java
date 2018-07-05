@@ -259,16 +259,14 @@ public class DiffTaskRS {
             if (newDeviceName != null && !newDeviceName.equals(device.getDeviceName()))
                 return rsClient.forward(request, newDeviceName);
 
-            String prevDeviceName = diffService.findDeviceNameByPk(pk);
-            if (prevDeviceName == null)
+            String devName = newDeviceName != null ? newDeviceName : diffService.findDeviceNameByPk(pk);
+            if (devName == null)
                 return rsp(Response.Status.NOT_FOUND, "Task not found");
 
-            if ((newDeviceName != null && !newDeviceName.equals(prevDeviceName))
-                    || prevDeviceName.equals(device.getDeviceName()))
-                diffService.rescheduleDiffTask(pk, queueEvent, newDeviceName);
-            else
-                return rsClient.forward(request, prevDeviceName);
+            if (!devName.equals(device.getDeviceName()))
+                return rsClient.forward(request, newDeviceName);
 
+            diffService.rescheduleDiffTask(pk, queueEvent);
             return rsp(Response.Status.NO_CONTENT);
         } catch (Exception e) {
             queueEvent.setException(e);
@@ -314,7 +312,7 @@ public class DiffTaskRS {
             try (DiffTaskQuery diffTasks = diffService.listDiffTasks(
                     matchQueueMessage, matchDiffTask(), null, 0,0)) {
                 for (DiffTask diffTask : diffTasks) {
-                    diffService.rescheduleDiffTask(diffTask.getPk(), null, newDeviceName);
+                    diffService.rescheduleDiffTask(diffTask.getPk(), null);
                     count++;
                 }
             }

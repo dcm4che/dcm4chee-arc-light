@@ -268,13 +268,13 @@ public class RetrieveManagerEJB {
         }
     }
 
-    public void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent, String newDeviceName) {
+    public void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) {
         RetrieveTask task = em.find(RetrieveTask.class, pk);
         if (task == null)
             return;
 
         LOG.info("Reschedule {}", task);
-        queueManager.rescheduleTask(task.getQueueMessage(), RetrieveManager.QUEUE_NAME, queueEvent, newDeviceName);
+        queueManager.rescheduleTask(task.getQueueMessage(), RetrieveManager.QUEUE_NAME, queueEvent);
     }
 
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {

@@ -82,7 +82,7 @@ public interface ExportManager {
 
     String findDeviceNameByPk(Long pk);
 
-    void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent, String newDeviceName);
+    void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent);
 
     int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask);
 

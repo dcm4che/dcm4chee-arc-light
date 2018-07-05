@@ -75,7 +75,7 @@ public interface RetrieveManager {
 
     String findDeviceNameByPk(Long pk);
 
-    void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent, String newDeviceName);
+    void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent);
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 

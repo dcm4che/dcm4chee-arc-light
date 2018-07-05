@@ -203,16 +203,14 @@ public class QueueManagerRS {
             if (newDeviceName != null && !newDeviceName.equals(device.getDeviceName()))
                 return rsClient.forward(request, newDeviceName);
 
-            String devName = mgr.findDeviceNameByMsgId(msgId);
+            String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByMsgId(msgId);
             if (devName == null)
                 return rsp(Response.Status.NOT_FOUND, "Task not found");
 
-            if ((newDeviceName != null && !newDeviceName.equals(devName))
-                    || devName.equals(device.getDeviceName()))
-                mgr.rescheduleTask(msgId, null, queueEvent, newDeviceName);
-            else
-                return rsClient.forward(request, devName);
+            if (!devName.equals(device.getDeviceName()))
+                return rsClient.forward(request, newDeviceName);
 
+            mgr.rescheduleTask(msgId, null, queueEvent);
             return rsp(Response.Status.NO_CONTENT);
         } catch (Exception e) {
             queueEvent.setException(e);
@@ -257,7 +255,7 @@ public class QueueManagerRS {
             int count = 0;
             try(QueueMessageQuery queueMsgs = mgr.listQueueMessages(matchQueueMessage, null, 0,0)) {
                 for (QueueMessage queueMsg : queueMsgs) {
-                    mgr.rescheduleTask(queueMsg.getMessageID(), queueName, null, newDeviceName);
+                    mgr.rescheduleTask(queueMsg.getMessageID(), queueName, null);
                     count++;
                 }
             }

@@ -161,8 +161,8 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent, String newDeviceName) {
-        ejb.rescheduleDiffTask(pk, queueEvent, newDeviceName);
+    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) {
+        ejb.rescheduleDiffTask(pk, queueEvent);
     }
 
     @Override

@@ -347,11 +347,11 @@ public class QueueManagerEJB {
         }
     }
 
-    public void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent, String newDeviceName) {
-        rescheduleTask(findQueueMessage(msgId), queueName, queueEvent, newDeviceName);
+    public void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
+        rescheduleTask(findQueueMessage(msgId), queueName, queueEvent);
     }
 
-    public void rescheduleTask(QueueMessage entity, String queueName, QueueMessageEvent queueEvent, String newDeviceName) {
+    public void rescheduleTask(QueueMessage entity, String queueName, QueueMessageEvent queueEvent) {
         if (entity == null)
             return;
 
@@ -365,8 +365,7 @@ public class QueueManagerEJB {
         }
         if (queueName != null)
             entity.setQueueName(queueName);
-        if (newDeviceName != null)
-            entity.setDeviceName(newDeviceName);
+        entity.setDeviceName(device.getDeviceName());
         entity.setNumberOfFailures(0);
         entity.setErrorMessage(null);
         entity.setOutcomeMessage(null);

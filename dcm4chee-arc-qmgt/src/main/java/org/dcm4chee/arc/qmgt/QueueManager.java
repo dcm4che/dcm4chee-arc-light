@@ -82,11 +82,11 @@ public interface QueueManager {
 
     String findDeviceNameByMsgId(String msgId);
 
-    void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent, String newDeviceName);
+    void rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent);
 
     boolean deleteTask(String msgId, QueueMessageEvent queueEvent);
 
-    void rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent, String newDeviceName);
+    void rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent);
 
     int deleteTasks(String queueName, Predicate matchQueueMessage);
 
