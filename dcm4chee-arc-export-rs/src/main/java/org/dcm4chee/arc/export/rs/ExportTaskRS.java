@@ -225,20 +225,17 @@ public class ExportTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            if (newDeviceName != null && !newDeviceName.equals(device.getDeviceName()))
-                return rsClient.forward(request, newDeviceName);
-
-            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
-            if (exporter == null)
-                return rsp(Response.Status.NOT_FOUND, "No such exporter - " + exporterID);
-
             String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByPk(pk);
             if (devName == null)
                 return rsp(Response.Status.NOT_FOUND, "Task not found");
 
             if (!devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, newDeviceName);
+
+            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+            ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
+            if (exporter == null)
+                return rsp(Response.Status.NOT_FOUND, "No such exporter - " + exporterID);
 
             mgr.rescheduleExportTask(pk, exporter, queueEvent);
             return rsp(Response.Status.NO_CONTENT);

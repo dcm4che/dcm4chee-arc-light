@@ -225,9 +225,6 @@ public class RetrieveTaskRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            if (newDeviceName != null && !newDeviceName.equals(device.getDeviceName()))
-                return rsClient.forward(request, newDeviceName);
-
             String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByPk(pk);
             if (devName == null)
                 return rsp(Response.Status.NOT_FOUND, "Task not found");

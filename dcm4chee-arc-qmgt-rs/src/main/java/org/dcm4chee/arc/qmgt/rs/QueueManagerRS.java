@@ -200,9 +200,6 @@ public class QueueManagerRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            if (newDeviceName != null && !newDeviceName.equals(device.getDeviceName()))
-                return rsClient.forward(request, newDeviceName);
-
             String devName = newDeviceName != null ? newDeviceName : mgr.findDeviceNameByMsgId(msgId);
             if (devName == null)
                 return rsp(Response.Status.NOT_FOUND, "Task not found");
