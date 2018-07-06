@@ -50,16 +50,14 @@ import org.dcm4che3.net.Status;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4che3.util.TagUtils;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.conf.RejectionNote;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
+import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
 import org.hibernate.Session;
-import org.hibernate.StatelessSession;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,8 +67,10 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
 import java.util.*;
 
 import com.querydsl.core.BooleanBuilder;
@@ -90,6 +90,7 @@ public class StgCmtEJB implements StgCmtManager {
             QLocation.location.pk,
             QLocation.location.storageID,
             QLocation.location.storagePath,
+            QLocation.location.size,
             QLocation.location.digest,
             QLocation.location.status,
             QInstance.instance.sopClassUID,
@@ -107,11 +108,10 @@ public class StgCmtEJB implements StgCmtManager {
     private Device device;
 
     @Inject
-    private StorageFactory storageFactory;
+    private UpdateLocationEJB updateLocationEJB;
 
-    StatelessSession openStatelessSession() {
-        return em.unwrap(Session.class).getSessionFactory().openStatelessSession();
-    }
+    @Inject
+    private StorageFactory storageFactory;
 
     @Override
     public void addExternalRetrieveAETs(Attributes eventInfo, Device device) {
@@ -137,7 +137,7 @@ public class StgCmtEJB implements StgCmtManager {
     }
 
     @Override
-    public Attributes calculateResult(Sequence refSopSeq, String transactionUID) {
+    public Attributes calculateResult(StgCmtContext ctx, Sequence refSopSeq, String transactionUID) {
         int size = refSopSeq.size();
         Map<String,List<Tuple>> instances = new HashMap<>(size * 4 / 3);
         String commonRetrieveAETs = queryInstances(createPredicate(refSopSeq), instances);
@@ -162,7 +162,7 @@ public class StgCmtEJB implements StgCmtManager {
                     studyUIDs.add(tuple.get(QStudy.study.studyInstanceUID));
                     if (!cuid.equals(tuple.get(QInstance.instance.sopClassUID)))
                         failedSeq.add(refSOP(cuid, iuid, Status.ClassInstanceConflict));
-                    else if (validateLocations(tuples, storageMap, buffer))
+                    else if (validateLocations(ctx, tuples, storageMap, buffer))
                         successSeq.add(refSOP(cuid, iuid,
                                 commonRetrieveAETs == null ? tuple.get(QInstance.instance.retrieveAETs) : null));
                     else
@@ -195,7 +195,7 @@ public class StgCmtEJB implements StgCmtManager {
 
 
     @Override
-    public Attributes calculateResult(String studyIUID, String seriesIUID, String sopIUID) {
+    public Attributes calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID) {
         HashMap<String,List<Tuple>> instances = new HashMap<>();
         String commonRetrieveAETs = queryInstances(createPredicate(studyIUID, seriesIUID, sopIUID), instances);
         Attributes eventInfo = new Attributes(3);
@@ -211,7 +211,7 @@ public class StgCmtEJB implements StgCmtManager {
                 Tuple tuple = tuples.get(0);
                 String cuid = tuple.get(QInstance.instance.sopClassUID);
                 String iuid = tuple.get(QInstance.instance.sopInstanceUID);
-                if (validateLocations(tuples, storageMap, buffer))
+                if (validateLocations(ctx, tuples, storageMap, buffer))
                     successSeq.add(refSOP(cuid,iuid,
                             commonRetrieveAETs == null ? tuple.get(QInstance.instance.retrieveAETs) : null));
                 else
@@ -301,37 +301,187 @@ public class StgCmtEJB implements StgCmtManager {
                 .fetch();
     }
 
-    private boolean validateLocations(List<Tuple> tuples, HashMap<String, Storage> storageMap, byte[] buffer) {
-        for (Tuple tuple : tuples)
-            if (validateLocation(tuple, storageMap, buffer))
-                return true;
+    private boolean validateLocations(StgCmtContext ctx, List<Tuple> tuples, HashMap<String, Storage> storageMap,
+                                      byte[] buffer) {
+        if (ctx.getStgCmtPolicy() == StgCmtPolicy.DB_RECORD_EXISTS)
+            return true;
+
+        int locationsOnStgCmtStorage = 0;
+        for (Tuple tuple : tuples) {
+            String storageID = tuple.get(QLocation.location.storageID);
+            if (ctx.isStgCmtStorageID(storageID)) {
+                locationsOnStgCmtStorage++;
+                Storage storage = getStorage(storageMap, storageID);
+                ValidationResult result = validateLocation(ctx, tuple, storage, buffer);
+                if (ctx.isStgCmtUpdateLocationStatus()
+                        && tuple.get(QLocation.location.status) != result.status) {
+                    LOG.debug("Update status of Location[pk={},storagePath={}] on {} of Instance[uid={}] of Study[uid={}] to {}",
+                            tuple.get(QLocation.location.pk),
+                            tuple.get(QLocation.location.storagePath),
+                            storage.getStorageDescriptor(),
+                            tuple.get(QInstance.instance.sopInstanceUID),
+                            tuple.get(QStudy.study.studyInstanceUID),
+                            result.status);
+                    updateLocationEJB.setStatus(tuple.get(QLocation.location.pk), result.status);
+                }
+                if (result.ok()) {
+                    return true;
+                }
+                if (result.ioException != null) {
+                    LOG.info("{} of Location[pk={},storagePath={}] on {} of Instance[uid={}] of Study[uid={}]:\n",
+                            result.status,
+                            tuple.get(QLocation.location.pk),
+                            tuple.get(QLocation.location.storagePath),
+                            storage.getStorageDescriptor(),
+                            tuple.get(QInstance.instance.sopInstanceUID),
+                            tuple.get(QStudy.study.studyInstanceUID),
+                            result.ioException);
+                } else {
+                    LOG.info("{} of Location[pk={},storagePath={}] on {} of Instance[uid={}] of Study[uid={}]",
+                            result.status,
+                            tuple.get(QLocation.location.pk),
+                            tuple.get(QLocation.location.storagePath),
+                            storage.getStorageDescriptor(),
+                            tuple.get(QInstance.instance.sopInstanceUID),
+                            tuple.get(QStudy.study.studyInstanceUID));
+                }
+            }
+        }
+        if (locationsOnStgCmtStorage == 0) {
+            Tuple tuple = tuples.get(0);
+            LOG.info("Instance[uid={}] of Study[uid={}] not stored on Storage{}",
+                    tuple.get(QLocation.location.storagePath),
+                    tuple.get(QInstance.instance.sopInstanceUID),
+                    tuple.get(QStudy.study.studyInstanceUID),
+                    Arrays.toString(ctx.stgCmtStorageIDs()));
+        }
         return false;
     }
 
-    private boolean validateLocation(Tuple tuple, HashMap<String, Storage> storageMap, byte[] buffer) {
-        if (tuple.get(QLocation.location.status) != Location.Status.OK)
-            return false;
-
-        String digest = tuple.get(QLocation.location.digest);
-        if (digest == null)
-            return true;
-
-        Storage storage = getStorage(storageMap, tuple.get(QLocation.location.storageID));
+    private ValidationResult validateLocation(StgCmtContext ctx, Tuple tuple, Storage storage, byte[] buffer) {
         ReadContext readContext = storage.createReadContext();
         readContext.setStoragePath(tuple.get(QLocation.location.storagePath));
         readContext.setStudyInstanceUID(tuple.get(QStudy.study.studyInstanceUID));
-        readContext.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
-        try {
-            try (InputStream stream = storage.openInputStream(readContext)) {
-                StreamUtils.copy(stream, null, buffer);
-            }
-        } catch (IOException e) {
-            return false;
+        switch (ctx.getStgCmtPolicy()) {
+            case OBJECT_EXISTS:
+                return objectExists(readContext);
+            case OBJECT_SIZE:
+                return compareObjectSize(readContext, tuple);
+            case OBJECT_FETCH:
+                return fetchObject(readContext, buffer);
+            case OBJECT_CHECKSUM:
+                return recalcChecksum(readContext, tuple, buffer);
+            case S3_MD5SUM:
+                return compareS3md5Sum(readContext, tuple, buffer);
         }
-        if (TagUtils.toHexString(readContext.getDigest()).equals(digest))
-            return true;
+        throw new AssertionError("StgCmtPolicy: " + ctx.getStgCmtPolicy());
+    }
 
-        return false;
+    private static class ValidationResult {
+        final Location.Status status;
+        final IOException ioException;
+
+        ValidationResult(Location.Status status, IOException ioException) {
+            this.status = status;
+            this.ioException = ioException;
+        }
+
+        ValidationResult(Location.Status status) {
+            this(status, null);
+        }
+
+        boolean ok() {
+            return status == Location.Status.OK;
+        }
+    }
+
+    private ValidationResult objectExists(ReadContext readContext) {
+        return (readContext.getStorage().exists(readContext))
+                ? new ValidationResult(Location.Status.OK)
+                : new ValidationResult(Location.Status.MISSING_OBJECT);
+    }
+
+    private ValidationResult compareObjectSize(ReadContext readContext, Tuple tuple) {
+        try {
+            return (readContext.getStorage().getContentLength(readContext) == tuple.get(QLocation.location.size))
+                    ? new ValidationResult(Location.Status.OK)
+                    : new ValidationResult(Location.Status.DIFFERING_OBJECT_SIZE);
+        } catch (FileNotFoundException e) {
+            return new ValidationResult(Location.Status.MISSING_OBJECT, e);
+        } catch (IOException e) {
+            return new ValidationResult(Location.Status.FAILED_TO_FETCH_METADATA, e);
+        }
+    }
+
+    private ValidationResult fetchObject(ReadContext readContext, byte[] buffer) {
+        try (InputStream stream = readContext.getStorage().openInputStream(readContext)) {
+            StreamUtils.copy(stream, null, buffer);
+            return new ValidationResult(Location.Status.OK);
+        } catch (FileNotFoundException e) {
+            return new ValidationResult(Location.Status.MISSING_OBJECT, e);
+        } catch (IOException e) {
+            return new ValidationResult(Location.Status.FAILED_TO_FETCH_OBJECT, e);
+        }
+    }
+
+    private ValidationResult recalcChecksum(ReadContext readContext, Tuple tuple, byte[] buffer) {
+        StorageDescriptor storageDescriptor = readContext.getStorage().getStorageDescriptor();
+        MessageDigest messageDigest = storageDescriptor.getMessageDigest();
+        readContext.setMessageDigest(messageDigest);
+        ValidationResult validationResult = fetchObject(readContext, buffer);
+        if (!validationResult.ok() || messageDigest == null)
+            return validationResult;
+
+        String calculatedDigest = TagUtils.toHexString(readContext.getDigest());
+        String digest = tuple.get(QLocation.location.digest);
+        if (digest == null) {
+            LOG.info("Set missing digest of Location[pk={},storagePath={}] on {} of Instance[uid={}] of Study[uid={}]",
+                    tuple.get(QLocation.location.pk),
+                    tuple.get(QLocation.location.storagePath),
+                    storageDescriptor,
+                    tuple.get(QInstance.instance.sopInstanceUID),
+                    tuple.get(QStudy.study.studyInstanceUID));
+            updateLocationEJB.setDigest(tuple.get(QLocation.location.pk), calculatedDigest);
+            return validationResult;
+        }
+
+        return (calculatedDigest.equals(digest))
+                ? new ValidationResult(Location.Status.OK)
+                : new ValidationResult(Location.Status.DIFFERING_OBJECT_CHECKSUM);
+    }
+
+    private ValidationResult compareS3md5Sum(ReadContext readContext, Tuple tuple, byte[] buffer) {
+        StorageDescriptor storageDescriptor = readContext.getStorage().getStorageDescriptor();
+        if (!"MD5".equals(storageDescriptor.getDigestAlgorithm())) {
+            LOG.info("Digest Algorithm of {} != MD5 -> compare object size instead compare S3 MD5",
+                    storageDescriptor);
+            return compareObjectSize(readContext, tuple);
+        }
+
+        byte[] contentMD5;
+        try {
+            contentMD5 = readContext.getStorage().getContentMD5(readContext);
+        } catch (FileNotFoundException e) {
+            return new ValidationResult(Location.Status.MISSING_OBJECT, e);
+        } catch (IOException e) {
+            return new ValidationResult(Location.Status.FAILED_TO_FETCH_METADATA, e);
+        }
+        if (contentMD5 == null) {
+            LOG.info("S3 MD5SUM not supported by {} -> recalculate object checksum instead compare S3 MD5",
+                        storageDescriptor);
+            return recalcChecksum(readContext, tuple, buffer);
+        }
+        String digest = tuple.get(QLocation.location.digest);
+        if (digest == null || contentMD5 == null) {
+            ValidationResult validationResult = recalcChecksum(readContext, tuple, buffer);
+            if (!validationResult.ok())
+                return validationResult;
+
+            digest = TagUtils.toHexString(readContext.getDigest());
+        }
+        return (TagUtils.toHexString(contentMD5).equals(digest))
+            ? new ValidationResult(Location.Status.OK)
+            : new ValidationResult(Location.Status.DIFFERING_S3_MD5SUM);
     }
 
     private Storage getStorage(HashMap<String, Storage> storageMap, String storageID) {

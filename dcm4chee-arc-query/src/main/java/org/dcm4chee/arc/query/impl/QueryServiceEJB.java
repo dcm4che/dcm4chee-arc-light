@@ -103,6 +103,7 @@ public class QueryServiceEJB {
         QMetadata.metadata.storagePath,
         QMetadata.metadata.digest,
         QMetadata.metadata.size,
+        QMetadata.metadata.status,
         QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances,
         QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
         QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
@@ -118,7 +119,8 @@ public class QueryServiceEJB {
         QLocation.location.storagePath,
         QLocation.location.transferSyntaxUID,
         QLocation.location.digest,
-        QLocation.location.size
+        QLocation.location.size,
+        QLocation.location.status
     };
 
     static final Expression<?>[] SOP_REFS_OF_STUDY = {
@@ -284,6 +286,9 @@ public class QueryServiceEJB {
             if (result.get(QMetadata.metadata.digest) != null)
                 attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectDigest, VR.LO,
                         result.get(QMetadata.metadata.digest));
+            if (result.get(QMetadata.metadata.status) != Metadata.Status.OK)
+                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectStatus, VR.CS,
+                        result.get(QMetadata.metadata.status).name());
         }
         return attrs;
     }
@@ -314,6 +319,9 @@ public class QueryServiceEJB {
                 if (results.get(QLocation.location.digest) != null)
                     item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest, VR.LO,
                             results.get(QLocation.location.digest));
+                if (results.get(QLocation.location.status) != Location.Status.OK)
+                    attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectStatus, VR.CS,
+                            results.get(QLocation.location.status).name());
             }
         }
     }

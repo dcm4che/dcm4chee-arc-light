@@ -114,6 +114,9 @@ public class ArchiveAEExtension extends AEExtension {
     private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private String invokeImageDisplayPatientURL;
     private String invokeImageDisplayStudyURL;
+    private StgCmtPolicy stgCmtPolicy;
+    private Boolean stgCmtUpdateLocationStatus;
+    private String[] stgCmtStorageIDs = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -1055,6 +1058,46 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getInvokeImageDisplayStudyURL();
     }
 
+    public StgCmtPolicy getStgCmtPolicy() {
+        return stgCmtPolicy;
+    }
+
+    public void setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
+        this.stgCmtPolicy = stgCmtPolicy;
+    }
+
+    public StgCmtPolicy stgCmtPolicy() {
+        return stgCmtPolicy != null
+                ? stgCmtPolicy
+                : getArchiveDeviceExtension().getStgCmtPolicy();
+    }
+
+    public Boolean getStgCmtUpdateLocationStatus() {
+        return stgCmtUpdateLocationStatus;
+    }
+
+    public void setStgCmtUpdateLocationStatus(Boolean stgCmtUpdateLocationStatus) {
+        this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus;
+    }
+
+    public boolean stgCmtUpdateLocationStatus() {
+        return stgCmtUpdateLocationStatus != null
+                ? stgCmtUpdateLocationStatus.booleanValue()
+                : getArchiveDeviceExtension().isStgCmtUpdateLocationStatus();
+    }
+
+    public String[] getStgCmtStorageIDs() {
+        return stgCmtStorageIDs;
+    }
+
+    public void setStgCmtStorageIDs(String... stgCmtStorageIDs) {
+        this.stgCmtStorageIDs = stgCmtStorageIDs;
+    }
+
+    public String[] stgCmtStorageIDs() {
+        return stgCmtStorageIDs != null ? stgCmtStorageIDs : getArchiveDeviceExtension().getStgCmtStorageIDs();
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -1112,6 +1155,9 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
         invokeImageDisplayPatientURL = aeExt.invokeImageDisplayPatientURL;
         invokeImageDisplayStudyURL = aeExt.invokeImageDisplayStudyURL;
+        stgCmtPolicy = aeExt.stgCmtPolicy;
+        stgCmtUpdateLocationStatus = aeExt.stgCmtUpdateLocationStatus;
+        stgCmtStorageIDs = aeExt.stgCmtStorageIDs;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

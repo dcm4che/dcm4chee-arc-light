@@ -82,6 +82,21 @@ public abstract class AbstractStorage implements Storage {
     }
 
     @Override
+    public boolean exists(ReadContext ctx) {
+        throw new UnsupportedOperationException("exists() not supported by " + getClass().getName());
+    }
+
+    @Override
+    public long getContentLength(ReadContext ctx) throws IOException {
+        return -1L;
+    }
+
+    @Override
+    public byte[] getContentMD5(ReadContext ctx) throws IOException {
+        return null;
+    }
+
+    @Override
     public void close() throws IOException {
     }
 

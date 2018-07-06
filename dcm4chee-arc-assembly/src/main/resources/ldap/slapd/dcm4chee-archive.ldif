@@ -1077,6 +1077,20 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.217 NAME 'dcmWadoCDA2HtmlTemplateURI
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.218 NAME 'dcmStgCmtPolicy'
+  DESC 'Storage Commitment Policy: DB_RECORD_EXISTS (= only check for existence of DB records), OBJECT_EXISTS (= check if object exists on Storage System), OBJECT_SIZE (= check size of object on Storage System), OBJECT_FETCH (= fetch object from Storage System), OBJECT_CHECKSUM (= recalculate checksum of object on Storage System) or S3_MD5SUM (= check MD5 checksum of object on S3 Storage System). OBJECT_CHECKSUM if absent.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.219 NAME 'dcmStgCmtUpdateLocationStatus'
+  DESC 'Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. False if absent.'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.220 NAME 'dcmStgCmtStorageIDs'
+  DESC 'Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful. If absent, validation of the storage of the object on any Storage System is sufficient to accept the Storage Commitment for that object. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -1198,6 +1212,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmInvokeImageDisplayStudyURL $
     dcmCopyMoveUpdatePolicy $
     dcmLinkMWLEntryUpdatePolicy $
+    dcmStgCmtPolicy $
+    dcmStgCmtUpdateLocationStatus $
+    dcmStgCmtStorageIDs $
     dcmAuditSoftwareConfigurationVerbose $
     dcmQueueTasksFetchSize $
     dcmRejectionNoteStorageAET $
@@ -1277,6 +1294,9 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmInvokeImageDisplayStudyURL $
     dcmCopyMoveUpdatePolicy $
     dcmLinkMWLEntryUpdatePolicy $
+    dcmStgCmtPolicy $
+    dcmStgCmtUpdateLocationStatus $
+    dcmStgCmtStorageIDs $
     hl7PSUDelay $
     hl7PSUMWL $
     hl7PSUTimeout $

@@ -44,9 +44,8 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
+import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
-import org.dcm4chee.arc.stgcmt.impl.StgCmtEventInfoImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +77,7 @@ public class StorageCmtRS {
     private StgCmtManager stgCmtMgr;
 
     @Inject
-    private Event<StgCmtEventInfo> stgCmtEvent;
+    private Event<StgCmtContext> stgCmtEvent;
 
     @PathParam("aet")
     private String aet;
@@ -115,9 +114,9 @@ public class StorageCmtRS {
 
     private StreamingOutput storageCommit(String studyUID, String seriesUID, String sopUID) {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        validateArchiveAE();
-        Attributes eventInfo = stgCmtMgr.calculateResult(studyUID, seriesUID, sopUID);
-        stgCmtEvent.fire(new StgCmtEventInfoImpl(request, eventInfo));
+        StgCmtContext ctx = new StgCmtContext(getApplicationEntity(), aet).setRequest(request);
+        Attributes eventInfo = stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID);
+        stgCmtEvent.fire(ctx.setExtendedEventInfo(eventInfo));
         return out -> {
                 try (JsonGenerator gen = Json.createGenerator(out)) {
                     JSONWriter writer = new JSONWriter(gen);
@@ -128,12 +127,13 @@ public class StorageCmtRS {
         };
     }
 
-    private void validateArchiveAE() {
+    private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(
                     Response.status(Response.Status.NOT_FOUND)
                             .entity("{\"errorMessage\":\"" + "No such Application Entity: " + aet + "\"}")
                             .build());
+        return ae;
     }
 }

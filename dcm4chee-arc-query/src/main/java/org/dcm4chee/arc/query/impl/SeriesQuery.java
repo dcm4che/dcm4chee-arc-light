@@ -95,6 +95,7 @@ class SeriesQuery extends AbstractQuery {
             QMetadata.metadata.storagePath,
             QMetadata.metadata.digest,
             QMetadata.metadata.size,
+            QMetadata.metadata.status,
             QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
             QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
@@ -232,6 +233,9 @@ class SeriesQuery extends AbstractQuery {
             if (results.get(QMetadata.metadata.digest) != null)
                 attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectDigest, VR.LO,
                         results.get(QMetadata.metadata.digest));
+            if (results.get(QMetadata.metadata.status) != Metadata.Status.OK)
+                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectStatus, VR.CS,
+                        results.get(QMetadata.metadata.status).name());
         }
         return attrs;
     }

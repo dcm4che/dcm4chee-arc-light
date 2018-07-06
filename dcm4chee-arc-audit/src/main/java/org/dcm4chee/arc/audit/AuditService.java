@@ -75,7 +75,7 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
+import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreSession;
 import org.dcm4chee.arc.study.StudyMgtContext;
@@ -1566,25 +1566,25 @@ public class AuditService {
         return val != null;
     }
 
-    void spoolStgCmt(StgCmtEventInfo stgCmtEventInfo) {
-        Attributes eventInfo = stgCmtEventInfo.getExtendedEventInfo();
+    void spoolStgCmt(StgCmtContext stgCmtContext) {
+        Attributes eventInfo = stgCmtContext.getExtendedEventInfo();
         String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
                 ? Stream.of(eventInfo.getStrings(Tag.StudyInstanceUID)).collect(Collectors.joining(";"))
                 : getArchiveDevice().auditUnknownStudyInstanceUID();
 
-        spoolFailedStgcmt(stgCmtEventInfo, studyUID);
-        spoolSuccessStgcmt(stgCmtEventInfo, studyUID);
+        spoolFailedStgcmt(stgCmtContext, studyUID);
+        spoolSuccessStgcmt(stgCmtContext, studyUID);
     }
 
-    private void spoolSuccessStgcmt(StgCmtEventInfo stgCmtEventInfo, String studyUID) {
-        Sequence success = stgCmtEventInfo.getExtendedEventInfo().getSequence(Tag.ReferencedSOPSequence);
+    private void spoolSuccessStgcmt(StgCmtContext stgCmtContext, String studyUID) {
+        Sequence success = stgCmtContext.getExtendedEventInfo().getSequence(Tag.ReferencedSOPSequence);
         if (success != null && !success.isEmpty()) {
             AuditInfoBuilder[] auditInfoBuilder = new AuditInfoBuilder[success.size()+1];
             auditInfoBuilder[0] = new AuditInfoBuilder.Builder()
-                                .callingUserID(storageCmtCallingAET(stgCmtEventInfo))
-                                .callingHost(storageCmtCallingHost(stgCmtEventInfo))
-                                .calledUserID(storageCmtCalledAET(stgCmtEventInfo))
-                                .pIDAndName(stgCmtEventInfo.getExtendedEventInfo(), getArchiveDevice())
+                                .callingUserID(storageCmtCallingAET(stgCmtContext))
+                                .callingHost(storageCmtCallingHost(stgCmtContext))
+                                .calledUserID(storageCmtCalledAET(stgCmtContext))
+                                .pIDAndName(stgCmtContext.getExtendedEventInfo(), getArchiveDevice())
                                 .studyUID(studyUID)
                                 .build();
             for (int i = 1; i <= success.size(); i++)
@@ -1594,8 +1594,8 @@ public class AuditService {
         }
     }
 
-    private void spoolFailedStgcmt(StgCmtEventInfo stgCmtEventInfo, String studyUID) {
-        Sequence failed = stgCmtEventInfo.getExtendedEventInfo().getSequence(Tag.FailedSOPSequence);
+    private void spoolFailedStgcmt(StgCmtContext stgCmtContext, String studyUID) {
+        Sequence failed = stgCmtContext.getExtendedEventInfo().getSequence(Tag.FailedSOPSequence);
         if (failed != null && !failed.isEmpty()) {
             AuditInfoBuilder[] auditInfoBuilder = new AuditInfoBuilder[failed.size()+1];
             Set<String> failureReasons = new HashSet<>();
@@ -1609,10 +1609,10 @@ public class AuditService {
                             ? "ClassInstanceConflict" : "ProcessingFailure");
             }
             auditInfoBuilder[0] = new AuditInfoBuilder.Builder()
-                                .callingUserID(storageCmtCallingAET(stgCmtEventInfo))
-                                .callingHost(storageCmtCallingHost(stgCmtEventInfo))
-                                .calledUserID(storageCmtCalledAET(stgCmtEventInfo))
-                                .pIDAndName(stgCmtEventInfo.getExtendedEventInfo(), getArchiveDevice())
+                                .callingUserID(storageCmtCallingAET(stgCmtContext))
+                                .callingHost(storageCmtCallingHost(stgCmtContext))
+                                .calledUserID(storageCmtCalledAET(stgCmtContext))
+                                .pIDAndName(stgCmtContext.getExtendedEventInfo(), getArchiveDevice())
                                 .studyUID(studyUID)
                                 .outcome(failureReasons.stream().collect(Collectors.joining(";")))
                                 .build();
@@ -1645,22 +1645,22 @@ public class AuditService {
                             .sopIUID(sopRef.getString(Tag.ReferencedSOPInstanceUID)).build());
     }
 
-    private String storageCmtCallingHost(StgCmtEventInfo stgCmtEventInfo) {
-        return stgCmtEventInfo.getRequest() != null
-                ? stgCmtEventInfo.getRequest().getRemoteHost()
-                : stgCmtEventInfo.getRemoteAE().getConnections().get(0).getHostname();
+    private String storageCmtCallingHost(StgCmtContext stgCmtContext) {
+        return stgCmtContext.getRequest() != null
+                ? stgCmtContext.getRequest().getRemoteHost()
+                : stgCmtContext.getRemoteAE().getConnections().get(0).getHostname();
     }
 
-    private String storageCmtCalledAET(StgCmtEventInfo stgCmtEventInfo) {
-        return stgCmtEventInfo.getRequest() != null
-                ? stgCmtEventInfo.getRequest().getRequestURI()
-                : stgCmtEventInfo.getLocalAET();
+    private String storageCmtCalledAET(StgCmtContext stgCmtContext) {
+        return stgCmtContext.getRequest() != null
+                ? stgCmtContext.getRequest().getRequestURI()
+                : stgCmtContext.getLocalAET();
     }
 
-    private String storageCmtCallingAET(StgCmtEventInfo stgCmtEventInfo) {
-        return stgCmtEventInfo.getRequest() != null
-                ? KeycloakContext.valueOf(stgCmtEventInfo.getRequest()).getUserName()
-                : stgCmtEventInfo.getRemoteAE().getAETitle();
+    private String storageCmtCallingAET(StgCmtContext stgCmtContext) {
+        return stgCmtContext.getRequest() != null
+                ? KeycloakContext.valueOf(stgCmtContext.getRequest()).getUserName()
+                : stgCmtContext.getRemoteAE().getAETitle();
     }
 
     private void auditStorageCommit(AuditLogger auditLogger, Path path, AuditServiceUtils.EventType et) throws IOException {

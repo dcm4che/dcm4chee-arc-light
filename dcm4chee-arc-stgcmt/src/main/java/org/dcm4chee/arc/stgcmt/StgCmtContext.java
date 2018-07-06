@@ -38,54 +38,80 @@
  * *** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.stgcmt.impl;
+package org.dcm4chee.arc.stgcmt;
 
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
-import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.StgCmtPolicy;
 
 import javax.servlet.http.HttpServletRequest;
 
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since March 2017
  */
-public class StgCmtEventInfoImpl implements StgCmtEventInfo {
+public class StgCmtContext {
+    private final ArchiveAEExtension arcAE;
+    private final String localAET;
     private ApplicationEntity remoteAE;
-    private String localAET;
     private HttpServletRequest request;
     private Attributes extendedEventInfo;
 
-    public StgCmtEventInfoImpl(ApplicationEntity remoteAE, String localAET, Attributes extendedEventInfo) {
-        this.remoteAE = remoteAE;
+    public StgCmtContext(ApplicationEntity localAE, String localAET) {
+        this.arcAE = localAE.getAEExtensionNotNull(ArchiveAEExtension.class);
         this.localAET = localAET;
-        this.extendedEventInfo = extendedEventInfo;
     }
 
-    public StgCmtEventInfoImpl(HttpServletRequest request, Attributes extendedEventInfo) {
-        this.request = request;
-        this.extendedEventInfo = extendedEventInfo;
-    }
-
-    @Override
     public ApplicationEntity getRemoteAE() {
         return remoteAE;
     }
 
-    @Override
     public String getLocalAET() {
         return localAET;
     }
 
-    @Override
     public Attributes getExtendedEventInfo() {
         return extendedEventInfo;
     }
 
-    @Override
     public HttpServletRequest getRequest() {
         return request;
+    }
+
+    public StgCmtContext setRemoteAE(ApplicationEntity remoteAE) {
+        this.remoteAE = remoteAE;
+        return this;
+    }
+
+    public StgCmtContext setRequest(HttpServletRequest request) {
+        this.request = request;
+        return this;
+    }
+
+    public StgCmtContext setExtendedEventInfo(Attributes extendedEventInfo) {
+        this.extendedEventInfo = extendedEventInfo;
+        return this;
+    }
+
+    public StgCmtPolicy getStgCmtPolicy() {
+        return arcAE.stgCmtPolicy();
+    }
+
+    public boolean isStgCmtUpdateLocationStatus() {
+        return arcAE.stgCmtUpdateLocationStatus();
+    }
+
+    public String[] stgCmtStorageIDs() {
+        return arcAE.stgCmtStorageIDs();
+    }
+
+    public boolean isStgCmtStorageID(String storageID) {
+        String[] a = stgCmtStorageIDs();
+        return a.length == 0 || StringUtils.contains(a, storageID);
     }
 
 }

@@ -214,6 +214,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmAudit2XmlFhirTemplateURI", arcDev.getAudit2XmlFhirTemplateURI(), null);
         writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy", arcDev.getCopyMoveUpdatePolicy(), null);
         writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy", arcDev.getLinkMWLEntryUpdatePolicy(), null);
+        writer.writeNotNullOrDef("dcmStgCmtPolicy", arcDev.getStgCmtPolicy(), StgCmtPolicy.OBJECT_CHECKSUM);
+        writer.writeNotNullOrDef("dcmStgCmtUpdateLocationStatus", arcDev.isStgCmtUpdateLocationStatus(), false);
+        writer.writeNotEmpty("dcmStgCmtStorageIDs", arcDev.getStgCmtStorageIDs());
         writer.writeNotDef("hl7TrackChangedPatientID", arcDev.isHl7TrackChangedPatientID(), true);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcDev.getInvokeImageDisplayPatientURL(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcDev.getInvokeImageDisplayStudyURL(), null);
@@ -658,6 +661,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmAcceptConflictingPatientID", arcAE.getAcceptConflictingPatientID(), null);
         writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy", arcAE.getCopyMoveUpdatePolicy(), null);
         writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy", arcAE.getLinkMWLEntryUpdatePolicy(), null);
+        writer.writeNotNullOrDef("dcmStgCmtPolicy", arcAE.getStgCmtPolicy(), null);
+        writer.writeNotNullOrDef("dcmStgCmtUpdateLocationStatus", arcAE.getStgCmtUpdateLocationStatus(), null);
+        writer.writeNotEmpty("dcmStgCmtStorageIDs", arcAE.getStgCmtStorageIDs());
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcAE.getInvokeImageDisplayPatientURL(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcAE.getInvokeImageDisplayStudyURL(), null);
         writeExportRule(writer, arcAE.getExportRules());
@@ -1015,6 +1021,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmLinkMWLEntryUpdatePolicy":
                     arcDev.setLinkMWLEntryUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmStgCmtPolicy":
+                    arcDev.setStgCmtPolicy(StgCmtPolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmStgCmtUpdateLocationStatus":
+                    arcDev.setStgCmtUpdateLocationStatus(reader.booleanValue());
+                    break;
+                case "dcmStgCmtStorageIDs":
+                    arcDev.setStgCmtStorageIDs(reader.stringArray());
                     break;
                 case "hl7TrackChangedPatientID":
                     arcDev.setHl7TrackChangedPatientID(reader.booleanValue());
@@ -2083,6 +2098,15 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmLinkMWLEntryUpdatePolicy":
                     arcAE.setLinkMWLEntryUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmStgCmtPolicy":
+                    arcAE.setStgCmtPolicy(StgCmtPolicy.valueOf(reader.stringValue()));
+                    break;
+                case "dcmStgCmtUpdateLocationStatus":
+                    arcAE.setStgCmtUpdateLocationStatus(reader.booleanValue());
+                    break;
+                case "dcmStgCmtStorageIDs":
+                    arcAE.setStgCmtStorageIDs(reader.stringArray());
                     break;
                 case "dcmInvokeImageDisplayPatientURL":
                     arcAE.setInvokeImageDisplayPatientURL(reader.stringValue());
