@@ -1818,6 +1818,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         wadoZIPEntryNameFormat = arcdev.wadoZIPEntryNameFormat;
         wadoSR2HtmlTemplateURI = arcdev.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = arcdev.wadoSR2TextTemplateURI;
+        wadoCDA2HtmlTemplateURI = arcdev.wadoCDA2HtmlTemplateURI;
         patientUpdateTemplateURI = arcdev.patientUpdateTemplateURI;
         importReportTemplateURI = arcdev.importReportTemplateURI;
         scheduleProcedureTemplateURI = arcdev.scheduleProcedureTemplateURI;

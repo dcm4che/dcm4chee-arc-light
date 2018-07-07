@@ -59,6 +59,9 @@
     <jbossws-cxf-client.version>5.2.1.Final</jbossws-cxf-client.version>
     <apache-cxf.version>3.2.4-jbossorg-1</apache-cxf.version>
     <maven-war-plugin.version>3.2.0</maven-war-plugin.version>
+    <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
+    <maven-ear-plugin.version>3.0.1</maven-ear-plugin.version>
+    <download-maven-plugin.version>1.4.0</download-maven-plugin.version>
     <jaxws-tools-maven-plugin.version>1.2.2.Final</jaxws-tools-maven-plugin.version>
     <!-- Versions -->
     <dcm4che.version>${project.version}</dcm4che.version>
@@ -510,6 +513,7 @@
     <module>dcm4chee-arc-ui2</module>
     <module>dcm4chee-arc-xroad</module>
     <module>dcm4chee-arc-xroad-rs</module>
+    <module>dcm4chee-arc-xsl-cda</module>
     <module>dcm4chee-arc-ear</module>
     <module>dcm4chee-arc-assembly</module>
     <module>dcm4chee-arr-proxy</module>

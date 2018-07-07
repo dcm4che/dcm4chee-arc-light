@@ -985,7 +985,7 @@ class ArchiveDeviceFactory {
     static final String HL7_DCM2ADT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-dcm2adt.xsl";
     static final String DSR2HTML_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2html.xsl";
     static final String DSR2TEXT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/dsr2text.xsl";
-    static final String CDA2HTML_XSL = "https://raw.githubusercontent.com/lantanagroup/stylesheets/master/Stylesheets/CDA/dist/cda-web.xsl";
+    static final String CDA2HTML_XSL = "/dcm4chee-arc/xsl/cda.xsl";
     static final String HL7_ORU2DSR_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-oru2dsr.xsl";
     static final String HL7_ORDER2DCM_XSL = "${jboss.server.temp.url}/dcm4chee-arc/hl7-order2dcm.xsl";
     static final String UNZIP_VENDOR_DATA = "${jboss.server.temp.url}/dcm4chee-arc";

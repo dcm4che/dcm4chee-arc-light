@@ -1117,6 +1117,7 @@ public class ArchiveAEExtension extends AEExtension {
         sendPendingCMoveInterval = aeExt.sendPendingCMoveInterval;
         wadoSR2HtmlTemplateURI = aeExt.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = aeExt.wadoSR2TextTemplateURI;
+        wadoCDA2HtmlTemplateURI = aeExt.wadoCDA2HtmlTemplateURI;
         mppsForwardDestinations = aeExt.mppsForwardDestinations;
         ianDestinations = aeExt.ianDestinations;
         ianDelay = aeExt.ianDelay;

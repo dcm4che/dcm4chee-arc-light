@@ -11,7 +11,7 @@ dicomVendorData:< file:vendor-data.zip
 delete: dcmElasticSearchURL
 -
 add: dcmWadoCDA2HtmlTemplateURI
-dcmWadoCDA2HtmlTemplateURI: https://raw.githubusercontent.com/lantanagroup/stylesheets/master/Stylesheets/CDA/dist/cda-web.xsl
+dcmWadoCDA2HtmlTemplateURI: /dcm4chee-arc/xsl/cda.xsl
 -
 
 dn: dicomAETitle=IOCM_EXPIRED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
