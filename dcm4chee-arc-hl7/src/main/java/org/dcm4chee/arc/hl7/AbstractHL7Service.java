@@ -108,7 +108,7 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
         Collection<String> destinations = arcHL7App.forwardDestinations(host, msh);
         if (!destinations.isEmpty())
             hl7sender.forwardMessage(msh, hl7msg,
-                    destinations.toArray(new String[destinations.size()]));
+                    destinations.toArray(new String[0]));
     }
 
     private void log(UnparsedHL7Message msg, String dirpath) {
@@ -126,7 +126,6 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
                     Files.newOutputStream(file, StandardOpenOption.APPEND))) {
                 new DataOutputStream(out);
                 out.write(msg.data());
-                out.close();
             }
         } catch (Exception e) {
             LOG.warn("Failed to write log file : ", dir, file, e);
@@ -148,13 +147,14 @@ abstract class AbstractHL7Service extends DefaultHL7Service {
             }
             String s1 = s.substring(i+2, j);
             String dateFormat = null;
+            Date date = new Date();
             if (s1.substring(0,4).equalsIgnoreCase("date")) {
                 try {
-                    Date date = new SimpleDateFormat("yyyyMMdd").parse(msh.getField(6, null).substring(0,8));
-                    dateFormat = new SimpleDateFormat(s1.substring(s1.indexOf(",")+1)).format(date);
+                    date = new SimpleDateFormat("yyyyMMdd").parse(msh.getField(6, null).substring(0,8));
                 } catch (Exception e) {
                     LOG.warn("Failed to format date : ", e);
                 }
+                dateFormat = new SimpleDateFormat(s1.substring(s1.indexOf(",")+1)).format(date);
             }
             String prop = s1.equalsIgnoreCase("SerialNo")
                             ? String.valueOf(serialNo)
