@@ -62,6 +62,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -129,10 +130,14 @@ public class StorageCmtRS {
     private StreamingOutput storageCommit(String studyUID, String seriesUID, String sopUID) {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         StgCmtContext ctx = new StgCmtContext(getApplicationEntity(), aet)
-                                .setRequest(request)
-                                .setStgCmtPolicy(stgCmtPolicy())
-                                .setStgCmtUpdateLocationStatus(stgCmtUpdateLocationStatus)
-                                .setStgCmtStorageIDs(uriInfo.getQueryParameters().get("dcmStgCmtStorageID"));
+                                .setRequest(request);
+        if (stgCmtPolicy != null)
+            ctx.setStgCmtPolicy(StgCmtPolicy.valueOf(stgCmtPolicy));
+        if (stgCmtUpdateLocationStatus != null)
+            ctx.setStgCmtUpdateLocationStatus(Boolean.valueOf(stgCmtUpdateLocationStatus));
+        List<String> stgCmtStorageIDs = uriInfo.getQueryParameters().get("dcmStgCmtStorageID");
+        if (stgCmtStorageIDs != null)
+            ctx.setStgCmtStorageIDs(stgCmtStorageIDs);
         Attributes eventInfo = stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID);
         stgCmtEvent.fire(ctx.setExtendedEventInfo(eventInfo));
         return out -> {
@@ -153,9 +158,5 @@ public class StorageCmtRS {
                             .entity("{\"errorMessage\":\"" + "No such Application Entity: " + aet + "\"}")
                             .build());
         return ae;
-    }
-
-    private StgCmtPolicy stgCmtPolicy() {
-        return stgCmtPolicy != null ? StgCmtPolicy.valueOf(stgCmtPolicy) : null;
     }
 }

@@ -62,12 +62,15 @@ public class StgCmtContext {
     private HttpServletRequest request;
     private Attributes extendedEventInfo;
     private StgCmtPolicy stgCmtPolicy;
-    private String stgCmtUpdateLocationStatus;
+    private boolean stgCmtUpdateLocationStatus;
     private String[] stgCmtStorageIDs = {};
 
     public StgCmtContext(ApplicationEntity localAE, String localAET) {
         this.arcAE = localAE.getAEExtensionNotNull(ArchiveAEExtension.class);
         this.localAET = localAET;
+        this.stgCmtPolicy = arcAE.stgCmtPolicy();
+        this.stgCmtUpdateLocationStatus = arcAE.stgCmtUpdateLocationStatus();
+        this.stgCmtStorageIDs = arcAE.stgCmtStorageIDs();
     }
 
     public ApplicationEntity getRemoteAE() {
@@ -102,31 +105,27 @@ public class StgCmtContext {
     }
 
     public StgCmtPolicy getStgCmtPolicy() {
-        return stgCmtPolicy != null ? stgCmtPolicy : arcAE.stgCmtPolicy();
+        return stgCmtPolicy;
     }
 
     public boolean isStgCmtUpdateLocationStatus() {
-        return stgCmtUpdateLocationStatus != null ? Boolean.valueOf(stgCmtUpdateLocationStatus) : arcAE.stgCmtUpdateLocationStatus();
+        return stgCmtUpdateLocationStatus;
     }
 
     public String[] stgCmtStorageIDs() {
-        return stgCmtStorageIDs.length > 0 ? stgCmtStorageIDs : arcAE.stgCmtStorageIDs();
+        return stgCmtStorageIDs;
     }
 
-    public StgCmtContext setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
+    public void setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
         this.stgCmtPolicy = stgCmtPolicy;
-        return this;
     }
 
-    public StgCmtContext setStgCmtUpdateLocationStatus(String stgCmtUpdateLocationStatus) {
+    public void setStgCmtUpdateLocationStatus(boolean stgCmtUpdateLocationStatus) {
         this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus;
-        return this;
     }
 
-    public StgCmtContext setStgCmtStorageIDs(List<String> stgCmtStorageIDs) {
-        if (stgCmtStorageIDs != null)
-            this.stgCmtStorageIDs = stgCmtStorageIDs.toArray(new String[0]);
-        return this;
+    public void setStgCmtStorageIDs(List<String> stgCmtStorageIDs) {
+        this.stgCmtStorageIDs = stgCmtStorageIDs.toArray(new String[0]);
     }
 
     public boolean isStgCmtStorageID(String storageID) {
