@@ -71,20 +71,12 @@ public class StgCmtContext {
         this.stgCmtStorageIDs = arcAE.stgCmtStorageIDs();
     }
 
-    public ApplicationEntity getRemoteAE() {
-        return remoteAE;
-    }
-
     public String getLocalAET() {
         return localAET;
     }
 
-    public Attributes getExtendedEventInfo() {
-        return extendedEventInfo;
-    }
-
-    public HttpServletRequest getRequest() {
-        return request;
+    public ApplicationEntity getRemoteAE() {
+        return remoteAE;
     }
 
     public StgCmtContext setRemoteAE(ApplicationEntity remoteAE) {
@@ -92,9 +84,17 @@ public class StgCmtContext {
         return this;
     }
 
+    public HttpServletRequest getRequest() {
+        return request;
+    }
+
     public StgCmtContext setRequest(HttpServletRequest request) {
         this.request = request;
         return this;
+    }
+
+    public Attributes getExtendedEventInfo() {
+        return extendedEventInfo;
     }
 
     public StgCmtContext setExtendedEventInfo(Attributes extendedEventInfo) {
