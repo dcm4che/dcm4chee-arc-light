@@ -832,7 +832,7 @@
       "type": "boolean",
       "default": false
     },
-    "dcmStgCmtStorageIDs": {
+    "dcmStgCmtStorageID": {
       "title": "Storage Commitment Storage IDs",
       "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful. If absent, validation of the storage of the object on any Storage System is sufficient to accept the Storage Commitment for that object. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "array",

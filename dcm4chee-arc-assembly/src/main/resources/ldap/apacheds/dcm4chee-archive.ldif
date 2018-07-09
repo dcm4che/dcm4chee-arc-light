@@ -2925,7 +2925,7 @@ objectclass: metaAttributeType
 objectclass: metaTop
 objectclass: top
 m-oid: 1.2.40.0.13.1.15.110.3.220
-m-name: dcmStgCmtStorageIDs
+m-name: dcmStgCmtStorageID
 m-description: Only accept Storage Commitment if the validation of the storage o
  f the object on one of the specified Storage Systems is successful. If absent, 
  validation of the storage of the object on any Storage System is sufficient to 
@@ -3450,7 +3450,7 @@ m-may: dcmCopyMoveUpdatePolicy
 m-may: dcmLinkMWLEntryUpdatePolicy
 m-may: dcmStgCmtPolicy
 m-may: dcmStgCmtUpdateLocationStatus
-m-may: dcmStgCmtStorageIDs
+m-may: dcmStgCmtStorageID
 m-may: dcmAuditSoftwareConfigurationVerbose
 m-may: dcmQueueTasksFetchSize
 m-may: dcmRejectionNoteStorageAET
@@ -3539,7 +3539,7 @@ m-may: dcmCopyMoveUpdatePolicy
 m-may: dcmLinkMWLEntryUpdatePolicy
 m-may: dcmStgCmtPolicy
 m-may: dcmStgCmtUpdateLocationStatus
-m-may: dcmStgCmtStorageIDs
+m-may: dcmStgCmtStorageID
 m-may: hl7PSUDelay
 m-may: hl7PSUMWL
 m-may: hl7PSUTimeout

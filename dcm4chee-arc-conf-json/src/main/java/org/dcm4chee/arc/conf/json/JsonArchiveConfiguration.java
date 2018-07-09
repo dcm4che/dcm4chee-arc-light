@@ -216,7 +216,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy", arcDev.getLinkMWLEntryUpdatePolicy(), null);
         writer.writeNotNullOrDef("dcmStgCmtPolicy", arcDev.getStgCmtPolicy(), StgCmtPolicy.OBJECT_CHECKSUM);
         writer.writeNotNullOrDef("dcmStgCmtUpdateLocationStatus", arcDev.isStgCmtUpdateLocationStatus(), false);
-        writer.writeNotEmpty("dcmStgCmtStorageIDs", arcDev.getStgCmtStorageIDs());
+        writer.writeNotEmpty("dcmStgCmtStorageID", arcDev.getStgCmtStorageIDs());
         writer.writeNotDef("hl7TrackChangedPatientID", arcDev.isHl7TrackChangedPatientID(), true);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcDev.getInvokeImageDisplayPatientURL(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcDev.getInvokeImageDisplayStudyURL(), null);
@@ -663,7 +663,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy", arcAE.getLinkMWLEntryUpdatePolicy(), null);
         writer.writeNotNullOrDef("dcmStgCmtPolicy", arcAE.getStgCmtPolicy(), null);
         writer.writeNotNullOrDef("dcmStgCmtUpdateLocationStatus", arcAE.getStgCmtUpdateLocationStatus(), null);
-        writer.writeNotEmpty("dcmStgCmtStorageIDs", arcAE.getStgCmtStorageIDs());
+        writer.writeNotEmpty("dcmStgCmtStorageID", arcAE.getStgCmtStorageIDs());
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcAE.getInvokeImageDisplayPatientURL(), null);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL", arcAE.getInvokeImageDisplayStudyURL(), null);
         writeExportRule(writer, arcAE.getExportRules());
@@ -1028,7 +1028,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmStgCmtUpdateLocationStatus":
                     arcDev.setStgCmtUpdateLocationStatus(reader.booleanValue());
                     break;
-                case "dcmStgCmtStorageIDs":
+                case "dcmStgCmtStorageID":
                     arcDev.setStgCmtStorageIDs(reader.stringArray());
                     break;
                 case "hl7TrackChangedPatientID":
@@ -2105,7 +2105,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmStgCmtUpdateLocationStatus":
                     arcAE.setStgCmtUpdateLocationStatus(reader.booleanValue());
                     break;
-                case "dcmStgCmtStorageIDs":
+                case "dcmStgCmtStorageID":
                     arcAE.setStgCmtStorageIDs(reader.stringArray());
                     break;
                 case "dcmInvokeImageDisplayPatientURL":

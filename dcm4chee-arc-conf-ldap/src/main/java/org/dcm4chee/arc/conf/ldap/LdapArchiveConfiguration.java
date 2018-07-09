@@ -217,7 +217,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLinkMWLEntryUpdatePolicy", ext.getLinkMWLEntryUpdatePolicy(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStgCmtPolicy", ext.getStgCmtPolicy(), StgCmtPolicy.OBJECT_CHECKSUM);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmStgCmtUpdateLocationStatus", ext.isStgCmtUpdateLocationStatus(), false);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmStgCmtStorageIDs", ext.getStgCmtStorageIDs());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmStgCmtStorageID", ext.getStgCmtStorageIDs());
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7TrackChangedPatientID", ext.isHl7TrackChangedPatientID(), true);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL(), null);
@@ -383,7 +383,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setStgCmtPolicy(
                 LdapUtils.enumValue(StgCmtPolicy.class, attrs.get("dcmStgCmtPolicy"), StgCmtPolicy.OBJECT_CHECKSUM));
         ext.setStgCmtUpdateLocationStatus(LdapUtils.booleanValue(attrs.get("dcmStgCmtUpdateLocationStatus"), false));
-        ext.setStgCmtStorageIDs(LdapUtils.stringArray(attrs.get("dcmStgCmtStorageIDs")));
+        ext.setStgCmtStorageIDs(LdapUtils.stringArray(attrs.get("dcmStgCmtStorageID")));
         ext.setHl7TrackChangedPatientID(LdapUtils.booleanValue(attrs.get("hl7TrackChangedPatientID"), true));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
         ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
@@ -652,7 +652,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStgCmtPolicy(), bb.getStgCmtPolicy(), StgCmtPolicy.OBJECT_CHECKSUM);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStgCmtUpdateLocationStatus",
                 aa.isStgCmtUpdateLocationStatus(), bb.isStgCmtUpdateLocationStatus(), false);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmStgCmtStorageIDs",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStgCmtStorageID",
                 aa.getStgCmtStorageIDs(), bb.getStgCmtStorageIDs());
         LdapUtils.storeDiff(ldapObj, mods, "hl7TrackChangedPatientID",
                 aa.isHl7TrackChangedPatientID(), bb.isHl7TrackChangedPatientID(), true);
@@ -858,7 +858,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLinkMWLEntryUpdatePolicy", ext.getLinkMWLEntryUpdatePolicy(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStgCmtPolicy", ext.getStgCmtPolicy(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStgCmtUpdateLocationStatus", ext.getStgCmtUpdateLocationStatus(), null);
-        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmStgCmtStorageIDs", ext.getStgCmtStorageIDs());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmStgCmtStorageID", ext.getStgCmtStorageIDs());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayPatientURL", ext.getInvokeImageDisplayPatientURL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInvokeImageDisplayStudyURL", ext.getInvokeImageDisplayStudyURL(), null);
     }
@@ -940,7 +940,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class, attrs.get("dcmLinkMWLEntryUpdatePolicy"), null));
         ext.setStgCmtPolicy(LdapUtils.enumValue(StgCmtPolicy.class, attrs.get("dcmStgCmtPolicy"), null));
         ext.setStgCmtUpdateLocationStatus(LdapUtils.booleanValue(attrs.get("dcmStgCmtUpdateLocationStatus"), null));
-        ext.setStgCmtStorageIDs(LdapUtils.stringArray(attrs.get("dcmStgCmtStorageIDs")));
+        ext.setStgCmtStorageIDs(LdapUtils.stringArray(attrs.get("dcmStgCmtStorageID")));
         ext.setInvokeImageDisplayPatientURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayPatientURL"), null));
         ext.setInvokeImageDisplayStudyURL(LdapUtils.stringValue(attrs.get("dcmInvokeImageDisplayStudyURL"), null));
     }
@@ -1089,7 +1089,7 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStgCmtPolicy(), bb.getStgCmtPolicy(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStgCmtUpdateLocationStatus",
                 aa.getStgCmtUpdateLocationStatus(), bb.getStgCmtUpdateLocationStatus(), null);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmStgCmtStorageIDs",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStgCmtStorageID",
                 aa.getStgCmtStorageIDs(), bb.getStgCmtStorageIDs());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmInvokeImageDisplayPatientURL",
                 aa.getInvokeImageDisplayPatientURL(), bb.getInvokeImageDisplayPatientURL(), null);

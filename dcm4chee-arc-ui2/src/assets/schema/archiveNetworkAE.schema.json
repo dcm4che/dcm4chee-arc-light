@@ -400,7 +400,7 @@
       "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. Overwrites value specified on Device level.",
       "type": "boolean"
     },
-    "dcmStgCmtStorageIDs": {
+    "dcmStgCmtStorageID": {
       "title": "Storage Commitment Storage IDs",
       "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful. If absent, validation of the storage of the object on any Storage System is sufficient to accept the Storage Commitment for that object. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. Overwrites values specified on Device level.",
       "type": "array",
