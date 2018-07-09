@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.StgCmtPolicy;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
@@ -61,7 +62,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
 /**
@@ -89,9 +89,6 @@ public class StorageCmtRS {
     @Context
     private HttpServletRequest request;
 
-    @Context
-    private UriInfo uriInfo;
-
     @QueryParam("dcmStgCmtPolicy")
     @Pattern(regexp = "DB_RECORD_EXISTS|OBJECT_EXISTS|OBJECT_SIZE|OBJECT_FETCH|OBJECT_CHECKSUM|S3_MD5SUM")
     private String stgCmtPolicy;
@@ -99,6 +96,9 @@ public class StorageCmtRS {
     @QueryParam("dcmStgCmtUpdateLocationStatus")
     @Pattern(regexp = "true|false")
     private String stgCmtUpdateLocationStatus;
+
+    @QueryParam("dcmStgCmtStorageID")
+    private List<String> stgCmtStorageIDs;
 
     @POST
     @Path("/studies/{StudyInstanceUID}/stgcmt")
@@ -135,9 +135,8 @@ public class StorageCmtRS {
             ctx.setStgCmtPolicy(StgCmtPolicy.valueOf(stgCmtPolicy));
         if (stgCmtUpdateLocationStatus != null)
             ctx.setStgCmtUpdateLocationStatus(Boolean.valueOf(stgCmtUpdateLocationStatus));
-        List<String> stgCmtStorageIDs = uriInfo.getQueryParameters().get("dcmStgCmtStorageID");
-        if (stgCmtStorageIDs != null)
-            ctx.setStgCmtStorageIDs(stgCmtStorageIDs);
+        if (!stgCmtStorageIDs.isEmpty())
+            ctx.setStgCmtStorageIDs(stgCmtStorageIDs.toArray(StringUtils.EMPTY_STRING));
         Attributes eventInfo = stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID);
         stgCmtEvent.fire(ctx.setExtendedEventInfo(eventInfo));
         return out -> {

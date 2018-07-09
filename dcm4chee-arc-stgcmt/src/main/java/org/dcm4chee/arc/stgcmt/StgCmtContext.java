@@ -47,8 +47,6 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.StgCmtPolicy;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -63,7 +61,7 @@ public class StgCmtContext {
     private Attributes extendedEventInfo;
     private StgCmtPolicy stgCmtPolicy;
     private boolean stgCmtUpdateLocationStatus;
-    private String[] stgCmtStorageIDs = {};
+    private String[] stgCmtStorageIDs;
 
     public StgCmtContext(ApplicationEntity localAE, String localAET) {
         this.arcAE = localAE.getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -108,29 +106,28 @@ public class StgCmtContext {
         return stgCmtPolicy;
     }
 
-    public boolean isStgCmtUpdateLocationStatus() {
-        return stgCmtUpdateLocationStatus;
-    }
-
-    public String[] stgCmtStorageIDs() {
-        return stgCmtStorageIDs;
-    }
-
     public void setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
         this.stgCmtPolicy = stgCmtPolicy;
+    }
+
+    public boolean isStgCmtUpdateLocationStatus() {
+        return stgCmtUpdateLocationStatus;
     }
 
     public void setStgCmtUpdateLocationStatus(boolean stgCmtUpdateLocationStatus) {
         this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus;
     }
 
-    public void setStgCmtStorageIDs(List<String> stgCmtStorageIDs) {
-        this.stgCmtStorageIDs = stgCmtStorageIDs.toArray(new String[0]);
+    public String[] getStgCmtStorageIDs() {
+        return stgCmtStorageIDs;
+    }
+
+    public void setStgCmtStorageIDs(String... stgCmtStorageIDs) {
+        this.stgCmtStorageIDs = stgCmtStorageIDs;
     }
 
     public boolean isStgCmtStorageID(String storageID) {
-        String[] a = stgCmtStorageIDs();
-        return a.length == 0 || StringUtils.contains(a, storageID);
+        return stgCmtStorageIDs.length == 0 || StringUtils.contains(stgCmtStorageIDs, storageID);
     }
 
 }

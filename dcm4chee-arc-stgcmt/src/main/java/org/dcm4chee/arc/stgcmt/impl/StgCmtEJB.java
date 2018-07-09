@@ -353,7 +353,7 @@ public class StgCmtEJB implements StgCmtManager {
                     tuple.get(QLocation.location.storagePath),
                     tuple.get(QInstance.instance.sopInstanceUID),
                     tuple.get(QStudy.study.studyInstanceUID),
-                    Arrays.toString(ctx.stgCmtStorageIDs()));
+                    Arrays.toString(ctx.getStgCmtStorageIDs()));
         }
         return false;
     }
