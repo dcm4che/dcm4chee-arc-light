@@ -47,6 +47,7 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.StgCmtPolicy;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 
 /**
@@ -60,6 +61,9 @@ public class StgCmtContext {
     private ApplicationEntity remoteAE;
     private HttpServletRequest request;
     private Attributes extendedEventInfo;
+    private StgCmtPolicy stgCmtPolicy;
+    private boolean stgCmtUpdateLocationStatus;
+    private String[] stgCmtStorageIDs = {};
 
     public StgCmtContext(ApplicationEntity localAE, String localAET) {
         this.arcAE = localAE.getAEExtensionNotNull(ArchiveAEExtension.class);
@@ -98,15 +102,30 @@ public class StgCmtContext {
     }
 
     public StgCmtPolicy getStgCmtPolicy() {
-        return arcAE.stgCmtPolicy();
+        return stgCmtPolicy;
     }
 
     public boolean isStgCmtUpdateLocationStatus() {
-        return arcAE.stgCmtUpdateLocationStatus();
+        return stgCmtUpdateLocationStatus;
     }
 
     public String[] stgCmtStorageIDs() {
-        return arcAE.stgCmtStorageIDs();
+        return stgCmtStorageIDs;
+    }
+
+    public StgCmtContext setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
+        this.stgCmtPolicy = stgCmtPolicy != null ? stgCmtPolicy : arcAE.stgCmtPolicy();
+        return this;
+    }
+
+    public StgCmtContext setStgCmtUpdateLocationStatus(Boolean stgCmtUpdateLocationStatus) {
+        this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus != null ? stgCmtUpdateLocationStatus : arcAE.stgCmtUpdateLocationStatus();
+        return this;
+    }
+
+    public StgCmtContext setStgCmtStorageIDs(List<String> stgCmtStorageIDs) {
+        this.stgCmtStorageIDs = stgCmtStorageIDs != null ? stgCmtStorageIDs.toArray(new String[0]) : arcAE.stgCmtStorageIDs();
+        return this;
     }
 
     public boolean isStgCmtStorageID(String storageID) {

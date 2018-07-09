@@ -44,6 +44,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.StgCmtPolicy;
 import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.slf4j.Logger;
@@ -55,10 +56,12 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -84,6 +87,17 @@ public class StorageCmtRS {
 
     @Context
     private HttpServletRequest request;
+
+    @Context
+    private UriInfo uriInfo;
+
+    @QueryParam("dcmStgCmtPolicy")
+    @Pattern(regexp = "DB_RECORD_EXISTS|OBJECT_EXISTS|OBJECT_SIZE|OBJECT_FETCH|OBJECT_CHECKSUM|S3_MD5SUM")
+    private String stgCmtPolicy;
+
+    @QueryParam("dcmStgCmtUpdateLocationStatus")
+    @Pattern(regexp = "true|false")
+    private String stgCmtUpdateLocationStatus;
 
     @POST
     @Path("/studies/{StudyInstanceUID}/stgcmt")
@@ -114,7 +128,11 @@ public class StorageCmtRS {
 
     private StreamingOutput storageCommit(String studyUID, String seriesUID, String sopUID) {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        StgCmtContext ctx = new StgCmtContext(getApplicationEntity(), aet).setRequest(request);
+        StgCmtContext ctx = new StgCmtContext(getApplicationEntity(), aet)
+                                .setRequest(request)
+                                .setStgCmtPolicy(stgCmtPolicy())
+                                .setStgCmtUpdateLocationStatus(Boolean.valueOf(stgCmtUpdateLocationStatus))
+                                .setStgCmtStorageIDs(uriInfo.getQueryParameters().get("dcmStgCmtStorageID"));
         Attributes eventInfo = stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID);
         stgCmtEvent.fire(ctx.setExtendedEventInfo(eventInfo));
         return out -> {
@@ -135,5 +153,9 @@ public class StorageCmtRS {
                             .entity("{\"errorMessage\":\"" + "No such Application Entity: " + aet + "\"}")
                             .build());
         return ae;
+    }
+
+    private StgCmtPolicy stgCmtPolicy() {
+        return stgCmtPolicy != null ? StgCmtPolicy.valueOf(stgCmtPolicy) : null;
     }
 }

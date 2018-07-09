@@ -1082,7 +1082,7 @@ public class ArchiveAEExtension extends AEExtension {
 
     public boolean stgCmtUpdateLocationStatus() {
         return stgCmtUpdateLocationStatus != null
-                ? stgCmtUpdateLocationStatus.booleanValue()
+                ? stgCmtUpdateLocationStatus
                 : getArchiveDeviceExtension().isStgCmtUpdateLocationStatus();
     }
 
