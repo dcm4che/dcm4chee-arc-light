@@ -215,7 +215,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmCopyMoveUpdatePolicy", arcDev.getCopyMoveUpdatePolicy(), null);
         writer.writeNotNullOrDef("dcmLinkMWLEntryUpdatePolicy", arcDev.getLinkMWLEntryUpdatePolicy(), null);
         writer.writeNotNullOrDef("dcmStgCmtPolicy", arcDev.getStgCmtPolicy(), StgCmtPolicy.OBJECT_CHECKSUM);
-        writer.writeNotNullOrDef("dcmStgCmtUpdateLocationStatus", arcDev.isStgCmtUpdateLocationStatus(), false);
+        writer.writeNotDef("dcmStgCmtUpdateLocationStatus", arcDev.isStgCmtUpdateLocationStatus(), false);
         writer.writeNotEmpty("dcmStgCmtStorageID", arcDev.getStgCmtStorageIDs());
         writer.writeNotDef("hl7TrackChangedPatientID", arcDev.isHl7TrackChangedPatientID(), true);
         writer.writeNotNullOrDef("dcmInvokeImageDisplayPatientURL", arcDev.getInvokeImageDisplayPatientURL(), null);
