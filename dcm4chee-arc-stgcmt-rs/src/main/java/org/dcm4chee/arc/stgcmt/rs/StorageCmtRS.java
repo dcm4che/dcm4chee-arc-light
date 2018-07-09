@@ -131,7 +131,7 @@ public class StorageCmtRS {
         StgCmtContext ctx = new StgCmtContext(getApplicationEntity(), aet)
                                 .setRequest(request)
                                 .setStgCmtPolicy(stgCmtPolicy())
-                                .setStgCmtUpdateLocationStatus(Boolean.valueOf(stgCmtUpdateLocationStatus))
+                                .setStgCmtUpdateLocationStatus(stgCmtUpdateLocationStatus)
                                 .setStgCmtStorageIDs(uriInfo.getQueryParameters().get("dcmStgCmtStorageID"));
         Attributes eventInfo = stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID);
         stgCmtEvent.fire(ctx.setExtendedEventInfo(eventInfo));

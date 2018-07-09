@@ -62,7 +62,7 @@ public class StgCmtContext {
     private HttpServletRequest request;
     private Attributes extendedEventInfo;
     private StgCmtPolicy stgCmtPolicy;
-    private boolean stgCmtUpdateLocationStatus;
+    private String stgCmtUpdateLocationStatus;
     private String[] stgCmtStorageIDs = {};
 
     public StgCmtContext(ApplicationEntity localAE, String localAET) {
@@ -102,29 +102,30 @@ public class StgCmtContext {
     }
 
     public StgCmtPolicy getStgCmtPolicy() {
-        return stgCmtPolicy;
+        return stgCmtPolicy != null ? stgCmtPolicy : arcAE.stgCmtPolicy();
     }
 
     public boolean isStgCmtUpdateLocationStatus() {
-        return stgCmtUpdateLocationStatus;
+        return stgCmtUpdateLocationStatus != null ? Boolean.valueOf(stgCmtUpdateLocationStatus) : arcAE.stgCmtUpdateLocationStatus();
     }
 
     public String[] stgCmtStorageIDs() {
-        return stgCmtStorageIDs;
+        return stgCmtStorageIDs.length > 0 ? stgCmtStorageIDs : arcAE.stgCmtStorageIDs();
     }
 
     public StgCmtContext setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
-        this.stgCmtPolicy = stgCmtPolicy != null ? stgCmtPolicy : arcAE.stgCmtPolicy();
+        this.stgCmtPolicy = stgCmtPolicy;
         return this;
     }
 
-    public StgCmtContext setStgCmtUpdateLocationStatus(Boolean stgCmtUpdateLocationStatus) {
-        this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus != null ? stgCmtUpdateLocationStatus : arcAE.stgCmtUpdateLocationStatus();
+    public StgCmtContext setStgCmtUpdateLocationStatus(String stgCmtUpdateLocationStatus) {
+        this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus;
         return this;
     }
 
     public StgCmtContext setStgCmtStorageIDs(List<String> stgCmtStorageIDs) {
-        this.stgCmtStorageIDs = stgCmtStorageIDs != null ? stgCmtStorageIDs.toArray(new String[0]) : arcAE.stgCmtStorageIDs();
+        if (stgCmtStorageIDs != null)
+            this.stgCmtStorageIDs = stgCmtStorageIDs.toArray(new String[0]);
         return this;
     }
 
