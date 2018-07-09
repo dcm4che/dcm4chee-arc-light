@@ -7910,13 +7910,6 @@
             "description": "export only Studies which are marked as incomplete",
             "type": "boolean",
             "default": false
-          },
-          {
-            "name": "retrievefailed",
-            "in": "query",
-            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
-            "type": "boolean",
-            "default": false
           }
         ],
         "responses": {
@@ -7963,6 +7956,36 @@
             "description": "Study Instance UID for a single study",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "responses": {
@@ -8019,6 +8042,36 @@
             "description": "Series Instance UID for a single series",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "responses": {
@@ -8082,6 +8135,36 @@
             "description": "SOP Instance UID for a single SOP Instance",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "responses": {
