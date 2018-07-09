@@ -90,6 +90,8 @@ public interface DiffService {
 
     void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent);
 
+    int rescheduleDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask);
+
     String findDeviceNameByPk(Long pk);
 
     boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent);

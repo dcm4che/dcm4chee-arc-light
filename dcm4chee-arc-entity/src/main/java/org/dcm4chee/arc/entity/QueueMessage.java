@@ -117,7 +117,7 @@ public class QueueMessage {
     private Date updatedTime;
 
     @Basic(optional = false)
-    @Column(name = "device_name", updatable = false)
+    @Column(name = "device_name")
     private String deviceName;
 
     @Basic(optional = false)
@@ -276,6 +276,10 @@ public class QueueMessage {
         return scheduledTime;
     }
 
+    public void setScheduledTime(Date scheduledTime) {
+        this.scheduledTime = scheduledTime;
+    }
+
     public String getOutcomeMessage() {
         return outcomeMessage;
     }
@@ -314,16 +318,6 @@ public class QueueMessage {
 
     public void setBatchID(String batchID) {
         this.batchID = batchID;
-    }
-
-    public void reschedule(ObjectMessage msg, Date date) {
-        try {
-            this.messageID = msg.getJMSMessageID();
-            this.scheduledTime = date;
-            this.status = Status.SCHEDULED;
-        } catch (JMSException e) {
-            throw toJMSRuntimeException(e);
-        }
     }
 
     public void writeAsJSON(Writer out) throws IOException {

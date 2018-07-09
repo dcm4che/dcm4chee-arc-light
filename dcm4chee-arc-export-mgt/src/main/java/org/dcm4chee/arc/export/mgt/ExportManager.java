@@ -43,6 +43,7 @@ package org.dcm4chee.arc.export.mgt;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.conf.ExporterDescriptor;
+import org.dcm4chee.arc.entity.ExportTask;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
@@ -83,6 +84,8 @@ public interface ExportManager {
     String findDeviceNameByPk(Long pk);
 
     void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent);
+
+    void rescheduleExportTask(ExportTask task, ExporterDescriptor exporter, QueueMessageEvent queueEvent);
 
     int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask);
 

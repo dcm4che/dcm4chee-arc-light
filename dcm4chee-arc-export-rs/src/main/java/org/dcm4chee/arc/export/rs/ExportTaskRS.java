@@ -298,7 +298,7 @@ public class ExportTaskRS {
                     matchQueueMessage, matchExportTask(updatedTime), null, 0, 0)) {
                 for (ExportTask task : exportTasks) {
                     mgr.rescheduleExportTask(
-                            task.getPk(),
+                            task,
                             exporter != null ? exporter : arcDev.getExporterDescriptor(task.getExporterID()),
                             null);
                     count++;

@@ -409,15 +409,21 @@ public class ExportManagerEJB implements ExportManager {
         if (task == null)
             return;
 
-        LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
+        rescheduleExportTask(task, exporter, queueEvent);
+    }
+
+    @Override
+    public void rescheduleExportTask(ExportTask task, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
         task.setExporterID(exporter.getExporterID());
-        queueManager.rescheduleTask(task.getQueueMessage(), exporter.getQueueName(), queueEvent);
+        if (task.getQueueMessage() != null)
+            queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), exporter.getQueueName(), queueEvent);
+
+        LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
     }
 
     @Override
     public int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int deleteTaskFetchSize = arcDev.getQueueTasksFetchSize();
+        int deleteTaskFetchSize = queryFetchSize();
         return status == QueueMessage.Status.TO_SCHEDULE
                 ? deleteToScheduleTasks(matchExportTask, deleteTaskFetchSize)
                 : status == null

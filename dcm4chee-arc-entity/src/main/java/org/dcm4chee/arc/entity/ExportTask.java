@@ -80,7 +80,7 @@ import java.util.Date;
                         "and o.seriesInstanceUID in ('*',?3) and o.sopInstanceUID in ('*',?4) " +
                         "and o.queueMessage is null"),
         @NamedQuery(name = ExportTask.FIND_DEVICE_BY_PK,
-                query = "select o.queueMessage.deviceName from ExportTask o where o.pk=?1")
+                query = "select o.deviceName from ExportTask o where o.pk=?1")
 })
 public class ExportTask {
 

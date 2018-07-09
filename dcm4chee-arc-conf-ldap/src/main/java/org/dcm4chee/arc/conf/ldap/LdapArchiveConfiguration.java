@@ -230,7 +230,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmAuditSoftwareConfigurationVerbose", ext.isAuditSoftwareConfigurationVerbose(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "hl7UseNullValue", ext.isHl7UseNullValue(), false);
-        LdapUtils.storeNotDef(ldapObj, attrs, "dcmQueueTasksFetchSize", ext.getQueueTasksFetchSize(), 100);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRejectionNoteStorageAET",
                 ext.getRejectionNoteStorageAET(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmXRoadProperty", toStrings(ext.getXRoadProperties()));
@@ -391,7 +390,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmAuditUnknownPatientID"), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID));
         ext.setAuditSoftwareConfigurationVerbose(LdapUtils.booleanValue(attrs.get("dcmAuditSoftwareConfigurationVerbose"), false));
         ext.setHl7UseNullValue(LdapUtils.booleanValue(attrs.get("hl7UseNullValue"), false));
-        ext.setQueueTasksFetchSize(LdapUtils.intValue(attrs.get("dcmQueueTasksFetchSize"), 100));
         ext.setRejectionNoteStorageAET(LdapUtils.stringValue(
                 attrs.get("dcmRejectionNoteStorageAET"), null));
         ext.setXRoadProperties(LdapUtils.stringArray(attrs.get("dcmXRoadProperty")));
@@ -666,10 +664,6 @@ class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isAuditSoftwareConfigurationVerbose(), bb.isAuditSoftwareConfigurationVerbose(), false);
         LdapUtils.storeDiff(ldapObj, mods, "hl7UseNullValue",
                 aa.isHl7UseNullValue(), bb.isHl7UseNullValue(), false);
-        LdapUtils.storeDiff(ldapObj, mods, "dcmQueueTasksFetchSize",
-                aa.getQueueTasksFetchSize(),
-                bb.getQueueTasksFetchSize(),
-                100);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRejectionNoteStorageAET",
                 aa.getRejectionNoteStorageAET(), bb.getRejectionNoteStorageAET(),
                 null);

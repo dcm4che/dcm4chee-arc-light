@@ -65,9 +65,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.jms.JMSContext;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
+import javax.jms.*;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
@@ -365,7 +363,6 @@ public class QueueManagerEJB {
         }
         if (queueName != null)
             entity.setQueueName(queueName);
-        entity.setDeviceName(device.getDeviceName());
         entity.setNumberOfFailures(0);
         entity.setErrorMessage(null);
         entity.setOutcomeMessage(null);
@@ -374,16 +371,27 @@ public class QueueManagerEJB {
     }
 
     private void rescheduleTask(QueueMessage entity, QueueDescriptor descriptor, long delay) {
-        ObjectMessage msg = entity.initProperties(createObjectMessage(entity.getMessageBody()));
-        sendMessage(descriptor, msg, delay, entity.getPriority());
-        entity.reschedule(msg, new Date(System.currentTimeMillis() + delay));
-        if (entity.getExportTask() != null)
-            entity.getExportTask().setUpdatedTime();
-        if (entity.getRetrieveTask() != null)
-            entity.getRetrieveTask().setUpdatedTime();
-        if (entity.getDiffTask() != null)
-            entity.getDiffTask().setUpdatedTime();
-        LOG.info("Reschedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
+        try {
+            ObjectMessage msg = entity.initProperties(createObjectMessage(entity.getMessageBody()));
+            sendMessage(descriptor, msg, delay, entity.getPriority());
+            entity.setMessageID(msg.getJMSMessageID());
+            entity.setScheduledTime(new Date(System.currentTimeMillis() + delay));
+            entity.setStatus(QueueMessage.Status.SCHEDULED);
+            entity.setDeviceName(device.getDeviceName());
+            if (entity.getExportTask() != null)
+                entity.getExportTask().setUpdatedTime();
+            if (entity.getRetrieveTask() != null)
+                entity.getRetrieveTask().setUpdatedTime();
+            if (entity.getDiffTask() != null)
+                entity.getDiffTask().setUpdatedTime();
+            LOG.info("Reschedule Task[id={}] at Queue {}", entity.getMessageID(), entity.getQueueName());
+        } catch (JMSException e) {
+            throw toJMSRuntimeException(e);
+        }
+    }
+
+    private JMSRuntimeException toJMSRuntimeException(JMSException e) {
+        return new JMSRuntimeException(e.getMessage(), e.getErrorCode(), e.getCause());
     }
 
     public boolean deleteTask(String msgId, QueueMessageEvent queueEvent) {

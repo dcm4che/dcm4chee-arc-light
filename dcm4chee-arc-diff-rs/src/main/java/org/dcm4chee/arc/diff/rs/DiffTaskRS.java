@@ -304,14 +304,7 @@ public class DiffTaskRS {
     private Response rescheduleTasks(Predicate matchQueueMessage) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            int count = 0;
-            try (DiffTaskQuery diffTasks = diffService.listDiffTasks(
-                    matchQueueMessage, matchDiffTask(), null, 0,0)) {
-                for (DiffTask diffTask : diffTasks) {
-                    diffService.rescheduleDiffTask(diffTask.getPk(), null);
-                    count++;
-                }
-            }
+            int count = diffService.rescheduleDiffTasks(matchQueueMessage, matchDiffTask());
             queueEvent.setCount(count);
             return count(count);
         } catch (Exception e) {

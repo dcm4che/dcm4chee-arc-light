@@ -187,6 +187,11 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
+    public int rescheduleRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+        return ejb.rescheduleRetrieveTasks(matchQueueMessage, matchRetrieveTask);
+    }
+
+    @Override
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         return ejb.deleteTasks(matchQueueMessage, matchRetrieveTask);
     }

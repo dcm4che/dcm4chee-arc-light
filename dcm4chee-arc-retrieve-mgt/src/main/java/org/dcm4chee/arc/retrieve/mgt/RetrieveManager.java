@@ -77,6 +77,8 @@ public interface RetrieveManager {
 
     void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent);
 
+    int rescheduleRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
+
     int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 
     List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,

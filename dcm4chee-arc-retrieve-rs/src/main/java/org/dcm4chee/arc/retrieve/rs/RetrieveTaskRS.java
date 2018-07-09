@@ -273,14 +273,7 @@ public class RetrieveTaskRS {
     private Response rescheduleTasks(Predicate matchQueueMessage) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            int count = 0;
-            try (RetrieveTaskQuery retrieveTasks = mgr.listRetrieveTasks(
-                    matchQueueMessage, matchRetrieveTask(updatedTime), null, 0, 0)) {
-                for (RetrieveTask retrieveTask : retrieveTasks) {
-                    mgr.rescheduleRetrieveTask(retrieveTask.getPk(), null);
-                    count++;
-                }
-            }
+            int count = mgr.rescheduleRetrieveTasks(matchQueueMessage, matchRetrieveTask(updatedTime));
             queueEvent.setCount(count);
             return count(count);
         } catch (Exception e) {
