@@ -7910,6 +7910,13 @@
             "description": "export only Studies which are marked as incomplete",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "retrievefailed",
+            "in": "query",
+            "description": "export only Studies which failed to be retrieved from fallback C-MOVE SCP",
+            "type": "boolean",
+            "default": false
           }
         ],
         "responses": {
