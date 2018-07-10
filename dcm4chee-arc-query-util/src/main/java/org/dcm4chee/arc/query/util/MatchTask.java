@@ -209,13 +209,15 @@ public class MatchTask {
         throw new IllegalArgumentException(orderby);
     }
 
-    public static Predicate matchQueueBatch(String deviceName, QueueMessage.Status status) {
+    public static Predicate matchQueueBatch(String deviceName, QueueMessage.Status status, String batchID) {
         BooleanBuilder predicate = new BooleanBuilder();
         predicate.and(QQueueMessage.queueMessage.batchID.isNotNull());
         if (status != null)
             predicate.and(QQueueMessage.queueMessage.status.eq(status));
         if (deviceName != null)
             predicate.and(QQueueMessage.queueMessage.deviceName.eq(deviceName));
+        if (batchID != null)
+            predicate.and(QQueueMessage.queueMessage.batchID.eq(batchID));
         return predicate;
     }
 

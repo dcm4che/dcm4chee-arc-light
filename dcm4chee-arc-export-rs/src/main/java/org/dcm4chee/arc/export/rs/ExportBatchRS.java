@@ -109,6 +109,9 @@ public class ExportBatchRS {
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
     private String orderby;
 
+    @QueryParam("batchID")
+    private String batchID;
+
     @Context
     private HttpServletRequest request;
 
@@ -117,7 +120,7 @@ public class ExportBatchRS {
     public Response listExportBatches() {
         logRequest();
         List<ExportBatch> exportBatches = mgr.listExportBatches(
-                MatchTask.matchQueueBatch(deviceName, status()),
+                MatchTask.matchQueueBatch(deviceName, status(), batchID),
                 MatchTask.matchExportBatch(uriInfo.getQueryParameters().get("ExporterID"), deviceName, createdTime, updatedTime),
                 MatchTask.exportBatchOrder(orderby), parseInt(offset), parseInt(limit));
         return Response.ok().entity(Output.JSON.entity(exportBatches)).build();

@@ -136,7 +136,7 @@ public class DiffBatchRS {
     public Response listDiffBatches() {
         logRequest();
         List<DiffBatch> diffBatches = diffService.listDiffBatches(
-                MatchTask.matchQueueBatch(deviceName, status()),
+                MatchTask.matchQueueBatch(deviceName, status(), batchID),
                 MatchTask.matchDiffBatch(localAET, primaryAET, secondaryAET, comparefields, checkMissing, checkDifferent,
                         createdTime, updatedTime),
                 MatchTask.diffBatchOrder(orderby),
