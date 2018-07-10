@@ -185,12 +185,6 @@ import java.util.Date;
                 "and se.metadata is not null " +
                 "and se.metadataScheduledUpdateTime is null"),
 @NamedQuery(
-        name=Series.SCHEDULE_METADATA_UPDATE_FOR_LOCATION_PK,
-        query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
-                "where exists ( select l from Location l where l.pk = ?1 and l.instance.series.pk = se.pk ) " +
-                "and se.metadata is not null " +
-                "and se.metadataScheduledUpdateTime is null"),
-@NamedQuery(
         name = Series.FIND_DISTINCT_MODALITIES,
         query = "select distinct se.modality from Series se"),
 @NamedQuery(
@@ -252,7 +246,6 @@ public class Series {
     public static final String SCHEDULE_METADATA_UPDATE_FOR_STUDY = "Series.scheduleMetadataUpdateForStudy";
     public static final String SCHEDULE_METADATA_UPDATE_FOR_SERIES = "Series.scheduleMetadataUpdateForSeries";
     public static final String SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID = "Series.scheduleMetadataUpdateForSeriesUID";
-    public static final String SCHEDULE_METADATA_UPDATE_FOR_LOCATION_PK = "Series.scheduleMetadataUpdateForLocationPk";
     public static final String UPDATE_INSTANCE_PURGE_STATE = "Series.updateInstancePurgeState";
     public static final String FIND_DISTINCT_MODALITIES = "Series.findDistinctModalities";
     public static final String FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE = "Series.findByStudyPkAndInstancePurgeState";

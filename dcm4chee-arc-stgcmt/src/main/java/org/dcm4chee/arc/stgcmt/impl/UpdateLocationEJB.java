@@ -62,7 +62,6 @@ public class UpdateLocationEJB {
     private EntityManager em;
 
     public int setDigest(Long pk, String digest) {
-        scheduleMetadataUpdate(pk);
         return em.createNamedQuery(Location.SET_DIGEST)
                 .setParameter(1, pk)
                 .setParameter(2, digest)
@@ -70,16 +69,15 @@ public class UpdateLocationEJB {
     }
 
     public int setStatus(Long pk, Location.Status status) {
-        scheduleMetadataUpdate(pk);
         return em.createNamedQuery(Location.SET_STATUS)
                 .setParameter(1, pk)
                 .setParameter(2, status)
                 .executeUpdate();
     }
 
-    private void scheduleMetadataUpdate(Long pk) {
-        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_LOCATION_PK)
-                .setParameter(1, pk)
+    public int scheduleMetadataUpdate(Long seriesPk) {
+        return em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
+                .setParameter(1, seriesPk)
                 .executeUpdate();
     }
 }

@@ -96,6 +96,7 @@ public class StgCmtEJB implements StgCmtManager {
             QInstance.instance.sopClassUID,
             QInstance.instance.sopInstanceUID,
             QInstance.instance.retrieveAETs,
+            QSeries.series.pk,
             QStudy.study.studyInstanceUID
     };
     private static final int BUFFER_SIZE = 8192;
@@ -323,6 +324,7 @@ public class StgCmtEJB implements StgCmtManager {
                             tuple.get(QStudy.study.studyInstanceUID),
                             result.status);
                     updateLocationEJB.setStatus(tuple.get(QLocation.location.pk), result.status);
+                    updateLocationEJB.scheduleMetadataUpdate(tuple.get(QSeries.series.pk));
                 }
                 if (result.ok()) {
                     return true;
@@ -442,6 +444,7 @@ public class StgCmtEJB implements StgCmtManager {
                     tuple.get(QInstance.instance.sopInstanceUID),
                     tuple.get(QStudy.study.studyInstanceUID));
             updateLocationEJB.setDigest(tuple.get(QLocation.location.pk), calculatedDigest);
+            updateLocationEJB.scheduleMetadataUpdate(tuple.get(QSeries.series.pk));
             return validationResult;
         }
 
