@@ -41,6 +41,7 @@
 
 package org.dcm4chee.arc.impax.rs;
 
+import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4chee.arc.impax.report.ReportServiceProvider;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
@@ -54,6 +55,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.ws.WebServiceException;
 import java.util.List;
 
 /**
@@ -61,7 +63,7 @@ import java.util.List;
  * @since Jun 2018
  */
 @RequestScoped
-@Path("/impax/reports")
+@Path("impax/reports")
 public class QueryImpaxReportRS {
     private static final Logger LOG = LoggerFactory.getLogger(QueryImpaxReportRS.class);
 
@@ -75,13 +77,16 @@ public class QueryImpaxReportRS {
     @NoCache
     @Path("/studies/{studyUID}")
     @Produces("multipart/related;type=text/xml")
-    public MultipartRelatedOutput queryReportByStudyUid(@PathParam("studyUID") String studyUID) throws Exception {
+    public MultipartRelatedOutput queryReportByStudyUid(@PathParam("studyUID") String studyUID) {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
-        List<String> reports = service.queryReportByStudyUid(studyUID)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        if (reports.isEmpty()) {
-            throw new WebApplicationException(Response.Status.NO_CONTENT);
+        List<String> reports;
+        try {
+            reports = service.queryReportByStudyUid(studyUID);
+        } catch (ConfigurationException e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        } catch (WebServiceException e) {
+            throw new WebApplicationException(e, Response.Status.BAD_GATEWAY);
         }
         MultipartRelatedOutput output = new MultipartRelatedOutput();
         for (String report : reports) {
@@ -89,5 +94,4 @@ public class QueryImpaxReportRS {
         }
         return output;
     }
-
 }

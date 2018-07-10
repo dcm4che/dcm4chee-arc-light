@@ -301,6 +301,11 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public Attributes getStudyAttributes(String studyUID) {
+        return ejb.getStudyAttributes(studyUID);
+    }
+
+    @Override
     public List<Object[]> getSeriesInstanceUIDs(String studyUID) {
         return em.createNamedQuery(Series.SERIES_IUIDS_OF_STUDY, Object[].class)
                 .setParameter(1, studyUID)

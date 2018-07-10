@@ -118,6 +118,8 @@ public interface QueryService {
     Attributes queryExportTaskInfo(
             String studyUID, String seriesUID, String sopIUID, ApplicationEntity ae);
 
+    Attributes getStudyAttributes(String studyUID);
+
     List<Object[]> getSeriesInstanceUIDs(String studyUID);
 
     List<Object[]> getSOPInstanceUIDs(String studyUID);
