@@ -6956,6 +6956,57 @@
         }
       }
     },
+    "/aets/{aet}/rs/studies/{studyUID}/impax/report": {
+      "post": {
+        "tags": [
+          "IMPAX-REPORT-RS"
+        ],
+        "summary": "Import Reports of Study",
+        "operationId": "importReportsOfStudy",
+        "produces": [
+          "multipart/related;type=application/dicom+json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "This indicates that all reports returned by the Impax Report Service were successfully stored.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "202": {
+            "description": "This indicates that some reports returned by the Impax Report Service were stored, but failures exist for others.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "no such Archive AET or Study"
+          },
+          "409": {
+            "description": "Impax Report Service returns no report for the study"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies/{studyUID}/export/{exporterID}": {
       "post": {
         "tags": [
