@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.stgcmt.impl;
 
 import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Series;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -61,6 +62,7 @@ public class UpdateLocationEJB {
     private EntityManager em;
 
     public int setDigest(Long pk, String digest) {
+        scheduleMetadataUpdate(pk);
         return em.createNamedQuery(Location.SET_DIGEST)
                 .setParameter(1, pk)
                 .setParameter(2, digest)
@@ -68,9 +70,16 @@ public class UpdateLocationEJB {
     }
 
     public int setStatus(Long pk, Location.Status status) {
+        scheduleMetadataUpdate(pk);
         return em.createNamedQuery(Location.SET_STATUS)
                 .setParameter(1, pk)
                 .setParameter(2, status)
+                .executeUpdate();
+    }
+
+    private void scheduleMetadataUpdate(Long pk) {
+        em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_LOCATION_PK)
+                .setParameter(1, pk)
                 .executeUpdate();
     }
 }
