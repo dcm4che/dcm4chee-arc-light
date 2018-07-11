@@ -556,10 +556,12 @@ export class Globalvar {
                 permissionsAction:"action-devicelist-device_configuration"
             },
             "/monitoring/dashboard/*":{
-                permissionsAction:"menu-dashboard"
+                permissionsAction:"menu-dashboard",
+                nextCheck:"/studies"
             },
             "/lifecycle-management":{
-                permissionsAction:"menu-lifecycle_management"
+                permissionsAction:"menu-lifecycle_management",
+                nextCheck:"/studies"
             },
             "/migration/retrieve":{
                 permissionsAction:"tab-move_data->retrieve",
@@ -568,7 +570,7 @@ export class Globalvar {
             "/migration/export":{
                 permissionsAction:"tab-move_data->export"
             },
-            "/audit-record-repository":{
+            "/audit-record-repository/*":{
                 permissionsAction:"menu-audit_record_repository"
             },
             "/device/devicelist":{
@@ -616,8 +618,11 @@ export class Globalvar {
             "/statistics/studies-stored":{
                 permissionsAction:"tab-statistics->studies-stored"
             },
-            "/correct_data/diff":{
+            "/correct-data/diff":{
                 permissionsAction:"tab-correct_data->diff"
+            },
+            "/correct-data/patient-data":{
+                permissionsAction:"tab-correct_data->patient_data"
             },
         };
         if(urlPermissions[url])
