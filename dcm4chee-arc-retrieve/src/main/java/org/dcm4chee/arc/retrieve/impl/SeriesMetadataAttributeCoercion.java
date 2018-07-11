@@ -120,6 +120,9 @@ public class SeriesMetadataAttributeCoercion implements AttributesCoercion {
                 if (location.getDigestAsHexString() != null)
                     item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest, VR.LO,
                             location.getDigestAsHexString());
+                if (location.getStatus() != Location.Status.OK)
+                    item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectStatus, VR.CS,
+                            location.getStatus().name());
             }
         }
     }

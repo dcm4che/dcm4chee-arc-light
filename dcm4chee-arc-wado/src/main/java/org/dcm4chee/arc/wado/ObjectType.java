@@ -131,7 +131,7 @@ enum ObjectType {
             null),
     EncapsulatedPDF(
             new MediaType[] { MediaTypes.APPLICATION_PDF_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
-            new MediaType[] { MediaTypes.APPLICATION_DICOM_TYPE }),
+            new MediaType[] { MediaTypes.APPLICATION_PDF_TYPE }),
     EncapsulatedCDA(
             new MediaType[] { MediaType.TEXT_XML_TYPE, MediaTypes.APPLICATION_DICOM_TYPE },
             new MediaType[] { MediaType.TEXT_XML_TYPE }),

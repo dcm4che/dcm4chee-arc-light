@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2013
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,27 +35,49 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.stgcmt;
+package org.dcm4chee.arc.stgcmt.impl;
 
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4chee.arc.entity.Location;
+import org.dcm4chee.arc.entity.Series;
 
-import javax.servlet.http.HttpServletRequest;
-
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
- * @author Vrinda Nayak <vrinda.nayak@j4care.com>
- * @since March 2017
+ * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @since Jul 2018
  */
-public interface StgCmtEventInfo {
-    ApplicationEntity getRemoteAE();
+@Stateless
+@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+public class UpdateLocationEJB {
 
-    String getLocalAET();
+    @PersistenceContext(unitName="dcm4chee-arc")
+    private EntityManager em;
 
-    Attributes getExtendedEventInfo();
+    public int setDigest(Long pk, String digest) {
+        return em.createNamedQuery(Location.SET_DIGEST)
+                .setParameter(1, pk)
+                .setParameter(2, digest)
+                .executeUpdate();
+    }
 
-    HttpServletRequest getRequest();
+    public int setStatus(Long pk, Location.Status status) {
+        return em.createNamedQuery(Location.SET_STATUS)
+                .setParameter(1, pk)
+                .setParameter(2, status)
+                .executeUpdate();
+    }
+
+    public int scheduleMetadataUpdate(Long seriesPk) {
+        return em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES)
+                .setParameter(1, seriesPk)
+                .executeUpdate();
+    }
 }

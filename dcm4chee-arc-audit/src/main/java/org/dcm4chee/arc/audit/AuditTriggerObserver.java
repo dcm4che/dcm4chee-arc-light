@@ -57,7 +57,7 @@ import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveWADO;
-import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
+import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.RetrieveStart;
@@ -153,9 +153,9 @@ public class AuditTriggerObserver {
             auditService.spoolProcedureRecord(ctx);
     }
 
-    public void onStorageCommit(@Observes StgCmtEventInfo stgCmtEventInfo) {
+    public void onStorageCommit(@Observes StgCmtContext stgCmtContext) {
         if (deviceHasAuditLoggers())
-            auditService.spoolStgCmt(stgCmtEventInfo);
+            auditService.spoolStgCmt(stgCmtContext);
     }
 
     public void onRejectionNoteSent(@Observes RejectionNoteSent rejectionNoteSent) {

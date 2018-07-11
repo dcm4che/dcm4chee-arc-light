@@ -86,6 +86,18 @@ public class FileSystemStorage extends AbstractStorage {
     }
 
     @Override
+    public boolean exists(ReadContext ctx) {
+        Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
+        return Files.exists(path);
+    }
+
+    @Override
+    public long getContentLength(ReadContext ctx) throws IOException {
+        Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
+        return Files.size(path);
+    }
+
+    @Override
     public long getUsableSpace() throws IOException {
         return getFileStore().getUsableSpace();
     }

@@ -44,9 +44,10 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.conf.StgCmtPolicy;
+import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
-import org.dcm4chee.arc.stgcmt.impl.StgCmtEventInfoImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,10 +57,12 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -78,13 +81,24 @@ public class StorageCmtRS {
     private StgCmtManager stgCmtMgr;
 
     @Inject
-    private Event<StgCmtEventInfo> stgCmtEvent;
+    private Event<StgCmtContext> stgCmtEvent;
 
     @PathParam("aet")
     private String aet;
 
     @Context
     private HttpServletRequest request;
+
+    @QueryParam("dcmStgCmtPolicy")
+    @Pattern(regexp = "DB_RECORD_EXISTS|OBJECT_EXISTS|OBJECT_SIZE|OBJECT_FETCH|OBJECT_CHECKSUM|S3_MD5SUM")
+    private String stgCmtPolicy;
+
+    @QueryParam("dcmStgCmtUpdateLocationStatus")
+    @Pattern(regexp = "true|false")
+    private String stgCmtUpdateLocationStatus;
+
+    @QueryParam("dcmStgCmtStorageID")
+    private List<String> stgCmtStorageIDs;
 
     @POST
     @Path("/studies/{StudyInstanceUID}/stgcmt")
@@ -115,9 +129,16 @@ public class StorageCmtRS {
 
     private StreamingOutput storageCommit(String studyUID, String seriesUID, String sopUID) {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
-        validateArchiveAE();
-        Attributes eventInfo = stgCmtMgr.calculateResult(studyUID, seriesUID, sopUID);
-        stgCmtEvent.fire(new StgCmtEventInfoImpl(request, eventInfo));
+        StgCmtContext ctx = new StgCmtContext(getApplicationEntity(), aet)
+                                .setRequest(request);
+        if (stgCmtPolicy != null)
+            ctx.setStgCmtPolicy(StgCmtPolicy.valueOf(stgCmtPolicy));
+        if (stgCmtUpdateLocationStatus != null)
+            ctx.setStgCmtUpdateLocationStatus(Boolean.valueOf(stgCmtUpdateLocationStatus));
+        if (!stgCmtStorageIDs.isEmpty())
+            ctx.setStgCmtStorageIDs(stgCmtStorageIDs.toArray(StringUtils.EMPTY_STRING));
+        Attributes eventInfo = stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID);
+        stgCmtEvent.fire(ctx.setExtendedEventInfo(eventInfo));
         return out -> {
                 try (JsonGenerator gen = Json.createGenerator(out)) {
                     JSONWriter writer = new JSONWriter(gen);
@@ -128,12 +149,13 @@ public class StorageCmtRS {
         };
     }
 
-    private void validateArchiveAE() {
+    private ApplicationEntity getApplicationEntity() {
         ApplicationEntity ae = device.getApplicationEntity(aet, true);
         if (ae == null || !ae.isInstalled())
             throw new WebApplicationException(
                     Response.status(Response.Status.NOT_FOUND)
                             .entity("{\"errorMessage\":\"" + "No such Application Entity: " + aet + "\"}")
                             .build());
+        return ae;
     }
 }

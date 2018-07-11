@@ -401,7 +401,8 @@ public class DeletionServiceEJB {
             Objects.equals(location.getStorageID(), l.getStorageID())
                     && Objects.equals(location.getStoragePath(), l.getStoragePath())
                     && Objects.equals(location.getDigestAsHexString(), l.getDigestAsHexString())
-                    && Objects.equals(location.getSize(), l.getSize())))
+                    && Objects.equals(location.getSize(), l.getSize())
+                    && Objects.equals(location.getStatus(), l.getStatus())))
             return false;
 
         if (locations.isEmpty())

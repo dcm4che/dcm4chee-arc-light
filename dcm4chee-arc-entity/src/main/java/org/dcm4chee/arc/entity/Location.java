@@ -82,7 +82,11 @@ import java.util.Date;
         @NamedQuery(name = Location.COUNT_BY_MULTI_REF,
                 query = "select count(l) from Location l where l.multiReference=?1"),
         @NamedQuery(name = Location.COUNT_BY_UIDMAP,
-                query = "select count(l) from Location l where l.uidMap=?1")
+                query = "select count(l) from Location l where l.uidMap=?1"),
+        @NamedQuery(name = Location.SET_DIGEST,
+                query="update Location l set l.digest = ?2 where l.pk = ?1"),
+        @NamedQuery(name = Location.SET_STATUS,
+                query="update Location l set l.status = ?2 where l.pk = ?1")
 })
 @NamedNativeQueries({
         @NamedNativeQuery(name = Location.SIZE_OF_SERIES,
@@ -105,9 +109,21 @@ public class Location {
     public static final String FIND_BY_CONCEPT_NAME_CODE_BEFORE = "Location.FindByConceptNameCodeBefore";
     public static final String COUNT_BY_MULTI_REF = "Location.CountByMultiRef";
     public static final String COUNT_BY_UIDMAP = "Location.CountByUIDMap";
+    public static final String SET_DIGEST = "Location.SetDigest";
+    public static final String SET_STATUS = "Location.SetStatus";
     public static final String SIZE_OF_SERIES = "Location.SizeOfSeries";
 
-    public enum Status { OK, TO_DELETE, FAILED_TO_DELETE }
+    public enum Status {
+        OK,                         // 0
+        TO_DELETE,                  // 1
+        FAILED_TO_DELETE,           // 2
+        MISSING_OBJECT,             // 3
+        FAILED_TO_FETCH_METADATA,   // 4
+        FAILED_TO_FETCH_OBJECT,     // 5
+        DIFFERING_OBJECT_SIZE,      // 6
+        DIFFERING_OBJECT_CHECKSUM,  // 7
+        DIFFERING_S3_MD5SUM         // 8
+    }
 
     public enum ObjectType { DICOM_FILE, METADATA }
 
@@ -212,6 +228,11 @@ public class Location {
 
         public Builder status(Status status) {
             this.status = status;
+            return this;
+        }
+
+        public Builder status(String status) {
+            this.status = status != null ? Status.valueOf(status) : Status.OK;
             return this;
         }
 

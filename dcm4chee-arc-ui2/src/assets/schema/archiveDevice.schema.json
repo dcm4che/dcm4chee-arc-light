@@ -44,6 +44,8 @@
     "dcmAllowRejectionForDataRetentionPolicyExpired",
     "dcmAllowDeleteStudyPermanently",
     "dcmAllowDeletePatient",
+    "dcmStgCmtPolicy",
+    "dcmStgCmtUpdateLocationStatus",
     "dcmQueueTasksFetchSize",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
@@ -758,24 +760,6 @@
       "default": 100,
       "minimum": 1
     },
-    "dcmAttributeFilter": {
-      "title": "Attribute Filter",
-      "description": "Specifies Attributes stored in the database",
-      "type": "array",
-      "titleKey":"{dcmEntity}",
-      "items" : {
-        "$ref": "attributeFilter.schema.json"
-      }
-    },
-    "dcmAttributeSet": {
-      "title": "Attribute Set",
-      "description": "Named Attribute Set for Query Parameter 'comparefield' of DIFF-RS and Query Parameter 'includefields' of WADO-RS Metadata requests.",
-      "type": "array",
-      "titleKey":"{dcmAttributeSetType}:{dcmAttributeSetID}",
-      "items" : {
-        "$ref": "attributeSet.schema.json"
-      }
-    },
     "dcmRemapRetrieveURL": {
       "title": "Remap Retrieve URL",
       "description": "Remap Retrieve URL used in QIDO-RS and WADO-RS Metadata responses. Optionally prefixed with \"[<http-client-host>]\". E.g.: \"[cache-proxy]http://cache-proxy:8080\". If absent or if the specified <http-client-host> does not match, scheme and server authority of the QIDO-RS or WADO-RS request URL are used.",
@@ -827,6 +811,33 @@
         "OVERWRITE",
         "REPLACE"
       ]
+    },
+    "dcmStgCmtPolicy": {
+      "title": "Storage Commitment Policy",
+      "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "string",
+      "default": "OBJECT_CHECKSUM",
+      "enum": [
+        "DB_RECORD_EXISTS",
+        "OBJECT_EXISTS",
+        "OBJECT_SIZE",
+        "OBJECT_FETCH",
+        "OBJECT_CHECKSUM",
+        "S3_MD5SUM"
+      ]
+    },
+    "dcmStgCmtUpdateLocationStatus": {
+      "title": "Storage Commitment Update Location Status",
+      "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStgCmtStorageID": {
+      "title": "Storage Commitment Storage IDs",
+      "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful. If absent, validation of the storage of the object on any Storage System is sufficient to accept the Storage Commitment for that object. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmStorageID"
     },
     "hl7ADTSendingApplication": {
       "title": "HL7 ADT Sending Application",
@@ -921,6 +932,24 @@
       "description": "Specifies the device name containing the Archive UI Configuration.",
       "type": "string",
       "format": "dicomDeviceName"
+    },
+    "dcmAttributeFilter": {
+      "title": "Attribute Filter",
+      "description": "Specifies Attributes stored in the database",
+      "type": "array",
+      "titleKey":"{dcmEntity}",
+      "items" : {
+        "$ref": "attributeFilter.schema.json"
+      }
+    },
+    "dcmAttributeSet": {
+      "title": "Attribute Set",
+      "description": "Named Attribute Set for Query Parameter 'comparefield' of DIFF-RS and Query Parameter 'includefields' of WADO-RS Metadata requests.",
+      "type": "array",
+      "titleKey":"{dcmAttributeSetType}:{dcmAttributeSetID}",
+      "items" : {
+        "$ref": "attributeSet.schema.json"
+      }
     },
     "dcmStorage": {
       "title": "Storage Descriptor",

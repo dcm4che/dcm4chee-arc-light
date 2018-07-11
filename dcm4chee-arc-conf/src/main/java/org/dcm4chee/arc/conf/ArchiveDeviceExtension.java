@@ -192,6 +192,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String auditUnknownPatientID = AUDIT_UNKNOWN_PATIENT_ID;
     private String rejectionNoteStorageAET;
     private String uiConfigurationDeviceName;
+    private StgCmtPolicy stgCmtPolicy = StgCmtPolicy.OBJECT_CHECKSUM;
+    private boolean stgCmtUpdateLocationStatus;
+    private String[] stgCmtStorageIDs = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -1740,6 +1743,30 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.uiConfigurationDeviceName = uiConfigurationDeviceName;
     }
 
+    public StgCmtPolicy getStgCmtPolicy() {
+        return stgCmtPolicy;
+    }
+
+    public void setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
+        this.stgCmtPolicy = stgCmtPolicy;
+    }
+
+    public boolean isStgCmtUpdateLocationStatus() {
+        return stgCmtUpdateLocationStatus;
+    }
+
+    public void setStgCmtUpdateLocationStatus(boolean stgCmtUpdateLocationStatus) {
+        this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus;
+    }
+
+    public String[] getStgCmtStorageIDs() {
+        return stgCmtStorageIDs;
+    }
+
+    public void setStgCmtStorageIDs(String... stgCmtStorageIDs) {
+        this.stgCmtStorageIDs = stgCmtStorageIDs;
+    }
+
     public Collection<KeycloakServer> getKeycloakServers() {
         return keycloakServerMap.values();
     }
@@ -1791,6 +1818,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         wadoZIPEntryNameFormat = arcdev.wadoZIPEntryNameFormat;
         wadoSR2HtmlTemplateURI = arcdev.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = arcdev.wadoSR2TextTemplateURI;
+        wadoCDA2HtmlTemplateURI = arcdev.wadoCDA2HtmlTemplateURI;
         patientUpdateTemplateURI = arcdev.patientUpdateTemplateURI;
         importReportTemplateURI = arcdev.importReportTemplateURI;
         scheduleProcedureTemplateURI = arcdev.scheduleProcedureTemplateURI;
@@ -1892,6 +1920,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         queueTasksFetchSize = arcdev.queueTasksFetchSize;
         rejectionNoteStorageAET = arcdev.rejectionNoteStorageAET;
         uiConfigurationDeviceName = arcdev.uiConfigurationDeviceName;
+        stgCmtPolicy = arcdev.stgCmtPolicy;
+        stgCmtUpdateLocationStatus = arcdev.stgCmtUpdateLocationStatus;
+        stgCmtStorageIDs = arcdev.stgCmtStorageIDs;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();

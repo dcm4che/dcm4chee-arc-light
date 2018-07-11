@@ -105,7 +105,8 @@ class InstanceQuery extends AbstractQuery {
             ArchiveTag.StoragePath | 0x1000,
             ArchiveTag.StorageTransferSyntaxUID | 0x1000,
             ArchiveTag.StorageObjectSize | 0x1000,
-            ArchiveTag.StorageObjectDigest | 0x1000
+            ArchiveTag.StorageObjectDigest | 0x1000,
+            ArchiveTag.StorageObjectStatus | 0x1000
     };
     private final CodeCache codeCache;
     private Long seriesPk;

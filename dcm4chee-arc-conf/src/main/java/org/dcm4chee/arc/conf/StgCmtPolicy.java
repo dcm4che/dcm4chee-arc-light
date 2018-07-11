@@ -1,5 +1,5 @@
 /*
- * *** BEGIN LICENSE BLOCK *****
+ * **** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -35,36 +35,21 @@
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * *** END LICENSE BLOCK *****
+ * **** END LICENSE BLOCK *****
+ *
  */
 
-package org.dcm4chee.arc.stgcmt;
-
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Sequence;
-import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.entity.StgCmtResult;
-
-import java.util.Date;
-import java.util.List;
+package org.dcm4chee.arc.conf;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Sep 2016
+ * @since Jul 2018
  */
-public interface StgCmtManager {
-    void addExternalRetrieveAETs(Attributes eventInfo, Device device);
-
-    void persistStgCmtResult(StgCmtResult result);
-
-    List<StgCmtResult> listStgCmts(
-            StgCmtResult.Status status, String studyUID, String exporterID, int offset, int limit);
-
-    boolean deleteStgCmt(String transactionUID);
-
-    int deleteStgCmts(StgCmtResult.Status status, Date updatedBefore);
-
-    Attributes calculateResult(StgCmtContext ctx, Sequence refSopSeq, String transactionUID);
-
-    Attributes calculateResult(StgCmtContext ctx, String studyIUID, String seriesIUID, String sopIUID);
+public enum StgCmtPolicy {
+    DB_RECORD_EXISTS,
+    OBJECT_EXISTS,
+    OBJECT_SIZE,
+    OBJECT_FETCH,
+    OBJECT_CHECKSUM,
+    S3_MD5SUM
 }

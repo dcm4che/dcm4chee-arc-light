@@ -7010,6 +7010,57 @@
         }
       }
     },
+    "/aets/{aet}/rs/studies/{studyUID}/impax/report": {
+      "post": {
+        "tags": [
+          "IMPAX-REPORT-RS"
+        ],
+        "summary": "Import Reports of Study",
+        "operationId": "importReportsOfStudy",
+        "produces": [
+          "multipart/related;type=application/dicom+json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "This indicates that all reports returned by the Impax Report Service were successfully stored.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "202": {
+            "description": "This indicates that some reports returned by the Impax Report Service were stored, but failures exist for others.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "no such Archive AET or Study"
+          },
+          "409": {
+            "description": "Impax Report Service returns no report for the study"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies/{studyUID}/export/{exporterID}": {
       "post": {
         "tags": [
@@ -8017,6 +8068,36 @@
             "description": "Study Instance UID for a single study",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "responses": {
@@ -8073,6 +8154,36 @@
             "description": "Series Instance UID for a single series",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "responses": {
@@ -8136,6 +8247,36 @@
             "description": "SOP Instance UID for a single SOP Instance",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "responses": {

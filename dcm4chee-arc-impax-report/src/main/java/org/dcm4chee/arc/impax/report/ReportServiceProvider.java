@@ -54,6 +54,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,13 +71,13 @@ public class ReportServiceProvider {
 
     private ReportService service = new ReportService();
 
-    public Optional<List<String>> queryReportByStudyUid(String studyIUID) throws ConfigurationException {
+    public List<String> queryReportByStudyUid(String studyIUID) throws ConfigurationException {
         Map<String, String> props = device.getDeviceExtension(ArchiveDeviceExtension.class)
                 .getImpaxReportProperties();
         Holder<Boolean> result = new Holder<>();
         Holder<ArrayOfString> xmlReports = new Holder<>();
         port(props).queryReportByStudyUid(studyIUID, result, xmlReports);
-        return result.value ? Optional.of(xmlReports.value.getString()) : Optional.empty();
+        return result.value ? xmlReports.value.getString() : Collections.EMPTY_LIST;
     }
 
     private ReportServicePortType port(Map<String, String> props) throws ConfigurationException {

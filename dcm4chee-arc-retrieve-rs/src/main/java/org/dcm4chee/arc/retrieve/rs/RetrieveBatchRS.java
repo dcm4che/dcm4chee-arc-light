@@ -118,6 +118,9 @@ public class RetrieveBatchRS {
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime")
     private String orderby;
 
+    @QueryParam("batchID")
+    private String batchID;
+
     @Context
     private HttpServletRequest request;
 
@@ -126,7 +129,7 @@ public class RetrieveBatchRS {
     public Response listRetrieveBatches() {
         logRequest();
         List<RetrieveBatch> retrieveBatches =  mgr.listRetrieveBatches(
-                MatchTask.matchQueueBatch(deviceName, status()),
+                MatchTask.matchQueueBatch(deviceName, status(), batchID),
                 MatchTask.matchRetrieveBatch(localAET, remoteAET, destinationAET, createdTime, updatedTime),
                 MatchTask.retrieveBatchOrder(orderby), parseInt(offset), parseInt(limit));
         return Response.ok().entity(Output.JSON.entity(retrieveBatches)).build();

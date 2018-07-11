@@ -373,6 +373,12 @@
       <classifier>${dcm4chee-arc-ui-classifier}</classifier>
       <type>war</type>
     </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-xsl-cda</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+    </dependency>
   </dependencies>
 
   <build>
@@ -403,6 +409,11 @@
               <groupId>org.dcm4che.dcm4chee-arc</groupId>
               <artifactId>dcm4chee-arc-ui2</artifactId>
               <contextRoot>dcm4chee-arc/ui2</contextRoot>
+            </webModule>
+            <webModule>
+              <groupId>org.dcm4che.dcm4chee-arc</groupId>
+              <artifactId>dcm4chee-arc-xsl-cda</artifactId>
+              <contextRoot>dcm4chee-arc/xsl</contextRoot>
             </webModule>
           </modules>
         </configuration>
