@@ -8,7 +8,7 @@ import java.util.Objects;
  */
 public class QueueDescriptor {
 
-    public static final Duration DEFAULT_RETRY_DELAY = Duration.parse("PT1M");
+    public static final Duration DEFAULT_RETRY_DELAY = Duration.valueOf("PT1M");
 
     private String queueName;
     private String jndiName;

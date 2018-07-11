@@ -48,11 +48,17 @@ import org.dcm4che3.net.pdu.ExtendedNegotiation;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.query.scu.CFindSCU;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -63,6 +69,7 @@ import java.util.List;
 @ApplicationScoped
 public class CFindSCUImpl implements CFindSCU {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CFindSCUImpl.class);
     private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
     private static final int PCID = 1;
 
@@ -106,7 +113,8 @@ public class CFindSCUImpl implements CFindSCU {
                                  String studyIUID, String seriesIUID, String sopIUID, int... returnKeys)
             throws Exception {
         List<Attributes> list = new ArrayList<>();
-        DimseRSP rsp = query(as, priority, mkQueryKeys(level, studyIUID, seriesIUID, sopIUID, returnKeys), 0);
+        DimseRSP rsp = query(as, priority, mkQueryKeys(level, studyIUID, seriesIUID, sopIUID, returnKeys),
+                0, null);
         rsp.next();
         Attributes match = rsp.getDataset();
         while (rsp.next()) {
@@ -121,12 +129,26 @@ public class CFindSCUImpl implements CFindSCU {
     }
 
     @Override
-    public DimseRSP query(Association as, int priority, Attributes keys, int autoCancel) throws Exception {
+    public DimseRSP query(Association as, int priority, Attributes keys, int autoCancel, Duration splitStudyDateRange)
+            throws Exception {
         AAssociateRQ aarq = as.getAAssociateRQ();
         String cuid = aarq.getPresentationContext(PCID).getAbstractSyntax();
         if (QueryOption.toOptions(aarq.getExtNegotiationFor(cuid)).contains(QueryOption.DATETIME)
                 && !as.getQueryOptionsFor(cuid).contains(QueryOption.DATETIME))
             keys.accept(nullifyTM, true);
+        DateRange dateRange;
+        if (splitStudyDateRange != null
+                && !keys.containsValue(Tag.StudyInstanceUID)
+                && !keys.containsValue(Tag.StudyTime)
+                && (dateRange = keys.getDateRange(Tag.StudyDate)) != null
+                && dateRange.getStartDate() != null) {
+            long startDate = dateRange.getStartDate().getTime();
+            long endDate = dateRange.getEndDate() != null
+                    ? dateRange.getEndDate().getTime()
+                    : System.currentTimeMillis();
+            if (endDate - startDate > splitStudyDateRange.getSeconds() * 1000)
+                return new SplitQuery(as, cuid, priority, keys, autoCancel, startDate, endDate, splitStudyDateRange);
+        }
         return as.cfind(cuid, priority, keys, UID.ImplicitVRLittleEndian, autoCancel);
     }
 

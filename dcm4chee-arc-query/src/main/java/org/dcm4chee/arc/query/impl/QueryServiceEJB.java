@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.query.impl;
 
 
+import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Predicate;
@@ -56,7 +57,6 @@ import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.QueryBuilder;
-import org.dcm4chee.arc.query.util.QueryParam;
 import org.hibernate.Session;
 
 import javax.ejb.Stateless;
@@ -103,6 +103,7 @@ public class QueryServiceEJB {
         QMetadata.metadata.storagePath,
         QMetadata.metadata.digest,
         QMetadata.metadata.size,
+        QMetadata.metadata.status,
         QSeriesQueryAttributes.seriesQueryAttributes.numberOfInstances,
         QStudyQueryAttributes.studyQueryAttributes.numberOfInstances,
         QStudyQueryAttributes.studyQueryAttributes.numberOfSeries,
@@ -111,6 +112,15 @@ public class QueryServiceEJB {
         QueryBuilder.seriesAttributesBlob.encodedAttributes,
         QueryBuilder.studyAttributesBlob.encodedAttributes,
         QueryBuilder.patientAttributesBlob.encodedAttributes
+    };
+
+    private static final Expression<?>[] LOCATION_INFO = {
+        QLocation.location.storageID,
+        QLocation.location.storagePath,
+        QLocation.location.transferSyntaxUID,
+        QLocation.location.digest,
+        QLocation.location.size,
+        QLocation.location.status
     };
 
     static final Expression<?>[] SOP_REFS_OF_STUDY = {
@@ -276,8 +286,44 @@ public class QueryServiceEJB {
             if (result.get(QMetadata.metadata.digest) != null)
                 attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectDigest, VR.LO,
                         result.get(QMetadata.metadata.digest));
+            if (result.get(QMetadata.metadata.status) != Metadata.Status.OK)
+                attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.SeriesMetadataStorageObjectStatus, VR.CS,
+                        result.get(QMetadata.metadata.status).name());
         }
         return attrs;
+    }
+
+    public void addLocationAttributes(Attributes attrs, Long instancePk) {
+        try (CloseableIterator<Tuple> iterate = new HibernateQuery<Void>(em.unwrap(Session.class))
+                .select(LOCATION_INFO)
+                .from(QLocation.location)
+                .where(QLocation.location.instance.pk.eq(instancePk),
+                        QLocation.location.objectType.eq(Location.ObjectType.DICOM_FILE))
+                .iterate()) {
+            Attributes item = null;
+            while (iterate.hasNext()) {
+                Tuple results = iterate.next();
+                if (item == null)
+                    item = attrs;
+                else
+                    attrs.ensureSequence(ArchiveTag.PrivateCreator, ArchiveTag.OtherStorageSequence, 1)
+                            .add(item = new Attributes(5));
+                item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID, VR.LO,
+                        results.get(QLocation.location.storageID));
+                item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StoragePath, VR.LO,
+                        StringUtils.split(results.get(QLocation.location.storagePath), '/'));
+                item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageTransferSyntaxUID, VR.UI,
+                        results.get(QLocation.location.transferSyntaxUID));
+                item.setInt(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectSize, VR.UL,
+                        results.get(QLocation.location.size).intValue());
+                if (results.get(QLocation.location.digest) != null)
+                    item.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectDigest, VR.LO,
+                            results.get(QLocation.location.digest));
+                if (results.get(QLocation.location.status) != Location.Status.OK)
+                    attrs.setString(ArchiveTag.PrivateCreator, ArchiveTag.StorageObjectStatus, VR.CS,
+                            results.get(QLocation.location.status).name());
+            }
+        }
     }
 
     public Attributes queryStudyExportTaskInfo(String studyIUID, QueryRetrieveView qrView) {
@@ -289,6 +335,9 @@ public class QueryServiceEJB {
                 .on(QStudyQueryAttributes.studyQueryAttributes.viewID.eq(viewID))
                 .where(QStudy.study.studyInstanceUID.eq(studyIUID))
                 .fetchOne();
+        if (result == null)
+            return null;
+
         String modalitiesInStudy;
         Integer numberOfStudyRelatedInstances =
                 result.get(QStudyQueryAttributes.studyQueryAttributes.numberOfInstances);

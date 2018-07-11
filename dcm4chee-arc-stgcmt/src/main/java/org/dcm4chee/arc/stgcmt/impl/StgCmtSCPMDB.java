@@ -44,21 +44,23 @@ import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
-import org.dcm4chee.arc.stgcmt.StgCmtEventInfo;
+import org.dcm4chee.arc.stgcmt.StgCmtContext;
 import org.dcm4chee.arc.stgcmt.StgCmtManager;
 import org.dcm4chee.arc.stgcmt.StgCmtSCP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.MessageDriven;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.jms.*;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -67,21 +69,19 @@ import javax.persistence.PersistenceContext;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2015
  */
-@MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = StgCmtSCP.JNDI_NAME),
-        @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "5")
-})
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class StgCmtSCPMDB implements MessageListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(StgCmtSCPMDB.class);
 
     @Inject
+    private Device device;
+
+    @Inject
     private IApplicationEntityCache aeCache;
 
     @Inject
-    private Event<StgCmtEventInfo> stgCmtEvent;
+    private Event<StgCmtContext> stgCmtEvent;
 
     @Inject
     private QueueManager queueManager;
@@ -107,12 +107,14 @@ public class StgCmtSCPMDB implements MessageListener {
             return;
         try {
             String localAET = msg.getStringProperty("LocalAET");
+            ApplicationEntity localAE = device.getApplicationEntity(localAET, true);
             ApplicationEntity remoteAE = aeCache.findApplicationEntity(msg.getStringProperty("RemoteAET"));
+            StgCmtContext ctx = new StgCmtContext(localAE, localAET).setRemoteAE(remoteAE);
             Attributes actionInfo = (Attributes) ((ObjectMessage) msg).getObject();
-            Attributes eventInfo = stgCmtMgr.calculateResult(
+            Attributes eventInfo = stgCmtMgr.calculateResult(ctx,
                     actionInfo.getSequence(Tag.ReferencedSOPSequence),
                     actionInfo.getString(Tag.TransactionUID));
-            stgCmtEvent.fire(new StgCmtEventInfoImpl(remoteAE, localAET, eventInfo));
+            stgCmtEvent.fire(ctx.setExtendedEventInfo(eventInfo));
             removeExtendedEventInfo(eventInfo);
             Outcome outcome = stgCmtSCP.sendNEventReport(localAET, remoteAE, eventInfo);
             queueManager.onProcessingSuccessful(msgID, outcome);

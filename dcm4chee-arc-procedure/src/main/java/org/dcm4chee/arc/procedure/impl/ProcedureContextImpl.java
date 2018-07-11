@@ -45,6 +45,7 @@ import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 
@@ -109,7 +110,7 @@ public class ProcedureContextImpl implements ProcedureContext {
 
     @Override
     public String getRemoteHostName() {
-        return httpRequest != null ? httpRequest.getRemoteHost() : socket.getInetAddress().getHostName();
+        return httpRequest != null ? httpRequest.getRemoteHost() : ReverseDNS.hostNameOf(socket.getInetAddress());
     }
 
     @Override

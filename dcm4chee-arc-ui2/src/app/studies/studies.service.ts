@@ -83,15 +83,15 @@ export class StudiesService {
                     this.mainservice.setMessage({
                         'title': "Error",
                         'text': "Accepted User Roles in the AETs are missing, add at least one role per AET (ArchiveDevice -> AET -> Archive Network AE -> Accepted User Role)",
-                        'status': "Error"
+                        'status': "error"
                     });
                 }
-                return endAes;
+            return endAes;
             }else{
                 this.mainservice.setMessage({
                     'title': "Error",
                     'text': "No AETs found, please use the device-configurator or the LDAP-Browser to configure one!",
-                    'status': "Error"
+                    'status': "error"
                 });
             }
         }
@@ -302,7 +302,6 @@ export class StudiesService {
     };
 
     getPatientIod(){
-        console.log('_patientIod', this._patientIod);
         if (this._patientIod) {
             return Observable.of(this._patientIod);
         } else {
@@ -332,7 +331,7 @@ export class StudiesService {
         let dropdown = [];
         _.forEach(res, function(m, i){
             if (i === '00400100'){
-                _.forEach(m.items, function(l, j){
+                _.forEach(m.items || m.Value[0], function(l, j){
                     dropdown.push({
                         'code': '00400100:' + j,
                         'codeComma': '>' + j.slice(0, 4) + ',' + j.slice(4),
@@ -599,7 +598,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             {headers: new Headers({ 'Content-Type': 'application/dicom+json' })}
         );
     }
-    modifyPatient(patient, iod, oldPatientID, aet,internalAppName, externalAppName,  modifyMode, externalInternalAetMode){
+    modifyPatient(patient, iod, oldPatientID, aet,internalAppName, externalAppName,  modifyMode, externalInternalAetMode, queue?){
         let url;
         if(externalInternalAetMode === 'external'){
             if(!internalAppName || !externalAppName){
@@ -618,28 +617,37 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
         let headers = new Headers({ 'Content-Type': 'application/dicom+json' });
         this.clearPatientObject(patient.attrs);
         this.convertStringToNumber(patient.attrs);
-        //Check if the patient.attrs object have PatientID
-        if (_.hasIn(patient,'attrs[00100020].Value[0]') && patient.attrs['00100020'].Value[0] != ''){
+        let toSavePatientObject;
+        if(_.hasIn(patient,"attrs")){
+            toSavePatientObject = _.cloneDeep(patient.attrs);
+        }else{
+            toSavePatientObject = _.cloneDeep(patient);
+        }
+        //Check if the toSavePatientObject object have PatientID
+        if (_.hasIn(toSavePatientObject,'[00100020].Value[0]') && toSavePatientObject['00100020'].Value[0] != ''){
             //Delete attrs that don't have values
-            _.forEach(patient.attrs, function(m, i){
+            _.forEach(toSavePatientObject, function(m, i){
                 if (iod && iod[i] && iod[i].vr != 'SQ' && m.Value && m.Value.length === 1 && m.Value[0] === ''){
-                    delete patient.attrs[i];
+                    delete toSavePatientObject[i];
                 }
             });
-            if (modifyMode === 'create' && _.hasIn(patient, 'attrs.00100021') && patient.attrs['00100021'] != undefined) {
-                oldPatientID = this.getPatientId(patient.attrs);
+            if (modifyMode === 'create' && _.hasIn(toSavePatientObject, '00100021') && toSavePatientObject['00100021'] != undefined) {
+                oldPatientID = this.getPatientId(toSavePatientObject);
             }
             if(externalInternalAetMode === 'internal'){
                 url = url + (oldPatientID || patient.attrs['00100020'].Value[0]);
+            }
+            if(queue){
+                url += `?queue=true`
             }
             if((externalInternalAetMode === 'external' && modifyMode === 'edit') || externalInternalAetMode === 'internal'){
                     return {
                         save:this.$http.put(
                                 url,
-                                patient.attrs,
+                                toSavePatientObject,
                                 {headers: headers}
-                            ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
-                        ,
+                            )
+                            .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;}),
                         successMsg:'Patient saved successfully!'
                     };
             }else{
@@ -647,7 +655,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                    return {
                        save:this.$http.post(
                            url,
-                           patient.attrs,
+                           toSavePatientObject,
                            {headers: headers}
                        ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                        ,
@@ -667,7 +675,7 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
                 return {
                     save:this.$http.post(
                         url,
-                        patient.attrs,
+                        toSavePatientObject,
                         {headers: headers}
                     ).map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                     ,
@@ -717,8 +725,22 @@ clipboard.hasPatient = haspatient || (_.size(clipboard.patient) > 0);
             .map(res => j4care.redirectOnAuthResponse(res));
     }
     queryNationalPationtRegister(patientID){
-       return this.$http.get(`../xroad/RR441/${patientID}`)
-            .map(res => j4care.redirectOnAuthResponse(res));
+        // return Observable.of([{"00081190":{"vr":"UR","Value":["http://shefki-lifebook:8080/dcm4chee-arc/aets/DCM4CHEE/rs"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"test12SELAM"}]},"00100020":{"vr":"LO","Value":["pid1"]},"00100040":{"vr":"CS","Value":["F"]},"00201200":{"vr":"IS","Value":[0]},"77770010":{"vr":"LO","Value":["DCM4CHEE Archive 5"]},"77771010":{"vr":"DT","Value":["20180315123826.668"]},"77771011":{"vr":"DT","Value":["20180315125113.826"]}}]);
+        // return Observable.of([{"00080052":{"vr":"CS","Value":["PATIENT"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"PROBST^KATHY"}]},"00100020":{"vr":"LO","Value":["ALGO00001"]},"00100030":{"vr":"DA","Value":["19000101"]},"00100040":{"vr":"CS","Value":["F"]}}])
+        // return Observable.of([])
+       return this.$http.get(`../xroad/RR441/${patientID}`).map(res => j4care.redirectOnAuthResponse(res));
+    }
+
+    gitDiffTaskResults(params, mode){
+        if(mode === 'pk'){
+            let taskPK = params['pk'];
+            delete params['pk'];
+            return this.$http.get(`../monitor/diff/${taskPK}/studies${this._config(params)}`).map(res => j4care.redirectOnAuthResponse(res));
+        }else{
+            let batchID = params['batchID'];
+            delete params['batchID'];
+            return this.$http.get(`../monitor/diff/batch/${batchID}/studies${this._config(params)}`).map(res => j4care.redirectOnAuthResponse(res));
+        }
     }
 
 }

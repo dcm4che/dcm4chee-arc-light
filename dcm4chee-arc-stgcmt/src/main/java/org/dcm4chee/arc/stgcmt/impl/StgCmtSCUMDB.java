@@ -63,11 +63,6 @@ import javax.persistence.PersistenceContext;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Sep 2016
  */
-@MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = StgCmtSCU.JNDI_NAME),
-        @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "5")
-})
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class StgCmtSCUMDB implements MessageListener {
 

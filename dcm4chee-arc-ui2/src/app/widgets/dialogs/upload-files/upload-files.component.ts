@@ -27,6 +27,8 @@ export class UploadFilesComponent implements OnInit {
     isImage = false;
     webApps;
     selectedWebApp;
+    seriesNumber = 0;
+    instanceNumber = 1;
     imageType = [
         {
             title:"Screenshots",
@@ -117,8 +119,6 @@ export class UploadFilesComponent implements OnInit {
                         let crlf = '\r\n';
                         //Post with the correct MIME type (If the OS can identify one)
                         let studyObject = _.pickBy($this._dicomObject.attrs, (o, i) => {
-                            console.log("o", o);
-                            console.log("i", i);
                             return (i.toString().indexOf("777") === -1);
                         })
                         if (!$this.description || $this.description === "") {
@@ -128,6 +128,30 @@ export class UploadFilesComponent implements OnInit {
                             "vr": "LO",
                             "Value": [
                                 $this.description
+                            ]
+                        };
+                        studyObject["00200013"] = {
+                            "vr": "IS",
+                            "Value": [
+                                this.instanceNumber || 1
+                            ]
+                        };
+                        studyObject["00200011"] = {
+                            "vr": "IS",
+                            "Value": [
+                                this.seriesNumber || 0
+                            ]
+                        };
+                        studyObject["0020000E"] = {
+                            "vr": "UI",
+                            "Value": [
+                                `${studyObject["0020000D"].Value[0]}.${(this.seriesNumber || 0)}`
+                            ]
+                        };
+                        studyObject["00080018"] = {
+                            "vr": "UI",
+                            "Value": [
+                                `${studyObject["0020000D"].Value[0]}.${(this.seriesNumber || 0)}.${(this.instanceNumber || 1)}`
                             ]
                         };
 
@@ -182,6 +206,26 @@ export class UploadFilesComponent implements OnInit {
                             }
                             transfareSyntax = ';transfer-syntax=' + transfareSyntax;
                         }
+                        if(file.type === "image/jpeg"){
+                            studyObject["00080008"] = {
+                                "vr": "CS",
+                                "Value": [
+                                    "ORIGINAL",
+                                    "PRIMARY"
+                                ]
+                            };
+                            if(this.selectedSopClass.value === '1.2.840.10008.5.1.4.1.1.7'){
+                                studyObject["00080064"] = {
+                                    "vr": "CS",
+                                    "Value": [
+                                        "WSD"
+                                    ]
+                                };
+                                studyObject["00200020"] = {
+                                    "vr": "CS"
+                                };
+                            }
+                        }
                         studyObject["00080060"] = {
                             "vr": "CS",
                             "Value": [
@@ -190,11 +234,27 @@ export class UploadFilesComponent implements OnInit {
                         };
 
                         // const dataView = new DataView(e.target['result']);
-                        const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(studyObject) + crlf;
+
+                        let object = [{}];
+                        Object.keys(studyObject).forEach(key=>{
+                            if(([
+                                "00080054",
+                                "00080056",
+                                "00080061",
+                                "00080062",
+                                "00081190",
+                                "00201200",
+                                "00201206",
+                                "00201208"
+                            ].indexOf(key) === -1))
+                                object[0][key] = studyObject[key];
+                        });
+                        const jsonData = dashes + boundary + crlf + 'Content-Type: application/dicom+json' + crlf + crlf + JSON.stringify(object) + crlf;
+
                         const postDataStart = jsonData + dashes + boundary + crlf + 'Content-Type: ' + file.type + transfareSyntax + crlf + 'Content-Location: file/' + file.name + crlf + crlf;
                         const postDataEnd = crlf + dashes + boundary + dashes;
 
-                        $this.xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type=application/dicom+json;boundary=' + boundary + ';');
+                        $this.xmlHttpRequest.setRequestHeader('Content-Type', 'multipart/related;type="application/dicom+json";boundary=' + boundary);
                         $this.xmlHttpRequest.setRequestHeader('Accept', 'application/dicom+json');
                         if(!this.mainservice.global.notSecure) {
                             $this.xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);

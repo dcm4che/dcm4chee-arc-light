@@ -40,7 +40,13 @@
 
 package org.dcm4chee.arc.delete.impl;
 
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.dict.archive.ArchiveTag;
+import org.dcm4che3.json.JSONReader;
+import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.BinaryPrefix;
@@ -49,20 +55,26 @@ import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Metadata;
+import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.entity.Study;
+import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.StorageFactory;
+import org.dcm4chee.arc.store.StoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import javax.json.Json;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.List;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -84,6 +96,9 @@ public class PurgeStorageScheduler extends Scheduler {
     private DeletionServiceEJB ejb;
 
     @Inject
+    private StoreService storeService;
+
+    @Inject
     private StorageFactory storageFactory;
 
     @Inject
@@ -100,13 +115,16 @@ public class PurgeStorageScheduler extends Scheduler {
 
     @Override
     protected Duration getPollingInterval() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        return arcDev.getPurgeStoragePollingInterval();
+        return arcdev().getPurgeStoragePollingInterval();
+    }
+
+    private ArchiveDeviceExtension arcdev() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
     @Override
     protected void execute() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = arcdev();
         int fetchSize = arcDev.getPurgeStorageFetchSize();
         int deleteStudyBatchSize = arcDev.getDeleteStudyBatchSize();
         boolean deletePatient = arcDev.isDeletePatientOnDeleteLastStudy();
@@ -121,10 +139,10 @@ public class PurgeStorageScheduler extends Scheduler {
                         BinaryPrefix.formatDecimal(minUsableSpace), BinaryPrefix.formatDecimal(deleteSize));
             }
             for (int i = 0; i == 0 || deleteSize > 0L; i++) {
+                if (getPollingInterval() == null)
+                    return;
                 if (deleteSize > 0L) {
-                    if ((desc.getExternalRetrieveAETitle() == null
-                            ? deleteStudies(desc, deleteStudyBatchSize, deletePatient)
-                            : deleteObjectsOfStudies(desc, deleteStudyBatchSize)) == 0)
+                    if (deleteStudies(desc, deleteStudyBatchSize, deletePatient) == 0)
                         deleteSize = 0L;
                 }
                 while (deleteNextObjectsFromStorage(desc, fetchSize)) ;
@@ -151,7 +169,7 @@ public class PurgeStorageScheduler extends Scheduler {
     private int deleteStudies(StorageDescriptor desc, int fetchSize, boolean deletePatient) {
         List<Long> studyPks;
         try {
-           studyPks = ejb.findStudiesForDeletionOnStorage(desc.getStorageID(), fetchSize);
+           studyPks = findStudiesForDeletion(desc, fetchSize);
         } catch (Exception e) {
             LOG.warn("Query for studies for deletion on {} failed", desc, e);
             return 0;
@@ -160,8 +178,117 @@ public class PurgeStorageScheduler extends Scheduler {
             LOG.warn("No studies for deletion found on {}", desc);
             return 0;
         }
+        return desc.getExternalRetrieveAETitle() != null || desc.getExportStorageID() != null
+                ? deleteObjectsOfStudies(desc, studyPks)
+                : deleteStudiesFromDB(desc, studyPks, deletePatient);
+    }
+
+    private List<Long> findStudiesForDeletion(StorageDescriptor desc, int fetchSize) {
+        List<Long> studyPks = desc.getExternalRetrieveAETitle() != null
+                ? ejb.findStudiesForDeletionOnStorageWithExternalRetrieveAET(desc, fetchSize)
+                : ejb.findStudiesForDeletionOnStorage(desc, fetchSize);
+
+        String storageID = desc.getStorageID();
+        String exportStorageID = desc.getExportStorageID();
+        if (exportStorageID != null) {
+            for (Iterator<Long> iter = studyPks.iterator(); iter.hasNext();) {
+                Long studyPk = iter.next();
+                int notStoredOnOtherStorage = ejb.instancesNotStoredOnExportStorage(studyPk, desc);
+                Map<String,Storage> storageMap = new HashMap<>();
+                List<Series> seriesWithPurgedInstances = null;
+                try {
+                    seriesWithPurgedInstances = ejb.findSeriesWithPurgedInstances(studyPk);
+                    for (Series series : seriesWithPurgedInstances) {
+                        Storage storage = getStorage(series.getMetadata().getStorageID(), storageMap);
+                        ReadContext readContext = storage.createReadContext();
+                        readContext.setStoragePath(series.getMetadata().getStoragePath());
+                        notStoredOnOtherStorage += instancesNotStoredOnOtherStorage(readContext, storageID, exportStorageID);
+                    }
+                } finally {
+                    for (Storage storage : storageMap.values()) {
+                        SafeClose.close(storage);
+                    }
+                }
+                if (notStoredOnOtherStorage > 0) {
+                    LOG.warn("{} of instances of Study[pk={}] on {} not stored on Storage[id={}] - defer deletion of objects",
+                            notStoredOnOtherStorage, studyPk, desc, exportStorageID);
+                    ejb.updateStudyAccessTime(studyPk);
+                    iter.remove();
+                } else if (!seriesWithPurgedInstances.isEmpty()){
+                    ApplicationEntity ae = device.getApplicationEntities().iterator().next();
+                    Duration purgeInstanceRecordsDelay = device.getDeviceExtension(ArchiveDeviceExtension.class)
+                            .getPurgeInstanceRecordsDelay();
+                    for (Series series : seriesWithPurgedInstances) {
+                        try {
+                            storeService.restoreInstances(storeService.newStoreSession(ae, storageID),
+                                    series.getStudy().getStudyInstanceUID(),
+                                    series.getSeriesInstanceUID(),
+                                    purgeInstanceRecordsDelay);
+                        } catch (Exception e) {
+                            LOG.warn("Failed to restore Instance records of Series[pk={}] - defer deletion of objects from Storage[id={}]\n",
+                                    series.getPk(), desc, e);
+                            ejb.updateStudyAccessTime(studyPk);
+                            iter.remove();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return studyPks;
+    }
+
+    private Storage getStorage(String storageID, Map<String,Storage> storageMap) {
+        Storage storage = storageMap.get(storageID);
+        if (storage == null) {
+            storageMap.put(storageID,
+                    storage = storageFactory.getStorage(arcdev().getStorageDescriptorNotNull(storageID)));
+        }
+        return storage;
+    }
+
+    private static int instancesNotStoredOnOtherStorage(ReadContext ctx, String storageID, String exportStorageID) {
+        int count = 0;
+        try (InputStream in = ctx.getStorage().openInputStream(ctx)) {
+            ZipInputStream zip = new ZipInputStream(in);
+            while (zip.getNextEntry() != null) {
+                JSONReader jsonReader = new JSONReader(Json.createParser(
+                        new InputStreamReader(zip, "UTF-8")));
+                Attributes metadata = jsonReader.readDataset(null);
+                if (containsStorageID(metadata, storageID) && !containsStorageID(metadata, exportStorageID))
+                    count++;
+                zip.closeEntry();
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to read Metadata {} from {}",
+                    ctx.getStoragePath(), ctx.getStorage().getStorageDescriptor());
+            count++;
+        }
+        return count;
+    }
+
+    private static boolean containsStorageID(Attributes attrs, String storageID) {
+        if (matchStorageID(attrs, storageID))
+            return true;
+
+        Sequence otherStorageSeq = attrs.getSequence(ArchiveTag.PrivateCreator, ArchiveTag.OtherStorageSequence);
+        if (otherStorageSeq != null)
+            for (Attributes otherStorageItem : otherStorageSeq)
+                if (matchStorageID(otherStorageItem, storageID))
+                    return true;
+
+        return false;
+    }
+
+    private static boolean matchStorageID(Attributes attrs, String storageID) {
+        return storageID.equals(attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.StorageID));
+    }
+
+    private int deleteStudiesFromDB(StorageDescriptor desc, List<Long> studyPks, boolean deletePatient) {
         int removed = 0;
         for (Long studyPk : studyPks) {
+            if (getPollingInterval() == null)
+                break;
             StudyDeleteContextImpl ctx = new StudyDeleteContextImpl(studyPk);
             ctx.setDeletePatientOnDeleteLastStudy(deletePatient);
             try {
@@ -182,25 +309,13 @@ public class PurgeStorageScheduler extends Scheduler {
         return removed;
     }
 
-    private int deleteObjectsOfStudies(StorageDescriptor desc, int fetchSize) {
-        List<Long> studyPks;
-        try {
-           studyPks = ejb.findStudiesForDeletionOnStorageWithExternalRetrieveAET(
-                    desc.getStorageID(), desc.getExternalRetrieveAETitle(), fetchSize);
-        } catch (Exception e) {
-            LOG.warn("Query for studies available at {} for deletion on {} failed",
-                    desc.getExternalRetrieveAETitle(), desc, e);
-            return 0;
-        }
-        if (studyPks.isEmpty()) {
-            LOG.warn("No studies available at {} for deletion found on {}",
-                    desc.getExternalRetrieveAETitle(), desc);
-            return 0;
-        }
+    private int deleteObjectsOfStudies(StorageDescriptor desc, List<Long> studyPks) {
         int removed = 0;
         for (Long studyPk : studyPks) {
+            if (getPollingInterval() == null)
+                break;
             try {
-                Study study = ejb.deleteObjectsOfStudy(studyPk, desc.getStorageID());
+                Study study = ejb.deleteObjectsOfStudy(studyPk, desc);
                 removed++;
                 LOG.info("Successfully delete objects of {} on {}", study, desc);
             } catch (Exception e) {
@@ -217,6 +332,8 @@ public class PurgeStorageScheduler extends Scheduler {
 
         try (Storage storage = storageFactory.getStorage(desc)) {
             for (Metadata m : metadata) {
+                if (getPollingInterval() == null)
+                    return false;
                 try {
                     storage.deleteObject(m.getStoragePath());
                     ejb.removeMetadata(m);
@@ -239,6 +356,8 @@ public class PurgeStorageScheduler extends Scheduler {
 
         try (Storage storage = storageFactory.getStorage(desc)) {
             for (Location location : locations) {
+                if (getPollingInterval() == null)
+                    return false;
                 try {
                     storage.deleteObject(location.getStoragePath());
                     ejb.removeLocation(location);

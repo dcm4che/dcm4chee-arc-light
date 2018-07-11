@@ -37,6 +37,33 @@
       "items" : {
         "$ref": "uiDashboard.schema.json"
       }
+    },
+    "dcmuiElasticsearchConfig": {
+      "title": "UI Elasticsearch Configuration",
+      "description": "Elasticsearch Configuration for the pro version",
+      "titleKey":"{dcmuiElasticsearchConfigName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiElasticsearch.schema.json"
+      }
+    },
+    "dcmuiDeviceURLObject": {
+      "title": "UI Device URLs",
+      "description": "Other UI Device URLs",
+      "titleKey":"{dcmuiDeviceURLName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiDeviceURL.schema.json"
+      }
+    },
+    "dcmuiDeviceClusterObject": {
+      "title": "UI Cluster Configuration",
+      "description": "Group Devices in Clusters",
+      "titleKey":"{dcmuiDeviceClusterName}",
+      "type": "array",
+      "items" : {
+        "$ref": "uiDeviceCluster.schema.json"
+      }
     }
   }
 }

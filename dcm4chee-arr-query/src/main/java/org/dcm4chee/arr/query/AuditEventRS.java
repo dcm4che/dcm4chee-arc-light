@@ -132,7 +132,8 @@ public class AuditEventRS {
 
     private StreamingOutput retrieveAuditEvent(Format format) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        String esURL = arcDev.getElasticSearchURL();
+       // String esURL = arcDev.getElasticSearchURL();
+        String esURL = null;
         if (esURL == null) {
             throw new WebApplicationException(
                     Response.status(Response.Status.NOT_FOUND)

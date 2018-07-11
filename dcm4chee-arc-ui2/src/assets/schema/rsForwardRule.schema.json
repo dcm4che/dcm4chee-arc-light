@@ -17,6 +17,23 @@
       "description": "Target URL without operation specific part, eg. http://<host>:<port>/dcm4chee-arc/aets/<aet>/rs/",
       "type": "string"
     },
+    "dcmKeycloakServerID": {
+      "title": "Keycloak Server ID",
+      "description": "Identifier of the Keycloak Server from which the access token shall be granted. If absent, no token will be sent.",
+      "type": "string"
+    },
+    "dcmTLSAllowAnyHostname": {
+      "title": "TLS Allow Any Hostname",
+      "description": "If the other server requires HTTPS and this config option is set to true the other server’s certificate is validated via the truststore, but host name validation is not done.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmTLSDisableTrustManager": {
+      "title": "TLS Disable Trust Manager",
+      "description": "If the other server requires HTTPS and this config option is set to true you do not have to specify a truststore",
+      "type": "boolean",
+      "default": false
+    },
     "dcmRSOperation": {
       "title": "RESTful Operation",
       "description": "Name of RESTful Operation which shall be forwarded to another archive instance.",
@@ -32,8 +49,6 @@
           "MergePatients",
           "UpdateStudy",
           "DeleteStudy",
-          "CopyInstances",
-          "MoveInstances",
           "RejectStudy",
           "RejectSeries",
           "RejectInstance",
@@ -41,10 +56,8 @@
           "UpdateSeriesExpirationDate",
           "CreateMWL",
           "UpdateMWL",
-          "DeleteMWL",
-          "LinkInstancesWithMWL"
+          "DeleteMWL"
         ]
-
       }
     }
   }

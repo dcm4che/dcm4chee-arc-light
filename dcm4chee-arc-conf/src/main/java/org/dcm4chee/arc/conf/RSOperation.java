@@ -54,8 +54,6 @@ public enum RSOperation {
     MergePatients,
     UpdateStudy,
     DeleteStudy,
-    CopyInstances,
-    MoveInstances,
     RejectStudy,
     RejectSeries,
     RejectInstance,
@@ -63,6 +61,5 @@ public enum RSOperation {
     UpdateSeriesExpirationDate,
     CreateMWL,
     UpdateMWL,
-    DeleteMWL,
-    LinkInstancesWithMWL
+    DeleteMWL
 }

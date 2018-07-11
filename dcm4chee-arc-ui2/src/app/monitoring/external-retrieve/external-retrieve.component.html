@@ -38,10 +38,10 @@
         </div>
         <div class="filter_block">
           <div class="line">
-            <mat-select class="pull-left" [(ngModel)]="allAction" placeholder="All actions" (click)="allActionChanged($event)" floatPlaceholder="never">
+            <mat-select class="pull-left" [(ngModel)]="allAction" placeholder="All actions" (change)="allActionChanged($event)" floatPlaceholder="never">
               <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</mat-option>
             </mat-select>
-            <!--<div class="checkbox_button" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped">Batch ID grouped</mat-checkbox></div>-->
+            <div class="checkbox_button" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="externalRetrieveEntries = []">Batch ID grouped</mat-checkbox></div>
           </div>
         </div>
     </div>
@@ -64,10 +64,13 @@
             </button>
           </div>
         </th>
-        <th></th>
+        <th width="3%"></th>
         <th>Batch ID</th>
         <th class="hideOn1200px">Remote AET</th>
         <th class="hideOn1100px">Destination AET</th>
+        <th class="hideOn1100px">Scheduled Time Range</th>
+        <th class="hideOn1100px">Processing Start Time Range</th>
+        <th class="hideOn1100px">Processing End Time Range</th>
         <th class="hideOn1100px">Tasks</th>
       </tr>
       <tr *ngIf="!batchGrouped">
@@ -120,10 +123,16 @@
             <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
               <span class="glyphicon glyphicon-list"></span>
             </a>
+              <a class="text-white" (click)="$event.preventDefault();showTaskDetail(match)" href="" title="Show tasks detail">
+                  <span class="glyphicon glyphicon-list-alt"></span>
+              </a>
           </td>
           <td [innerHtml]="match.properties.batchID" title="{{match.properties.batchID}}"></td>
           <td [innerHtml]="match.properties.RemoteAET" class="hideOn1200px"></td>
           <td [innerHtml]="match.properties.DestinationAET" class="hideOn1100px"></td>
+          <td [innerHtml]="match.properties.scheduledTimeRange" class="hideOn1100px"></td>
+          <td [innerHtml]="match.properties.processingStartTimeRange" class="hideOn1100px"></td>
+          <td [innerHtml]="match.properties.processingEndTimeRange" class="hideOn1100px"></td>
           <td class="hideOn1100px no-padding" width="30%"><stacked-progress [model]="match.properties.tasks"></stacked-progress></td>
         </tr>
         <tr *ngIf="!batchGrouped">
@@ -157,7 +166,7 @@
         <tr *ngIf="match.showProperties">
           <td colspan="10">
             <table class="table table-bordered table-condensed attribute_list">
-              <tr *ngFor="let key of match.properties | getKey">
+              <tr *ngFor="let key of match.propertiesAttr | getKey">
                 <th [innerHtml]="key._KEY"></th>
                 <td *ngIf="key._KEY === 'createdTime' || key._KEY === 'updatedTime' || key._KEY === 'scheduledTime' || key._KEY === 'processingStartTime' || key._KEY === 'processingEndTime';else nodate_content" [innerHtml]="key._VALUE | date:'yyyy-MM-dd HH:mm:ss'"></td>
                 <ng-template #nodate_content>

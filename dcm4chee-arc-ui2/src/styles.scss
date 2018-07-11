@@ -126,6 +126,9 @@ $hoverBlue:#5293C1;
     background-repeat:no-repeat;
   }
 }
+.nowrap{
+  white-space: nowrap;
+}
 .no-padding{
   padding: 0 !important;
 }
@@ -2254,6 +2257,37 @@ mat-dialog-container{
   float: left;
   width: 100%;
 }
+.dynamic_table{
+  .table_header{
+    .tr{
+      float: left;
+      width: 100%;
+      .th{
+        float: left;
+        background: $lightBlue;
+        color:white;
+        box-sizing: border-box;
+        padding: 5px 2px 5px 7px;
+        height: 30px;
+      }
+    }
+  }
+  .table_body{
+    .tr{
+      border-bottom: 1px solid $lightBlue;
+      float: left;
+      width: 100%;
+      &:last-child{
+        border-bottom:none;
+      }
+      .td{
+        float: left;
+        box-sizing: border-box;
+        padding: 5px 2px 5px 7px;
+      }
+    }
+  }
+}
 .input_group_dropdown{
   input{
     width:65%;
@@ -2305,6 +2339,28 @@ mat-dialog-container{
   border-bottom:1px solid #ff6471;
   overflow: hidden !important;
 }
+.left_arrow, .right_arrow{
+  color: rgba(28, 36, 43, 0.60);
+  &.active{
+    color: rgba(28, 36, 43, 0.85);
+    &:hover{
+      cursor: pointer;
+      color: rgba(28, 36, 43,1);
+    }
+  }
+}
+.left_arrow{
+  position: fixed;
+  left:5px;
+  top: 50%;
+  font-size:33px;
+}
+.right_arrow{
+  font-size:33px;
+  position: fixed;
+  right:5px;
+  top: 50%;
+}
 .dropdownSearch{
   position: absolute;
   height: 28px;
@@ -2318,4 +2374,86 @@ mat-dialog-container{
 }
 .dropdown {
   position: static;
+}
+.range_picker{
+  input, p-calendar input{
+    margin: 0 !important;
+  }
+  .smart_input input{
+    height: 30px;
+  }
+  duration-picker{
+    position: absolute;
+    left: 5%;
+    width: 90%;
+    top: 161px;
+    .form-group{
+      width:100%;
+      float: left;
+      margin-bottom: 0;
+      .col-md-7{
+        padding: 0;
+      }
+    }
+    .durationpicker{
+      width: 100%;
+    }
+    .btn_content{
+      .btn{
+        background: rgba(6, 29, 47, 0.84);
+        color: white;
+        border: 0;
+        width: 24%;
+        float: right;
+      }
+    }
+  }
+}
+
+.diff_mode_switch{
+  float: left;
+  height: 175px;
+  -webkit-transform: rotate(90deg);
+  transform: rotate(90deg);
+  top: -22px;
+  position: absolute;
+  right: -156px;
+  width: 134px;
+  ul{
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    position: relative;
+    bottom: -152px;
+    li{
+      float: left;
+      border: 1px solid #cccccc;
+      width: 50%;
+      text-align: center;
+      &:hover{
+        cursor: pointer;
+      }
+      &.active{
+        background: $lightBlue;
+        color:white;
+      }
+    }
+  }
+}
+.diff_result_button{
+  margin-top: 10px;
+  button{
+    border-radius: 0;
+    width: 100%;
+    background: $lightBlue;
+    height: 30px;
+    line-height: 30px;
+    padding: 0;
+    &:hover,&:active{
+      background: $blue;
+    }
+  }
+}
+.diff_mode_result_input{
+  margin-bottom: 5px;
 }

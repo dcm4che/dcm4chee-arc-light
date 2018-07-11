@@ -84,6 +84,9 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         writeUIPermissions(writer, uiConfig.getPermissions());
         writeUIDiffConfigs(writer, uiConfig.getDiffConfigs());
         writeUIDashboardConfigs(writer, uiConfig.getDashboardConfigs());
+        writeUIElasticsearchConfigs(writer, uiConfig.getElasticsearchConfigs());
+        writeUIDeviceURLs(writer, uiConfig.getDeviceURLs());
+        writeUIDeviceClusters(writer, uiConfig.getDeviceClusters());
         writer.writeEnd();
     }
 
@@ -98,6 +101,38 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmuiAction", uiPermission.getAction(), null);
             writer.writeNotEmpty("dcmuiActionParam", uiPermission.getActionParams());
             writer.writeNotEmpty("dcmAcceptedUserRole", uiPermission.getAcceptedUserRoles());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+    private void writeUIDeviceURLs(JsonWriter writer, Collection<UIDeviceURL> uiDeviceURLs) {
+        if (uiDeviceURLs.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiDeviceURLObject");
+        for (UIDeviceURL uiDeviceURL : uiDeviceURLs) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiDeviceURLName", uiDeviceURL.getDeviceName(), null);
+            writer.writeNotNullOrDef("dcmuiDeviceURL", uiDeviceURL.getDeviceURL(), null);
+            writer.writeNotNullOrDef("dcmuiDeviceURLDescription", uiDeviceURL.getDescription(), null);
+            writer.writeNotDef("dcmuiDeviceURLInstalled", uiDeviceURL.isInstalled(), true);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+    private void writeUIDeviceClusters(JsonWriter writer, Collection<UIDeviceCluster> uiDeviceClusters) {
+        if (uiDeviceClusters.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiDeviceClusterObject");
+        for (UIDeviceCluster uiDeviceCluster : uiDeviceClusters) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiDeviceClusterName", uiDeviceCluster.getClusterName(), null);
+            writer.writeNotNullOrDef("dcmuiDeviceClusterDescription", uiDeviceCluster.getDescription(), null);
+            writer.writeNotNullOrDef("dcmuiDeviceClusterLoadBalancer", uiDeviceCluster.getLoadBalancer(), null);
+            writer.writeNotNullOrDef("dcmuiDeviceClusterKeycloakServer", uiDeviceCluster.getKeycloakServer(), null);
+            writer.writeNotEmpty("dcmuiDeviceClusterDevices", uiDeviceCluster.getDevices());
+            writer.writeNotDef("dcmuiDeviceClusterInstalled", uiDeviceCluster.isInstalled(), true);
             writer.writeEnd();
         }
         writer.writeEnd();
@@ -123,7 +158,35 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         }
         writer.writeEnd();
     }
+    private void writeUIElasticsearchConfigs(JsonWriter writer, Collection<UIElasticsearchConfig> uiElasticsearchConfigs) {
+        if (uiElasticsearchConfigs.isEmpty())
+            return;
 
+        writer.writeStartArray("dcmuiElasticsearchConfig");
+        for (UIElasticsearchConfig uiElasticsearchConfig : uiElasticsearchConfigs) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiElasticsearchConfigName", uiElasticsearchConfig.getName(), null);
+            writeUIElasticsearchURL(writer, uiElasticsearchConfig.getURLS());
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
+
+    private void writeUIElasticsearchURL(JsonWriter writer, Collection<UIElasticsearchURL> uiElasticsearchURLS) {
+        if (uiElasticsearchURLS.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiElasticsearchURLObjects");
+        for (UIElasticsearchURL uiElasticsearchURL : uiElasticsearchURLS) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiElasticsearchURLName", uiElasticsearchURL.getUrlName(), null);
+            writer.writeNotNullOrDef("dcmuiElasticsearchURL", uiElasticsearchURL.getUrl(),null);
+            writer.writeNotDef("dcmuiElasticsearchIsDefault", uiElasticsearchURL.isDefault(), false);
+            writer.writeNotDef("dcmuiElasticsearchInstalled", uiElasticsearchURL.isInstalled(), true);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
     private void writeUIDiffCriteria(JsonWriter writer, Collection<UIDiffCriteria> uiDiffCriterias) {
         if (uiDiffCriterias.isEmpty())
             return;
@@ -152,12 +215,33 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             writer.writeStartObject();
             writer.writeNotNullOrDef("dcmuiDashboardConfigName", uiDashboardConfig.getName(), null);
             writer.writeNotEmpty("dcmuiQueueName", uiDashboardConfig.getQueueNames());
+            writer.writeNotEmpty("dcmuiExportName", uiDashboardConfig.getExportNames());
             writer.writeNotEmpty("dicomuiDeviceName", uiDashboardConfig.getDeviceNames());
+            writer.writeNotEmpty("dicomuiIgnoreParams", uiDashboardConfig.getIgnoreParams());
+            writer.writeNotNullOrDef("dcmuiCountAET", uiDashboardConfig.getCountAet(),null);
+            writeUICompareSide(writer, uiDashboardConfig.getCompareSides());
             writer.writeEnd();
         }
         writer.writeEnd();
     }
 
+    private void writeUICompareSide(JsonWriter writer, Collection<UICompareSide> uiCompareSides) {
+        if (uiCompareSides.isEmpty())
+            return;
+
+        writer.writeStartArray("dcmuiCompareSideObjects");
+        for (UICompareSide uiCompareSide : uiCompareSides) {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef("dcmuiCompareSideName", uiCompareSide.getName(), null);
+            writer.writeNotNullOrDef("dcmuiCompareSideDescription", uiCompareSide.getDescription(),null);
+            writer.writeNotNullOrDef("dcmuiCompareSideCluster", uiCompareSide.getCluster(),null);
+            writer.writeNotNullOrDef("dcmuiCompareSideElasticsearch", uiCompareSide.getElasticsearch(),null);
+            writer.writeNotNullOrDef("dcmuiCompareSideQueueName", uiCompareSide.getQueueName(),null);
+            writer.writeNotDef("dcmuiCompareSideInstalled", uiCompareSide.isInstalled(), true);
+            writer.writeEnd();
+        }
+        writer.writeEnd();
+    }
     private void loadFrom(UIConfigDeviceExtension ext, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
@@ -184,6 +268,15 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmuiDashboardConfig":
                     loadUIDashboardConfigs(uiConfig, reader);
+                    break;
+                case "dcmuiElasticsearchConfig":
+                    loadUIElasticsearchConfigs(uiConfig, reader);
+                    break;
+                case "dcmuiDeviceURLObject":
+                    loadUIDeviceURLs(uiConfig, reader);
+                    break;
+                case "dcmuiDeviceClusterObject":
+                    loadUIDeviceClusters(uiConfig, reader);
                     break;
                 default:
                     reader.skipUnknownProperty();
@@ -220,7 +313,123 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
+    private void loadUIDeviceURLs(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIDeviceURL uiDeviceURL = new UIDeviceURL();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiDeviceURLName":
+                        uiDeviceURL.setDeviceName(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceURL":
+                        uiDeviceURL.setDeviceURL(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceURLDescription":
+                        uiDeviceURL.setDescription(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceURLInstalled":
+                        uiDeviceURL.setInstalled(reader.booleanValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addDeviceURL(uiDeviceURL);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+    private void loadUIDeviceClusters(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIDeviceCluster uiDeviceCluster = new UIDeviceCluster();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiDeviceClusterName":
+                        uiDeviceCluster.setClusterName(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceClusterDevices":
+                        uiDeviceCluster.setDevices(reader.stringArray());
+                        break;
+                    case "dcmuiDeviceClusterDescription":
+                        uiDeviceCluster.setDescription(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceClusterLoadBalancer":
+                        uiDeviceCluster.setLoadBalancer(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceClusterKeycloakServer":
+                        uiDeviceCluster.setKeycloakServer(reader.stringValue());
+                        break;
+                    case "dcmuiDeviceClusterInstalled":
+                        uiDeviceCluster.setInstalled(reader.booleanValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addDeviceCluster(uiDeviceCluster);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
 
+    private void loadUIElasticsearchConfigs(UIConfig uiConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIElasticsearchConfig uiElasticsearchConfig = new UIElasticsearchConfig();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiElasticsearchConfigName":
+                        uiElasticsearchConfig.setName(reader.stringValue());
+                        break;
+                    case "dcmuiElasticsearchURLObjects":
+                        loadUIElasticsearchURL(uiElasticsearchConfig, reader);
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiConfig.addElasticsearchConfig(uiElasticsearchConfig);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+    private void loadUIElasticsearchURL(UIElasticsearchConfig uiDiffConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UIElasticsearchURL uiElasticsearchURL = new UIElasticsearchURL();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiElasticsearchURLName":
+                        uiElasticsearchURL.setUrlName(reader.stringValue());
+                        break;
+                    case "dcmuiElasticsearchURL":
+                        uiElasticsearchURL.setUrl(reader.stringValue());
+                        break;
+                    case "dcmuiElasticsearchIsDefault":
+                        uiElasticsearchURL.setDefault(reader.booleanValue());
+                        break;
+                    case "dcmuiElasticsearchInstalled":
+                        uiElasticsearchURL.setInstalled(reader.booleanValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiDiffConfig.addURL(uiElasticsearchURL);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
     private void loadUIDiffConfigs(UIConfig uiConfig, JsonReader reader) {
         reader.next();
         reader.expect(JsonParser.Event.START_ARRAY);
@@ -319,8 +528,20 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
                     case "dcmuiQueueName":
                         uiDashboardConfig.setQueueNames(reader.stringArray());
                         break;
+                    case "dcmuiExportName":
+                        uiDashboardConfig.setExportNames(reader.stringArray());
+                        break;
                     case "dicomuiDeviceName":
                         uiDashboardConfig.setDeviceNames(reader.stringArray());
+                        break;
+                    case "dicomuiIgnoreParams":
+                        uiDashboardConfig.setIgnoreParams(reader.stringArray());
+                        break;
+                    case "dcmuiCountAET":
+                        uiDashboardConfig.setCountAet(reader.stringValue());
+                        break;
+                    case "dcmuiCompareSideObjects":
+                        loadCompareSides(uiDashboardConfig, reader);
                         break;
                     default:
                         reader.skipUnknownProperty();
@@ -328,6 +549,41 @@ public class JsonArchiveUIConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             uiConfig.addDashboardConfig(uiDashboardConfig);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+    private void loadCompareSides(UIDashboardConfig uiDashboardConfig, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UICompareSide uiCompareSide = new UICompareSide();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmuiCompareSideName":
+                        uiCompareSide.setName(reader.stringValue());
+                        break;
+                    case "dcmuiCompareSideDescription":
+                        uiCompareSide.setDescription(reader.stringValue());
+                        break;
+                    case "dcmuiCompareSideCluster":
+                        uiCompareSide.setCluster(reader.stringValue());
+                        break;
+                    case "dcmuiCompareSideElasticsearch":
+                        uiCompareSide.setElasticsearch(reader.stringValue());
+                        break;
+                    case "dcmuiCompareSideQueueName":
+                        uiCompareSide.setQueueName(reader.stringValue());
+                        break;
+                    case "dcmuiCompareSideInstalled":
+                        uiCompareSide.setInstalled(reader.booleanValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            uiDashboardConfig.addCompareSide(uiCompareSide);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }

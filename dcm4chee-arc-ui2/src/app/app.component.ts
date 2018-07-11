@@ -45,6 +45,7 @@ export class AppComponent implements OnInit {
     @ViewChild(MessagingComponent) msg;
     clockUnExtended = true;
     myDeviceName = '';
+    timeZone;
     // vex["defaultOptions"]["className"] = 'vex-theme-os';
     constructor(
         public viewContainerRef: ViewContainerRef,
@@ -151,6 +152,7 @@ export class AppComponent implements OnInit {
                 if(_.hasIn(res,"serverTimeWithTimezone") && res.serverTimeWithTimezone){
                     console.log("server clock res",res);
                     let serverTimeObject = j4care.splitTimeAndTimezone(res.serverTimeWithTimezone);
+                    this.timeZone = serverTimeObject.timeZone;
                     this.startClock(new Date(serverTimeObject.time).getTime()+((new Date().getTime()-currentBrowserTime)/2));
                     // this.startClock(new Date(serverTimeObject.time));
                 }
@@ -176,6 +178,7 @@ export class AppComponent implements OnInit {
     }
     startClock(serverTime){
         this.currentServerTime = new Date(serverTime);
+        this.mainservice.serverTime = this.currentServerTime;
         this.clockInterval = setInterval(() => {
             // this.currentClockTime = new Date(this.currentServerTime);
             // this.currentServerTime += 1000;
@@ -298,6 +301,7 @@ export class AppComponent implements OnInit {
             .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
             .subscribe(
                 (res) => {
+
                     $this.mainservice["deviceName"] = res.dicomDeviceName;
                     $this.mainservice["xRoad"] = res.xRoad || false;
                     $this.$http.get('../devices?dicomDeviceName=' + res.dicomDeviceName)

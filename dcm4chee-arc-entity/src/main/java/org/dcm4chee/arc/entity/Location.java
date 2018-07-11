@@ -63,8 +63,10 @@ import java.util.Date;
                 query = "select l from Location l where l.instance.series.study.pk=?1"),
         @NamedQuery(name = Location.FIND_BY_SERIES_PK,
                 query = "select l from Location l where l.instance.series.pk=?1"),
-        @NamedQuery(name = Location.FIND_BY_STUDY_PK_AND_STORAGE_ID,
-                query = "select l from Location l where l.instance.series.study.pk=?1 and l.storageID=?2"),
+        @NamedQuery(name = Location.FIND_BY_STUDY_PK_AND_STORAGE_IDS,
+                query = "select l from Location l where l.instance.series.study.pk=?1 and l.storageID in ?2"),
+        @NamedQuery(name = Location.INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS,
+                query = "select l.instance.pk from Location l where l.instance.series.study.pk=?1 and l.storageID in ?2"),
         @NamedQuery(name = Location.FIND_BY_REJECTION_CODE,
                 query = "select l from Location l join l.instance i " +
                         "where i.rejectionNoteCode=?1 order by i.pk"),
@@ -81,25 +83,47 @@ import java.util.Date;
                 query = "select count(l) from Location l where l.multiReference=?1"),
         @NamedQuery(name = Location.COUNT_BY_UIDMAP,
                 query = "select count(l) from Location l where l.uidMap=?1"),
-        @NamedQuery(name = Location.SIZE_OF_SERIES,
-                query = "select sum(l.size) from Location l " +
-                        "where l.instance.series.pk=?1 and l.objectType=?2")
+        @NamedQuery(name = Location.SET_DIGEST,
+                query="update Location l set l.digest = ?2 where l.pk = ?1"),
+        @NamedQuery(name = Location.SET_STATUS,
+                query="update Location l set l.status = ?2 where l.pk = ?1")
+})
+@NamedNativeQueries({
+        @NamedNativeQuery(name = Location.SIZE_OF_SERIES,
+                query = "select sum(x.max_object_size) from (" +
+                        "select max(object_size) max_object_size from location " +
+                        "join instance on location.instance_fk = instance.pk " +
+                        "where series_fk = ?1 and location.object_type = ?2 " +
+                        "group by instance_fk) x")
 })
 public class Location {
 
     public static final String FIND_BY_STORAGE_ID_AND_STATUS = "Location.FindByStorageIDAndStatus";
     public static final String FIND_BY_STUDY_PK = "Location.FindByStudyPk";
     public static final String FIND_BY_SERIES_PK = "Location.FindBySeriesPk";
-    public static final String FIND_BY_STUDY_PK_AND_STORAGE_ID = "Location.FindByStudyPkAndStorageID";
+    public static final String FIND_BY_STUDY_PK_AND_STORAGE_IDS = "Location.FindByStudyPkAndStorageIDs";
+    public static final String INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS = "Location.InstancePksByStudyPkAndStorageIDs";
     public static final String FIND_BY_REJECTION_CODE = "Location.FindByRejectionCode";
     public static final String FIND_BY_CONCEPT_NAME_CODE = "Location.FindByConceptNameCode";
     public static final String FIND_BY_REJECTION_CODE_BEFORE = "Location.FindByRejectionCodeBefore";
     public static final String FIND_BY_CONCEPT_NAME_CODE_BEFORE = "Location.FindByConceptNameCodeBefore";
     public static final String COUNT_BY_MULTI_REF = "Location.CountByMultiRef";
     public static final String COUNT_BY_UIDMAP = "Location.CountByUIDMap";
+    public static final String SET_DIGEST = "Location.SetDigest";
+    public static final String SET_STATUS = "Location.SetStatus";
     public static final String SIZE_OF_SERIES = "Location.SizeOfSeries";
 
-    public enum Status { OK, TO_DELETE, FAILED_TO_DELETE }
+    public enum Status {
+        OK,                         // 0
+        TO_DELETE,                  // 1
+        FAILED_TO_DELETE,           // 2
+        MISSING_OBJECT,             // 3
+        FAILED_TO_FETCH_METADATA,   // 4
+        FAILED_TO_FETCH_OBJECT,     // 5
+        DIFFERING_OBJECT_SIZE,      // 6
+        DIFFERING_OBJECT_CHECKSUM,  // 7
+        DIFFERING_S3_MD5SUM         // 8
+    }
 
     public enum ObjectType { DICOM_FILE, METADATA }
 
@@ -154,6 +178,10 @@ public class Location {
     @JoinColumn(name = "instance_fk", updatable = true)
     private Instance instance;
 
+    public static boolean isDicomFile(Location location) {
+        return location.objectType == ObjectType.DICOM_FILE;
+    }
+
     public static final class Builder {
         private long pk;
         private String storageID;
@@ -200,6 +228,11 @@ public class Location {
 
         public Builder status(Status status) {
             this.status = status;
+            return this;
+        }
+
+        public Builder status(String status) {
+            this.status = status != null ? Status.valueOf(status) : Status.OK;
             return this;
         }
 

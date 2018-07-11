@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.retrieve.mgt;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -127,32 +128,32 @@ public class RetrieveBatch {
         return deviceNames;
     }
 
-    public void setDeviceNames(String[] deviceNames) {
-        this.deviceNames = deviceNames;
+    public void setDeviceNames(List<String> deviceNames) {
+        this.deviceNames = deviceNames.toArray(new String[0]);
     }
 
     public String[] getLocalAETs() {
         return localAETs;
     }
 
-    public void setLocalAETs(String[] localAETs) {
-        this.localAETs = localAETs;
+    public void setLocalAETs(List<String> localAETs) {
+        this.localAETs = localAETs.toArray(new String[0]);
     }
 
     public String[] getRemoteAETs() {
         return remoteAETs;
     }
 
-    public void setRemoteAETs(String[] remoteAETs) {
-        this.remoteAETs = remoteAETs;
+    public void setRemoteAETs(List<String> remoteAETs) {
+        this.remoteAETs = remoteAETs.toArray(new String[0]);
     }
 
     public String[] getDestinationAETs() {
         return destinationAETs;
     }
 
-    public void setDestinationAETs(String[] destinationAETs) {
-        this.destinationAETs = destinationAETs;
+    public void setDestinationAETs(List<String> destinationAETs) {
+        this.destinationAETs = destinationAETs.toArray(new String[0]);
     }
 
     public int getCompleted() {

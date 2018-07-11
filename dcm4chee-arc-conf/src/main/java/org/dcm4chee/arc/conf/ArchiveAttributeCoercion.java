@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.conf.api.AttributeCoercion;
 import org.dcm4che3.data.*;
 import org.dcm4che3.deident.DeIdentifier;
 import org.dcm4che3.net.Device;

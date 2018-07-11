@@ -29,7 +29,9 @@
       "enum" : [
         "Export1",
         "Export2",
-        "Export3"
+        "Export3",
+        "Export4",
+        "Export5"
       ]
     },
     "dcmExportPriority": {

@@ -48,6 +48,7 @@ import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.scu.CFindSCU;
@@ -55,6 +56,7 @@ import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,9 +72,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -110,6 +110,10 @@ public class QueryRetrieveRS {
     @QueryParam("priority")
     @Pattern(regexp = "0|1|2")
     private String priority;
+
+    @QueryParam("SplitStudyDateRange")
+    @ValidValueOf(type = Duration.class)
+    private String splitStudyDateRange;
 
     @Inject
     private CFindSCU findSCU;
@@ -180,8 +184,8 @@ public class QueryRetrieveRS {
             while ((line = reader.readLine()) != null) {
                 String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
                 if (count > 0 || UIDUtils.isValid(studyUID)) {
-                    retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, studyUID), batchID);
-                    count++;
+                    if (retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, studyUID), batchID))
+                        count++;
                 }
             }
         } catch (QueueSizeLimitExceededException e) {
@@ -223,6 +227,10 @@ public class QueryRetrieveRS {
         return s != null ? Integer.parseInt(s) : defval;
     }
 
+    private Duration splitStudyDateRange() {
+        return splitStudyDateRange != null ? Duration.valueOf(splitStudyDateRange) : null;
+    }
+
     private Response retrieveMatching(QueryRetrieveLevel2 level, String studyInstanceUID, String seriesInstanceUID,
                                       String queryAET, String destAET) throws Exception {
         logRequest();
@@ -246,14 +254,14 @@ public class QueryRetrieveRS {
         Response.Status errorStatus = Response.Status.BAD_GATEWAY;
         try {
             as = findSCU.openAssociation(localAE, queryAET, UID.StudyRootQueryRetrieveInformationModelFIND, queryOptions);
-            DimseRSP dimseRSP = findSCU.query(as, priority(), keys, 0);
+            DimseRSP dimseRSP = findSCU.query(as, priority(), keys, 0, splitStudyDateRange());
             dimseRSP.next();
             int status;
             do {
                 status = dimseRSP.getCommand().getInt(Tag.Status, -1);
                 if (Status.isPending(status)) {
-                    retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, dimseRSP), batchID);
-                    count++;
+                    if (retrieveManager.scheduleRetrieveTask(priority(), createExtRetrieveCtx(destAET, dimseRSP), batchID))
+                        count++;
                 }
             } while (dimseRSP.next()) ;
             warning = warning(status);

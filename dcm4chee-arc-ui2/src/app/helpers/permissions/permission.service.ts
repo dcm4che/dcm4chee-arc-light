@@ -103,9 +103,10 @@ export class PermissionService {
                 if(check && checkObject[0].dcmuiActionParam.indexOf('accessible') > -1)
                     return true;
                 else
-                if(urlAction.nextCheck)
+                if(urlAction.nextCheck){
                     this.router.navigate([urlAction.nextCheck]);
-                return false;
+                    return {redirect:urlAction.nextCheck};
+                }
             }
             return false;
         }catch (e){

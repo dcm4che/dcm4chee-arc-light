@@ -42,6 +42,7 @@ package org.dcm4chee.arc.export.mgt.impl;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateDeleteClause;
@@ -162,9 +163,7 @@ public class ExportManagerEJB implements ExportManager {
                     .setParameter(1, exporterID)
                     .setParameter(2, studyIUID)
                     .getSingleResult();
-            task.setSeriesInstanceUID("*");
-            task.setSopInstanceUID("*");
-            task.setScheduledTime(scheduledTime);
+            updateExportTask(task, "*", "*", scheduledTime);
         } catch (NoResultException nre) {
             createExportTask(exporterID, studyIUID, "*", "*", scheduledTime);
         }
@@ -179,8 +178,7 @@ public class ExportManagerEJB implements ExportManager {
                     .setParameter(2, studyIUID)
                     .setParameter(3, seriesIUID)
                     .getSingleResult();
-            task.setSopInstanceUID("*");
-            task.setScheduledTime(scheduledTime);
+            updateExportTask(task, seriesIUID, "*", scheduledTime);
         } catch (NoResultException nre) {
             createExportTask(exporterID, studyIUID, seriesIUID, "*", scheduledTime);
         }
@@ -196,10 +194,27 @@ public class ExportManagerEJB implements ExportManager {
                     .setParameter(3, seriesIUID)
                     .setParameter(4, sopIUID)
                     .getSingleResult();
-            task.setScheduledTime(scheduledTime);
+            updateExportTask(task, seriesIUID, sopIUID, scheduledTime);
         } catch (NoResultException nre) {
             createExportTask(exporterID, studyIUID, seriesIUID, sopIUID, scheduledTime);
         }
+    }
+
+    private void updateExportTask(ExportTask task, String seriesIUID, String sopIUID, Date scheduledTime) {
+        task.setDeviceName(device.getDeviceName());
+        task.setSeriesInstanceUID(seriesIUID);
+        task.setSopInstanceUID(sopIUID);
+        task.setScheduledTime(scheduledTime);
+        QueueMessage queueMessage = task.getQueueMessage();
+        if (queueMessage != null) {
+            if (queueMessage.getStatus() == QueueMessage.Status.SCHEDULED) {
+                queueMessage.setStatus(QueueMessage.Status.CANCELED);
+                LOG.info("Cancel processing of Task[id={}] at Queue {}",
+                        queueMessage.getMessageID(), queueMessage.getQueueName());
+            }
+            task.setQueueMessage(null);
+        }
+        LOG.debug("Update {}", task);
     }
 
     private ExportTask createExportTask(
@@ -212,6 +227,7 @@ public class ExportManagerEJB implements ExportManager {
         task.setSopInstanceUID(sopIUID);
         task.setScheduledTime(scheduledTime);
         em.persist(task);
+        LOG.info("Create {}", task);
         return task;
     }
 
@@ -313,18 +329,18 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public ExportTaskQuery listExportTasks(Predicate matchQueueMessage, Predicate matchExportTask,
+    public ExportTaskQuery listExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask,
                                            OrderSpecifier<Date> order, int offset, int limit) {
-        return new ExportTaskQueryImpl(
+        return new ExportTaskQueryImpl(status,
                 openStatelessSession(), queryFetchSize(), matchQueueMessage, matchExportTask, order, offset, limit);
     }
 
     @Override
-    public long countExportTasks(Predicate matchQueueMessage, Predicate matchExportTask) {
-        return createQuery(matchQueueMessage, matchExportTask).fetchCount();
+    public long countExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
+        return createQuery(status, matchQueueMessage, matchExportTask).fetchCount();
     }
 
-    private HibernateQuery<ExportTask> createQuery(Predicate matchQueueMessage, Predicate matchExportTask) {
+    private HibernateQuery<ExportTask> createQuery(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(matchQueueMessage);
@@ -332,7 +348,15 @@ public class ExportManagerEJB implements ExportManager {
         return new HibernateQuery<ExportTask>(em.unwrap(Session.class))
                 .from(QExportTask.exportTask)
                 .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(matchExportTask, QExportTask.exportTask.queueMessage.in(queueMsgQuery));
+                .where(matchExportTask, queuePredicate(status, queueMsgQuery));
+    }
+
+    private Predicate queuePredicate(QueueMessage.Status status, HibernateQuery<QueueMessage> queueMsgQuery) {
+        return status == QueueMessage.Status.TO_SCHEDULE
+                    ? QExportTask.exportTask.queueMessage.isNull()
+                    : status == null
+                        ? ExpressionUtils.or(QExportTask.exportTask.queueMessage.isNull(), QExportTask.exportTask.queueMessage.in(queueMsgQuery))
+                        : QExportTask.exportTask.queueMessage.in(queueMsgQuery);
     }
 
     @Override
@@ -369,26 +393,29 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException {
+    public String rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
-            return false;
-
-        QueueMessage queueMessage = task.getQueueMessage();
-        task.setExporterID(exporter.getExporterID());
-        if (queueMessage != null)
-            queueManager.rescheduleTask(queueMessage, exporter.getQueueName(), queueEvent);
+            return null;
 
         LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
-        return true;
+        task.setExporterID(exporter.getExporterID());
+        return queueManager.rescheduleTask(task.getQueueMessage(), exporter.getQueueName(), queueEvent);
     }
 
     @Override
-    public int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask) {
-        int count = 0;
+    public int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int deleteTaskFetchSize = arcDev.getQueueTasksFetchSize();
+        return status == QueueMessage.Status.TO_SCHEDULE
+                ? deleteToScheduleTasks(matchExportTask, deleteTaskFetchSize)
+                : status == null
+                    ? deleteTasks(matchQueueMessage, matchExportTask, deleteTaskFetchSize) + deleteToScheduleTasks(matchExportTask, deleteTaskFetchSize)
+                    : deleteTasks(matchQueueMessage, matchExportTask, deleteTaskFetchSize);
+    }
+
+    private int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask, int deleteTaskFetchSize) {
+        int count = 0;
         HibernateQuery<QueueMessage> queueMsgQuery = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
                 .from(QQueueMessage.queueMessage)
                 .where(matchQueueMessage);
@@ -410,10 +437,26 @@ public class ExportManagerEJB implements ExportManager {
         return count;
     }
 
+    private int deleteToScheduleTasks(Predicate matchExportTask, int deleteTaskFetchSize) {
+        int count = 0;
+        List<Long> exportTasks;
+        do {
+            exportTasks = new HibernateQuery<ExportTask>(em.unwrap(Session.class))
+                    .select(QExportTask.exportTask.pk)
+                    .from(QExportTask.exportTask)
+                    .where(matchExportTask, QExportTask.exportTask.queueMessage.isNull())
+                    .limit(deleteTaskFetchSize).fetch();
+            count += new HibernateDeleteClause(em.unwrap(Session.class), QExportTask.exportTask)
+                    .where(QExportTask.exportTask.pk.in(exportTasks))
+                    .execute();
+        } while (exportTasks.size() >= deleteTaskFetchSize);
+        return count;
+    }
+
     @Override
     public List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
                                                OrderSpecifier<Date> order, int offset, int limit) {
-        HibernateQuery<ExportTask> exportTaskQuery = createQuery(matchQueueBatch, matchExportBatch);
+        HibernateQuery<ExportTask> exportTaskQuery = createQuery(null, matchQueueBatch, matchExportBatch);
         if (limit > 0)
             exportTaskQuery.limit(limit);
         if (offset > 0)
@@ -447,45 +490,41 @@ public class ExportManagerEJB implements ExportManager {
 
             exportBatch.setDeviceNames(
                     batchIDQuery(batchID)
-                    .select(QExportTask.exportTask.deviceName)
-                    .distinct()
-                    .fetch()
-                    .stream()
-                    .sorted()
-                    .toArray(String[]::new));
+                        .select(QExportTask.exportTask.deviceName)
+                        .distinct()
+                        .orderBy(QExportTask.exportTask.deviceName.asc())
+                        .fetch());
             exportBatch.setExporterIDs(
                     batchIDQuery(batchID)
-                    .select(QExportTask.exportTask.exporterID)
-                    .distinct()
-                    .fetch()
-                    .stream()
-                    .sorted()
-                    .toArray(String[]::new));
+                        .select(QExportTask.exportTask.exporterID)
+                        .distinct()
+                        .orderBy(QExportTask.exportTask.exporterID.asc())
+                        .fetch());
 
             exportBatch.setCompleted(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.COMPLETED))
+                        .fetchCount());
             exportBatch.setCanceled(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.CANCELED))
+                        .fetchCount());
             exportBatch.setWarning(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.WARNING))
+                        .fetchCount());
             exportBatch.setFailed(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.FAILED))
+                        .fetchCount());
             exportBatch.setScheduled(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.SCHEDULED))
+                        .fetchCount());
             exportBatch.setInProcess(
                     batchIDQuery(batchID)
-                    .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
-                    .fetchCount());
+                        .where(QQueueMessage.queueMessage.status.eq(QueueMessage.Status.IN_PROCESS))
+                        .fetchCount());
 
             exportBatches.add(exportBatch);
         }

@@ -68,10 +68,10 @@ public interface ExportManager {
 
     void updateExportTask(Long pk);
 
-    ExportTaskQuery listExportTasks(Predicate matchQueueMessage, Predicate matchExportTask,
+    ExportTaskQuery listExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask,
                                     OrderSpecifier<Date> order, int offset, int limit);
 
-    long countExportTasks(Predicate matchQueueMessage, Predicate matchExportTask);
+    long countExportTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask);
 
     boolean deleteExportTask(Long pk, QueueMessageEvent queueEvent);
 
@@ -80,10 +80,9 @@ public interface ExportManager {
     long cancelExportTasks(Predicate matchQueueMessage, Predicate matchExportTask, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
-    boolean rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException;
+    String rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent);
 
-    int deleteTasks(Predicate matchQueueMessage, Predicate matchExportTask);
+    int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask);
 
     List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
                                         OrderSpecifier<Date> order, int offset, int limit);

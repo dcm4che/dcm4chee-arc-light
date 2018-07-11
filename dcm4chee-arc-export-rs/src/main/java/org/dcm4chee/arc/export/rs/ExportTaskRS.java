@@ -51,9 +51,10 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
+import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,9 +69,7 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
-import java.util.Date;
-import java.util.Objects;
-import java.util.stream.Stream;
+import java.util.*;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -86,13 +85,22 @@ public class ExportTaskRS {
     private ExportManager mgr;
 
     @Inject
+    private QueueManager queueMgr;
+
+    @Inject
     private Device device;
+
+    @Inject
+    private RSClient rsClient;
 
     @Inject
     private Event<QueueMessageEvent> queueMsgEvent;
 
     @Inject
     private Event<BulkQueueMessageEvent> bulkQueueMsgEvent;
+
+    @Context
+    private UriInfo uriInfo;
 
     @Context
     private HttpHeaders httpHeaders;
@@ -141,14 +149,12 @@ public class ExportTaskRS {
         logRequest();
         Output output = selectMediaType(accept);
         if (output == null)
-            return Response.notAcceptable(
-                    Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
-                    .build();
+            return notAcceptable();
 
-        ExportTaskQuery tasks = mgr.listExportTasks(
-                MatchTask.matchQueueMessage(
-                        null, deviceName, status(), batchID, null,null, null, null),
-                MatchTask.matchExportTask(exporterID, deviceName, studyUID, createdTime, updatedTime),
+        QueueMessage.Status status = status();
+        ExportTaskQuery tasks = mgr.listExportTasks(status,
+                matchQueueMessage(status, null, null),
+                matchExportTask(updatedTime),
                 MatchTask.exportTaskOrder(orderby),
                 parseInt(offset), parseInt(limit)
         );
@@ -161,11 +167,10 @@ public class ExportTaskRS {
     @Produces("application/json")
     public Response countExportTasks() {
         logRequest();
-        return count(mgr.countExportTasks(
-                MatchTask.matchQueueMessage(
-                null, deviceName, status(), batchID, null, null, null, null),
-                MatchTask.matchExportTask(
-                        exporterID, deviceName, studyUID, createdTime, updatedTime)));
+        QueueMessage.Status status = status();
+        return count(mgr.countExportTasks(status,
+                matchQueueMessage(status, null, null),
+                matchExportTask(updatedTime)));
     }
 
     @POST
@@ -175,10 +180,7 @@ public class ExportTaskRS {
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
 
         try {
-            return Response.status(mgr.cancelExportTask(pk, queueEvent)
-                    ? Response.Status.NO_CONTENT
-                    : Response.Status.NOT_FOUND)
-                    .build();
+            return rsp(mgr.cancelExportTask(pk, queueEvent));
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
@@ -201,10 +203,8 @@ public class ExportTaskRS {
         try {
             LOG.info("Cancel processing of Export Tasks with Status {}", status);
             long count = mgr.cancelExportTasks(
-                    MatchTask.matchQueueMessage(
-                            null, deviceName, status, batchID, null, null, updatedTime, null),
-                    MatchTask.matchExportTask(
-                            exporterID, deviceName, studyUID, createdTime, null),
+                    matchQueueMessage(status, updatedTime, null),
+                    matchExportTask(null),
                     status);
             queueEvent.setCount(count);
             return count(count);
@@ -227,13 +227,15 @@ public class ExportTaskRS {
 
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            return Response.status(mgr.rescheduleExportTask(pk, exporter, queueEvent)
-                    ? Response.Status.NO_CONTENT
-                    : Response.Status.NOT_FOUND)
-                    .build();
-        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            String devName = mgr.rescheduleExportTask(pk, exporter, queueEvent);
+            return devName == null
+                    ? Response.status(Response.Status.NOT_FOUND).build()
+                    : devName.equals(device.getDeviceName())
+                        ? Response.status(Response.Status.NO_CONTENT).build()
+                        : rsClient.forward(request, devName);
+        } catch (Exception e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponseAsTextPlain(e);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -241,47 +243,51 @@ public class ExportTaskRS {
 
     @POST
     @Path("/reschedule")
-    public Response rescheduleExportTasks() {
+    public Response rescheduleExportTasks() throws Exception {
         return rescheduleTasks(null);
     }
 
     @POST
     @Path("/reschedule/{ExporterID}")
-    public Response rescheduleExportTasks(@PathParam("ExporterID") String newExporterID) {
+    public Response rescheduleExportTasks(@PathParam("ExporterID") String newExporterID) throws Exception {
         return rescheduleTasks(newExporterID);
     }
 
-    private Response rescheduleTasks(String newExporterID) {
+    private Response rescheduleTasks(String newExporterID) throws Exception {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
-        if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
-            return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
-        if (deviceName == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: dicomDeviceName");
-        if (!deviceName.equals(device.getDeviceName()))
-            return rsp(Response.Status.CONFLICT,
-                    "Cannot reschedule Tasks originally scheduled on Device " + deviceName
-                            + " on Device " + device.getDeviceName());
 
+        Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
+
+        if (deviceName == null) {
+            List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
+            int count = 0;
+            for (String devName : distinctDeviceNames) {
+                LOG.info("Reschedule tasks on device: {}.", devName);
+                count += count(devName.equals(device.getDeviceName())
+                                ? rescheduleTasks(newExporterID, status, matchQueueMessage)
+                                : rsClient.forward(request, devName));
+            }
+            return count(count);
+        }
+        return !deviceName.equals(device.getDeviceName())
+                ? rsClient.forward(request, deviceName)
+                : rescheduleTasks(newExporterID, status, matchQueueMessage);
+    }
+
+    private Response rescheduleTasks(String newExporterID, QueueMessage.Status status, Predicate matchQueueMessage) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         ExporterDescriptor exporter = null;
-        if ((exporterID != null && (exporter = arcDev.getExporterDescriptor(exporterID)) == null)
-                || (newExporterID != null && (exporter = arcDev.getExporterDescriptor(newExporterID)) == null)) {
-            return rsp(Response.Status.NOT_FOUND,
-                    "No such exporter - " + (newExporterID != null ? newExporterID : exporterID));
-        }
+        if (newExporterID != null && (exporter = arcDev.getExporterDescriptor(newExporterID)) == null)
+            return rsp(Response.Status.NOT_FOUND, "No such exporter - " + newExporterID);
 
         try {
-            Predicate matchQueueMessage = MatchTask.matchQueueMessage(
-                    null, deviceName, status, batchID, null, null, null, new Date());
-            Predicate matchExportTask = MatchTask.matchExportTask(
-                    exporterID, deviceName, studyUID, createdTime, updatedTime);
             int count = 0;
-            try (ExportTaskQuery exportTasks = mgr.listExportTasks(
-                    matchQueueMessage, matchExportTask, null, 0, 0)) {
+            try (ExportTaskQuery exportTasks = mgr.listExportTasks(status,
+                    matchQueueMessage, matchExportTask(updatedTime), null, 0, 0)) {
                 for (ExportTask task : exportTasks) {
                     mgr.rescheduleExportTask(
                             task.getPk(),
@@ -292,9 +298,10 @@ public class ExportTaskRS {
             }
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException|DifferentDeviceException|IOException e) {
+        } catch (IOException e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            LOG.warn(e.getMessage());
+            return errResponseAsTextPlain(e);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -307,20 +314,17 @@ public class ExportTaskRS {
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         boolean deleteExportTask = mgr.deleteExportTask(pk, queueEvent);
         queueMsgEvent.fire(queueEvent);
-        return Response.status(deleteExportTask
-                ? Response.Status.NO_CONTENT
-                : Response.Status.NOT_FOUND)
-                .build();
+        return rsp(deleteExportTask);
     }
 
     @DELETE
     public String deleteTasks() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        int deleted = mgr.deleteTasks(
-                MatchTask.matchQueueMessage(
-                        null, deviceName, status(), batchID, null, null, null, null),
-                MatchTask.matchExportTask(exporterID, deviceName, studyUID, createdTime, updatedTime));
+        QueueMessage.Status status = status();
+        int deleted = mgr.deleteTasks(status,
+                matchQueueMessage(status, null, null),
+                matchExportTask(updatedTime));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
@@ -330,21 +334,35 @@ public class ExportTaskRS {
         return Response.status(status).entity(entity).build();
     }
 
+    private static Response rsp(boolean result) {
+        return Response.status(result
+                ? Response.Status.NO_CONTENT
+                : Response.Status.NOT_FOUND)
+                .build();
+    }
+
     private static Response count(long count) {
         return rsp(Response.Status.OK, "{\"count\":" + count + '}');
     }
 
-    private Output selectMediaType(String accept) {
-        Stream<MediaType> acceptableTypes = httpHeaders.getAcceptableMediaTypes().stream();
-        if (accept != null) {
-            try {
-                MediaType type = MediaType.valueOf(accept);
-                return acceptableTypes.anyMatch(type::isCompatible) ? Output.valueOf(type) : null;
-            } catch (IllegalArgumentException ae) {
-                return null;
-            }
+    private int count(Response response) {
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            String entity = response.getEntity().toString();
+            Integer count = Integer.valueOf(entity.substring(entity.indexOf(':')+1, entity.indexOf('}')));
+            LOG.info("Rescheduling of {} tasks successfully completed.", count);
+            return count;
         }
-        return acceptableTypes.map(Output::valueOf)
+        LOG.warn("Rescheduling of tasks unsuccessful. Response received with status: {} and entity: {}",
+                response.getStatus(), response.getEntity());
+        return 0;
+    }
+
+    private Output selectMediaType(String accept) {
+        if (accept != null)
+            httpHeaders.getRequestHeaders().putSingle("Accept", accept);
+
+        return httpHeaders.getAcceptableMediaTypes().stream()
+                .map(Output::valueOf)
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
@@ -359,7 +377,7 @@ public class ExportTaskRS {
                         JsonGenerator gen = Json.createGenerator(out);
                         gen.writeStartArray();
                         for (ExportTask task : t)
-                            task.writeAsJSONTo(gen, arcDev.getExporterDescriptor(task.getExporterID()).getAETitle());
+                            task.writeAsJSONTo(gen, localAETitleOf(arcDev, task));
                         gen.writeEnd();
                         gen.flush();
                     }
@@ -374,8 +392,7 @@ public class ExportTaskRS {
                         Writer writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
                         ExportTask.writeCSVHeader(writer, delimiter);
                         for (ExportTask task : t)
-                            task.writeAsCSVTo(
-                                    writer, delimiter, arcDev.getExporterDescriptor(task.getExporterID()).getAETitle());
+                            task.writeAsCSVTo(writer, delimiter, localAETitleOf(arcDev, task));
                         writer.flush();
                     }
                 };
@@ -407,8 +424,31 @@ public class ExportTaskRS {
         abstract Object entity(final ExportTaskQuery tasks, ArchiveDeviceExtension arcDev);
     }
 
+    private static String localAETitleOf(ArchiveDeviceExtension arcDev, ExportTask task) {
+        try {
+            return arcDev.getExporterDescriptorNotNull(task.getExporterID()).getAETitle();
+        } catch (IllegalArgumentException e) {
+            return e.getMessage();
+        }
+    }
+
     private QueueMessage.Status status() {
         return status != null ? QueueMessage.Status.fromString(status) : null;
+    }
+
+    private Predicate matchExportTask(String updatedTime) {
+        return MatchTask.matchExportTask(uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, updatedTime);
+    }
+
+    private Predicate matchQueueMessage(QueueMessage.Status status, String updatedTime, Date updatedBefore) {
+        return MatchTask.matchQueueMessage(
+                null, deviceName, status, batchID, null, null, updatedTime, updatedBefore);
+    }
+
+    private Response notAcceptable() {
+        return Response.notAcceptable(
+                Variant.mediaTypes(MediaType.APPLICATION_JSON_TYPE, MediaTypes.TEXT_CSV_UTF8_TYPE).build())
+                .build();
     }
 
     private static int parseInt(String s) {
@@ -418,5 +458,12 @@ public class ExportTaskRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 }

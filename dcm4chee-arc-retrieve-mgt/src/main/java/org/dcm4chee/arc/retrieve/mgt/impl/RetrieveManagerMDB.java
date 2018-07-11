@@ -45,12 +45,9 @@ import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
 import org.dcm4chee.arc.retrieve.mgt.RetrieveManager;
-import org.dcm4chee.arc.retrieve.scu.CMoveSCU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.MessageDriven;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
@@ -63,11 +60,6 @@ import javax.jms.ObjectMessage;
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Jul 2017
  */
-@MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = RetrieveManager.JNDI_NAME),
-        @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "5")
-})
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class RetrieveManagerMDB implements MessageListener {
 

@@ -42,6 +42,7 @@ package org.dcm4chee.arc.query.scp;
 
 import com.querydsl.core.types.Order;
 import org.dcm4che3.data.*;
+import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.QueryOption;
@@ -105,6 +106,7 @@ class CommonCFindSCP extends BasicCFindSCP {
     private Attributes createReturnKeys(Attributes keys) {
         Attributes returnKeys = new Attributes(keys.size() + 3);
         returnKeys.addAll(keys);
+        returnKeys.removePrivateAttributes(ArchiveTag.PrivateCreator, 0x7777);
         returnKeys.setNull(Tag.SpecificCharacterSet, VR.CS);
         returnKeys.setNull(Tag.RetrieveAETitle, VR.AE);
         returnKeys.setNull(Tag.InstanceAvailability, VR.CS);

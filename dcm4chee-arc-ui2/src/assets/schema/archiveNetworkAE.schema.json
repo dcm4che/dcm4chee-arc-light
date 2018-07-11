@@ -39,7 +39,7 @@
     },
     "dcmPurgeInstanceRecordsDelay": {
       "title": "Purge Instance Records Delay",
-      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB received by this AE. Overwrites value specified on Device level.",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB received by this AE. Overwrites value specified on Device level. Only effective, if Purge Instance Records on Device Level = true.",
       "type": "string",
       "format": "dcmDuration"
     },
@@ -154,6 +154,16 @@
       "description": "Specifies URI for the style sheet used to render structured reports to plain text. Overwrites value specified on Device level.",
       "type": "string"
     },
+    "dcmWadoCDA2HtmlTemplateURI": {
+      "title": "Wado CDA to HTML Template URI",
+      "description": "URL to XSL style sheet inserted as <?xml-stylesheet type=\"text/xsl\" href=\"<url>\" > in CDA documents returned by WADO-URI service. If absent, the embedded CDI document is returned verbatim. Overwrites value specified on Device level.",
+      "type": "string"
+    },
+    "dcmWadoZIPEntryNameFormat": {
+      "title": "Wado ZIP Entry Name Format",
+      "description": "Format of entry names in ZIP archive returned by WADO-RS. Overwrites value specified on Device level.",
+      "type": "string"
+    },
     "dcmQueryMaxNumberOfResults": {
       "title": "Query Max Number Of Results",
       "description": "Maximal number of return results by C-FIND SCP. If the number of matches extends the limit, the C-FIND request will be refused. 0 = no limitation. Overwrites value specified on Device level.",
@@ -205,9 +215,8 @@
     },
     "dcmSpanningCFindSCPPolicy": {
       "title": "Spanning C-Find SCP Policy",
-      "description": "Specifies policy for combining matches returned from configured Spanning C-Find SCP with matching entries from the archive DB. Overwrites value specified on Device level.",
+      "description": "Specifies policy for combining matches returned from configured Spanning C-Find SCP with matching entries from the archive DB. SUPPLEMENT (= returns local matches before additional matches from Spanning C-Find SCP ), MERGE (= returns matches from Spanning C-Find SCP before additional local matches), REPLACE (= returns only matches from Spanning C-Find SCP). Overwrites value specified on Device level.",
       "type": "string",
-      "default": "MERGE",
       "enum": [
         "SUPPLEMENT",
         "MERGE",
@@ -310,6 +319,16 @@
         "REJECTED"
       ]
     },
+    "dcmAllowDeletePatient": {
+      "title": "Allow Delete Patient",
+      "description": "Allow permanent deletion of Patients. Enumerated values: NEVER, ALWAYS, WITHOUT_STUDIES. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "NEVER",
+        "ALWAYS",
+        "WITHOUT_STUDIES"
+      ]
+    },
     "dcmDefaultCharacterSet": {
       "title": "Default Character Set",
       "description": "Value of Specific Character Set (0008,0005) added to Data Sets without Specific Character Set (0008,0005) attribute received by this Network AE. Overwrites value specified on Device level.",
@@ -362,6 +381,31 @@
         "OVERWRITE",
         "REPLACE"
       ]
+    },
+    "dcmStgCmtPolicy": {
+      "title": "Storage Commitment Policy",
+      "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System. Overwrites value specified on Device level.",
+      "type": "string",
+      "enum": [
+        "DB_RECORD_EXISTS",
+        "OBJECT_EXISTS",
+        "OBJECT_SIZE",
+        "OBJECT_FETCH",
+        "OBJECT_CHECKSUM",
+        "S3_MD5SUM"
+      ]
+    },
+    "dcmStgCmtUpdateLocationStatus": {
+      "title": "Storage Commitment Update Location Status",
+      "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. Overwrites value specified on Device level.",
+      "type": "boolean"
+    },
+    "dcmStgCmtStorageID": {
+      "title": "Storage Commitment Storage IDs",
+      "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful. If absent, validation of the storage of the object on any Storage System is sufficient to accept the Storage Commitment for that object. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. Overwrites values specified on Device level.",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmStorageID"
     },
     "hl7PSUSendingApplication": {
       "title": "HL7 Procedure Status Update Sending Application",

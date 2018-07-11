@@ -43,15 +43,33 @@ package org.dcm4chee.arc.rs.client;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Nov 2016
  */
 public interface RSClient {
     String QUEUE_NAME = "RSClient";
     String JNDI_NAME = "jms/queue/RSClient";
 
-    void scheduleRequest(String method, String uri, byte[] content) throws QueueSizeLimitExceededException;
+    void scheduleRequest(
+            String method,
+            String uri,
+            byte[] content,
+            String keycloakServerID,
+            boolean tlsAllowAnyHostName,
+            boolean tlsDisableTrustManager) throws QueueSizeLimitExceededException;
 
-    Outcome request(String method, String uri, byte[] content) throws Exception;
+    Outcome request(
+            String method,
+            String uri,
+            String keycloakServerID,
+            boolean tlsAllowAnyHostname,
+            boolean tlsDisableTrustManager,
+            byte[] content) throws Exception;
+
+    Response forward(HttpServletRequest request, String deviceName) throws Exception;
 }

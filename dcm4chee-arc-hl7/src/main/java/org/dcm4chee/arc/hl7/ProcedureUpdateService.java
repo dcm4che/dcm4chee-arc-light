@@ -49,6 +49,7 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.HL7Service;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7OrderSPSStatus;
@@ -127,7 +128,7 @@ public class ProcedureUpdateService extends AbstractHL7Service {
         for (Attributes sps : spsItems) {
             if (sps.getString(Tag.ScheduledStationAETitle) == null) {
                 List<String> ssAETs = new ArrayList<>();
-                Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(socket.getLocalAddress().getHostName(), msh, attrs);
+                Collection<Device> devices = arcHL7App.hl7OrderScheduledStation(ReverseDNS.hostNameOf(socket.getLocalAddress()), msh, attrs);
                 for (Device device : devices)
                     ssAETs.addAll(device.getApplicationAETitles());
 

@@ -51,6 +51,7 @@ import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.validation.constraints.*;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
@@ -276,6 +277,8 @@ public class WadoURI {
             case UncompressedMultiFrameImage:
                 return renderImage(ctx, inst, mimeType, imageIndex);
             case EncapsulatedCDA:
+                return decapsulateCDA(service.openDicomInputStream(ctx, inst),
+                        ctx.getArchiveAEExtension().wadoCDA2HtmlTemplateURI());
             case EncapsulatedPDF:
                 return decapsulateDocument(service.openDicomInputStream(ctx, inst));
             case MPEG2Video:
@@ -304,9 +307,10 @@ public class WadoURI {
 
         ImageWriter imageWriter = getImageWriter(mimeType);
         ImageWriteParam writeParam = imageWriter.getDefaultWriteParam();
-        if (imageQuality != null)
+        if (imageQuality != null) {
+            writeParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             writeParam.setCompressionQuality(parseInt(imageQuality) / 100.f);
-
+        }
         ImageReader imageReader = getDicomImageReader();
         return new RenderedImageOutput(service.openDicomInputStream(ctx, inst),
                 imageReader, readParam, parseInt(rows), parseInt(columns), imageIndex,
@@ -365,12 +369,22 @@ public class WadoURI {
         return new StreamCopyOutput(dis, dis.length());
     }
 
+    private StreamingOutput decapsulateCDA(DicomInputStream dis, String templateURI) throws IOException {
+        seekEncapsulatedDocument(dis);
+        return templateURI != null
+                ? new CDAOutput(dis, dis.length(), templateURI)
+                : new StreamCopyOutput(dis, dis.length());
+    }
+
     private StreamingOutput decapsulateDocument(DicomInputStream dis) throws IOException {
+        seekEncapsulatedDocument(dis);
+        return new StreamCopyOutput(dis, dis.length());
+    }
+
+    private void seekEncapsulatedDocument(DicomInputStream dis) throws IOException {
         dis.readDataset(-1, Tag.EncapsulatedDocument);
         if (dis.tag() != Tag.EncapsulatedDocument)
             throw new IOException("No encapsulated document in requested object");
-
-        return new StreamCopyOutput(dis, dis.length());
     }
 
     private static ImageReader getDicomImageReader() {
@@ -430,8 +444,6 @@ public class WadoURI {
     private Collection<String> tsuids() {
         if (transferSyntax == null)
             return Collections.singleton(UID.ExplicitVRLittleEndian);
-        if (transferSyntax.equals("*"))
-            return Collections.emptyList();
         return Arrays.asList(StringUtils.split(transferSyntax, ','));
     }
 

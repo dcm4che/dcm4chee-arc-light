@@ -46,17 +46,22 @@ import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.Association;
+import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.storage.Storage;
+import org.dcm4chee.arc.store.InstanceLocations;
+import org.dcm4chee.arc.store.StoreService;
+import org.dcm4chee.arc.store.StoreSession;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -70,8 +75,12 @@ public interface RetrieveService {
 
     String MOVE_DESTINATION_NOT_ALLOWED_MSG = "Move Destination not allowed";
 
+    Device getDevice();
+
+    ArchiveDeviceExtension getArchiveDeviceExtension();
+
     RetrieveContext newRetrieveContextGET(ArchiveAEExtension arcAE,
-            Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
+                                          Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys);
 
     RetrieveContext newRetrieveContextMOVE(ArchiveAEExtension arcAE,
             Association as, Attributes cmd, QueryRetrieveLevel2 qrLevel, Attributes keys)
@@ -88,19 +97,32 @@ public interface RetrieveService {
             HttpServletRequest request, String localAET, String studyUID, String... seriesUIDs);
 
     RetrieveContext newRetrieveContextXDSI(
-            HttpServletRequest request, String localAET,List<String> studyUIDs,
-            List<String> seriesUIDs, List<String> objectUIDs);
+            HttpServletRequest request, String localAET, String[] studyUIDs,
+            String[] seriesUIDs, String[] objectUIDs);
+
+    RetrieveContext newRetrieveContext(String localAET, String studyUID, String seriesUID, String objectUID);
 
     RetrieveContext newRetrieveContextSeriesMetadata(Series.MetadataUpdate metadataUpdate);
 
     boolean calculateMatches(RetrieveContext ctx) throws DicomServiceException;
 
+    Collection<InstanceLocations> queryInstances(
+            StoreSession session, Attributes instanceRefs, String targetStudyIUID)
+            throws IOException;
+
     InstanceLocations newInstanceLocations(Attributes attrs);
+
+    StoreService getStoreService();
 
     Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
             throws IOException;
 
     DicomInputStream openDicomInputStream(RetrieveContext ctx, InstanceLocations inst) throws IOException;
+
+    LocationInputStream openLocationInputStream(RetrieveContext ctx, InstanceLocations inst)
+            throws IOException;
+
+    Storage getStorage(String storageID, RetrieveContext ctx);
 
     Attributes loadMetadata(RetrieveContext ctx, InstanceLocations inst) throws IOException;
 

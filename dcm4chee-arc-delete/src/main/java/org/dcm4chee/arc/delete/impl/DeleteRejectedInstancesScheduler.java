@@ -102,6 +102,8 @@ public class DeleteRejectedInstancesScheduler extends Scheduler {
         Date before = new Date(System.currentTimeMillis() - delay.getSeconds() * 1000);
         int deleted;
         do {
+            if (getPollingInterval() == null)
+                return;
             deleted = ejb.deleteRejectedInstancesOrRejectionNotesBefore(queryName, rjCode, before, fetchSize);
         } while (deleted == fetchSize);
     }

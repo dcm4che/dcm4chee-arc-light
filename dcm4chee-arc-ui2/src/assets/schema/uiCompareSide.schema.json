@@ -1,0 +1,47 @@
+{
+  "title": "Compare Side",
+  "description": "Compare Side",
+  "type": "object",
+  "required": [
+    "dcmuiCompareSideName",
+    "dcmuiCompareSideCluster",
+    "dcmuiCompareSideElasticsearch",
+    "dcmuiCompareSideInstalled"
+  ],
+  "properties": {
+    "dcmuiCompareSideName": {
+      "title": "Name",
+      "description": "Compare Side Name",
+      "type": "string"
+    },
+    "dcmuiCompareSideDescription": {
+      "title": "Description",
+      "description": "A short description about this Group",
+      "type": "string"
+    },
+    "dcmuiCompareSideCluster": {
+      "title": "Cluster",
+      "description": "Select a Cluster",
+      "type": "string",
+      "format":"dcmuiDeviceClusterObject"
+    },
+    "dcmuiCompareSideElasticsearch": {
+      "title": "Elasticsearch",
+      "description": "Select an Elasticsearch URL",
+      "type": "string",
+      "format":"dcmuiElasticsearchConfig"
+    },
+    "dcmuiCompareSideQueueName": {
+      "title": "Queue",
+      "description": "Select the QueueName that should be used for the compare side",
+      "type": "string",
+      "format":"dcmQueueName"
+    },
+    "dcmuiCompareSideInstalled": {
+      "title": "Installed",
+      "description": "If true this Compare side is active in the dashboard",
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

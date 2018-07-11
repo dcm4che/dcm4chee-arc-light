@@ -11,8 +11,8 @@
   ],
   "tags": [
     {
-      "name": "REALM-RS",
-      "description": "Access realm"
+      "name": "AUTH-RS",
+      "description": "Authentication/Authorization services"
     },
     {
       "name": "CTRL-RS",
@@ -67,6 +67,10 @@
       "description": "Retrieve Tasks"
     },
     {
+      "name": "IMPAX-REPORT-RS",
+      "description": "Query Agfa IMPAX Report Service"
+    },
+    {
       "name": "X-ROAD-RS",
       "description": "Query Estonia National Patient Registry"
     }
@@ -75,10 +79,10 @@
     "/ui2/rs/realm": {
       "get": {
         "tags": [
-          "REALM-RS"
+          "AUTH-RS"
         ],
-        "summary": "Show Realm of Logged-in User",
-        "operationId": "realm",
+        "summary": "Get information about logged-in user",
+        "operationId": "get",
         "produces": [
           "application/json"
         ],
@@ -451,6 +455,53 @@
           },
           "404": {
             "description": "Device not found"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/token/{keycloakID}": {
+      "get": {
+        "tags": [
+          "AUTH-RS"
+        ],
+        "summary": "Get Access token from Keycloak",
+        "operationId": "getAccessToken",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "keycloakID",
+            "in": "path",
+            "description": "Identifies Keycloak access parameters in Archive Device configuration",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Access Token",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "title": "token",
+                  "description": "OAuth Bearer Token",
+                  "type": "string"
+                },
+                "expiration": {
+                  "title": "expiration",
+                  "description": "Access token lifetime in seconds",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such Keycloak identifier in Archive Device configuration"
           },
           "default": {
             "description": "unexpected error"
@@ -1693,7 +1744,6 @@
             "name": "dicomDeviceName",
             "in": "query",
             "description": "Archive Device Name",
-            "required": true,
             "type": "string"
           },
           {
@@ -1742,7 +1792,9 @@
               "COMPLETED",
               "WARNING",
               "FAILED",
-              "CANCELED"
+              "CANCELED",
+              "SCHEDULED",
+              "IN PROCESS"
             ]
           },
           {
@@ -1772,10 +1824,7 @@
             }
           },
           "400": {
-            "description": "Compare Studies Tasks status is null or invalid or device name is null"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
+            "description": "Compare Studies Tasks status is null"
           },
           "default": {
             "description": "unexpected error"
@@ -1964,7 +2013,10 @@
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "StudyInstanceUID",
@@ -2064,7 +2116,10 @@
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "StudyInstanceUID",
@@ -2141,7 +2196,10 @@
             "name": "ExporterID",
             "in": "query",
             "description": "list batches with at least one export task with the specified Exporter ID",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "status",
@@ -2230,7 +2288,10 @@
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "StudyInstanceUID",
@@ -2307,7 +2368,10 @@
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "StudyInstanceUID",
@@ -2377,14 +2441,16 @@
             "name": "dicomDeviceName",
             "in": "query",
             "description": "Archive Device Name",
-            "required": true,
             "type": "string"
           },
           {
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "StudyInstanceUID",
@@ -2402,7 +2468,10 @@
               "COMPLETED",
               "WARNING",
               "FAILED",
-              "CANCELED"
+              "CANCELED",
+              "TO SCHEDULE",
+              "SCHEDULED",
+              "IN PROCESS"
             ]
           },
           {
@@ -2432,10 +2501,7 @@
             }
           },
           "400": {
-            "description": "Export task status is null or invalid or device name is null"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
+            "description": "Export task status is null"
           },
           "default": {
             "description": "unexpected error"
@@ -2466,14 +2532,16 @@
             "name": "dicomDeviceName",
             "in": "query",
             "description": "Archive Device Name",
-            "required": true,
             "type": "string"
           },
           {
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           {
             "name": "StudyInstanceUID",
@@ -2491,7 +2559,10 @@
               "COMPLETED",
               "WARNING",
               "FAILED",
-              "CANCELED"
+              "CANCELED",
+              "TO SCHEDULE",
+              "SCHEDULED",
+              "IN PROCESS"
             ]
           },
           {
@@ -2520,11 +2591,11 @@
               "$ref": "#/definitions/Count"
             }
           },
+          "400": {
+            "description": "Export task status is null"
+          },
           "404": {
             "description": "exporter not found"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
           },
           "default": {
             "description": "unexpected error"
@@ -3138,7 +3209,6 @@
             "name": "dicomDeviceName",
             "in": "query",
             "description": "Archive Device Name",
-            "required": true,
             "type": "string"
           },
           {
@@ -3175,7 +3245,9 @@
               "COMPLETED",
               "WARNING",
               "FAILED",
-              "CANCELED"
+              "CANCELED",
+              "SCHEDULED",
+              "IN PROCESS"
             ]
           },
           {
@@ -3205,10 +3277,7 @@
             }
           },
           "400": {
-            "description": "Retrieve tasks status is null or invalid or device name is null"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
+            "description": "Retrieve tasks status is null"
           },
           "default": {
             "description": "unexpected error"
@@ -3675,7 +3744,6 @@
             "name": "dicomDeviceName",
             "in": "query",
             "description": "Archive Device Name",
-            "required": true,
             "type": "string"
           },
           {
@@ -3688,7 +3756,9 @@
               "COMPLETED",
               "WARNING",
               "FAILED",
-              "CANCELED"
+              "CANCELED",
+              "SCHEDULED",
+              "IN PROCESS"
             ]
           },
           {
@@ -3718,10 +3788,7 @@
             }
           },
           "400": {
-            "description": "Queue Message status is null or invalid or device name is null"
-          },
-          "409": {
-            "description": "Archive Device Name does not match device name of archive instance"
+            "description": "Queue Message status is null"
           },
           "default": {
             "description": "unexpected error"
@@ -4027,6 +4094,12 @@
             "type": "integer",
             "enum": [ 0, 1, 2 ],
             "default": 0
+          },
+          {
+            "name": "SplitStudyDateRange",
+            "in": "query",
+            "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
+            "type": "string"
           },
           {
             "name": "{attributeID}",
@@ -4373,6 +4446,12 @@
             "type": "integer",
             "enum": [ 0, 1, 2 ],
             "default": 0
+          },
+          {
+            "name": "SplitStudyDateRange",
+            "in": "query",
+            "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
+            "type": "string"
           },
           {
             "name": "{attributeID}",
@@ -5260,6 +5339,12 @@
             "type": "string"
           },
           {
+            "name": "SplitStudyDateRange",
+            "in": "query",
+            "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
+            "type": "string"
+          },
+          {
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
@@ -5538,14 +5623,27 @@
             "in": "query",
             "description": "include Studies different at originalAET",
             "type": "boolean",
-            "default": "yes"
+            "default": true
           },
           {
             "name": "missing",
             "in": "query",
             "description": "include Studies missing at originalAET",
             "type": "boolean",
-            "default": "no"
+            "default": false
+          },
+          {
+            "name": "ForceQueryByStudyUID",
+            "in": "query",
+            "description": "Force queries by Study Instance UID to secondary C-FIND SCP, although both C-FIND SCPs are instances of dcm4chee-arc",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SplitStudyDateRange",
+            "in": "query",
+            "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
+            "type": "string"
           },
           {
             "name": "{attributeID}",
@@ -5676,6 +5774,19 @@
             "type": "string"
           },
           {
+            "name": "ForceQueryByStudyUID",
+            "in": "query",
+            "description": "Force queries by Study Instance UID to secondary C-FIND SCP, although both C-FIND SCPs are instances of dcm4chee-arc",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SplitStudyDateRange",
+            "in": "query",
+            "description": "Split Study Date Range in ISO-8601 duration format PnDTnHnMn",
+            "type": "string"
+          },
+          {
             "name": "{attributeID}",
             "in": "query",
             "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
@@ -5701,6 +5812,26 @@
             "description": "fuzzy semantic matching of person names",
             "type": "boolean",
             "default": false
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
+          },
+          {
+            "name": "different",
+            "in": "query",
+            "description": "include Studies different at originalAET",
+            "type": "boolean",
+            "default": "yes"
+          },
+          {
+            "name": "missing",
+            "in": "query",
+            "description": "include Studies missing at originalAET",
+            "type": "boolean",
+            "default": "no"
           },
           {
             "name": "priority",
@@ -5794,6 +5925,12 @@
             "description": "include Studies missing at originalAET",
             "type": "boolean",
             "default": "no"
+          },
+          {
+            "name": "batchID",
+            "in": "query",
+            "description": "Batch ID of scheduled tasks",
+            "type": "string"
           },
           {
             "name": "includefield",
@@ -6819,6 +6956,57 @@
         }
       }
     },
+    "/aets/{aet}/rs/studies/{studyUID}/impax/report": {
+      "post": {
+        "tags": [
+          "IMPAX-REPORT-RS"
+        ],
+        "summary": "Import Reports of Study",
+        "operationId": "importReportsOfStudy",
+        "produces": [
+          "multipart/related;type=application/dicom+json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "studyUID",
+            "in": "path",
+            "description": "Unique Identifier of the Study",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "This indicates that all reports returned by the Impax Report Service were successfully stored.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "202": {
+            "description": "This indicates that some reports returned by the Impax Report Service were stored, but failures exist for others.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "no such Archive AET or Study"
+          },
+          "409": {
+            "description": "Impax Report Service returns no report for the study"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/studies/{studyUID}/export/{exporterID}": {
       "post": {
         "tags": [
@@ -7826,6 +8014,36 @@
             "description": "Study Instance UID for a single study",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "responses": {
@@ -7882,6 +8100,36 @@
             "description": "Series Instance UID for a single series",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "responses": {
@@ -7945,6 +8193,36 @@
             "description": "SOP Instance UID for a single SOP Instance",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "dcmStgCmtPolicy",
+            "in": "query",
+            "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System.",
+            "type": "string",
+            "enum": [
+              "DB_RECORD_EXISTS",
+              "OBJECT_EXISTS",
+              "OBJECT_SIZE",
+              "OBJECT_FETCH",
+              "OBJECT_CHECKSUM",
+              "S3_MD5SUM"
+            ]
+          },
+          {
+            "name": "dcmStgCmtUpdateLocationStatus",
+            "in": "query",
+            "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly.",
+            "type": "boolean"
+          },
+          {
+            "name": "dcmStgCmtStorageID",
+            "in": "query",
+            "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "responses": {
@@ -9175,6 +9453,12 @@
             "type": "string"
           },
           {
+            "name": "dcmStorageClusterID",
+            "in": "query",
+            "description": "only return Storage Systems belonging to a particular Storage Cluster",
+            "type": "string"
+          },
+          {
             "name": "usage",
             "in": "query",
             "description": "only return Storage Systems used for the specified content",
@@ -9198,6 +9482,44 @@
             "schema": {
               "$ref": "storageList.schema.json"
             }
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/impax/reports/studies/{StudyInstanceUID}": {
+      "get": {
+        "tags": [
+          "IMPAX-REPORT-RS"
+        ],
+        "summary": "Query report by Study Instance UID",
+        "operationId": "queryReportByStudyUID",
+        "produces": [
+          "multipart/related;type=text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "description": "Study Instance UID for a single Study",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "204": {
+            "description": "Impax Report Service returns no report for the study"
+          },
+          "404": {
+            "description": "Impax Report Service returns QueryReportByStudyUidResult: false"
           },
           "default": {
             "description": "unexpected error"
@@ -9332,6 +9654,9 @@
           "type": "string"
         },
         "xRoad": {
+          "type": "boolean"
+        },
+        "impaxReport": {
           "type": "boolean"
         },
         "UIConfigurationDeviceName": {

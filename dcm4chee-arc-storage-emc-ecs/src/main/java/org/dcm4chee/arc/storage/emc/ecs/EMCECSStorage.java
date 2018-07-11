@@ -43,11 +43,13 @@ package org.dcm4chee.arc.storage.emc.ecs;
 import com.emc.object.s3.S3Client;
 import com.emc.object.s3.S3Config;
 import com.emc.object.s3.S3Exception;
+import com.emc.object.s3.S3ObjectMetadata;
 import com.emc.object.s3.bean.GetObjectResult;
 import com.emc.object.s3.jersey.S3JerseyClient;
 import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.AttributesFormat;
+import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.storage.AbstractStorage;
 import org.dcm4chee.arc.storage.ReadContext;
@@ -55,7 +57,7 @@ import org.dcm4chee.arc.storage.WriteContext;
 
 import java.io.*;
 import java.net.URI;
-import java.util.concurrent.Callable;
+import java.nio.file.NoSuchFileException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadLocalRandom;
@@ -110,22 +112,31 @@ public class EMCECSStorage extends AbstractStorage {
     }
 
     @Override
+    public boolean exists(ReadContext ctx) {
+        return exists(ctx.getStoragePath());
+    }
+
+    @Override
+    public long getContentLength(ReadContext ctx) throws IOException {
+        return getObjectMetadata(ctx.getStoragePath()).getContentLength();
+    }
+
+    @Override
+    public byte[] getContentMD5(ReadContext ctx) throws IOException {
+        String contentMd5 = getObjectMetadata(ctx.getStoragePath()).getContentMd5();
+        return contentMd5 != null ? TagUtils.fromHexString(contentMd5) : null;
+    }
+
+    @Override
     protected OutputStream openOutputStreamA(final WriteContext ctx) throws IOException {
         final PipedInputStream in = new PipedInputStream();
-        FutureTask<Void> task = new FutureTask<>(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                try {
-                    upload(ctx, in);
-                } finally {
-                    in.close();
-                }
-                return null;
-            }
-        });
-        ((EMCECSWriteContext) ctx).setUploadTask(task);
-        device.execute(task);
+        copy(in, ctx);
         return new PipedOutputStream(in);
+    }
+
+    @Override
+    protected void copyA(InputStream in, WriteContext ctx) throws IOException {
+        upload(ctx, in);
     }
 
     @Override
@@ -147,7 +158,7 @@ public class EMCECSStorage extends AbstractStorage {
         String storagePath = pathFormat.format(ctx.getAttributes());
         if (count++ == 0 && !s3.bucketExists(container))
             s3.createBucket(container);
-        else while (exits(storagePath)) {
+        else while (exists(storagePath)) {
             storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
                     .concat(String.format("%08X", ThreadLocalRandom.current().nextInt()));
         }
@@ -155,13 +166,24 @@ public class EMCECSStorage extends AbstractStorage {
         ctx.setStoragePath(storagePath);
     }
 
-    private boolean exits(String storagePath) {
+    private boolean exists(String storagePath) {
         try {
-            s3.getObjectMetadata(container, storagePath);
-            return true;
+            return s3.getObjectMetadata(container, storagePath) != null;
         } catch (S3Exception e) {
         }
         return false;
+    }
+
+    private S3ObjectMetadata getObjectMetadata(String storagePath) throws IOException {
+        try {
+            S3ObjectMetadata metadata = s3.getObjectMetadata(container, storagePath);
+            if (metadata == null)
+                throw objectNotFound(storagePath);
+
+            return metadata;
+        } catch (S3Exception e) {
+            throw failedToAccess(storagePath, e);
+        }
     }
 
     @Override
@@ -174,9 +196,16 @@ public class EMCECSStorage extends AbstractStorage {
     }
 
     private IOException objectNotFound(String storagePath) {
-        return new IOException("No Object[" + storagePath
+        return new NoSuchFileException("No Object[" + storagePath
                 + "] in Container[" + container
                 + "] on " + getStorageDescriptor());
+    }
+
+    private IOException failedToAccess(String storagePath, S3Exception e) {
+        return new IOException("Failed to access Object[" + storagePath
+                + "] in Container[" + container
+                + "] on " + getStorageDescriptor(),
+                e);
     }
 
     @Override

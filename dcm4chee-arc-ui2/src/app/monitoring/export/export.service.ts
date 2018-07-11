@@ -14,8 +14,8 @@ export class ExportService {
     constructor(public $http:J4careHttpService, public mainservice: AppService, private deviceService:DevicesService) {
     }
 
-    search(filters, offset) {
-        return this.$http.get('../monitor/export' + '?' + this.mainservice.param(this.queryParams(filters, offset)));
+    search(filters, offset, batch) {
+        return this.$http.get(`../monitor/export${(batch?'/batch':'')}?${this.mainservice.param(this.queryParams(filters, offset))}`);
     };
 
     getCount(filters) {

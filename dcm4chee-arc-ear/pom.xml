@@ -45,7 +45,7 @@
   <parent>
     <artifactId>dcm4chee-arc-parent</artifactId>
     <groupId>org.dcm4che.dcm4chee-arc</groupId>
-    <version>5.13.1</version>
+    <version>5.13.3</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -125,6 +125,12 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-export-storage</artifactId>
+      <version>${project.version}</version>
+      <type>ejb</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-export-study-size</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -166,6 +172,11 @@
       <artifactId>dcm4chee-arc-id</artifactId>
       <version>${project.version}</version>
       <type>ejb</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-impax-report</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
@@ -340,11 +351,6 @@
     </dependency>
     <dependency>
       <groupId>org.dcm4che.dcm4chee-arc</groupId>
-      <artifactId>dcm4chee-arc-xdsi</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.dcm4che.dcm4chee-arc</groupId>
       <artifactId>dcm4chee-arc-xroad</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -365,6 +371,12 @@
       <artifactId>dcm4chee-arc-ui2</artifactId>
       <version>${project.version}</version>
       <classifier>${dcm4chee-arc-ui-classifier}</classifier>
+      <type>war</type>
+    </dependency>
+    <dependency>
+      <groupId>org.dcm4che.dcm4chee-arc</groupId>
+      <artifactId>dcm4chee-arc-xsl-cda</artifactId>
+      <version>${project.version}</version>
       <type>war</type>
     </dependency>
   </dependencies>
@@ -397,6 +409,11 @@
               <groupId>org.dcm4che.dcm4chee-arc</groupId>
               <artifactId>dcm4chee-arc-ui2</artifactId>
               <contextRoot>dcm4chee-arc/ui2</contextRoot>
+            </webModule>
+            <webModule>
+              <groupId>org.dcm4che.dcm4chee-arc</groupId>
+              <artifactId>dcm4chee-arc-xsl-cda</artifactId>
+              <contextRoot>dcm4chee-arc/xsl</contextRoot>
             </webModule>
           </modules>
         </configuration>

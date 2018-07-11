@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.export.mgt.impl;
 
 import com.mysema.commons.lang.CloseableIterator;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -67,7 +68,7 @@ class ExportTaskQueryImpl implements ExportTaskQuery {
     private Transaction transaction;
     private CloseableIterator<ExportTask> iterate;
 
-    public ExportTaskQueryImpl(StatelessSession session, int fetchSize,
+    public ExportTaskQueryImpl(QueueMessage.Status status, StatelessSession session, int fetchSize,
                                Predicate matchQueueMessage,
                                Predicate matchExportTask,
                                OrderSpecifier<Date> order,
@@ -80,7 +81,7 @@ class ExportTaskQueryImpl implements ExportTaskQuery {
         query = new HibernateQuery<ExportTask>(session)
                 .from(QExportTask.exportTask)
                 .leftJoin(QExportTask.exportTask.queueMessage, QQueueMessage.queueMessage)
-                .where(matchExportTask, QExportTask.exportTask.queueMessage.in(queueMsgQuery));
+                .where(matchExportTask, queuePredicate(status, queueMsgQuery));
         if (limit > 0)
             query.limit(limit);
         if (offset > 0)
@@ -90,6 +91,13 @@ class ExportTaskQueryImpl implements ExportTaskQuery {
         query.setFetchSize(fetchSize);
     }
 
+    private Predicate queuePredicate(QueueMessage.Status status, HibernateQuery<QueueMessage> queueMsgQuery) {
+        return status == QueueMessage.Status.TO_SCHEDULE
+                ? QExportTask.exportTask.queueMessage.isNull()
+                : status == null
+                   ? ExpressionUtils.or(QExportTask.exportTask.queueMessage.isNull(), QExportTask.exportTask.queueMessage.in(queueMsgQuery))
+                    : QExportTask.exportTask.queueMessage.in(queueMsgQuery);
+    }
 
     @Override
     public void close() {

@@ -42,15 +42,15 @@ package org.dcm4chee.arc.qmgt.rs;
 
 import com.querydsl.core.types.Predicate;
 import org.dcm4che3.net.Device;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.event.BulkQueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
-import org.dcm4chee.arc.qmgt.DifferentDeviceException;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
+import org.dcm4chee.arc.qmgt.QueueMessageQuery;
 import org.dcm4chee.arc.query.util.MatchTask;
+import org.dcm4chee.arc.rs.client.RSClient;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,10 +61,11 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.*;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Date;
 import java.util.List;
@@ -84,6 +85,9 @@ public class QueueManagerRS {
 
     @Inject
     private Device device;
+
+    @Inject
+    private RSClient rsClient;
 
     @Inject
     private Event<QueueMessageEvent> queueMsgEvent;
@@ -134,10 +138,10 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response search() {
         logRequest();
-        return Response.ok(toEntity(mgr.search(
-                MatchTask.matchQueueMessage(queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null),
-                MatchTask.queueMessageOrder(orderby), parseInt(offset), parseInt(limit))))
-                .build();
+        QueueMessageQuery queueMessages = mgr.listQueueMessages(
+                matchQueueMessage(status(), null),
+                MatchTask.queueMessageOrder(orderby), parseInt(offset), parseInt(limit));
+        return Response.ok(toEntity(queueMessages)).build();
     }
 
     @GET
@@ -146,8 +150,7 @@ public class QueueManagerRS {
     @Produces("application/json")
     public Response countTasks() {
         logRequest();
-        return count(mgr.countTasks(MatchTask.matchQueueMessage(
-                        queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null)));
+        return count(mgr.countTasks(matchQueueMessage(status(), null)));
     }
 
     @POST
@@ -156,10 +159,7 @@ public class QueueManagerRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
-            return Response.status(mgr.cancelTask(msgId, queueEvent)
-                    ? Response.Status.NO_CONTENT
-                    : Response.Status.NOT_FOUND)
-                    .build();
+            return rsp(mgr.cancelTask(msgId, queueEvent));
         } catch (IllegalTaskStateException e) {
             queueEvent.setException(e);
             return rsp(Response.Status.CONFLICT, e.getMessage());
@@ -181,9 +181,7 @@ public class QueueManagerRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.CancelTasks);
         try {
             LOG.info("Cancel processing of Tasks with Status {} at Queue {}", this.status, queueName);
-            Predicate matchQueueMessage = MatchTask.matchQueueMessage(queueName, deviceName, status, batchID, jmsMessageID,
-                    createdTime, updatedTime, null);
-            long count = mgr.cancelTasks(matchQueueMessage, status);
+            long count = mgr.cancelTasks(matchQueueMessage(status,null), status);
             queueEvent.setCount(count);
             return count(count);
         } catch (IllegalTaskStateException e) {
@@ -200,13 +198,15 @@ public class QueueManagerRS {
         logRequest();
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            return Response.status(mgr.rescheduleTask(msgId, null, queueEvent)
-                    ? Response.Status.NO_CONTENT
-                    : Response.Status.NOT_FOUND)
-                    .build();
-        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+            String devName = mgr.rescheduleTask(msgId, null, queueEvent);
+            return devName == null
+                    ? Response.status(Response.Status.NOT_FOUND).build()
+                    : devName.equals(device.getDeviceName())
+                        ? Response.status(Response.Status.NO_CONTENT).build()
+                        : rsClient.forward(request, devName);
+        } catch (Exception e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponseAsTextPlain(e);
         } finally {
             queueMsgEvent.fire(queueEvent);
         }
@@ -214,39 +214,44 @@ public class QueueManagerRS {
 
     @POST
     @Path("/reschedule")
-    public Response rescheduleMessages() {
+    public Response rescheduleMessages() throws Exception {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
-        if (status == QueueMessage.Status.SCHEDULED || status == QueueMessage.Status.IN_PROCESS)
-            return rsp(Response.Status.BAD_REQUEST, "Cannot reschedule tasks with status: " + status);
-        if (deviceName == null)
-            return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: dicomDeviceName");
-        if (!deviceName.equals(device.getDeviceName()))
-            return rsp(Response.Status.CONFLICT,
-                    "Cannot reschedule Tasks originally scheduled on Device " + deviceName
-                    + " on Device " + device.getDeviceName());
 
+        Predicate matchQueueMessage = matchQueueMessage(status, new Date());
+
+        if (deviceName == null) {
+            List<String> distinctDeviceNames = mgr.listDistinctDeviceNames(matchQueueMessage);
+            int count = 0;
+            for (String devName : distinctDeviceNames) {
+                count += count(devName.equals(device.getDeviceName())
+                                ? rescheduleMessages(matchQueueMessage)
+                                : rsClient.forward(request, devName));
+            }
+            return count(count);
+        }
+        return !deviceName.equals(device.getDeviceName())
+                ? rsClient.forward(request, deviceName)
+                : rescheduleMessages(matchQueueMessage);
+    }
+
+    private Response rescheduleMessages(Predicate matchQueueMessage) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            Predicate matchQueueMessage = MatchTask.matchQueueMessage(
-                    queueName, deviceName, status, batchID, jmsMessageID, createdTime, updatedTime, new Date());
-            ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            int fetchSize = arcDev.getQueueTasksFetchSize();
             int count = 0;
-            List<String> queueMsgIDs;
-            do {
-                queueMsgIDs = mgr.getQueueMsgIDs(matchQueueMessage, fetchSize);
-                for (String msgID : queueMsgIDs)
-                    mgr.rescheduleTask(msgID, queueName, null);
-                count += queueMsgIDs.size();
-            } while (queueMsgIDs.size() >= fetchSize);
+            try(QueueMessageQuery queueMsgs = mgr.listQueueMessages(matchQueueMessage, null, 0,0)) {
+                for (QueueMessage queueMsg : queueMsgs) {
+                    mgr.rescheduleTask(queueMsg.getMessageID(), queueName, null);
+                    count++;
+                }
+            }
             queueEvent.setCount(count);
             return count(count);
-        } catch (IllegalTaskStateException|DifferentDeviceException e) {
+        } catch (Exception e) {
             queueEvent.setException(e);
-            return rsp(Response.Status.CONFLICT, e.getMessage());
+            return errResponseAsTextPlain(e);
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -259,10 +264,7 @@ public class QueueManagerRS {
         QueueMessageEvent queueEvent = new QueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         boolean deleteTask = mgr.deleteTask(msgId, queueEvent);
         queueMsgEvent.fire(queueEvent);
-        return Response.status(deleteTask
-                ? Response.Status.NO_CONTENT
-                : Response.Status.NOT_FOUND)
-                .build();
+        return rsp(deleteTask);
     }
 
     @DELETE
@@ -270,8 +272,7 @@ public class QueueManagerRS {
     public String deleteMessages() {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
-        int deleted = mgr.deleteTasks(queueName, MatchTask.matchQueueMessage(
-                queueName, deviceName, status(), batchID, jmsMessageID, createdTime, updatedTime, null));
+        int deleted = mgr.deleteTasks(queueName, matchQueueMessage(status(), null));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
@@ -281,27 +282,53 @@ public class QueueManagerRS {
         return Response.status(status).entity(entity).build();
     }
 
+    private static Response rsp(boolean result) {
+        return Response.status(result
+                ? Response.Status.NO_CONTENT
+                : Response.Status.NOT_FOUND)
+                .build();
+    }
+
     private static Response count(long count) {
         return rsp(Response.Status.OK, "{\"count\":" + count + '}');
     }
 
-    private StreamingOutput toEntity(final List<QueueMessage> msgs) {
+    private int count(Response response) {
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            String entity = response.getEntity().toString();
+            Integer count = Integer.valueOf(entity.substring(entity.indexOf(':')+1, entity.indexOf('}')));
+            LOG.info("Rescheduling of {} tasks successfully completed.", count);
+            return count;
+        }
+        LOG.warn("Rescheduling of tasks unsuccessful. Response received with status: {} and entity: {}",
+                response.getStatus(), response.getEntity());
+        return 0;
+    }
+
+    private StreamingOutput toEntity(QueueMessageQuery msgs) {
         return out -> {
+            try (QueueMessageQuery m = msgs) {
                 Writer w = new OutputStreamWriter(out, "UTF-8");
                 int count = 0;
                 w.write('[');
-                for (QueueMessage msg : msgs) {
+                for (QueueMessage msg : m) {
                     if (count++ > 0)
                         w.write(',');
                     msg.writeAsJSON(w);
                 }
                 w.write(']');
                 w.flush();
+            }
         };
     }
 
     private QueueMessage.Status status() {
         return status != null ? QueueMessage.Status.fromString(status) : null;
+    }
+
+    private Predicate matchQueueMessage(QueueMessage.Status status, Date updatedBefore) {
+        return MatchTask.matchQueueMessage(
+                queueName, deviceName, status, batchID, jmsMessageID, createdTime, updatedTime, updatedBefore);
     }
 
     private static int parseInt(String s) {
@@ -311,5 +338,12 @@ public class QueueManagerRS {
     private void logRequest() {
         LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 }

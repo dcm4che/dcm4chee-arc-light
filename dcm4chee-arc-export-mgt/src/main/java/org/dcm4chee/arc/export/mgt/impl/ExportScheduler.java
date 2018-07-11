@@ -45,7 +45,7 @@ public class ExportScheduler extends Scheduler {
     protected void execute() {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
         int fetchSize = arcDev.getExportTaskFetchSize();
-        while (ejb.scheduleExportTasks(fetchSize) == fetchSize)
+        while (getPollingInterval() != null && ejb.scheduleExportTasks(fetchSize) == fetchSize)
             ;
     }
 }

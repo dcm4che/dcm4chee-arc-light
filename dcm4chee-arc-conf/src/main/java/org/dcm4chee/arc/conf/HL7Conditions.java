@@ -107,8 +107,8 @@ public class HL7Conditions {
     private boolean match(HL7Segment msh, String hl7Field, Pattern pattern, boolean ne) {
         try {
             int index = Integer.parseInt(hl7Field.substring(4));
-            if (index >= 0) {
-                String value = msh.getField(index, null);
+            if (index > 0) {
+                String value = msh.getField(index-1, null);
                 if (ne ? (value != null && pattern.matcher(value).matches())
                           : (value == null || !pattern.matcher(value).matches()))
                     return false;

@@ -41,7 +41,6 @@
 
 package org.dcm4chee.arc.diff.impl;
 
-import org.dcm4che3.data.Attributes;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.entity.QueueMessage;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
@@ -50,25 +49,17 @@ import org.dcm4chee.arc.qmgt.QueueManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.MessageDriven;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @since Mar 2018
  */
-@MessageDriven(activationConfig = {
-        @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName = "destination", propertyValue = DiffService.JNDI_NAME),
-        @ActivationConfigProperty(propertyName = "maxSession", propertyValue = "1")
-})
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class DiffServiceMDB implements MessageListener {
     private static final Logger LOG = LoggerFactory.getLogger(DiffServiceMDB.class);

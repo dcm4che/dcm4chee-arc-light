@@ -53,6 +53,7 @@ import org.dcm4che3.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -64,6 +65,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public static final String AUDIT_UNKNOWN_STUDY_INSTANCE_UID = "1.2.40.0.13.1.15.110.3.165.1";
     public static final String AUDIT_UNKNOWN_PATIENT_ID = "<none>";
     public static final String JBOSS_SERVER_TEMP_DIR = "${jboss.server.temp.dir}";
+    public static final String DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT =
+            "DICOM/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
 
     private String defaultCharacterSet;
     private String fuzzyAlgorithmClass;
@@ -71,6 +74,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration seriesMetadataDelay;
     private Duration seriesMetadataPollingInterval;
     private int seriesMetadataFetchSize = 100;
+    private boolean purgeInstanceRecords;
     private Duration purgeInstanceRecordsDelay;
     private Duration purgeInstanceRecordsPollingInterval;
     private int purgeInstanceRecordsFetchSize = 100;
@@ -86,8 +90,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private int queryFetchSize = 100;
     private int queryMaxNumberOfResults = 0;
     private int qidoMaxNumberOfResults = 0;
+    private String wadoZIPEntryNameFormat = DEFAULT_WADO_ZIP_ENTRY_NAME_FORMAT;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
+    private String wadoCDA2HtmlTemplateURI;
     private String patientUpdateTemplateURI;
     private String importReportTemplateURI;
     private String scheduleProcedureTemplateURI;
@@ -153,6 +159,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired =
             AllowRejectionForDataRetentionPolicyExpired.EXPIRED_UNSET;
     private AcceptMissingPatientID acceptMissingPatientID = AcceptMissingPatientID.CREATE;
+    private AllowDeletePatient allowDeletePatient = AllowDeletePatient.WITHOUT_STUDIES;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently = AllowDeleteStudyPermanently.REJECTED;
     private AcceptConflictingPatientID acceptConflictingPatientID = AcceptConflictingPatientID.MERGED;
     private String[] retrieveAETitles = {};
@@ -167,7 +174,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private Duration hl7PSUTaskPollingInterval;
     private boolean hl7PSUMWL = false;
     private String auditRecordRepositoryURL;
-    private String elasticSearchURL;
     private String atna2JsonFhirTemplateURI;
     private String atna2XmlFhirTemplateURI;
     private Attributes.UpdatePolicy copyMoveUpdatePolicy;
@@ -186,6 +192,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String auditUnknownPatientID = AUDIT_UNKNOWN_PATIENT_ID;
     private String rejectionNoteStorageAET;
     private String uiConfigurationDeviceName;
+    private StgCmtPolicy stgCmtPolicy = StgCmtPolicy.OBJECT_CHECKSUM;
+    private boolean stgCmtUpdateLocationStatus;
+    private String[] stgCmtStorageIDs = {};
 
     private final HashSet<String> wadoSupportedSRClasses = new HashSet<>();
     private final EnumMap<Entity,AttributeFilter> attributeFilters = new EnumMap<>(Entity.class);
@@ -196,6 +205,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, QueueDescriptor> queueDescriptorMap = new HashMap<>();
     private final Map<String, ExporterDescriptor> exporterDescriptorMap = new HashMap<>();
     private final Map<String, RejectionNote> rejectionNoteMap = new HashMap<>();
+    private final Map<String, KeycloakServer> keycloakServerMap = new HashMap<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
     private final ArrayList<RSForwardRule> rsForwardRules = new ArrayList<>();
     private final ArrayList<HL7ForwardRule> hl7ForwardRules = new ArrayList<>();
@@ -207,6 +217,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final ArrayList<StoreAccessControlIDRule> storeAccessControlIDRules = new ArrayList<>();
     private final LinkedHashSet<String> hl7NoPatientCreateMessageTypes = new LinkedHashSet<>();
     private final Map<String,String> xRoadProperties = new HashMap<>();
+    private final Map<String,String> impaxReportProperties = new HashMap<>();
 
     private transient FuzzyStr fuzzyStr;
 
@@ -326,6 +337,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.seriesMetadataFetchSize =  greaterZero(seriesMetadataFetchSize, "seriesMetadataFetchSize");
     }
 
+    public boolean isPurgeInstanceRecords() {
+        return purgeInstanceRecords;
+    }
+
+    public void setPurgeInstanceRecords(boolean purgeInstanceRecords) {
+        this.purgeInstanceRecords = purgeInstanceRecords;
+    }
+
     public Duration getPurgeInstanceRecordsDelay() {
         return purgeInstanceRecordsDelay;
     }
@@ -403,6 +422,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return wadoSupportedSRClasses.contains(cuid);
     }
 
+    public String getWadoZIPEntryNameFormat() {
+        return wadoZIPEntryNameFormat;
+    }
+
+    public void setWadoZIPEntryNameFormat(String wadoZIPEntryNameFormat) {
+        this.wadoZIPEntryNameFormat = wadoZIPEntryNameFormat;
+    }
+
     public String getWadoSR2HtmlTemplateURI() {
         return wadoSR2HtmlTemplateURI;
     }
@@ -417,6 +444,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setWadoSR2TextTemplateURI(String wadoSR2TextTemplateURI) {
         this.wadoSR2TextTemplateURI = wadoSR2TextTemplateURI;
+    }
+
+    public String getWadoCDA2HtmlTemplateURI() {
+        return wadoCDA2HtmlTemplateURI;
+    }
+
+    public void setWadoCDA2HtmlTemplateURI(String wadoCDA2HtmlTemplateURI) {
+        this.wadoCDA2HtmlTemplateURI = wadoCDA2HtmlTemplateURI;
     }
 
     public String getPatientUpdateTemplateURI() {
@@ -1113,6 +1148,28 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return xRoadProperties.containsKey("endpoint");
     }
 
+    public Map<String, String> getImpaxReportProperties() {
+        return impaxReportProperties;
+    }
+
+    public void setImpaxReportProperty(String name, String value) {
+        impaxReportProperties.put(name, value);
+    }
+
+    public void setImpaxReportProperties(String[] ss) {
+        impaxReportProperties.clear();
+        for (String s : ss) {
+            int index = s.indexOf('=');
+            if (index < 0)
+                throw new IllegalArgumentException("Property in incorrect format : " + s);
+            setImpaxReportProperty(s.substring(0, index), s.substring(index+1));
+        }
+    }
+
+    public boolean hasImpaxReportProperties() {
+        return impaxReportProperties.containsKey("endpoint");
+    }
+
     public AttributeFilter getAttributeFilter(Entity entity) {
         AttributeFilter filter = attributeFilters.get(entity);
         if (filter == null)
@@ -1251,6 +1308,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
             list.add(descriptor);
         }
         return list;
+    }
+
+    public Stream<String> getStorageIDsOfCluster(String clusterID) {
+        return storageDescriptorMap.values().stream()
+                .filter(desc -> clusterID.equals(desc.getStorageClusterID()))
+                .map(StorageDescriptor::getStorageID);
     }
 
     public QueueDescriptor getQueueDescriptor(String queueName) {
@@ -1496,6 +1559,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.allowDeleteStudyPermanently = allowDeleteStudyPermanently;
     }
 
+    public AllowDeletePatient getAllowDeletePatient() {
+        return allowDeletePatient;
+    }
+
+    public void setAllowDeletePatient(AllowDeletePatient allowDeletePatient) {
+        this.allowDeletePatient = allowDeletePatient;
+    }
+
     public AcceptConflictingPatientID getAcceptConflictingPatientID() {
         return acceptConflictingPatientID;
     }
@@ -1518,14 +1589,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setAuditRecordRepositoryURL(String auditRecordRepositoryURL) {
         this.auditRecordRepositoryURL = auditRecordRepositoryURL;
-    }
-
-    public String getElasticSearchURL() {
-        return elasticSearchURL;
-    }
-
-    public void setElasticSearchURL(String elasticSearchURL) {
-        this.elasticSearchURL = elasticSearchURL;
     }
 
     public String getAudit2JsonFhirTemplateURI() {
@@ -1680,6 +1743,53 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.uiConfigurationDeviceName = uiConfigurationDeviceName;
     }
 
+    public StgCmtPolicy getStgCmtPolicy() {
+        return stgCmtPolicy;
+    }
+
+    public void setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
+        this.stgCmtPolicy = stgCmtPolicy;
+    }
+
+    public boolean isStgCmtUpdateLocationStatus() {
+        return stgCmtUpdateLocationStatus;
+    }
+
+    public void setStgCmtUpdateLocationStatus(boolean stgCmtUpdateLocationStatus) {
+        this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus;
+    }
+
+    public String[] getStgCmtStorageIDs() {
+        return stgCmtStorageIDs;
+    }
+
+    public void setStgCmtStorageIDs(String... stgCmtStorageIDs) {
+        this.stgCmtStorageIDs = stgCmtStorageIDs;
+    }
+
+    public Collection<KeycloakServer> getKeycloakServers() {
+        return keycloakServerMap.values();
+    }
+
+    public KeycloakServer getKeycloakServer(String keycloakServerID) {
+        return keycloakServerMap.get(keycloakServerID);
+    }
+
+    public KeycloakServer getKeycloakServerNotNull(String keycloakServerID) {
+        KeycloakServer keycloakServer = getKeycloakServer(keycloakServerID);
+        if (keycloakServer == null)
+            throw new IllegalArgumentException("No Keycloak Server configured with ID:" + keycloakServerID);
+        return keycloakServer;
+    }
+
+    public KeycloakServer removeKeycloakServer(String keycloakServerID) {
+        return keycloakServerMap.remove(keycloakServerID);
+    }
+
+    public void addKeycloakServer(KeycloakServer keycloakServer) {
+        keycloakServerMap.put(keycloakServer.getKeycloakServerID(), keycloakServer);
+    }
+
     @Override
     public void reconfigure(DeviceExtension from) {
         ArchiveDeviceExtension arcdev = (ArchiveDeviceExtension) from;
@@ -1690,6 +1800,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         seriesMetadataDelay = arcdev.seriesMetadataDelay;
         seriesMetadataPollingInterval = arcdev.seriesMetadataPollingInterval;
         seriesMetadataFetchSize = arcdev.seriesMetadataFetchSize;
+        purgeInstanceRecords = arcdev.purgeInstanceRecords;
         purgeInstanceRecordsDelay = arcdev.purgeInstanceRecordsDelay;
         purgeInstanceRecordsPollingInterval = arcdev.purgeInstanceRecordsPollingInterval;
         purgeInstanceRecordsFetchSize = arcdev.purgeInstanceRecordsFetchSize;
@@ -1704,8 +1815,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         sendPendingCMoveInterval = arcdev.sendPendingCMoveInterval;
         wadoSupportedSRClasses.clear();
         wadoSupportedSRClasses.addAll(arcdev.wadoSupportedSRClasses);
+        wadoZIPEntryNameFormat = arcdev.wadoZIPEntryNameFormat;
         wadoSR2HtmlTemplateURI = arcdev.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = arcdev.wadoSR2TextTemplateURI;
+        wadoCDA2HtmlTemplateURI = arcdev.wadoCDA2HtmlTemplateURI;
         patientUpdateTemplateURI = arcdev.patientUpdateTemplateURI;
         importReportTemplateURI = arcdev.importReportTemplateURI;
         scheduleProcedureTemplateURI = arcdev.scheduleProcedureTemplateURI;
@@ -1775,6 +1888,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         allowRejectionForDataRetentionPolicyExpired = arcdev.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = arcdev.acceptMissingPatientID;
         allowDeleteStudyPermanently = arcdev.allowDeleteStudyPermanently;
+        allowDeletePatient = arcdev.allowDeletePatient;
         retrieveAETitles = arcdev.retrieveAETitles;
         remapRetrieveURL = arcdev.remapRetrieveURL;
         remapRetrieveURLClientHost = arcdev.remapRetrieveURLClientHost;
@@ -1788,7 +1902,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUMWL = arcdev.hl7PSUMWL;
         acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
         auditRecordRepositoryURL = arcdev.auditRecordRepositoryURL;
-        elasticSearchURL = arcdev.elasticSearchURL;
         atna2JsonFhirTemplateURI = arcdev.atna2JsonFhirTemplateURI;
         atna2XmlFhirTemplateURI = arcdev.atna2XmlFhirTemplateURI;
         copyMoveUpdatePolicy = arcdev.copyMoveUpdatePolicy;
@@ -1807,6 +1920,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         queueTasksFetchSize = arcdev.queueTasksFetchSize;
         rejectionNoteStorageAET = arcdev.rejectionNoteStorageAET;
         uiConfigurationDeviceName = arcdev.uiConfigurationDeviceName;
+        stgCmtPolicy = arcdev.stgCmtPolicy;
+        stgCmtUpdateLocationStatus = arcdev.stgCmtUpdateLocationStatus;
+        stgCmtStorageIDs = arcdev.stgCmtStorageIDs;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);
         attributeSet.clear();
@@ -1841,7 +1957,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storeAccessControlIDRules.addAll(arcdev.storeAccessControlIDRules);
         rejectionNoteMap.clear();
         rejectionNoteMap.putAll(arcdev.rejectionNoteMap);
+        keycloakServerMap.clear();
+        keycloakServerMap.putAll(arcdev.keycloakServerMap);
         xRoadProperties.clear();
         xRoadProperties.putAll(arcdev.xRoadProperties);
+        impaxReportProperties.clear();
+        impaxReportProperties.putAll(arcdev.impaxReportProperties);
     }
 }

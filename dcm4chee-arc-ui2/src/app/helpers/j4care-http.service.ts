@@ -96,23 +96,14 @@ export class J4careHttpService{
             return this.getRealm();
         }else{
             if(!this.mainservice.global.notSecure){
-                if(_.hasIn(this.mainservice, "global.authentication.token") || this.mainservice.global.getRealmStateActive ){
-                        let timer = 100;
-                        if(this.tokenValid())
-                            timer = 0;
-                        return Observable.timer(timer).concatMap( d=>{
-                            this.token = this.mainservice.global.authentication.token;
-                            if(this.tokenValid())
-                                return Observable.of([]);
-                            else
-                                return this.getRealm()
-                        });
+                if(_.hasIn(this.mainservice, "global.authentication.token")){
+                    this.token = this.mainservice.global.authentication.token;
                 }else{
                     this.setValueInGlobal('getRealmStateActive',true);
                     return this.getRealm();
                 }
             }
-            // return Observable.of([]);
+            return Observable.of([]);
         }
     }
     tokenValid(){

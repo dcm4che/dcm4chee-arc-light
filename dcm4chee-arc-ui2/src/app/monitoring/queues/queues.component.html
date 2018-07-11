@@ -7,10 +7,9 @@
                     <div class="row">
                         <label for="queue" class="col-md-6 text-right control-label">Queue:</label>
                         <div class="col-md-6">
-                            <select id="queue" [(ngModel)]="queueName" class="col-md-12">
-                                <!-- <option ng-repeat="queue in queues" title="{{queue.description}}">{{queue.name}}</option> -->
-                                <option *ngFor="let queue of queues" title="{{queue.name}}" value="{{queue.name}}">{{queue.description}}</option>
-                            </select>
+                            <mat-select id="queue" [(ngModel)]="queueName" class="col-md-12" placeholder="Queue Name">
+                                <mat-option *ngFor="let queue of queues" title="{{queue.name}}" value="{{queue.name}}">{{queue.description}}</mat-option>
+                            </mat-select>
                         </div>
                     </div>
                     <div class="row">
@@ -61,7 +60,7 @@
                             <input type="text" [(ngModel)]="dicomDeviceName" class="col-md-12"/>
                         </div>
                     </div>
-                    <div class="row" *ngIf="isRole('admin')">
+                    <div class="row">
                         <div class="col-md-6">
                             <!--<button class="btn btn-danger col-md-12" (click)="flushBefore()">Flush before:</button>-->
                             <range-picker [model]="createdTime" (modelChange)="createdTime = $event" mode="range" placeholder="Created" dateFormat="yymmdd"></range-picker>
@@ -83,6 +82,32 @@
                             <button class="btn btn-default submit col-md-12" (click)="search(0)" title="Refresh">
                                 <span class="glyphicon glyphicon-refresh"></span>
                                 SUBMIT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter">
+                    <div class="filter_block auto_reloader">
+                        <table>
+                            <tr *ngFor="let status of Object.keys(statusValues)" [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
+                                <td>{{status}}:</td>
+                                <td *ngIf="!statusValues[status]?.loader">{{statusValues[status]?.count}}</td>
+                                <td *ngIf="statusValues[status]?.loader"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
+                            </tr>
+                        </table>
+                        <div class="option_block">
+                            <div class="interval_block">
+                                <label>Interval:</label>
+                                <input type="text" placeholder="Interval" [(ngModel)]="interval">
+                                <span>s</span>
+                            </div>
+                            <button class="btn-default submit" (click)="toggleAutoRefresh()">
+                                <div class="spinnter_container">
+                                    <span *ngIf="!timer.started" class="glyphicon glyphicon-refresh"></span>
+                                    <mat-progress-spinner *ngIf="timer.started" mode="indeterminate" [diameter]="20" ></mat-progress-spinner>
+                                </div>
+                                <span *ngIf="!timer.started">{{timer.startText}}</span>
+                                <span *ngIf="timer.started">{{timer.stopText}}</span>
                             </button>
                         </div>
                     </div>
@@ -132,7 +157,7 @@
                         </button>
                     </div>
                 </th>
-                <th>
+                <th  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                     <div class="action_block">
                         <input type="checkbox" (change)="checkAll($event)">
                         <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white" (click)="$event.preventDefault();executeAll('cancel')" href="" title="Cancel selected">
@@ -161,7 +186,7 @@
             <ng-container *ngFor="let match of matches">
                 <tr>
                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
-                    <td>
+                    <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
                         <input [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" type="checkbox" [(ngModel)]="match.checked">
                         <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href="" title="Show Properties">
                             <span class="glyphicon glyphicon-list"></span>

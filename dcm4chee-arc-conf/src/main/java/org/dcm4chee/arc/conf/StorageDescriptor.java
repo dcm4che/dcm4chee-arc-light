@@ -18,8 +18,13 @@ public final class StorageDescriptor {
     private URI storageURI;
     private String digestAlgorithm;
     private Availability instanceAvailability = Availability.ONLINE;
+    private String storageClusterID;
+    private String exportStorageID;
+    private String retrieveCacheStorageID;
+    private int retrieveCacheStorageMaxParallel = 10;
     private String externalRetrieveAETitle;
     private boolean readOnly;
+    private boolean noDeletionConstraint;
     private StorageThreshold storageThreshold;
     private final ArrayList<DeleterThreshold> deleterThresholds = new ArrayList<>();
     private final Map<String, String> properties = new HashMap<>();
@@ -89,6 +94,30 @@ public final class StorageDescriptor {
         this.externalRetrieveAETitle = externalRetrieveAETitle;
     }
 
+    public String getExportStorageID() {
+        return exportStorageID;
+    }
+
+    public void setExportStorageID(String exportStorageID) {
+        this.exportStorageID = exportStorageID;
+    }
+
+    public String getRetrieveCacheStorageID() {
+        return retrieveCacheStorageID;
+    }
+
+    public void setRetrieveCacheStorageID(String retrieveCacheStorageID) {
+        this.retrieveCacheStorageID = retrieveCacheStorageID;
+    }
+
+    public int getRetrieveCacheMaxParallel() {
+        return retrieveCacheStorageMaxParallel;
+    }
+
+    public void setRetrieveCacheMaxParallel(int retrieveCacheStorageMaxParallel) {
+        this.retrieveCacheStorageMaxParallel = retrieveCacheStorageMaxParallel;
+    }
+
     public boolean isReadOnly() {
         return readOnly;
     }
@@ -106,7 +135,8 @@ public final class StorageDescriptor {
     }
 
     public boolean hasDeleterThresholds() {
-        return !deleterThresholds.isEmpty();
+        return !deleterThresholds.isEmpty()
+                && (noDeletionConstraint || exportStorageID != null || externalRetrieveAETitle != null);
     }
 
     public String[] getDeleterThresholdsAsStrings() {
@@ -161,6 +191,14 @@ public final class StorageDescriptor {
         }
     }
 
+    public boolean isNoDeletionConstraint() {
+        return noDeletionConstraint;
+    }
+
+    public void setNoDeletionConstraint(boolean noDeletionConstraint) {
+        this.noDeletionConstraint = noDeletionConstraint;
+    }
+
     @Override
     public String toString() {
         return "Storage[id=" + storageID + ", uri=" + storageURI + ']';
@@ -173,4 +211,13 @@ public final class StorageDescriptor {
         }
         return storageIDs;
     }
+
+    public String getStorageClusterID() {
+        return storageClusterID;
+    }
+
+    public void setStorageClusterID(String storageClusterID) {
+        this.storageClusterID = storageClusterID;
+    }
+
 }

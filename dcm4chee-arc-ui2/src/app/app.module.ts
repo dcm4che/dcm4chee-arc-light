@@ -83,6 +83,10 @@ import {LoadingBarModule} from "@ngx-loading-bar/core";
 import {PermissionDeniedComponent} from "./helpers/permissions/permission-denied.component";
 import {CsvRetrieveService} from "./widgets/dialogs/csv-retrieve/csv-retrieve.service";
 import { StackedProgressComponent } from './helpers/stacked-progress/stacked-progress.component';
+import { DiffMonitorComponent } from './monitoring/diff-monitor/diff-monitor.component';
+import {DiffMonitorService} from "./monitoring/diff-monitor/diff-monitor.service";
+import { LargeIntFormatPipe } from './pipes/large-int-format.pipe';
+import { TableGeneratorComponent } from './helpers/table-generator/table-generator.component';
 
 @NgModule({
     declarations: [
@@ -131,6 +135,9 @@ import { StackedProgressComponent } from './helpers/stacked-progress/stacked-pro
         PermissionDirective,
         PermissionDeniedComponent,
         StackedProgressComponent,
+        DiffMonitorComponent,
+        LargeIntFormatPipe,
+        TableGeneratorComponent,
     ],
     imports: [
         BrowserModule,
@@ -174,6 +181,7 @@ import { StackedProgressComponent } from './helpers/stacked-progress/stacked-pro
             { path: 'monitoring/associations', component: AssociationsComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/storage-commitment', component: StorageCommitmentComponent,  canActivate: [AuthGuard] },
             { path: 'monitoring/storage-systems', component: StorageSystemsComponent,  canActivate: [AuthGuard] },
+            { path: 'monitoring/diff', component: DiffMonitorComponent,  canActivate: [AuthGuard] },
             { path: 'device/devicelist', component: DevicesComponent,  canActivate: [AuthGuard] },
             { path: 'device/aelist', component: AeListComponent,  canActivate: [AuthGuard] },
             { path: 'device/hl7applications', component: Hl7ApplicationsComponent,  canActivate: [AuthGuard] },
@@ -214,6 +222,7 @@ import { StackedProgressComponent } from './helpers/stacked-progress/stacked-pro
         AuthGuard,
         PermissionService,
         CsvRetrieveService,
+        DiffMonitorService,
         {provide: LOCALE_ID, useValue: 'en-US' }
     ],
     bootstrap: [AppComponent]

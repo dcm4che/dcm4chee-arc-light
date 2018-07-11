@@ -46,16 +46,16 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Priority;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.AttributeSet;
-import org.dcm4chee.arc.conf.QueryRetrieveView;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Location;
 import org.dcm4chee.arc.entity.Series;
 import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.store.InstanceLocations;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -84,6 +84,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private String moveOriginatorAETitle;
     private String destinationAETitle;
     private ApplicationEntity destinationAE;
+    private StorageDescriptor destinationStorage;
     private Throwable exception;
     private IDWithIssuer[] patientIDs = {};
     private String[] studyInstanceUIDs = {};
@@ -112,6 +113,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private boolean retryFailedRetrieve;
     private AttributeSet metadataFilter;
     private HttpServletRequestInfo httpServletRequestInfo;
+    private CopyToRetrieveCacheTask copyToRetrieveCacheTask;
 
     RetrieveContextImpl(RetrieveService retrieveService, ArchiveAEExtension arcAE, String localAETitle,
                         QueryRetrieveView qrView) {
@@ -257,6 +259,16 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public StorageDescriptor getDestinationStorage() {
+        return destinationStorage;
+    }
+
+    @Override
+    public void setDestinationStorage(StorageDescriptor destinationStorage) {
+        this.destinationStorage = destinationStorage;
+    }
+
+    @Override
     public Throwable getException() {
         return exception;
     }
@@ -281,7 +293,7 @@ class RetrieveContextImpl implements RetrieveContext {
         return httpServletRequestInfo != null
                 ? httpServletRequestInfo.requesterHost
                 : requestAssociation != null
-                    ? requestAssociation.getSocket().getInetAddress().getHostName()
+                    ? ReverseDNS.hostNameOf(requestAssociation.getSocket().getInetAddress())
                     : null;
     }
 
@@ -292,7 +304,7 @@ class RetrieveContextImpl implements RetrieveContext {
                 : httpServletRequestInfo != null
                     ? httpServletRequestInfo.requesterHost
                     : storeAssociation != null
-                        ? storeAssociation.getSocket().getInetAddress().getHostName()
+                        ? ReverseDNS.hostNameOf(storeAssociation.getSocket().getInetAddress())
                         : null;
     }
 
@@ -596,7 +608,7 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public boolean isConsiderPurgedInstances() {
         return arcAE != null
-                && arcAE.getArchiveDeviceExtension().getPurgeInstanceRecordsPollingInterval() != null
+                && arcAE.getArchiveDeviceExtension().isPurgeInstanceRecords()
                 && (qrLevel != QueryRetrieveLevel2.IMAGE || seriesInstanceUIDs.length != 0);
     }
 
@@ -613,5 +625,36 @@ class RetrieveContextImpl implements RetrieveContext {
     @Override
     public void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo) {
         this.httpServletRequestInfo = httpServletRequestInfo;
+    }
+
+    @Override
+    public boolean copyToRetrieveCache(InstanceLocations match) {
+        if (match == null) {
+            if (copyToRetrieveCacheTask != null)
+                copyToRetrieveCacheTask.schedule(null);
+            return false;
+        }
+        ArchiveDeviceExtension arcdev = retrieveService.getArchiveDeviceExtension();
+        if (match.getLocations().stream().anyMatch(location ->
+                arcdev.getStorageDescriptorNotNull(location.getStorageID())
+                        .getRetrieveCacheStorageID() == null))
+            return false;
+
+        return copyToRetrieveCacheTask(match).schedule(match);
+
+    }
+
+    private CopyToRetrieveCacheTask copyToRetrieveCacheTask(InstanceLocations match) {
+        CopyToRetrieveCacheTask task = copyToRetrieveCacheTask;
+        if (task == null) {
+            retrieveService.getDevice().execute(task = new CopyToRetrieveCacheTask(this, match));
+            copyToRetrieveCacheTask = task;
+        }
+        return task;
+    }
+
+    @Override
+    public InstanceLocations copiedToRetrieveCache() {
+        return copyToRetrieveCacheTask != null ? copyToRetrieveCacheTask.copiedToRetrieveCache() : null;
     }
 }

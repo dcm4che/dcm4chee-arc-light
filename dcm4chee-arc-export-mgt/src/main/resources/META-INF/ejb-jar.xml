@@ -18,7 +18,7 @@
         </activation-config-property>
         <activation-config-property>
           <activation-config-property-name>maxSession</activation-config-property-name>
-          <activation-config-property-value>5</activation-config-property-value>
+          <activation-config-property-value>${jms.queue.Export1.consumer-count:1}</activation-config-property-value>
         </activation-config-property>
       </activation-config>
     </message-driven>
@@ -36,7 +36,7 @@
         </activation-config-property>
         <activation-config-property>
           <activation-config-property-name>maxSession</activation-config-property-name>
-          <activation-config-property-value>1</activation-config-property-value>
+          <activation-config-property-value>${jms.queue.Export2.consumer-count:1}</activation-config-property-value>
         </activation-config-property>
       </activation-config>
     </message-driven>
@@ -54,7 +54,43 @@
         </activation-config-property>
         <activation-config-property>
           <activation-config-property-name>maxSession</activation-config-property-name>
-          <activation-config-property-value>1</activation-config-property-value>
+          <activation-config-property-value>${jms.queue.Export3.consumer-count:1}</activation-config-property-value>
+        </activation-config-property>
+      </activation-config>
+    </message-driven>
+    <message-driven>
+      <ejb-name>ExportManagerMDB4</ejb-name>
+      <ejb-class>org.dcm4chee.arc.export.mgt.impl.ExportManagerMDB</ejb-class>
+      <activation-config>
+        <activation-config-property>
+          <activation-config-property-name>destinationType</activation-config-property-name>
+          <activation-config-property-value>javax.jms.Queue</activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>destination</activation-config-property-name>
+          <activation-config-property-value>jms/queue/Export4</activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>maxSession</activation-config-property-name>
+          <activation-config-property-value>${jms.queue.Export4.consumer-count:1}</activation-config-property-value>
+        </activation-config-property>
+      </activation-config>
+    </message-driven>
+    <message-driven>
+      <ejb-name>ExportManagerMDB5</ejb-name>
+      <ejb-class>org.dcm4chee.arc.export.mgt.impl.ExportManagerMDB</ejb-class>
+      <activation-config>
+        <activation-config-property>
+          <activation-config-property-name>destinationType</activation-config-property-name>
+          <activation-config-property-value>javax.jms.Queue</activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>destination</activation-config-property-name>
+          <activation-config-property-value>jms/queue/Export5</activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>maxSession</activation-config-property-name>
+          <activation-config-property-value>${jms.queue.Export5.consumer-count:1}</activation-config-property-value>
         </activation-config-property>
       </activation-config>
     </message-driven>

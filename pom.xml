@@ -46,7 +46,7 @@
 
   <groupId>org.dcm4che.dcm4chee-arc</groupId>
   <artifactId>dcm4chee-arc-parent</artifactId>
-  <version>5.13.1</version>
+  <version>5.13.3</version>
   <packaging>pom</packaging>
 
   <properties>
@@ -55,20 +55,21 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     <!-- Define the version of the JBoss BOMs we want to import to specify tested stacks. -->
-    <wildfly-javaee7.version>12.0.0.Final</wildfly-javaee7.version>
-    <jbossws-cxf-client.version>5.2.0.Final</jbossws-cxf-client.version>
-    <apache-cxf.version>3.2.2</apache-cxf.version>
+    <wildfly-javaee7.version>13.0.0.Final</wildfly-javaee7.version>
+    <jbossws-cxf-client.version>5.2.1.Final</jbossws-cxf-client.version>
+    <apache-cxf.version>3.2.4-jbossorg-1</apache-cxf.version>
     <maven-war-plugin.version>3.2.0</maven-war-plugin.version>
+    <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
+    <maven-ear-plugin.version>3.0.1</maven-ear-plugin.version>
+    <download-maven-plugin.version>1.4.0</download-maven-plugin.version>
     <jaxws-tools-maven-plugin.version>1.2.2.Final</jaxws-tools-maven-plugin.version>
     <!-- Versions -->
     <dcm4che.version>${project.version}</dcm4che.version>
     <jai_imageio.version>1.2-pre-dr-b04</jai_imageio.version>
-    <hibernate.version>5.1.10.Final</hibernate.version>
-    <jboss-ejb3-ext-api.version>2.2.0.Final</jboss-ejb3-ext-api.version>
-    <resteasy.version>3.5.0.Final</resteasy.version>
-    <jclouds.version>2.0.2</jclouds.version>
+    <keycloak.version>4.0.0.Final</keycloak.version>
+    <jclouds.version>2.1.0</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
-    <querydsl.version>4.1.4</querydsl.version>
+    <querydsl.version>4.2.1</querydsl.version>
     <jdbc-jboss-modules.version>1.0.0</jdbc-jboss-modules.version>
     <glassfish-json.version>1.0.4</glassfish-json.version>
     <junit.version>4.12</junit.version>
@@ -98,6 +99,10 @@
     <repository>
       <id>jboss-earlyaccess-repository</id>
       <url>http://maven.repository.redhat.com/earlyaccess/all/</url>
+    </repository>
+    <repository>
+      <id>jboss-releases</id>
+      <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
     </repository>
     <repository>
       <id>jboss-thirdparty-repository</id>
@@ -153,9 +158,10 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.glassfish</groupId>
-        <artifactId>javax.json</artifactId>
-        <version>${glassfish-json.version}</version>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-admin-client</artifactId>
+        <version>${keycloak.version}</version>
+        <scope>provided</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -294,6 +300,12 @@
       <version>${dcm4che.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.dcm4che</groupId>
+      <artifactId>dcm4che-xdsi</artifactId>
+      <version>${dcm4che.version}</version>
+      <scope>provided</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.glassfish</groupId>
@@ -305,21 +317,24 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>${hibernate.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api</artifactId>
-      <version>${jboss-ejb3-ext-api.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-multipart-provider</artifactId>
-      <version>${resteasy.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -426,9 +441,11 @@
     <module>dcm4chee-arc-conf-rs</module>
     <module>dcm4chee-arc-conf-test</module>
     <module>dcm4chee-arc-conf-ui</module>
+    <module>dcm4chee-arc-cors</module>
     <module>dcm4chee-arc-ctrl</module>
     <module>dcm4chee-arc-delete</module>
     <module>dcm4chee-arc-diff</module>
+    <module>dcm4chee-arc-diff-rs</module>
     <module>dcm4chee-arc-dimse-rs</module>
     <module>dcm4chee-arc-entity</module>
     <module>dcm4chee-arc-event</module>
@@ -438,6 +455,7 @@
     <module>dcm4chee-arc-export-rs</module>
     <module>dcm4chee-arc-export-study-size</module>
     <module>dcm4chee-arc-export-query-attrs</module>
+    <module>dcm4chee-arc-export-storage</module>
     <module>dcm4chee-arc-export-wado</module>
     <module>dcm4chee-arc-export-xdsi</module>
     <module>dcm4chee-arc-hl7</module>
@@ -445,9 +463,12 @@
     <module>dcm4chee-arc-hl7-rs</module>
     <module>dcm4chee-arc-ian-scu</module>
     <module>dcm4chee-arc-id</module>
+    <module>dcm4chee-arc-impax-report</module>
+    <module>dcm4chee-arc-impax-report-rs</module>
     <module>dcm4chee-arc-iocm-rs</module>
     <module>dcm4chee-arc-issuer</module>
     <module>dcm4chee-arc-keycloak</module>
+    <module>dcm4chee-arc-keycloak-rs</module>
     <module>dcm4chee-arc-metadata</module>
     <module>dcm4chee-arc-mima</module>
     <module>dcm4chee-arc-monitor-rs</module>
@@ -490,14 +511,13 @@
     <module>dcm4chee-arc-wado</module>
     <module>dcm4chee-arc-war</module>
     <module>dcm4chee-arc-ui2</module>
-    <module>dcm4chee-arc-xdsi</module>
     <module>dcm4chee-arc-xroad</module>
     <module>dcm4chee-arc-xroad-rs</module>
+    <module>dcm4chee-arc-xsl-cda</module>
     <module>dcm4chee-arc-ear</module>
     <module>dcm4chee-arc-assembly</module>
     <module>dcm4chee-arr-proxy</module>
     <module>dcm4chee-arr-query</module>
-      <module>dcm4chee-arc-diff-rs</module>
   </modules>
 
   <build>

@@ -173,6 +173,9 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
                     .setMaxResults(seriesFetchSize)
                     .getResultList();
             for (Series series : seriesList) {
+                if (getPollingInterval() == null)
+                    return;
+
                 try {
                     reject(ae, series.getStudy().getStudyInstanceUID(), series.getSeriesInstanceUID(), rn, rejectionNoteObjectStorageID);
                 } catch (IOException e) {
@@ -191,6 +194,9 @@ public class DeleteExpiredStudiesScheduler extends Scheduler {
                     .setMaxResults(studyFetchSize)
                     .getResultList();
             for (Study study : studies) {
+                if (getPollingInterval() == null)
+                    return;
+
                 try {
                     reject(ae, study.getStudyInstanceUID(), null, rn, rejectionNoteObjectStorageID);
                 } catch (IOException e) {

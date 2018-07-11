@@ -80,7 +80,13 @@ public class RSForward {
             try {
                 if (!request.getRemoteAddr().equals(
                         InetAddress.getByName(URI.create(baseURI).getHost()).getHostAddress())) {
-                    rsClient.scheduleRequest(getMethod(rsOp), mkForwardURI(baseURI, rsOp, attrs, request), toContent(attrs));
+                    rsClient.scheduleRequest(
+                            getMethod(rsOp),
+                            mkForwardURI(baseURI, rsOp, attrs, request),
+                            toContent(attrs),
+                            rule.getKeycloakServerID(),
+                            rule.isTlsAllowAnyHostname(),
+                            rule.isTlsDisableTrustManager());
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to apply {}:\n", rule, e);
@@ -95,7 +101,13 @@ public class RSForward {
             try {
                 if (!request.getRemoteAddr().equals(
                         InetAddress.getByName(URI.create(baseURI).getHost()).getHostAddress())) {
-                    rsClient.scheduleRequest(getMethod(rsOp), mkForwardURI(baseURI, rsOp, null, request), in);
+                    rsClient.scheduleRequest(
+                            getMethod(rsOp),
+                            mkForwardURI(baseURI, rsOp, null, request),
+                            in,
+                            rule.getKeycloakServerID(),
+                            rule.isTlsAllowAnyHostname(),
+                            rule.isTlsDisableTrustManager());
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to apply {}:\n", rule, e);
@@ -142,11 +154,8 @@ public class RSForward {
             case RejectStudy:
             case RejectSeries:
             case RejectInstance:
-            case CopyInstances:
-            case MoveInstances:
             case CreateMWL:
             case UpdateMWL:
-            case LinkInstancesWithMWL:
                 method = "POST";
                 break;
             case DeletePatient:

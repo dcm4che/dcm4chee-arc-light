@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
+import {Component, OnInit, ViewContainerRef, OnDestroy} from '@angular/core';
 import {Http} from '@angular/http';
 import {QueuesService} from './queues.service';
 import {AppService} from '../../app.service';
@@ -12,12 +12,13 @@ import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {errorHandler} from "@angular/platform-browser/src/browser";
 import {LoadingBarService} from "@ngx-loading-bar/core";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-queues',
   templateUrl: './queues.component.html'
 })
-export class QueuesComponent implements OnInit{
+export class QueuesComponent implements OnInit, OnDestroy{
     matches = [];
     limit = 20;
     queues = [];
@@ -49,6 +50,25 @@ export class QueuesComponent implements OnInit{
         }
     ];
     allActionsActive = [];
+    urlParam;
+    statusValues = {};
+    refreshInterval;
+    interval = 10;
+    Object = Object;
+    tableHovered = false;
+    statuses = [
+        "SCHEDULED",
+        "IN PROCESS",
+        "COMPLETED",
+        "WARNING",
+        "FAILED",
+        "CANCELED"
+    ];
+    timer = {
+        started:false,
+        startText:"Start Auto Refresh",
+        stopText:"Stop Auto Refresh"
+    };
     constructor(
         public $http:J4careHttpService,
         public service: QueuesService,
@@ -57,7 +77,8 @@ export class QueuesComponent implements OnInit{
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
         public config: MatDialogConfig,
-        private httpErrorHandler:HttpErrorHandler
+        private httpErrorHandler:HttpErrorHandler,
+        private route: ActivatedRoute
     ) {};
     ngOnInit(){
         this.initCheck(10);
@@ -65,7 +86,12 @@ export class QueuesComponent implements OnInit{
     initCheck(retries){
         let $this = this;
         if(_.hasIn(this.mainservice,"global.authentication") || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
-            this.init();
+            this.route.queryParams.subscribe(params => {
+                this.urlParam = Object.assign({},params);
+                if(this.urlParam["queueName"])
+                    this.queueName = this.urlParam["queueName"];
+                this.init();
+            });
         }else{
             if (retries){
                 setTimeout(()=>{
@@ -107,7 +133,7 @@ export class QueuesComponent implements OnInit{
                         this.service.cancelAll(filter,this.queueName).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.count + ' queues deleted successfully!',
+                                'text': res.count + ' tasks deleted successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();
@@ -129,7 +155,7 @@ export class QueuesComponent implements OnInit{
                         this.service.rescheduleAll(filter,this.queueName).subscribe((res)=>{
                             this.mainservice.setMessage({
                                 'title': 'Info',
-                                'text': res.count + ' queues rescheduled successfully!',
+                                'text': res.count + ' tasks rescheduled successfully!',
                                 'status': 'info'
                             });
                             this.cfpLoadingBar.complete();
@@ -170,6 +196,12 @@ export class QueuesComponent implements OnInit{
         this.initQuery();
         // this.before = new Date();
         let $this = this;
+        this.statuses.forEach(status =>{
+            this.statusValues[status] = {
+                count: 0,
+                loader: false
+            };
+        });
         if (!this.mainservice.user){
             // console.log("in if studies ajax");
             this.mainservice.user = this.mainservice.getUserInfo().share();
@@ -191,6 +223,9 @@ export class QueuesComponent implements OnInit{
                                 }
                             }
                         };
+                        if(this.urlParam){
+                            this.search(0);
+                        }
                     },
                     (response) => {
                         // $this.user = $this.user || {};
@@ -213,6 +248,40 @@ export class QueuesComponent implements OnInit{
             this.user = this.mainservice.user;
             this.isRole = this.mainservice.isRole;
         }
+    }
+    toggleAutoRefresh(){
+        this.timer.started = !this.timer.started;
+        if(this.timer.started){
+            this.getCounts();
+            this.refreshInterval = setInterval(()=>{
+                this.getCounts();
+            },this.interval*1000);
+        }else
+            clearInterval(this.refreshInterval);
+    }
+    tableMousEnter(){
+        this.tableHovered = true;
+    }
+    tableMousLeave(){
+        this.tableHovered = false;
+    }
+    getCounts(){
+        if(!this.tableHovered)
+            this.search(0);
+        Object.keys(this.statusValues).forEach(status=>{
+            this.statusValues[status].loader = true;
+            this.service.getCount(this.queueName, status, undefined, undefined, this.dicomDeviceName, this.createdTime,this.updatedTime, this.batchID, '').subscribe((count)=>{
+                this.statusValues[status].loader = false;
+                try{
+                    this.statusValues[status].count = count.count;
+                }catch (e){
+                    this.statusValues[status].count = "";
+                }
+            },(err)=>{
+                this.statusValues[status].loader = false;
+                this.statusValues[status].count = "!";
+            });
+        });
     }
     filterKeyUp(e){
         let code = (e.keyCode ? e.keyCode : e.which);
@@ -430,7 +499,8 @@ export class QueuesComponent implements OnInit{
             .subscribe((res) => {
                 $this.getDevices();
                 $this.queues = res;
-                $this.queueName = res[0].name;
+                if(!this.urlParam && !this.queueName)
+                    $this.queueName = res[0].name;
                 $this.cfpLoadingBar.complete();
             });
     }
@@ -439,10 +509,17 @@ export class QueuesComponent implements OnInit{
         this.service.getDevices().subscribe(devices=>{
             this.cfpLoadingBar.complete();
             this.devices = devices.filter(dev => dev.hasArcDevExt);
+            if(this.urlParam)
+                this.search(0);
         },(err)=>{
             this.cfpLoadingBar.complete();
             console.error("Could not get devices",err);
         });
     }
-
+    ngOnDestroy(){
+        if(this.timer.started){
+            this.timer.started = false;
+            clearInterval(this.refreshInterval);
+        }
+    }
 }

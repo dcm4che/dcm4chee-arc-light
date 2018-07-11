@@ -20,7 +20,15 @@ public interface Storage extends Closeable {
 
     boolean isAccessable();
 
+    boolean exists(ReadContext ctx);
+
+    long getContentLength(ReadContext ctx) throws IOException;
+
+    byte[] getContentMD5(ReadContext ctx) throws IOException;
+
     OutputStream openOutputStream(WriteContext ctx) throws IOException;
+
+    void copy(InputStream in, WriteContext ctx) throws IOException;
 
     long getUsableSpace() throws IOException;
 

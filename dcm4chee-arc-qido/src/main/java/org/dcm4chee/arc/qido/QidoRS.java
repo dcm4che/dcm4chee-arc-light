@@ -140,12 +140,6 @@ public class QidoRS {
     @Pattern(regexp = "true|false")
     private String retrievefailed;
 
-    @QueryParam("SendingApplicationEntityTitleOfSeries")
-    private String sendingApplicationEntityTitleOfSeries;
-
-    @QueryParam("StudyReceiveDateTime")
-    private String studyReceiveDateTime;
-
     @QueryParam("ExternalRetrieveAET")
     private String externalRetrieveAET;
 
@@ -481,8 +475,6 @@ public class QidoRS {
         queryParam.setWithoutStudies(withoutstudies == null || Boolean.parseBoolean(withoutstudies));
         queryParam.setIncomplete(Boolean.parseBoolean(incomplete));
         queryParam.setRetrieveFailed(Boolean.parseBoolean(retrievefailed));
-        queryParam.setSendingApplicationEntityTitleOfSeries(sendingApplicationEntityTitleOfSeries);
-        queryParam.setStudyReceiveDateTime(studyReceiveDateTime);
         queryParam.setExternalRetrieveAET(externalRetrieveAET);
         queryParam.setExternalRetrieveAETNot(externalRetrieveAETNot);
         QueryContext ctx = service.newQueryContextQIDO(request, method, ae, queryParam);

@@ -23,10 +23,15 @@ update queue_msg set device_name = 'dcm4chee-arc'
 
 -- may be already applied on running archive 5.11 to minimize downtime
 -- and re-applied on stopped archive only on series inserted after the previous update (where series.pk > xxx)
-update series set (sop_cuid, tsuid) = (
-  select sop_cuid, tsuid
+update series set sop_cuid = (
+  select sop_cuid
+  from instance
+  where series_fk = series.pk limit 1);
+
+update series set tsuid = (
+  select tsuid
   from instance join location on instance_fk = instance.pk
-  where series_fk = series.pk and object_type = 0 limit 1 );
+  where series_fk = series.pk and object_type = 0 limit 1);
 
 alter table queue_msg alter device_name set not null;
 alter table series

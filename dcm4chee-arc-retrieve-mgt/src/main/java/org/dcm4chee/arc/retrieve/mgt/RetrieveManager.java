@@ -59,7 +59,7 @@ public interface RetrieveManager {
 
     Outcome cmove(int priority, ExternalRetrieveContext ctx, QueueMessage queueMessage) throws Exception;
 
-    void scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID) throws QueueSizeLimitExceededException;
+    boolean scheduleRetrieveTask(int priority, ExternalRetrieveContext ctx, String batchID) throws QueueSizeLimitExceededException;
 
     RetrieveTaskQuery listRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask,
                                         OrderSpecifier<Date> order, int offset, int limit);
@@ -73,11 +73,9 @@ public interface RetrieveManager {
     long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
-    boolean rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException, DifferentDeviceException;
+    String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent);
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
-
-    List<Long> getRetrieveTaskPks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit);
 
     List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
                                             OrderSpecifier<Date> order, int offset, int limit);

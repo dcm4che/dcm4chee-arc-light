@@ -45,6 +45,7 @@ import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
@@ -181,7 +182,7 @@ public class RetrieveRS {
             Attributes cmd = rsp.getCommand();
             instancesRetrievedEvent.fire(
                     createExtRetrieveCtx(destAET, keys)
-                    .setRemoteHostName(as.getSocket().getInetAddress().getHostName())
+                    .setRemoteHostName(ReverseDNS.hostNameOf(as.getSocket().getInetAddress()))
                     .setResponse(cmd));
             return status(cmd).entity(entity(cmd)).build();
         } catch (Exception e) {

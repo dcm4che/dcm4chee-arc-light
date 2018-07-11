@@ -20,6 +20,6 @@ update queue_msg set priority = 4;
 
 alter table study modify study_size not null;
 alter table series modify series_size not null;
-alter table queue_msg priority not null;
+alter table queue_msg modify priority not null;
 
 create index UK_q7vxiaj1q6ojfxdq1g9jjxgqv on study (study_size);

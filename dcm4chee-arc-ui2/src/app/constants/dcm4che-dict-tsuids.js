@@ -50,7 +50,7 @@ DCM4CHE.TransferSyntax = (function (dictionary) {
 "1.2.840.10008.1.2.4.107":"HEVC/H.265 Main Profile / Level 5.1",
 "1.2.840.10008.1.2.4.108":"HEVC/H.265 Main 10 Profile / Level 5.1",
 "1.2.840.10008.1.2.5":"RLE Lossless",
-"1.2.840.10008.1.2.6.1":"RFC 2557 MIME encapsulation",
-"1.2.840.10008.1.2.6.2":"XML Encoding",
+"1.2.840.10008.1.2.6.1":"RFC 2557 MIME encapsulation (Retired)",
+"1.2.840.10008.1.2.6.2":"XML Encoding (Retired)",
 "1.2.840.10008.1.20":"Papyrus 3 Implicit VR Little Endian (Retired)"
 }));

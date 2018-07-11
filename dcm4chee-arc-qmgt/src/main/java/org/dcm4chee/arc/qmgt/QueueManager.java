@@ -52,6 +52,7 @@ import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Sep 2015
  */
 public interface QueueManager {
@@ -76,19 +77,20 @@ public interface QueueManager {
     long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prevStatus)
             throws IllegalTaskStateException;
 
-    boolean rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException;
+    long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prevStatus)
+            throws IllegalTaskStateException;
+
+    String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent);
 
     boolean deleteTask(String msgId, QueueMessageEvent queueEvent);
 
-    boolean rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException;
+    String rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent);
 
     int deleteTasks(String queueName, Predicate matchQueueMessage);
 
-    List<QueueMessage> search(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit);
-
     long countTasks(Predicate matchQueueMessage);
 
-    List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit);
+    List<String> listDistinctDeviceNames(Predicate matchQueueMessage);
+
+    QueueMessageQuery listQueueMessages(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit);
 }

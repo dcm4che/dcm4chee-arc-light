@@ -48,13 +48,18 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.*;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.SafeClose;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.TagUtils;
+import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.diff.DiffContext;
 import org.dcm4chee.arc.diff.DiffService;
 import org.dcm4chee.arc.diff.DiffSCU;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
 import org.dcm4chee.arc.query.util.QueryAttributes;
 import org.dcm4chee.arc.validation.constraints.ValidUriInfo;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +78,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
+import java.io.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -134,7 +140,16 @@ public class DiffRS {
     private String priority;
 
     @QueryParam("queue")
-    private boolean queue;
+    @Pattern(regexp = "true|false")
+    private String queue;
+
+    @QueryParam("ForceQueryByStudyUID")
+    @ValidValueOf(type = Duration.class)
+    private String forceQueryByStudyUID;
+
+    @QueryParam("SplitStudyDateRange")
+    @ValidValueOf(type = Duration.class)
+    private String splitStudyDateRange;
 
     @Override
     public String toString() {
@@ -145,10 +160,12 @@ public class DiffRS {
     @NoCache
     @Path("/studies")
     @Produces("application/dicom+json,application/json")
-    public void compareStudies(@Suspended AsyncResponse ar) throws Exception {
+    public void compareStudies(@Suspended AsyncResponse ar) {
+        logRequest();
         try {
             DiffContext ctx = createDiffContext();
-            if (queue) {
+            ctx.setQueryString(request.getQueryString(), uriInfo.getQueryParameters());
+            if (Boolean.parseBoolean(queue)) {
                 diffService.scheduleDiffTask(ctx);
                 ar.resume(Response.accepted().build());
                 return;
@@ -175,7 +192,7 @@ public class DiffRS {
             throw new WebApplicationException(errResponse(
                     errorMessage(e.getStatus(), e.getMessage()), Response.Status.BAD_GATEWAY));
         } catch (Exception e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -184,8 +201,10 @@ public class DiffRS {
     @Path("/studies/count")
     @Produces("application/json")
     public void countDiffs(@Suspended AsyncResponse ar) {
+        logRequest();
         try {
             DiffContext ctx = createDiffContext();
+            ctx.setQueryString(request.getQueryString(), uriInfo.getQueryParameters());
             DiffSCU diffSCU = diffService.createDiffSCU(ctx);
             ar.register((CompletionCallback) throwable -> {
                 SafeClose.close(diffSCU);
@@ -205,24 +224,72 @@ public class DiffRS {
             throw new WebApplicationException(errResponse(
                     errorMessage(e.getStatus(), e.getMessage()), Response.Status.BAD_GATEWAY));
         } catch (Exception e) {
-            throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.BAD_GATEWAY));
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
+    @POST
+    @Path("/studies/csv:{field}")
+    @Consumes("text/csv")
+    @Produces("application/json")
+    public Response compareStudiesFromCSV(
+            @PathParam("field") int field,
+            InputStream in) {
+        logRequest();
+        Response.Status errorStatus = Response.Status.BAD_REQUEST;
+        if (field < 1)
+            return Response.status(errorStatus)
+                    .entity("CSV field for Study Instance UID should be greater than or equal to 1").build();
+
+        int count = 0;
+        String warning = null;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String studyUID = StringUtils.split(line, ',')[field - 1].replaceAll("\"", "");
+                DiffContext ctx = createDiffContext();
+                if (count > 0 || UIDUtils.isValid(studyUID)) {
+                    ctx.setQueryString(
+                            "StudyInstanceUID=" + studyUID,
+                            uriInfo.getQueryParameters());
+                    diffService.scheduleDiffTask(ctx);
+                    count++;
+                }
+            }
+        } catch (QueueSizeLimitExceededException e) {
+            errorStatus = Response.Status.SERVICE_UNAVAILABLE;
+            warning = e.getMessage();
+        } catch (Exception e) {
+            warning = e.getMessage();
+        }
+
+        if (warning == null)
+            return count > 0
+                    ? Response.accepted(count(count)).build()
+                    : Response.noContent().header("Warning", "Empty file").build();
+
+        Response.ResponseBuilder builder = Response.status(errorStatus)
+                .header("Warning", warning);
+        if (count > 0)
+            builder.entity(count(count));
+        return builder.build();
+    }
+
     private DiffContext createDiffContext() throws ConfigurationException {
-        LOG.info("Process GET {} from {}@{}",
-                request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         return new DiffContext()
                 .setHttpServletRequestInfo(HttpServletRequestInfo.valueOf(request))
                 .setLocalAE(checkAE(aet, device.getApplicationEntity(aet, true)))
                 .setPrimaryAE(checkAE(externalAET, aeCache.get(externalAET)))
-                .setSecondaryAE(checkAE(originalAET, aeCache.get(originalAET)))
-                .setQueryString(request.getQueryString(), uriInfo.getQueryParameters());
+                .setSecondaryAE(checkAE(originalAET, aeCache.get(originalAET)));
     }
 
     private static String errorMessage(int status, String errorComment) {
         String statusAsString = statusAsString(status);
         return errorComment == null ? statusAsString : statusAsString + " - " + errorComment;
+    }
+
+    private static String count(int count) {
+        return "{\"count\":" + count + '}';
     }
 
     private static String statusAsString(int status) {
@@ -284,5 +351,15 @@ public class DiffRS {
         };
     }
 
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}", request.getMethod(), request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+    }
 
 }

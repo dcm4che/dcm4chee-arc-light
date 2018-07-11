@@ -160,7 +160,7 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
         String localAET = as.getLocalAET();
         String remoteAET = as.getRemoteAET();
         try {
-            as.getApplicationEntity().findCompatibelConnection(aeCache.findApplicationEntity(remoteAET));
+            as.getApplicationEntity().findCompatibleConnection(aeCache.findApplicationEntity(remoteAET));
             scheduleNEventReport(localAET, remoteAET, actionInfo);
         } catch (ConfigurationNotFoundException e) {
             throw new DicomServiceException(Status.ProcessingFailure, "Unknown Calling AET: " + remoteAET);

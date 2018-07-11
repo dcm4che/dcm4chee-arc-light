@@ -174,14 +174,26 @@ import java.util.Date;
 @NamedQuery(
         name=Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES,
         query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
-                "where se.pk = ?1 "),
+                "where se.pk = ?1 " +
+                "and se.metadata is not null " +
+                "and se.metadataScheduledUpdateTime is null"),
+@NamedQuery(
+        name=Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID,
+        query = "update Series se set se.metadataScheduledUpdateTime = current_timestamp " +
+                "where se.study = ?1 " +
+                "and se.seriesInstanceUID = ?2 " +
+                "and se.metadata is not null " +
+                "and se.metadataScheduledUpdateTime is null"),
 @NamedQuery(
         name = Series.FIND_DISTINCT_MODALITIES,
         query = "select distinct se.modality from Series se"),
 @NamedQuery(
         name=Series.UPDATE_INSTANCE_PURGE_STATE,
         query = "update Series se set se.instancePurgeState = ?3 " +
-                "where se.pk = ?1 and se.instancePurgeState = ?2")
+                "where se.pk = ?1 and se.instancePurgeState = ?2"),
+@NamedQuery(
+        name = Series.FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE,
+        query = "select se from Series se join fetch se.metadata where se.study.pk=?1 and se.instancePurgeState=?2")
 })
 @Entity
 @Table(name = "series",
@@ -218,7 +230,7 @@ public class Series {
     public static final String COUNT_SERIES_OF_STUDY = "Series.countSeriesOfStudy";
     public static final String SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE = "Series.seriesPKsOfStudyWithUnknownSize";
     public static final String SIZE_OF_STUDY="Series.sizeOfStudy";
-    public static final String SET_SERIES_SIZE = "Series.UpdateStudySize";
+    public static final String SET_SERIES_SIZE = "Series.SetSeriesSize";
     public static final String SET_COMPLETENESS = "Series.SetCompleteness";
     public static final String SET_COMPLETENESS_OF_STUDY = "Series.SetCompletenessOfStudy";
     public static final String INCREMENT_FAILED_RETRIEVES = "Series.IncrementFailedRetrieves";
@@ -233,8 +245,10 @@ public class Series {
     public static final String SCHEDULE_METADATA_UPDATE_FOR_PATIENT = "Series.scheduleMetadataUpdateForPatient";
     public static final String SCHEDULE_METADATA_UPDATE_FOR_STUDY = "Series.scheduleMetadataUpdateForStudy";
     public static final String SCHEDULE_METADATA_UPDATE_FOR_SERIES = "Series.scheduleMetadataUpdateForSeries";
+    public static final String SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID = "Series.scheduleMetadataUpdateForSeriesUID";
     public static final String UPDATE_INSTANCE_PURGE_STATE = "Series.updateInstancePurgeState";
     public static final String FIND_DISTINCT_MODALITIES = "Series.findDistinctModalities";
+    public static final String FIND_BY_STUDY_PK_AND_INSTANCE_PURGE_STATE = "Series.findByStudyPkAndInstancePurgeState";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
@@ -263,7 +277,7 @@ public class Series {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "pk")
     private long pk;
-    
+
     @Version
     @Column(name = "version")
     private long version;    

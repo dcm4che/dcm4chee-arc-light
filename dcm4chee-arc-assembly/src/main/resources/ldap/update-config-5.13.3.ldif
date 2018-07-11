@@ -1,0 +1,411 @@
+version: 1
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+replace: dicomSoftwareVersion
+dicomSoftwareVersion: 5.13.3
+-
+replace: dicomVendorData
+dicomVendorData:< file:vendor-data.zip
+-
+delete: dcmElasticSearchURL
+-
+add: dcmWadoCDA2HtmlTemplateURI
+dcmWadoCDA2HtmlTemplateURI: /dcm4chee-arc/xsl/cda.xsl
+-
+
+dn: dicomAETitle=IOCM_EXPIRED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomAssociationInitiator: TRUE
+dicomDescription: Only show instances rejected for Data Retention Expired
+dcmAcceptedUserRole: user
+dcmAcceptedUserRole: admin
+dcmQueryRetrieveViewID: dataRetentionPolicyExpired
+objectClass: dicomNetworkAE
+objectClass: dcmNetworkAE
+objectClass: dcmArchiveNetworkAE
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_EXPIRED
+dicomAssociationAcceptor: TRUE
+
+dn: dicomAETitle=IOCM_QUALITY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomAssociationInitiator: TRUE
+dicomDescription: Only show instances rejected for Quality Reasons
+dcmAcceptedUserRole: admin
+dcmQueryRetrieveViewID: rejectedForQualityReasons
+objectClass: dicomNetworkAE
+objectClass: dcmNetworkAE
+objectClass: dcmArchiveNetworkAE
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_QUALITY
+dicomAssociationAcceptor: TRUE
+
+dn: dicomAETitle=IOCM_WRONG_MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomAssociationInitiator: TRUE
+dicomDescription: Only show instances rejected for Incorrect Modality Worklist Entry
+dcmAcceptedUserRole: admin
+dcmQueryRetrieveViewID: incorrectModalityWorklistEntry
+objectClass: dicomNetworkAE
+objectClass: dcmNetworkAE
+objectClass: dcmArchiveNetworkAE
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_WRONG_MWL
+dicomAssociationAcceptor: TRUE
+
+dn: dicomAETitle=IOCM_PAT_SAFETY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomAssociationInitiator: TRUE
+dicomDescription: Only show instances rejected for Patient Safety Reasons
+dcmAcceptedUserRole: admin
+dcmQueryRetrieveViewID: rejectedForPatientSafetyReasons
+objectClass: dicomNetworkAE
+objectClass: dcmNetworkAE
+objectClass: dcmArchiveNetworkAE
+dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_PAT_SAFETY
+dicomAssociationAcceptor: TRUE
+
+dn: dcmQueryRetrieveViewID=rejectedForQualityReasons,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmHideNotRejectedInstances: TRUE
+dcmQueryRetrieveViewID: rejectedForQualityReasons
+objectClass: dcmQueryRetrieveView
+dcmShowInstancesRejectedByCode: (113001, DCM, "Rejected for Quality Reasons")
+
+dn: dcmQueryRetrieveViewID=dataRetentionPolicyExpired,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmHideNotRejectedInstances: TRUE
+dcmQueryRetrieveViewID: dataRetentionPolicyExpired
+objectClass: dcmQueryRetrieveView
+dcmShowInstancesRejectedByCode: (113039, DCM, "Data Retention Policy Expired")
+
+dn: dcmQueryRetrieveViewID=incorrectModalityWorklistEntry,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmHideNotRejectedInstances: TRUE
+dcmQueryRetrieveViewID: incorrectModalityWorklistEntry
+objectClass: dcmQueryRetrieveView
+dcmShowInstancesRejectedByCode: (113038, DCM, "Incorrect Modality Worklist Entry")
+
+dn: dcmQueryRetrieveViewID=rejectedForPatientSafetyReasons,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmHideNotRejectedInstances: TRUE
+dcmQueryRetrieveViewID: rejectedForPatientSafetyReasons
+objectClass: dcmQueryRetrieveView
+dcmShowInstancesRejectedByCode: (113037, DCM, "Rejected for Patient Safety Reasons")
+
+dn: cn=Verification SOP Class SCP,dicomAETitle=IOCM_EXPIRED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.1.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Verification SOP Class SCP
+
+dn: cn=Verification SOP Class SCU,dicomAETitle=IOCM_EXPIRED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.1.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Verification SOP Class SCU
+
+dn: cn=Study Root Query Retrieve Information Model - FIND SCP,dicomAETitle=IOCM_EXPIRED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.1.2.2.1
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Study Root Query Retrieve Information Model - FIND SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Patient Root Query Retrieve Information Model - FIND SCP,dicomAETitle=IOCM_EXPIRED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.1.2.1.1
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Patient Root Query Retrieve Information Model - FIND SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Patient Study Only Query Retrieve Information Model - FIND (Retired) SCP,dicomAETitle=IOCM_EXPIRED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.1.2.3.1
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Patient Study Only Query Retrieve Information Model - FIND (Retired) SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Verification SOP Class SCP,dicomAETitle=IOCM_QUALITY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.1.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Verification SOP Class SCP
+
+dn: cn=Verification SOP Class SCU,dicomAETitle=IOCM_QUALITY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.1.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Verification SOP Class SCU
+
+dn: cn=Study Root Query Retrieve Information Model - FIND SCP,dicomAETitle=IOCM_QUALITY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.1.2.2.1
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Study Root Query Retrieve Information Model - FIND SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Patient Root Query Retrieve Information Model - FIND SCP,dicomAETitle=IOCM_QUALITY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.1.2.1.1
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Patient Root Query Retrieve Information Model - FIND SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Patient Study Only Query Retrieve Information Model - FIND (Retired) SCP,dicomAETitle=IOCM_QUALITY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.1.2.3.1
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Patient Study Only Query Retrieve Information Model - FIND (Retired) SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Verification SOP Class SCP,dicomAETitle=IOCM_WRONG_MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.1.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Verification SOP Class SCP
+
+dn: cn=Verification SOP Class SCU,dicomAETitle=IOCM_WRONG_MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.1.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Verification SOP Class SCU
+
+dn: cn=Study Root Query Retrieve Information Model - FIND SCP,dicomAETitle=IOCM_WRONG_MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.1.2.2.1
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Study Root Query Retrieve Information Model - FIND SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Patient Root Query Retrieve Information Model - FIND SCP,dicomAETitle=IOCM_WRONG_MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.1.2.1.1
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Patient Root Query Retrieve Information Model - FIND SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Patient Study Only Query Retrieve Information Model - FIND (Retired) SCP,dicomAETitle=IOCM_WRONG_MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.1.2.3.1
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Patient Study Only Query Retrieve Information Model - FIND (Retired) SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Verification SOP Class SCP,dicomAETitle=IOCM_PAT_SAFETY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.1.1
+dicomTransferRole: SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Verification SOP Class SCP
+
+dn: cn=Verification SOP Class SCU,dicomAETitle=IOCM_PAT_SAFETY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomSOPClass: 1.2.840.10008.1.1
+dicomTransferRole: SCU
+dicomTransferSyntax: 1.2.840.10008.1.2
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+cn: Verification SOP Class SCU
+
+dn: cn=Study Root Query Retrieve Information Model - FIND SCP,dicomAETitle=IOCM_PAT_SAFETY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.1.2.2.1
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Study Root Query Retrieve Information Model - FIND SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Patient Root Query Retrieve Information Model - FIND SCP,dicomAETitle=IOCM_PAT_SAFETY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.1.2.1.1
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Patient Root Query Retrieve Information Model - FIND SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: cn=Patient Study Only Query Retrieve Information Model - FIND (Retired) SCP,dicomAETitle=IOCM_PAT_SAFETY,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmFuzzySemanticMatching: TRUE
+dicomSOPClass: 1.2.840.10008.5.1.4.1.2.3.1
+dcmTimezoneQueryAdjustment: TRUE
+dicomTransferRole: SCP
+objectClass: dicomTransferCapability
+objectClass: dcmTransferCapability
+dcmCombinedDateTimeMatching: TRUE
+dcmRelationalQueries: TRUE
+cn: Patient Study Only Query Retrieve Information Model - FIND (Retired) SCP
+dicomTransferSyntax: 1.2.840.10008.1.2
+
+dn: dicomAETitle=IOCM_EXPIRED,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dicomUniqueAETitle
+dicomAETitle: IOCM_EXPIRED
+
+dn: dicomAETitle=IOCM_QUALITY,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dicomUniqueAETitle
+dicomAETitle: IOCM_QUALITY
+
+dn: dicomAETitle=IOCM_WRONG_MWL,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dicomUniqueAETitle
+dicomAETitle: IOCM_WRONG_MWL
+
+dn: dicomAETitle=IOCM_PAT_SAFETY,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+objectClass: dicomUniqueAETitle
+dicomAETitle: IOCM_PAT_SAFETY
+
+dn: dcmWebAppName=DCM4CHEE_TRASH-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: dcmWebAppName=DCM4CHEE_TRASH-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: dcmQueryRetrieveViewID=trashView,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: cn=Verification SOP Class SCP,dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: cn=Verification SOP Class SCU,dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: cn=Study Root Query Retrieve Information Model - FIND SCP,dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: cn=Patient Root Query Retrieve Information Model - FIND SCP,dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: cn=Patient Study Only Query Retrieve Information Model - FIND (Retired) SCP,dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: dicomAETitle=DCM4CHEE_TRASH,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: dicomAETitle=DCM4CHEE_TRASH,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: dicomAETitle=DCM4CHEE_ADMIN,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modrdn
+newrdn: dicomAETitle=IOCM_REGULAR_USE
+deleteoldrdn: 1
+
+dn: dicomAETitle=DCM4CHEE_ADMIN,cn=Unique AE Titles Registry,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modrdn
+newrdn: dicomAETitle=IOCM_REGULAR_USE
+deleteoldrdn: 1
+
+dn: dcmWebAppName=DCM4CHEE_ADMIN-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: dcmWebAppName=IOCM_REGULAR_USE-RS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Show instances rejected for Quality Reasons
+dcmWebServiceClass: WADO_RS
+dcmWebServiceClass: QIDO_RS
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_REGULAR_USE
+dcmWebAppName: IOCM_REGULAR_USE-RS
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_REGULAR_USE/rs
+
+dn: dcmWebAppName=DCM4CHEE_ADMIN-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: delete
+
+dn: dcmWebAppName=IOCM_REGULAR_USE-WADO,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dicomDescription: Show instances rejected for Quality Reasons
+dcmWebServiceClass: WADO_URI
+objectClass: dcmWebApp
+dicomNetworkConnectionReference: cn=http,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomAETitle: IOCM_REGULAR_USE
+dcmWebAppName: IOCM_REGULAR_USE-WADO
+dcmWebServicePath: /dcm4chee-arc/aets/IOCM_REGULAR_USE/wado

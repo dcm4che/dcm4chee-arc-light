@@ -48,19 +48,33 @@ export class DurationPickerComponent implements OnInit {
                             break;
                     }
                 }else{
-                    switch(match[2]) {
-                        case 'Y':
-                            this.y = parseInt(match[1]);
-                            break;
-                        case 'W':
-                            this.week = parseInt(match[1]);
-                            break;
-                        case 'M':
-                            this.month = parseInt(match[1]);
-                            break;
-                        case 'D':
-                            this.d = parseInt(match[1]);
-                            break;
+                    if(this.mode === "datePicker"){
+                        switch(match[2]) {
+                            case 'D':
+                                this.d = parseInt(match[1]);
+                                break;
+                            case 'H':
+                                this.h = parseInt(match[1]);
+                                break;
+                            case 'M':
+                                this.m = parseInt(match[1]);
+                                break;
+                        }
+                    }else{
+                        switch(match[2]) {
+                            case 'Y':
+                                this.y = parseInt(match[1]);
+                                break;
+                            case 'W':
+                                this.week = parseInt(match[1]);
+                                break;
+                            case 'M':
+                                this.month = parseInt(match[1]);
+                                break;
+                            case 'D':
+                                this.d = parseInt(match[1]);
+                                break;
+                        }
                     }
                 }
             }

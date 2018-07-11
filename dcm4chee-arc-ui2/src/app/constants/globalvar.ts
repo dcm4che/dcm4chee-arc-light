@@ -459,6 +459,16 @@ export class Globalvar {
     public static get SUPER_ROOT(): string{
         return "root";
     }
+    public static get TASK_NAMES(): any{
+        return [
+            "completed",
+            "warning",
+            "failed",
+            "in-process",
+            "scheduled",
+            "canceled"
+        ];;
+    }
     public static get DYNAMIC_FORMATER(): any{
         return {
 /*            dcmAETitle:{
@@ -502,6 +512,24 @@ export class Globalvar {
                 msg:'Create first an Rejection Note!',
                 pathInDevice:'dcmDevice.dcmArchiveDevice.dcmRejectionNote'
             },
+            dcmuiDeviceURLObject:{
+                key:'dcmuiDeviceURLName',
+                labelKey:'{dcmuiDeviceURLName}',
+                msg:'Create first an UI Device URL!',
+                pathInDevice:'dcmDevice.dcmuiConfig[0].dcmuiDeviceURLObject'
+            },
+            dcmuiDeviceClusterObject:{
+                key:'dcmuiDeviceClusterName',
+                labelKey:'{dcmuiDeviceClusterName}',
+                msg:'Create first an UI Device Cluster!',
+                pathInDevice:'dcmDevice.dcmuiConfig["0"].dcmuiDeviceClusterObject'
+            },
+            dcmuiElasticsearchConfig:{
+                key:'dcmuiElasticsearchURLName',
+                labelKey:'{dcmuiElasticsearchURLName}',
+                msg:'Create first an UI Elasticsearch URL!',
+                pathInDevice:'dcmDevice.dcmuiConfig[0].dcmuiElasticsearchConfig[0].dcmuiElasticsearchURLObjects'
+            }
 /*            dicomDeviceName:{
                 key:'dicomDeviceName',
                 labelKey:'{dicomDeviceName}',

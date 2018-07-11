@@ -48,6 +48,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.math.BigDecimal;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -82,12 +83,11 @@ public class QuerySizeEJB {
     }
 
     public long calculateSeriesSize(Long seriesPk) {
-        Long size = StringUtils.maskNull(
-                em.createNamedQuery(Location.SIZE_OF_SERIES, Long.class)
-                    .setParameter(1, seriesPk)
-                    .setParameter(2, Location.ObjectType.DICOM_FILE)
-                    .getSingleResult(),
-                ZERO);
+        Object result = em.createNamedQuery(Location.SIZE_OF_SERIES)
+                .setParameter(1, seriesPk)
+                .setParameter(2, Location.ObjectType.DICOM_FILE.ordinal())
+                .getSingleResult();
+        long size = result instanceof Number ? ((Number) result).longValue() : 0L;
         em.createNamedQuery(Series.SET_SERIES_SIZE)
                 .setParameter(1, seriesPk)
                 .setParameter(2, size)

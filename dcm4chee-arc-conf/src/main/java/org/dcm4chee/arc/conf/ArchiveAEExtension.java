@@ -71,8 +71,10 @@ public class ArchiveAEExtension extends AEExtension {
     private Boolean personNameComponentOrderInsensitiveMatching;
     private Boolean sendPendingCGet;
     private Duration sendPendingCMoveInterval;
+    private String wadoZIPEntryNameFormat;
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
+    private String wadoCDA2HtmlTemplateURI;
     private String[] mppsForwardDestinations = {};
     private String[] ianDestinations = {};
     private Duration ianDelay;
@@ -98,6 +100,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Pattern storePermissionServiceErrorCodePattern;
     private AllowRejectionForDataRetentionPolicyExpired allowRejectionForDataRetentionPolicyExpired;
     private AcceptMissingPatientID acceptMissingPatientID;
+    private AllowDeletePatient allowDeletePatient;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private AcceptConflictingPatientID acceptConflictingPatientID;
     private String[] retrieveAETitles = {};
@@ -111,6 +114,9 @@ public class ArchiveAEExtension extends AEExtension {
     private Attributes.UpdatePolicy linkMWLEntryUpdatePolicy;
     private String invokeImageDisplayPatientURL;
     private String invokeImageDisplayStudyURL;
+    private StgCmtPolicy stgCmtPolicy;
+    private Boolean stgCmtUpdateLocationStatus;
+    private String[] stgCmtStorageIDs = {};
     private final LinkedHashSet<String> acceptedMoveDestinations = new LinkedHashSet<>();
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final ArrayList<ExportRule> exportRules = new ArrayList<>();
@@ -181,9 +187,12 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public Duration purgeInstanceRecordsDelay() {
-        return purgeInstanceRecordsDelay != null
+        ArchiveDeviceExtension arcdev = getArchiveDeviceExtension();
+        return arcdev.isPurgeInstanceRecords()
+            ? purgeInstanceRecordsDelay != null
                 ? purgeInstanceRecordsDelay
-                : getArchiveDeviceExtension().getPurgeInstanceRecordsDelay();
+                : arcdev.getPurgeInstanceRecordsDelay()
+            : null;
     }
 
     public String getStoreAccessControlID() {
@@ -227,7 +236,7 @@ public class ArchiveAEExtension extends AEExtension {
     public AcceptMissingPatientID acceptMissingPatientID() {
         return acceptMissingPatientID != null
                 ? acceptMissingPatientID
-                : StringUtils.maskNull(getArchiveDeviceExtension().getAcceptMissingPatientID(), AcceptMissingPatientID.CREATE);
+                : getArchiveDeviceExtension().getAcceptMissingPatientID();
     }
 
     public String getBulkDataSpoolDirectory() {
@@ -318,6 +327,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getSendPendingCMoveInterval();
     }
 
+    public String getWadoZIPEntryNameFormat() {
+        return wadoZIPEntryNameFormat;
+    }
+
+    public void setWadoZIPEntryNameFormat(String wadoZIPEntryNameFormat) {
+        this.wadoZIPEntryNameFormat = wadoZIPEntryNameFormat;
+    }
+
+    public String wadoZIPEntryNameFormat() {
+        return wadoZIPEntryNameFormat != null
+                ? wadoZIPEntryNameFormat
+                : getArchiveDeviceExtension().getWadoZIPEntryNameFormat();
+    }
+
     public String getWadoSR2HtmlTemplateURI() {
         return wadoSR2HtmlTemplateURI;
     }
@@ -326,12 +349,12 @@ public class ArchiveAEExtension extends AEExtension {
         this.wadoSR2HtmlTemplateURI = wadoSR2HtmlTemplateURI;
     }
 
-
     public String wadoSR2HtmlTemplateURI() {
         return wadoSR2HtmlTemplateURI != null
                 ? wadoSR2HtmlTemplateURI
                 : getArchiveDeviceExtension().getWadoSR2HtmlTemplateURI();
     }
+
     public String getWadoSR2TextTemplateURI() {
         return wadoSR2TextTemplateURI;
     }
@@ -344,6 +367,20 @@ public class ArchiveAEExtension extends AEExtension {
         return wadoSR2TextTemplateURI != null
                 ? wadoSR2TextTemplateURI
                 : getArchiveDeviceExtension().getWadoSR2TextTemplateURI();
+    }
+
+    public String getWadoCDA2HtmlTemplateURI() {
+        return wadoCDA2HtmlTemplateURI;
+    }
+
+    public void setWadoCDA2HtmlTemplateURI(String wadoCDA2HtmlTemplateURI) {
+        this.wadoCDA2HtmlTemplateURI = wadoCDA2HtmlTemplateURI;
+    }
+
+    public String wadoCDA2HtmlTemplateURI() {
+        return wadoCDA2HtmlTemplateURI != null
+                ? wadoCDA2HtmlTemplateURI
+                : getArchiveDeviceExtension().getWadoCDA2HtmlTemplateURI();
     }
 
     public String[] getMppsForwardDestinations() {
@@ -829,8 +866,21 @@ public class ArchiveAEExtension extends AEExtension {
     public AllowDeleteStudyPermanently allowDeleteStudy() {
         return allowDeleteStudyPermanently != null
                 ? allowDeleteStudyPermanently
-                : StringUtils.maskNull(getArchiveDeviceExtension().getAllowDeleteStudyPermanently(),
-                AllowDeleteStudyPermanently.REJECTED);
+                : getArchiveDeviceExtension().getAllowDeleteStudyPermanently();
+    }
+
+    public AllowDeletePatient getAllowDeletePatient() {
+        return allowDeletePatient;
+    }
+
+    public void setAllowDeletePatient(AllowDeletePatient allowDeletePatient) {
+        this.allowDeletePatient = allowDeletePatient;
+    }
+
+    public AllowDeletePatient allowDeletePatient() {
+        return allowDeletePatient != null
+                ? allowDeletePatient
+                : getArchiveDeviceExtension().getAllowDeletePatient();
     }
 
     public String[] getRetrieveAETitles() {
@@ -949,8 +999,7 @@ public class ArchiveAEExtension extends AEExtension {
     public AcceptConflictingPatientID acceptConflictingPatientID() {
         return acceptConflictingPatientID != null
                 ? acceptConflictingPatientID
-                : StringUtils.maskNull(getArchiveDeviceExtension().getAcceptConflictingPatientID(),
-                AcceptConflictingPatientID.MERGED);
+                : getArchiveDeviceExtension().getAcceptConflictingPatientID();
     }
 
     public Attributes.UpdatePolicy getCopyMoveUpdatePolicy() {
@@ -1009,6 +1058,46 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getInvokeImageDisplayStudyURL();
     }
 
+    public StgCmtPolicy getStgCmtPolicy() {
+        return stgCmtPolicy;
+    }
+
+    public void setStgCmtPolicy(StgCmtPolicy stgCmtPolicy) {
+        this.stgCmtPolicy = stgCmtPolicy;
+    }
+
+    public StgCmtPolicy stgCmtPolicy() {
+        return stgCmtPolicy != null
+                ? stgCmtPolicy
+                : getArchiveDeviceExtension().getStgCmtPolicy();
+    }
+
+    public Boolean getStgCmtUpdateLocationStatus() {
+        return stgCmtUpdateLocationStatus;
+    }
+
+    public void setStgCmtUpdateLocationStatus(Boolean stgCmtUpdateLocationStatus) {
+        this.stgCmtUpdateLocationStatus = stgCmtUpdateLocationStatus;
+    }
+
+    public boolean stgCmtUpdateLocationStatus() {
+        return stgCmtUpdateLocationStatus != null
+                ? stgCmtUpdateLocationStatus
+                : getArchiveDeviceExtension().isStgCmtUpdateLocationStatus();
+    }
+
+    public String[] getStgCmtStorageIDs() {
+        return stgCmtStorageIDs;
+    }
+
+    public void setStgCmtStorageIDs(String... stgCmtStorageIDs) {
+        this.stgCmtStorageIDs = stgCmtStorageIDs;
+    }
+
+    public String[] stgCmtStorageIDs() {
+        return stgCmtStorageIDs != null ? stgCmtStorageIDs : getArchiveDeviceExtension().getStgCmtStorageIDs();
+    }
+
     @Override
     public void reconfigure(AEExtension from) {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
@@ -1028,6 +1117,7 @@ public class ArchiveAEExtension extends AEExtension {
         sendPendingCMoveInterval = aeExt.sendPendingCMoveInterval;
         wadoSR2HtmlTemplateURI = aeExt.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = aeExt.wadoSR2TextTemplateURI;
+        wadoCDA2HtmlTemplateURI = aeExt.wadoCDA2HtmlTemplateURI;
         mppsForwardDestinations = aeExt.mppsForwardDestinations;
         ianDestinations = aeExt.ianDestinations;
         ianDelay = aeExt.ianDelay;
@@ -1054,6 +1144,7 @@ public class ArchiveAEExtension extends AEExtension {
         allowRejectionForDataRetentionPolicyExpired = aeExt.allowRejectionForDataRetentionPolicyExpired;
         acceptMissingPatientID = aeExt.acceptMissingPatientID;
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
+        allowDeletePatient = aeExt.allowDeletePatient;
         acceptConflictingPatientID = aeExt.acceptConflictingPatientID;
         copyMoveUpdatePolicy = aeExt.copyMoveUpdatePolicy;
         linkMWLEntryUpdatePolicy = aeExt.linkMWLEntryUpdatePolicy;
@@ -1065,6 +1156,9 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
         invokeImageDisplayPatientURL = aeExt.invokeImageDisplayPatientURL;
         invokeImageDisplayStudyURL = aeExt.invokeImageDisplayStudyURL;
+        stgCmtPolicy = aeExt.stgCmtPolicy;
+        stgCmtUpdateLocationStatus = aeExt.stgCmtUpdateLocationStatus;
+        stgCmtStorageIDs = aeExt.stgCmtStorageIDs;
         acceptedMoveDestinations.clear();
         acceptedMoveDestinations.addAll(aeExt.acceptedMoveDestinations);
         acceptedUserRoles.clear();

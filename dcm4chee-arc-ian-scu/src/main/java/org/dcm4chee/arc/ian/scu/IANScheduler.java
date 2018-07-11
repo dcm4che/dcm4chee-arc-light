@@ -103,7 +103,10 @@ public class IANScheduler extends Scheduler {
         Attributes ian;
         do {
             ianTasks = ejb.fetchIANTasksForMPPS(device.getDeviceName(), ianTaskPk, fetchSize);
-            for (IanTask ianTask : ianTasks)
+            for (IanTask ianTask : ianTasks) {
+                if (getPollingInterval() == null)
+                    return;
+
                 try {
                     ianTaskPk = ianTask.getPk();
                     ApplicationEntity ae = device.getApplicationEntity(ianTask.getCallingAET(), true);
@@ -116,10 +119,14 @@ public class IANScheduler extends Scheduler {
                 } catch (Exception e) {
                     LOG.warn("Failed to process {}", ianTask, e);
                 }
+            }
         } while (ianTasks.size() == fetchSize);
         do {
             ianTasks = ejb.fetchIANTasksForStudy(device.getDeviceName(), fetchSize);
-            for (IanTask ianTask : ianTasks)
+            for (IanTask ianTask : ianTasks) {
+                if (getPollingInterval() == null)
+                    return;
+
                 try {
                     ApplicationEntity ae = device.getApplicationEntity(ianTask.getCallingAET(), true);
                     if (ianTask.getMpps() == null) {
@@ -146,6 +153,7 @@ public class IANScheduler extends Scheduler {
                 } catch (Exception e) {
                     LOG.warn("Failed to process {}", ianTask, e);
                 }
+            }
         } while (ianTasks.size() == fetchSize);
     }
 

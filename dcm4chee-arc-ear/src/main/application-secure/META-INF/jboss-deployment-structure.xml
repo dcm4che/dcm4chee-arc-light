@@ -65,6 +65,7 @@
             <module name="org.dcm4che.imageio" export="TRUE" services="export"/>
             <module name="org.dcm4che.image" export="TRUE"/>
             <module name="org.dcm4che.soundex" export="TRUE"/>
+            <module name="org.dcm4che.xdsi" export="TRUE"/>
             <!-- apache-cxf modules -->
             <module name="org.apache.cxf.impl" export="TRUE"/>
             <!-- querydsl modules -->
@@ -75,6 +76,7 @@
             <!-- keycloak modules -->
             <module name="org.keycloak.keycloak-core" export="TRUE" services="export"/>
             <module name="org.keycloak.keycloak-adapter-core" export="TRUE" services="export"/>
+            <module name="org.keycloak.admin-client" export="TRUE"/>
             <!-- emc-ecs modules -->
             <module name="com.emc.ecs" export="TRUE"/>
         </dependencies>

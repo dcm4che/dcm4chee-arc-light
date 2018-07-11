@@ -41,17 +41,24 @@
 package org.dcm4chee.arc.wado;
 
 import org.dcm4che3.data.*;
-import org.dcm4che3.io.*;
+import org.dcm4che3.io.DicomInputStream;
+import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeSet;
-import org.dcm4chee.arc.retrieve.*;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveEnd;
+import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.retrieve.RetrieveStart;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartRelatedOutput;
 import org.jboss.resteasy.plugins.providers.multipart.OutputPart;
@@ -78,6 +85,11 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -117,8 +129,13 @@ public class WadoRS {
     @PathParam("AETitle")
     private String aet;
 
-    private Collection<String> acceptableTransferSyntaxes;
+    @QueryParam("accept")
+    private List<String> accept;
+
     private List<MediaType> acceptableMediaTypes;
+    private List<MediaType> acceptableMultipartRelatedMediaTypes;
+    private Collection<String> acceptableTransferSyntaxes;
+    private Collection<String> acceptableZipTransferSyntaxes;
     private Map<String, MediaType> selectedMediaTypes;
     private CompressedMFPixelDataOutput compressedMFPixelDataOutput;
     private UncompressedFramesOutput uncompressedFramesOutput;
@@ -136,128 +153,104 @@ public class WadoRS {
 
     @GET
     @Path("/studies/{studyUID}")
-    @Produces("multipart/related;type=application/dicom")
     public void retrieveStudy(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudy", studyUID, null, null, null, null, null, ar, Output.DICOM);
-    }
-
-    @GET
-    @Path("/studies/{studyUID}")
-    @Produces("multipart/related")
-    public void retrieveStudyBulkdata(
-            @PathParam("studyUID") String studyUID,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudyBulkdata", studyUID, null, null, null, null, null, ar, Output.BULKDATA);
+        logRequest();
+        checkAET();
+        Output output = dicomOrBulkdataOrZIP();
+        retrieve("retrieveStudy", studyUID, null, null, null, null, null, ar, output);
     }
 
     @GET
     @Path("/studies/{studyUID}/metadata")
-    @Produces("application/dicom+json,application/json")
-    public void retrieveStudyMetadataAsJSON(
+    public void retrieveStudyMetadata(
             @PathParam("studyUID") String studyUID,
             @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudyMetadataAsJSON", studyUID, null, null, null, null, includefields, ar, Output.METADATA_JSON);
-    }
-
-    @GET
-    @Path("/studies/{studyUID}/metadata")
-    @Produces("multipart/related;type=application/dicom+xml")
-    public void retrieveStudyMetadataAsXML(
-            @PathParam("studyUID") String studyUID,
-            @QueryParam("includefields") String includefields,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveStudyMetadataAsXML", studyUID, null, null, null, null, includefields, ar, Output.METADATA_XML);
+        logRequest();
+        checkAET();
+        Output output = metadataJSONorXML();
+        retrieve("retrieveStudyMetadata", studyUID, null, null, null, null, includefields, ar, output);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}")
-    @Produces("multipart/related;type=application/dicom")
     public void retrieveSeries(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeries", studyUID, seriesUID, null, null, null, null, ar, Output.DICOM);
-    }
-
-    @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}")
-    @Produces("multipart/related")
-    public void retrieveSeriesBulkdata(
-            @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeriesBulkdata", studyUID, seriesUID, null, null, null, null, ar, Output.BULKDATA);
+        logRequest();
+        checkAET();
+        Output output = dicomOrBulkdataOrZIP();
+        retrieve("retrieveSeries", studyUID, seriesUID, null, null, null, null, ar, output);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/metadata")
-    @Produces("application/dicom+json,application/json")
-    public void retrieveSeriesMetadataAsJSON(
+    public void retrieveSeriesMetadata(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @QueryParam("includefields") String includefields,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeriesMetadataAsJSON", studyUID, seriesUID, null, null, null, includefields, ar, Output.METADATA_JSON);
-    }
-
-    @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/metadata")
-    @Produces("multipart/related;type=application/dicom+xml")
-    public void retrieveSeriesMetadataAsXML(
-            @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID,
-            @QueryParam("includefields") String includefields,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveSeriesMetadataAsXML", studyUID, seriesUID, null, null, null, includefields, ar, Output.METADATA_XML);
+        logRequest();
+        checkAET();
+        Output output = metadataJSONorXML();
+        retrieve("retrieveSeriesMetadata", studyUID, seriesUID, null, null, null, includefields, ar, output);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}")
-    @Produces("multipart/related;type=application/dicom")
     public void retrieveInstance(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstance", studyUID, seriesUID, objectUID, null, null, null, ar, Output.DICOM);
+        logRequest();
+        checkAET();
+        Output output = dicomOrBulkdataOrZIP();
+        retrieve("retrieveInstance", studyUID, seriesUID, objectUID, null, null, null, ar, output);
     }
 
     @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}")
-    @Produces("multipart/related")
-    public void retrieveInstanceBulkdata(
+    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/metadata")
+    public void retrieveInstanceMetadata(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstanceBulkdata", studyUID, seriesUID, objectUID, null, null, null, ar, Output.BULKDATA);
+        logRequest();
+        checkAET();
+        Output output = metadataJSONorXML();
+        retrieve("retrieveInstanceMetadata", studyUID, seriesUID, objectUID, null, null, null, ar, output);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/bulkdata/{attributePath:.+}")
-    @Produces("multipart/related")
     public void retrieveBulkdata(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @PathParam("attributePath") @ValidValueOf(type = AttributePath.class) String attributePath,
             @Suspended AsyncResponse ar) {
+        logRequest();
+        checkAET();
+        checkMultipartRelatedAcceptable();
         retrieve("retrieveBulkdata", studyUID, seriesUID, objectUID,
                 null, new AttributePath(attributePath).path, null, ar, Output.BULKDATA_PATH);
     }
 
     @GET
     @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/frames/{frameList}")
-    @Produces("multipart/related")
     public void retrieveFrames(
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
+        logRequest();
+        checkAET();
+        checkMultipartRelatedAcceptable();
         retrieve("retrieveFrames", studyUID, seriesUID, objectUID,
                 new FrameList(frameList).frames, null, null, ar, Output.BULKDATA_FRAME);
     }
@@ -269,7 +262,7 @@ public class WadoRS {
     public void retrieveRenderedStudy(
             @PathParam("studyUID") String studyUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedStudy", studyUID, null, null, null, null, ar, Output.RENDER);
+        retrieve("retrieveRenderedStudy", null, null, null, null, ar, Output.RENDER);
     }
 
     @GET
@@ -279,7 +272,7 @@ public class WadoRS {
             @PathParam("studyUID") String studyUID,
             @PathParam("seriesUID") String seriesUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedSeries", studyUID, seriesUID, null, null, null, ar, Output.RENDER);
+        retrieve("retrieveRenderedSeries", seriesUID, null, null, null, ar, Output.RENDER);
     }
 
     @GET
@@ -290,7 +283,7 @@ public class WadoRS {
             @PathParam("seriesUID") String seriesUID,
             @PathParam("objectUID") String objectUID,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedInstance", studyUID, seriesUID, objectUID, null, null, ar, Output.RENDER);
+        retrieve("retrieveRenderedInstance", seriesUID, objectUID, null, null, ar, Output.RENDER);
     }
 
     @GET
@@ -302,41 +295,77 @@ public class WadoRS {
             @PathParam("objectUID") String objectUID,
             @PathParam("frameList") @ValidValueOf(type = FrameList.class) String frameList,
             @Suspended AsyncResponse ar) {
-        retrieve("retrieveRenderedFrames", studyUID, seriesUID, objectUID,
+        retrieve("retrieveRenderedFrames", seriesUID, objectUID,
                 new FrameList(frameList).frames, null, ar, Output.RENDER_FRAME);
     }
 */
 
-    @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/metadata")
-    @Produces("application/dicom+json,application/json")
-    public void retrieveInstanceMetadataAsJSON(
-            @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID,
-            @PathParam("objectUID") String objectUID,
-            @QueryParam("includefields") String includefields,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstanceMetadataAsJSON", studyUID, seriesUID, objectUID, null, null, includefields, ar,
-                Output.METADATA_JSON);
+    private void logRequest() {
+        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
     }
 
-    @GET
-    @Path("/studies/{studyUID}/series/{seriesUID}/instances/{objectUID}/metadata")
-    @Produces("multipart/related;type=application/dicom+xml")
-    public void retrieveInstanceMetadataAsXML(
-            @PathParam("studyUID") String studyUID,
-            @PathParam("seriesUID") String seriesUID,
-            @PathParam("objectUID") String objectUID,
-            @QueryParam("includefields") String includefields,
-            @Suspended AsyncResponse ar) {
-        retrieve("retrieveInstanceMetadataAsXML", studyUID, seriesUID, objectUID, null, null, includefields, ar, Output.METADATA_XML);
+    private void initAcceptableMediaTypes() {
+        if (accept != null && !accept.isEmpty()) {
+            headers.getRequestHeaders().put("Accept",
+                    accept.stream().flatMap(s -> Stream.of(StringUtils.split(s, ',')))
+                            .collect(Collectors.toList()));
+        }
+        acceptableMediaTypes = headers.getAcceptableMediaTypes();
+        acceptableMultipartRelatedMediaTypes = acceptableMediaTypes.stream()
+                .map(m -> MediaTypes.getMultiPartRelatedType(m))
+                .filter(t -> t != null)
+                .collect(Collectors.toList());
+        acceptableTransferSyntaxes = transferSyntaxesOf(acceptableMultipartRelatedMediaTypes.stream()
+                .filter(m -> m.isCompatible(MediaTypes.APPLICATION_DICOM_JSON_TYPE)));
+        acceptableZipTransferSyntaxes = transferSyntaxesOf(acceptableMediaTypes.stream()
+                .filter(m -> m.isCompatible(MediaTypes.APPLICATION_ZIP_TYPE)));
+    }
+
+    private List<String> transferSyntaxesOf(Stream<MediaType> mediaTypeStream) {
+        return mediaTypeStream
+                .map(m -> m.getParameters().getOrDefault("transfer-syntax", UID.ExplicitVRLittleEndian))
+                .collect(Collectors.toList());
+    }
+
+    private void checkMultipartRelatedAcceptable() {
+        initAcceptableMediaTypes();
+        if (acceptableMultipartRelatedMediaTypes.isEmpty()) {
+            throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+        }
+    }
+
+    private Output dicomOrBulkdataOrZIP() {
+        initAcceptableMediaTypes();
+        if (acceptableMultipartRelatedMediaTypes.isEmpty() && acceptableZipTransferSyntaxes.isEmpty()) {
+            throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+        }
+        return selectMediaType(acceptableMultipartRelatedMediaTypes, MediaTypes.APPLICATION_DICOM_TYPE).isPresent()
+                ? Output.DICOM
+                : acceptableZipTransferSyntaxes.isEmpty() ? Output.BULKDATA : Output.ZIP;
+    }
+
+    private Output metadataJSONorXML() {
+        initAcceptableMediaTypes();
+        MediaType mediaType = selectMediaType(acceptableMediaTypes,
+                MediaTypes.APPLICATION_DICOM_JSON_TYPE,
+                MediaType.APPLICATION_JSON_TYPE)
+                .orElseGet(() ->
+                        selectMediaType(acceptableMultipartRelatedMediaTypes, MediaTypes.APPLICATION_DICOM_XML_TYPE)
+                                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_ACCEPTABLE)));
+        return mediaType == MediaTypes.APPLICATION_DICOM_XML_TYPE ? Output.METADATA_XML : Output.METADATA_JSON;
+    }
+
+    private static Optional<MediaType> selectMediaType(List<MediaType> list, MediaType... mediaTypes) {
+        return list.stream()
+                .map(entry -> Stream.of(mediaTypes).filter(mediaType -> mediaType.isCompatible(entry)).findFirst())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
     }
 
     private void retrieve(String method, String studyUID, String seriesUID, String objectUID, int[] frameList,
                           int[] attributePath, String includefields, AsyncResponse ar, Output output) {
-        LOG.info("Process GET {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         try {
-            checkAET();
             // @Inject does not work:
             // org.jboss.resteasy.spi.LoggableFailure: Unable to find contextual data of type: javax.servlet.http.HttpServletRequest
             // s. https://issues.jboss.org/browse/RESTEASY-903
@@ -408,8 +437,8 @@ public class WadoRS {
         });
         responseStatus = notAccepted.isEmpty() ? Response.Status.OK : Response.Status.PARTIAL_CONTENT;
         Object entity = output.entity(this, ctx, frameList, attributePath);
-        ar.resume(Response.status(responseStatus).lastModified(lastModified)
-                .tag(String.valueOf(lastModified.hashCode())).entity(entity).build());
+        ar.resume(output.adjustType(Response.status(responseStatus).lastModified(lastModified)
+                .tag(String.valueOf(lastModified.hashCode())).entity(entity)).build());
     }
 
     private Response.ResponseBuilder evaluatePreConditions(Date lastModified) {
@@ -434,6 +463,22 @@ public class WadoRS {
             protected void addPart(MultipartRelatedOutput output, WadoRS wadoRS, RetrieveContext ctx,
                                    InstanceLocations inst, int[] frameList, int[] attributePath) {
                 wadoRS.writeDICOM(output, ctx, inst);
+            }
+        },
+        ZIP {
+            @Override
+            public Collection<InstanceLocations> removeNotAcceptedMatches(WadoRS wadoRS, RetrieveContext ctx) {
+                return Collections.EMPTY_LIST;
+            }
+            @Override
+            public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath) {
+                return wadoRS.writeZIP(ctx);
+            }
+
+            @Override
+            public Response.ResponseBuilder adjustType(Response.ResponseBuilder builder) {
+                builder.type(MediaTypes.APPLICATION_ZIP_TYPE);
+                return builder;
             }
         },
         BULKDATA {
@@ -507,12 +552,24 @@ public class WadoRS {
             public boolean isMetadata() {
                 return true;
             }
+
+            @Override
+            public Response.ResponseBuilder adjustType(Response.ResponseBuilder builder) {
+                builder.type(MediaTypes.APPLICATION_DICOM_JSON_TYPE);
+                return builder;
+            }
         };
 
         public Object entity(WadoRS wadoRS, RetrieveContext ctx, int[] frameList, int[] attributePath)
                 throws IOException {
             MultipartRelatedOutput output = new MultipartRelatedOutput();
             for (InstanceLocations inst : ctx.getMatches()) {
+                if (!ctx.copyToRetrieveCache(inst))
+                    addPart(output, wadoRS, ctx, inst, frameList, attributePath);
+            }
+            ctx.copyToRetrieveCache(null);
+            InstanceLocations inst;
+            while ((inst = ctx.copiedToRetrieveCache()) != null) {
                 addPart(output, wadoRS, ctx, inst, frameList, attributePath);
             }
             return output;
@@ -530,9 +587,10 @@ public class WadoRS {
                     iter.remove();
                     continue;
                 }
-                MediaType mediaType = wadoRS.selectMediaType(mediaTypes);
-                if (mediaType != null) {
-                    selectedMediaTypes.put(match.getSopInstanceUID(), mediaType);
+                Optional<MediaType> mediaType =
+                        wadoRS.selectMediaType(wadoRS.acceptableMultipartRelatedMediaTypes, mediaTypes);
+                if (mediaType.isPresent()) {
+                    selectedMediaTypes.put(match.getSopInstanceUID(), mediaType.get());
                 } else {
                     iter.remove();
                     notAcceptable.add(match);
@@ -558,6 +616,10 @@ public class WadoRS {
 
         public boolean isMetadata() {
             return false;
+        }
+
+        public Response.ResponseBuilder adjustType(Response.ResponseBuilder builder) {
+            return builder;
         }
     }
 
@@ -711,42 +773,51 @@ public class WadoRS {
     }
 
     private void writeDICOM(MultipartRelatedOutput output, RetrieveContext ctx, InstanceLocations inst)  {
-        DicomObjectOutput entity = new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes());
+        DicomObjectOutput entity = new DicomObjectOutput(ctx, inst, acceptableTransferSyntaxes);
         output.addPart(entity, MediaTypes.APPLICATION_DICOM_TYPE);
     }
 
-    private Collection<String> acceptableTransferSyntaxes() {
-        Collection<String> tsuids = acceptableTransferSyntaxes;
-        if (tsuids == null) {
-            tsuids = new HashSet<>();
-            for (MediaType mediaType : headers.getAcceptableMediaTypes()) {
-                tsuids.add(MediaTypes.getTransferSyntax(MediaTypes.getMultiPartRelatedType(mediaType)));
+    private Object writeZIP(RetrieveContext ctx) {
+        AttributesFormat pathFormat = new AttributesFormat(
+                ctx.getLocalApplicationEntity().getAEExtensionNotNull(ArchiveAEExtension.class).wadoZIPEntryNameFormat());
+        final Collection<InstanceLocations> insts = ctx.getMatches();
+        return (StreamingOutput) out -> {
+            try {
+                Set<String> dirPaths = new HashSet<>();
+                ZipOutputStream zip = new ZipOutputStream(out);
+                for (InstanceLocations inst : insts) {
+                    String name = pathFormat.format(inst.getAttributes());
+                    addDirEntries(zip, name, dirPaths);
+                    zip.putNextEntry(new ZipEntry(name));
+                    new DicomObjectOutput(ctx, inst, acceptableZipTransferSyntaxes).write(zip);
+                    zip.closeEntry();
+                }
+                zip.finish();
+                zip.flush();
+            } catch (Exception e) {
+                throw new WebApplicationException(errResponseAsTextPlain(e));
             }
-            tsuids.remove(null);
-            acceptableTransferSyntaxes = tsuids;
-        }
-        return tsuids;
+        };
     }
 
-    private List<MediaType> acceptableMediaTypes() {
-        List<MediaType> mediaTypes = acceptableMediaTypes;
-        if (mediaTypes == null) {
-            mediaTypes = new ArrayList<>();
-            for (MediaType mediaType : headers.getAcceptableMediaTypes()) {
-                mediaTypes.add(mediaType.isWildcardType() ? mediaType : MediaTypes.getMultiPartRelatedType(mediaType));
-            }
-            mediaTypes.remove(null);
-            acceptableMediaTypes = mediaTypes;
+    private void addDirEntries(ZipOutputStream zip, String name, Set<String> added) throws IOException {
+        try {
+            IntStream.range(0, name.length())
+                    .filter(i -> name.charAt(i) == '/')
+                    .mapToObj(i -> name.substring(0, i + 1))
+                    .filter(dirPath -> added.add(dirPath))
+                    .forEach(dirPath -> {
+                        try {
+                            zip.putNextEntry(new ZipEntry(dirPath));
+                            zip.closeEntry();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof IOException)
+                throw (IOException) e.getCause();
         }
-        return mediaTypes;
-    }
-
-    private MediaType selectMediaType(MediaType... mediaTypes) {
-        for (MediaType acceptableMediaType : acceptableMediaTypes())
-            for (MediaType mediaType : mediaTypes)
-                if (mediaType.isCompatible(acceptableMediaType))
-                    return mediaType;
-        return null;
     }
 
     private void writeMetadataXML(MultipartRelatedOutput output, final RetrieveContext ctx,

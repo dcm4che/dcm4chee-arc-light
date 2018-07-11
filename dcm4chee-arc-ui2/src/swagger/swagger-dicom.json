@@ -289,7 +289,7 @@
         ],
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
+          "multipart/related;type=application/dicom+json"
         ],
         "parameters": [
           {
@@ -326,7 +326,7 @@
         "produces": [
           "multipart/related;type=application/dicom+xml",
           "application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -454,7 +454,7 @@
         "produces": [
           "multipart/related;type=application/dicom+xml",
           "application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -575,7 +575,7 @@
         "produces": [
           "multipart/related;type=application/dicom+xml",
           "application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -676,7 +676,7 @@
         "produces": [
           "multipart/related;type=application/dicom+xml",
           "application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -777,7 +777,7 @@
         "produces": [
           "multipart/related;type=application/dicom+xml",
           "application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -886,7 +886,8 @@
           "multipart/related;type=image/x-jls",
           "multipart/related;type=text/xml",
           "multipart/related;type=video/mpeg",
-          "multipart/related;type=video/mp4"
+          "multipart/related;type=video/mp4",
+          "application/zip"
         ],
         "parameters": [
           {
@@ -901,6 +902,12 @@
             "in": "path",
             "description": "Study Instance UID for a single Study",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
             "type": "string"
           }
         ],
@@ -928,11 +935,11 @@
         "consumes": [
           "multipart/related;type=application/dicom;boundary={messageBoundary}",
           "multipart/related;type=application/dicom+xml;boundary={messageBoundary}",
-          "multipart/related;type=application/json;boundary={messageBoundary}"
+          "multipart/related;type=application/dicom+json;boundary={messageBoundary}"
         ],
         "produces": [
           "multipart/related;type=application/dicom+xml",
-          "multipart/related;type=application/json"
+          "multipart/related;type=application/dicom+json"
         ],
         "parameters": [
           {
@@ -984,7 +991,8 @@
           "multipart/related;type=image/x-jls",
           "multipart/related;type=text/xml",
           "multipart/related;type=video/mpeg",
-          "multipart/related;type=video/mp4"
+          "multipart/related;type=video/mp4",
+          "application/zip"
         ],
         "parameters": [
           {
@@ -1006,6 +1014,12 @@
             "in": "path",
             "description": "Series Instance UID for a single Series",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
             "type": "string"
           }
         ],
@@ -1043,7 +1057,8 @@
           "multipart/related;type=image/x-jls",
           "multipart/related;type=text/xml",
           "multipart/related;type=video/mpeg",
-          "multipart/related;type=video/mp4"
+          "multipart/related;type=video/mp4",
+          "application/zip"
         ],
         "parameters": [
           {
@@ -1072,6 +1087,12 @@
             "in": "path",
             "description": "SOP Instance UID for a single SOP Instance",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
             "type": "string"
           }
         ],
@@ -1141,6 +1162,12 @@
             "description": "comma or %2C separated list of one or more non duplicate frame numbers",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
+            "type": "string"
           }
         ],
         "responses": {
@@ -1206,6 +1233,12 @@
             "description": "{dicomTag} or {dicomTag}/{itemIndex}/{AttributePath}'",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
+            "type": "string"
           }
         ],
         "responses": {
@@ -1234,7 +1267,7 @@
         "produces": [
           "multipart/related;type=application/dicom+xml",
           "application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -1255,6 +1288,12 @@
             "name": "includefields",
             "in": "query",
             "description": "only include attributes configured by named Metadata Filter",
+            "type": "string"
+          },
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
             "type": "string"
           }
         ],
@@ -1284,7 +1323,7 @@
         "produces": [
           "multipart/related;type=application/dicom+xml",
           "application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -1312,6 +1351,12 @@
             "name": "includefields",
             "in": "query",
             "description": "only include attributes configured by named Metadata Filter",
+            "type": "string"
+          },
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
             "type": "string"
           }
         ],
@@ -1341,7 +1386,7 @@
         "produces": [
           "multipart/related;type=application/dicom+xml",
           "application/dicom+json",
-          "application/json"
+          "application/dicom+json"
         ],
         "parameters": [
           {
@@ -1376,6 +1421,12 @@
             "name": "includefields",
             "in": "query",
             "description": "only include attributes configured by named Metadata Filter",
+            "type": "string"
+          },
+          {
+            "name": "accept",
+            "in": "query",
+            "description": "Alternative to Accept header",
             "type": "string"
           }
         ],

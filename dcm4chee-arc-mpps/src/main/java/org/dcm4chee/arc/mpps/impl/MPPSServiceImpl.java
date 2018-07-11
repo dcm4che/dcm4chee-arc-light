@@ -43,6 +43,7 @@ package org.dcm4chee.arc.mpps.impl;
 import org.dcm4che3.data.AttributesCoercion;
 import org.dcm4che3.data.NullifyAttributesCoercion;
 import org.dcm4che3.data.UID;
+import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.io.XSLTAttributesCoercion;
 import org.dcm4che3.net.Association;
@@ -122,10 +123,22 @@ public class MPPSServiceImpl implements MPPSService {
             try {
                 Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
                 LOG.info("Coerce Attributes from rule: {}", rule);
-                return new XSLTAttributesCoercion(tpls, null).includeKeyword(!rule.isNoKeywords());
+                return new XSLTAttributesCoercion(tpls, null)
+                        .includeKeyword(!rule.isNoKeywords())
+                        .setupTransformer(setupTransformer(ctx));
             } catch (TransformerConfigurationException e) {
                 LOG.error("{}: Failed to compile XSL: {}", ctx, xsltStylesheetURI, e);
             }
         return next;
+    }
+
+    private SAXTransformer.SetupTransformer setupTransformer(MPPSContext ctx) {
+        return t -> {
+            t.setParameter("LocalAET", ctx.getCalledAET());
+            if (ctx.getCallingAET() != null)
+                t.setParameter("RemoteAET", ctx.getCallingAET());
+
+            t.setParameter("RemoteHost", ctx.getRemoteHostName());
+        };
     }
 }

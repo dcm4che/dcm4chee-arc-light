@@ -363,6 +363,7 @@ export class DeviceConfiguratorService{
         return Observable.of([]);
     }
     convertSchemaToForm(device, schema, params, defaultOpenBlock){
+        let defaultExplicitSet = defaultOpenBlock;
         this.defaultOpenBlock = defaultOpenBlock || this.defaultOpenBlock;
         let form = [];
         if (_.hasIn(schema, 'type')){
@@ -411,7 +412,8 @@ export class DeviceConfiguratorService{
                     }
                 });
                 // console.log("form",Object.assign({},form));
-                this.showNextGroup(form);
+                console.log("params",params);
+                this.showNextGroup(form,defaultExplicitSet);
             }else{
                 console.error('expected path object, properties, array or item.properties in schema not found: ', schema);
             }
@@ -1011,7 +1013,8 @@ export class DeviceConfiguratorService{
         }
 
     }
-    showNextGroup(form){
+    showNextGroup(form, defaultExplicitSet){
+        console.log("defaultExplicitSet",defaultExplicitSet)
         let check = (order,i)=>{
                 switch(i){
                   case 1:
@@ -1030,18 +1033,18 @@ export class DeviceConfiguratorService{
             if(!extExist){
                 let childExist = false;
                 Object.keys(form).forEach(element=>{
-                    console.log("order2",check(form[element]['order'],2));
-                    console.log("order3",check(form[element]['order'],3));
-                    if(check(form[element]['order'],2)){
-                        childExist = true;
-                        form[element]['show'] = true;
-                    }else
-                        form[element]['show'] = false;
+                        if(check(form[element]['order'],2)){
+                            childExist = true;
+                            if(!defaultExplicitSet || defaultExplicitSet === "child" || defaultExplicitSet === "ext")
+                                form[element]['show'] = true;
+                        }else
+                            if(!defaultExplicitSet || defaultExplicitSet === "child" || defaultExplicitSet === "ext")
+                                form[element]['show'] = false;
                 });
                 if(!childExist){
                     Object.keys(form).forEach(element=>{
                         if(check(form[element]['order'],3)){
-                            form[element]['show'] = true;
+                                form[element]['show'] = true;
                         }
                     });
                 }

@@ -5,6 +5,8 @@ jms-queue add --queue-address=IANSCU --entries=java:/jms/queue/IANSCU
 jms-queue add --queue-address=Export1 --entries=java:/jms/queue/Export1
 jms-queue add --queue-address=Export2 --entries=java:/jms/queue/Export2
 jms-queue add --queue-address=Export3 --entries=java:/jms/queue/Export3
+jms-queue add --queue-address=Export4 --entries=java:/jms/queue/Export4
+jms-queue add --queue-address=Export5 --entries=java:/jms/queue/Export5
 jms-queue add --queue-address=HL7Send --entries=java:/jms/queue/HL7Send
 jms-queue add --queue-address=RSClient --entries=java:/jms/queue/RSClient
 jms-queue add --queue-address=CMoveSCU --entries=java:/jms/queue/CMoveSCU

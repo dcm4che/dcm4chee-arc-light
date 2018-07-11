@@ -79,6 +79,27 @@ export class j4care {
             return array;
         }
     }
+    static stringifyArrayOrObject(properties, exceptions){
+        Object.keys(properties).forEach(task=>{
+            if(_.isArray(properties[task]) && exceptions.indexOf(task) === -1){
+                if(properties[task].length === 2 && task.indexOf('Range') > -1)
+                    properties[task] = properties[task].join(' - ');
+                else{
+                    if(_.isObject(properties[task][0])){
+                        properties[task] = properties[task].map(t=>{
+                            return Object.keys(t).map(key=>{
+                                return `${key}=${t[key]}`
+                            });
+                        }).join('; ');
+                    }else{
+                        properties[task] = properties[task].join(', ');
+                    }
+                }
+            }
+            if(_.isObject(properties[task]) && exceptions.indexOf(task) === -1)
+                properties[task] = Object.keys(properties[task]).map(taskKey=>`${taskKey}=${properties[task][taskKey]}`).join(', ');
+        });
+    }
     static extendAetObjectWithAlias(aet){
         let aliases = [];
         let usedAliasNames = [];
@@ -533,4 +554,15 @@ export class j4care {
             };
         });
     }
+
+    static calculateWidthOfTable(table){
+        let summ = 0;
+        table.forEach((m)=>{
+            summ += m.widthWeight;
+        });
+        table.forEach((m)=>{
+            m.calculatedWidth =  ((m.widthWeight * 100)/summ)+"%";
+        });
+        return table;
+    };
 }

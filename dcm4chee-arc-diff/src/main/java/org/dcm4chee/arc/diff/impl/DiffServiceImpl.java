@@ -48,11 +48,11 @@ import org.dcm4che3.conf.api.IApplicationEntityCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.Device;
 import org.dcm4chee.arc.diff.*;
+import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.DiffTask;
 import org.dcm4chee.arc.entity.QueueMessage;
-import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
-import org.dcm4chee.arc.qmgt.Outcome;
-import org.dcm4chee.arc.qmgt.QueueSizeLimitExceededException;
+import org.dcm4chee.arc.event.QueueMessageEvent;
+import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -129,8 +129,55 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public List<byte[]> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit) {
+    public List<AttributesBlob> getDiffTaskAttributes(DiffTask diffTask, int offset, int limit) {
         return ejb.getDiffTaskAttributes(diffTask, offset, limit);
+    }
+
+    @Override
+    public List<AttributesBlob> getDiffTaskAttributes(String batchID, int offset, int limit) {
+        return ejb.getDiffTaskAttributes(batchID, offset, limit);
+    }
+
+    @Override
+    public List<DiffBatch> listDiffBatches(Predicate matchQueueBatch, Predicate matchDiffBatch, OrderSpecifier<Date> order,
+                                           int offset, int limit) {
+        return ejb.listDiffBatches(matchQueueBatch, matchDiffBatch, order, offset, limit);
+    }
+
+    @Override
+    public long diffTasksOfBatch(String batchID) {
+        return ejb.diffTasksOfBatch(batchID);
+    }
+
+    @Override
+    public boolean cancelDiffTask(Long pk, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
+        return ejb.cancelDiffTask(pk, queueEvent);
+    }
+
+    @Override
+    public long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        return ejb.cancelDiffTasks(matchQueueMessage, matchDiffTask, prev);
+    }
+
+    @Override
+    public String rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) {
+        return ejb.rescheduleDiffTask(pk, queueEvent);
+    }
+
+    @Override
+    public List<Long> getDiffTaskPks(Predicate matchQueueMessage, Predicate matchDiffTask, int limit) {
+        return ejb.getDiffTaskPks(matchQueueMessage, matchDiffTask, limit);
+    }
+
+    @Override
+    public boolean deleteDiffTask(Long pk, QueueMessageEvent queueEvent) {
+        return ejb.deleteDiffTask(pk, queueEvent);
+    }
+
+    @Override
+    public int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
+        return ejb.deleteTasks(matchQueueMessage, matchDiffTask);
     }
 
     private QueueMessage.Status check(String prompt, int failures, QueueMessage.Status status, StringBuilder sb) {

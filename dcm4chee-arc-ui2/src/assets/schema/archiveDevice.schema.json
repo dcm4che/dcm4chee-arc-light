@@ -6,6 +6,7 @@
     "dcmFuzzyAlgorithmClass",
     "dcmQueryRetrieveViewID",
     "dcmSeriesMetadataFetchSize",
+    "dcmPurgeInstanceRecords",
     "dcmPurgeInstanceRecordsFetchSize",
     "dcmOverwritePolicy",
     "dcmAcceptMissingPatientID",
@@ -16,6 +17,7 @@
     "dcmQueryFetchSize",
     "dcmQueryMaxNumberOfResults",
     "dcmQidoMaxNumberOfResults",
+    "dcmWadoZIPEntryNameFormat",
     "dcmIanOnTimeout",
     "dcmIanTaskFetchSize",
     "dcmSpanningCFindSCPPolicy",
@@ -41,6 +43,9 @@
     "dcmStoreUpdateDBMaxRetryDelay",
     "dcmAllowRejectionForDataRetentionPolicyExpired",
     "dcmAllowDeleteStudyPermanently",
+    "dcmAllowDeletePatient",
+    "dcmStgCmtPolicy",
+    "dcmStgCmtUpdateLocationStatus",
     "dcmQueueTasksFetchSize",
     "hl7PSUMWL",
     "hl7PSUOnTimeout",
@@ -92,21 +97,27 @@
       "minimum": 0,
       "exclusiveMinimum": true
     },
+    "dcmPurgeInstanceRecords": {
+      "title": "Purge Instance Records",
+      "description": "Indicates that Instance Records may be purged from the DB.",
+      "type": "boolean",
+      "default" : false
+    },
     "dcmPurgeInstanceRecordsDelay": {
-      "title": "Remove Instance Records Delay",
-      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB. If absent, Instance Records will never be purged. May be overwritten by configured values for particular Archive Network AEs.",
+      "title": "Purge Instance Records Delay",
+      "description": "Delay in ISO-8601 duration format PnDTnHnMn.nS for purging Instance Records from the DB. May be overwritten by configured values for particular Archive Network AEs. Only effective, if Purge Instance Records = true.",
       "type": "string",
       "format": "dcmDuration"
     },
     "dcmPurgeInstanceRecordsPollingInterval": {
-      "title": "Remove Instance Records Polling Interval",
-      "description": "Polling Interval for Series scheduled for purging Instance Records from the DB in ISO-8601 duration format PnDTnHnMn.nS. If absent, Instance Records will not be purged.",
+      "title": "Purge Instance Records Polling Interval",
+      "description": "Polling Interval for Series scheduled for purging Instance Records from the DB in ISO-8601 duration format PnDTnHnMn.nS. Only effective, if Purge Instance Records = true.",
       "type": "string",
       "format": "dcmDuration"
     },
     "dcmPurgeInstanceRecordsFetchSize": {
-      "title": "Remove Instance Records Fetch Size",
-      "description": "Maximal number of Series scheduled for purging Instance Records from the DB fetched by one query.",
+      "title": "Purge Instance Records Fetch Size",
+      "description": "Maximal number of Series scheduled for purging Instance Records from the DB fetched by one query. Only effective, if Purge Instance Records = true.",
       "type": "integer",
       "default" : 100,
       "minimum": 0,
@@ -218,6 +229,17 @@
       "description": "Specifies URI for the style sheet used to render structured reports to plain text. May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string"
     },
+    "dcmWadoCDA2HtmlTemplateURI": {
+      "title": "Wado CDA to HTML Template URI",
+      "description": "URL to XSL style sheet inserted as <?xml-stylesheet type=\"text/xsl\" href=\"<url>\" > in CDA documents returned by WADO-URI service. If absent, the embedded CDI document is returned verbatim. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "string"
+    },
+    "dcmWadoZIPEntryNameFormat": {
+      "title": "Wado ZIP Entry Name Format",
+      "description": "Format of entry names in ZIP archive returned by WADO-RS. May be overwritten by configured value for particular Archive Network AEs.",
+      "type": "string",
+      "default": "DICOM/{0020000D,hash}/{0020000E,hash}/{00080018,hash}"
+    },
     "dcmQueryFetchSize": {
       "title": "Query Fetch Size",
       "description": "Number of rows fetched from the database at once by the Query Service.",
@@ -293,7 +315,7 @@
     },
     "dcmSpanningCFindSCPPolicy": {
       "title": "Spanning C-Find SCP Policy",
-      "description": "Specifies policy for combining matches returned from configured Spanning C-Find SCP with matching entries from the archive DB. May be overwritten by configured values for particular Archive Network AEs.",
+      "description": "Specifies policy for combining matches returned from configured Spanning C-Find SCP with matching entries from the archive DB. SUPPLEMENT (= returns local matches before additional matches from Spanning C-Find SCP ), MERGE (= returns matches from Spanning C-Find SCP before additional local matches), REPLACE (= returns only matches from Spanning C-Find SCP). May be overwritten by configured values for particular Archive Network AEs.",
       "type": "string",
       "default": "REPLACE",
       "enum": [
@@ -666,6 +688,17 @@
         "REJECTED"
       ]
     },
+    "dcmAllowDeletePatient": {
+      "title": "Allow Delete Patient",
+      "description": "Allow permanent deletion of Patients. Enumerated values: NEVER, ALWAYS, WITHOUT_STUDIES. If absent, WITHOUT_STUDIES will be applied.",
+      "type": "string",
+      "default": "WITHOUT_STUDIES",
+      "enum": [
+          "NEVER",
+          "ALWAYS",
+          "WITHOUT_STUDIES"
+        ]
+      },
     "dcmStorePermissionServiceExpirationDatePattern": {
       "title": "Store Permission Service Expiration Date Pattern",
       "description": "Regular Expression applied to responses from Store Permission Service to extract the initial Study Expiration Date. E.g. \"expirationdate\"\\s*:\\s*\"([0-9]{8})\". If absent, locally configured Study Retention Policy Rules will be applied. May be overwritten by configured values for particular Archive Network AEs.",
@@ -727,24 +760,6 @@
       "default": 100,
       "minimum": 1
     },
-    "dcmAttributeFilter": {
-      "title": "Attribute Filter",
-      "description": "Specifies Attributes stored in the database",
-      "type": "array",
-      "titleKey":"{dcmEntity}",
-      "items" : {
-        "$ref": "attributeFilter.schema.json"
-      }
-    },
-    "dcmAttributeSet": {
-      "title": "Attribute Set",
-      "description": "Named Attribute Set for Query Parameter 'comparefield' of DIFF-RS and Query Parameter 'includefields' of WADO-RS Metadata requests.",
-      "type": "array",
-      "titleKey":"{dcmAttributeSetType}:{dcmAttributeSetID}",
-      "items" : {
-        "$ref": "attributeSet.schema.json"
-      }
-    },
     "dcmRemapRetrieveURL": {
       "title": "Remap Retrieve URL",
       "description": "Remap Retrieve URL used in QIDO-RS and WADO-RS Metadata responses. Optionally prefixed with \"[<http-client-host>]\". E.g.: \"[cache-proxy]http://cache-proxy:8080\". If absent or if the specified <http-client-host> does not match, scheme and server authority of the QIDO-RS or WADO-RS request URL are used.",
@@ -753,11 +768,6 @@
     "dcmAuditRecordRepositoryURL": {
       "title": "Audit Record Repository URL",
       "description": "Access URL of Audit Record Repository. E.g. http://kibana:5601",
-      "type": "string"
-    },
-    "dcmElasticSearchURL": {
-      "title": "Elastic Search URL",
-      "description": "Access URL of Elastic Search. E.g. http://elasticsearch:9200",
       "type": "string"
     },
     "dcmAudit2JsonFhirTemplateURI": {
@@ -801,6 +811,33 @@
         "OVERWRITE",
         "REPLACE"
       ]
+    },
+    "dcmStgCmtPolicy": {
+      "title": "Storage Commitment Policy",
+      "description": "DB_RECORD_EXISTS: only check for existence of DB records, OBJECT_EXISTS: check if object exists on Storage System, OBJECT_SIZE: check size of object on Storage System, OBJECT_FETCH: fetch object from Storage System), OBJECT_CHECKSUM: recalculate checksum of object on Storage System, S3_MD5SUM: check MD5 checksum of object on S3 Storage System. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "string",
+      "default": "OBJECT_CHECKSUM",
+      "enum": [
+        "DB_RECORD_EXISTS",
+        "OBJECT_EXISTS",
+        "OBJECT_SIZE",
+        "OBJECT_FETCH",
+        "OBJECT_CHECKSUM",
+        "S3_MD5SUM"
+      ]
+    },
+    "dcmStgCmtUpdateLocationStatus": {
+      "title": "Storage Commitment Update Location Status",
+      "description": "Indicates if the Status of the Location DB record shall be updated on Storage Commitment accordingly. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "boolean",
+      "default": false
+    },
+    "dcmStgCmtStorageID": {
+      "title": "Storage Commitment Storage IDs",
+      "description": "Only accept Storage Commitment if the validation of the storage of the object on one of the specified Storage Systems is successful. If absent, validation of the storage of the object on any Storage System is sufficient to accept the Storage Commitment for that object. Not effective with Storage Commitment Policy: DB_RECORD_EXISTS. May be overwritten by configured values for particular Archive Network AEs.",
+      "type": "array",
+      "items" : { "type": "string" },
+      "format": "dcmStorageID"
     },
     "hl7ADTSendingApplication": {
       "title": "HL7 ADT Sending Application",
@@ -896,6 +933,24 @@
       "type": "string",
       "format": "dicomDeviceName"
     },
+    "dcmAttributeFilter": {
+      "title": "Attribute Filter",
+      "description": "Specifies Attributes stored in the database",
+      "type": "array",
+      "titleKey":"{dcmEntity}",
+      "items" : {
+        "$ref": "attributeFilter.schema.json"
+      }
+    },
+    "dcmAttributeSet": {
+      "title": "Attribute Set",
+      "description": "Named Attribute Set for Query Parameter 'comparefield' of DIFF-RS and Query Parameter 'includefields' of WADO-RS Metadata requests.",
+      "type": "array",
+      "titleKey":"{dcmAttributeSetType}:{dcmAttributeSetID}",
+      "items" : {
+        "$ref": "attributeSet.schema.json"
+      }
+    },
     "dcmStorage": {
       "title": "Storage Descriptor",
       "description": "Specifies Storage System",
@@ -948,6 +1003,15 @@
       "titleKey":"{cn}",
       "items" : {
         "$ref": "rsForwardRule.schema.json"
+      }
+    },
+    "dcmKeycloakServer": {
+      "title": "Keycloak Server",
+      "description": "Keycloak Server",
+      "type": "array",
+      "titleKey":"{dcmKeycloakServerID}",
+      "items" : {
+        "$ref": "keycloakServer.schema.json"
       }
     },
     "dcmArchiveCompressionRule": {
@@ -1007,6 +1071,14 @@
     "dcmXRoadProperty": {
       "title": "X-Road Property",
       "description": "Properties for accessing Estonian National Patient Registry in format <name>=<value>",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dcmImpaxReportProperty": {
+      "title": "Impax Report Property",
+      "description": "Properties for accessing Agfa Impax Report Service in format <name>=<value>",
       "type": "array",
       "items": {
         "type": "string"

@@ -40,13 +40,22 @@
 
 package org.dcm4chee.arc.conf.ui;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @since Dec 2017
  */
 public class UIDashboardConfig {
     private String name;
     private String[] queueNames = {};
+    private String[] exportNames = {};
     private String[] deviceNames = {};
+    private String countAet;
+    private String[] ignoreParams = {};
+    private final Map<String,UICompareSide> compareSide = new HashMap<>();
+
 
     public UIDashboardConfig() {
     }
@@ -71,11 +80,47 @@ public class UIDashboardConfig {
         this.queueNames = queueNames;
     }
 
+    public String[] getExportNames() {
+        return exportNames;
+    }
+
+    public void setExportNames(String[] exportNames) {
+        this.exportNames = exportNames;
+    }
+
     public String[] getDeviceNames() {
         return deviceNames;
     }
 
     public void setDeviceNames(String[] deviceNames) {
         this.deviceNames = deviceNames;
+    }
+
+    public String getCountAet() { return countAet; }
+
+    public void setCountAet(String countAet) { this.countAet = countAet; }
+
+    public String[] getIgnoreParams() {
+        return ignoreParams;
+    }
+
+    public void setIgnoreParams(String[] ignoreParams) {
+        this.ignoreParams = ignoreParams;
+    }
+
+    public void addCompareSide(UICompareSide side){
+        this.compareSide.put(side.getName(),side);
+    }
+
+    public UICompareSide removeCompareSide(String name){
+        return this.compareSide.remove(name);
+    }
+
+    public UICompareSide getCompareSide(String name){
+        return this.compareSide.get(name);
+    }
+
+    public Collection<UICompareSide> getCompareSides(){
+        return this.compareSide.values();
     }
 }

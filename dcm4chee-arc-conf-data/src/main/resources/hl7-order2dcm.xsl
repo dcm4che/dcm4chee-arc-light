@@ -181,7 +181,11 @@
           <xsl:call-template name="attr">
             <xsl:with-param name="tag" select="'00400001'"/>
             <xsl:with-param name="vr" select="'AE'"/>
-            <xsl:with-param name="val" select="string(field[18]/text())"/>
+            <xsl:with-param name="val">
+              <xsl:call-template name="multiValue">
+                <xsl:with-param name="field" select="field[18]"/>
+              </xsl:call-template>
+            </xsl:with-param>
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise/>
@@ -295,7 +299,11 @@
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'00400010'"/>
       <xsl:with-param name="vr" select="'SH'"/>
-      <xsl:with-param name="val" select="string(field[7]/text())"/>
+      <xsl:with-param name="val">
+        <xsl:call-template name="multiValue">
+          <xsl:with-param name="field" select="field[7]"/>
+        </xsl:call-template>
+      </xsl:with-param>
     </xsl:call-template>
     <!-- Scheduled Procedure Step Location -->
     <xsl:call-template name="attr">
@@ -307,7 +315,22 @@
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'00400001'"/>
       <xsl:with-param name="vr" select="'AE'"/>
-      <xsl:with-param name="val" select="string(field[9]/text())"/>
+      <xsl:with-param name="val">
+        <xsl:call-template name="multiValue">
+          <xsl:with-param name="field" select="field[9]"/>
+        </xsl:call-template>
+      </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
+
+  <xsl:template name="multiValue">
+    <xsl:param name="field"/>
+    <xsl:variable name="repeat">
+      <xsl:for-each select="$field/repeat">
+        <xsl:value-of select="concat('\', text())" />
+      </xsl:for-each>
+    </xsl:variable>
+    <xsl:value-of select="concat($field/text(), $repeat)"/>
+  </xsl:template>
+
 </xsl:stylesheet>

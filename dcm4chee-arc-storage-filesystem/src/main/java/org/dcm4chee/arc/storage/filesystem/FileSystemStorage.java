@@ -86,6 +86,18 @@ public class FileSystemStorage extends AbstractStorage {
     }
 
     @Override
+    public boolean exists(ReadContext ctx) {
+        Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
+        return Files.exists(path);
+    }
+
+    @Override
+    public long getContentLength(ReadContext ctx) throws IOException {
+        Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
+        return Files.size(path);
+    }
+
+    @Override
     public long getUsableSpace() throws IOException {
         return getFileStore().getUsableSpace();
     }
@@ -115,6 +127,21 @@ public class FileSystemStorage extends AbstractStorage {
             }
         ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
         return stream;
+    }
+
+    @Override
+    protected void copyA(InputStream in, WriteContext ctx) throws IOException {
+        Path path = Paths.get(rootURI.resolve(pathFormat.format(ctx.getAttributes())));
+        Path dir = path.getParent();
+        Files.createDirectories(dir);
+        long copy = 0L;
+        while (copy == 0L)
+            try {
+                copy = Files.copy(in, path);
+            } catch (FileAlreadyExistsException e) {
+                path = dir.resolve(String.format("%08X", ThreadLocalRandom.current().nextInt()));
+            }
+        ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
     }
 
     @Override

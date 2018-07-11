@@ -63,9 +63,7 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
-import org.dcm4chee.arc.retrieve.RetrieveContext;
-import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.storage.*;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -120,9 +118,6 @@ class StoreServiceImpl implements StoreService {
     private Event<SoftwareConfiguration> softwareConfigurationEvent;
 
     @Inject
-    private RetrieveService retrieveService;
-
-    @Inject
     private MergeMWLCache mergeMWLCache;
 
     @Override
@@ -143,10 +138,10 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public StoreSession newStoreSession(ApplicationEntity ae, String rejectionNoteObjectStorageID) {
+    public StoreSession newStoreSession(ApplicationEntity ae, String objectID) {
         StoreSessionImpl session = new StoreSessionImpl(this);
         session.setApplicationEntity(ae);
-        session.setObjectStorageID(rejectionNoteObjectStorageID);
+        session.setObjectStorageID(objectID);
         return session;
     }
 
@@ -188,7 +183,7 @@ class StoreServiceImpl implements StoreService {
                 LOG.warn("{}: Failed to store received object:\n", ctx.getStoreSession(), e);
                 throw new DicomServiceException(Status.OutOfResources, e);
             } catch (Throwable e) {
-                LOG.warn("{}: Failed to parse received object:\n", ctx.getStoreSession(), e);
+                LOG.warn("{}: Failed to valueOf received object:\n", ctx.getStoreSession(), e);
                 throw new DicomServiceException(Status.ProcessingFailure, e);
             }
             if (ctx.getAcceptedStudyInstanceUID() != null
@@ -226,7 +221,9 @@ class StoreServiceImpl implements StoreService {
         for (;;) {
             try {
                 UpdateDBResult result = new UpdateDBResult();
+                long start = System.currentTimeMillis();
                 ejb.updateDB(ctx, result);
+                LOG.info("{}: Updated DB in {} ms", session, System.currentTimeMillis() - start);
                 return result;
             } catch (EJBException e) {
                 if (retries-- > 0) {
@@ -279,6 +276,21 @@ class StoreServiceImpl implements StoreService {
     @Override
     public List<String> studyIUIDsByAccessionNo(String accNo) {
         return accNo != null ? ejb.studyIUIDsByAccessionNo(accNo) : Collections.emptyList();
+    }
+
+    @Override
+    public void addLocation(StoreSession session, Long instancePk, Location location) {
+        ejb.addLocation(session, instancePk, location);
+    }
+
+    @Override
+    public Study addStorageID(String studyIUID, String storageID) {
+        return ejb.addStorageID(studyIUID, storageID);
+    }
+
+    @Override
+    public void scheduleMetadataUpdate(Study study, String seriesIUID) {
+        ejb.scheduleMetadataUpdate(study, seriesIUID);
     }
 
     @Override
@@ -356,46 +368,6 @@ class StoreServiceImpl implements StoreService {
         refSOPSeq.add(refSOP);
     }
 
-    @Override
-    public Collection<InstanceLocations> queryInstances(
-            StoreSession session, Attributes instanceRefs, String targetStudyIUID)
-            throws IOException {
-        Map<String, String> uidMap = session.getUIDMap();
-        String sourceStudyUID = instanceRefs.getString(Tag.StudyInstanceUID);
-        uidMap.put(sourceStudyUID, targetStudyIUID);
-        Sequence refSeriesSeq = instanceRefs.getSequence(Tag.ReferencedSeriesSequence);
-        Map<String, Set<String>> refIUIDsBySeriesIUID = new HashMap<>();
-        RetrieveContext ctx;
-        if (refSeriesSeq == null) {
-            ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
-                    sourceStudyUID);
-        } else {
-            for (Attributes item : refSeriesSeq) {
-                String seriesIUID = item.getString(Tag.SeriesInstanceUID);
-                uidMap.put(seriesIUID, UIDUtils.createUID());
-                refIUIDsBySeriesIUID.put(seriesIUID, refIUIDs(item.getSequence(Tag.ReferencedSOPSequence)));
-            }
-            ctx = retrieveService.newRetrieveContextIOCM(session.getHttpRequest(), session.getCalledAET(),
-                    sourceStudyUID, refIUIDsBySeriesIUID.keySet().toArray(new String[refIUIDsBySeriesIUID.size()]));
-        }
-        ctx.setObjectType(null);
-        if (!retrieveService.calculateMatches(ctx))
-            return null;
-        Collection<InstanceLocations> matches = ctx.getMatches();
-        Iterator<InstanceLocations> matchesIter = matches.iterator();
-        while (matchesIter.hasNext()) {
-            InstanceLocations il = matchesIter.next();
-            if (contains(refIUIDsBySeriesIUID, il)) {
-                uidMap.put(il.getSopInstanceUID(), UIDUtils.createUID());
-                if (refSeriesSeq == null)
-                    if (!uidMap.containsKey(il.getAttributes().getString(Tag.SeriesInstanceUID)))
-                        uidMap.put(il.getAttributes().getString(Tag.SeriesInstanceUID), UIDUtils.createUID());
-            } else
-                matchesIter.remove();
-        }
-        return matches;
-    }
-
     private void checkCharacterSet(StoreContext ctx) {
         Attributes attrs = ctx.getAttributes();
         if (attrs.contains(Tag.SpecificCharacterSet))
@@ -418,20 +390,6 @@ class StoreServiceImpl implements StoreService {
                 jsonWriter.write(ctx.getAttributes());
             }
         }
-    }
-
-    private Set<String> refIUIDs(Sequence refSOPSeq) {
-        if (refSOPSeq == null)
-            return null;
-        Set<String> iuids = new HashSet<>(refSOPSeq.size() * 4 / 3 + 1);
-        for (Attributes refSOP : refSOPSeq)
-            iuids.add(refSOP.getString(Tag.ReferencedSOPInstanceUID));
-        return iuids;
-    }
-
-    private boolean contains(Map<String, Set<String>> refIUIDsBySeriesIUID, InstanceLocations il) {
-        Set<String> iuids = refIUIDsBySeriesIUID.get(il.getAttributes().getString(Tag.SeriesInstanceUID));
-        return iuids == null || iuids.contains(il.getSopInstanceUID());
     }
 
     private static void revokeStorage(StoreContext ctx, UpdateDBResult result) {
@@ -476,11 +434,23 @@ class StoreServiceImpl implements StoreService {
             try {
                 Templates tpls = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(xsltStylesheetURI));
                 LOG.info("Coerce Attributes from rule: {}", rule);
-                return new XSLTAttributesCoercion(tpls, null).includeKeyword(!rule.isNoKeywords());
+                return new XSLTAttributesCoercion(tpls, null)
+                        .includeKeyword(!rule.isNoKeywords())
+                        .setupTransformer(setupTransformer(ctx.getStoreSession()));
             } catch (TransformerConfigurationException e) {
                 LOG.error("{}: Failed to compile XSL: {}", ctx.getStoreSession(), xsltStylesheetURI, e);
             }
         return next;
+    }
+
+    private SAXTransformer.SetupTransformer setupTransformer(StoreSession session) {
+        return t -> {
+            t.setParameter("LocalAET", session.getCalledAET());
+            if (session.getCallingAET() != null)
+                t.setParameter("RemoteAET", session.getCallingAET());
+
+            t.setParameter("RemoteHost", session.getRemoteHostName());
+        };
     }
 
     private AttributesCoercion mergeAttributesFromMWL(
@@ -656,8 +626,9 @@ class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public void restoreInstances(StoreSession session, String studyUID, String seriesUID) throws IOException {
-        ejb.restoreInstances(session, studyUID, seriesUID);
+    public List<Instance> restoreInstances(StoreSession session, String studyUID, String seriesUID, Duration duration)
+            throws IOException {
+        return ejb.restoreInstances(session, studyUID, seriesUID, duration);
     }
 
     private ArchiveCompressionRule selectCompressionRule(Transcoder transcoder, StoreContext storeContext) {

@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.storage.cloud;
 
+import com.google.common.hash.HashCode;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4chee.arc.conf.StorageDescriptor;
@@ -50,11 +51,13 @@ import org.jclouds.ContextBuilder;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.domain.Blob;
+import org.jclouds.blobstore.domain.BlobMetadata;
 import org.jclouds.io.Payload;
 import org.jclouds.io.payloads.InputStreamPayload;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 
 import java.io.*;
+import java.nio.file.NoSuchFileException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
@@ -144,6 +147,11 @@ public class CloudStorage extends AbstractStorage {
     }
 
     @Override
+    protected void copyA(InputStream in, WriteContext ctx) throws IOException {
+        upload(ctx, in);
+    }
+
+    @Override
     protected void afterOutputStreamClosed(WriteContext ctx) throws IOException {
         FutureTask<Void> task = ((CloudWriteContext) ctx).getUploadTask();
         try {
@@ -182,6 +190,33 @@ public class CloudStorage extends AbstractStorage {
     }
 
     @Override
+    public boolean exists(ReadContext ctx) {
+        BlobStore blobStore = context.getBlobStore();
+        return blobStore.blobExists(container, ctx.getStoragePath());
+    }
+
+    @Override
+    public long getContentLength(ReadContext ctx) throws IOException {
+        BlobStore blobStore = context.getBlobStore();
+        BlobMetadata blobMetadata = blobStore.blobMetadata(container, ctx.getStoragePath());
+        if (blobMetadata == null)
+            throw objectNotFound(ctx.getStoragePath());
+
+        return blobMetadata.getContentMetadata().getContentLength();
+    }
+
+    @Override
+    public byte[] getContentMD5(ReadContext ctx) throws IOException {
+        BlobStore blobStore = context.getBlobStore();
+        BlobMetadata blobMetadata = blobStore.blobMetadata(container, ctx.getStoragePath());
+        if (blobMetadata == null)
+            throw objectNotFound(ctx.getStoragePath());
+
+        HashCode hashCode = blobMetadata.getContentMetadata().getContentMD5AsHashCode();
+        return hashCode != null ? hashCode.asBytes() : null;
+    }
+
+    @Override
     public void deleteObject(String storagePath) throws IOException {
         BlobStore blobStore = context.getBlobStore();
         if (!blobStore.blobExists(container, storagePath))
@@ -190,7 +225,7 @@ public class CloudStorage extends AbstractStorage {
     }
 
     private IOException objectNotFound(String storagePath) {
-        return new IOException("No Object[" + storagePath
+        return new NoSuchFileException("No Object[" + storagePath
                 + "] in Container[" + container
                 + "] on " + getStorageDescriptor());
     }

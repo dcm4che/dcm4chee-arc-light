@@ -59,7 +59,8 @@ import org.dcm4chee.arc.patient.*;
 import org.dcm4chee.arc.procedure.ProcedureContext;
 import org.dcm4chee.arc.procedure.ProcedureService;
 import org.dcm4chee.arc.query.QueryService;
-import org.dcm4chee.arc.retrieve.InstanceLocations;
+import org.dcm4chee.arc.retrieve.RetrieveService;
+import org.dcm4chee.arc.store.InstanceLocations;
 import org.dcm4chee.arc.rs.client.RSForward;
 import org.dcm4chee.arc.store.StoreContext;
 import org.dcm4chee.arc.store.StoreService;
@@ -103,6 +104,9 @@ public class IocmRS {
 
     @Inject
     private QueryService queryService;
+
+    @Inject
+    private RetrieveService retrieveService;
 
     @Inject
     private StoreService storeService;
@@ -170,7 +174,7 @@ public class IocmRS {
     @Consumes("application/json")
     @Produces("application/json")
     public Response copyInstances(@PathParam("StudyUID") String studyUID, InputStream in) throws Exception {
-        return copyOrMoveInstances(RSOperation.CopyInstances, studyUID, in, null, null);
+        return copyOrMoveInstances(studyUID, in, null, null);
     }
 
     @POST
@@ -182,7 +186,7 @@ public class IocmRS {
             @PathParam("CodeValue") String codeValue,
             @PathParam("CodingSchemeDesignator") String designator,
             InputStream in) throws Exception {
-        return copyOrMoveInstances(RSOperation.MoveInstances, studyUID, in, codeValue, designator);
+        return copyOrMoveInstances(studyUID, in, codeValue, designator);
     }
 
     @DELETE
@@ -194,16 +198,26 @@ public class IocmRS {
         if (patient == null)
             throw new WebApplicationException(errResponse(
                     "Patient having patient ID : " + patientID + " not found.", Response.Status.NOT_FOUND));
-        if (patient.getNumberOfStudies() > 0)
-            throw new WebApplicationException(errResponse(
-                    "Patient having patient ID : " + patientID + " has non empty studies.", Response.Status.FORBIDDEN));
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
-        ctx.setPatientID(patientID);
-        ctx.setAttributes(patient.getAttributes());
-        ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
-        ctx.setPatient(patient);
-        deletionService.deletePatient(ctx);
-        rsForward.forward(RSOperation.DeletePatient, arcAE, null, request);
+        AllowDeletePatient allowDeletePatient = arcAE.allowDeletePatient();
+        String patientDeleteForbidden = allowDeletePatient == AllowDeletePatient.NEVER
+                ? "Patient deletion as per configuration is never allowed."
+                : allowDeletePatient == AllowDeletePatient.WITHOUT_STUDIES && patient.getNumberOfStudies() > 0
+                    ? "Patient having patient ID : " + patientID + " has non empty studies."
+                    : null;
+        if (patientDeleteForbidden != null)
+            throw new WebApplicationException(errResponse(patientDeleteForbidden, Response.Status.FORBIDDEN));
+
+        try {
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(request);
+            ctx.setPatientID(patientID);
+            ctx.setAttributes(patient.getAttributes());
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
+            ctx.setPatient(patient);
+            deletionService.deletePatient(ctx, arcAE);
+            rsForward.forward(RSOperation.DeletePatient, arcAE, null, request);
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
+        }
     }
 
     @DELETE
@@ -212,13 +226,15 @@ public class IocmRS {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
         try {
-            deletionService.deleteStudy(studyUID, HttpServletRequestInfo.valueOf(request), arcAE.getApplicationEntity());
+            deletionService.deleteStudy(studyUID, HttpServletRequestInfo.valueOf(request), arcAE);
             rsForward.forward(RSOperation.DeleteStudy, arcAE, null, request);
         } catch (StudyNotFoundException e) {
-            throw new WebApplicationException(errResponse("Study having study instance UID " + studyUID + " not found.",
+            throw new WebApplicationException(errResponse("Study with study instance UID " + studyUID + " not found.",
                     Response.Status.NOT_FOUND));
         } catch (StudyNotEmptyException e) {
             throw new WebApplicationException(errResponse(e.getMessage() + studyUID, Response.Status.FORBIDDEN));
+        } catch (Exception e) {
+            throw new WebApplicationException(errResponseAsTextPlain(e));
         }
     }
 
@@ -502,7 +518,6 @@ public class IocmRS {
         String rejectionNoteObjectStorageID = rjNote != null ? rejectionNoteObjectStorageID() : null;
         ArchiveAEExtension arcAE = getArchiveAE();
         Attributes instanceRefs = parseSOPInstanceReferences(in);
-        Attributes forwardOriginal = new Attributes(instanceRefs);
 
         ProcedureContext ctx = procedureService.createProcedureContextWEB(request);
         ctx.setStudyInstanceUID(studyUID);
@@ -520,7 +535,7 @@ public class IocmRS {
 
         StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), rejectionNoteObjectStorageID);
         restoreInstances(session, instanceRefs);
-        Collection<InstanceLocations> instanceLocations = storeService.queryInstances(session, instanceRefs, studyUID);
+        Collection<InstanceLocations> instanceLocations = retrieveService.queryInstances(session, instanceRefs, studyUID);
         if (instanceLocations.isEmpty())
             return errResponse("No Instances found. ", Response.Status.NOT_FOUND);
 
@@ -539,7 +554,6 @@ public class IocmRS {
             result = storeService.copyInstances(session, instanceLocations);
             rejectInstances(instanceRefs, rjNote, session, result);
         }
-        rsForward.forward(RSOperation.LinkInstancesWithMWL, arcAE, forwardOriginal, request);
         return toResponse(result);
     }
 
@@ -611,7 +625,7 @@ public class IocmRS {
             ArchiveAEExtension arcAE = getArchiveAE();
             RejectionNote rjNote = toRejectionNote(codeValue, designator);
             StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(), rejectionNoteObjectStorageID());
-            storeService.restoreInstances(session, studyUID, seriesUID);
+            storeService.restoreInstances(session, studyUID, seriesUID, null);
 
             Attributes attrs = queryService.createRejectionNote(
                     arcAE.getApplicationEntity(), studyUID, seriesUID, objectUID, rjNote);
@@ -634,18 +648,16 @@ public class IocmRS {
         }
     }
 
-    private Response copyOrMoveInstances(
-            RSOperation op, String studyUID, InputStream in, String codeValue, String designator)
+    private Response copyOrMoveInstances(String studyUID, InputStream in, String codeValue, String designator)
             throws Exception {
         logRequest();
         RejectionNote rjNote = toRejectionNote(codeValue, designator);
         ArchiveAEExtension arcAE = getArchiveAE();
         Attributes instanceRefs = parseSOPInstanceReferences(in);
-        Attributes forwardOriginal = new Attributes(instanceRefs);
         StoreSession session = storeService.newStoreSession(request, arcAE.getApplicationEntity(),
                 rjNote != null ? rejectionNoteObjectStorageID() : null);
         restoreInstances(session, instanceRefs);
-        Collection<InstanceLocations> instances = storeService.queryInstances(session, instanceRefs, studyUID);
+        Collection<InstanceLocations> instances = retrieveService.queryInstances(session, instanceRefs, studyUID);
         if (instances.isEmpty())
             return errResponse("No Instances found. ", Response.Status.NOT_FOUND);
 
@@ -658,7 +670,6 @@ public class IocmRS {
         if (rjNote != null)
             rejectInstances(instanceRefs, rjNote, session, result);
 
-        rsForward.forward(op, arcAE, forwardOriginal, request);
         return toResponse(result);
     }
 
@@ -666,9 +677,9 @@ public class IocmRS {
         String studyUID = sopInstanceRefs.getString(Tag.StudyInstanceUID);
         Sequence seq = sopInstanceRefs.getSequence(Tag.ReferencedSeriesSequence);
         if (seq == null || seq.isEmpty())
-            storeService.restoreInstances(session, studyUID, null);
+            storeService.restoreInstances(session, studyUID, null, null);
         else for (Attributes item : seq)
-            storeService.restoreInstances(session, studyUID, item.getString(Tag.SeriesInstanceUID));
+            storeService.restoreInstances(session, studyUID, item.getString(Tag.SeriesInstanceUID), null);
     }
 
     private RejectionNote toRejectionNote(String codeValue, String designator) {
@@ -939,6 +950,6 @@ public class IocmRS {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         String exceptionAsString = sw.toString();
-        return Response.status(Response.Status.BAD_REQUEST).entity(exceptionAsString).type("text/plain").build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 }

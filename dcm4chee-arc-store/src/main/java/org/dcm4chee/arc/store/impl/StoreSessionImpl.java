@@ -45,6 +45,7 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Series;
@@ -213,7 +214,7 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public String getRemoteHostName() {
         return httpRequest != null ? httpRequest.getRemoteHost()
-                : socket != null ? socket.getInetAddress().getHostName()
+                : socket != null ? ReverseDNS.hostNameOf(socket.getInetAddress())
                 : null;
     }
 

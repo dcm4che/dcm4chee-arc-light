@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.export.mgt;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -124,16 +125,16 @@ public class ExportBatch {
         return deviceNames;
     }
 
-    public void setDeviceNames(String[] deviceNames) {
-        this.deviceNames = deviceNames;
+    public void setDeviceNames(List<String> deviceNames) {
+        this.deviceNames = deviceNames.toArray(new String[0]);
     }
 
     public String[] getExporterIDs() {
         return exporterIDs;
     }
 
-    public void setExporterIDs(String[] exporterIDs) {
-        this.exporterIDs = exporterIDs;
+    public void setExporterIDs(List<String> exporterIDs) {
+        this.exporterIDs = exporterIDs.toArray(new String[0]);
     }
 
     public int getCompleted() {

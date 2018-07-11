@@ -57,6 +57,10 @@ import java.util.Date;
     query="select mpps from MPPS mpps " +
             "where mpps.patient = ?1"),
 @NamedQuery(
+        name=MPPS.DELETE_BY_PATIENT,
+        query="delete from MPPS mpps " +
+                "where mpps.patient = ?1"),
+@NamedQuery(
     name=MPPS.FIND_BY_SOP_INSTANCE_UID,
     query="select mpps from MPPS mpps " +
             "where mpps.sopInstanceUID = ?1"),
@@ -78,6 +82,7 @@ public class MPPS {
     }
 
     public static final String FIND_BY_PATIENT = "MPPS.findByPatient";
+    public static final String DELETE_BY_PATIENT = "MPPS.deleteByPatient";
     public static final String FIND_BY_SOP_INSTANCE_UID =  "MPPS.findBySOPInstanceUID";
     public static final String FIND_BY_SOP_INSTANCE_UID_EAGER =  "MPPS.findBySOPInstanceUID";
 

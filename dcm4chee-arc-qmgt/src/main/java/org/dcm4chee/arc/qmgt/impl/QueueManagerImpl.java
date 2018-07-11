@@ -48,7 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.jms.ObjectMessage;
 import java.io.Serializable;
@@ -65,9 +64,6 @@ public class QueueManagerImpl implements QueueManager {
 
     @Inject
     private QueueManagerEJB ejb;
-
-    @Inject
-    private Event<MessageCanceled> messageCanceledEvent;
 
     @Override
     public ObjectMessage createObjectMessage(Serializable object) {
@@ -116,11 +112,7 @@ public class QueueManagerImpl implements QueueManager {
 
     @Override
     public boolean cancelTask(String msgId, QueueMessageEvent queueEvent) throws IllegalTaskStateException {
-        if (!ejb.cancelTask(msgId, queueEvent))
-            return false;
-
-        messageCanceledEvent.fire(new MessageCanceled(msgId));
-        return true;
+        return ejb.cancelTask(msgId, queueEvent);
     }
 
     @Override
@@ -160,14 +152,24 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public boolean rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException {
+    public long cancelDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask, QueueMessage.Status prev)
+            throws IllegalTaskStateException {
+        if (prev == QueueMessage.Status.IN_PROCESS) {
+            List<String> msgIDs = ejb.getDiffTasksReferencedQueueMsgIDs(matchQueueMessage, matchDiffTask);
+            for (String msgID : msgIDs)
+                cancelTask(msgID, null);
+            return msgIDs.size();
+        }
+        return ejb.cancelDiffTasks(matchQueueMessage, matchDiffTask);
+    }
+
+    @Override
+    public String rescheduleTask(String msgId, String queueName, QueueMessageEvent queueEvent) {
         return ejb.rescheduleTask(msgId, queueName, queueEvent);
     }
 
     @Override
-    public boolean rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent)
-            throws IllegalTaskStateException, DifferentDeviceException {
+    public String rescheduleTask(QueueMessage task, String queueName, QueueMessageEvent queueEvent) {
         return ejb.rescheduleTask(task, queueName, queueEvent);
     }
 
@@ -182,17 +184,17 @@ public class QueueManagerImpl implements QueueManager {
     }
 
     @Override
-    public List<QueueMessage> search(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit) {
-        return ejb.search(matchQueueMessage, order, offset, limit);
-    }
-
-    @Override
     public long countTasks(Predicate matchQueueMessage) {
         return ejb.countTasks(matchQueueMessage);
     }
 
     @Override
-    public List<String> getQueueMsgIDs(Predicate matchQueueMessage, int limit) {
-        return ejb.getQueueMsgIDs(matchQueueMessage, limit);
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage) {
+        return ejb.listDistinctDeviceNames(matchQueueMessage);
+    }
+
+    @Override
+    public QueueMessageQuery listQueueMessages(Predicate matchQueueMessage, OrderSpecifier<Date> order, int offset, int limit) {
+        return ejb.listQueueMessages(matchQueueMessage, order, offset, limit);
     }
 }

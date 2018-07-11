@@ -106,6 +106,8 @@ public class QueryAETs {
             writer.writeNotNullOrDef("dcmInvokeImageDisplayStudyURL",
                     arcAE.invokeImageDisplayStudyURL(), null);
             writer.writeNotEmpty("dcmAcceptedUserRole", arcAE.getAcceptedUserRoles());
+            writer.writeNotNullOrDef("dcmAllowDeletePatient", arcAE.allowDeletePatient(), null);
+            writer.writeNotNullOrDef("dcmAllowDeleteStudyPermanently", arcAE.allowDeleteStudy(), null);
         }
         gen.writeEnd();
     }
