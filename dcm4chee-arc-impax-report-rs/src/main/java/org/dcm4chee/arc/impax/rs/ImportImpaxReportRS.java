@@ -82,6 +82,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.ws.WebServiceException;
 import java.io.*;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -92,6 +93,7 @@ import java.util.Map;
 @RequestScoped
 @Path("aets/{AETitle}/rs")
 public class ImportImpaxReportRS {
+    private static final ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
     private static final Logger LOG = LoggerFactory.getLogger(ImportImpaxReportRS.class);
     private static final String DEFAULT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/impax-report2sr.xsl ";
     private static SAXTransformerFactory tranformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance();
@@ -127,6 +129,13 @@ public class ImportImpaxReportRS {
     private Sequence sopSequence;
     private int instanceNumber;
 
+    private static final int[] TYPE2_TAGS = {
+            Tag.StudyID,
+            Tag.Manufacturer,
+            Tag.ReferencedPerformedProcedureStepSequence,
+            Tag.PerformedProcedureCodeSequence
+    };
+
     @POST
     @Path("/studies/{studyUID}/impax/reports")
     @Produces("application/dicom+json")
@@ -155,7 +164,6 @@ public class ImportImpaxReportRS {
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
         propsAttrs = new Attributes();
-        ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
         for (Map.Entry<String, String> prop : props.entrySet()) {
             if (prop.getKey().startsWith("SR.")) {
                 int tag = TagUtils.forName(prop.getKey().substring(3));
@@ -261,12 +269,39 @@ public class ImportImpaxReportRS {
         setStringIfMissing(attrs, Tag.SOPClassUID, VR.UI, UID.BasicTextSRStorage);
         setStringIfMissing(attrs, Tag.SeriesNumber, VR.IS, "0");
         setStringIfMissing(attrs, Tag.InstanceNumber, VR.IS, String.valueOf(++instanceNumber));
-        //TODO
+        setDateTimeIfMissing(attrs, Tag.ContentDateAndTime, new Date());
+        supplementMissingType2(attrs);
+        supplementVerifyingObserverSequence(attrs);
     }
 
     private void setStringIfMissing(Attributes attrs, int tag, VR vr, String value) {
         if (!attrs.containsValue(tag))
             attrs.setString(tag, vr, value);
+    }
+
+    private void setDateTimeIfMissing(Attributes attrs, long tag, Date date) {
+        if (!attrs.containsValue((int) (tag >>> 32)))
+            attrs.setDate(tag, date);
+    }
+
+    private void supplementMissingType2(Attributes attrs) {
+        for (int tag : TYPE2_TAGS)
+            if (!attrs.contains(tag))
+                attrs.setNull(tag, dict.vrOf(tag));
+    }
+
+    private void supplementVerifyingObserverSequence(Attributes attrs) {
+        if (!attrs.contains(Tag.VerifyingObserverSequence))
+            return;
+
+        Attributes item = attrs.getNestedDataset(Tag.VerifyingObserverSequence);
+        item.setString(Tag.VerifyingOrganization, VR.LO,
+                attrs.contains(Tag.VerifyingOrganization) ? attrs.getString(Tag.VerifyingOrganization) : "VerifyingOrganization");
+        if (item.getString(Tag.VerifyingObserverName) == null)
+            item.setString(Tag.VerifyingObserverName, VR.PN,
+                attrs.contains(Tag.VerifyingObserverName) ? attrs.getString(Tag.VerifyingObserverName) : "VerifyingObserver");
+        attrs.remove(Tag.VerifyingOrganization);
+        attrs.remove(Tag.VerifyingObserverName);
     }
 
     private StringBuffer studyRetrieveURL() {
