@@ -8,7 +8,6 @@
   <xsl:template match="/agfa:DiagnosticRadiologyReport">
     <NativeDicomModel>
       <xsl:call-template name="const-attrs"/>
-      <xsl:apply-templates select="agfa:PatientDetails"/>
       <xsl:apply-templates select="agfa:OrderDetails"/>
       <xsl:apply-templates select="agfa:ReportDetails"/>
     </NativeDicomModel>
@@ -25,108 +24,24 @@
     </xsl:call-template>
   </xsl:template>
 
-  <xsl:template match="agfa:PatientDetails">
-    <!-- Patient Birth Date -->
-    <DicomAttribute tag="00100030" vr="DA">
-      <Value number="1"><xsl:value-of select="agfa:BirthDate"/></Value>
-    </DicomAttribute>
-    <!-- Patient Sex -->
-    <DicomAttribute tag="00100040" vr="CS">
-      <Value number="1">
-        <xsl:call-template name="sex">
-          <xsl:with-param name="val" select="agfa:Sex" />
-        </xsl:call-template>
-      </Value>
-    </DicomAttribute>
-    <xsl:call-template name="pnAttrs">
-      <xsl:with-param name="tag" select="'00100010'" />
-      <xsl:with-param name="val" select="agfa:Name" />
-    </xsl:call-template>
-    <xsl:call-template name="pidAttrs">
-      <xsl:with-param name="val" select="agfa:Id"/>
-    </xsl:call-template>
-  </xsl:template>
-
-  <xsl:template name="pnAttrs">
-    <xsl:param name="tag"/>
-    <xsl:param name="val"/>
-    <DicomAttribute tag="{$tag}" vr="PN">
-      <PersonName number="1">
-        <Alphabetic>
-          <xsl:call-template name="pnComp">
-            <xsl:with-param name="name">FamilyName</xsl:with-param>
-            <xsl:with-param name="val" select="$val/agfa:SingleByteName/agfa:LastName"/>
-          </xsl:call-template>
-          <xsl:call-template name="pnComp">
-            <xsl:with-param name="name">GivenName</xsl:with-param>
-            <xsl:with-param name="val" select="$val/agfa:SingleByteName/agfa:FirstName"/>
-          </xsl:call-template>
-        </Alphabetic>
-      </PersonName>
-    </DicomAttribute>
-  </xsl:template>
-
-  <xsl:template name="pidAttrs">
-    <xsl:param name="val"/>
-    <DicomAttribute tag="00100020" vr="LO">
-      <Value number="1">
-        <xsl:value-of select="$val/agfa:IdText"/>
-      </Value>
-    </DicomAttribute>
-    <xsl:if test="$val/agfa:IdDomain">
-      <DicomAttribute tag="00100021" vr="LO">
-        <Value number="1">
-          <xsl:value-of select="$val/agfa:IdDomain"/>
-        </Value>
-      </DicomAttribute>
-    </xsl:if>
-  </xsl:template>
-
   <xsl:template match="agfa:OrderDetails">
-    <xsl:apply-templates select="agfa:StudyDetails"/>
-    <!--Referring Physician's Name-->
-    <xsl:call-template name="pnAttrs">
-      <xsl:with-param name="tag" select="'00080090'" />
-      <xsl:with-param name="val" select="agfa:ReferringPhysician/agfa:Name" />
-    </xsl:call-template>
-    <!--Accession Number-->
-    <DicomAttribute tag="00080050" vr="SH">
-      <Value number="1"><xsl:value-of select="agfa:AccessionNumber"/></Value>
-    </DicomAttribute>
-  </xsl:template>
-  <xsl:template match="agfa:StudyDetails">
-    <!-- Take Study Instance UID from first referenced Image - if available -->
-    <xsl:variable name="suid"
-                  select="agfa:StudyInstanceUID"/>
-    <!-- Study Instance UID -->
-    <DicomAttribute tag="0020000D" vr="UI">
-      <Value number="1"><xsl:value-of select="$suid"/></Value>
-    </DicomAttribute>
-    <!--Study Description-->
-    <DicomAttribute tag="00081030" vr="LO">
-      <Value number="1"><xsl:value-of select="agfa:StudyDescription"/></Value>
-    </DicomAttribute>
-    <!--Study Date-->
-    <DicomAttribute tag="00080020" vr="DA">
-      <Value number="1"><xsl:value-of select="agfa:StudyDate"/></Value>
-    </DicomAttribute>
-    <!--Study Time-->
-    <DicomAttribute tag="00080030" vr="TM">
-      <Value number="1"><xsl:value-of select="agfa:StudyTime"/></Value>
-    </DicomAttribute>
     <!--Referenced Request Sequence-->
     <DicomAttribute tag="0040A370" vr="SQ">
       <Item number="1">
         <!-- Study Instance UID -->
         <DicomAttribute tag="0020000D" vr="UI">
-          <Value number="1"><xsl:value-of select="$suid"/></Value>
+          <Value number="1"><xsl:value-of select="agfa:StudyDetails/agfa:StudyInstanceUID"/></Value>
         </DicomAttribute>
         <!--Accession Number-->
-        <DicomAttribute tag="00080050" vr="SH"/>
+        <DicomAttribute tag="00080050" vr="SH">
+          <Value number="1"><xsl:value-of select="agfa:AccessionNumber"/></Value>
+        </DicomAttribute>
         <!--Referenced Study Sequence-->
         <DicomAttribute tag="00081110" vr="SQ"/>
         <!--Requested Procedure Description-->
-        <DicomAttribute tag="00321060" vr="LO"/>
+        <DicomAttribute tag="00321060" vr="LO">
+          <Value number="1"><xsl:value-of select="agfa:StudyDetails/agfa:StudyDescription"/></Value>
+        </DicomAttribute>
         <!--Requested Procedure Sequence-->
         <DicomAttribute tag="00321064" vr="SQ"/>
         <!--Requested Procedure ID-->
@@ -154,7 +69,7 @@
     <xsl:variable name="verifyingObserver" select="agfa:ReportAuthor/agfa:Name"/>
     <xsl:variable name="verificationFlag">
       <xsl:choose>
-        <xsl:when test="$resultStatus='Finalized' and $verifyingObserver">VERIFIED</xsl:when>
+        <xsl:when test="$resultStatus='Finalized' and $verifyingObserver/text()">VERIFIED</xsl:when>
         <xsl:otherwise>UNVERIFIED</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -196,4 +111,24 @@
       <Value number="1"><xsl:value-of select="agfa:ReportBody/text()"/></Value>
     </DicomAttribute>
   </xsl:template>
+
+  <xsl:template name="pnAttrs">
+    <xsl:param name="tag"/>
+    <xsl:param name="val"/>
+    <DicomAttribute tag="{$tag}" vr="PN">
+      <PersonName number="1">
+        <Alphabetic>
+          <xsl:call-template name="pnComp">
+            <xsl:with-param name="name">FamilyName</xsl:with-param>
+            <xsl:with-param name="val" select="$val/agfa:SingleByteName/agfa:LastName"/>
+          </xsl:call-template>
+          <xsl:call-template name="pnComp">
+            <xsl:with-param name="name">GivenName</xsl:with-param>
+            <xsl:with-param name="val" select="$val/agfa:SingleByteName/agfa:FirstName"/>
+          </xsl:call-template>
+        </Alphabetic>
+      </PersonName>
+    </DicomAttribute>
+  </xsl:template>
+
 </xsl:stylesheet>
