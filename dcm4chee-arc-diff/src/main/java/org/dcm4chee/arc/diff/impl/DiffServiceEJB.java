@@ -200,19 +200,19 @@ public class DiffServiceEJB {
 
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
         int count = 0;
-        int queryFetchSize = queryFetchSize();
+        int deleteTasksFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
         List<Long> referencedQueueMsgs;
         do {
             referencedQueueMsgs = createQuery(matchQueueMessage, matchDiffTask)
                     .select(QDiffTask.diffTask.queueMessage.pk)
-                    .limit(queryFetchSize)
+                    .limit(deleteTasksFetchSize)
                     .fetch();
             new HibernateDeleteClause(em.unwrap(Session.class), QDiffTask.diffTask)
                     .where(matchDiffTask, QDiffTask.diffTask.queueMessage.pk.in(referencedQueueMsgs))
                     .execute();
             count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
                     .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
-        } while (referencedQueueMsgs.size() >= queryFetchSize);
+        } while (referencedQueueMsgs.size() >= deleteTasksFetchSize);
         return count;
     }
 
@@ -250,17 +250,17 @@ public class DiffServiceEJB {
 
     public int rescheduleDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
         int count = 0;
-        int queryFetchSize = queryFetchSize();
+        int rescheduleTasksFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
         List<String> queueMsgIDs;
         do {
             queueMsgIDs = createQuery(matchQueueMessage, matchDiffTask)
                     .select(QDiffTask.diffTask.queueMessage.messageID)
-                    .limit(queryFetchSize)
+                    .limit(rescheduleTasksFetchSize)
                     .fetch();
             for (String msgID : queueMsgIDs)
                 queueManager.rescheduleTask(msgID, DiffService.QUEUE_NAME, null);
             count += queueMsgIDs.size();
-        } while (queueMsgIDs.size() >= queryFetchSize);
+        } while (queueMsgIDs.size() >= rescheduleTasksFetchSize);
         return count;
     }
 
@@ -412,6 +412,6 @@ public class DiffServiceEJB {
     }
 
     private int queryFetchSize() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 }

@@ -279,28 +279,28 @@ public class RetrieveManagerEJB {
 
     public int rescheduleRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         int count = 0;
-        int queryFetchSize = queryFetchSize();
+        int rescheduleTasksFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
         List<String> queueMsgIDs;
         do {
             queueMsgIDs = createQuery(matchQueueMessage, matchRetrieveTask)
                     .select(QRetrieveTask.retrieveTask.queueMessage.messageID)
-                    .limit(queryFetchSize)
+                    .limit(rescheduleTasksFetchSize)
                     .fetch();
             for (String msgID : queueMsgIDs)
                 queueManager.rescheduleTask(msgID, RetrieveManager.QUEUE_NAME, null);
             count += queueMsgIDs.size();
-        } while (queueMsgIDs.size() >= queryFetchSize);
+        } while (queueMsgIDs.size() >= rescheduleTasksFetchSize);
         return count;
     }
 
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         int count = 0;
-        int queryFetchSize = queryFetchSize();
+        int deleteTasksFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
         List<Long> referencedQueueMsgs;
         do {
             referencedQueueMsgs = createQuery(matchQueueMessage, matchRetrieveTask)
                     .select(QRetrieveTask.retrieveTask.queueMessage.pk)
-                    .limit(queryFetchSize)
+                    .limit(deleteTasksFetchSize)
                     .fetch();
 
             new HibernateDeleteClause(em.unwrap(Session.class), QRetrieveTask.retrieveTask)
@@ -309,7 +309,7 @@ public class RetrieveManagerEJB {
 
             count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
                     .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
-        } while (referencedQueueMsgs.size() >= queryFetchSize);
+        } while (referencedQueueMsgs.size() >= deleteTasksFetchSize);
         return count;
     }
 
@@ -423,6 +423,6 @@ public class RetrieveManagerEJB {
     }
 
     private int queryFetchSize() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 }

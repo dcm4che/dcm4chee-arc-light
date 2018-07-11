@@ -229,6 +229,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getAuditUnknownPatientID(), ArchiveDeviceExtension.AUDIT_UNKNOWN_PATIENT_ID);
         writer.writeNotDef("dcmAuditSoftwareConfigurationVerbose", arcDev.isAuditSoftwareConfigurationVerbose(), false);
         writer.writeNotDef("hl7UseNullValue", arcDev.isHl7UseNullValue(), false);
+        writer.writeNotDef("dcmQueueTasksFetchSize", arcDev.getQueueTasksFetchSize(), 100);
         writer.writeNotNullOrDef("dcmRejectionNoteStorageAET", arcDev.getRejectionNoteStorageAET(), null);
         writer.writeNotEmpty("dcmXRoadProperty", descriptorProperties(arcDev.getXRoadProperties()));
         writer.writeNotEmpty("dcmImpaxReportProperty", descriptorProperties(arcDev.getImpaxReportProperties()));
@@ -1050,6 +1051,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7UseNullValue":
                     arcDev.setHl7UseNullValue(reader.booleanValue());
+                    break;
+                case "dcmQueueTasksFetchSize":
+                    arcDev.setQueueTasksFetchSize(reader.intValue());
                     break;
                 case "dcmRejectionNoteStorageAET":
                     arcDev.setRejectionNoteStorageAET(reader.stringValue());

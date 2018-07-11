@@ -185,6 +185,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private String invokeImageDisplayStudyURL;
     private String[] hl7ADTReceivingApplication = {};
     private String hl7ADTSendingApplication;
+    private int queueTasksFetchSize = 100;
     private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder = ScheduledProtocolCodeInOrder.OBR_4_4;
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
     private String auditUnknownStudyInstanceUID = AUDIT_UNKNOWN_STUDY_INSTANCE_UID;
@@ -1715,6 +1716,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.hl7UseNullValue = hl7UseNullValue;
     }
 
+    public int getQueueTasksFetchSize() {
+        return queueTasksFetchSize;
+    }
+
+    public void setQueueTasksFetchSize(int queueTasksFetchSize) {
+        this.queueTasksFetchSize = queueTasksFetchSize;
+    }
+
     public String getRejectionNoteStorageAET() {
         return rejectionNoteStorageAET;
     }
@@ -1880,6 +1889,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         auditUnknownPatientID = arcdev.auditUnknownPatientID;
         auditSoftwareConfigurationVerbose = arcdev.auditSoftwareConfigurationVerbose;
         hl7UseNullValue = arcdev.hl7UseNullValue;
+        queueTasksFetchSize = arcdev.queueTasksFetchSize;
         rejectionNoteStorageAET = arcdev.rejectionNoteStorageAET;
         uiConfigurationDeviceName = arcdev.uiConfigurationDeviceName;
         attributeFilters.clear();

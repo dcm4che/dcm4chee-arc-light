@@ -467,7 +467,7 @@ public class QueueManagerEJB {
     }
 
     private QueueDescriptor descriptorOf(String queueName) {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueueDescriptorNotNull(queueName);
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueDescriptorNotNull(queueName);
     }
 
     private QueueMessage findQueueMessage(String msgId) {
@@ -491,6 +491,6 @@ public class QueueManagerEJB {
     }
 
     private int queryFetchSize() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 }

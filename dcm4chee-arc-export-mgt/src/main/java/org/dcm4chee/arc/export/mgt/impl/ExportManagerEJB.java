@@ -247,7 +247,7 @@ public class ExportManagerEJB implements ExportManager {
                 .setParameter(1, device.getDeviceName())
                 .setMaxResults(fetchSize)
                 .getResultList();
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         int count = 0;
         for (ExportTask exportTask : resultList) {
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
@@ -423,7 +423,7 @@ public class ExportManagerEJB implements ExportManager {
 
     @Override
     public int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
-        int deleteTaskFetchSize = queryFetchSize();
+        int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
         return status == QueueMessage.Status.TO_SCHEDULE
                 ? deleteToScheduleTasks(matchExportTask, deleteTaskFetchSize)
                 : status == null
@@ -560,6 +560,6 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     private int queryFetchSize() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 }
