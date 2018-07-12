@@ -67,11 +67,14 @@
       <Value number="1"><xsl:value-of select="$verificationFlag"/></Value>
     </DicomAttribute>
     <!--Content Date/Time-->
+    <xsl:variable name="date" select="translate(agfa:InterpretationRecordDate, '-', '')"/>
+    <xsl:variable name="time" select="translate(agfa:InterpretationRecordTime, ':', '')"/>
     <DicomAttribute tag="00080023" vr="DA">
-      <Value number="1"><xsl:value-of select="agfa:InterpretationRecordDate"/></Value>
+      <Value number="1">
+        <xsl:value-of select="$date"/></Value>
     </DicomAttribute>
     <DicomAttribute tag="00080033" vr="TM">
-      <Value number="1"><xsl:value-of select="agfa:InterpretationRecordTime"/></Value>
+      <Value number="1"><xsl:value-of select="$time"/></Value>
     </DicomAttribute>
     <xsl:if test="$verificationFlag = 'VERIFIED'">
       <!-- Verifying Observer Sequence -->
@@ -81,7 +84,7 @@
           <DicomAttribute tag="0040A027" vr="LO" />
           <!-- Verification DateTime -->
           <DicomAttribute tag="0040A030" vr="DT">
-            <Value number="1"><xsl:value-of select="agfa:InterpretationRecordDate"/>T<xsl:value-of select="agfa:InterpretationRecordTime"/></Value>
+            <Value number="1"><xsl:value-of select="$date"/><xsl:value-of select="$time"/></Value>
           </DicomAttribute>
           <xsl:if test="$verifyingObserver">
             <!-- Verifying Observer Name -->
