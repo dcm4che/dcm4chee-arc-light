@@ -7,21 +7,11 @@
   <xsl:include href="hl7-common.xsl"/>
   <xsl:template match="/agfa:DiagnosticRadiologyReport">
     <NativeDicomModel>
-      <xsl:call-template name="const-attrs"/>
+      <!--Modality-->
+      <DicomAttribute tag="00080060" vr="CS"><Value number="1">SR</Value></DicomAttribute>
       <xsl:apply-templates select="agfa:OrderDetails"/>
       <xsl:apply-templates select="agfa:ReportDetails"/>
     </NativeDicomModel>
-  </xsl:template>
-  <xsl:template name="const-attrs">
-    <!--Modality-->
-    <DicomAttribute tag="00080060" vr="CS"><Value number="1">SR</Value></DicomAttribute>
-    <!--Concept Name Code Sequence-->
-    <xsl:call-template name="codeItem">
-      <xsl:with-param name="sqtag">0040A043</xsl:with-param>
-      <xsl:with-param name="code">11528-7</xsl:with-param>
-      <xsl:with-param name="scheme">LN</xsl:with-param>
-      <xsl:with-param name="meaning">Diagnostic Radiology Report</xsl:with-param>
-    </xsl:call-template>
   </xsl:template>
 
   <xsl:template match="agfa:OrderDetails">
@@ -105,11 +95,92 @@
         </Item>
       </DicomAttribute>
     </xsl:if>
-    <!--Value Type-->
-    <DicomAttribute tag="0040A040" vr="CS"><Value number="1">TEXT</Value></DicomAttribute>
-    <DicomAttribute tag="0040A160" vr="UT">
-      <Value number="1"><xsl:value-of select="agfa:ReportBody/text()"/></Value>
+    <DicomAttribute tag="0040A730" vr="SQ">
+      <xsl:call-template name="hasConceptModItem">
+        <xsl:with-param name="itemNo">1</xsl:with-param>
+      </xsl:call-template>
+      <xsl:call-template name="item">
+        <xsl:with-param name="itemNo">2</xsl:with-param>
+        <xsl:with-param name="parentCode"><xsl:value-of select="'121070'"/></xsl:with-param>
+        <xsl:with-param name="parentCodeMeaning"><xsl:value-of select="'Report Body'"/></xsl:with-param>
+        <xsl:with-param name="childCode"><xsl:value-of select="'121071'"/></xsl:with-param>
+        <xsl:with-param name="childCodeMeaning"><xsl:value-of select="'Finding'"/></xsl:with-param>
+        <xsl:with-param name="val"><xsl:value-of select="agfa:ReportBody/text()"/></xsl:with-param>
+      </xsl:call-template>
+      <xsl:call-template name="item">
+        <xsl:with-param name="itemNo">3</xsl:with-param>
+        <xsl:with-param name="parentCode"><xsl:value-of select="'121076'"/></xsl:with-param>
+        <xsl:with-param name="parentCodeMeaning"><xsl:value-of select="'Conclusions'"/></xsl:with-param>
+        <xsl:with-param name="childCode"><xsl:value-of select="'121077'"/></xsl:with-param>
+        <xsl:with-param name="childCodeMeaning"><xsl:value-of select="'Conclusion'"/></xsl:with-param>
+        <xsl:with-param name="val"><xsl:value-of select="agfa:Conclusions/text()"/></xsl:with-param>
+      </xsl:call-template>
     </DicomAttribute>
+  </xsl:template>
+
+  <xsl:template name="hasConceptModItem">
+    <xsl:param name="itemNo"/>
+    <Item number="{$itemNo}">
+      <DicomAttribute tag="0040A010" vr="CS">
+        <Value number="1">HAS CONCEPT MOD</Value>
+      </DicomAttribute>
+      <DicomAttribute tag="0040A040" vr="CS">
+        <Value number="1">CODE</Value>
+      </DicomAttribute>
+      <xsl:call-template name="codeItem">
+        <xsl:with-param name="sqtag">0040A043</xsl:with-param>
+        <xsl:with-param name="code">121049</xsl:with-param>
+        <xsl:with-param name="scheme">DCM</xsl:with-param>
+        <xsl:with-param name="meaning">Language of Content Item and Descendants</xsl:with-param>
+      </xsl:call-template>
+    </Item>
+  </xsl:template>
+
+  <xsl:template name="item">
+    <xsl:param name="itemNo"/>
+    <xsl:param name="parentCode"/>
+    <xsl:param name="parentCodeMeaning"/>
+    <xsl:param name="childCode"/>
+    <xsl:param name="childCodeMeaning"/>
+    <xsl:param name="val"/>
+    <Item number="{$itemNo}">
+      <DicomAttribute tag="0040A010" vr="CS">
+        <Value number="1">CONTAINS</Value>
+      </DicomAttribute>
+      <DicomAttribute tag="0040A040" vr="CS">
+        <Value number="1">CONTAINER</Value>
+      </DicomAttribute>
+      <xsl:call-template name="codeItem">
+        <xsl:with-param name="sqtag">0040A043</xsl:with-param>
+        <xsl:with-param name="code"><xsl:value-of select="$parentCode" /></xsl:with-param>
+        <xsl:with-param name="scheme">DCM</xsl:with-param>
+        <xsl:with-param name="meaning"><xsl:value-of select="$parentCodeMeaning" /></xsl:with-param>
+      </xsl:call-template>
+      <xsl:if test="$val">
+        <DicomAttribute tag="0040A050" vr="CS">
+          <Value number="1">SEPARATE</Value>
+        </DicomAttribute>
+        <DicomAttribute tag="0040A730" vr="SQ">
+          <Item number="1">
+            <DicomAttribute tag="0040A010" vr="CS">
+              <Value number="1">CONTAINS</Value>
+            </DicomAttribute>
+            <DicomAttribute tag="0040A040" vr="CS">
+              <Value number="1">TEXT</Value>
+            </DicomAttribute>
+            <xsl:call-template name="codeItem">
+              <xsl:with-param name="sqtag">0040A043</xsl:with-param>
+              <xsl:with-param name="code"><xsl:value-of select="$childCode" /></xsl:with-param>
+              <xsl:with-param name="scheme">DCM</xsl:with-param>
+              <xsl:with-param name="meaning"><xsl:value-of select="$childCodeMeaning" /></xsl:with-param>
+            </xsl:call-template>
+            <DicomAttribute tag="0040A160" vr="UT">
+              <Value number="1"><xsl:value-of select="$val"/></Value>
+            </DicomAttribute>
+          </Item>
+        </DicomAttribute>
+      </xsl:if>
+    </Item>
   </xsl:template>
 
   <xsl:template name="pnAttrs">

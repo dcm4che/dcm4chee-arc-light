@@ -95,7 +95,9 @@ import java.util.Map;
 public class ImportImpaxReportRS {
     private static final ElementDictionary dict = ElementDictionary.getStandardElementDictionary();
     private static final Logger LOG = LoggerFactory.getLogger(ImportImpaxReportRS.class);
-    private static final String DEFAULT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/impax-report2sr.xsl ";
+    private static final String DEFAULT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/impax-report2sr.xsl";
+    private static final String DEFAULT_DOC_TITLE = "(18748-4, LN, \"Diagnostic Imaging Report\")";
+    private static final String DEFAULT_LANGUAGE = "(en, RFC5646, \"English\")";
     private static SAXTransformerFactory tranformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance();
     private static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 
@@ -272,6 +274,8 @@ public class ImportImpaxReportRS {
         setDateTimeIfMissing(attrs, Tag.ContentDateAndTime, new Date());
         supplementMissingType2(attrs);
         supplementVerifyingObserverSequence(attrs);
+        supplementDocTitle(attrs);
+        supplementLanguage(attrs);
     }
 
     private void setStringIfMissing(Attributes attrs, int tag, VR vr, String value) {
@@ -288,6 +292,33 @@ public class ImportImpaxReportRS {
         for (int tag : TYPE2_TAGS)
             if (!attrs.contains(tag))
                 attrs.setNull(tag, dict.vrOf(tag));
+    }
+
+    private void supplementDocTitle(Attributes attrs) {
+        String[] docTitle = props.getOrDefault("DocumentTitle", DEFAULT_DOC_TITLE)
+                                 .replaceAll("[() \"]", "")
+                                 .split(",");
+        Attributes item = new Attributes();
+        item.setString(Tag.CodeValue, VR.SH, docTitle[0]);
+        item.setString(Tag.CodingSchemeDesignator, VR.SH, docTitle[1]);
+        item.setString(Tag.CodeMeaning, VR.SH, docTitle[2]);
+        attrs.newSequence(Tag.ConceptNameCodeSequence, 1).add(item);
+    }
+
+    private void supplementLanguage(Attributes attrs) {
+        String[] language = props.getOrDefault("Language", DEFAULT_LANGUAGE)
+                                 .replaceAll("[() \"]", "")
+                                 .split(",");
+        Attributes conceptCodeSqItem = new Attributes();
+        conceptCodeSqItem.setString(Tag.CodeValue, VR.SH, language[0]);
+        conceptCodeSqItem.setString(Tag.CodingSchemeDesignator, VR.SH, language[1]);
+        conceptCodeSqItem.setString(Tag.CodeMeaning, VR.SH, language[2]);
+        for (Attributes item : attrs.getSequence(Tag.ContentSequence)) {
+            if (item.getString(Tag.RelationshipType).equals("HAS CONCEPT MOD")) {
+                item.newSequence(Tag.ConceptCodeSequence, 1).add(conceptCodeSqItem);
+                break;
+            }
+        }
     }
 
     private void supplementVerifyingObserverSequence(Attributes attrs) {
