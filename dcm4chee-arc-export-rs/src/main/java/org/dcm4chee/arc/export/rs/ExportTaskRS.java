@@ -40,6 +40,7 @@
 package org.dcm4chee.arc.export.rs;
 
 import com.querydsl.core.types.Predicate;
+import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
@@ -51,6 +52,7 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
+import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
@@ -64,6 +66,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.json.stream.JsonParser;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
@@ -249,49 +252,59 @@ public class ExportTaskRS {
 
     @POST
     @Path("/reschedule")
-    public Response rescheduleExportTasks() throws Exception {
+    public Response rescheduleExportTasks() {
         return rescheduleTasks(null);
     }
 
     @POST
     @Path("/reschedule/{ExporterID}")
-    public Response rescheduleExportTasks(@PathParam("ExporterID") String newExporterID) throws Exception {
+    public Response rescheduleExportTasks(@PathParam("ExporterID") String newExporterID) {
         return rescheduleTasks(newExporterID);
     }
 
-    private Response rescheduleTasks(String newExporterID) throws Exception {
+    private Response rescheduleTasks(String newExporterID) {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
 
-        Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
-        if (deviceName == null && newDeviceName == null) {
-            List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
-            int count = 0;
-            for (String devName : distinctDeviceNames) {
-                LOG.info("Reschedule tasks on device: {}.", devName);
-                count += count(devName.equals(device.getDeviceName())
-                        ? rescheduleTasks(newExporterID, status, matchQueueMessage)
-                        : rsClient.forward(request, devName));
-            }
-            return count(count);
+        try {
+            ExporterDescriptor newExporter = null;
+            if (newExporterID != null)
+                newExporter = exporter(newExporterID);
+
+            Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
+            if (deviceName == null && newDeviceName == null)
+                return count(rescheduleOnDistinctDevices(newExporter, status, matchQueueMessage));
+
+            if ((newDeviceName != null && newDeviceName.equals(device.getDeviceName()))
+                    || (deviceName != null && deviceName.equals(device.getDeviceName())))
+                return count(rescheduleTasks(newExporter, status, matchQueueMessage));
+
+            return rsClient.forward(request, newDeviceName != null ? newDeviceName : deviceName);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
         }
-
-        if ((newDeviceName != null && newDeviceName.equals(device.getDeviceName()))
-                || (deviceName != null && deviceName.equals(device.getDeviceName())))
-            return rescheduleTasks(newExporterID, status, matchQueueMessage);
-
-        return rsClient.forward(request, newDeviceName != null ? newDeviceName : deviceName);
     }
 
-    private Response rescheduleTasks(String newExporterID, QueueMessage.Status status, Predicate matchQueueMessage) {
-        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        ExporterDescriptor exporter = null;
-        if (newExporterID != null && (exporter = arcDev.getExporterDescriptor(newExporterID)) == null)
-            return rsp(Response.Status.NOT_FOUND, "No such exporter - " + newExporterID);
+    private int rescheduleOnDistinctDevices(
+            ExporterDescriptor newExporter, QueueMessage.Status status, Predicate matchQueueMessage) throws Exception {
+        List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
+        int count = 0;
+        for (String devName : distinctDeviceNames) {
+            if (devName.equals(device.getDeviceName()))
+                count += rescheduleTasks(newExporter, status, matchQueueMessage);
+            else {
+                uriInfo.getQueryParameters().putSingle("dicomDeviceName", devName);
+                count += count(rsClient.forward(request, devName), devName);
+            }
+        }
+        return count;
+    }
 
+    private int rescheduleTasks(ExporterDescriptor newExporter, QueueMessage.Status status, Predicate matchQueueMessage)
+            throws Exception {
+        BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int count = 0;
             try (ExportTaskQuery exportTasks = mgr.listExportTasks(status,
@@ -299,17 +312,17 @@ public class ExportTaskRS {
                 for (ExportTask task : exportTasks) {
                     mgr.rescheduleExportTask(
                             task,
-                            exporter != null ? exporter : arcDev.getExporterDescriptor(task.getExporterID()),
+                            newExporter != null ? newExporter : exporter(task.getExporterID()),
                             null);
                     count++;
                 }
             }
             queueEvent.setCount(count);
-            return count(count);
-        } catch (IOException e) {
+            LOG.info("Successfully rescheduled {} tasks on device: {}.", count, device.getDeviceName());
+            return count;
+        } catch (Exception e) {
             queueEvent.setException(e);
-            LOG.warn(e.getMessage());
-            return errResponseAsTextPlain(e);
+            throw e;
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -357,16 +370,20 @@ public class ExportTaskRS {
         return rsp(Response.Status.OK, "{\"count\":" + count + '}');
     }
 
-    private int count(Response response) {
+    private int count(Response response, String devName) {
+        int count = 0;
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            String entity = response.getEntity().toString();
-            Integer count = Integer.valueOf(entity.substring(entity.indexOf(':')+1, entity.indexOf('}')));
-            LOG.info("Rescheduling of {} tasks successfully completed.", count);
-            return count;
+            JsonParser parser = Json.createParser(new StringReader(response.getEntity().toString()));
+            JsonReader reader = new JsonReader(parser);
+            reader.next();
+            reader.expect(JsonParser.Event.START_OBJECT);
+            while (reader.next() == JsonParser.Event.KEY_NAME)
+                count = reader.intValue();
+            LOG.info("Successfully rescheduled {} tasks on device {}", count, devName);
         }
-        LOG.warn("Rescheduling of tasks unsuccessful. Response received with status: {} and entity: {}",
-                response.getStatus(), response.getEntity());
-        return 0;
+        LOG.warn("Failed rescheduling of tasks on device {}. Response received with status: {} and entity: {}",
+                devName, response.getStatus(), response.getEntity());
+        return count;
     }
 
     private Output selectMediaType(String accept) {
@@ -465,6 +482,10 @@ public class ExportTaskRS {
 
     private static int parseInt(String s) {
         return s != null ? Integer.parseInt(s) : 0;
+    }
+
+    private ExporterDescriptor exporter(String exporterID) {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getExporterDescriptorNotNull(exporterID);
     }
 
     private void logRequest() {

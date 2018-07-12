@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.retrieve.rs;
 
 import com.querydsl.core.types.Predicate;
+import org.dcm4che3.conf.json.JsonReader;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.entity.QueueMessage;
@@ -63,6 +64,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.stream.JsonGenerator;
+import javax.json.stream.JsonParser;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
@@ -106,6 +108,9 @@ public class RetrieveTaskRS {
 
     @Context
     private HttpHeaders httpHeaders;
+
+    @Context
+    private UriInfo uriInfo;
 
     @QueryParam("dicomDeviceName")
     private String deviceName;
@@ -244,41 +249,51 @@ public class RetrieveTaskRS {
 
     @POST
     @Path("/reschedule")
-    public Response rescheduleRetrieveTasks() throws Exception {
+    public Response rescheduleRetrieveTasks() {
         logRequest();
         QueueMessage.Status status = status();
         if (status == null)
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
 
-        Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
-        if (deviceName == null && newDeviceName == null) {
-            List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
-            int count = 0;
-            for (String devName : distinctDeviceNames) {
-                LOG.info("Reschedule tasks on device: {}.", devName);
-                count += count(devName.equals(device.getDeviceName())
-                                ? rescheduleTasks(matchQueueMessage)
-                                : rsClient.forward(request, devName));
-            }
-            return count(count);
+        try {
+            Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
+            if (deviceName == null && newDeviceName == null)
+                return count(rescheduleOnDistinctDevices(matchQueueMessage));
+
+            if ((newDeviceName != null && newDeviceName.equals(device.getDeviceName()))
+                    || (deviceName != null && deviceName.equals(device.getDeviceName())))
+                return count(rescheduleTasks(matchQueueMessage));
+
+            return rsClient.forward(request, newDeviceName != null ? newDeviceName : deviceName);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(e);
         }
-
-        if ((newDeviceName != null && newDeviceName.equals(device.getDeviceName()))
-                || (deviceName != null && deviceName.equals(device.getDeviceName())))
-            return rescheduleTasks(matchQueueMessage);
-
-        return rsClient.forward(request, newDeviceName != null ? newDeviceName : deviceName);
     }
 
-    private Response rescheduleTasks(Predicate matchQueueMessage) {
+    private int rescheduleOnDistinctDevices(Predicate matchQueueMessage) throws Exception {
+        List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
+        int count = 0;
+        for (String devName : distinctDeviceNames) {
+            if (devName.equals(device.getDeviceName()))
+                count += rescheduleTasks(matchQueueMessage);
+            else {
+                uriInfo.getQueryParameters().putSingle("dicomDeviceName", devName);
+                count += count(rsClient.forward(request, devName), devName);
+            }
+        }
+        return count;
+    }
+
+    private int rescheduleTasks(Predicate matchQueueMessage) throws Exception {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
             int count = mgr.rescheduleRetrieveTasks(matchQueueMessage, matchRetrieveTask(updatedTime));
             queueEvent.setCount(count);
-            return count(count);
+            LOG.info("Successfully rescheduled {} tasks on device: {}.", count, device.getDeviceName());
+            return count;
         } catch (Exception e) {
             queueEvent.setException(e);
-            return errResponseAsTextPlain(e);
+            throw e;
         } finally {
             bulkQueueMsgEvent.fire(queueEvent);
         }
@@ -325,16 +340,20 @@ public class RetrieveTaskRS {
         return rsp(Response.Status.OK, "{\"count\":" + count + '}');
     }
 
-    private int count(Response response) {
+    private int count(Response response, String devName) {
+        int count = 0;
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            String entity = response.getEntity().toString();
-            Integer count = Integer.valueOf(entity.substring(entity.indexOf(':')+1, entity.indexOf('}')));
-            LOG.info("Rescheduling of {} tasks successfully completed.", count);
-            return count;
+            JsonParser parser = Json.createParser(new StringReader(response.getEntity().toString()));
+            JsonReader reader = new JsonReader(parser);
+            reader.next();
+            reader.expect(JsonParser.Event.START_OBJECT);
+            while (reader.next() == JsonParser.Event.KEY_NAME)
+                count = reader.intValue();
+            LOG.info("Successfully rescheduled {} tasks on device {}", count, devName);
         }
-        LOG.warn("Rescheduling of tasks unsuccessful. Response received with status: {} and entity: {}",
-                response.getStatus(), response.getEntity());
-        return 0;
+        LOG.warn("Failed rescheduling of tasks on device {}. Response received with status: {} and entity: {}",
+                devName, response.getStatus(), response.getEntity());
+        return count;
     }
 
     private Output selectMediaType(String accept) {
