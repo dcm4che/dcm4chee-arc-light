@@ -219,7 +219,7 @@ public class ImportImpaxReportRS {
     }
 
     private void storeReports() {
-        try (StoreSession session = storeService.newStoreSession(ae, null)) {
+        try (StoreSession session = storeService.newStoreSession(request, ae, null)) {
             for (String report : reports) {
                 storeReport(session, report);
             }

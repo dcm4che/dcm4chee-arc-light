@@ -173,7 +173,7 @@
             <xsl:call-template name="reportItem">
                 <xsl:with-param name="itemNo">8</xsl:with-param>
                 <xsl:with-param name="parentCode"><xsl:value-of select="'121070'"/></xsl:with-param>
-                <xsl:with-param name="parentCodeMeaning"><xsl:value-of select="'Report Body'"/></xsl:with-param>
+                <xsl:with-param name="parentCodeMeaning"><xsl:value-of select="'Findings'"/></xsl:with-param>
                 <xsl:with-param name="childCode"><xsl:value-of select="'121071'"/></xsl:with-param>
                 <xsl:with-param name="childCodeMeaning"><xsl:value-of select="'Finding'"/></xsl:with-param>
                 <xsl:with-param name="val"><xsl:value-of select="$reportDetails/agfa:ReportBody/text()"/></xsl:with-param>
@@ -347,27 +347,27 @@
     <xsl:param name="childCodeMeaning"/>
     <xsl:param name="val"/>
     <Item number="{$itemNo}">
-      <xsl:call-template name="containsRelation"/>
-      <xsl:call-template name="containerValueType"/>
-      <xsl:call-template name="conceptNameCodeSq">
-          <xsl:with-param name="code" select="$parentCode"/>
-          <xsl:with-param name="meaning" select="$parentCodeMeaning"/>
-      </xsl:call-template>
       <xsl:if test="$val">
+          <xsl:call-template name="containsRelation"/>
+          <xsl:call-template name="containerValueType"/>
+          <xsl:call-template name="conceptNameCodeSq">
+              <xsl:with-param name="code" select="$parentCode"/>
+              <xsl:with-param name="meaning" select="$parentCodeMeaning"/>
+          </xsl:call-template>
           <xsl:call-template name="continuityOfContent"/>
-        <DicomAttribute keyword="ContentSequence" tag="0040A730" vr="SQ">
-          <Item number="1">
-              <xsl:call-template name="containsRelation"/>
-              <xsl:call-template name="textValueType"/>
-              <xsl:call-template name="conceptNameCodeSq">
-                  <xsl:with-param name="code" select="$childCode"/>
-                  <xsl:with-param name="meaning" select="$childCodeMeaning"/>
-              </xsl:call-template>
-              <xsl:call-template name="text">
-                  <xsl:with-param name="val" select="$val"/>
-              </xsl:call-template>
-          </Item>
-        </DicomAttribute>
+          <DicomAttribute keyword="ContentSequence" tag="0040A730" vr="SQ">
+            <Item number="1">
+                <xsl:call-template name="containsRelation"/>
+                <xsl:call-template name="textValueType"/>
+                <xsl:call-template name="conceptNameCodeSq">
+                    <xsl:with-param name="code" select="$childCode"/>
+                    <xsl:with-param name="meaning" select="$childCodeMeaning"/>
+                </xsl:call-template>
+                <xsl:call-template name="text">
+                    <xsl:with-param name="val" select="$val"/>
+                </xsl:call-template>
+            </Item>
+          </DicomAttribute>
       </xsl:if>
     </Item>
   </xsl:template>
