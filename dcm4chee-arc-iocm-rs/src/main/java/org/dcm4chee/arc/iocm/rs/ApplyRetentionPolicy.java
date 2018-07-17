@@ -45,6 +45,7 @@ import com.querydsl.core.types.Order;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.dict.archive.ArchiveTag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
@@ -140,7 +141,11 @@ public class ApplyRetentionPolicy {
                 while (query.hasMoreMatches()) {
                     Attributes attrs = query.nextMatch();
                     StudyRetentionPolicy retentionPolicy =
-                            arcAE.findStudyRetentionPolicy(null,null, aet, attrs);
+                            arcAE.findStudyRetentionPolicy(
+                                    null,
+                                    attrs.getString(ArchiveTag.PrivateCreator, ArchiveTag.SendingApplicationEntityTitleOfSeries),
+                                    aet,
+                                    attrs);
 
                     if (retentionPolicy == null) {
                         continue;
