@@ -1,4 +1,4 @@
-<<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:output method="text" encoding="UTF-8" />
   <xsl:param name="wado-url">http://localhost:8080/dcm4chee-arc/aets/DCM4CHEE/wado</xsl:param>
   <xsl:param name="br"><xsl:text>&#10;</xsl:text></xsl:param>
@@ -160,6 +160,14 @@
     <xsl:call-template name="formatPN">
       <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A123']/PersonName/Alphabetic"/>
     </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template mode="renderValue" match="Item[DicomAttribute[@tag='0040A040']/Value='UIDREF']">
+    <xsl:value-of select="DicomAttribute[@tag='0040A124']"/>
+  </xsl:template>
+
+  <xsl:template mode="renderValue" match="Item[DicomAttribute[@tag='0040A040']/Value='DATE']">
+    <xsl:value-of select="DicomAttribute[@tag='0040A121']"/>
   </xsl:template>
 
   <xsl:template mode="renderValue" match="Item[DicomAttribute[@tag='0040A040']/Value='NUM']">

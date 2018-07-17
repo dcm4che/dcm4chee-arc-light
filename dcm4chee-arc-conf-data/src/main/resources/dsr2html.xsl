@@ -192,6 +192,14 @@
     </xsl:call-template>
   </xsl:template>
 
+  <xsl:template mode="renderValue" match="Item[DicomAttribute[@tag='0040A040']/Value='UIDREF']">
+    <xsl:value-of select="DicomAttribute[@tag='0040A124']"/>
+  </xsl:template>
+
+  <xsl:template mode="renderValue" match="Item[DicomAttribute[@tag='0040A040']/Value='DATE']">
+    <xsl:value-of select="DicomAttribute[@tag='0040A121']"/>
+  </xsl:template>
+
   <xsl:template mode="renderValue" match="Item[DicomAttribute[@tag='0040A040']/Value='NUM']">
     <xsl:variable name="measuredValue" select="DicomAttribute[@tag='0040A300']/Item"/>
     <span class="under">

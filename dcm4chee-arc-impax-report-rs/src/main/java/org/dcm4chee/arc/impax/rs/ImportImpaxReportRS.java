@@ -75,6 +75,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Templates;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
@@ -249,6 +250,11 @@ public class ImportImpaxReportRS {
 
     private void xslt(String report, Attributes attrs) throws Exception {
         TransformerHandler th = tranformerFactory.newTransformerHandler(tpls);
+        Transformer t = th.getTransformer();
+        Code code = new Code(props.getOrDefault("Language", DEFAULT_LANGUAGE));
+        t.setParameter("langCodeValue", code.getCodeValue());
+        t.setParameter("langCodingSchemeDesignator", code.getCodingSchemeDesignator());
+        t.setParameter("langCodeMeaning",  code.getCodeMeaning());
         th.setResult(new SAXResult(new ContentHandlerAdapter(attrs)));
         XMLReader reader = parserFactory.newSAXParser().getXMLReader();
         reader.setContentHandler(th);
@@ -268,14 +274,14 @@ public class ImportImpaxReportRS {
     }
 
     private void adjust(Attributes attrs) {
+        attrs.newSequence(Tag.ConceptNameCodeSequence, 1)
+                .add(new Code(props.getOrDefault("DocumentTitle", DEFAULT_DOC_TITLE)).toItem());
         setStringIfMissing(attrs, Tag.SOPClassUID, VR.UI, UID.BasicTextSRStorage);
         setStringIfMissing(attrs, Tag.SeriesNumber, VR.IS, "0");
         setStringIfMissing(attrs, Tag.InstanceNumber, VR.IS, String.valueOf(++instanceNumber));
         setDateTimeIfMissing(attrs, Tag.ContentDateAndTime, new Date());
         supplementMissingType2(attrs);
         supplementVerifyingObserverSequence(attrs);
-        supplementDocTitle(attrs);
-        supplementLanguage(attrs);
     }
 
     private void setStringIfMissing(Attributes attrs, int tag, VR vr, String value) {
@@ -292,33 +298,6 @@ public class ImportImpaxReportRS {
         for (int tag : TYPE2_TAGS)
             if (!attrs.contains(tag))
                 attrs.setNull(tag, dict.vrOf(tag));
-    }
-
-    private void supplementDocTitle(Attributes attrs) {
-        String[] docTitle = props.getOrDefault("DocumentTitle", DEFAULT_DOC_TITLE)
-                                 .replaceAll("[() \"]", "")
-                                 .split(",");
-        Attributes item = new Attributes();
-        item.setString(Tag.CodeValue, VR.SH, docTitle[0]);
-        item.setString(Tag.CodingSchemeDesignator, VR.SH, docTitle[1]);
-        item.setString(Tag.CodeMeaning, VR.SH, docTitle[2]);
-        attrs.newSequence(Tag.ConceptNameCodeSequence, 1).add(item);
-    }
-
-    private void supplementLanguage(Attributes attrs) {
-        String[] language = props.getOrDefault("Language", DEFAULT_LANGUAGE)
-                                 .replaceAll("[() \"]", "")
-                                 .split(",");
-        Attributes conceptCodeSqItem = new Attributes();
-        conceptCodeSqItem.setString(Tag.CodeValue, VR.SH, language[0]);
-        conceptCodeSqItem.setString(Tag.CodingSchemeDesignator, VR.SH, language[1]);
-        conceptCodeSqItem.setString(Tag.CodeMeaning, VR.SH, language[2]);
-        for (Attributes item : attrs.getSequence(Tag.ContentSequence)) {
-            if (item.getString(Tag.RelationshipType).equals("HAS CONCEPT MOD")) {
-                item.newSequence(Tag.ConceptCodeSequence, 1).add(conceptCodeSqItem);
-                break;
-            }
-        }
     }
 
     private void supplementVerifyingObserverSequence(Attributes attrs) {
