@@ -208,7 +208,7 @@ public class QueueManagerRS {
                 return rsp(Response.Status.NOT_FOUND, "Task not found");
 
             if (!devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, newDeviceName);
+                return rsClient.forward(request, newDeviceName, "");
 
             mgr.rescheduleTask(msgId, null, queueEvent);
             return rsp(Response.Status.NO_CONTENT);
@@ -229,15 +229,15 @@ public class QueueManagerRS {
             return rsp(Response.Status.BAD_REQUEST, "Missing query parameter: status");
 
         try {
+            String devName = newDeviceName != null ? newDeviceName : deviceName;
+            if (devName != null && !devName.equals(device.getDeviceName())) {
+                return rsClient.forward(request, devName, "");
+            }
+
             Predicate matchQueueMessage = matchQueueMessage(status, new Date());
-            if (deviceName == null && newDeviceName == null)
-                return count(rescheduleOnDistinctDevices(matchQueueMessage));
-
-            if ((newDeviceName != null && newDeviceName.equals(device.getDeviceName()))
-                    || (deviceName != null && deviceName.equals(device.getDeviceName())))
-                return count(rescheduleMessages(matchQueueMessage));
-
-            return rsClient.forward(request, newDeviceName != null ? newDeviceName : deviceName);
+            return count(devName == null
+                    ? rescheduleOnDistinctDevices(matchQueueMessage)
+                    : rescheduleMessages(matchQueueMessage));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -250,8 +250,7 @@ public class QueueManagerRS {
             if (devName.equals(device.getDeviceName()))
                 count += rescheduleMessages(matchQueueMessage);
             else {
-                uriInfo.getQueryParameters().putSingle("dicomDeviceName", devName);
-                count += count(rsClient.forward(request, devName), devName);
+                count += count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
             }
         }
         return count;

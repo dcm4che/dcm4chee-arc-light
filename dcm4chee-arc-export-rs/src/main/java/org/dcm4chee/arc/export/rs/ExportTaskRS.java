@@ -52,7 +52,6 @@ import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.event.QueueMessageOperation;
 import org.dcm4chee.arc.export.mgt.ExportManager;
 import org.dcm4chee.arc.export.mgt.ExportTaskQuery;
-import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.QueueManager;
 import org.dcm4chee.arc.query.util.MatchTask;
@@ -72,7 +71,9 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -233,7 +234,7 @@ public class ExportTaskRS {
                 return rsp(Response.Status.NOT_FOUND, "Task not found");
 
             if (!devName.equals(device.getDeviceName()))
-                return rsClient.forward(request, newDeviceName);
+                return rsClient.forward(request, newDeviceName, "");
 
             ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exporterID);
@@ -273,15 +274,15 @@ public class ExportTaskRS {
             if (newExporterID != null)
                 newExporter = exporter(newExporterID);
 
+            String devName = newDeviceName != null ? newDeviceName : deviceName;
+            if (devName != null && !devName.equals(device.getDeviceName())) {
+                return rsClient.forward(request, devName, "");
+            }
+
             Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
-            if (deviceName == null && newDeviceName == null)
-                return count(rescheduleOnDistinctDevices(newExporter, status, matchQueueMessage));
-
-            if ((newDeviceName != null && newDeviceName.equals(device.getDeviceName()))
-                    || (deviceName != null && deviceName.equals(device.getDeviceName())))
-                return count(rescheduleTasks(newExporter, status, matchQueueMessage));
-
-            return rsClient.forward(request, newDeviceName != null ? newDeviceName : deviceName);
+            return count(devName == null
+                    ? rescheduleOnDistinctDevices(newExporter, status, matchQueueMessage)
+                    : rescheduleTasks(newExporter, status, matchQueueMessage));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
@@ -295,8 +296,7 @@ public class ExportTaskRS {
             if (devName.equals(device.getDeviceName()))
                 count += rescheduleTasks(newExporter, status, matchQueueMessage);
             else {
-                uriInfo.getQueryParameters().putSingle("dicomDeviceName", devName);
-                count += count(rsClient.forward(request, devName), devName);
+                count += count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
             }
         }
         return count;

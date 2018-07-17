@@ -71,5 +71,5 @@ public interface RSClient {
             boolean tlsDisableTrustManager,
             byte[] content) throws Exception;
 
-    Response forward(HttpServletRequest request, String deviceName) throws Exception;
+    Response forward(HttpServletRequest request, String deviceName, String append) throws Exception;
 }
