@@ -215,7 +215,7 @@ public class ApplyRetentionPolicy {
 
     private QueryContext queryContext(ApplicationEntity ae) {
         QueryContext ctx = queryService.newQueryContextQIDO(
-                request, "applyRetentionPolicyToStudies", ae, queryParam(ae));
+                request, "applyRetentionPolicy", ae, queryParam(ae));
         ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.SERIES);
         QueryAttributes queryAttrs = new QueryAttributes(uriInfo);
         Attributes keys = queryAttrs.getQueryKeys();
