@@ -61,8 +61,6 @@ import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -80,9 +78,11 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.WebServiceException;
-import java.io.*;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -249,17 +249,12 @@ public class ImportImpaxReportRS {
     }
 
     private void xslt(String report, Attributes attrs) throws Exception {
-        TransformerHandler th = tranformerFactory.newTransformerHandler(tpls);
-        Transformer t = th.getTransformer();
+        Transformer t = tpls.newTransformer();
         Code code = new Code(props.getOrDefault("Language", DEFAULT_LANGUAGE));
         t.setParameter("langCodeValue", code.getCodeValue());
         t.setParameter("langCodingSchemeDesignator", code.getCodingSchemeDesignator());
         t.setParameter("langCodeMeaning",  code.getCodeMeaning());
-        th.setResult(new SAXResult(new ContentHandlerAdapter(attrs)));
-        XMLReader reader = parserFactory.newSAXParser().getXMLReader();
-        reader.setContentHandler(th);
-        reader.setDTDHandler(th);
-        reader.parse(new InputSource(new StringReader(report)));
+        t.transform(new StreamSource(new StringReader(report)), new SAXResult(new ContentHandlerAdapter(attrs)));
     }
 
     private void addUIDs(String report, Attributes attrs) {
