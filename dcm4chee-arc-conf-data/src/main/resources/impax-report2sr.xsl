@@ -11,12 +11,13 @@
 
   <xsl:template match="/agfa:DiagnosticRadiologyReport">
     <NativeDicomModel>
-      <!--Modality-->
+        <!--Modality-->
         <xsl:call-template name="attr">
             <xsl:with-param name="tag" select="'00080060'"/>
             <xsl:with-param name="vr" select="'CS'"/>
             <xsl:with-param name="val" select="'SR'"/>
         </xsl:call-template>
+        <xsl:call-template name="contentTemplateSq"/>
         <xsl:call-template name="containerValueType"/>
         <xsl:call-template name="continuityOfContent"/>
         <xsl:variable name="orderDetails" select="agfa:OrderDetails"/>
@@ -29,6 +30,23 @@
         </xsl:call-template>
     </NativeDicomModel>
   </xsl:template>
+
+    <xsl:template name="contentTemplateSq">
+        <DicomAttribute keyword="ContentTemplateSequence" tag="0040A504" vr="SQ">
+            <Item number="1">
+                <xsl:call-template name="attr">
+                    <xsl:with-param name="tag" select="'00080105'"/>
+                    <xsl:with-param name="vr" select="'CS'"/>
+                    <xsl:with-param name="val" select="'DCMR'"/>
+                </xsl:call-template>
+                <xsl:call-template name="attr">
+                    <xsl:with-param name="tag" select="'0040DB00'"/>
+                    <xsl:with-param name="vr" select="'CS'"/>
+                    <xsl:with-param name="val" select="'2000'"/>
+                </xsl:call-template>
+            </Item>
+        </DicomAttribute>
+    </xsl:template>
 
   <xsl:template match="agfa:OrderDetails">
       <xsl:param name="orderDetails"/>
