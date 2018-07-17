@@ -155,11 +155,9 @@ public class ApplyRetentionPolicy {
                         prevStudyExpirationDate = expirationDate;
                         updateStudyExpirationDate(studyInstanceUID, expirationDate);
                         count++;
-                    } else {
-                        if (prevStudyExpirationDate.compareTo(expirationDate) < 0) {
-                            prevStudyExpirationDate = expirationDate;
-                            updateStudyExpirationDate(studyInstanceUID, expirationDate);
-                        }
+                    } else if (prevStudyExpirationDate.compareTo(expirationDate) < 0) {
+                        prevStudyExpirationDate = expirationDate;
+                        updateStudyExpirationDate(studyInstanceUID, expirationDate);
                     }
 
                     if (retentionPolicy.isExpireSeriesIndividually())
