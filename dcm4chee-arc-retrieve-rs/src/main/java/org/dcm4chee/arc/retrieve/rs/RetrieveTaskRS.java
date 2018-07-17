@@ -109,9 +109,6 @@ public class RetrieveTaskRS {
     @Context
     private HttpHeaders httpHeaders;
 
-    @Context
-    private UriInfo uriInfo;
-
     @QueryParam("dicomDeviceName")
     private String deviceName;
 

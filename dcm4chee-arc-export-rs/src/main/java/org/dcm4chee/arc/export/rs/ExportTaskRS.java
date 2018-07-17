@@ -119,7 +119,7 @@ public class ExportTaskRS {
     private String newDeviceName;
 
     @QueryParam("ExporterID")
-    private String exporterID;
+    private List<String> exporterIDs;
 
     @QueryParam("status")
     @Pattern(regexp = "TO SCHEDULE|SCHEDULED|IN PROCESS|COMPLETED|WARNING|FAILED|CANCELED")
@@ -466,7 +466,7 @@ public class ExportTaskRS {
     }
 
     private Predicate matchExportTask(String updatedTime) {
-        return MatchTask.matchExportTask(uriInfo.getQueryParameters().get("ExporterID"), deviceName, studyUID, createdTime, updatedTime);
+        return MatchTask.matchExportTask(exporterIDs, deviceName, studyUID, createdTime, updatedTime);
     }
 
     private Predicate matchQueueMessage(QueueMessage.Status status, String updatedTime, Date updatedBefore) {

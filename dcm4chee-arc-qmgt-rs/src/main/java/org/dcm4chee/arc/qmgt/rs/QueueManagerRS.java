@@ -97,9 +97,6 @@ public class QueueManagerRS {
     @Context
     private HttpServletRequest request;
 
-    @Context
-    private UriInfo uriInfo;
-
     @PathParam("queueName")
     private String queueName;
 

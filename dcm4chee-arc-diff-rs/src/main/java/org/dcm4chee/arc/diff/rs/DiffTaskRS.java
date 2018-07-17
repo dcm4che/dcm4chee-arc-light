@@ -113,9 +113,6 @@ public class DiffTaskRS {
     @Context
     private HttpServletRequest request;
 
-    @Context
-    private UriInfo uriInfo;
-
     @QueryParam("dicomDeviceName")
     private String deviceName;
 
