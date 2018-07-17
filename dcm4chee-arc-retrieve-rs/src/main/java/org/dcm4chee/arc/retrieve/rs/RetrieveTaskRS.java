@@ -162,7 +162,7 @@ public class RetrieveTaskRS {
             return notAcceptable();
 
         RetrieveTaskQuery tasks = mgr.listRetrieveTasks(
-                matchQueueMessage(status(),null, null),
+                matchQueueMessage(status(), deviceName, null, null),
                 matchRetrieveTask(updatedTime),
                 MatchTask.retrieveTaskOrder(orderby), parseInt(offset), parseInt(limit));
         return Response.ok(output.entity(tasks), output.type).build();
@@ -175,7 +175,7 @@ public class RetrieveTaskRS {
     public Response countRetrieveTasks() {
         logRequest();
         return count( mgr.countRetrieveTasks(
-                matchQueueMessage(status(), null, null),
+                matchQueueMessage(status(), deviceName, null, null),
                 matchRetrieveTask(updatedTime)));
     }
 
@@ -208,7 +208,7 @@ public class RetrieveTaskRS {
         try {
             LOG.info("Cancel processing of Retrieve Tasks with Status {}", status);
             long count = mgr.cancelRetrieveTasks(
-                    matchQueueMessage(status, updatedTime, null),
+                    matchQueueMessage(status, deviceName, updatedTime, null),
                     matchRetrieveTask(null),
                     status);
             queueEvent.setCount(count);
@@ -254,29 +254,24 @@ public class RetrieveTaskRS {
 
         try {
             String devName = newDeviceName != null ? newDeviceName : deviceName;
-            if (devName != null && !devName.equals(device.getDeviceName())) {
+            if (devName != null && !devName.equals(device.getDeviceName()))
                 return rsClient.forward(request, devName, "");
-            }
 
-            Predicate matchQueueMessage = matchQueueMessage(status, null, new Date());
             return count(devName == null
-                    ? rescheduleOnDistinctDevices(matchQueueMessage)
-                    : rescheduleTasks(matchQueueMessage));
+                    ? rescheduleOnDistinctDevices(status)
+                    : rescheduleTasks(matchQueueMessage(status, devName, null, new Date())));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
     }
 
-    private int rescheduleOnDistinctDevices(Predicate matchQueueMessage) throws Exception {
-        List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage);
+    private int rescheduleOnDistinctDevices(QueueMessage.Status status) throws Exception {
+        List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage(status, deviceName, null, new Date()));
         int count = 0;
-        for (String devName : distinctDeviceNames) {
-            if (devName.equals(device.getDeviceName()))
-                count += rescheduleTasks(matchQueueMessage);
-            else {
-                count += count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
-            }
-        }
+        for (String devName : distinctDeviceNames)
+            count += devName.equals(device.getDeviceName())
+                    ? rescheduleTasks(matchQueueMessage(status, devName, null, new Date()))
+                    : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
         return count;
     }
 
@@ -310,7 +305,7 @@ public class RetrieveTaskRS {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         int deleted = mgr.deleteTasks(
-                matchQueueMessage(status(), null, null),
+                matchQueueMessage(status(), deviceName, null, null),
                 matchRetrieveTask(updatedTime));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
@@ -433,9 +428,9 @@ public class RetrieveTaskRS {
         return MatchTask.matchRetrieveTask(localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
     }
 
-    private Predicate matchQueueMessage(QueueMessage.Status status, String updatedTime, Date updatedBefore) {
+    private Predicate matchQueueMessage(QueueMessage.Status status, String devName, String updatedTime, Date updatedBefore) {
         return MatchTask.matchQueueMessage(
-                null, deviceName, status, batchID, null, null, updatedTime, updatedBefore);
+                null, devName, status, batchID, null, null, updatedTime, updatedBefore);
     }
 
     private void logRequest() {
