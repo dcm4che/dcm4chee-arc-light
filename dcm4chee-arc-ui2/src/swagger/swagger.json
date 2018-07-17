@@ -8511,6 +8511,70 @@
         }
       }
     },
+    "/aets/{aet}/expire/series": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Apply Retention Policy",
+        "operationId": "applyRetentionPolicy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "apply Retention Policy to Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "apply Retention Policy to Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully apply Retention Policy to matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/aets/{aet}/rs/patients/count": {
       "get": {
         "tags": [
