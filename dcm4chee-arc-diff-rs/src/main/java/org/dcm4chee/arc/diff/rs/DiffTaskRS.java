@@ -175,7 +175,7 @@ public class DiffTaskRS {
 
         DiffTaskQuery diffTasks = diffService.listDiffTasks(
                 matchQueueMessage(status(), null, null),
-                matchDiffTask(),
+                matchDiffTask(updatedTime),
                 MatchTask.diffTaskOrder(orderby),
                 parseInt(offset), parseInt(limit));
 
@@ -190,7 +190,7 @@ public class DiffTaskRS {
         logRequest();
         return count(diffService.countDiffTasks(
                 matchQueueMessage(status(), null, null),
-                matchDiffTask()));
+                matchDiffTask(updatedTime)));
     }
 
     @GET
@@ -240,7 +240,7 @@ public class DiffTaskRS {
             LOG.info("Cancel processing of Diff Tasks with Status {}", status);
             long count = diffService.cancelDiffTasks(
                     matchQueueMessage(status, null, updatedTime),
-                    matchDiffTask(),
+                    matchDiffTask(null),
                     status);
             queueEvent.setCount(count);
             return count(count);
@@ -310,7 +310,7 @@ public class DiffTaskRS {
     private int rescheduleTasks(Predicate matchQueueMessage) throws Exception {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            int count = diffService.rescheduleDiffTasks(matchQueueMessage, matchDiffTask());
+            int count = diffService.rescheduleDiffTasks(matchQueueMessage, matchDiffTask(updatedTime));
             LOG.info("Successfully rescheduled {} tasks on device: {}.", count, device.getDeviceName());
             queueEvent.setCount(count);
             return count;
@@ -338,7 +338,7 @@ public class DiffTaskRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         int deleted = diffService.deleteTasks(
                 matchQueueMessage(status(), null, null),
-                matchDiffTask());
+                matchDiffTask(updatedTime));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
         return "{\"deleted\":" + deleted + '}';
@@ -485,7 +485,7 @@ public class DiffTaskRS {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 
-    private Predicate matchDiffTask() {
+    private Predicate matchDiffTask(String updatedTime) {
         return MatchTask.matchDiffTask(
                 localAET, primaryAET, secondaryAET, checkDifferent, checkMissing, comparefields, createdTime, updatedTime);
     }
