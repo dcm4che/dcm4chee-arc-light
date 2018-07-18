@@ -48,6 +48,7 @@
             <xsl:with-param name="label">Verification Flag:</xsl:with-param>
           </xsl:apply-templates>
           <xsl:apply-templates mode="verifyingObserver" select="DicomAttribute[@tag='0040A073']/Item"/>
+          <xsl:apply-templates mode="authorObserver" select="DicomAttribute[@tag='0040A078']/Item"/>
           <xsl:call-template name="contentDateTime">
             <xsl:with-param name="date" select="DicomAttribute[@tag='00080023']/Value"/>
             <xsl:with-param name="time" select="DicomAttribute[@tag='00080033']/Value"/>
@@ -116,6 +117,11 @@
             </xsl:call-template>
             <xsl:text> = </xsl:text>
             <xsl:apply-templates mode="renderValue" select="." />
+            <xsl:variable name="child" select="DicomAttribute[@tag='0040A730']/Item"/>
+            <xsl:if test="$child">
+              <xsl:text>^^^</xsl:text>
+              <xsl:apply-templates mode="renderValue" select="$child" />
+            </xsl:if>
           </xsl:for-each>
         </small>
       </p>
@@ -375,6 +381,27 @@
           </xsl:with-param>
         </xsl:call-template>
         <xsl:value-of select="concat(', ',DicomAttribute[@tag='0040A027']/Value)"/>
+      </td>
+    </tr>
+  </xsl:template>
+
+  <xsl:template match="Item" mode="authorObserver">
+    <tr>
+      <td>
+        <xsl:if test="position()=1">
+          <b>Author Observers:</b>
+        </xsl:if>
+      </td>
+      <td>
+        <xsl:call-template name="spanCode">
+          <xsl:with-param name="class">under</xsl:with-param>
+          <xsl:with-param name="code" select="DicomAttribute[@tag='00401101']/Item"/>
+          <xsl:with-param name="text">
+            <xsl:call-template name="formatPN">
+              <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A123']/PersonName/Alphabetic"/>
+            </xsl:call-template>
+          </xsl:with-param>
+        </xsl:call-template>
       </td>
     </tr>
   </xsl:template>

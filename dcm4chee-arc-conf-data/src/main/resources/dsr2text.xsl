@@ -33,6 +33,7 @@
       <xsl:with-param name="label">Verification Flag:   </xsl:with-param>
     </xsl:apply-templates>
     <xsl:apply-templates mode="verifyingObserver" select="DicomAttribute[@tag='0040A073']/Item"/>
+    <xsl:apply-templates mode="authorObserver" select="DicomAttribute[@tag='0040A078']/Item"/>
     <xsl:call-template name="contentDateTime">
       <xsl:with-param name="date" select="DicomAttribute[@tag='00080023']/Value"/>
       <xsl:with-param name="time" select="DicomAttribute[@tag='00080033']/Value"/>
@@ -109,6 +110,11 @@
         <xsl:value-of select="DicomAttribute[@tag='0040A043']/Item/DicomAttribute[@tag='00080104']/Value"/>
         <xsl:text> = </xsl:text>
         <xsl:apply-templates mode="renderValue" select="." />
+        <xsl:variable name="child" select="DicomAttribute[@tag='0040A730']/Item"/>
+        <xsl:if test="$child">
+          <xsl:text>^^^</xsl:text>
+          <xsl:apply-templates mode="renderValue" select="$child" />
+        </xsl:if>
         <xsl:value-of select="$br"/>
       </xsl:for-each>
       <xsl:value-of select="$br"/>
@@ -280,6 +286,19 @@
       <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A075']/PersonName/Alphabetic"/>
     </xsl:call-template>
     <xsl:value-of select="concat(', ',DicomAttribute[@tag='0040A027']/Value,$br)"/>
+  </xsl:template>
+
+  <xsl:template match="Item" mode="authorObserver">
+    <xsl:choose>
+      <xsl:when test="position()=1">Author Observers: </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>                     </xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:call-template name="formatPN">
+      <xsl:with-param name="pnc" select="DicomAttribute[@tag='0040A123']/PersonName/Alphabetic"/>
+    </xsl:call-template>
+    <xsl:value-of select="$br"/>
   </xsl:template>
 
   <xsl:template name="contentDateTime">

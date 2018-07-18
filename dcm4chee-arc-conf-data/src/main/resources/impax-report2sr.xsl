@@ -159,7 +159,7 @@
         </Item>
       </DicomAttribute>
     </xsl:if>
-    <xsl:if test="$verifyingObserver/text()">
+    <xsl:if test="$verifyingObserver/text() and $verificationFlag = 'UNVERIFIED'">
         <!-- Author Observer Sequence -->
         <DicomAttribute tag="0040A078" vr="SQ">
             <Item number="1">
@@ -213,7 +213,7 @@
                 <xsl:with-param name="accessionNo" select="$orderDetails/agfa:AccessionNumber"/>
             </xsl:call-template>
             <xsl:call-template name="reportItem">
-                <xsl:with-param name="itemNo">8</xsl:with-param>
+                <xsl:with-param name="itemNo">9</xsl:with-param>
                 <xsl:with-param name="parentCode"><xsl:value-of select="'121070'"/></xsl:with-param>
                 <xsl:with-param name="parentCodeMeaning"><xsl:value-of select="'Findings'"/></xsl:with-param>
                 <xsl:with-param name="childCode"><xsl:value-of select="'121071'"/></xsl:with-param>
@@ -221,7 +221,7 @@
                 <xsl:with-param name="val"><xsl:value-of select="$reportDetails/agfa:ReportBody/text()"/></xsl:with-param>
             </xsl:call-template>
             <xsl:call-template name="reportItem">
-                <xsl:with-param name="itemNo">9</xsl:with-param>
+                <xsl:with-param name="itemNo">10</xsl:with-param>
                 <xsl:with-param name="parentCode"><xsl:value-of select="'121076'"/></xsl:with-param>
                 <xsl:with-param name="parentCodeMeaning"><xsl:value-of select="'Conclusions'"/></xsl:with-param>
                 <xsl:with-param name="childCode"><xsl:value-of select="'121077'"/></xsl:with-param>
@@ -234,9 +234,7 @@
     <xsl:template name="language">
         <xsl:param name="itemNo"/>
         <Item number="{$itemNo}">
-            <xsl:call-template name="relationshipType">
-                <xsl:with-param name="val" select="'HAS CONCEPT MOD'"/>
-            </xsl:call-template>
+            <xsl:call-template name="conceptModRelation"/>
             <xsl:call-template name="codeValueType"/>
             <xsl:call-template name="conceptNameCodeSq">
                 <xsl:with-param name="code" select="'121049'"/>
@@ -291,15 +289,28 @@
         <xsl:param name="pid"/>
         <Item number="{$itemNo}">
             <xsl:call-template name="obsRelation"/>
-            <xsl:call-template name="codeValueType"/>
+            <xsl:call-template name="textValueType"/>
             <xsl:call-template name="conceptNameCodeSq">
                 <xsl:with-param name="code" select="'121030'"/>
                 <xsl:with-param name="meaning" select="'Subject ID'"/>
             </xsl:call-template>
-            <xsl:call-template name="code">
-                <xsl:with-param name="code" select="'121030'"/>
-                <xsl:with-param name="meaning" select="concat($pid/agfa:IdText, '^^^', $pid/agfa:IdDomain)"/>
+            <xsl:call-template name="text">
+                <xsl:with-param name="val" select="$pid/agfa:IdText"/>
             </xsl:call-template>
+            <xsl:call-template name="continuityOfContent"/>
+            <DicomAttribute tag="0040A730" vr="SQ">
+                <Item number="1">
+                    <xsl:call-template name="conceptModRelation"/>
+                    <xsl:call-template name="textValueType"/>
+                    <xsl:call-template name="conceptNameCodeSq">
+                        <xsl:with-param name="code" select="'110190'"/>
+                        <xsl:with-param name="meaning" select="'Issuer of Identifier'"/>
+                    </xsl:call-template>
+                    <xsl:call-template name="text">
+                        <xsl:with-param name="val" select="$pid/agfa:IdDomain"/>
+                    </xsl:call-template>
+                </Item>
+            </DicomAttribute>
         </Item>
     </xsl:template>
 
@@ -476,6 +487,12 @@
             <xsl:with-param name="code" select="$code"/>
             <xsl:with-param name="scheme" select="'DCM'"/>
             <xsl:with-param name="meaning" select="$meaning"/>
+        </xsl:call-template>
+    </xsl:template>
+
+    <xsl:template name="conceptModRelation">
+        <xsl:call-template name="relationshipType">
+            <xsl:with-param name="val" select="'HAS CONCEPT MOD'"/>
         </xsl:call-template>
     </xsl:template>
 
