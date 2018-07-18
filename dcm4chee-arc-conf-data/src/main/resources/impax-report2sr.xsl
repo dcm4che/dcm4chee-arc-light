@@ -8,6 +8,7 @@
   <xsl:param name="langCodeValue"/>
   <xsl:param name="langCodingSchemeDesignator"/>
   <xsl:param name="langCodeMeaning"/>
+  <xsl:param name="VerifyingOrganization"/>
 
   <xsl:template match="/agfa:DiagnosticRadiologyReport">
     <NativeDicomModel>
@@ -133,19 +134,19 @@
       <DicomAttribute keyword="VerifyingObserverSequence" tag="0040A073" vr="SQ">
         <Item number="1">
           <!-- Verifying Organization -->
-          <DicomAttribute keyword="VerifyingOrganization" tag="0040A027" vr="LO" />
+          <DicomAttribute keyword="VerifyingOrganization" tag="0040A027" vr="LO">
+            <Value number="1"><xsl:value-of select="$VerifyingOrganization"/></Value>
+          </DicomAttribute>
           <!-- Verification DateTime -->
           <DicomAttribute keyword="VerificationDateTime" tag="0040A030" vr="DT">
             <Value number="1"><xsl:value-of select="$date"/><xsl:value-of select="$time"/></Value>
           </DicomAttribute>
-          <xsl:if test="$verifyingObserver">
-            <!-- Verifying Observer Name -->
-            <xsl:call-template name="pnAttrs">
-              <xsl:with-param name="keyword" select="'VerifyingObserverName'" />
-              <xsl:with-param name="tag" select="'0040A075'" />
-              <xsl:with-param name="val" select="$verifyingObserver" />
-            </xsl:call-template>
-          </xsl:if>
+          <!-- Verifying Observer Name -->
+          <xsl:call-template name="pnAttrs">
+            <xsl:with-param name="keyword" select="'VerifyingObserverName'" />
+            <xsl:with-param name="tag" select="'0040A075'" />
+            <xsl:with-param name="val" select="$verifyingObserver" />
+          </xsl:call-template>
           <!-- Verifying Observer Identification Code Sequence -->
           <DicomAttribute keyword="VerifyingObserverIdentificationCodeSequence" tag="0040A088" vr="SQ"/>
         </Item>

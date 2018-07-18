@@ -71,13 +71,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
@@ -99,8 +96,7 @@ public class ImportImpaxReportRS {
     private static final String DEFAULT_XSL = "${jboss.server.temp.url}/dcm4chee-arc/impax-report2sr.xsl";
     private static final String DEFAULT_DOC_TITLE = "(18748-4, LN, \"Diagnostic Imaging Report\")";
     private static final String DEFAULT_LANGUAGE = "(en, RFC5646, \"English\")";
-    private static SAXTransformerFactory tranformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance();
-    private static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+    private static final String DEFAULT_VERIFYING_ORGANIZATION = "N/A";
 
     @Context
     private HttpServletRequest request;
@@ -253,7 +249,9 @@ public class ImportImpaxReportRS {
         Code code = new Code(props.getOrDefault("Language", DEFAULT_LANGUAGE));
         t.setParameter("langCodeValue", code.getCodeValue());
         t.setParameter("langCodingSchemeDesignator", code.getCodingSchemeDesignator());
-        t.setParameter("langCodeMeaning",  code.getCodeMeaning());
+        t.setParameter("langCodeMeaning", code.getCodeMeaning());
+        t.setParameter("VerifyingOrganization",
+                props.getOrDefault("VerifyingOrganisation", DEFAULT_VERIFYING_ORGANIZATION));
         t.transform(new StreamSource(new StringReader(report)), new SAXResult(new ContentHandlerAdapter(attrs)));
     }
 
@@ -274,9 +272,8 @@ public class ImportImpaxReportRS {
         setStringIfMissing(attrs, Tag.SOPClassUID, VR.UI, UID.BasicTextSRStorage);
         setStringIfMissing(attrs, Tag.SeriesNumber, VR.IS, "0");
         setStringIfMissing(attrs, Tag.InstanceNumber, VR.IS, String.valueOf(++instanceNumber));
-        setDateTimeIfMissing(attrs, Tag.ContentDateAndTime, new Date());
+        setDateTimeIfMissing(attrs, Tag.ContentDateAndTime);
         supplementMissingType2(attrs);
-        supplementVerifyingObserverSequence(attrs);
     }
 
     private void setStringIfMissing(Attributes attrs, int tag, VR vr, String value) {
@@ -284,29 +281,15 @@ public class ImportImpaxReportRS {
             attrs.setString(tag, vr, value);
     }
 
-    private void setDateTimeIfMissing(Attributes attrs, long tag, Date date) {
-        if (!attrs.containsValue((int) (tag >>> 32)))
-            attrs.setDate(tag, date);
+    private void setDateTimeIfMissing(Attributes attrs, long tag) {
+        if (attrs.getDate(tag) == null)
+            attrs.setDate(tag, new Date());
     }
 
     private void supplementMissingType2(Attributes attrs) {
         for (int tag : TYPE2_TAGS)
             if (!attrs.contains(tag))
                 attrs.setNull(tag, dict.vrOf(tag));
-    }
-
-    private void supplementVerifyingObserverSequence(Attributes attrs) {
-        if (!attrs.contains(Tag.VerifyingObserverSequence))
-            return;
-
-        Attributes item = attrs.getNestedDataset(Tag.VerifyingObserverSequence);
-        item.setString(Tag.VerifyingOrganization, VR.LO,
-                attrs.contains(Tag.VerifyingOrganization) ? attrs.getString(Tag.VerifyingOrganization) : "VerifyingOrganization");
-        if (item.getString(Tag.VerifyingObserverName) == null)
-            item.setString(Tag.VerifyingObserverName, VR.PN,
-                attrs.contains(Tag.VerifyingObserverName) ? attrs.getString(Tag.VerifyingObserverName) : "VerifyingObserver");
-        attrs.remove(Tag.VerifyingOrganization);
-        attrs.remove(Tag.VerifyingObserverName);
     }
 
     private StringBuffer studyRetrieveURL() {
