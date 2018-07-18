@@ -437,7 +437,8 @@ public class RetrieveTaskRS {
                 batchID,
                 null,
                 null,
-                updatedTime);
+                updatedTime,
+                null);
     }
 
     private void logRequest() {

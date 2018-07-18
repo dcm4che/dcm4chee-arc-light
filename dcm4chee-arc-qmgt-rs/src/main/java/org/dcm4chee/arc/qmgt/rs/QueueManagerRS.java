@@ -356,7 +356,8 @@ public class QueueManagerRS {
                 batchID,
                 jmsMessageID,
                 createdTime,
-                updatedTime);
+                updatedTime,
+                null);
     }
 
     private static int parseInt(String s) {

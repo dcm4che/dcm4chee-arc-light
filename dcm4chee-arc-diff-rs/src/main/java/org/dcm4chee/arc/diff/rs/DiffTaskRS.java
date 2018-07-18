@@ -498,7 +498,8 @@ public class DiffTaskRS {
                 batchID,
                 null,
                 null,
-                updatedTime);
+                updatedTime,
+                null);
     }
 
 }

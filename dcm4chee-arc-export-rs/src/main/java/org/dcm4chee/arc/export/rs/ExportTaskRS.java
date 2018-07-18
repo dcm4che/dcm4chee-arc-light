@@ -104,9 +104,6 @@ public class ExportTaskRS {
     private Event<BulkQueueMessageEvent> bulkQueueMsgEvent;
 
     @Context
-    private UriInfo uriInfo;
-
-    @Context
     private HttpHeaders httpHeaders;
 
     @QueryParam("StudyInstanceUID")
@@ -473,7 +470,8 @@ public class ExportTaskRS {
                 batchID,
                 null,
                 null,
-                updatedTime);
+                updatedTime,
+                null);
     }
 
     private Response notAcceptable() {
