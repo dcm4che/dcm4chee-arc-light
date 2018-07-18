@@ -159,20 +159,22 @@
         </Item>
       </DicomAttribute>
     </xsl:if>
-    <!-- Author Observer Sequence -->
-    <DicomAttribute tag="0040A078" vr="SQ">
-        <Item number="1">
-            <xsl:call-template name="attr">
-                <xsl:with-param name="tag" select="'0040A084'"/>
-                <xsl:with-param name="vr" select="'CS'"/>
-                <xsl:with-param name="val" select="'Person'"/>
-            </xsl:call-template>
-            <xsl:call-template name="pnAttrs">
-                <xsl:with-param name="tag" select="'0040A123'"/>
-                <xsl:with-param name="val" select="$verifyingObserver"/>
-            </xsl:call-template>
-        </Item>
-    </DicomAttribute>
+    <xsl:if test="$verifyingObserver/text()">
+        <!-- Author Observer Sequence -->
+        <DicomAttribute tag="0040A078" vr="SQ">
+            <Item number="1">
+                <xsl:call-template name="attr">
+                    <xsl:with-param name="tag" select="'0040A084'"/>
+                    <xsl:with-param name="vr" select="'CS'"/>
+                    <xsl:with-param name="val" select="'Person'"/>
+                </xsl:call-template>
+                <xsl:call-template name="pnAttrs">
+                    <xsl:with-param name="tag" select="'0040A123'"/>
+                    <xsl:with-param name="val" select="$verifyingObserver"/>
+                </xsl:call-template>
+            </Item>
+        </DicomAttribute>
+    </xsl:if>
   </xsl:template>
 
     <xsl:template name="contentSeq">
