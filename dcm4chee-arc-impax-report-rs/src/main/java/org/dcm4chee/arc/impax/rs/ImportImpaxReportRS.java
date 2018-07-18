@@ -251,7 +251,7 @@ public class ImportImpaxReportRS {
         t.setParameter("langCodingSchemeDesignator", code.getCodingSchemeDesignator());
         t.setParameter("langCodeMeaning", code.getCodeMeaning());
         t.setParameter("VerifyingOrganization",
-                props.getOrDefault("VerifyingOrganisation", DEFAULT_VERIFYING_ORGANIZATION));
+                props.getOrDefault("VerifyingOrganization", DEFAULT_VERIFYING_ORGANIZATION));
         t.transform(new StreamSource(new StringReader(report)), new SAXResult(new ContentHandlerAdapter(attrs)));
     }
 
