@@ -250,6 +250,10 @@ public class ImportImpaxReportRS {
         t.setParameter("langCodeValue", code.getCodeValue());
         t.setParameter("langCodingSchemeDesignator", code.getCodingSchemeDesignator());
         t.setParameter("langCodeMeaning", code.getCodeMeaning());
+        Code docTitleCode = new Code(props.getOrDefault("DocumentTitle", DEFAULT_DOC_TITLE));
+        t.setParameter("docTitleCodeValue", docTitleCode.getCodeValue());
+        t.setParameter("docTitleCodingSchemeDesignator", docTitleCode.getCodingSchemeDesignator());
+        t.setParameter("docTitleCodeMeaning", docTitleCode.getCodeMeaning());
         t.setParameter("VerifyingOrganization",
                 props.getOrDefault("VerifyingOrganization", DEFAULT_VERIFYING_ORGANIZATION));
         t.transform(new StreamSource(new StringReader(report)), new SAXResult(new ContentHandlerAdapter(attrs)));
@@ -267,8 +271,6 @@ public class ImportImpaxReportRS {
     }
 
     private void adjust(Attributes attrs) {
-        attrs.newSequence(Tag.ConceptNameCodeSequence, 1)
-                .add(new Code(props.getOrDefault("DocumentTitle", DEFAULT_DOC_TITLE)).toItem());
         setStringIfMissing(attrs, Tag.SOPClassUID, VR.UI, UID.BasicTextSRStorage);
         setStringIfMissing(attrs, Tag.SeriesNumber, VR.IS, "0");
         setStringIfMissing(attrs, Tag.InstanceNumber, VR.IS, String.valueOf(++instanceNumber));

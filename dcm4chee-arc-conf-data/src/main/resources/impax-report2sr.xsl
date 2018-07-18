@@ -8,6 +8,9 @@
   <xsl:param name="langCodeValue"/>
   <xsl:param name="langCodingSchemeDesignator"/>
   <xsl:param name="langCodeMeaning"/>
+  <xsl:param name="docTitleCodeValue"/>
+  <xsl:param name="docTitleCodingSchemeDesignator"/>
+  <xsl:param name="docTitleCodeMeaning"/>
   <xsl:param name="VerifyingOrganization"/>
 
   <xsl:template match="/agfa:DiagnosticRadiologyReport">
@@ -19,6 +22,12 @@
             <xsl:with-param name="val" select="'SR'"/>
         </xsl:call-template>
         <xsl:call-template name="contentTemplateSq"/>
+        <xsl:call-template name="codeItem">
+            <xsl:with-param name="sqtag" select="'0040A043'"/>
+            <xsl:with-param name="code" select="$docTitleCodeValue"/>
+            <xsl:with-param name="scheme" select="$docTitleCodingSchemeDesignator"/>
+            <xsl:with-param name="meaning" select="$docTitleCodeMeaning"/>
+        </xsl:call-template>
         <xsl:call-template name="containerValueType"/>
         <xsl:call-template name="continuityOfContent"/>
         <xsl:variable name="orderDetails" select="agfa:OrderDetails"/>
@@ -33,7 +42,7 @@
   </xsl:template>
 
     <xsl:template name="contentTemplateSq">
-        <DicomAttribute keyword="ContentTemplateSequence" tag="0040A504" vr="SQ">
+        <DicomAttribute tag="0040A504" vr="SQ">
             <Item number="1">
                 <xsl:call-template name="attr">
                     <xsl:with-param name="tag" select="'00080105'"/>
@@ -52,7 +61,7 @@
   <xsl:template match="agfa:OrderDetails">
       <xsl:param name="orderDetails"/>
     <!--Referenced Request Sequence-->
-    <DicomAttribute keyword="ReferencedRequestSequence" tag="0040A370" vr="SQ">
+    <DicomAttribute tag="0040A370" vr="SQ">
       <Item number="1">
         <!-- Study Instance UID -->
           <xsl:call-template name="attr">
@@ -67,7 +76,7 @@
               <xsl:with-param name="val" select="$orderDetails/agfa:AccessionNumber"/>
           </xsl:call-template>
         <!--Referenced Study Sequence-->
-        <DicomAttribute keyword="ReferencedStudySequence" tag="00081110" vr="SQ"/>
+        <DicomAttribute tag="00081110" vr="SQ"/>
         <!--Requested Procedure Description-->
           <xsl:call-template name="attr">
               <xsl:with-param name="tag" select="'00321060'"/>
@@ -75,16 +84,15 @@
               <xsl:with-param name="val" select="$orderDetails/agfa:StudyDetails/agfa:StudyDescription"/>
           </xsl:call-template>
         <!--Requested Procedure Sequence-->
-        <DicomAttribute keyword="RequestedProcedureSequence" tag="00321064" vr="SQ"/>
+        <DicomAttribute tag="00321064" vr="SQ"/>
         <!--Requested Procedure ID-->
-        <DicomAttribute keyword="RequestedProcedureID" tag="00401001" vr="SH"/>
+        <DicomAttribute tag="00401001" vr="SH"/>
         <!--Placer Order Number / Imaging Service Request-->
-        <DicomAttribute keyword="PlacerOrderNumberImagingServiceRequest" tag="00402016" vr="LO" />
+        <DicomAttribute tag="00402016" vr="LO" />
         <!--Filler Order Number / Imaging Service Request-->
-        <DicomAttribute keyword="FillerOrderNumberImagingServiceRequest" tag="00402017" vr="LO" />
+        <DicomAttribute tag="00402017" vr="LO" />
           <!-- Referring Physician's Name -->
           <xsl:call-template name="pnAttrs">
-              <xsl:with-param name="keyword" select="'ReferringPhysicianName'" />
               <xsl:with-param name="tag" select="'00080090'" />
               <xsl:with-param name="val" select="$orderDetails/agfa:ReferringPhysician/agfa:Name" />
           </xsl:call-template>
@@ -108,9 +116,11 @@
       </xsl:call-template>
     <!--Verification Flag-->
     <xsl:variable name="verifyingObserver" select="agfa:ReportAuthor/agfa:Name"/>
+    <xsl:variable name="date" select="translate(agfa:InterpretationRecordDate, '-', '')"/>
+    <xsl:variable name="time" select="translate(agfa:InterpretationRecordTime, ':', '')"/>
     <xsl:variable name="verificationFlag">
       <xsl:choose>
-        <xsl:when test="$resultStatus='Finalized' and $verifyingObserver/text()">VERIFIED</xsl:when>
+        <xsl:when test="$resultStatus='Finalized' and $date and $verifyingObserver/text()">VERIFIED</xsl:when>
         <xsl:otherwise>UNVERIFIED</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -120,45 +130,56 @@
           <xsl:with-param name="val" select="$verificationFlag"/>
       </xsl:call-template>
     <!--Content Date/Time-->
-    <xsl:variable name="date" select="translate(agfa:InterpretationRecordDate, '-', '')"/>
-    <xsl:variable name="time" select="translate(agfa:InterpretationRecordTime, ':', '')"/>
-    <DicomAttribute keyword="ContentDate" tag="00080023" vr="DA">
+    <DicomAttribute tag="00080023" vr="DA">
       <Value number="1">
         <xsl:value-of select="$date"/></Value>
     </DicomAttribute>
-    <DicomAttribute keyword="ContentTime" tag="00080033" vr="TM">
+    <DicomAttribute tag="00080033" vr="TM">
       <Value number="1"><xsl:value-of select="$time"/></Value>
     </DicomAttribute>
     <xsl:if test="$verificationFlag = 'VERIFIED'">
       <!-- Verifying Observer Sequence -->
-      <DicomAttribute keyword="VerifyingObserverSequence" tag="0040A073" vr="SQ">
+      <DicomAttribute tag="0040A073" vr="SQ">
         <Item number="1">
           <!-- Verifying Organization -->
-          <DicomAttribute keyword="VerifyingOrganization" tag="0040A027" vr="LO">
+          <DicomAttribute tag="0040A027" vr="LO">
             <Value number="1"><xsl:value-of select="$VerifyingOrganization"/></Value>
           </DicomAttribute>
           <!-- Verification DateTime -->
-          <DicomAttribute keyword="VerificationDateTime" tag="0040A030" vr="DT">
+          <DicomAttribute tag="0040A030" vr="DT">
             <Value number="1"><xsl:value-of select="$date"/><xsl:value-of select="$time"/></Value>
           </DicomAttribute>
           <!-- Verifying Observer Name -->
           <xsl:call-template name="pnAttrs">
-            <xsl:with-param name="keyword" select="'VerifyingObserverName'" />
             <xsl:with-param name="tag" select="'0040A075'" />
             <xsl:with-param name="val" select="$verifyingObserver" />
           </xsl:call-template>
           <!-- Verifying Observer Identification Code Sequence -->
-          <DicomAttribute keyword="VerifyingObserverIdentificationCodeSequence" tag="0040A088" vr="SQ"/>
+          <DicomAttribute tag="0040A088" vr="SQ"/>
         </Item>
       </DicomAttribute>
     </xsl:if>
+    <!-- Author Observer Sequence -->
+    <DicomAttribute tag="0040A078" vr="SQ">
+        <Item number="1">
+            <xsl:call-template name="attr">
+                <xsl:with-param name="tag" select="'0040A084'"/>
+                <xsl:with-param name="vr" select="'CS'"/>
+                <xsl:with-param name="val" select="'Person'"/>
+            </xsl:call-template>
+            <xsl:call-template name="pnAttrs">
+                <xsl:with-param name="tag" select="'0040A123'"/>
+                <xsl:with-param name="val" select="$verifyingObserver"/>
+            </xsl:call-template>
+        </Item>
+    </DicomAttribute>
   </xsl:template>
 
     <xsl:template name="contentSeq">
         <xsl:param name="orderDetails"/>
         <xsl:param name="patDetails" select="agfa:PatientDetails"/>
         <xsl:param name="reportDetails" select="agfa:ReportDetails"/>
-        <DicomAttribute keyword="ContentSequence" tag="0040A730" vr="SQ">
+        <DicomAttribute tag="0040A730" vr="SQ">
             <xsl:call-template name="language">
                 <xsl:with-param name="itemNo">1</xsl:with-param>
             </xsl:call-template>
@@ -257,7 +278,6 @@
                 <xsl:with-param name="meaning" select="'Subject Name'"/>
             </xsl:call-template>
             <xsl:call-template name="pnAttrs">
-                <xsl:with-param name="keyword" select="'PersonName'" />
                 <xsl:with-param name="tag" select="'0040A123'" />
                 <xsl:with-param name="val" select="$pName" />
             </xsl:call-template>
@@ -374,7 +394,7 @@
               <xsl:with-param name="meaning" select="$parentCodeMeaning"/>
           </xsl:call-template>
           <xsl:call-template name="continuityOfContent"/>
-          <DicomAttribute keyword="ContentSequence" tag="0040A730" vr="SQ">
+          <DicomAttribute tag="0040A730" vr="SQ">
             <Item number="1">
                 <xsl:call-template name="containsRelation"/>
                 <xsl:call-template name="textValueType"/>
@@ -479,11 +499,10 @@
     </xsl:template>
     
   <xsl:template name="pnAttrs">
-    <xsl:param name="keyword"/>
     <xsl:param name="tag"/>
     <xsl:param name="val"/>
     <xsl:if test="$val and $val != '&quot;&quot;' and string-length($val) > 0">
-        <DicomAttribute keyword="{$keyword}" tag="{$tag}" vr="PN">
+        <DicomAttribute tag="{$tag}" vr="PN">
           <PersonName number="1">
             <Alphabetic>
               <xsl:call-template name="pnComp">
