@@ -89,6 +89,8 @@ public interface ExportManager {
 
     int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask);
 
+    List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchExportTask);
+
     List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
                                         OrderSpecifier<Date> order, int offset, int limit);
 }

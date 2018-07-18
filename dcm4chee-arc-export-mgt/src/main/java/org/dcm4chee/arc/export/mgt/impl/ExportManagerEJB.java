@@ -471,6 +471,14 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchExportTask) {
+        return createQuery(null, matchQueueMessage, matchExportTask)
+                .select(QQueueMessage.queueMessage.deviceName)
+                .distinct()
+                .fetch();
+    }
+
+    @Override
     public List<ExportBatch> listExportBatches(Predicate matchQueueBatch, Predicate matchExportBatch,
                                                OrderSpecifier<Date> order, int offset, int limit) {
         HibernateQuery<ExportTask> exportTaskQuery = createQuery(null, matchQueueBatch, matchExportBatch);

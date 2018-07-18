@@ -313,6 +313,13 @@ public class RetrieveManagerEJB {
         return count;
     }
 
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
+        return createQuery(matchQueueMessage, matchRetrieveTask)
+                .select(QQueueMessage.queueMessage.deviceName)
+                .distinct()
+                .fetch();
+    }
+
     public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
                                                    OrderSpecifier<Date> order, int offset, int limit) {
         HibernateQuery<RetrieveTask> retrieveTaskQuery = createQuery(matchQueueBatch, matchRetrieveBatch);

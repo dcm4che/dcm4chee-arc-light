@@ -185,6 +185,11 @@ public class DiffServiceImpl implements DiffService {
         return ejb.deleteTasks(matchQueueMessage, matchDiffTask);
     }
 
+    @Override
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchDiffTask) {
+        return ejb.listDistinctDeviceNames(matchQueueMessage, matchDiffTask);
+    }
+
     private QueueMessage.Status check(String prompt, int failures, QueueMessage.Status status, StringBuilder sb) {
         if (failures == 0)
             return status;

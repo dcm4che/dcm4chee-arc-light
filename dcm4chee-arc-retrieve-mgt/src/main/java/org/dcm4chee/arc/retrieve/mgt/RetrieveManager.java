@@ -81,6 +81,8 @@ public interface RetrieveManager {
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 
+    List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask);
+
     List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
                                             OrderSpecifier<Date> order, int offset, int limit);
 }

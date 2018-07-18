@@ -216,6 +216,13 @@ public class DiffServiceEJB {
         return count;
     }
 
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchDiffTask) {
+        return createQuery(matchQueueMessage, matchDiffTask)
+                .select(QQueueMessage.queueMessage.deviceName)
+                .distinct()
+                .fetch();
+    }
+
     public long diffTasksOfBatch(String batchID) {
         return batchIDQuery(batchID).fetchCount();
     }
