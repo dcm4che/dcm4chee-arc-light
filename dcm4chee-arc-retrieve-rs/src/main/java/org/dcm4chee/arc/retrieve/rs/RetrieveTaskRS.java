@@ -162,7 +162,7 @@ public class RetrieveTaskRS {
             return notAcceptable();
 
         RetrieveTaskQuery tasks = mgr.listRetrieveTasks(
-                matchQueueMessage(status(), deviceName, null, null),
+                matchQueueMessage(status(), null, null),
                 matchRetrieveTask(updatedTime),
                 MatchTask.retrieveTaskOrder(orderby), parseInt(offset), parseInt(limit));
         return Response.ok(output.entity(tasks), output.type).build();
@@ -175,7 +175,7 @@ public class RetrieveTaskRS {
     public Response countRetrieveTasks() {
         logRequest();
         return count( mgr.countRetrieveTasks(
-                matchQueueMessage(status(), deviceName, null, null),
+                matchQueueMessage(status(), null, null),
                 matchRetrieveTask(updatedTime)));
     }
 
@@ -208,7 +208,7 @@ public class RetrieveTaskRS {
         try {
             LOG.info("Cancel processing of Retrieve Tasks with Status {}", status);
             long count = mgr.cancelRetrieveTasks(
-                    matchQueueMessage(status, deviceName, updatedTime, null),
+                    matchQueueMessage(status, null, updatedTime),
                     matchRetrieveTask(null),
                     status);
             queueEvent.setCount(count);
@@ -259,18 +259,18 @@ public class RetrieveTaskRS {
 
             return count(devName == null
                     ? rescheduleOnDistinctDevices(status)
-                    : rescheduleTasks(matchQueueMessage(status, devName, null, new Date())));
+                    : rescheduleTasks(matchQueueMessage(status, devName, null)));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
     }
 
     private int rescheduleOnDistinctDevices(QueueMessage.Status status) throws Exception {
-        List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage(status, deviceName, null, new Date()));
+        List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage(status, null, null));
         int count = 0;
         for (String devName : distinctDeviceNames)
             count += devName.equals(device.getDeviceName())
-                    ? rescheduleTasks(matchQueueMessage(status, devName, null, new Date()))
+                    ? rescheduleTasks(matchQueueMessage(status, devName, null))
                     : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
         return count;
     }
@@ -305,7 +305,7 @@ public class RetrieveTaskRS {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         int deleted = mgr.deleteTasks(
-                matchQueueMessage(status(), deviceName, null, null),
+                matchQueueMessage(status(), null, null),
                 matchRetrieveTask(updatedTime));
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
@@ -334,16 +334,17 @@ public class RetrieveTaskRS {
     private int count(Response response, String devName) {
         int count = 0;
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            JsonParser parser = Json.createParser(new StringReader(response.getEntity().toString()));
+            JsonParser parser = Json.createParser(new StringReader(response.readEntity(String.class)));
             JsonReader reader = new JsonReader(parser);
             reader.next();
             reader.expect(JsonParser.Event.START_OBJECT);
             while (reader.next() == JsonParser.Event.KEY_NAME)
                 count = reader.intValue();
             LOG.info("Successfully rescheduled {} tasks on device {}", count, devName);
+        } else {
+            LOG.warn("Failed rescheduling of tasks on device {}. Response received with status: {} and entity: {}",
+                    devName, response.getStatus(), response.getEntity());
         }
-        LOG.warn("Failed rescheduling of tasks on device {}. Response received with status: {} and entity: {}",
-                devName, response.getStatus(), response.getEntity());
         return count;
     }
 
@@ -428,9 +429,15 @@ public class RetrieveTaskRS {
         return MatchTask.matchRetrieveTask(localAET, remoteAET, destinationAET, studyIUID, createdTime, updatedTime);
     }
 
-    private Predicate matchQueueMessage(QueueMessage.Status status, String devName, String updatedTime, Date updatedBefore) {
+    private Predicate matchQueueMessage(QueueMessage.Status status, String rescheduleOnDevice, String updatedTime) {
         return MatchTask.matchQueueMessage(
-                null, devName, status, batchID, null, null, updatedTime, updatedBefore);
+                null,
+                rescheduleOnDevice != null ? rescheduleOnDevice : deviceName,
+                status,
+                batchID,
+                null,
+                null,
+                updatedTime);
     }
 
     private void logRequest() {

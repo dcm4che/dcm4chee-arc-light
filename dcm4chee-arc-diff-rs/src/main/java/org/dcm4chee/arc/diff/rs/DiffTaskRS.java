@@ -174,7 +174,7 @@ public class DiffTaskRS {
             return notAcceptable();
 
         DiffTaskQuery diffTasks = diffService.listDiffTasks(
-                matchQueueMessage(status(), deviceName, null, null),
+                matchQueueMessage(status(), null, null),
                 matchDiffTask(),
                 MatchTask.diffTaskOrder(orderby),
                 parseInt(offset), parseInt(limit));
@@ -189,7 +189,7 @@ public class DiffTaskRS {
     public Response countDiffTasks() {
         logRequest();
         return count(diffService.countDiffTasks(
-                matchQueueMessage(status(), deviceName, null, null),
+                matchQueueMessage(status(), null, null),
                 matchDiffTask()));
     }
 
@@ -239,7 +239,7 @@ public class DiffTaskRS {
         try {
             LOG.info("Cancel processing of Diff Tasks with Status {}", status);
             long count = diffService.cancelDiffTasks(
-                    matchQueueMessage(status, deviceName, updatedTime, null),
+                    matchQueueMessage(status, null, updatedTime),
                     matchDiffTask(),
                     status);
             queueEvent.setCount(count);
@@ -290,18 +290,18 @@ public class DiffTaskRS {
 
             return count(devName == null
                     ? rescheduleOnDistinctDevices(status)
-                    : rescheduleTasks(matchQueueMessage(status, devName, null, new Date())));
+                    : rescheduleTasks(matchQueueMessage(status, devName, null)));
         } catch (Exception e) {
             return errResponseAsTextPlain(e);
         }
     }
 
     private int rescheduleOnDistinctDevices(QueueMessage.Status status) throws Exception {
-        List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage(status, deviceName, null, new Date()));
+        List<String> distinctDeviceNames = queueMgr.listDistinctDeviceNames(matchQueueMessage(status, null, null));
         int count = 0;
         for (String devName : distinctDeviceNames)
             count += devName.equals(device.getDeviceName())
-                    ? rescheduleTasks(matchQueueMessage(status, devName, null, new Date()))
+                    ? rescheduleTasks(matchQueueMessage(status, devName, null))
                     : count(rsClient.forward(request, devName, "&dicomDeviceName=" + devName), devName);
 
         return count;
@@ -337,7 +337,7 @@ public class DiffTaskRS {
         logRequest();
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         int deleted = diffService.deleteTasks(
-                matchQueueMessage(status(), deviceName, null, null),
+                matchQueueMessage(status(), null, null),
                 matchDiffTask());
         queueEvent.setCount(deleted);
         bulkQueueMsgEvent.fire(queueEvent);
@@ -435,16 +435,17 @@ public class DiffTaskRS {
     private int count(Response response, String devName) {
         int count = 0;
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            JsonParser parser = Json.createParser(new StringReader(response.getEntity().toString()));
+            JsonParser parser = Json.createParser(new StringReader(response.readEntity(String.class)));
             JsonReader reader = new JsonReader(parser);
             reader.next();
             reader.expect(JsonParser.Event.START_OBJECT);
             while (reader.next() == JsonParser.Event.KEY_NAME)
                 count = reader.intValue();
             LOG.info("Successfully rescheduled {} tasks on device {}", count, devName);
+        } else {
+            LOG.warn("Failed rescheduling of tasks on device {}. Response received with status: {} and entity: {}",
+                    devName, response.getStatus(), response.getEntity());
         }
-        LOG.warn("Failed rescheduling of tasks on device {}. Response received with status: {} and entity: {}",
-                devName, response.getStatus(), response.getEntity());
         return count;
     }
 
@@ -489,9 +490,15 @@ public class DiffTaskRS {
                 localAET, primaryAET, secondaryAET, checkDifferent, checkMissing, comparefields, createdTime, updatedTime);
     }
 
-    private Predicate matchQueueMessage(QueueMessage.Status status, String devName, String updatedTime, Date updatedBefore) {
+    private Predicate matchQueueMessage(QueueMessage.Status status, String rescheduleOnDevice, String updatedTime) {
         return MatchTask.matchQueueMessage(
-                null, devName, status, batchID, null, null, updatedTime, updatedBefore);
+                null,
+                rescheduleOnDevice != null ? rescheduleOnDevice : deviceName,
+                status,
+                batchID,
+                null,
+                null,
+                updatedTime);
     }
 
 }
