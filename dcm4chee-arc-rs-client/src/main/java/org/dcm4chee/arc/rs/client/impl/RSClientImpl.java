@@ -130,7 +130,7 @@ public class RSClientImpl implements RSClient {
     }
 
     @Override
-    public Response forward(HttpServletRequest request, String deviceName) throws Exception {
+    public Response forward(HttpServletRequest request, String deviceName, String append) throws Exception {
         LOG.info("Forward {} {} from {}@{} to device {}", request.getMethod(), request.getRequestURI(),
                 request.getRemoteUser(), request.getRemoteHost(), deviceName);
         String authorization = request.getHeader("Authorization");
@@ -147,13 +147,8 @@ public class RSClientImpl implements RSClient {
                                     + ":"
                                     + connection.getPort()
                                     + webApplication.getServicePath()
-                                    + requestURI.substring(requestURI.indexOf("/", requestURI.indexOf("/") + 1));
-                            String queryString = request.getQueryString();
-                            if (queryString != null) {
-                                targetURI = targetURI + queryString;
-                                if (!queryString.contains("dicomDeviceName="))
-                                    targetURI = targetURI + "?dicomDeviceName=" + deviceName;
-                            }
+                                    + requestURI.substring(requestURI.indexOf("/", requestURI.indexOf("/") + 1))
+                                    + "?" + request.getQueryString() + append;
                         }
                 }
             }

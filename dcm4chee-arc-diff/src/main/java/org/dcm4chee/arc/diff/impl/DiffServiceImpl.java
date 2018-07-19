@@ -161,13 +161,18 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public String rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) {
-        return ejb.rescheduleDiffTask(pk, queueEvent);
+    public void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent) {
+        ejb.rescheduleDiffTask(pk, queueEvent);
     }
 
     @Override
-    public List<Long> getDiffTaskPks(Predicate matchQueueMessage, Predicate matchDiffTask, int limit) {
-        return ejb.getDiffTaskPks(matchQueueMessage, matchDiffTask, limit);
+    public int rescheduleDiffTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
+        return ejb.rescheduleDiffTasks(matchQueueMessage, matchDiffTask);
+    }
+
+    @Override
+    public String findDeviceNameByPk(Long pk) {
+        return ejb.findDeviceNameByPk(pk);
     }
 
     @Override
@@ -178,6 +183,11 @@ public class DiffServiceImpl implements DiffService {
     @Override
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
         return ejb.deleteTasks(matchQueueMessage, matchDiffTask);
+    }
+
+    @Override
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchDiffTask) {
+        return ejb.listDistinctDeviceNames(matchQueueMessage, matchDiffTask);
     }
 
     private QueueMessage.Status check(String prompt, int failures, QueueMessage.Status status, StringBuilder sb) {

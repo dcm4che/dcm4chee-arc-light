@@ -1747,6 +1747,12 @@
             "type": "string"
           },
           {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where tasks shall be scheduled",
+            "type": "string"
+          },
+          {
             "name": "LocalAET",
             "in": "query",
             "description": "Archive AE Title to filter by",
@@ -1910,6 +1916,12 @@
             "description": "pk of task",
             "required": true,
             "type": "integer"
+          },
+          {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where task shall be scheduled",
+            "type": "string"
           }
         ],
         "responses": {
@@ -2444,6 +2456,12 @@
             "type": "string"
           },
           {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where tasks shall be scheduled",
+            "type": "string"
+          },
+          {
             "name": "ExporterID",
             "in": "query",
             "description": "Exporter ID to filter by",
@@ -2532,6 +2550,12 @@
             "name": "dicomDeviceName",
             "in": "query",
             "description": "Archive Device Name",
+            "type": "string"
+          },
+          {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where tasks shall be scheduled",
             "type": "string"
           },
           {
@@ -2687,6 +2711,12 @@
             "in": "path",
             "description": "Exporter ID",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where task shall be scheduled",
             "type": "string"
           }
         ],
@@ -3212,6 +3242,12 @@
             "type": "string"
           },
           {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where tasks shall be scheduled",
+            "type": "string"
+          },
+          {
             "name": "LocalAET",
             "in": "query",
             "description": "Archive AE Title to filter by",
@@ -3363,6 +3399,12 @@
             "description": "pk of task",
             "required": true,
             "type": "integer"
+          },
+          {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where task shall be scheduled",
+            "type": "string"
           }
         ],
         "responses": {
@@ -3747,6 +3789,12 @@
             "type": "string"
           },
           {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where tasks shall be scheduled",
+            "type": "string"
+          },
+          {
             "name": "status",
             "in": "query",
             "description": "status of tasks to filter by",
@@ -3891,6 +3939,12 @@
             "in": "path",
             "description": "id of task",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "newDeviceName",
+            "in": "query",
+            "description": "New Archive Device Name where task shall be scheduled",
             "type": "string"
           }
         ],
@@ -8507,6 +8561,70 @@
           },
           "default": {
             "description": "unexpected error"
+          }
+        }
+      }
+    },
+    "/aets/{aet}/expire/series": {
+      "post": {
+        "tags": [
+          "IOCM-RS"
+        ],
+        "summary": "Apply Retention Policy",
+        "operationId": "applyRetentionPolicy",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "aet",
+            "in": "path",
+            "description": "Archive AE Title",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "{attributeID}",
+            "in": "query",
+            "description": "{attributeID}={value}; {attributeID} = {dicomTag} | {dicomKeyword} | {dicomTag}.{attributeID} | {dicomKeyword}.{attributeID}",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fuzzymatching",
+            "in": "query",
+            "description": "fuzzy semantic matching of person names",
+            "type": "boolean",
+            "default": false
+          },
+          {
+            "name": "SendingApplicationEntityTitleOfSeries",
+            "in": "query",
+            "description": "apply Retention Policy to Studies which includes at least one Series received from <AE Title>",
+            "type": "string"
+          },
+          {
+            "name": "StudyReceiveDateTime",
+            "in": "query",
+            "description": "apply Retention Policy to Studies which were created between <datetime1>-<datetime2>",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully apply Retention Policy to matching Studies",
+            "schema": {
+              "$ref": "#/definitions/Count"
+            }
+          },
+          "404": {
+            "description": "No such Archive AE Title or Exporter ID"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }

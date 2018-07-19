@@ -73,9 +73,15 @@ public interface RetrieveManager {
     long cancelRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, QueueMessage.Status prev)
             throws IllegalTaskStateException;
 
-    String rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent);
+    String findDeviceNameByPk(Long pk);
+
+    void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent);
+
+    int rescheduleRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
+
+    List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 
     List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
                                             OrderSpecifier<Date> order, int offset, int limit);

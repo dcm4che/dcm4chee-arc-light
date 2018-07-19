@@ -1110,7 +1110,8 @@ public class StoreServiceEJB {
             return;
 
         Study study = series.getStudy();
-        LocalDate expirationDate = getExpirationDate(ctx.getAttributes(), retentionPolicy);
+        LocalDate expirationDate = retentionStartDate(ctx.getAttributes(), retentionPolicy)
+                .plus(retentionPolicy.getRetentionPeriod());
         LocalDate studyExpirationDate = study.getExpirationDate();
         if (studyExpirationDate == null || studyExpirationDate.compareTo(expirationDate) < 0)
             study.setExpirationDate(expirationDate);
@@ -1119,10 +1120,15 @@ public class StoreServiceEJB {
             series.setExpirationDate(expirationDate);
     }
 
-    private LocalDate getExpirationDate(Attributes attrs, StudyRetentionPolicy retentionPolicy) {
-        return attrs.getString(Tag.StudyDate) != null && retentionPolicy.isStartRetentionPeriodOnStudyDate()
-                ? LocalDate.parse(attrs.getString(Tag.StudyDate), DateTimeFormatter.BASIC_ISO_DATE).plus(retentionPolicy.getRetentionPeriod())
-                : LocalDate.now().plus(retentionPolicy.getRetentionPeriod());
+    private LocalDate retentionStartDate(Attributes attrs, StudyRetentionPolicy retentionPolicy) {
+        String s;
+        if (retentionPolicy.isStartRetentionPeriodOnStudyDate()
+                && (s = attrs.getString(Tag.StudyDate)) != null) {
+            try {
+                return LocalDate.parse(s, DateTimeFormatter.BASIC_ISO_DATE);
+            } catch (Exception e) {}
+        }
+        return LocalDate.now();
     }
 
     private void setSeriesAttributes(StoreContext ctx, Series series) {

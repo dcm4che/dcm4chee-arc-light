@@ -247,7 +247,7 @@ public class ExportManagerEJB implements ExportManager {
                 .setParameter(1, device.getDeviceName())
                 .setMaxResults(fetchSize)
                 .getResultList();
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
         int count = 0;
         for (ExportTask exportTask : resultList) {
             ExporterDescriptor exporter = arcDev.getExporterDescriptor(exportTask.getExporterID());
@@ -393,20 +393,37 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     @Override
-    public String rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
+    public String findDeviceNameByPk(Long pk) {
+        try {
+            return em.createNamedQuery(ExportTask.FIND_DEVICE_BY_PK, String.class)
+                    .setParameter(1, pk)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void rescheduleExportTask(Long pk, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
         ExportTask task = em.find(ExportTask.class, pk);
         if (task == null)
-            return null;
+            return;
+
+        rescheduleExportTask(task, exporter, queueEvent);
+    }
+
+    @Override
+    public void rescheduleExportTask(ExportTask task, ExporterDescriptor exporter, QueueMessageEvent queueEvent) {
+        task.setExporterID(exporter.getExporterID());
+        if (task.getQueueMessage() != null)
+            queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), exporter.getQueueName(), queueEvent);
 
         LOG.info("Reschedule {} to Exporter[id={}]", task, task.getExporterID());
-        task.setExporterID(exporter.getExporterID());
-        return queueManager.rescheduleTask(task.getQueueMessage(), exporter.getQueueName(), queueEvent);
     }
 
     @Override
     public int deleteTasks(QueueMessage.Status status, Predicate matchQueueMessage, Predicate matchExportTask) {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-        int deleteTaskFetchSize = arcDev.getQueueTasksFetchSize();
+        int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
         return status == QueueMessage.Status.TO_SCHEDULE
                 ? deleteToScheduleTasks(matchExportTask, deleteTaskFetchSize)
                 : status == null
@@ -451,6 +468,14 @@ public class ExportManagerEJB implements ExportManager {
                     .execute();
         } while (exportTasks.size() >= deleteTaskFetchSize);
         return count;
+    }
+
+    @Override
+    public List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchExportTask) {
+        return createQuery(null, matchQueueMessage, matchExportTask)
+                .select(QQueueMessage.queueMessage.deviceName)
+                .distinct()
+                .fetch();
     }
 
     @Override
@@ -543,6 +568,6 @@ public class ExportManagerEJB implements ExportManager {
     }
 
     private int queryFetchSize() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class).getQueryFetchSize();
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueryFetchSize();
     }
 }
