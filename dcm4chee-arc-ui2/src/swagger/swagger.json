@@ -8560,14 +8560,14 @@
           }
         ],
         "responses": {
-          "204": {
+          "200": {
             "description": "Successfully apply Retention Policy to matching Studies",
             "schema": {
               "$ref": "#/definitions/Count"
             }
           },
           "404": {
-            "description": "No such Archive AE Title or Exporter ID"
+            "description": "No such Archive AE Title"
           },
           "500": {
             "description": "Internal Server Error"

@@ -69,6 +69,7 @@ import org.dcm4chee.arc.study.StudyMgtContext;
 import org.dcm4chee.arc.study.StudyService;
 import org.dcm4chee.arc.qmgt.HttpServletRequestInfo;
 import org.dcm4chee.arc.validation.constraints.ValidValueOf;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +79,7 @@ import javax.json.Json;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
 import javax.json.stream.JsonParsingException;
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -460,42 +462,51 @@ public class IocmRS {
 
     @PUT
     @Path("/studies/{studyUID}/expire/{expirationDate}")
-    public void updateStudyExpirationDate(@PathParam("studyUID") String studyUID,
+    public Response updateStudyExpirationDate(@PathParam("studyUID") String studyUID,
                                           @PathParam("expirationDate")
                                           @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
-                                                  String expirationDate) throws Exception {
-        updateExpirationDate(RSOperation.UpdateStudyExpirationDate, studyUID, null, expirationDate);
+                                                  String expirationDate) {
+        return updateExpirationDate(RSOperation.UpdateStudyExpirationDate, studyUID, null, expirationDate);
     }
 
     @PUT
     @Path("/studies/{studyUID}/series/{seriesUID}/expire/{expirationDate}")
-    public void updateSeriesExpirationDate(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
+    public Response updateSeriesExpirationDate(@PathParam("studyUID") String studyUID, @PathParam("seriesUID") String seriesUID,
                                            @PathParam("expirationDate")
                                            @ValidValueOf(type = ExpireDate.class, message = "Expiration date cannot be parsed.")
-                                                   String expirationDate) throws Exception {
-        updateExpirationDate(RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate);
+                                                   String expirationDate) {
+        return updateExpirationDate(RSOperation.UpdateSeriesExpirationDate, studyUID, seriesUID, expirationDate);
     }
 
-    private void updateExpirationDate(RSOperation op, String studyUID, String seriesUID, String expirationDate) {
+    private Response updateExpirationDate(RSOperation op, String studyUID, String seriesUID, String expirationDate) {
         logRequest();
         ArchiveAEExtension arcAE = getArchiveAE();
+        boolean updateSeriesExpirationDate = seriesUID != null;
         try {
-            StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
-            ctx.setStudyInstanceUID(studyUID);
-            if (seriesUID != null)
+            StudyMgtContext ctx = createStudyMgtCtx(studyUID, expirationDate, arcAE);
+            if (updateSeriesExpirationDate) {
                 ctx.setSeriesInstanceUID(seriesUID);
-            LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
-            ctx.setExpirationDate(expireDate);
-            studyService.updateExpirationDate(ctx);
+                studyService.updateSeriesExpirationDate(ctx);
+            } else
+                studyService.updateStudyExpirationDate(ctx);
             rsForward.forward(op, arcAE, null, request);
+            return Response.noContent().build();
+        } catch (NoResultException e) {
+            return errResponse(
+                    updateSeriesExpirationDate ? "Series not found. " + seriesUID : "Study not found. " + studyUID,
+                    Response.Status.NOT_FOUND);
         } catch (Exception e) {
-            String message;
-            if (seriesUID != null)
-                message = "Series not found. " + seriesUID;
-            else
-                message = "Study not found. " + studyUID;
-            throw new WebApplicationException(errResponse(message, Response.Status.NOT_FOUND));
+            return errResponseAsTextPlain(e);
         }
+    }
+
+    private StudyMgtContext createStudyMgtCtx(String studyUID, String expirationDate, ArchiveAEExtension arcAE) {
+        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
+        ctx.setStudyInstanceUID(studyUID);
+        LocalDate expireDate = LocalDate.parse(expirationDate, DateTimeFormatter.BASIC_ISO_DATE);
+        ctx.setExpirationDate(expireDate);
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        return ctx;
     }
 
     public static final class ExpireDate {

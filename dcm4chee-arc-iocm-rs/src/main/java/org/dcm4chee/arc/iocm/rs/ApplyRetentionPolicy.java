@@ -42,6 +42,7 @@
 package org.dcm4chee.arc.iocm.rs;
 
 import com.querydsl.core.types.Order;
+import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Tag;
@@ -51,12 +52,16 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.conf.StudyRetentionPolicy;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
 import org.dcm4chee.arc.query.util.OrderByTag;
 import org.dcm4chee.arc.query.util.QueryAttributes;
+import org.dcm4chee.arc.rs.client.RSForward;
+import org.dcm4chee.arc.study.StudyMgtContext;
+import org.dcm4chee.arc.study.StudyService;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,9 +90,6 @@ public class ApplyRetentionPolicy {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplyRetentionPolicy.class);
 
-    @Inject
-    private QueryService service;
-
     @Context
     private HttpServletRequest request;
 
@@ -99,6 +101,12 @@ public class ApplyRetentionPolicy {
 
     @Inject
     private QueryService queryService;
+
+    @Inject
+    private StudyService studyService;
+
+    @Inject
+    private RSForward rsForward;
 
     @PathParam("AETitle")
     private String aet;
@@ -158,15 +166,15 @@ public class ApplyRetentionPolicy {
                     if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
                         prevStudyInstanceUID = studyInstanceUID;
                         prevStudyExpirationDate = expirationDate;
-                        updateStudyExpirationDate(studyInstanceUID, expirationDate);
+                        studyService.updateStudyExpirationDate(createStudyMgtCtx(studyInstanceUID, expirationDate, arcAE));
                         count++;
                     } else if (prevStudyExpirationDate.compareTo(expirationDate) < 0) {
                         prevStudyExpirationDate = expirationDate;
-                        updateStudyExpirationDate(studyInstanceUID, expirationDate);
+                        studyService.updateStudyExpirationDate(createStudyMgtCtx(studyInstanceUID, expirationDate, arcAE));
                     }
 
                     if (retentionPolicy.isExpireSeriesIndividually())
-                        updateSeriesExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID), expirationDate);
+                        updateSeriesExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID), expirationDate, arcAE);
                 }
             } catch (Exception e) {
                 LOG.warn("Unexpected exception:", e);
@@ -179,6 +187,7 @@ public class ApplyRetentionPolicy {
                 }
             }
         }
+        rsForward.forward(RSOperation.ApplyRetentionPolicy, arcAE, null, request);
         return Response.ok("{\"count\":" + count + '}').build();
     }
 
@@ -227,12 +236,19 @@ public class ApplyRetentionPolicy {
         return queryParam;
     }
 
-    private void updateStudyExpirationDate(String studyUID, LocalDate expirationDate) {
-        //TODO
+    private void updateSeriesExpirationDate(
+            String studyUID, String seriesUID, LocalDate expirationDate, ArchiveAEExtension arcAE) throws Exception {
+        StudyMgtContext ctx = createStudyMgtCtx(studyUID, expirationDate, arcAE);
+        ctx.setSeriesInstanceUID(seriesUID);
+        studyService.updateSeriesExpirationDate(ctx);
     }
 
-    private void updateSeriesExpirationDate(String studyUID, String seriesUID, LocalDate expirationDate) {
-        //TODO
+    private StudyMgtContext createStudyMgtCtx(String studyUID, LocalDate expirationDate, ArchiveAEExtension arcAE) {
+        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
+        ctx.setStudyInstanceUID(studyUID);
+        ctx.setExpirationDate(expirationDate);
+        ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        return ctx;
     }
 
 }

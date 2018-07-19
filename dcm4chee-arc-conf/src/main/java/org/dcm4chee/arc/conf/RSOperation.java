@@ -57,6 +57,7 @@ public enum RSOperation {
     RejectStudy,
     RejectSeries,
     RejectInstance,
+    ApplyRetentionPolicy,
     UpdateStudyExpirationDate,
     UpdateSeriesExpirationDate,
     CreateMWL,

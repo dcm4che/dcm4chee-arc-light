@@ -156,6 +156,7 @@ public class RSForward {
             case RejectInstance:
             case CreateMWL:
             case UpdateMWL:
+            case ApplyRetentionPolicy:
                 method = "POST";
                 break;
             case DeletePatient:
