@@ -84,7 +84,6 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class StgCmtManagerImpl implements StgCmtManager {
     private final Logger LOG = LoggerFactory.getLogger(StgCmtManagerImpl.class);
-    private static final int BUFFER_SIZE = 8192;
 
     @Inject
     private StgCmtEJB ejb;
