@@ -1222,7 +1222,7 @@ public class StoreServiceEJB {
         LOG.info("{}: Create {}", session, location);
     }
 
-    public Study addStorageID(String studyIUID, String storageID) {
+    public void addStorageID(String studyIUID, String storageID) {
         Tuple tuple = em.createNamedQuery(Study.STORAGE_IDS_BY_STUDY_UID, Tuple.class)
                 .setParameter(1, studyIUID)
                 .getSingleResult();
@@ -1236,15 +1236,14 @@ public class StoreServiceEJB {
                     .executeUpdate();
             LOG.info("Associate Study[uid={}] with Storage[id:{}]", studyIUID, storageID);
         }
-        return new Study(studyPk, studyIUID);
     }
 
-    public void scheduleMetadataUpdate(Study study, String seriesIUID) {
+    public void scheduleMetadataUpdate(String studyIUID, String seriesIUID) {
         if (em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_SERIES_UID)
-                .setParameter(1, study)
+                .setParameter(1, studyIUID)
                 .setParameter(2, seriesIUID)
                 .executeUpdate() > 0) {
-            LOG.info("Schedule update of metadata of Series[uid={}] of {}", seriesIUID, study);
+            LOG.info("Schedule update of metadata of Series[uid={}] of Study[uid={}]", seriesIUID, studyIUID);
         }
     }
 

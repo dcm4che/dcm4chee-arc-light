@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.stgcmt.rs;
 
-import org.dcm4che3.data.Attributes;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
@@ -62,6 +61,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.xml.ws.WebServiceException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 
 /**
@@ -130,23 +133,36 @@ public class StorageCmtRS {
     private StreamingOutput storageCommit(String studyUID, String seriesUID, String sopUID) {
         LOG.info("Process POST {} from {}@{}", request.getRequestURI(), request.getRemoteUser(), request.getRemoteHost());
         StgCmtContext ctx = new StgCmtContext(getApplicationEntity(), aet)
-                                .setRequest(request);
+                .setRequest(request);
         if (stgCmtPolicy != null)
             ctx.setStgCmtPolicy(StgCmtPolicy.valueOf(stgCmtPolicy));
         if (stgCmtUpdateLocationStatus != null)
             ctx.setStgCmtUpdateLocationStatus(Boolean.valueOf(stgCmtUpdateLocationStatus));
         if (!stgCmtStorageIDs.isEmpty())
             ctx.setStgCmtStorageIDs(stgCmtStorageIDs.toArray(StringUtils.EMPTY_STRING));
-        Attributes eventInfo = stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID);
-        stgCmtEvent.fire(ctx.setExtendedEventInfo(eventInfo));
+        try {
+            stgCmtMgr.calculateResult(ctx, studyUID, seriesUID, sopUID);
+        } catch (IOException e) {
+            ctx.setException(e);
+            stgCmtEvent.fire(ctx);
+            throw new WebApplicationException(e, errResponseAsTextPlain(e));
+        }
+        stgCmtEvent.fire(ctx);
         return out -> {
                 try (JsonGenerator gen = Json.createGenerator(out)) {
                     JSONWriter writer = new JSONWriter(gen);
                     gen.writeStartArray();
-                    writer.write(eventInfo);
+                    writer.write(ctx.getEventInfo());
                     gen.writeEnd();
                 }
         };
+    }
+
+    private Response errResponseAsTextPlain(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String exceptionAsString = sw.toString();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
     }
 
     private ApplicationEntity getApplicationEntity() {

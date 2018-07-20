@@ -43,6 +43,7 @@ package org.dcm4chee.arc.retrieve;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.AttributesCoercion;
+import org.dcm4che3.data.Sequence;
 import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.Association;
@@ -101,6 +102,8 @@ public interface RetrieveService {
             String[] seriesUIDs, String[] objectUIDs);
 
     RetrieveContext newRetrieveContext(String localAET, String studyUID, String seriesUID, String objectUID);
+
+    RetrieveContext newRetrieveContext(String localAET, Sequence refSopSeq);
 
     RetrieveContext newRetrieveContextSeriesMetadata(Series.MetadataUpdate metadataUpdate);
 

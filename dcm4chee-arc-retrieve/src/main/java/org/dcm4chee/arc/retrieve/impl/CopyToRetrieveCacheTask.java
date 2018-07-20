@@ -155,9 +155,9 @@ public class CopyToRetrieveCacheTask implements Runnable {
         StoreService storeService = ctx.getRetrieveService().getStoreService();
         for (Map.Entry<String, Set<String>> entry : uidMap.entrySet()) {
             String studyIUID = entry.getKey();
-            Study study = storeService.addStorageID(studyIUID, storageID);
+            storeService.addStorageID(studyIUID, storageID);
             for (String seriesIUID : entry.getValue()) {
-                storeService.scheduleMetadataUpdate(study, seriesIUID);
+                storeService.scheduleMetadataUpdate(studyIUID, seriesIUID);
             }
         }
         completed.offer(new WrappedInstanceLocations(null));

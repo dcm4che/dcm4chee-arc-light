@@ -142,9 +142,9 @@ public class StorageExporter extends AbstractExporter {
                 }
             }
             if (!seriesIUIDs.isEmpty()) {
-                Study study = storeService.addStorageID(studyIUID, storageID);
+                storeService.addStorageID(studyIUID, storageID);
                 for (String seriesIUID : seriesIUIDs) {
-                    storeService.scheduleMetadataUpdate(study, seriesIUID);
+                    storeService.scheduleMetadataUpdate(studyIUID, seriesIUID);
                 }
             }
             return new Outcome(retrieveContext.failed() > 0

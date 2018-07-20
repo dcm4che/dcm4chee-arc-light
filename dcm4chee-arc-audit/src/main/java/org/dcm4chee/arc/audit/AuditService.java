@@ -1567,7 +1567,7 @@ public class AuditService {
     }
 
     void spoolStgCmt(StgCmtContext stgCmtContext) {
-        Attributes eventInfo = stgCmtContext.getExtendedEventInfo();
+        Attributes eventInfo = stgCmtContext.getEventInfo();
         String studyUID = eventInfo.getStrings(Tag.StudyInstanceUID) != null
                 ? Stream.of(eventInfo.getStrings(Tag.StudyInstanceUID)).collect(Collectors.joining(";"))
                 : getArchiveDevice().auditUnknownStudyInstanceUID();
@@ -1577,14 +1577,14 @@ public class AuditService {
     }
 
     private void spoolSuccessStgcmt(StgCmtContext stgCmtContext, String studyUID) {
-        Sequence success = stgCmtContext.getExtendedEventInfo().getSequence(Tag.ReferencedSOPSequence);
+        Sequence success = stgCmtContext.getEventInfo().getSequence(Tag.ReferencedSOPSequence);
         if (success != null && !success.isEmpty()) {
             AuditInfoBuilder[] auditInfoBuilder = new AuditInfoBuilder[success.size()+1];
             auditInfoBuilder[0] = new AuditInfoBuilder.Builder()
                                 .callingUserID(storageCmtCallingAET(stgCmtContext))
                                 .callingHost(storageCmtCallingHost(stgCmtContext))
                                 .calledUserID(storageCmtCalledAET(stgCmtContext))
-                                .pIDAndName(stgCmtContext.getExtendedEventInfo(), getArchiveDevice())
+                                .pIDAndName(stgCmtContext.getEventInfo(), getArchiveDevice())
                                 .studyUID(studyUID)
                                 .build();
             for (int i = 1; i <= success.size(); i++)
@@ -1595,7 +1595,7 @@ public class AuditService {
     }
 
     private void spoolFailedStgcmt(StgCmtContext stgCmtContext, String studyUID) {
-        Sequence failed = stgCmtContext.getExtendedEventInfo().getSequence(Tag.FailedSOPSequence);
+        Sequence failed = stgCmtContext.getEventInfo().getSequence(Tag.FailedSOPSequence);
         if (failed != null && !failed.isEmpty()) {
             AuditInfoBuilder[] auditInfoBuilder = new AuditInfoBuilder[failed.size()+1];
             Set<String> failureReasons = new HashSet<>();
@@ -1612,7 +1612,7 @@ public class AuditService {
                                 .callingUserID(storageCmtCallingAET(stgCmtContext))
                                 .callingHost(storageCmtCallingHost(stgCmtContext))
                                 .calledUserID(storageCmtCalledAET(stgCmtContext))
-                                .pIDAndName(stgCmtContext.getExtendedEventInfo(), getArchiveDevice())
+                                .pIDAndName(stgCmtContext.getEventInfo(), getArchiveDevice())
                                 .studyUID(studyUID)
                                 .outcome(failureReasons.stream().collect(Collectors.joining(";")))
                                 .build();
