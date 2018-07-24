@@ -46,6 +46,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.util.ReverseDNS;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.IllegalTaskStateException;
 import org.dcm4chee.arc.qmgt.Outcome;
@@ -187,8 +188,8 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public int rescheduleRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
-        return ejb.rescheduleRetrieveTasks(matchQueueMessage, matchRetrieveTask);
+    public void rescheduleRetrieveTask(RetrieveTask task) {
+        ejb.rescheduleRetrieveTask(task, null);
     }
 
     @Override

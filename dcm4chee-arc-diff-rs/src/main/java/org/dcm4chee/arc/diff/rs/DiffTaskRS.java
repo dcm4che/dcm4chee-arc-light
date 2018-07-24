@@ -76,7 +76,6 @@ import java.io.*;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -313,7 +312,14 @@ public class DiffTaskRS {
     private int rescheduleTasks(Predicate matchQueueMessage, Predicate matchDiffTask) throws Exception {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            int count = diffService.rescheduleDiffTasks(matchQueueMessage, matchDiffTask);
+            int count = 0;
+            try (DiffTaskQuery diffTasks = diffService.listDiffTasks(matchQueueMessage, matchDiffTask,
+                    null, 0, 0)) {
+                for (DiffTask task : diffTasks) {
+                    diffService.rescheduleDiffTask(task);
+                    count++;
+                }
+            }
             LOG.info("Successfully rescheduled {} tasks on device: {}.", count, device.getDeviceName());
             queueEvent.setCount(count);
             return count;

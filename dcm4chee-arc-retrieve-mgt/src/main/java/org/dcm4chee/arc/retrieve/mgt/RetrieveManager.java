@@ -41,6 +41,7 @@ package org.dcm4chee.arc.retrieve.mgt;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import org.dcm4chee.arc.entity.QueueMessage;
+import org.dcm4chee.arc.entity.RetrieveTask;
 import org.dcm4chee.arc.event.QueueMessageEvent;
 import org.dcm4chee.arc.qmgt.*;
 import org.dcm4chee.arc.retrieve.ExternalRetrieveContext;
@@ -77,7 +78,7 @@ public interface RetrieveManager {
 
     void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent);
 
-    int rescheduleRetrieveTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
+    void rescheduleRetrieveTask(RetrieveTask task);
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask);
 

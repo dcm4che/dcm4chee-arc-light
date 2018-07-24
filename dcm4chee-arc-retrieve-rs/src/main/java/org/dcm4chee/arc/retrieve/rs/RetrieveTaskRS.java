@@ -70,7 +70,6 @@ import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.*;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -281,7 +280,14 @@ public class RetrieveTaskRS {
     private int rescheduleTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) throws Exception {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            int count = mgr.rescheduleRetrieveTasks(matchQueueMessage, matchRetrieveTask);
+            int count = 0;
+            try (RetrieveTaskQuery retrieveTasks = mgr.listRetrieveTasks(matchQueueMessage, matchRetrieveTask,
+                    null, 0, 0)) {
+                for (RetrieveTask task : retrieveTasks) {
+                    mgr.rescheduleRetrieveTask(task);
+                    count++;
+                }
+            }
             queueEvent.setCount(count);
             LOG.info("Successfully rescheduled {} tasks on device: {}.", count, device.getDeviceName());
             return count;
