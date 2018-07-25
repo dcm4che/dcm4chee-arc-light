@@ -134,15 +134,14 @@ public class ApplyRetentionPolicy {
             return errResponse(Response.Status.NOT_FOUND, "No such Application Entity: " + aet);
 
         ArchiveAEExtension arcAE = ae.getAEExtensionNotNull(ArchiveAEExtension.class);
-        ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-
+        int queryFetchSize = arcAE.getArchiveDeviceExtension().getQueryFetchSize();
         int count = 0;
         QueryContext ctx = queryContext(ae);
         try (Query query = queryService.createQuery(ctx)) {
             query.initQuery();
             Transaction transaction = query.beginTransaction();
             try {
-                query.setFetchSize(arcDev.getQueryFetchSize());
+                query.setFetchSize(queryFetchSize);
                 query.executeQuery();
                 String prevStudyInstanceUID = null;
                 LocalDate prevStudyExpirationDate = null;
@@ -166,16 +165,16 @@ public class ApplyRetentionPolicy {
                     if (!studyInstanceUID.equals(prevStudyInstanceUID)) {
                         prevStudyInstanceUID = studyInstanceUID;
                         prevStudyExpirationDate = expirationDate;
-                        updateExpirationDate(studyInstanceUID, null, expirationDate, arcAE);
+                        updateExpirationDate(studyInstanceUID, null, expirationDate, ae);
                         count++;
                     } else if (prevStudyExpirationDate.compareTo(expirationDate) < 0) {
                         prevStudyExpirationDate = expirationDate;
                         if (!retentionPolicy.isExpireSeriesIndividually())
-                            updateExpirationDate(studyInstanceUID, null, expirationDate, arcAE);
+                            updateExpirationDate(studyInstanceUID, null, expirationDate, ae);
                     }
 
                     if (retentionPolicy.isExpireSeriesIndividually())
-                        updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID), expirationDate, arcAE);
+                        updateExpirationDate(studyInstanceUID, attrs.getString(Tag.SeriesInstanceUID), expirationDate, ae);
                 }
             } catch (Exception e) {
                 LOG.warn("Unexpected exception:", e);
@@ -238,13 +237,12 @@ public class ApplyRetentionPolicy {
     }
 
     private void updateExpirationDate(
-            String studyIUID, String seriesIUID, LocalDate expirationDate, ArchiveAEExtension arcAE) throws Exception {
-        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, arcAE.getApplicationEntity());
+            String studyIUID, String seriesIUID, LocalDate expirationDate, ApplicationEntity ae) throws Exception {
+        StudyMgtContext ctx = studyService.createStudyMgtContextWEB(request, ae);
         ctx.setStudyInstanceUID(studyIUID);
+        ctx.setSeriesInstanceUID(seriesIUID);
         ctx.setExpirationDate(expirationDate);
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
-        if (seriesIUID != null)
-            ctx.setSeriesInstanceUID(seriesIUID);
         studyService.updateExpirationDate(ctx);
     }
 }
