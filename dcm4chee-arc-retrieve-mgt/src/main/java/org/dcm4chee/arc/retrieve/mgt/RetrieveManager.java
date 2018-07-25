@@ -78,7 +78,7 @@ public interface RetrieveManager {
 
     void rescheduleRetrieveTask(Long pk, QueueMessageEvent queueEvent);
 
-    void rescheduleRetrieveTask(RetrieveTask task);
+    void rescheduleRetrieveTask(String retrieveTaskQueueMsgId);
 
     int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int deleteTasksFetchSize);
 
@@ -86,4 +86,6 @@ public interface RetrieveManager {
 
     List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
                                             OrderSpecifier<Date> order, int offset, int limit);
+
+    List<String> listRetrieveTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit);
 }

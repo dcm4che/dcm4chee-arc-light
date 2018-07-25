@@ -90,7 +90,7 @@ public interface DiffService {
 
     void rescheduleDiffTask(Long pk, QueueMessageEvent queueEvent);
 
-    void rescheduleDiffTask(DiffTask diffTask);
+    void rescheduleDiffTask(String diffTaskQueueMsgId);
 
     String findDeviceNameByPk(Long pk);
 
@@ -99,4 +99,6 @@ public interface DiffService {
     int deleteTasks(Predicate matchQueueMessage, Predicate matchDiffTask, int deleteTasksFetchSize);
 
     List<String> listDistinctDeviceNames(Predicate matchQueueMessage, Predicate matchDiffTask);
+
+    List<String> listDiffTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchDiffTask, int limit);
 }

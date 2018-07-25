@@ -273,12 +273,19 @@ public class RetrieveManagerEJB {
         if (task == null)
             return;
 
-        rescheduleRetrieveTask(task, queueEvent);
+        LOG.info("Reschedule {}", task);
+        rescheduleRetrieveTask(task.getQueueMessage().getMessageID(), queueEvent);
     }
 
-    public void rescheduleRetrieveTask(RetrieveTask task, QueueMessageEvent queueEvent) {
-        LOG.info("Reschedule {}", task);
-        queueManager.rescheduleTask(task.getQueueMessage().getMessageID(), RetrieveManager.QUEUE_NAME, queueEvent);
+    public void rescheduleRetrieveTask(String retrieveTaskQueueMsgId, QueueMessageEvent queueEvent) {
+        queueManager.rescheduleTask(retrieveTaskQueueMsgId, RetrieveManager.QUEUE_NAME, queueEvent);
+    }
+
+    public List<String> listRetrieveTaskQueueMsgIDs(Predicate matchQueueMsg, Predicate matchRetrieveTask, int limit) {
+        return createQuery(matchQueueMsg, matchRetrieveTask)
+                .select(QQueueMessage.queueMessage.messageID)
+                .limit(limit)
+                .fetch();
     }
 
     public int deleteTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask, int deleteTasksFetchSize) {

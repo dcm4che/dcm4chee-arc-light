@@ -310,19 +310,21 @@ public class DiffTaskRS {
         return count;
     }
 
-    private int rescheduleTasks(Predicate matchQueueMessage, Predicate matchDiffTask) throws Exception {
+    private int rescheduleTasks(Predicate matchQueueMessage, Predicate matchDiffTask) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            int count = 0;
-            try (DiffTaskQuery diffTasks = diffService.listDiffTasks(matchQueueMessage, matchDiffTask,
-                    null, 0, 0)) {
-                for (DiffTask task : diffTasks) {
-                    diffService.rescheduleDiffTask(task);
-                    count++;
-                }
-            }
-            LOG.info("Successfully rescheduled {} tasks on device: {}.", count, device.getDeviceName());
-            queueEvent.setCount(count);
+            int rescheduled = 0;
+            int count;
+            int rescheduleTasksFetchSize = queueTasksFetchSize();
+            do {
+                List<String> diffTaskQueueMsgIDs = diffService.listDiffTaskQueueMsgIDs(matchQueueMessage, matchDiffTask, rescheduleTasksFetchSize);
+                for (String diffTaskQueueMsgID : diffTaskQueueMsgIDs)
+                    diffService.rescheduleDiffTask(diffTaskQueueMsgID);
+                count = diffTaskQueueMsgIDs.size();
+                rescheduled += count;
+            } while (count >= rescheduleTasksFetchSize);
+            LOG.info("Successfully rescheduled {} tasks on device: {}.", rescheduled, device.getDeviceName());
+            queueEvent.setCount(rescheduled);
             return count;
         } catch (Exception e) {
             queueEvent.setException(e);
@@ -348,7 +350,7 @@ public class DiffTaskRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         int deleted = 0;
         int count;
-        int deleteTasksFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
+        int deleteTasksFetchSize = queueTasksFetchSize();
         do {
             count = diffService.deleteTasks(
                     matchQueueMessage(status(), deviceName, null),
@@ -510,6 +512,10 @@ public class DiffTaskRS {
     private Predicate matchQueueMessage(QueueMessage.Status status, String devName, String updatedTime) {
         return MatchTask.matchQueueMessage(
                 null, devName, status, batchID, null, null, updatedTime, null);
+    }
+
+    private int queueTasksFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
     }
 
 }

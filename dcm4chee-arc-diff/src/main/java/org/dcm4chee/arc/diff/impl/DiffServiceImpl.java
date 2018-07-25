@@ -166,8 +166,13 @@ public class DiffServiceImpl implements DiffService {
     }
 
     @Override
-    public void rescheduleDiffTask(DiffTask diffTask) {
-        ejb.rescheduleDiffTask(diffTask, null);
+    public void rescheduleDiffTask(String diffTaskQueueMsgId) {
+        ejb.rescheduleDiffTask(diffTaskQueueMsgId, null);
+    }
+
+    @Override
+    public List<String> listDiffTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchDiffTask, int limit) {
+        return ejb.listDiffTaskQueueMsgIDs(matchQueueMessage, matchDiffTask, limit);
     }
 
     @Override

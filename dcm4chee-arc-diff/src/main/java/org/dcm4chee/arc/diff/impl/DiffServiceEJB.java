@@ -253,12 +253,19 @@ public class DiffServiceEJB {
         if (task == null)
             return;
 
-        rescheduleDiffTask(task, queueEvent);
+        LOG.info("Reschedule {}", task);
+        rescheduleDiffTask(task.getQueueMessage().getMessageID(), queueEvent);
     }
 
-    public void rescheduleDiffTask(DiffTask diffTask, QueueMessageEvent queueEvent) {
-        LOG.info("Reschedule {}", diffTask);
-        queueManager.rescheduleTask(diffTask.getQueueMessage().getMessageID(), DiffService.QUEUE_NAME, queueEvent);
+    public void rescheduleDiffTask(String msgId, QueueMessageEvent queueEvent) {
+        queueManager.rescheduleTask(msgId, DiffService.QUEUE_NAME, queueEvent);
+    }
+
+    public List<String> listDiffTaskQueueMsgIDs(Predicate matchQueueMsg, Predicate matchDiffTask, int limit) {
+        return createQuery(matchQueueMsg, matchDiffTask)
+                .select(QQueueMessage.queueMessage.messageID)
+                .limit(limit)
+                .fetch();
     }
 
     public String findDeviceNameByPk(Long pk) {

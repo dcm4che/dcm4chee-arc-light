@@ -278,19 +278,21 @@ public class RetrieveTaskRS {
         return count;
     }
 
-    private int rescheduleTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) throws Exception {
+    private int rescheduleTasks(Predicate matchQueueMessage, Predicate matchRetrieveTask) {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.RescheduleTasks);
         try {
-            int count = 0;
-            try (RetrieveTaskQuery retrieveTasks = mgr.listRetrieveTasks(matchQueueMessage, matchRetrieveTask,
-                    null, 0, 0)) {
-                for (RetrieveTask task : retrieveTasks) {
-                    mgr.rescheduleRetrieveTask(task);
-                    count++;
-                }
-            }
-            queueEvent.setCount(count);
-            LOG.info("Successfully rescheduled {} tasks on device: {}.", count, device.getDeviceName());
+            int rescheduled = 0;
+            int count;
+            int rescheduleTasksFetchSize = queueTasksFetchSize();
+            do {
+                List<String> retrieveTaskQueueMsgIDs = mgr.listRetrieveTaskQueueMsgIDs(matchQueueMessage, matchRetrieveTask, rescheduleTasksFetchSize);
+                for (String retrieveTaskQueueMsgID : retrieveTaskQueueMsgIDs)
+                    mgr.rescheduleRetrieveTask(retrieveTaskQueueMsgID);
+                count = retrieveTaskQueueMsgIDs.size();
+                rescheduled += count;
+            } while (count >= rescheduleTasksFetchSize);
+            queueEvent.setCount(rescheduled);
+            LOG.info("Successfully rescheduled {} tasks on device: {}.", rescheduled, device.getDeviceName());
             return count;
         } catch (Exception e) {
             queueEvent.setException(e);
@@ -316,7 +318,7 @@ public class RetrieveTaskRS {
         BulkQueueMessageEvent queueEvent = new BulkQueueMessageEvent(request, QueueMessageOperation.DeleteTasks);
         int deleted = 0;
         int count;
-        int deleteTasksFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
+        int deleteTasksFetchSize = queueTasksFetchSize();
         do {
             count = mgr.deleteTasks(
                     matchQueueMessage(status(), deviceName, null),
@@ -465,5 +467,9 @@ public class RetrieveTaskRS {
         e.printStackTrace(new PrintWriter(sw));
         String exceptionAsString = sw.toString();
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(exceptionAsString).type("text/plain").build();
+    }
+
+    private int queueTasksFetchSize() {
+        return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
     }
 }

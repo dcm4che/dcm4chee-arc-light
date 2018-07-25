@@ -188,8 +188,8 @@ public class RetrieveManagerImpl implements RetrieveManager {
     }
 
     @Override
-    public void rescheduleRetrieveTask(RetrieveTask task) {
-        ejb.rescheduleRetrieveTask(task, null);
+    public void rescheduleRetrieveTask(String retrieveTaskQueueMsgId) {
+        ejb.rescheduleRetrieveTask(retrieveTaskQueueMsgId, null);
     }
 
     @Override
@@ -206,5 +206,10 @@ public class RetrieveManagerImpl implements RetrieveManager {
     public List<RetrieveBatch> listRetrieveBatches(Predicate matchQueueBatch, Predicate matchRetrieveBatch,
                                                    OrderSpecifier<Date> order, int offset, int limit) {
         return ejb.listRetrieveBatches(matchQueueBatch, matchRetrieveBatch, order, offset, limit);
+    }
+
+    @Override
+    public List<String> listRetrieveTaskQueueMsgIDs(Predicate matchQueueMessage, Predicate matchRetrieveTask, int limit) {
+        return ejb.listRetrieveTaskQueueMsgIDs(matchQueueMessage, matchRetrieveTask, limit);
     }
 }
