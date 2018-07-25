@@ -40,7 +40,6 @@
 
 package org.dcm4chee.arc.qmgt.impl;
 
-import com.mysema.commons.lang.CloseableIterator;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.hibernate.HibernateQuery;
@@ -402,16 +401,16 @@ public class QueueManagerEJB {
     }
 
     public int deleteTasks(Predicate matchQueueMessage) {
-        int n = 0;
-        try (CloseableIterator<QueueMessage> iterate = new HibernateQuery<QueueMessage>(em.unwrap(Session.class))
-                .from(QQueueMessage.queueMessage)
-                .where(matchQueueMessage).iterate()) {
-            while (iterate.hasNext()) {
-                deleteTask(iterate.next());
-                n++;
-            }
-        }
-        return n;
+        int count = 0;
+        int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
+        List<QueueMessage> queueMsgs;
+        do {
+            queueMsgs = createQuery(matchQueueMessage).fetch();
+            for (QueueMessage queueMsg : queueMsgs)
+                deleteTask(queueMsg);
+            count += queueMsgs.size();
+        } while (queueMsgs.size() >= deleteTaskFetchSize);
+        return count;
     }
 
     public long countTasks(Predicate matchQueueMessage) {
