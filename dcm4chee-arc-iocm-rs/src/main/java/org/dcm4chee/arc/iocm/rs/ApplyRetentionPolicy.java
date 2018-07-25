@@ -51,7 +51,6 @@ import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.conf.StudyRetentionPolicy;
 import org.dcm4chee.arc.query.Query;
