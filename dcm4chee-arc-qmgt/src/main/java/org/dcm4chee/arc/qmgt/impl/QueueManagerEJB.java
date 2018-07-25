@@ -405,7 +405,7 @@ public class QueueManagerEJB {
         int deleteTaskFetchSize = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class).getQueueTasksFetchSize();
         List<QueueMessage> queueMsgs;
         do {
-            queueMsgs = createQuery(matchQueueMessage).fetch();
+            queueMsgs = createQuery(matchQueueMessage).limit(deleteTaskFetchSize).fetch();
             for (QueueMessage queueMsg : queueMsgs)
                 deleteTask(queueMsg);
             count += queueMsgs.size();
