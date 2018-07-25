@@ -207,8 +207,16 @@ public class DiffServiceEJB {
                     .select(QDiffTask.diffTask.queueMessage.pk)
                     .limit(deleteTasksFetchSize)
                     .fetch();
-            new HibernateDeleteClause(em.unwrap(Session.class), QDiffTask.diffTask)
+            List<Long> diffTaskPks = new HibernateQuery<DiffTask>(em.unwrap(Session.class))
+                    .select(QDiffTask.diffTask.pk)
+                    .from(QDiffTask.diffTask)
                     .where(matchDiffTask, QDiffTask.diffTask.queueMessage.pk.in(referencedQueueMsgs))
+                    .fetch();
+            new HibernateDeleteClause(em.unwrap(Session.class), QDiffTaskAttributes.diffTaskAttributes)
+                    .where(QDiffTaskAttributes.diffTaskAttributes.diffTask.pk.in(diffTaskPks))
+                    .execute();
+            new HibernateDeleteClause(em.unwrap(Session.class), QDiffTask.diffTask)
+                    .where(QDiffTask.diffTask.pk.in(diffTaskPks))
                     .execute();
             count += (int) new HibernateDeleteClause(em.unwrap(Session.class), QQueueMessage.queueMessage)
                     .where(matchQueueMessage, QQueueMessage.queueMessage.pk.in(referencedQueueMsgs)).execute();
